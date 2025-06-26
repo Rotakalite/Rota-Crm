@@ -1880,7 +1880,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
                   </td>
                 </tr>
               ))}
-              {consumptions.length === 0 && (
+              {(Array.isArray(consumptions) ? consumptions : []).length === 0 && (
                 <tr>
                   <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
                     {selectedYear} yılı için henüz tüketim verisi girilmemiş.
