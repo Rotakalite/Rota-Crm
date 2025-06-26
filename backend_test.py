@@ -32,6 +32,15 @@ test_carbon_footprint = {
     "transport_emissions": 35000    # kg CO2
 }
 
+# Carbon footprint report document
+test_carbon_report = {
+    "name": "Karbon Ayak İzi Raporu 2025",
+    "document_type": "Karbon Ayak İzi Raporu",
+    "stage": "II.Aşama",
+    "file_path": "/documents/carbon_report_2025.pdf",
+    "file_size": 3072
+}
+
 test_training = {
     "title": "Sürdürülebilir Turizm Eğitimi",
     "description": "Otel personeli için sürdürülebilir turizm uygulamaları eğitimi",
