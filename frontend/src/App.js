@@ -1901,7 +1901,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
               📈 Aylık Karşılaştırma ({analytics.year} vs {analytics.year - 1})
             </h3>
             <div className="space-y-4">
-              {analytics.monthly_comparison.slice(0, 6).map((month) => (
+              {(analytics?.monthly_comparison || []).slice(0, 6).map((month) => (
                 <div key={month.month} className="border-b pb-3">
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-medium text-gray-700">{month.month_name}</span>
