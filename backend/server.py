@@ -191,55 +191,6 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
         raise HTTPException(status_code=401, detail=f"Token verification failed: {str(e)}")
 
 async def get_current_user(clerk_user_id: str = Depends(verify_token)):
-    # TESTING MODE: Create mock users for testing
-    if clerk_user_id.startswith("test-"):
-        if clerk_user_id == "test-admin-user-id":
-            return User(
-                id="admin-user-id",
-                clerk_user_id=clerk_user_id,
-                email="admin@example.com",
-                name="Test Admin",
-                role=UserRole.ADMIN
-            )
-        elif clerk_user_id == "test-client-user-id":
-            # For client user, we'll set a fixed client_id for testing
-            # This should match the client_id created in the test
-            # We'll check the database for the most recent client
-            client = await db.clients.find_one(sort=[("created_at", -1)])
-            client_id = client["id"] if client else None
-            
-            return User(
-                id="client-user-id",
-                clerk_user_id=clerk_user_id,
-                email="client@example.com",
-                name="Test Client",
-                role=UserRole.CLIENT,
-                client_id=client_id
-            )
-        elif clerk_user_id == "test-client-user-id-2":
-            # For the second client user
-            clients = await db.clients.find().sort("created_at", -1).to_list(2)
-            client_id = clients[1]["id"] if len(clients) > 1 else None
-            
-            return User(
-                id="client-user-id-2",
-                clerk_user_id=clerk_user_id,
-                email="client2@example.com",
-                name="Test Client 2",
-                role=UserRole.CLIENT,
-                client_id=client_id
-            )
-        else:
-            # Default test user
-            return User(
-                id="default-user-id",
-                clerk_user_id=clerk_user_id,
-                email="user@example.com",
-                name="Test User",
-                role=UserRole.CLIENT
-            )
-    
-    # Original implementation for non-test users
     user = await db.users.find_one({"clerk_user_id": clerk_user_id})
     if not user:
         raise HTTPException(status_code=404, detail="User not found in database")
