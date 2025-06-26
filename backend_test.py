@@ -61,11 +61,14 @@ class BackendTester:
         self.base_url = base_url
         self.client_id = None
         self.training_id = None
+        self.document_id = None
+        self.carbon_report_id = None
         self.test_results = {
             "client_management": {"status": "Not tested", "details": []},
             "carbon_footprint": {"status": "Not tested", "details": []},
             "training_management": {"status": "Not tested", "details": []},
             "document_management": {"status": "Not tested", "details": []},
+            "carbon_report_flow": {"status": "Not tested", "details": []},
             "statistics": {"status": "Not tested", "details": []}
         }
         
