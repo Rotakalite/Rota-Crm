@@ -415,7 +415,7 @@ class BackendTester:
         document_data["client_id"] = self.client_id
         
         try:
-            response = requests.post(f"{self.base_url}/documents", json=document_data)
+            response = requests.post(f"{self.base_url}/documents", json=document_data, headers=self.headers)
             if response.status_code == 200:
                 document = response.json()
                 print(f"✅ Successfully created document record with ID: {document['id']}")
