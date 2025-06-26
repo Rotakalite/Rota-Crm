@@ -442,7 +442,7 @@ class BackendTester:
         # Test getting client documents
         print(f"\nTesting GET /api/documents/{self.client_id}")
         try:
-            response = requests.get(f"{self.base_url}/documents/{self.client_id}")
+            response = requests.get(f"{self.base_url}/documents/{self.client_id}", headers=self.headers)
             if response.status_code == 200:
                 documents = response.json()
                 print(f"✅ Successfully retrieved {len(documents)} document records")
