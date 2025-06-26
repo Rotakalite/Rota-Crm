@@ -1563,6 +1563,12 @@ const ConsumptionManagement = ({ onNavigate }) => {
       
       const method = editingConsumption ? 'put' : 'post';
       
+      console.log('🔍 Consumption API call:', {
+        endpoint,
+        method,
+        authToken: authToken ? `${authToken.substring(0, 20)}...` : 'null'
+      });
+      
       await axios[method](endpoint, {
         year: parseInt(consumptionData.year),
         month: parseInt(consumptionData.month),
