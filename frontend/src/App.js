@@ -1543,10 +1543,18 @@ const ConsumptionManagement = ({ onNavigate }) => {
       const response = await axios.get(`${API}/consumptions?year=${selectedYear}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
-      setConsumptions(Array.isArray(response.data) ? response.data : []);
-      console.log('✅ Consumptions fetched:', response.data?.length || 0);
+      
+      // Check if response is actually JSON array
+      if (Array.isArray(response.data)) {
+        setConsumptions(response.data);
+        console.log('✅ Consumptions fetched:', response.data.length);
+      } else {
+        console.error('❌ Invalid consumptions response type:', typeof response.data, response.data);
+        setConsumptions([]);
+      }
     } catch (error) {
       console.error("❌ Error fetching consumptions:", error.response?.status, error.response?.data);
+      setConsumptions([]);
     }
   };
 
