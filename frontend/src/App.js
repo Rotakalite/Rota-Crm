@@ -1968,13 +1968,13 @@ const ConsumptionManagement = ({ onNavigate }) => {
                   </div>
                   <div className="text-center">
                     <div className="text-2xl text-orange-600 font-bold">
-                      🔥 {analytics.yearly_per_person.current_year.natural_gas.toFixed(1)}
+                      🔥 {analytics?.yearly_per_person?.current_year?.natural_gas?.toFixed(1) || '0.0'}
                     </div>
                     <div className="text-sm text-gray-600">m³/kişi</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl text-gray-800 font-bold">
-                      ⚫ {analytics.yearly_per_person.current_year.coal.toFixed(1)}
+                      ⚫ {analytics?.yearly_per_person?.current_year?.coal?.toFixed(1) || '0.0'}
                     </div>
                     <div className="text-sm text-gray-600">kg/kişi</div>
                   </div>
