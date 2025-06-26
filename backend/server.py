@@ -164,9 +164,11 @@ class TrainingCreate(BaseModel):
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
         token = credentials.credentials
+        logging.info(f"🔍 Received token: {token[:50]}...")
         
         # Get the signing key from Clerk
         signing_key = jwks_client.get_signing_key_from_jwt(token)
+        logging.info("✅ Got signing key from Clerk")
         
         # Decode and verify the token
         payload = jwt.decode(
@@ -181,6 +183,7 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
         if not clerk_user_id:
             raise HTTPException(status_code=401, detail="Invalid token: missing user ID")
         
+        logging.info(f"✅ Token verified successfully for user: {clerk_user_id}")
         return clerk_user_id
         
     except jwt.ExpiredSignatureError:
