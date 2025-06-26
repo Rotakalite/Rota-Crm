@@ -1065,9 +1065,9 @@ const DocumentManagement = () => {
 
   const filterDocuments = () => {
     if (userRole === 'admin' && selectedClient) {
-      return documents.filter(doc => doc.client_id === selectedClient);
+      return (documents || []).filter(doc => doc.client_id === selectedClient);
     }
-    return documents;
+    return documents || [];
   };
 
   const getClientName = (clientId) => {
