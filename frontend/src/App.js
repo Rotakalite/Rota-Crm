@@ -1716,25 +1716,33 @@ const ConsumptionManagement = ({ onNavigate }) => {
           </select>
         </div>
         
-        <button
-          onClick={() => {
-            setEditingConsumption(null);
-            setConsumptionData({
-              year: selectedYear,
-              month: new Date().getMonth() + 1,
-              electricity: '',
-              water: '',
-              natural_gas: '',
-              coal: '',
-              accommodation_count: ''
-            });
-            setShowConsumptionForm(true);
-          }}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-        >
-          <span className="mr-2">+</span>
-          Yeni Tüketim Verisi
-        </button>
+        {userRole === 'admin' && (
+          <button
+            onClick={() => {
+              setEditingConsumption(null);
+              setConsumptionData({
+                year: selectedYear,
+                month: new Date().getMonth() + 1,
+                electricity: '',
+                water: '',
+                natural_gas: '',
+                coal: '',
+                accommodation_count: ''
+              });
+              setShowConsumptionForm(true);
+            }}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+          >
+            <span className="mr-2">+</span>
+            Yeni Tüketim Verisi
+          </button>
+        )}
+        
+        {userRole === 'client' && (
+          <div className="text-gray-600 text-sm">
+            📊 Tüketim verilerinizi görüntüleyebilirsiniz
+          </div>
+        )}
       </div>
 
       {/* Consumption Form Modal */}
