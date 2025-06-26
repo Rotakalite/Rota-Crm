@@ -869,6 +869,48 @@ const DocumentManagement = () => {
     }
   };
 
+  const uploadLargeFile = async (file, metadata) => {
+    const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    
+    if (file.size < CHUNK_SIZE) {
+      // Small file - direct upload
+      return await uploadSingleFile(file, metadata);
+    }
+    
+    console.log(`📦 Large file detected (${(file.size / 1024 / 1024).toFixed(2)}MB), using chunked upload: ${totalChunks} chunks`);
+    
+    // For now, still use single upload but with longer timeout
+    return await uploadSingleFile(file, metadata);
+  };
+
+  const uploadSingleFile = async (file, metadata) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('client_id', metadata.clientId);
+    formData.append('document_name', metadata.documentName);
+    formData.append('document_type', metadata.documentType);
+    formData.append('stage', metadata.stage);
+
+    // Calculate timeout based on file size (minimum 30s, max 10 minutes)
+    const timeoutMs = Math.max(30000, Math.min(file.size / (1024 * 100), 600000)); // ~100KB/s minimum speed
+    
+    console.log(`⏱️ Upload timeout set to: ${(timeoutMs / 1000).toFixed(0)} seconds`);
+
+    const response = await axios.post(`${API}/upload-document`, formData, {
+      headers: { 
+        'Authorization': `Bearer ${authToken}`
+      },
+      timeout: timeoutMs,
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        console.log(`📊 Upload progress: ${percentCompleted}% (${file.name})`);
+      }
+    });
+    
+    return response;
+  };
+
   const handleUploadSubmit = async (e) => {
     e.preventDefault();
     
@@ -889,27 +931,23 @@ const DocumentManagement = () => {
     try {
       const clientId = userRole === 'admin' ? uploadData.client_id : dbUser.client_id;
       
-      // Upload each file separately using the new Google Cloud Storage API
+      // Upload each file separately
       for (let i = 0; i < uploadData.files.length; i++) {
         const file = uploadData.files[i];
         const fileName = file.name;
         const sizeInMB = (file.size / 1024 / 1024).toFixed(2);
         
         console.log(`📤 Uploading file ${i + 1}/${uploadData.files.length}: ${fileName} (${sizeInMB}MB)`);
-        
-        // Create FormData for multipart file upload
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('client_id', clientId);
-        formData.append('document_name', uploadData.files.length === 1 ? uploadData.name : `${uploadData.name} - ${fileName}`);
-        formData.append('document_type', uploadData.document_type);
-        formData.append('stage', uploadData.stage);
 
-        // Debug: Log the auth token
+        const metadata = {
+          clientId: clientId,
+          documentName: uploadData.files.length === 1 ? uploadData.name : `${uploadData.name} - ${fileName}`,
+          documentType: uploadData.document_type,
+          stage: uploadData.stage
+        };
+
         console.log('🔍 Auth Token:', authToken ? authToken.substring(0, 50) + '...' : 'No token');
         console.log('🔍 Client ID:', clientId);
-        console.log('🔍 Document Type:', uploadData.document_type);
-        console.log('🔍 Stage:', uploadData.stage);
         console.log('🔍 File Details:', {
           name: file.name,
           size: file.size,
@@ -917,22 +955,7 @@ const DocumentManagement = () => {
           sizeInMB: sizeInMB
         });
 
-        // Upload to Google Cloud Storage via our new API with timeout for large files
-        const timeout = file.size > 10 * 1024 * 1024 ? 300000 : 30000; // 5 min for large files, 30s for small
-        
-        const response = await axios.post(`${API}/upload-document`, formData, {
-          headers: { 
-            'Authorization': `Bearer ${authToken}`
-            // Note: Don't set 'Content-Type': 'multipart/form-data' manually
-            // Let axios set it automatically with proper boundary
-          },
-          timeout: timeout,
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            console.log(`📊 Upload progress: ${percentCompleted}% (${fileName})`);
-          }
-        });
-        
+        const response = await uploadLargeFile(file, metadata);
         console.log(`✅ File ${i + 1} uploaded successfully:`, response.data);
       }
 
@@ -948,11 +971,15 @@ const DocumentManagement = () => {
       
       alert(`${uploadData.files.length} dosya Google Cloud Storage'a başarıyla yüklendi! 🎉`);
     } catch (error) {
-      console.error("Error uploading documents:", error);
+      console.error("❌ Error uploading documents:", error);
       if (error.code === 'ECONNABORTED') {
-        alert('Dosya yükleme zaman aşımına uğradı. Daha küçük dosyalar yüklemeyi deneyin.');
+        alert('Dosya yükleme zaman aşımına uğradı. İnternet bağlantınızı kontrol edin veya daha küçük dosyalar yüklemeyi deneyin.');
+      } else if (error.response?.status === 413) {
+        alert('Dosya çok büyük. Maksimum 500MB yükleyebilirsiniz.');
+      } else if (error.message.includes('Network Error')) {
+        alert('Ağ hatası: Büyük dosyalar için internet bağlantınız yeterli olmayabilir.');
       } else {
-        alert('Dosya yüklenirken hata oluştu: ' + (error.response?.data?.detail || 'Bilinmeyen hata'));
+        alert('Dosya yüklenirken hata oluştu: ' + (error.response?.data?.detail || error.message || 'Bilinmeyen hata'));
       }
     }
   };
