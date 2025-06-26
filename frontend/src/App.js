@@ -2379,7 +2379,7 @@ const ProjectManagement = ({ client, onNavigate }) => {
           
           {/* All Documents */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {documents.map((doc) => (
+            {(documents || []).map((doc) => (
               <div key={doc.id} className="bg-white p-3 rounded border hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
