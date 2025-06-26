@@ -109,7 +109,7 @@ class BackendTester:
         # Test creating a new client
         print("\nTesting POST /api/clients")
         try:
-            response = requests.post(f"{self.base_url}/clients", json=test_client)
+            response = requests.post(f"{self.base_url}/clients", json=test_client, headers=self.headers)
             if response.status_code == 200:
                 client_data = response.json()
                 self.client_id = client_data["id"]
