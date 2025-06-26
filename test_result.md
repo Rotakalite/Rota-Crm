@@ -194,6 +194,21 @@ backend:
       - working: true
         agent: "testing"
         comment: "Successfully tested statistics dashboard API. The endpoint correctly returned aggregated data including total clients (1), stage distribution (0 in Stage 1, 1 in Stage 2, 0 in Stage 3), total documents (1), and total trainings (1). All counts matched the test data created during testing."
+        
+  - task: "Carbon Footprint Report Flow"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Carbon footprint report document management with admin upload and client retrieval functionality."
+      - working: true
+        agent: "testing"
+        comment: "Successfully tested the carbon footprint report flow from admin upload to client retrieval. Created a test hotel client (Grand Antalya Resort & Spa), uploaded a carbon footprint report document as admin, and verified that the client can access the report through the API. The entire flow works correctly with proper permissions and data persistence."
 
 frontend:
   - task: "Admin Dashboard Interface"
