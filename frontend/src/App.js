@@ -265,8 +265,15 @@ const Dashboard = ({ onNavigate }) => {
         hasHeaders: !!headers.Authorization
       });
       const response = await axios.get(`${API}/clients`, { headers });
-      setClients(Array.isArray(response.data) ? response.data : []);
-      console.log('✅ Clients fetched:', response.data?.length || 0);
+      
+      // Check if response is actually JSON array
+      if (Array.isArray(response.data)) {
+        setClients(response.data);
+        console.log('✅ Clients fetched:', response.data.length);
+      } else {
+        console.error('❌ Invalid response type:', typeof response.data, response.data);
+        setClients([]);
+      }
     } catch (error) {
       console.error("❌ Error fetching clients:", error.response?.status, error.response?.data);
       setClients([]);
