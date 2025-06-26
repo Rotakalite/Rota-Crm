@@ -1071,7 +1071,7 @@ const DocumentManagement = () => {
   };
 
   const getClientName = (clientId) => {
-    const client = clients.find(c => c.id === clientId);
+    const client = (clients || []).find(c => c.id === clientId);
     return client ? client.hotel_name : 'Bilinmeyen Müşteri';
   };
 
