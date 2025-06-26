@@ -130,10 +130,13 @@ class GoogleCloudStorage:
     async def get_signed_url(self, file_path: str, expiration_hours: int = 1) -> str:
         """Generate signed URL for private file access"""
         try:
+            # Clean up file path - remove leading slash if present
+            clean_path = file_path.lstrip('/')
+            
             if not self.bucket:
-                return f"https://storage.googleapis.com/{self.bucket_name or 'mock-bucket'}/{file_path}"
+                return f"https://storage.googleapis.com/{self.bucket_name or 'mock-bucket'}/{clean_path}"
                 
-            blob = self.bucket.blob(file_path)
+            blob = self.bucket.blob(clean_path)
             url = blob.generate_signed_url(
                 expiration=datetime.utcnow() + timedelta(hours=expiration_hours),
                 method='GET'
@@ -142,7 +145,8 @@ class GoogleCloudStorage:
             
         except Exception as e:
             logger.error(f"Failed to generate signed URL: {e}")
-            return f"https://storage.googleapis.com/{self.bucket_name or 'mock-bucket'}/{file_path}"
+            clean_path = file_path.lstrip('/')
+            return f"https://storage.googleapis.com/{self.bucket_name or 'mock-bucket'}/{clean_path}"
 
 # Global instance
 gcs_service = GoogleCloudStorage()
