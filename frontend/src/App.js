@@ -1742,7 +1742,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                     required
                   >
-                    {[2024, 2023, 2022, 2021].map(year => (
+                    {[2025, 2024, 2023, 2022, 2021].map(year => (
                       <option key={year} value={year}>{year}</option>
                     ))}
                   </select>
