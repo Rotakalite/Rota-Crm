@@ -1354,6 +1354,12 @@ const DocumentManagement = () => {
               </div>
               
               <div className="flex space-x-3">
+                <button
+                  onClick={() => handleDownloadDocument(selectedDocument)}
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-all transform hover:scale-105 shadow-md"
+                >
+                  📥 İndir
+                </button>
                 {userRole === 'admin' && (
                   <button
                     onClick={() => {
