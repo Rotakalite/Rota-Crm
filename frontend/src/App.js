@@ -1117,7 +1117,7 @@ const DocumentManagement = () => {
                 <option key={client.id} value={client.id}>
                   {client.hotel_name}
                 </option>
-              ))}
+              )) : null}
             </select>
           </div>
         )}
