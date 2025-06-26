@@ -39,8 +39,15 @@ db = client[os.environ['DB_NAME']]
 CLERK_SECRET_KEY = os.environ.get('CLERK_SECRET_KEY')
 CLERK_JWKS_URL = os.environ.get('CLERK_JWKS_URL')
 
-# Create the main app without a prefix
-app = FastAPI()
+# Configure FastAPI for large file uploads
+app = FastAPI(
+    title="Sürdürülebilir Turizm Danışmanlık CRM API",
+    description="CRM system for sustainable tourism consulting",
+    version="1.0.0"
+)
+
+# Set maximum request size to 500MB
+app.state.max_request_size = 500 * 1024 * 1024  # 500MB
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
