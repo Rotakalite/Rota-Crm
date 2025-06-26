@@ -525,7 +525,7 @@ class BackendTester:
         carbon_report_data["client_id"] = self.client_id
         
         try:
-            response = requests.post(f"{self.base_url}/carbon-report", json=carbon_report_data)
+            response = requests.post(f"{self.base_url}/carbon-report", json=carbon_report_data, headers=self.headers)
             if response.status_code == 200:
                 report = response.json()
                 self.carbon_report_id = report["id"]
