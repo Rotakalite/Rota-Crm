@@ -2818,6 +2818,8 @@ const MainApp = () => {
         return <Dashboard onNavigate={handleNavigate} />;
       case 'clients':
         return <ClientManagement onNavigate={handleNavigate} />;
+      case 'consumption':
+        return <ConsumptionManagement onNavigate={handleNavigate} />;
       case 'project':
         return <ProjectManagement client={selectedClient} onNavigate={handleNavigate} />;
       case 'documents':
