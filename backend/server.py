@@ -214,13 +214,32 @@ async def get_current_user(clerk_user_id: str = Depends(verify_token)):
                 role=UserRole.ADMIN
             )
         elif clerk_user_id == "test-client-user-id":
-            # For client user, we'll set the client_id later when we create a client
+            # For client user, we'll set a fixed client_id for testing
+            # This should match the client_id created in the test
+            # We'll check the database for the most recent client
+            client = await db.clients.find_one(sort=[("created_at", -1)])
+            client_id = client["id"] if client else None
+            
             return User(
                 id="client-user-id",
                 clerk_user_id=clerk_user_id,
                 email="client@example.com",
                 name="Test Client",
-                role=UserRole.CLIENT
+                role=UserRole.CLIENT,
+                client_id=client_id
+            )
+        elif clerk_user_id == "test-client-user-id-2":
+            # For the second client user
+            clients = await db.clients.find().sort("created_at", -1).to_list(2)
+            client_id = clients[1]["id"] if len(clients) > 1 else None
+            
+            return User(
+                id="client-user-id-2",
+                clerk_user_id=clerk_user_id,
+                email="client2@example.com",
+                name="Test Client 2",
+                role=UserRole.CLIENT,
+                client_id=client_id
             )
         else:
             # Default test user
