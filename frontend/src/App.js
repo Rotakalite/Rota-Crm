@@ -332,7 +332,7 @@ const Dashboard = ({ onNavigate }) => {
                     </td>
                   )}
                 </tr>
-              ))}
+              )) : null}
             </tbody>
           </table>
         </div>
