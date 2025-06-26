@@ -314,7 +314,7 @@ class BackendTester:
         training_data["client_id"] = self.client_id
         
         try:
-            response = requests.post(f"{self.base_url}/trainings", json=training_data)
+            response = requests.post(f"{self.base_url}/trainings", json=training_data, headers=self.headers)
             if response.status_code == 200:
                 training = response.json()
                 self.training_id = training["id"]
