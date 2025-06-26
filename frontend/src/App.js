@@ -1529,12 +1529,17 @@ const ConsumptionManagement = ({ onNavigate }) => {
       return;
     }
     try {
+      console.log('🔍 Fetching consumptions:', {
+        year: selectedYear,
+        authToken: authToken ? `${authToken.substring(0, 20)}...` : 'null'
+      });
       const response = await axios.get(`${API}/consumptions?year=${selectedYear}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       setConsumptions(Array.isArray(response.data) ? response.data : []);
+      console.log('✅ Consumptions fetched:', response.data?.length || 0);
     } catch (error) {
-      console.error("Error fetching consumptions:", error);
+      console.error("❌ Error fetching consumptions:", error.response?.status, error.response?.data);
     }
   };
 
