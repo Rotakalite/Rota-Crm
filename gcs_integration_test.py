@@ -54,10 +54,9 @@ class GCSIntegrationTester:
         self.document_id = None
         self.download_url = None
         
-        # For simplicity, we'll use the same headers for both admin and client
-        # In a real scenario, these would be different tokens
-        self.admin_headers = {"Authorization": "Bearer admin-test-token"}
-        self.client_headers = {"Authorization": "Bearer client-test-token"}
+        # For testing with our modified server
+        self.admin_headers = {"Authorization": "Bearer test-admin-token"}
+        self.client_headers = {"Authorization": "Bearer test-client-token"}
         
         self.test_results = {
             "client_creation": {"status": "Not tested", "details": []},
