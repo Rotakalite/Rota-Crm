@@ -1230,6 +1230,35 @@ const ProjectManagement = ({ client, onNavigate }) => {
     return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
   };
 
+  const handleViewDocument = (document) => {
+    setSelectedDocument(document);
+    setShowDocumentModal(true);
+  };
+
+  const getFileIcon = (filePath) => {
+    const extension = filePath.split('.').pop().toLowerCase();
+    switch (extension) {
+      case 'pdf': return '📄';
+      case 'doc':
+      case 'docx': return '📝';
+      case 'xls':
+      case 'xlsx': return '📊';
+      case 'jpg':
+      case 'jpeg':
+      case 'png': return '🖼️';
+      case 'zip':
+      case 'rar': return '📦';
+      default: return '📋';
+    }
+  };
+
+  const formatFileSize = (bytes) => {
+    if (!bytes) return 'Unknown';
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+  };
+
   const serviceTypes = [
     "Mevcut durum analizi",
     "Çalışma ekibinin belirlenmesi",
