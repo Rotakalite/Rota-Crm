@@ -524,6 +524,116 @@ const Dashboard = ({ onNavigate }) => {
         </div>
       )}
     </div>
+      {/* Document Detail Modal for Dashboard */}
+      {showDocumentModal && selectedDocument && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-90vh overflow-y-auto">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white p-6 rounded-t-xl">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center">
+                  <span className="text-3xl mr-3">{getFileIcon(selectedDocument.file_path)}</span>
+                  <div>
+                    <h3 className="text-xl font-bold">Karbon Ayak İzi Raporu</h3>
+                    <p className="text-green-100 text-sm">{selectedDocument.name}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowDocumentModal(false)}
+                  className="text-white hover:text-red-300 text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-white hover:bg-opacity-20 transition-all"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+            
+            {/* Content */}
+            <div className="p-6 space-y-6">
+              
+              {/* File Info Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+                  <label className="block text-xs font-semibold text-green-700 uppercase tracking-wide mb-1">
+                    Belge Türü
+                  </label>
+                  <p className="text-sm font-medium text-green-900">{selectedDocument.document_type}</p>
+                </div>
+                
+                <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                  <label className="block text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">
+                    Proje Aşaması
+                  </label>
+                  <span className={`inline-block px-3 py-1 text-sm font-semibold rounded-full ${
+                    selectedDocument.stage === 'I.Aşama' ? 'bg-green-100 text-green-800' :
+                    selectedDocument.stage === 'II.Aşama' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-purple-100 text-purple-800'
+                  }`}>
+                    {selectedDocument.stage}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
+                  <label className="block text-xs font-semibold text-orange-700 uppercase tracking-wide mb-1">
+                    Dosya Boyutu
+                  </label>
+                  <p className="text-lg font-bold text-orange-900">{formatFileSize(selectedDocument.file_size)}</p>
+                </div>
+                
+                <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
+                  <label className="block text-xs font-semibold text-purple-700 uppercase tracking-wide mb-1">
+                    Yüklenme Tarihi
+                  </label>
+                  <p className="text-sm font-medium text-purple-900">
+                    {new Date(selectedDocument.created_at).toLocaleDateString('tr-TR', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </p>
+                </div>
+              </div>
+
+              {/* Status Note */}
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 border-l-4 border-green-400 p-4 rounded-lg">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <span className="text-2xl">🌱</span>
+                  </div>
+                  <div className="ml-3">
+                    <h4 className="text-sm font-semibold text-green-800 mb-1">
+                      Karbon Ayak İzi Raporu
+                    </h4>
+                    <p className="text-sm text-green-700">
+                      Bu rapor, otelimizin yıllık karbon emisyonlarının detaylı analizini içermektedir. 
+                      Sürdürülebilirlik hedeflerinize ulaşmanızda rehber olacaktır.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="bg-gray-50 px-6 py-4 rounded-b-xl flex justify-between items-center">
+              <div className="flex items-center text-sm text-gray-500">
+                <span className="mr-2">📅</span>
+                Rapor tarihi: {new Date(selectedDocument.created_at).toLocaleDateString('tr-TR')}
+              </div>
+              
+              <button
+                onClick={() => setShowDocumentModal(false)}
+                className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-all transform hover:scale-105 shadow-md"
+              >
+                ✓ Tamam
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
