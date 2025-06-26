@@ -615,7 +615,7 @@ class BackendTester:
         print(f"\nTesting DELETE /api/clients/{self.client_id}")
         
         try:
-            response = requests.delete(f"{self.base_url}/clients/{self.client_id}")
+            response = requests.delete(f"{self.base_url}/clients/{self.client_id}", headers=self.headers)
             if response.status_code == 200:
                 result = response.json()
                 print(f"✅ Successfully deleted client: {result['message']}")
