@@ -86,6 +86,12 @@ class ProjectStage(str, Enum):
     STAGE_2 = "II.Aşama"
     STAGE_3 = "III.Aşama"
 
+class ConsumptionType(str, Enum):
+    ELECTRICITY = "elektrik"
+    WATER = "su"
+    NATURAL_GAS = "dogalgaz"
+    COAL = "komur"
+
 class ServiceType(str, Enum):
     SITUATION_ANALYSIS = "Mevcut durum analizi"
     TEAM_DETERMINATION = "Çalışma ekibinin belirlenmesi"
@@ -140,6 +146,28 @@ class Client(BaseModel):
     sustainability_score: Optional[int] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class Consumption(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    client_id: str
+    year: int
+    month: int  # 1-12
+    electricity: float = 0.0  # kWh
+    water: float = 0.0        # m³
+    natural_gas: float = 0.0  # m³
+    coal: float = 0.0         # kg
+    accommodation_count: int = 0  # Konaklama sayısı
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ConsumptionInput(BaseModel):
+    year: int
+    month: int
+    electricity: float = 0.0
+    water: float = 0.0  
+    natural_gas: float = 0.0
+    coal: float = 0.0
+    accommodation_count: int = 0
 
 class ClientCreate(BaseModel):
     name: str
