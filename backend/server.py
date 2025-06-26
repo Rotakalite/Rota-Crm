@@ -16,10 +16,16 @@ import jwt
 from jwt import PyJWKClient
 import json
 
-# Import GCS after other imports to avoid path issues
-import sys
-sys.path.append(os.path.dirname(__file__))
-from services.gcs import gcs_service
+# Import GCS service
+try:
+    import sys
+    import os
+    sys.path.append(os.path.dirname(__file__))
+    from services.gcs import gcs_service
+    logging.info("✅ GCS service imported successfully")
+except Exception as e:
+    logging.error(f"❌ Failed to import GCS service: {e}")
+    gcs_service = None
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
