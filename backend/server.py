@@ -765,6 +765,8 @@ async def create_consumption(
 ):
     """Create monthly consumption record"""
     
+    logging.info(f"🔍 POST /consumptions called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
+    
     # Check permissions - only admin can create for any client, client can create for themselves
     if current_user.role == UserRole.ADMIN:
         # Admin needs client_id in request body (we'll add it to form)
