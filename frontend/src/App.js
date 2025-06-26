@@ -599,12 +599,12 @@ const ClientManagement = ({ onNavigate }) => {
 
   const fetchClients = async () => {
     try {
-      const response = await axios.get(`${API}/clients`, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      });
-      setClients(response.data);
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      const response = await axios.get(`${API}/clients`, { headers });
+      setClients(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error("Error fetching clients:", error);
+      setClients([]);
     }
   };
 
