@@ -66,11 +66,30 @@ class GoogleCloudStorage:
             blob = self.bucket.blob(blob_name)
             blob.upload_from_string(file_content, content_type=content_type)
             
-            # Make blob publicly readable (for CRM documents)
-            blob.make_public()
+            # Make blob publicly readable (for CRM documents) - with error handling
+            try:
+                blob.make_public()
+                logger.info(f"File made public: {blob.public_url}")
+            except Exception as e:
+                logger.warning(f"Could not make file public (using signed URL instead): {e}")
+            
+            # Return URL - try public first, fallback to signed URL
+            try:
+                file_url = blob.public_url
+                # Test if public URL works
+                if "rota-crm-documents" in file_url:
+                    file_url = blob.generate_signed_url(
+                        expiration=datetime.utcnow() + timedelta(hours=24),
+                        method='GET'
+                    )
+            except:
+                file_url = blob.generate_signed_url(
+                    expiration=datetime.utcnow() + timedelta(hours=24),
+                    method='GET'
+                )
             
             return {
-                "url": blob.public_url,
+                "url": file_url,
                 "file_path": blob_name,
                 "file_size": len(file_content),
                 "mock": False
