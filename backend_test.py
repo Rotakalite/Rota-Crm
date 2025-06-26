@@ -370,7 +370,7 @@ class BackendTester:
         if self.training_id:
             print(f"\nTesting PUT /api/trainings/{self.training_id}")
             try:
-                response = requests.put(f"{self.base_url}/trainings/{self.training_id}?status=Completed")
+                response = requests.put(f"{self.base_url}/trainings/{self.training_id}?status=Completed", headers=self.headers)
                 if response.status_code == 200:
                     result = response.json()
                     print(f"✅ Successfully updated training status: {result['message']}")
