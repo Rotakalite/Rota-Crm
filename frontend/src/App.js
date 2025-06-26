@@ -154,6 +154,17 @@ const Dashboard = ({ onNavigate }) => {
     }
   }, [authToken, userRole, dbUser]);
 
+
+  const fetchDocuments = async () => {
+    try {
+      const response = await axios.get(`${API}/documents`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      setDocuments(response.data);
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+    }
+  };
   const fetchStats = async () => {
     try {
       const response = await axios.get(`${API}/stats`, {
