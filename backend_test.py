@@ -165,7 +165,7 @@ class BackendTester:
         if self.client_id:
             print(f"\nTesting GET /api/clients/{self.client_id}")
             try:
-                response = requests.get(f"{self.base_url}/clients/{self.client_id}")
+                response = requests.get(f"{self.base_url}/clients/{self.client_id}", headers=self.headers)
                 if response.status_code == 200:
                     client = response.json()
                     print(f"✅ Successfully retrieved client: {client['hotel_name']}")
