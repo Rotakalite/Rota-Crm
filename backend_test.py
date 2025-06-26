@@ -513,6 +513,97 @@ class BackendTester:
                 "error": str(e)
             })
             self.test_results["statistics"]["status"] = "Failed"
+            
+    def test_carbon_report_flow(self):
+        """Test carbon footprint report document flow from admin upload to client retrieval"""
+        print("\n=== Testing Carbon Footprint Report Flow ===")
+        
+        # 1. Admin uploads carbon footprint report for client
+        print("\nTesting POST /api/carbon-report (Admin uploads carbon report)")
+        carbon_report_data = test_carbon_report.copy()
+        carbon_report_data["client_id"] = self.client_id
+        
+        try:
+            response = requests.post(f"{self.base_url}/carbon-report", json=carbon_report_data)
+            if response.status_code == 200:
+                report = response.json()
+                self.carbon_report_id = report["id"]
+                print(f"✅ Successfully uploaded carbon report with ID: {self.carbon_report_id}")
+                self.test_results["carbon_report_flow"]["details"].append({
+                    "endpoint": "POST /api/carbon-report",
+                    "status": "Success",
+                    "response": report
+                })
+            else:
+                print(f"❌ Failed to upload carbon report: {response.status_code} - {response.text}")
+                self.test_results["carbon_report_flow"]["details"].append({
+                    "endpoint": "POST /api/carbon-report",
+                    "status": "Failed",
+                    "error": f"{response.status_code} - {response.text}"
+                })
+        except Exception as e:
+            print(f"❌ Exception when uploading carbon report: {str(e)}")
+            self.test_results["carbon_report_flow"]["details"].append({
+                "endpoint": "POST /api/carbon-report",
+                "status": "Error",
+                "error": str(e)
+            })
+        
+        # 2. Client retrieves their carbon footprint reports
+        print(f"\nTesting GET /api/carbon-reports/{self.client_id} (Client retrieves carbon reports)")
+        try:
+            response = requests.get(f"{self.base_url}/carbon-reports/{self.client_id}")
+            if response.status_code == 200:
+                reports = response.json()
+                print(f"✅ Successfully retrieved {len(reports)} carbon reports")
+                
+                # Verify the uploaded report is in the list
+                report_found = False
+                for report in reports:
+                    if self.carbon_report_id and report["id"] == self.carbon_report_id:
+                        report_found = True
+                        print(f"✅ Found the uploaded carbon report in client's reports")
+                        break
+                
+                if report_found or not self.carbon_report_id:
+                    self.test_results["carbon_report_flow"]["details"].append({
+                        "endpoint": f"GET /api/carbon-reports/{self.client_id}",
+                        "status": "Success",
+                        "count": len(reports),
+                        "report_found": report_found
+                    })
+                else:
+                    print(f"❌ Uploaded carbon report not found in client's reports")
+                    self.test_results["carbon_report_flow"]["details"].append({
+                        "endpoint": f"GET /api/carbon-reports/{self.client_id}",
+                        "status": "Failed",
+                        "error": "Uploaded carbon report not found in client's reports"
+                    })
+            else:
+                print(f"❌ Failed to get carbon reports: {response.status_code} - {response.text}")
+                self.test_results["carbon_report_flow"]["details"].append({
+                    "endpoint": f"GET /api/carbon-reports/{self.client_id}",
+                    "status": "Failed",
+                    "error": f"{response.status_code} - {response.text}"
+                })
+        except Exception as e:
+            print(f"❌ Exception when getting carbon reports: {str(e)}")
+            self.test_results["carbon_report_flow"]["details"].append({
+                "endpoint": f"GET /api/carbon-reports/{self.client_id}",
+                "status": "Error",
+                "error": str(e)
+            })
+        
+        # Set the overall status for carbon report flow
+        success_count = sum(1 for detail in self.test_results["carbon_report_flow"]["details"] if detail["status"] == "Success")
+        total_count = len(self.test_results["carbon_report_flow"]["details"])
+        
+        if success_count == total_count:
+            self.test_results["carbon_report_flow"]["status"] = "Success"
+        elif success_count > 0:
+            self.test_results["carbon_report_flow"]["status"] = "Partial Success"
+        else:
+            self.test_results["carbon_report_flow"]["status"] = "Failed"
     
     def test_delete_client(self):
         """Test client deletion API"""
