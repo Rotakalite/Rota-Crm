@@ -892,6 +892,9 @@ const DocumentManagement = () => {
         console.log('🔍 Document Type:', uploadData.document_type);
         console.log('🔍 Stage:', uploadData.stage);
         console.log('🔍 File:', file.name, file.size, 'bytes');
+        console.log('🔍 Document Type:', uploadData.document_type);
+        console.log('🔍 Stage:', uploadData.stage);
+        console.log('🔍 File:', file.name, file.size, 'bytes');
 
         // Upload to Google Cloud Storage via our new API
         const response = await axios.post(`${API}/upload-document`, formData, {
