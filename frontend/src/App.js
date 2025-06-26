@@ -1328,18 +1328,18 @@ const DocumentManagement = () => {
               </div>
 
               {/* Status Note */}
-              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-400 p-4 rounded-lg">
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 border-l-4 border-green-400 p-4 rounded-lg">
                 <div className="flex items-start">
                   <div className="flex-shrink-0">
-                    <span className="text-2xl">📋</span>
+                    <span className="text-2xl">☁️</span>
                   </div>
                   <div className="ml-3">
-                    <h4 className="text-sm font-semibold text-yellow-800 mb-1">
+                    <h4 className="text-sm font-semibold text-green-800 mb-1">
                       Belge Durumu
                     </h4>
-                    <p className="text-sm text-yellow-700">
-                      Belge başarıyla sisteme kaydedilmiştir. Gerçek dosya görüntüleme özelliği 
-                      <strong> Google Cloud Storage</strong> entegrasyonu ile birlikte aktif hale gelecektir.
+                    <p className="text-sm text-green-700">
+                      Belge başarıyla <strong>Google Cloud Storage</strong>'a yüklenmiştir. 
+                      Aşağıdaki "İndir" butonuna tıklayarak dosyayı görüntüleyebilirsiniz.
                     </p>
                   </div>
                 </div>
