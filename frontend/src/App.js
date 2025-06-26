@@ -1956,13 +1956,13 @@ const ConsumptionManagement = ({ onNavigate }) => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center">
                     <div className="text-2xl text-blue-600 font-bold">
-                      ⚡ {analytics.yearly_per_person.current_year.electricity.toFixed(1)}
+                      ⚡ {analytics?.yearly_per_person?.current_year?.electricity?.toFixed(1) || '0.0'}
                     </div>
                     <div className="text-sm text-gray-600">kWh/kişi</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl text-blue-500 font-bold">
-                      💧 {analytics.yearly_per_person.current_year.water.toFixed(1)}
+                      💧 {analytics?.yearly_per_person?.current_year?.water?.toFixed(1) || '0.0'}
                     </div>
                     <div className="text-sm text-gray-600">m³/kişi</div>
                   </div>
