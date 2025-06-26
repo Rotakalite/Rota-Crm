@@ -1397,7 +1397,15 @@ const ProjectManagement = ({ client, onNavigate }) => {
                       </p>
                     </div>
                     <button
-                      onClick={() => handleViewDocument(doc)}
+                      onClick={() => {
+                        // Find carbon report for this client
+                        const carbonReport = documents.find(d => d.document_type === "Karbon Ayak İzi Raporu");
+                        if (carbonReport) {
+                          handleViewDocument(carbonReport);
+                        } else {
+                          alert('Karbon ayak izi raporu henüz yüklenmemiş.');
+                        }
+                      }}
                       className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors"
                     >
                       📊 Raporu Görüntüle
