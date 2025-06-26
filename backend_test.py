@@ -90,6 +90,10 @@ class BackendTester:
         # Test document management APIs
         if self.client_id:
             self.test_document_management()
+            
+        # Test carbon report flow (admin upload to client retrieval)
+        if self.client_id:
+            self.test_carbon_report_flow()
         
         # Test statistics API
         self.test_statistics()
