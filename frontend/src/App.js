@@ -781,7 +781,7 @@ const ClientManagement = ({ onNavigate }) => {
               </tr>
             </thead>
             <tbody>
-              {clients.map((client) => (
+              {(clients || []).map((client) => (
                 <tr key={client.id} className="bg-white border-b hover:bg-gray-50">
                   <td className="px-6 py-4 font-medium text-gray-900">{client.hotel_name}</td>
                   <td className="px-6 py-4">{client.contact_person}</td>
