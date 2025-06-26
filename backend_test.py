@@ -484,7 +484,7 @@ class BackendTester:
         # Test getting dashboard statistics
         print("\nTesting GET /api/stats")
         try:
-            response = requests.get(f"{self.base_url}/stats")
+            response = requests.get(f"{self.base_url}/stats", headers=self.headers)
             if response.status_code == 200:
                 stats = response.json()
                 print(f"✅ Successfully retrieved dashboard statistics")
