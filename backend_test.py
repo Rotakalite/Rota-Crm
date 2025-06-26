@@ -553,7 +553,7 @@ class BackendTester:
         # 2. Client retrieves their carbon footprint reports
         print(f"\nTesting GET /api/carbon-reports/{self.client_id} (Client retrieves carbon reports)")
         try:
-            response = requests.get(f"{self.base_url}/carbon-reports/{self.client_id}")
+            response = requests.get(f"{self.base_url}/carbon-reports/{self.client_id}", headers=self.headers)
             if response.status_code == 200:
                 reports = response.json()
                 print(f"✅ Successfully retrieved {len(reports)} carbon reports")
