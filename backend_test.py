@@ -7,7 +7,13 @@ import sys
 import time
 
 # Get the backend URL from the frontend/.env file
-BACKEND_URL = "https://6b7bf8c0-84c0-4ee2-bc86-88466b12f436.preview.emergentagent.com/api"
+with open('/app/frontend/.env', 'r') as f:
+    for line in f:
+        if line.startswith('REACT_APP_BACKEND_URL='):
+            BACKEND_URL = line.strip().split('=')[1] + '/api'
+            break
+
+print(f"Using backend URL: {BACKEND_URL}")
 
 # Test data - Turkish hotel information
 test_client = {
