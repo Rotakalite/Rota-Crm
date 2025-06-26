@@ -1376,7 +1376,7 @@ const ProjectManagement = ({ client, onNavigate }) => {
                   <div className="text-center py-4">
                     <span className="text-gray-500">⏳ Karbon ayak izi analizi henüz tamamlanmadı</span>
                   </div>
-                )
+                )}
               </div>
             </div>
           )}
