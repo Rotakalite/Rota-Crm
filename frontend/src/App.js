@@ -264,7 +264,6 @@ const Dashboard = ({ onNavigate }) => {
       setClients(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error("Error fetching clients:", error);
-      // If auth fails, show demo data message
       setClients([]);
     }
   };
