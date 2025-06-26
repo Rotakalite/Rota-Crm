@@ -520,6 +520,140 @@ async def get_statistics(current_user: User = Depends(get_current_user)):
             "total_trainings": client_trainings
         }
 
+# File Upload Endpoints with Google Cloud Storage
+@api_router.post("/upload-document")
+async def upload_document(
+    client_id: str = Form(...),
+    document_name: str = Form(...),
+    document_type: DocumentType = Form(...),
+    stage: ProjectStage = Form(...),
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user)
+):
+    """Upload document file to Google Cloud Storage and save metadata to database"""
+    
+    # Check permissions
+    if current_user.role == UserRole.ADMIN:
+        # Admin can upload documents for any client
+        client = await db.clients.find_one({"id": client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+    else:
+        # Client users can only upload documents for themselves
+        if current_user.client_id != client_id:
+            raise HTTPException(status_code=403, detail="Access denied: Cannot upload documents for other clients")
+        
+        # Verify the client exists and belongs to this user
+        client = await db.clients.find_one({"id": client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+    
+    try:
+        # Read file content
+        file_content = await file.read()
+        
+        # Upload to Google Cloud Storage
+        upload_result = await gcs_service.upload_file(
+            file_content=file_content,
+            filename=file.filename,
+            content_type=file.content_type or "application/octet-stream"
+        )
+        
+        # Create document record in database
+        document_data = {
+            "id": str(uuid.uuid4()),
+            "client_id": client_id,
+            "name": document_name,
+            "document_type": document_type,
+            "stage": stage,
+            "file_path": upload_result["file_path"],
+            "file_size": upload_result["file_size"],
+            "file_url": upload_result["url"],
+            "uploaded_by": current_user.clerk_user_id,
+            "created_at": datetime.utcnow(),
+            "mock_upload": upload_result.get("mock", False)
+        }
+        
+        await db.documents.insert_one(document_data)
+        
+        return {
+            "message": "Document uploaded successfully",
+            "document_id": document_data["id"],
+            "file_url": upload_result["url"],
+            "file_size": upload_result["file_size"],
+            "mock_upload": upload_result.get("mock", False)
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"File upload failed: {str(e)}")
+
+@api_router.delete("/documents/{document_id}/file")
+async def delete_document_file(
+    document_id: str,
+    current_user: User = Depends(get_admin_user)
+):
+    """Delete document file from Google Cloud Storage and remove database record"""
+    
+    # Find the document
+    document = await db.documents.find_one({"id": document_id})
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    try:
+        # Delete file from Google Cloud Storage
+        if not document.get("mock_upload", False):
+            await gcs_service.delete_file(document["file_path"])
+        
+        # Remove document record from database
+        result = await db.documents.delete_one({"id": document_id})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Document not found")
+        
+        return {"message": "Document deleted successfully"}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"File deletion failed: {str(e)}")
+
+@api_router.get("/documents/{document_id}/download")
+async def download_document(
+    document_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get download URL for document (signed URL for private files)"""
+    
+    # Find the document
+    document = await db.documents.find_one({"id": document_id})
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    # Check permissions
+    if current_user.role == UserRole.ADMIN:
+        # Admin can access any document
+        pass
+    else:
+        # Client can only access their own documents
+        if current_user.client_id != document["client_id"]:
+            raise HTTPException(status_code=403, detail="Access denied: Cannot access other clients' documents")
+    
+    try:
+        # Generate signed URL for secure access
+        if document.get("mock_upload", False):
+            # Return the stored URL for mock uploads
+            download_url = document.get("file_url", "#")
+        else:
+            # Generate signed URL for real GCS files
+            download_url = await gcs_service.get_signed_url(document["file_path"], expiration_hours=24)
+        
+        return {
+            "download_url": download_url,
+            "filename": document["name"],
+            "file_size": document["file_size"],
+            "document_type": document["document_type"]
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate download URL: {str(e)}")
+
 # Include the router in the main app
 app.include_router(api_router)
 
