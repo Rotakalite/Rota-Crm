@@ -52,24 +52,39 @@ const useAuth = () => {
             setAuthToken(token);
             console.log('🎯 Token received successfully');
             
-            // Register/update user in our database
+            // Get user from database or register if not exists
             try {
-              const response = await axios.post(`${API}/auth/register`, {
-                clerk_user_id: user.id,
-                email: user.primaryEmailAddress?.emailAddress || '',
-                name: user.fullName || user.firstName || 'User',
-                role: directRole
-              }, {
+              // First try to get existing user
+              const response = await axios.get(`${API}/auth/me`, {
                 headers: {
                   'Authorization': `Bearer ${token}`
                 }
               });
               
               setDbUser(response.data);
-              console.log('✅ User registered in database');
-            } catch (registerError) {
-              console.log('⚠️ Registration failed, continuing without DB user:', registerError.response?.status);
-              // Continue without database user - this is okay for basic functionality
+              console.log('✅ User found in database');
+            } catch (userError) {
+              console.log('⚠️ User not found, trying to register...', userError.response?.status);
+              
+              // If user not found, try to register
+              try {
+                const registerResponse = await axios.post(`${API}/auth/register`, {
+                  clerk_user_id: user.id,
+                  email: user.primaryEmailAddress?.emailAddress || '',
+                  name: user.fullName || user.firstName || 'User',
+                  role: directRole
+                }, {
+                  headers: {
+                    'Authorization': `Bearer ${token}`
+                  }
+                });
+                
+                setDbUser(registerResponse.data);
+                console.log('✅ User registered in database');
+              } catch (registerError) {
+                console.log('⚠️ Registration failed, continuing without DB user:', registerError.response?.status);
+                // Continue without database user - this is okay for basic functionality
+              }
             }
             
           } catch (tokenError) {
