@@ -273,6 +273,117 @@ const Dashboard = ({ onNavigate }) => {
           </table>
         </div>
       </div>
+
+      {/* Carbon Reports Section for Client Users */}
+      {userRole === 'client' && clients.length > 0 && (
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            🌱 Karbon Ayak İzi Raporlarım
+          </h3>
+          
+          {clients.map((client) => (
+            <div key={client.id} className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border border-green-200 mb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h4 className="font-semibold text-green-800 mb-2">
+                    🏨 {client.hotel_name}
+                  </h4>
+                  
+                  {client.carbon_footprint ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center">
+                        <span className="text-2xl mr-3">📊</span>
+                        <div>
+                          <p className="font-bold text-2xl text-green-700">
+                            {client.carbon_footprint.toFixed(2)} kg CO2/yıl
+                          </p>
+                          <p className="text-sm text-green-600">
+                            Yıllık Karbon Ayak İzi
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center text-sm text-gray-600">
+                        <span className="mr-2">✅</span>
+                        <span>Karbon ayak izi analizi tamamlandı</span>
+                      </div>
+                      
+                      <div className="flex items-center text-sm text-gray-600">
+                        <span className="mr-2">📄</span>
+                        <span>Detaylı rapor hazır</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center">
+                      <span className="text-2xl mr-3">⏳</span>
+                      <div>
+                        <p className="font-semibold text-gray-700">
+                          Karbon Ayak İzi Analizi
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Analiziniz devam ediyor, tamamlandığında size bildirilecektir
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {client.carbon_footprint && (
+                  <button
+                    onClick={() => {
+                      // Find carbon report for this client
+                      const carbonReport = documents.find(d => 
+                        d.client_id === client.id && 
+                        d.document_type === "Karbon Ayak İzi Raporu"
+                      );
+                      if (carbonReport) {
+                        handleViewDocument(carbonReport);
+                      } else {
+                        alert('Karbon ayak izi raporu henüz yüklenmemiş.');
+                      }
+                    }}
+                    className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-all transform hover:scale-105 shadow-md flex items-center"
+                  >
+                    <span className="mr-2">📋</span>
+                    Raporu Görüntüle
+                  </button>
+                )}
+              </div>
+              
+              {client.carbon_footprint && (
+                <div className="mt-4 pt-4 border-t border-green-200">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div className="bg-white p-3 rounded-lg shadow-sm">
+                      <div className="text-lg font-bold text-green-600">
+                        {(client.carbon_footprint / 365).toFixed(1)}
+                      </div>
+                      <div className="text-xs text-gray-500">kg CO2/gün</div>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg shadow-sm">
+                      <div className="text-lg font-bold text-blue-600">
+                        {(client.carbon_footprint / 12).toFixed(1)}
+                      </div>
+                      <div className="text-xs text-gray-500">kg CO2/ay</div>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg shadow-sm">
+                      <div className="text-lg font-bold text-purple-600">
+                        {client.current_stage}
+                      </div>
+                      <div className="text-xs text-gray-500">Mevcut Aşama</div>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg shadow-sm">
+                      <div className="text-lg font-bold text-orange-600">
+                        {documents.filter(d => d.client_id === client.id).length}
+                      </div>
+                      <div className="text-xs text-gray-500">Toplam Belge</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
