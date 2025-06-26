@@ -810,6 +810,8 @@ async def get_consumptions(
 ):
     """Get consumption records for client"""
     
+    logging.info(f"🔍 GET /consumptions called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
+    
     # Get client_id based on user role
     if current_user.role == UserRole.ADMIN:
         # Admin can see all or filter by client_id in query params
