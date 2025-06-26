@@ -1222,11 +1222,11 @@ const DocumentManagement = () => {
                     required
                   >
                     <option value="">Müşteri Seçin</option>
-                    {(clients || []).map((client) => (
+                    {Array.isArray(clients) ? clients.map((client) => (
                       <option key={client.id} value={client.id}>
                         {client.hotel_name}
                       </option>
-                    ))}
+                    )) : null}
                   </select>
                 </div>
               )}
