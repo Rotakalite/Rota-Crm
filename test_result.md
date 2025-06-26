@@ -316,6 +316,18 @@ frontend:
         agent: "testing"
         comment: "Document Management with Google Cloud Storage is working correctly. The interface allows uploading documents to Google Cloud Storage bucket 'rota-crm-documents'. The '📥 İndir' (Download) button generates proper download URLs that open in a new tab. The system correctly handles permissions - admin users can upload documents for any client, while client users can only see their own documents. The upload success message mentions 'Google Cloud Storage' confirming the integration is working."
 
+  - task: "Consumption Management and Analysis System"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Full-stack consumption management system implemented. Backend API endpoints exist for CRUD operations and analytics. Frontend component ConsumptionManagement exists with complete UI for data entry, listing, and analytics display including year-over-year comparison and per-person consumption analysis. Just integrated into navigation system for both admin and client users."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
