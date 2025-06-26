@@ -557,6 +557,12 @@ async def upload_document(
     
     logging.info(f"📤 Upload document request - User: {current_user.role} - Client: {client_id} - File: {file.filename}")
     
+    # Check file size (500MB limit)
+    if file.size and file.size > 500 * 1024 * 1024:  # 500MB
+        raise HTTPException(status_code=413, detail="File too large. Maximum size is 500MB.")
+    
+    logging.info(f"📦 File size: {file.size / 1024 / 1024:.2f}MB")
+    
     # Check permissions
     if current_user.role == UserRole.ADMIN:
         # Admin can upload documents for any client
