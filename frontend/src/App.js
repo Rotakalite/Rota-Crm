@@ -246,12 +246,16 @@ const Dashboard = ({ onNavigate }) => {
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get(`${API}/stats`, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      });
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      const response = await axios.get(`${API}/stats`, { headers });
       setStats(response.data);
     } catch (error) {
       console.error("Error fetching stats:", error);
+      // Set default stats
+      setStats({
+        total_clients: 0,
+        stage_distribution: { stage_1: 0, stage_2: 0, stage_3: 0 }
+      });
     }
   };
 
