@@ -2302,7 +2302,7 @@ const ProjectManagement = ({ client, onNavigate }) => {
               )}
             </div>
             <div className="space-y-2 max-h-60 overflow-y-auto">
-              {trainings.map((training) => (
+              {(trainings || []).map((training) => (
                 <div key={training.id} className="border-l-4 border-blue-400 pl-3 py-2 bg-white rounded">
                   <div className="flex justify-between items-start">
                     <div>
