@@ -157,10 +157,6 @@ class TrainingCreate(BaseModel):
 
 # Authentication Functions
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    # For testing purposes - bypass authentication if test header is present
-    if credentials and credentials.scheme == "Bearer" and credentials.credentials == "test-token":
-        return "test-user-id"
-        
     try:
         token = credentials.credentials
         
@@ -190,16 +186,6 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
         raise HTTPException(status_code=401, detail=f"Token verification failed: {str(e)}")
 
 async def get_current_user(clerk_user_id: str = Depends(verify_token)):
-    # For testing purposes - create a test admin user if using test token
-    if clerk_user_id == "test-user-id":
-        return User(
-            id="test-user-id",
-            clerk_user_id="test-user-id",
-            email="test@example.com",
-            name="Test Admin",
-            role=UserRole.ADMIN
-        )
-        
     user = await db.users.find_one({"clerk_user_id": clerk_user_id})
     if not user:
         raise HTTPException(status_code=404, detail="User not found in database")
