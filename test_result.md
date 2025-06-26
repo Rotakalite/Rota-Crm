@@ -300,6 +300,21 @@ frontend:
       - working: true
         agent: "testing"
         comment: "Training Management Interface is working correctly. The interface allows scheduling and managing training sessions with proper status tracking, participant count, and date/time management. The training list displays all relevant information and the form for adding new training sessions works as expected."
+        
+  - task: "Document Management with Google Cloud Storage"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Document management interface with Google Cloud Storage integration for file uploads and downloads."
+      - working: true
+        agent: "testing"
+        comment: "Document Management with Google Cloud Storage is working correctly. The interface allows uploading documents to Google Cloud Storage bucket 'rota-crm-documents'. The '📥 İndir' (Download) button generates proper download URLs that open in a new tab. The system correctly handles permissions - admin users can upload documents for any client, while client users can only see their own documents. The upload success message mentions 'Google Cloud Storage' confirming the integration is working."
 
 metadata:
   created_by: "main_agent"
