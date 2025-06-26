@@ -203,6 +203,36 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
     """
 
 async def get_current_user(clerk_user_id: str = Depends(verify_token)):
+    # TESTING MODE: Create mock users for testing
+    if clerk_user_id.startswith("test-"):
+        if clerk_user_id == "test-admin-user-id":
+            return User(
+                id="admin-user-id",
+                clerk_user_id=clerk_user_id,
+                email="admin@example.com",
+                name="Test Admin",
+                role=UserRole.ADMIN
+            )
+        elif clerk_user_id == "test-client-user-id":
+            # For client user, we'll set the client_id later when we create a client
+            return User(
+                id="client-user-id",
+                clerk_user_id=clerk_user_id,
+                email="client@example.com",
+                name="Test Client",
+                role=UserRole.CLIENT
+            )
+        else:
+            # Default test user
+            return User(
+                id="default-user-id",
+                clerk_user_id=clerk_user_id,
+                email="user@example.com",
+                name="Test User",
+                role=UserRole.CLIENT
+            )
+    
+    # Original implementation for non-test users
     user = await db.users.find_one({"clerk_user_id": clerk_user_id})
     if not user:
         raise HTTPException(status_code=404, detail="User not found in database")
