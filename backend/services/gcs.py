@@ -66,14 +66,18 @@ class GoogleCloudStorage:
             blob = self.bucket.blob(blob_name)
             blob.upload_from_string(file_content, content_type=content_type)
             
-            # Don't make public - use signed URLs instead for security
-            logger.info(f"File uploaded to: {blob_name}")
-            
-            # Generate signed URL for secure access
-            file_url = blob.generate_signed_url(
-                expiration=datetime.utcnow() + timedelta(hours=24*7),  # 7 days
-                method='GET'
-            )
+            # Make blob publicly readable since bucket is public
+            try:
+                blob.make_public()
+                logger.info(f"File made public: {blob.public_url}")
+                file_url = blob.public_url
+            except Exception as e:
+                logger.warning(f"Could not make file public, using signed URL: {e}")
+                # Fallback to signed URL
+                file_url = blob.generate_signed_url(
+                    expiration=datetime.utcnow() + timedelta(hours=24*7),  # 7 days
+                    method='GET'
+                )
             
             return {
                 "url": file_url,
