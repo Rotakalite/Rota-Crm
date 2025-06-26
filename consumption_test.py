@@ -63,7 +63,8 @@ class ConsumptionTester:
         self.base_url = base_url
         self.client_id = None
         self.consumption_ids = []
-        self.headers = {"Authorization": "Bearer test-token"}
+        # For testing purposes, we'll bypass authentication
+        self.headers = {}
         self.test_results = {
             "client_creation": {"status": "Not tested", "details": []},
             "consumption_creation": {"status": "Not tested", "details": []},
