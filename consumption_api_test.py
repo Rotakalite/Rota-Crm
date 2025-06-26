@@ -250,7 +250,13 @@ class ConsumptionAPITester:
             client.close()
             return consumption["id"] if consumption else None
         
-        consumption_id = asyncio.run(get_consumption_id())
+        # Create a new event loop for this function
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            consumption_id = loop.run_until_complete(get_consumption_id())
+        finally:
+            loop.close()
         
         if not consumption_id:
             print("❌ No consumption ID available for update test")
