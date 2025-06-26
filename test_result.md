@@ -273,15 +273,18 @@ frontend:
 
   - task: "Carbon Footprint Calculator Interface"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/App.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Interactive carbon footprint calculator with form inputs for energy, water, waste and transport data. Displays calculated CO2 emissions."
+      - working: true
+        agent: "testing"
+        comment: "Carbon Footprint Calculator Interface is working correctly. The interface provides form inputs for energy, water, waste, and transport data. The calculated CO2 emissions are displayed properly and the data is saved correctly to the client profile."
 
   - task: "Training Management Interface"
     implemented: true
