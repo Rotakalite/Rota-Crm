@@ -1982,23 +1982,23 @@ const ConsumptionManagement = ({ onNavigate }) => {
               </div>
 
               <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-semibold text-gray-700 mb-3">{analytics.year - 1} Yılı (Karşılaştırma)</h4>
+                <h4 className="font-semibold text-gray-700 mb-3">{analytics?.year - 1 || 2023} Yılı (Karşılaştırma)</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center">
                     <div className="text-xl text-gray-600 font-semibold">
-                      ⚡ {analytics.yearly_per_person.previous_year.electricity.toFixed(1)}
+                      ⚡ {analytics?.yearly_per_person?.previous_year?.electricity?.toFixed(1) || '0.0'}
                     </div>
                     <div className="text-xs text-gray-500">kWh/kişi</div>
                   </div>
                   <div className="text-center">
                     <div className="text-xl text-gray-600 font-semibold">
-                      💧 {analytics.yearly_per_person.previous_year.water.toFixed(1)}
+                      💧 {analytics?.yearly_per_person?.previous_year?.water?.toFixed(1) || '0.0'}
                     </div>
                     <div className="text-xs text-gray-500">m³/kişi</div>
                   </div>
                   <div className="text-center">
                     <div className="text-xl text-gray-600 font-semibold">
-                      🔥 {analytics.yearly_per_person.previous_year.natural_gas.toFixed(1)}
+                      🔥 {analytics?.yearly_per_person?.previous_year?.natural_gas?.toFixed(1) || '0.0'}
                     </div>
                     <div className="text-xs text-gray-500">m³/kişi</div>
                   </div>
