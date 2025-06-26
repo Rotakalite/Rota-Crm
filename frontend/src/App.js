@@ -594,9 +594,7 @@ const ClientManagement = ({ onNavigate }) => {
   const { authToken, userRole } = useAuth();
 
   useEffect(() => {
-    if (authToken) {
-      fetchClients();
-    }
+    fetchClients();
   }, [authToken]);
 
   const fetchClients = async () => {
