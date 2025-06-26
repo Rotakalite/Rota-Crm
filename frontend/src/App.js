@@ -53,19 +53,24 @@ const useAuth = () => {
             console.log('🎯 Token received successfully');
             
             // Register/update user in our database
-            const response = await axios.post(`${API}/auth/register`, {
-              clerk_user_id: user.id,
-              email: user.primaryEmailAddress?.emailAddress || '',
-              name: user.fullName || user.firstName || 'User',
-              role: directRole
-            }, {
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
-            });
-            
-            setDbUser(response.data);
-            console.log('✅ User registered in database');
+            try {
+              const response = await axios.post(`${API}/auth/register`, {
+                clerk_user_id: user.id,
+                email: user.primaryEmailAddress?.emailAddress || '',
+                name: user.fullName || user.firstName || 'User',
+                role: directRole
+              }, {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              });
+              
+              setDbUser(response.data);
+              console.log('✅ User registered in database');
+            } catch (registerError) {
+              console.log('⚠️ Registration failed, continuing without DB user:', registerError.response?.status);
+              // Continue without database user - this is okay for basic functionality
+            }
             
           } catch (tokenError) {
             console.error('Token error:', tokenError);
