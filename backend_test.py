@@ -197,7 +197,7 @@ class BackendTester:
                 "services_completed": ["Mevcut durum analizi", "Çalışma ekibinin belirlenmesi"]
             }
             try:
-                response = requests.put(f"{self.base_url}/clients/{self.client_id}", json=update_data)
+                response = requests.put(f"{self.base_url}/clients/{self.client_id}", json=update_data, headers=self.headers)
                 if response.status_code == 200:
                     updated_client = response.json()
                     print(f"✅ Successfully updated client to stage: {updated_client['current_stage']}")
