@@ -1476,6 +1476,530 @@ const DocumentManagement = () => {
   );
 };
 
+const ConsumptionManagement = ({ onNavigate }) => {
+  const [consumptions, setConsumptions] = useState([]);
+  const [showConsumptionForm, setShowConsumptionForm] = useState(false);
+  const [editingConsumption, setEditingConsumption] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [consumptionData, setConsumptionData] = useState({
+    year: new Date().getFullYear(),
+    month: new Date().getMonth() + 1,
+    electricity: '',
+    water: '',
+    natural_gas: '',
+    coal: '',
+    accommodation_count: ''
+  });
+  const { authToken, userRole } = useAuth();
+
+  useEffect(() => {
+    if (authToken) {
+      fetchConsumptions();
+      fetchAnalytics();
+    }
+  }, [authToken, selectedYear]);
+
+  const fetchConsumptions = async () => {
+    try {
+      const response = await axios.get(`${API}/consumptions?year=${selectedYear}`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      setConsumptions(response.data);
+    } catch (error) {
+      console.error("Error fetching consumptions:", error);
+    }
+  };
+
+  const fetchAnalytics = async () => {
+    try {
+      const response = await axios.get(`${API}/consumptions/analytics?year=${selectedYear}`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      setAnalytics(response.data);
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+    }
+  };
+
+  const handleConsumptionSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const endpoint = editingConsumption 
+        ? `${API}/consumptions/${editingConsumption.id}`
+        : `${API}/consumptions`;
+      
+      const method = editingConsumption ? 'put' : 'post';
+      
+      await axios[method](endpoint, {
+        year: parseInt(consumptionData.year),
+        month: parseInt(consumptionData.month),
+        electricity: parseFloat(consumptionData.electricity) || 0,
+        water: parseFloat(consumptionData.water) || 0,
+        natural_gas: parseFloat(consumptionData.natural_gas) || 0,
+        coal: parseFloat(consumptionData.coal) || 0,
+        accommodation_count: parseInt(consumptionData.accommodation_count) || 0
+      }, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+
+      fetchConsumptions();
+      fetchAnalytics();
+      setShowConsumptionForm(false);
+      setEditingConsumption(null);
+      setConsumptionData({
+        year: new Date().getFullYear(),
+        month: new Date().getMonth() + 1,
+        electricity: '',
+        water: '',
+        natural_gas: '',
+        coal: '',
+        accommodation_count: ''
+      });
+      
+      alert(editingConsumption ? 'Tüketim verisi güncellendi!' : 'Tüketim verisi kaydedildi!');
+    } catch (error) {
+      console.error("Error saving consumption:", error);
+      alert('Hata: ' + (error.response?.data?.detail || 'Bilinmeyen hata'));
+    }
+  };
+
+  const handleEdit = (consumption) => {
+    setEditingConsumption(consumption);
+    setConsumptionData({
+      year: consumption.year,
+      month: consumption.month,
+      electricity: consumption.electricity,
+      water: consumption.water,
+      natural_gas: consumption.natural_gas,
+      coal: consumption.coal,
+      accommodation_count: consumption.accommodation_count
+    });
+    setShowConsumptionForm(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Bu tüketim verisini silmek istediğinizden emin misiniz?')) {
+      try {
+        await axios.delete(`${API}/consumptions/${id}`, {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        fetchConsumptions();
+        fetchAnalytics();
+        alert('Tüketim verisi silindi!');
+      } catch (error) {
+        console.error("Error deleting consumption:", error);
+        alert('Silme hatası: ' + (error.response?.data?.detail || 'Bilinmeyen hata'));
+      }
+    }
+  };
+
+  const getMonthName = (month) => {
+    const months = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", 
+                   "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+    return months[month];
+  };
+
+  const getConsumptionIcon = (type) => {
+    const icons = {
+      electricity: '⚡',
+      water: '💧',
+      natural_gas: '🔥',
+      coal: '⚫'
+    };
+    return icons[type] || '📊';
+  };
+
+  const getConsumptionUnit = (type) => {
+    const units = {
+      electricity: 'kWh',
+      water: 'm³',
+      natural_gas: 'm³',
+      coal: 'kg'
+    };
+    return units[type] || '';
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-green-500 to-blue-600 text-white p-6 rounded-lg shadow-lg">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-3xl font-bold mb-2">⚡ Tüketim Yönetimi</h2>
+            <p className="text-green-100">Aylık enerji ve kaynak tüketimlerinizi takip edin</p>
+          </div>
+          <button
+            onClick={() => onNavigate('dashboard')}
+            className="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-all"
+          >
+            ← Dashboard
+          </button>
+        </div>
+      </div>
+
+      {/* Year Selector & New Entry Button */}
+      <div className="flex justify-between items-center">
+        <div className="flex items-center space-x-4">
+          <label className="font-semibold text-gray-700">Yıl:</label>
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+            className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            {[2024, 2023, 2022, 2021].map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
+        </div>
+        
+        <button
+          onClick={() => {
+            setEditingConsumption(null);
+            setConsumptionData({
+              year: selectedYear,
+              month: new Date().getMonth() + 1,
+              electricity: '',
+              water: '',
+              natural_gas: '',
+              coal: '',
+              accommodation_count: ''
+            });
+            setShowConsumptionForm(true);
+          }}
+          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+        >
+          <span className="mr-2">+</span>
+          Yeni Tüketim Verisi
+        </button>
+      </div>
+
+      {/* Consumption Form Modal */}
+      {showConsumptionForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-90vh overflow-y-auto">
+            <div className="bg-gradient-to-r from-blue-600 to-green-600 text-white p-6 rounded-t-xl">
+              <h3 className="text-xl font-bold">
+                {editingConsumption ? 'Tüketim Verisini Düzenle' : 'Yeni Tüketim Verisi'}
+              </h3>
+            </div>
+            
+            <form onSubmit={handleConsumptionSubmit} className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Yıl</label>
+                  <select
+                    value={consumptionData.year}
+                    onChange={(e) => setConsumptionData({...consumptionData, year: e.target.value})}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    {[2024, 2023, 2022, 2021].map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Ay</label>
+                  <select
+                    value={consumptionData.month}
+                    onChange={(e) => setConsumptionData({...consumptionData, month: e.target.value})}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    {Array.from({length: 12}, (_, i) => i + 1).map(month => (
+                      <option key={month} value={month}>{getMonthName(month)}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    ⚡ Elektrik (kWh)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={consumptionData.electricity}
+                    onChange={(e) => setConsumptionData({...consumptionData, electricity: e.target.value})}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="0.00"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    💧 Su (m³)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={consumptionData.water}
+                    onChange={(e) => setConsumptionData({...consumptionData, water: e.target.value})}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    🔥 Doğalgaz (m³)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={consumptionData.natural_gas}
+                    onChange={(e) => setConsumptionData({...consumptionData, natural_gas: e.target.value})}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="0.00"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    ⚫ Kömür (kg)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={consumptionData.coal}
+                    onChange={(e) => setConsumptionData({...consumptionData, coal: e.target.value})}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  🏨 Konaklama Sayısı (Kişi)
+                </label>
+                <input
+                  type="number"
+                  value={consumptionData.accommodation_count}
+                  onChange={(e) => setConsumptionData({...consumptionData, accommodation_count: e.target.value})}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="0"
+                  required
+                />
+              </div>
+
+              <div className="flex space-x-3 pt-4">
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  {editingConsumption ? 'Güncelle' : 'Kaydet'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowConsumptionForm(false);
+                    setEditingConsumption(null);
+                  }}
+                  className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+                >
+                  İptal
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Consumption List */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="bg-gray-50 px-6 py-4 border-b">
+          <h3 className="text-lg font-semibold text-gray-800">
+            📊 {selectedYear} Yılı Tüketim Verileri
+          </h3>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ay</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">⚡ Elektrik</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">💧 Su</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">🔥 Doğalgaz</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">⚫ Kömür</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">🏨 Konaklama</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {consumptions.map((consumption) => (
+                <tr key={consumption.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap font-medium">
+                    {getMonthName(consumption.month)} {consumption.year}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {consumption.electricity.toFixed(2)} kWh
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {consumption.water.toFixed(2)} m³
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {consumption.natural_gas.toFixed(2)} m³
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {consumption.coal.toFixed(2)} kg
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {consumption.accommodation_count} kişi
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleEdit(consumption)}
+                        className="text-blue-600 hover:text-blue-900 font-medium"
+                      >
+                        ✏️ Düzenle
+                      </button>
+                      {userRole === 'admin' && (
+                        <button
+                          onClick={() => handleDelete(consumption.id)}
+                          className="text-red-600 hover:text-red-900 font-medium"
+                        >
+                          🗑️ Sil
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {consumptions.length === 0 && (
+                <tr>
+                  <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                    {selectedYear} yılı için henüz tüketim verisi girilmemiş.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Analytics Section */}
+      {analytics && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Monthly Comparison */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              📈 Aylık Karşılaştırma ({analytics.year} vs {analytics.year - 1})
+            </h3>
+            <div className="space-y-4">
+              {analytics.monthly_comparison.slice(0, 6).map((month) => (
+                <div key={month.month} className="border-b pb-3">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-medium text-gray-700">{month.month_name}</span>
+                    <span className="text-sm text-gray-500">
+                      Konaklama: {month.current_year.accommodation_count} vs {month.previous_year.accommodation_count}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 text-xs">
+                    <div className="text-center">
+                      <div className="text-blue-600 font-semibold">⚡ {month.current_year.electricity.toFixed(0)}</div>
+                      <div className="text-gray-400">({month.previous_year.electricity.toFixed(0)})</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-blue-600 font-semibold">💧 {month.current_year.water.toFixed(0)}</div>
+                      <div className="text-gray-400">({month.previous_year.water.toFixed(0)})</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-orange-600 font-semibold">🔥 {month.current_year.natural_gas.toFixed(0)}</div>
+                      <div className="text-gray-400">({month.previous_year.natural_gas.toFixed(0)})</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-gray-800 font-semibold">⚫ {month.current_year.coal.toFixed(0)}</div>
+                      <div className="text-gray-400">({month.previous_year.coal.toFixed(0)})</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Per Person Analysis */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              👤 Kişi Başı Yıllık Ortalama
+            </h3>
+            <div className="space-y-4">
+              <div className="bg-gradient-to-r from-blue-50 to-green-50 p-4 rounded-lg">
+                <h4 className="font-semibold text-gray-700 mb-3">{analytics.year} Yılı</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl text-blue-600 font-bold">
+                      ⚡ {analytics.yearly_per_person.current_year.electricity.toFixed(1)}
+                    </div>
+                    <div className="text-sm text-gray-600">kWh/kişi</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl text-blue-500 font-bold">
+                      💧 {analytics.yearly_per_person.current_year.water.toFixed(1)}
+                    </div>
+                    <div className="text-sm text-gray-600">m³/kişi</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl text-orange-600 font-bold">
+                      🔥 {analytics.yearly_per_person.current_year.natural_gas.toFixed(1)}
+                    </div>
+                    <div className="text-sm text-gray-600">m³/kişi</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl text-gray-800 font-bold">
+                      ⚫ {analytics.yearly_per_person.current_year.coal.toFixed(1)}
+                    </div>
+                    <div className="text-sm text-gray-600">kg/kişi</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-semibold text-gray-700 mb-3">{analytics.year - 1} Yılı (Karşılaştırma)</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                    <div className="text-xl text-gray-600 font-semibold">
+                      ⚡ {analytics.yearly_per_person.previous_year.electricity.toFixed(1)}
+                    </div>
+                    <div className="text-xs text-gray-500">kWh/kişi</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-xl text-gray-600 font-semibold">
+                      💧 {analytics.yearly_per_person.previous_year.water.toFixed(1)}
+                    </div>
+                    <div className="text-xs text-gray-500">m³/kişi</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-xl text-gray-600 font-semibold">
+                      🔥 {analytics.yearly_per_person.previous_year.natural_gas.toFixed(1)}
+                    </div>
+                    <div className="text-xs text-gray-500">m³/kişi</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-xl text-gray-600 font-semibold">
+                      ⚫ {analytics.yearly_per_person.previous_year.coal.toFixed(1)}
+                    </div>
+                    <div className="text-xs text-gray-500">kg/kişi</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const ProjectManagement = ({ client, onNavigate }) => {
   const [trainings, setTrainings] = useState([]);
   const [documents, setDocuments] = useState([]);
