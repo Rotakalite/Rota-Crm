@@ -307,7 +307,7 @@ const Dashboard = ({ onNavigate }) => {
               </tr>
             </thead>
             <tbody>
-              {Array.isArray(clients) ? clients.slice(0, 5).map((client) => (
+              {(Array.isArray(clients) ? clients : []).slice(0, 5).map((client) => (
                 <tr key={client.id} className="bg-white border-b hover:bg-gray-50">
                   <td className="px-6 py-4 font-medium text-gray-900">{client.hotel_name}</td>
                   <td className="px-6 py-4">{client.contact_person}</td>
