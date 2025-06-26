@@ -1091,6 +1091,8 @@ const ProjectManagement = ({ client, onNavigate }) => {
     calculation_date: '',
     notes: ''
   });
+  const [selectedDocument, setSelectedDocument] = useState(null);
+  const [showDocumentModal, setShowDocumentModal] = useState(false);
   const { authToken, userRole } = useAuth();
 
   useEffect(() => {
