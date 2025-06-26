@@ -1747,6 +1747,25 @@ const ConsumptionManagement = ({ onNavigate }) => {
             </div>
             
             <form onSubmit={handleConsumptionSubmit} className="p-6 space-y-4">
+              {userRole === 'admin' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Müşteri Seçin</label>
+                  <select
+                    value={consumptionData.client_id || ''}
+                    onChange={(e) => setConsumptionData({...consumptionData, client_id: e.target.value})}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Müşteri seçin...</option>
+                    {(Array.isArray(clients) ? clients : []).map((client) => (
+                      <option key={client.id} value={client.id}>
+                        {client.hotel_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Yıl</label>
