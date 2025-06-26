@@ -854,24 +854,28 @@ const DocumentManagement = () => {
     try {
       const clientId = userRole === 'admin' ? uploadData.client_id : dbUser.client_id;
       
-      // Upload each file separately
+      // Upload each file separately using the new Google Cloud Storage API
       for (let i = 0; i < uploadData.files.length; i++) {
         const file = uploadData.files[i];
         const fileName = file.name;
-        const fileExtension = fileName.split('.').pop();
         
-        const documentData = {
-          client_id: clientId,
-          name: uploadData.files.length === 1 ? uploadData.name : `${uploadData.name} - ${fileName}`,
-          document_type: uploadData.document_type,
-          stage: uploadData.stage,
-          file_path: `/documents/${clientId}/${uploadData.stage}/${Date.now()}_${fileName}`,
-          file_size: file.size
-        };
+        // Create FormData for multipart file upload
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('client_id', clientId);
+        formData.append('document_name', uploadData.files.length === 1 ? uploadData.name : `${uploadData.name} - ${fileName}`);
+        formData.append('document_type', uploadData.document_type);
+        formData.append('stage', uploadData.stage);
 
-        await axios.post(`${API}/documents`, documentData, {
-          headers: { 'Authorization': `Bearer ${authToken}` }
+        // Upload to Google Cloud Storage via our new API
+        const response = await axios.post(`${API}/upload-document`, formData, {
+          headers: { 
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'multipart/form-data'
+          }
         });
+        
+        console.log(`File ${i + 1} uploaded successfully:`, response.data);
       }
 
       fetchDocuments();
@@ -884,7 +888,7 @@ const DocumentManagement = () => {
         files: []
       });
       
-      alert(`${uploadData.files.length} dosya başarıyla yüklendi!`);
+      alert(`${uploadData.files.length} dosya Google Cloud Storage'a başarıyla yüklendi! 🎉`);
     } catch (error) {
       console.error("Error uploading documents:", error);
       alert('Dosya yüklenirken hata oluştu: ' + (error.response?.data?.detail || 'Bilinmeyen hata'));
