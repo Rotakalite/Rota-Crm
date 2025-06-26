@@ -345,7 +345,7 @@ const Dashboard = ({ onNavigate }) => {
             🌱 Karbon Ayak İzi Raporlarım
           </h3>
           
-          {clients.map((client) => (
+          {(clients || []).map((client) => (
             <div key={client.id} className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border border-green-200 mb-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
