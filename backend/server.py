@@ -15,6 +15,10 @@ import requests
 import jwt
 from jwt import PyJWKClient
 import json
+
+# Import GCS after other imports to avoid path issues
+import sys
+sys.path.append(os.path.dirname(__file__))
 from services.gcs import gcs_service
 
 ROOT_DIR = Path(__file__).parent
