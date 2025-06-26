@@ -15,20 +15,21 @@ class GoogleCloudStorage:
         
         # Initialize client
         try:
-            logger.info(f"GCS_BUCKET_NAME: {self.bucket_name}")
-            logger.info(f"GCS_PROJECT_ID: {self.project_id}")
-            logger.info(f"GCS_CREDENTIALS_PATH: {self.credentials_path}")
-            logger.info(f"Credentials path exists: {os.path.exists(self.credentials_path) if self.credentials_path else False}")
+            logger.info(f"🔍 GCS Initialization:")
+            logger.info(f"   BUCKET_NAME: {self.bucket_name}")
+            logger.info(f"   PROJECT_ID: {self.project_id}")
+            logger.info(f"   CREDENTIALS_PATH: {self.credentials_path}")
+            logger.info(f"   Credentials file exists: {os.path.exists(self.credentials_path) if self.credentials_path else False}")
             
             if self.credentials_path and os.path.exists(self.credentials_path):
                 credentials = service_account.Credentials.from_service_account_file(
                     self.credentials_path
                 )
                 self.client = storage.Client(credentials=credentials, project=self.project_id)
-                logger.info("GCS client initialized successfully")
+                logger.info("✅ GCS client initialized successfully")
             else:
                 # For development without credentials, use mock mode
-                logger.warning("GCS credentials not found, using mock mode")
+                logger.warning("❌ GCS credentials not found, using mock mode")
                 self.client = None
                 
             if self.client and self.bucket_name:
