@@ -168,12 +168,10 @@ const Dashboard = ({ onNavigate }) => {
   const { authToken, userRole, dbUser } = useAuth();
 
   useEffect(() => {
-    if (authToken) {
-      fetchStats();
-      fetchClients();
-      if (userRole === 'client' && dbUser?.client_id) {
-        fetchDocuments();
-      }
+    fetchStats();
+    fetchClients();
+    if (userRole === 'client' && dbUser?.client_id) {
+      fetchDocuments();
     }
   }, [authToken, userRole, dbUser]);
 
