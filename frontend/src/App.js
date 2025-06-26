@@ -171,6 +171,25 @@ const Dashboard = ({ onNavigate }) => {
     setShowDocumentModal(true);
   };
 
+  const handleDownloadDocument = async (document) => {
+    try {
+      const response = await axios.get(`${API}/documents/${document.id}/download`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      
+      const downloadUrl = response.data.download_url;
+      if (downloadUrl && downloadUrl !== '#') {
+        // Open download URL in new tab
+        window.open(downloadUrl, '_blank');
+      } else {
+        alert('Dosya indirme bağlantısı bulunamadı.');
+      }
+    } catch (error) {
+      console.error("Error downloading document:", error);
+      alert('Dosya indirilirken hata oluştu: ' + (error.response?.data?.detail || 'Bilinmeyen hata'));
+    }
+  };
+
   const getFileIcon = (filePath) => {
     const extension = filePath.split('.').pop().toLowerCase();
     switch (extension) {
