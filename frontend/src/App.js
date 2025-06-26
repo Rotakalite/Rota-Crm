@@ -195,7 +195,8 @@ const Dashboard = ({ onNavigate }) => {
     return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
   };
 
-  return (
+  const fetchStats = async () => {
+    try {
       const response = await axios.get(`${API}/stats`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
