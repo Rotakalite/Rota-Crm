@@ -9,6 +9,7 @@ const BACKEND_URL = process.env.NODE_ENV === 'production'
   ? '' // Use Vercel proxy
   : process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
+console.log('🔧 API URL configured as:', API);
 
 if (!CLERK_PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key")
