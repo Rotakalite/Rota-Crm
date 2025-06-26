@@ -862,11 +862,9 @@ const DocumentManagement = () => {
   const { authToken, userRole, dbUser } = useAuth();
 
   useEffect(() => {
-    if (authToken) {
-      fetchDocuments();
-      if (userRole === 'admin') {
-        fetchClients();
-      }
+    fetchDocuments();
+    if (userRole === 'admin') {
+      fetchClients();
     }
   }, [authToken, userRole]);
 
