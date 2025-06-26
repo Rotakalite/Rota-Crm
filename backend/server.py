@@ -542,6 +542,8 @@ async def upload_document(
 ):
     """Upload document file to Google Cloud Storage and save metadata to database"""
     
+    logging.info(f"📤 Upload document request - User: {current_user.role} - Client: {client_id} - File: {file.filename}")
+    
     # Check permissions
     if current_user.role == UserRole.ADMIN:
         # Admin can upload documents for any client
