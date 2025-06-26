@@ -49,13 +49,28 @@ app = FastAPI(
 # Set maximum request size to 500MB
 app.state.max_request_size = 500 * 1024 * 1024  # 500MB
 
-# Add custom middleware for large uploads
+# Add custom middleware for large uploads and CORS
 @app.middleware("http")
-async def large_upload_middleware(request, call_next):
+async def cors_and_upload_middleware(request, call_next):
     # Allow large uploads for upload endpoints
     if request.url.path.endswith("/upload-document"):
         request.state.max_request_size = 500 * 1024 * 1024
+    
     response = await call_next(request)
+    
+    # Force CORS headers for all responses
+    origin = request.headers.get("origin")
+    if origin:
+        response.headers["Access-Control-Allow-Origin"] = origin
+    else:
+        response.headers["Access-Control-Allow-Origin"] = "*"
+    
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    response.headers["Access-Control-Expose-Headers"] = "*"
+    response.headers["Access-Control-Max-Age"] = "86400"
+    
     return response
 
 # Create a router with the /api prefix
