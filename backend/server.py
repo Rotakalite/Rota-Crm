@@ -672,9 +672,16 @@ app.include_router(api_router)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=[
+        "*",  # Allow all origins
+        "https://rota-ojgicff3y-rotas-projects-62181e6e.vercel.app",  # Your Vercel domain
+        "https://*.vercel.app",  # All Vercel domains
+        "http://localhost:3000",  # Local development
+        "https://localhost:3000"  # Local development HTTPS
+    ],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 # Configure logging
