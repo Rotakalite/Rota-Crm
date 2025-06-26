@@ -1510,7 +1510,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
       const response = await axios.get(`${API}/consumptions?year=${selectedYear}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
-      setConsumptions(response.data);
+      setConsumptions(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error("Error fetching consumptions:", error);
     }
