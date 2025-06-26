@@ -886,6 +886,10 @@ const DocumentManagement = () => {
         formData.append('document_type', uploadData.document_type);
         formData.append('stage', uploadData.stage);
 
+        // Debug: Log the auth token
+        console.log('🔍 Auth Token:', authToken ? authToken.substring(0, 50) + '...' : 'No token');
+        console.log('🔍 Client ID:', clientId);
+
         // Upload to Google Cloud Storage via our new API
         const response = await axios.post(`${API}/upload-document`, formData, {
           headers: { 
