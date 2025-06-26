@@ -770,8 +770,14 @@ async def create_consumption(
     
     # Check permissions - only admin can create for any client, client can create for themselves
     if current_user.role == UserRole.ADMIN:
-        # Admin needs client_id in request body (we'll add it to form)
-        client_id = current_user.client_id  # For now, assume admin is creating for logged client
+        # Admin can specify client_id in request body
+        if consumption_data.client_id:
+            client_id = consumption_data.client_id
+        else:
+            # If no client_id specified, use admin's assigned client (backward compatibility)
+            client_id = current_user.client_id
+            if not client_id:
+                raise HTTPException(status_code=400, detail="Admin must specify client_id")
     else:
         # Client users can only create for themselves
         if not current_user.client_id:
