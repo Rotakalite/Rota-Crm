@@ -9,9 +9,22 @@ logger = logging.getLogger(__name__)
 
 class GoogleCloudStorage:
     def __init__(self):
-        self.bucket_name = os.getenv("GCS_BUCKET_NAME")
-        self.project_id = os.getenv("GCS_PROJECT_ID")
-        self.credentials_path = os.getenv("GCS_CREDENTIALS_PATH")
+        # Hardcoded values for debugging
+        self.bucket_name = "rota-crm-documents"
+        self.project_id = "rota-crm-storage"
+        self.credentials_path = "/app/backend/gcs-credentials.json"
+        
+        # Also try environment variables
+        env_bucket = os.getenv("GCS_BUCKET_NAME")
+        env_project = os.getenv("GCS_PROJECT_ID")
+        env_creds = os.getenv("GCS_CREDENTIALS_PATH")
+        
+        if env_bucket:
+            self.bucket_name = env_bucket
+        if env_project:
+            self.project_id = env_project
+        if env_creds:
+            self.credentials_path = env_creds
         
         # Initialize client
         try:
