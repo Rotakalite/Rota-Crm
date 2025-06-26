@@ -633,10 +633,18 @@ async def download_document(
 ):
     """Get download URL for document (signed URL for private files)"""
     
+    logging.info(f"📥 Download request for document: {document_id}")
+    
     # Find the document
     document = await db.documents.find_one({"id": document_id})
     if not document:
+        logging.error(f"❌ Document not found: {document_id}")
         raise HTTPException(status_code=404, detail="Document not found")
+    
+    logging.info(f"📄 Found document: {document.get('name', 'Unknown')}")
+    logging.info(f"🔗 Current file_url in DB: {document.get('file_url', 'No URL')}")
+    logging.info(f"📁 File path: {document.get('file_path', 'No path')}")
+    logging.info(f"🎭 Mock upload: {document.get('mock_upload', False)}")
     
     # Check permissions
     if current_user.role == UserRole.ADMIN:
@@ -652,18 +660,24 @@ async def download_document(
         if document.get("mock_upload", False):
             # Return the stored URL for mock uploads
             download_url = document.get("file_url", "#")
+            logging.info(f"🎭 Using mock URL: {download_url}")
         else:
             # Generate signed URL for real GCS files
             download_url = await gcs_service.get_signed_url(document["file_path"], expiration_hours=24)
+            logging.info(f"🔐 Generated signed URL: {download_url[:100]}...")
         
-        return {
+        final_response = {
             "download_url": download_url,
             "filename": document["name"],
             "file_size": document["file_size"],
             "document_type": document["document_type"]
         }
         
+        logging.info(f"✅ Returning download response: {final_response['download_url'][:100]}...")
+        return final_response
+        
     except Exception as e:
+        logging.error(f"❌ Download URL generation failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to generate download URL: {str(e)}")
 
 # Include the router in the main app
