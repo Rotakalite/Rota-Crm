@@ -139,14 +139,20 @@ const Header = () => {
 const Dashboard = ({ onNavigate }) => {
   const [stats, setStats] = useState(null);
   const [clients, setClients] = useState([]);
-  const { authToken, userRole } = useAuth();
+  const [documents, setDocuments] = useState([]);
+  const [selectedDocument, setSelectedDocument] = useState(null);
+  const [showDocumentModal, setShowDocumentModal] = useState(false);
+  const { authToken, userRole, dbUser } = useAuth();
 
   useEffect(() => {
     if (authToken) {
       fetchStats();
       fetchClients();
+      if (userRole === 'client' && dbUser?.client_id) {
+        fetchDocuments();
+      }
     }
-  }, [authToken]);
+  }, [authToken, userRole, dbUser]);
 
   const fetchStats = async () => {
     try {
