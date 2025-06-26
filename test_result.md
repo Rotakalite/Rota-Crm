@@ -336,7 +336,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Document Management with Google Cloud Storage"
+    - "Consumption Management and Analysis System"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
