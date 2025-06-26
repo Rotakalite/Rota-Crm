@@ -1113,7 +1113,7 @@ const DocumentManagement = () => {
               className="w-full md:w-64 p-2 border border-gray-300 rounded-md"
             >
               <option value="">Tüm Müşteriler</option>
-              {(clients || []).map((client) => (
+              {Array.isArray(clients) ? clients.map((client) => (
                 <option key={client.id} value={client.id}>
                   {client.hotel_name}
                 </option>
