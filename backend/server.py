@@ -751,6 +751,237 @@ async def download_document(
         logging.error(f"❌ Download URL generation failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to generate download URL: {str(e)}")
 
+# Consumption Management Endpoints
+@api_router.post("/consumptions")
+async def create_consumption(
+    consumption_data: ConsumptionInput,
+    current_user: User = Depends(get_current_user)
+):
+    """Create monthly consumption record"""
+    
+    # Check permissions - only admin can create for any client, client can create for themselves
+    if current_user.role == UserRole.ADMIN:
+        # Admin needs client_id in request body (we'll add it to form)
+        client_id = current_user.client_id  # For now, assume admin is creating for logged client
+    else:
+        # Client users can only create for themselves
+        if not current_user.client_id:
+            raise HTTPException(status_code=400, detail="Client not assigned to user")
+        client_id = current_user.client_id
+    
+    # Check if consumption already exists for this month/year
+    existing = await db.consumptions.find_one({
+        "client_id": client_id,
+        "year": consumption_data.year,
+        "month": consumption_data.month
+    })
+    
+    if existing:
+        raise HTTPException(status_code=400, detail="Bu ay için tüketim verisi zaten mevcut. Güncelleme yapın.")
+    
+    # Create consumption record
+    consumption = Consumption(
+        client_id=client_id,
+        year=consumption_data.year,
+        month=consumption_data.month,
+        electricity=consumption_data.electricity,
+        water=consumption_data.water,
+        natural_gas=consumption_data.natural_gas,
+        coal=consumption_data.coal,
+        accommodation_count=consumption_data.accommodation_count
+    )
+    
+    await db.consumptions.insert_one(consumption.dict())
+    
+    return {"message": "Tüketim verisi başarıyla kaydedildi", "consumption_id": consumption.id}
+
+@api_router.get("/consumptions")
+async def get_consumptions(
+    year: Optional[int] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get consumption records for client"""
+    
+    # Get client_id based on user role
+    if current_user.role == UserRole.ADMIN:
+        # Admin can see all or filter by client_id in query params
+        client_id = current_user.client_id  # For now, assume admin sees their assigned client
+    else:
+        # Client users can only see their own consumptions
+        if not current_user.client_id:
+            raise HTTPException(status_code=400, detail="Client not assigned to user")
+        client_id = current_user.client_id
+    
+    # Build filter
+    filter_query = {"client_id": client_id}
+    if year:
+        filter_query["year"] = year
+    
+    # Get consumptions sorted by year and month (newest first)
+    consumptions = await db.consumptions.find(filter_query).sort([("year", -1), ("month", -1)]).to_list(length=100)
+    
+    return consumptions
+
+@api_router.put("/consumptions/{consumption_id}")
+async def update_consumption(
+    consumption_id: str,
+    consumption_data: ConsumptionInput,
+    current_user: User = Depends(get_current_user)
+):
+    """Update consumption record"""
+    
+    # Find existing consumption
+    consumption = await db.consumptions.find_one({"id": consumption_id})
+    if not consumption:
+        raise HTTPException(status_code=404, detail="Tüketim verisi bulunamadı")
+    
+    # Check permissions
+    if current_user.role == UserRole.CLIENT and current_user.client_id != consumption["client_id"]:
+        raise HTTPException(status_code=403, detail="Bu tüketim verisini güncelleme yetkiniz yok")
+    
+    # Update consumption
+    update_data = consumption_data.dict()
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.consumptions.update_one(
+        {"id": consumption_id},
+        {"$set": update_data}
+    )
+    
+    return {"message": "Tüketim verisi başarıyla güncellendi"}
+
+@api_router.delete("/consumptions/{consumption_id}")
+async def delete_consumption(
+    consumption_id: str,
+    current_user: User = Depends(get_admin_user)  # Only admin can delete
+):
+    """Delete consumption record"""
+    
+    result = await db.consumptions.delete_one({"id": consumption_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Tüketim verisi bulunamadı")
+    
+    return {"message": "Tüketim verisi başarıyla silindi"}
+
+@api_router.get("/consumptions/analytics")
+async def get_consumption_analytics(
+    year: Optional[int] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get consumption analytics and comparisons"""
+    
+    # Get client_id based on user role
+    if current_user.role == UserRole.ADMIN:
+        client_id = current_user.client_id
+    else:
+        if not current_user.client_id:
+            raise HTTPException(status_code=400, detail="Client not assigned to user")
+        client_id = current_user.client_id
+    
+    # Default to current year if not specified
+    if not year:
+        year = datetime.now().year
+    
+    # Get current year and previous year data
+    current_year_data = await db.consumptions.find({
+        "client_id": client_id,
+        "year": year
+    }).sort("month", 1).to_list(length=12)
+    
+    previous_year_data = await db.consumptions.find({
+        "client_id": client_id,
+        "year": year - 1
+    }).sort("month", 1).to_list(length=12)
+    
+    # Calculate monthly comparisons
+    monthly_comparison = []
+    for month in range(1, 13):
+        current_month = next((c for c in current_year_data if c["month"] == month), None)
+        previous_month = next((c for c in previous_year_data if c["month"] == month), None)
+        
+        month_data = {
+            "month": month,
+            "month_name": ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", 
+                          "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"][month],
+            "current_year": {
+                "electricity": current_month["electricity"] if current_month else 0,
+                "water": current_month["water"] if current_month else 0,
+                "natural_gas": current_month["natural_gas"] if current_month else 0,
+                "coal": current_month["coal"] if current_month else 0,
+                "accommodation_count": current_month["accommodation_count"] if current_month else 0
+            },
+            "previous_year": {
+                "electricity": previous_month["electricity"] if previous_month else 0,
+                "water": previous_month["water"] if previous_month else 0,
+                "natural_gas": previous_month["natural_gas"] if previous_month else 0,
+                "coal": previous_month["coal"] if previous_month else 0,
+                "accommodation_count": previous_month["accommodation_count"] if previous_month else 0
+            }
+        }
+        
+        # Calculate per-person consumption
+        if month_data["current_year"]["accommodation_count"] > 0:
+            month_data["current_year_per_person"] = {
+                "electricity": month_data["current_year"]["electricity"] / month_data["current_year"]["accommodation_count"],
+                "water": month_data["current_year"]["water"] / month_data["current_year"]["accommodation_count"],
+                "natural_gas": month_data["current_year"]["natural_gas"] / month_data["current_year"]["accommodation_count"],
+                "coal": month_data["current_year"]["coal"] / month_data["current_year"]["accommodation_count"]
+            }
+        else:
+            month_data["current_year_per_person"] = {"electricity": 0, "water": 0, "natural_gas": 0, "coal": 0}
+        
+        if month_data["previous_year"]["accommodation_count"] > 0:
+            month_data["previous_year_per_person"] = {
+                "electricity": month_data["previous_year"]["electricity"] / month_data["previous_year"]["accommodation_count"],
+                "water": month_data["previous_year"]["water"] / month_data["previous_year"]["accommodation_count"],
+                "natural_gas": month_data["previous_year"]["natural_gas"] / month_data["previous_year"]["accommodation_count"],
+                "coal": month_data["previous_year"]["coal"] / month_data["previous_year"]["accommodation_count"]
+            }
+        else:
+            month_data["previous_year_per_person"] = {"electricity": 0, "water": 0, "natural_gas": 0, "coal": 0}
+        
+        monthly_comparison.append(month_data)
+    
+    # Calculate year totals
+    current_year_totals = {
+        "electricity": sum(c["electricity"] for c in current_year_data),
+        "water": sum(c["water"] for c in current_year_data),
+        "natural_gas": sum(c["natural_gas"] for c in current_year_data),
+        "coal": sum(c["coal"] for c in current_year_data),
+        "accommodation_count": sum(c["accommodation_count"] for c in current_year_data)
+    }
+    
+    previous_year_totals = {
+        "electricity": sum(c["electricity"] for c in previous_year_data),
+        "water": sum(c["water"] for c in previous_year_data),
+        "natural_gas": sum(c["natural_gas"] for c in previous_year_data),
+        "coal": sum(c["coal"] for c in previous_year_data),
+        "accommodation_count": sum(c["accommodation_count"] for c in previous_year_data)
+    }
+    
+    return {
+        "year": year,
+        "monthly_comparison": monthly_comparison,
+        "yearly_totals": {
+            "current_year": current_year_totals,
+            "previous_year": previous_year_totals
+        },
+        "yearly_per_person": {
+            "current_year": {
+                "electricity": current_year_totals["electricity"] / current_year_totals["accommodation_count"] if current_year_totals["accommodation_count"] > 0 else 0,
+                "water": current_year_totals["water"] / current_year_totals["accommodation_count"] if current_year_totals["accommodation_count"] > 0 else 0,
+                "natural_gas": current_year_totals["natural_gas"] / current_year_totals["accommodation_count"] if current_year_totals["accommodation_count"] > 0 else 0,
+                "coal": current_year_totals["coal"] / current_year_totals["accommodation_count"] if current_year_totals["accommodation_count"] > 0 else 0
+            },
+            "previous_year": {
+                "electricity": previous_year_totals["electricity"] / previous_year_totals["accommodation_count"] if previous_year_totals["accommodation_count"] > 0 else 0,
+                "water": previous_year_totals["water"] / previous_year_totals["accommodation_count"] if previous_year_totals["accommodation_count"] > 0 else 0,
+                "natural_gas": previous_year_totals["natural_gas"] / previous_year_totals["accommodation_count"] if previous_year_totals["accommodation_count"] > 0 else 0,
+                "coal": previous_year_totals["coal"] / previous_year_totals["accommodation_count"] if previous_year_totals["accommodation_count"] > 0 else 0
+            }
+        }
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
