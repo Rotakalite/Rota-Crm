@@ -290,7 +290,7 @@ class GCSIntegrationTester:
                 
                 # Try to access first client's document with second client's credentials
                 # For simulation, we'll use a different header
-                another_client_headers = {"Authorization": "Bearer test-client-token-2"}
+                another_client_headers = {"Authorization": "Bearer test-client-user-id-2"}
                 
                 response = requests.get(
                     f"{self.base_url}/documents/{self.document_id}/download", 
