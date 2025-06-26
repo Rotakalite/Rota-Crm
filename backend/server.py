@@ -351,16 +351,22 @@ async def create_client(
 
 @api_router.get("/clients", response_model=List[Client])
 async def get_clients(current_user: User = Depends(get_current_user)):
+    logging.info(f"🔍 GET /clients called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
+    
     if current_user.role == UserRole.ADMIN:
         # Admin can see all clients
         clients = await db.clients.find().to_list(1000)
+        logging.info(f"✅ Admin user - returning {len(clients)} clients")
         return [Client(**client) for client in clients]
     else:
         # Client can only see their own record
         if not current_user.client_id:
+            logging.info("⚠️ Client user has no client_id - returning empty list")
             return []
         client = await db.clients.find_one({"id": current_user.client_id})
-        return [Client(**client)] if client else []
+        result = [Client(**client)] if client else []
+        logging.info(f"✅ Client user - returning {len(result)} clients")
+        return result
 
 @api_router.get("/clients/{client_id}", response_model=Client)
 async def get_client(client_id: str, current_user: User = Depends(get_client_access)):
