@@ -4,7 +4,10 @@ import axios from "axios";
 import { ClerkProvider, SignedIn, SignedOut, RedirectToSignIn, useUser, useClerk } from '@clerk/clerk-react';
 
 const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+// API Configuration - Use proxy in production, direct in development  
+const BACKEND_URL = process.env.NODE_ENV === 'production' 
+  ? '' // Use Vercel proxy
+  : process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 if (!CLERK_PUBLISHABLE_KEY) {
