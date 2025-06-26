@@ -196,7 +196,10 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
 async def get_current_user(clerk_user_id: str = Depends(verify_token)):
     user = await db.users.find_one({"clerk_user_id": clerk_user_id})
     if not user:
+        logging.error(f"❌ User not found in database for clerk_user_id: {clerk_user_id}")
         raise HTTPException(status_code=404, detail="User not found in database")
+    
+    logging.info(f"✅ User found: {user.get('role')} - {user.get('name', 'Unknown')}")
     return User(**user)
 
 async def get_admin_user(current_user: User = Depends(get_current_user)):
