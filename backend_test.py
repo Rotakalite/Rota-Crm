@@ -63,6 +63,7 @@ class BackendTester:
         self.training_id = None
         self.document_id = None
         self.carbon_report_id = None
+        self.headers = {"Authorization": "Bearer test-token"}
         self.test_results = {
             "client_management": {"status": "Not tested", "details": []},
             "carbon_footprint": {"status": "Not tested", "details": []},
