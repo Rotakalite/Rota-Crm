@@ -889,8 +889,9 @@ const DocumentManagement = () => {
         // Upload to Google Cloud Storage via our new API
         const response = await axios.post(`${API}/upload-document`, formData, {
           headers: { 
-            'Authorization': `Bearer ${authToken}`,
-            'Content-Type': 'multipart/form-data'
+            'Authorization': `Bearer ${authToken}`
+            // Note: Don't set 'Content-Type': 'multipart/form-data' manually
+            // Let axios set it automatically with proper boundary
           }
         });
         
