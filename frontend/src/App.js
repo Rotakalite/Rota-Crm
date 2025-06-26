@@ -339,7 +339,7 @@ const Dashboard = ({ onNavigate }) => {
       </div>
 
       {/* Carbon Reports Section for Client Users */}
-      {userRole === 'client' && clients.length > 0 && (
+      {userRole === 'client' && Array.isArray(clients) && clients.length > 0 && (
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
             🌱 Karbon Ayak İzi Raporlarım
