@@ -877,6 +877,15 @@ const DocumentManagement = () => {
       return;
     }
 
+    // Check file sizes (500MB limit per file)
+    for (let file of uploadData.files) {
+      const sizeInMB = file.size / 1024 / 1024;
+      if (sizeInMB > 500) {
+        alert(`Dosya çok büyük: ${file.name} (${sizeInMB.toFixed(1)}MB). Maksimum 500MB yükleyebilirsiniz.`);
+        return;
+      }
+    }
+
     try {
       const clientId = userRole === 'admin' ? uploadData.client_id : dbUser.client_id;
       
@@ -884,6 +893,9 @@ const DocumentManagement = () => {
       for (let i = 0; i < uploadData.files.length; i++) {
         const file = uploadData.files[i];
         const fileName = file.name;
+        const sizeInMB = (file.size / 1024 / 1024).toFixed(2);
+        
+        console.log(`📤 Uploading file ${i + 1}/${uploadData.files.length}: ${fileName} (${sizeInMB}MB)`);
         
         // Create FormData for multipart file upload
         const formData = new FormData();
@@ -902,19 +914,26 @@ const DocumentManagement = () => {
           name: file.name,
           size: file.size,
           type: file.type,
-          sizeInMB: (file.size / 1024 / 1024).toFixed(2)
+          sizeInMB: sizeInMB
         });
 
-        // Upload to Google Cloud Storage via our new API
+        // Upload to Google Cloud Storage via our new API with timeout for large files
+        const timeout = file.size > 10 * 1024 * 1024 ? 300000 : 30000; // 5 min for large files, 30s for small
+        
         const response = await axios.post(`${API}/upload-document`, formData, {
           headers: { 
             'Authorization': `Bearer ${authToken}`
             // Note: Don't set 'Content-Type': 'multipart/form-data' manually
             // Let axios set it automatically with proper boundary
+          },
+          timeout: timeout,
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            console.log(`📊 Upload progress: ${percentCompleted}% (${fileName})`);
           }
         });
         
-        console.log(`File ${i + 1} uploaded successfully:`, response.data);
+        console.log(`✅ File ${i + 1} uploaded successfully:`, response.data);
       }
 
       fetchDocuments();
@@ -930,7 +949,11 @@ const DocumentManagement = () => {
       alert(`${uploadData.files.length} dosya Google Cloud Storage'a başarıyla yüklendi! 🎉`);
     } catch (error) {
       console.error("Error uploading documents:", error);
-      alert('Dosya yüklenirken hata oluştu: ' + (error.response?.data?.detail || 'Bilinmeyen hata'));
+      if (error.code === 'ECONNABORTED') {
+        alert('Dosya yükleme zaman aşımına uğradı. Daha küçük dosyalar yüklemeyi deneyin.');
+      } else {
+        alert('Dosya yüklenirken hata oluştu: ' + (error.response?.data?.detail || 'Bilinmeyen hata'));
+      }
     }
   };
 
