@@ -1068,6 +1068,12 @@ const DocumentManagement = () => {
                       >
                         📋 Detay
                       </button>
+                      <button
+                        onClick={() => handleDownloadDocument(document)}
+                        className="text-green-600 hover:text-green-900 font-medium"
+                      >
+                        📥 İndir
+                      </button>
                       {userRole === 'admin' && (
                         <button
                           onClick={() => handleDelete(document.id)}
