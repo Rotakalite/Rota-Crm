@@ -242,7 +242,7 @@ class BackendTester:
         carbon_data["client_id"] = self.client_id
         
         try:
-            response = requests.post(f"{self.base_url}/carbon-footprint", json=carbon_data)
+            response = requests.post(f"{self.base_url}/carbon-footprint", json=carbon_data, headers=self.headers)
             if response.status_code == 200:
                 footprint = response.json()
                 print(f"✅ Successfully calculated carbon footprint: {footprint['total_co2_emissions']} kg CO2/year")
