@@ -694,7 +694,8 @@ app.add_middleware(
     allow_credentials=True,
     allow_origins=[
         "*",  # Allow all origins
-        "https://rota-ojgicff3y-rotas-projects-62181e6e.vercel.app",  # Your Vercel domain
+        "https://rota-ojgicff3y-rotas-projects-62181e6e.vercel.app",  # Old Vercel domain
+        "https://rota-1ashnfedi-rotas-projects-62181e6e.vercel.app",  # New Vercel domain
         "https://*.vercel.app",  # All Vercel domains
         "http://localhost:3000",  # Local development
         "https://localhost:3000"  # Local development HTTPS
