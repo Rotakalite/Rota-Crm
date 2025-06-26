@@ -260,10 +260,15 @@ const Dashboard = ({ onNavigate }) => {
   const fetchClients = async () => {
     try {
       const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      console.log('🔍 Clients API call:', {
+        authToken: authToken ? `${authToken.substring(0, 20)}...` : 'null',
+        hasHeaders: !!headers.Authorization
+      });
       const response = await axios.get(`${API}/clients`, { headers });
       setClients(Array.isArray(response.data) ? response.data : []);
+      console.log('✅ Clients fetched:', response.data?.length || 0);
     } catch (error) {
-      console.error("Error fetching clients:", error);
+      console.error("❌ Error fetching clients:", error.response?.status, error.response?.data);
       setClients([]);
     }
   };
