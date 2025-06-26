@@ -1521,6 +1521,10 @@ const ConsumptionManagement = ({ onNavigate }) => {
   };
 
   const fetchAnalytics = async () => {
+    if (!authToken) {
+      console.log('⚠️ No authToken, skipping analytics fetch');
+      return;
+    }
     try {
       const response = await axios.get(`${API}/consumptions/analytics?year=${selectedYear}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
