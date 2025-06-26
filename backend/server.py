@@ -168,6 +168,7 @@ class ConsumptionInput(BaseModel):
     natural_gas: float = 0.0
     coal: float = 0.0
     accommodation_count: int = 0
+    client_id: Optional[str] = None  # Optional for admin users
 
 class ClientCreate(BaseModel):
     name: str
