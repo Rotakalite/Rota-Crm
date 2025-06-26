@@ -1538,6 +1538,11 @@ const ConsumptionManagement = ({ onNavigate }) => {
   const handleConsumptionSubmit = async (e) => {
     e.preventDefault();
     
+    if (!authToken) {
+      alert('Oturum süresi dolmuş. Lütfen sayfayı yenileyin.');
+      return;
+    }
+    
     try {
       const endpoint = editingConsumption 
         ? `${API}/consumptions/${editingConsumption.id}`
