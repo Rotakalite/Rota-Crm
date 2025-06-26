@@ -49,6 +49,15 @@ app = FastAPI(
 # Set maximum request size to 500MB
 app.state.max_request_size = 500 * 1024 * 1024  # 500MB
 
+# Add custom middleware for large uploads
+@app.middleware("http")
+async def large_upload_middleware(request, call_next):
+    # Allow large uploads for upload endpoints
+    if request.url.path.endswith("/upload-document"):
+        request.state.max_request_size = 500 * 1024 * 1024
+    response = await call_next(request)
+    return response
+
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
