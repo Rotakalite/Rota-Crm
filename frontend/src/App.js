@@ -203,7 +203,7 @@ const ConsumptionAnalytics = () => {
     
     setLoading(true);
     try {
-      const response = await axios.get(`${API}/analytics?year=${selectedYear}`, {
+      const response = await axios.get(`${API}/consumptions/analytics?year=${selectedYear}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       setAnalyticsData(response.data);
