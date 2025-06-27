@@ -833,11 +833,12 @@ async def upload_document(
             await db.documents.insert_one(document_data)
             
             return {
-                "message": "Document uploaded successfully to MongoDB GridFS",
+                "message": "Document uploaded successfully to MongoDB GridFS ✅",
                 "document_id": document_data["id"],
                 "file_id": upload_result["file_id"],
                 "file_size": upload_result["file_size"],
-                "gridfs_upload": True
+                "gridfs_upload": True,
+                "storage": "MongoDB GridFS"
             }
         
         # Backup: Upload to Supabase Storage
