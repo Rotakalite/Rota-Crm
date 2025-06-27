@@ -118,8 +118,6 @@ ChartJS.register(
 
 const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
-const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
-
 // API Configuration - FIXED URL with cache busting
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://aa553048-3daf-4672-a224-c7c6e3863ff1.preview.emergentagent.com';
 const API = `${BACKEND_URL}/api`;
