@@ -334,7 +334,7 @@ const Header = () => {
     <div className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">🌿 Sürdürülebilir Turizm CRM</h1>
+          <h1 className="text-2xl font-bold text-gray-800">🔧 ROTA - CRM</h1>
           <p className="text-sm text-gray-600">
             {userRole === 'admin' ? 'Admin Paneli' : 'Müşteri Paneli'}
           </p>
