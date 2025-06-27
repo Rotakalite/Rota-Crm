@@ -3276,7 +3276,7 @@ const ProjectManagement = ({ client, onNavigate }) => {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center mb-2">
-                      <span className="text-lg mr-2">{getFileIcon(doc.file_path)}</span>
+                      <span className="text-lg mr-2">{getFileIcon(doc?.original_filename || doc?.file_path || '')}</span>
                       <h4 className="font-semibold text-sm text-gray-800 truncate">{doc.name}</h4>
                     </div>
                     <p className="text-xs text-gray-600 mb-1">{doc.document_type}</p>
