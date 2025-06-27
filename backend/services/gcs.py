@@ -137,6 +137,12 @@ class GoogleCloudStorage:
                 return f"https://storage.googleapis.com/{self.bucket_name or 'mock-bucket'}/{clean_path}"
                 
             blob = self.bucket.blob(clean_path)
+            
+            # Check if file exists before generating signed URL
+            if not blob.exists():
+                logger.error(f"File does not exist in GCS: {clean_path}")
+                raise Exception(f"File not found in storage: {clean_path}")
+            
             url = blob.generate_signed_url(
                 expiration=datetime.utcnow() + timedelta(hours=expiration_hours),
                 method='GET'
