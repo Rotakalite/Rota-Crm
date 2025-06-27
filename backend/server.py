@@ -762,12 +762,22 @@ async def upload_document(
         # Read file content
         file_content = await file.read()
         
-        # Upload to Google Cloud Storage
-        upload_result = await gcs_service.upload_file(
-            file_content=file_content,
-            filename=file.filename,
-            content_type=file.content_type or "application/octet-stream"
-        )
+        # Save file locally instead of GCS for now
+        import os
+        uploads_dir = "/app/backend/uploads"
+        os.makedirs(uploads_dir, exist_ok=True)
+        
+        # Generate unique filename
+        file_id = str(uuid.uuid4())
+        file_extension = os.path.splitext(file.filename)[1]
+        local_filename = f"{file_id}{file_extension}"
+        local_path = os.path.join(uploads_dir, local_filename)
+        
+        # Save file
+        with open(local_path, "wb") as f:
+            f.write(file_content)
+        
+        logging.info(f"📁 File saved locally: {local_path}")
         
         # Create document record in database
         document_data = {
@@ -776,12 +786,12 @@ async def upload_document(
             "name": document_name,
             "document_type": document_type,
             "stage": stage,
-            "file_path": upload_result["file_path"],
-            "file_size": upload_result["file_size"],
-            "file_url": upload_result["url"],
+            "file_path": local_path,
+            "original_filename": file.filename,
+            "file_size": len(file_content),
             "uploaded_by": current_user.clerk_user_id,
             "created_at": datetime.utcnow(),
-            "mock_upload": upload_result.get("mock", False)
+            "local_upload": True
         }
         
         await db.documents.insert_one(document_data)
@@ -789,9 +799,8 @@ async def upload_document(
         return {
             "message": "Document uploaded successfully",
             "document_id": document_data["id"],
-            "file_url": upload_result["url"],
-            "file_size": upload_result["file_size"],
-            "mock_upload": upload_result.get("mock", False)
+            "file_size": len(file_content),
+            "local_upload": True
         }
         
     except Exception as e:
