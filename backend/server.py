@@ -824,15 +824,44 @@ async def download_document(
     try:
         # Generate signed URL for secure access
         if document.get("mock_upload", False) or not gcs_service or not gcs_service.client:
-            # Return the stored URL for mock uploads or when GCS is not available
-            download_url = document.get("file_url", "#")
-            logging.info(f"🎭 Using mock/stored URL: {download_url}")
+            # For mock uploads or when GCS is not available
+            file_url = document.get("file_url", "")
             
-            # Ensure the URL is accessible
-            if download_url == "#" or not download_url:
-                # Create a fallback download URL
-                download_url = f"https://storage.googleapis.com/{document.get('bucket_name', 'rota-crm-documents')}/{document.get('file_path', document.get('name', 'unknown.pdf'))}"
-                logging.info(f"🔧 Generated fallback URL: {download_url}")
+            if file_url and file_url.startswith("https://storage.googleapis.com/"):
+                # This is a mock upload, create a downloadable placeholder
+                logging.info(f"🎭 Mock upload detected, creating placeholder download")
+                
+                # Create a base64 data URL for a simple placeholder image/document
+                placeholder_content = """iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="""
+                download_url = f"data:image/png;base64,{placeholder_content}"
+                
+                # Or create a simple HTML page as placeholder
+                if document.get("name", "").lower().endswith(('.pdf', '.doc', '.docx')):
+                    html_content = f'''
+                    <!DOCTYPE html>
+                    <html>
+                    <head><title>{document.get("name", "Document")}</title></head>
+                    <body style="font-family: Arial, sans-serif; padding: 20px;">
+                        <h1>📄 {document.get("name", "Document")}</h1>
+                        <p><strong>Bu bir demo dosyadır.</strong></p>
+                        <p>Dosya adı: {document.get("name", "Unknown")}</p>
+                        <p>Dosya boyutu: {document.get("file_size", 0)} bytes</p>
+                        <p>Yüklenme tarihi: {document.get("created_at", "Unknown")}</p>
+                        <hr>
+                        <p><em>Gerçek dosya Google Cloud Storage'da saklanacaktır.</em></p>
+                    </body>
+                    </html>
+                    '''
+                    import base64
+                    encoded_html = base64.b64encode(html_content.encode('utf-8')).decode('utf-8')
+                    download_url = f"data:text/html;base64,{encoded_html}"
+                
+                logging.info(f"🎭 Created mock download URL for: {document.get('name')}")
+            else:
+                # Use stored URL directly if available
+                download_url = file_url or "#"
+                logging.info(f"🔗 Using stored URL: {download_url}")
+                
         else:
             # Generate signed URL for real GCS files
             try:
@@ -841,9 +870,24 @@ async def download_document(
             except Exception as gcs_error:
                 if "File not found" in str(gcs_error) or "NoSuchKey" in str(gcs_error):
                     logging.error(f"📁 File not found in GCS: {document['file_path']}")
-                    # Try fallback URL
-                    download_url = document.get("file_url", f"https://storage.googleapis.com/{document.get('bucket_name', 'rota-crm-documents')}/{document.get('file_path', document.get('name', 'unknown.pdf'))}")
-                    logging.info(f"🔄 Using fallback URL: {download_url}")
+                    # Create fallback placeholder for missing files
+                    html_content = f'''
+                    <!DOCTYPE html>
+                    <html>
+                    <head><title>Dosya Bulunamadı</title></head>
+                    <body style="font-family: Arial, sans-serif; padding: 20px;">
+                        <h1>❌ Dosya Bulunamadı</h1>
+                        <p>Aradığınız dosya bulunamadı: <strong>{document.get("name", "Unknown")}</strong></p>
+                        <p>Dosya yolu: {document.get("file_path", "Unknown")}</p>
+                        <hr>
+                        <p>Lütfen dosyanın mevcut olduğundan emin olun.</p>
+                    </body>
+                    </html>
+                    '''
+                    import base64
+                    encoded_html = base64.b64encode(html_content.encode('utf-8')).decode('utf-8')
+                    download_url = f"data:text/html;base64,{encoded_html}"
+                    logging.info(f"🔄 Created fallback placeholder for missing file")
                 else:
                     logging.error(f"🚨 GCS error: {str(gcs_error)}")
                     raise HTTPException(status_code=500, detail=f"Storage access error: {str(gcs_error)}")
@@ -855,7 +899,7 @@ async def download_document(
             "document_type": document["document_type"]
         }
         
-        logging.info(f"✅ Returning download response: {final_response['download_url']}")
+        logging.info(f"✅ Returning download response for: {final_response['filename']}")
         return final_response
         
     except Exception as e:
