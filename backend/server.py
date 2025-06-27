@@ -1048,7 +1048,16 @@ async def get_consumptions(
     # Get consumptions sorted by year and month (newest first)
     consumptions = await db.consumptions.find(filter_query).sort([("year", -1), ("month", -1)]).to_list(length=100)
     
-    return consumptions
+    logging.info(f"✅ Found {len(consumptions)} consumption records")
+    
+    # Clean data for JSON serialization (remove ObjectId _id field)
+    clean_consumptions = []
+    for consumption in consumptions:
+        # Remove the MongoDB _id field to avoid serialization issues
+        consumption.pop('_id', None)
+        clean_consumptions.append(consumption)
+    
+    return clean_consumptions
 
 @api_router.put("/consumptions/{consumption_id}")
 async def update_consumption(
