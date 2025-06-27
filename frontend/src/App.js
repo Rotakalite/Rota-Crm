@@ -1722,45 +1722,41 @@ const DocumentManagement = () => {
 
   const handleDownloadDocument = async (document) => {
     try {
-      console.log('📥 DocumentManagement - Download request for document:', document.id);
-      console.log('🔍 Auth token exists:', !!authToken);
+      console.log('📥 Starting download for:', document.name);
       
-      const response = await axios.get(`${API}/documents/${document.id}/download`, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
+      // Directly download the file using the backend endpoint
+      const downloadUrl = `${API}/documents/${document.id}/download`;
+      
+      // Create a temporary link and trigger download
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = document.name || 'document';
+      link.style.display = 'none';
+      
+      // Add authorization header via a fetch request instead
+      const response = await axios.get(downloadUrl, {
+        headers: { 'Authorization': `Bearer ${authToken}` },
+        responseType: 'blob' // Important for file downloads
       });
       
-      console.log('✅ Download response:', response.data);
+      // Create blob URL and download
+      const blob = new Blob([response.data]);
+      const url = window.URL.createObjectURL(blob);
       
-      const downloadUrl = response.data.download_url;
-      const filename = response.data.filename || 'document';
+      link.href = url;
+      link.download = document.original_filename || document.name || 'document';
+      document.body.appendChild(link);
+      link.click();
       
-      if (downloadUrl.startsWith('data:')) {
-        // Handle data URLs by creating a blob and downloading
-        const response_data = await fetch(downloadUrl);
-        const blob = await response_data.blob();
-        
-        // Create download link
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        
-        // Cleanup
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-        
-        console.log('✅ File downloaded successfully:', filename);
-      } else {
-        // Handle regular URLs
-        console.log('🚀 Opening download URL:', downloadUrl);
-        window.open(downloadUrl, '_blank');
-      }
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      console.log('✅ Download completed');
       
     } catch (error) {
       console.error('❌ Download error:', error);
-      alert('Dosya indirilemedi: ' + (error.response?.data?.detail || 'Bilinmeyen hata'));
+      alert('Dosya indirme hatası: ' + (error.response?.data?.detail || error.message));
     }
   };
 
