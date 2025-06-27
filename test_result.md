@@ -230,3 +230,5 @@ test_plan:
 agent_communication:
     -agent: "main"
     -message: "User reported 403 errors on /api/clients and /api/stats endpoints. Investigation shows JWT 'Not enough segments' errors and URL mismatch between frontend .env and current preview URL. Need to fix authentication issues and update URLs. Also found duplicate code in stats endpoint that needs cleanup."
+    -agent: "testing"
+    -message: "I've tested the backend API endpoints and can confirm that the 403 authentication errors have been fixed. The token validation has been improved to handle malformed tokens correctly, returning 401 Unauthorized responses instead of 403 Forbidden. The frontend URL configuration has been updated to match the current preview URL, and the duplicate code in the stats endpoint has been cleaned up. All tests are now passing, and the backend is responding correctly to requests."
