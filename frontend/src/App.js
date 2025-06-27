@@ -3386,13 +3386,15 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
     { id: 'clients', name: 'Müşteri Yönetimi', icon: '🏨' },
     { id: 'consumption', name: 'Tüketim Yönetimi', icon: '⚡' },
+    { id: 'analytics', name: 'Tüketim Analizi', icon: '📈' },
     { id: 'documents', name: 'Belge Yönetimi', icon: '📋' },
-    { id: 'reports', name: 'Raporlar', icon: '📈' }
+    { id: 'reports', name: 'Raporlar', icon: '📄' }
   ];
 
   const clientMenuItems = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
     { id: 'consumption', name: 'Tüketim Takibi', icon: '⚡' },
+    { id: 'analytics', name: 'Tüketim Analizi', icon: '📈' },
     { id: 'documents', name: 'Belgelerim', icon: '📋' },
     { id: 'trainings', name: 'Eğitimlerim', icon: '🎓' }
   ];
