@@ -770,6 +770,128 @@ async def download_document(
         logging.error(f"❌ Download URL generation failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to generate download URL: {str(e)}")
 
+# Chunked Upload Endpoints
+@api_router.post("/upload-chunk")
+async def upload_chunk(
+    file_chunk: UploadFile = File(...),
+    chunk_index: int = Form(...),
+    total_chunks: int = Form(...),
+    upload_id: str = Form(...),
+    original_filename: str = Form(...),
+    client_id: Optional[str] = Form(None),
+    name: Optional[str] = Form(None),
+    document_type: Optional[str] = Form(None),
+    current_user: User = Depends(get_current_user)
+):
+    """Upload a file chunk"""
+    try:
+        logging.info(f"📦 Chunk upload: {chunk_index + 1}/{total_chunks} for upload_id: {upload_id}")
+        
+        # Create temp directory for chunks if not exists
+        import tempfile
+        temp_dir = f"/tmp/chunks_{upload_id}"
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # Save chunk to temporary file
+        chunk_path = f"{temp_dir}/chunk_{chunk_index:04d}"
+        with open(chunk_path, "wb") as chunk_file:
+            content = await file_chunk.read()
+            chunk_file.write(content)
+        
+        logging.info(f"✅ Chunk {chunk_index + 1} saved: {len(content)} bytes")
+        
+        # Store chunk metadata in database for tracking
+        chunk_record = {
+            "upload_id": upload_id,
+            "chunk_index": chunk_index,
+            "chunk_path": chunk_path,
+            "chunk_size": len(content),
+            "uploaded_at": datetime.utcnow(),
+            "original_filename": original_filename
+        }
+        
+        await db.upload_chunks.insert_one(chunk_record)
+        
+        return {
+            "message": f"Chunk {chunk_index + 1}/{total_chunks} uploaded successfully",
+            "upload_id": upload_id,
+            "chunk_index": chunk_index
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Chunk upload failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Chunk upload failed: {str(e)}")
+
+@api_router.post("/finalize-upload")
+async def finalize_upload(
+    upload_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Finalize chunked upload by combining chunks"""
+    try:
+        upload_id = upload_data.get("upload_id")
+        total_chunks = upload_data.get("total_chunks")
+        filename = upload_data.get("filename")
+        file_size = upload_data.get("file_size")
+        
+        logging.info(f"🔗 Finalizing upload: {upload_id} with {total_chunks} chunks")
+        
+        # Get all chunks for this upload
+        chunks = await db.upload_chunks.find({
+            "upload_id": upload_id
+        }).sort("chunk_index", 1).to_list(length=total_chunks)
+        
+        if len(chunks) != total_chunks:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Missing chunks: expected {total_chunks}, got {len(chunks)}"
+            )
+        
+        # Combine chunks into final file
+        temp_dir = f"/tmp/chunks_{upload_id}"
+        final_file_path = f"/tmp/final_{upload_id}_{filename}"
+        
+        with open(final_file_path, "wb") as final_file:
+            for chunk in chunks:
+                chunk_path = chunk["chunk_path"]
+                with open(chunk_path, "rb") as chunk_file:
+                    final_file.write(chunk_file.read())
+        
+        # Upload final file to GCS
+        with open(final_file_path, "rb") as final_file:
+            file_content = final_file.read()
+            
+        # Generate file path and upload
+        file_extension = filename.split('.')[-1] if '.' in filename else ''
+        gcs_filename = f"documents/{filename}_{int(datetime.now().timestamp() * 1000)}.{file_extension}"
+        
+        upload_result = await gcs_service.upload_file(
+            file_content=file_content,
+            file_name=gcs_filename,
+            content_type=f"application/{file_extension}"
+        )
+        
+        # Cleanup temp files
+        import shutil
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        os.remove(final_file_path)
+        
+        # Remove chunk records
+        await db.upload_chunks.delete_many({"upload_id": upload_id})
+        
+        logging.info(f"✅ Chunked upload finalized: {gcs_filename}")
+        
+        return {
+            "message": "File upload completed successfully",
+            "file_path": gcs_filename,
+            "file_size": file_size,
+            "upload_id": upload_id
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Upload finalization failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Upload finalization failed: {str(e)}")
+
 # Consumption Management Endpoints
 @api_router.post("/consumptions")
 async def create_consumption(
