@@ -863,7 +863,25 @@ async def download_document(
             raise HTTPException(status_code=403, detail="Access denied: Cannot access other clients' documents")
     
     try:
-        # Generate signed URL for secure access
+        # Check if it's a local upload
+        if document.get("local_upload", False):
+            # Local file download
+            import os
+            from fastapi.responses import FileResponse
+            
+            file_path = document.get("file_path")
+            if file_path and os.path.exists(file_path):
+                logging.info(f"📁 Serving local file: {file_path}")
+                return FileResponse(
+                    path=file_path,
+                    filename=document.get("original_filename", document.get("name", "download")),
+                    media_type='application/octet-stream'
+                )
+            else:
+                logging.error(f"❌ Local file not found: {file_path}")
+                raise HTTPException(status_code=404, detail="File not found on server")
+        
+        # GCS fallback (existing logic)
         if document.get("mock_upload", False) or not gcs_service or not gcs_service.client:
             # For mock uploads or when GCS is not available
             file_url = document.get("file_url", "")
