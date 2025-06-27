@@ -250,6 +250,11 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
         logging.info(f"🔍 Received token length: {len(token)}")
         logging.info(f"🔍 Token preview: {token[:50]}...")
         
+        # Basic token format validation
+        if not token or len(token.split('.')) != 3:
+            logging.error(f"❌ Invalid token format: {len(token.split('.'))} segments")
+            raise HTTPException(status_code=401, detail="Invalid token format")
+        
         # Get the signing key from Clerk
         try:
             signing_key = jwks_client.get_signing_key_from_jwt(token)
@@ -274,6 +279,11 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
         except jwt.InvalidTokenError as e:
             logging.error(f"❌ Invalid token during decode: {str(e)}")
             raise HTTPException(status_code=401, detail="Invalid token")
+        
+        # Validate payload has required fields
+        if not payload.get('sub'):
+            logging.error("❌ Token missing required 'sub' field")
+            raise HTTPException(status_code=401, detail="Invalid token: missing user ID")
         
         # Log all available token data for debugging
         logging.info(f"🔍 Token payload keys: {list(payload.keys())}")
