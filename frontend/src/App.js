@@ -1620,12 +1620,27 @@ const ConsumptionManagement = ({ onNavigate }) => {
       console.log('⚠️ No authToken, skipping consumptions fetch');
       return;
     }
+    
+    // For admin, require client selection
+    if (userRole === 'admin' && !consumptionData.client_id) {
+      console.log('⚠️ Admin must select client for consumptions');
+      setConsumptions([]);
+      return;
+    }
+    
     try {
+      let url = `${API}/consumptions?year=${selectedYear}`;
+      if (userRole === 'admin' && consumptionData.client_id) {
+        url += `&client_id=${consumptionData.client_id}`;
+      }
+      
       console.log('🔍 Fetching consumptions:', {
         year: selectedYear,
+        client_id: consumptionData.client_id || 'current user',
         authToken: authToken ? `${authToken.substring(0, 20)}...` : 'null'
       });
-      const response = await axios.get(`${API}/consumptions?year=${selectedYear}`, {
+      
+      const response = await axios.get(url, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       
