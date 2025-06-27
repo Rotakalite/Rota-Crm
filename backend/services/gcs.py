@@ -55,7 +55,7 @@ class GoogleCloudStorage:
             self.client = None
             self.bucket = None
 
-    async def upload_file(self, file_content: bytes, filename: str, content_type: str = "application/octet-stream") -> dict:
+    async def upload_file(self, file_content: bytes, filename: str, content_type: str = None) -> dict:
         """
         Upload file to Google Cloud Storage
         Returns: dict with url, file_path, and file_size
@@ -72,9 +72,30 @@ class GoogleCloudStorage:
                 }
             
             # Generate unique filename
-            file_extension = filename.split('.')[-1] if '.' in filename else ''
+            file_extension = filename.split('.')[-1].lower() if '.' in filename else ''
             unique_filename = f"{uuid.uuid4()}.{file_extension}" if file_extension else str(uuid.uuid4())
             blob_name = f"documents/{datetime.now().strftime('%Y/%m')}/{unique_filename}"
+            
+            # Determine content type if not provided
+            if not content_type:
+                content_type_map = {
+                    'pdf': 'application/pdf',
+                    'doc': 'application/msword',
+                    'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'xls': 'application/vnd.ms-excel',
+                    'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'png': 'image/png',
+                    'jpg': 'image/jpeg',
+                    'jpeg': 'image/jpeg',
+                    'gif': 'image/gif',
+                    'txt': 'text/plain',
+                    'zip': 'application/zip',
+                    'rar': 'application/x-rar-compressed',
+                    '7z': 'application/x-7z-compressed',
+                    'tar': 'application/x-tar',
+                    'gz': 'application/gzip'
+                }
+                content_type = content_type_map.get(file_extension, 'application/octet-stream')
             
             # Upload to GCS
             blob = self.bucket.blob(blob_name)
