@@ -218,12 +218,8 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Fix 403 Authentication Errors"
-    - "Frontend URL Configuration"
-    - "Cleanup Duplicate Code in Stats Endpoint"
-  stuck_tasks:
-    - "Fix 403 Authentication Errors"
+  current_focus: []
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
