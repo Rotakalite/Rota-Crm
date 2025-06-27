@@ -70,7 +70,13 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],  # Allow ALL origins completely
+    allow_origins=[
+        "*",  # Allow all origins
+        "https://rota-knt2yrp8n-rotas-projects-62181e6e.vercel.app",  # Vercel frontend
+        "https://*.vercel.app",  # All Vercel apps
+        "http://localhost:3000",  # Local development
+        "https://aa553048-3daf-4672-a224-c7c6e3863ff1.preview.emergentagent.com"  # Current backend
+    ],
     allow_methods=["*"],  # Allow ALL methods
     allow_headers=["*"],  # Allow ALL headers
     expose_headers=["*"],
