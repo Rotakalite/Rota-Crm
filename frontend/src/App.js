@@ -118,6 +118,12 @@ ChartJS.register(
 
 const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
+const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
+
+// API Configuration - FIXED URL with cache busting
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://aa553048-3daf-4672-a224-c7c6e3863ff1.preview.emergentagent.com';
+const API = `${BACKEND_URL}/api`;
+
 // Configure axios to automatically refresh tokens
 axios.interceptors.response.use(
   (response) => response,
@@ -129,20 +135,14 @@ axios.interceptors.response.use(
       
       try {
         console.log('🔄 Token expired, refreshing...');
-        const { session } = useClerk();
+        // Force page refresh to re-authenticate with Clerk
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
         
-        if (session) {
-          const newToken = await session.getToken();
-          setAuthToken(newToken);
-          
-          // Retry original request with new token
-          originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
-          return axios(originalRequest);
-        }
       } catch (refreshError) {
         console.error('❌ Token refresh failed:', refreshError);
-        // Redirect to login or show error
-        window.location.reload(); // Force page refresh to re-authenticate
+        window.location.reload();
       }
     }
     
