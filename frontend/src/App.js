@@ -863,6 +863,7 @@ const DocumentManagement = () => {
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadData, setUploadData] = useState({
     client_id: '',
     name: '',
