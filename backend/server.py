@@ -440,13 +440,31 @@ async def create_client(
 async def get_clients(current_user: User = Depends(get_current_user)):
     logging.info(f"🔍 GET /clients called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
     
-    if current_user.role == UserRole.ADMIN:
-        # Admin can see all clients
-        clients = await db.clients.find().to_list(1000)
-        logging.info(f"✅ Admin user - returning {len(clients)} clients:")
-        for client in clients:
-            logging.info(f"   - {client['hotel_name']} (ID: {client['id']})")
-        return [Client(**client) for client in clients]
+    try:
+        if current_user.role == UserRole.ADMIN:
+            # Admin can see all clients
+            clients = await db.clients.find().to_list(1000)
+            logging.info(f"✅ Admin user - returning {len(clients)} clients:")
+            for client in clients:
+                logging.info(f"   - {client['hotel_name']} (ID: {client['id']})")
+            return [Client(**client) for client in clients]
+        else:
+            # Client users can only see their own client
+            if not current_user.client_id:
+                logging.warning(f"⚠️ Client user has no client_id: {current_user.name}")
+                return []
+            
+            client = await db.clients.find_one({"id": current_user.client_id})
+            if not client:
+                logging.warning(f"⚠️ Client not found for user: {current_user.client_id}")
+                return []
+            
+            logging.info(f"✅ Client user - returning own client: {client['hotel_name']}")
+            return [Client(**client)]
+    except Exception as e:
+        logging.error(f"❌ Error in get_clients: {str(e)}")
+        # Fallback: return empty list instead of error
+        return []
     else:
         # Client can only see their own record
         if not current_user.client_id:
