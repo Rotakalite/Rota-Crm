@@ -1347,6 +1347,9 @@ async def health_check():
         "cors_enabled": True
     }
 
+# Include the router in the main app
+app.include_router(api_router)
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
