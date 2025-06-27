@@ -54,15 +54,9 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=[
-        "*",  # Allow ALL origins for development
-        "https://rota-9cwz4tuu2-rotas-projects-62181e6e.vercel.app",  # Specific Vercel domain
-        "https://1f0c3a30-ba23-4cb9-a340-2a6d39e2d493.preview.emergentagent.com",  # Backend URL
-        "http://localhost:3000",  # Local development
-        "https://localhost:3000"   # Local HTTPS
-    ],
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
-    allow_headers=["*"],
+    allow_origins=["*"],  # Allow ALL origins - simplified for development
+    allow_methods=["*"],  # Allow ALL methods
+    allow_headers=["*"],  # Allow ALL headers
     expose_headers=["*"],
     max_age=86400  # 24 hours
 )
