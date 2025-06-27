@@ -592,7 +592,7 @@ const ConsumptionAnalytics = () => {
           <h3 className="text-xl font-semibold text-gray-800 mb-2">Veri Bulunamadı</h3>
           <p className="text-gray-600">
             {userRole === 'admin' && !selectedClient 
-              ? 'Lütfen bir müşteri seçin.'
+              ? `Lütfen bir müşteri seçin. ${clients.length === 0 ? '(Müşteri listesi yüklenemiyor - 🔄 butonuna tıklayın)' : ''}`
               : 'Seçilen dönem için tüketim verisi bulunmuyor.'
             }
           </p>
