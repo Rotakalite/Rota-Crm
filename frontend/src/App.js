@@ -2047,7 +2047,7 @@ const DocumentManagement = () => {
             <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-xl">
               <div className="flex justify-between items-center">
                 <div className="flex items-center">
-                  <span className="text-3xl mr-3">{getFileIcon(selectedDocument.file_path)}</span>
+                  <span className="text-3xl mr-3">{getFileIcon(selectedDocument?.original_filename || selectedDocument?.file_path || '')}</span>
                   <div>
                     <h3 className="text-xl font-bold">Belge Detayları</h3>
                     <p className="text-blue-100 text-sm">{selectedDocument.name}</p>
