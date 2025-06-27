@@ -1706,7 +1706,10 @@ const DocumentManagement = () => {
         }
       }
 
-      fetchDocuments();
+      // Refresh documents list after all uploads
+      console.log('🔄 Refreshing documents list...');
+      await fetchDocuments();
+      
       setShowUploadForm(false);
       setUploadData({
         client_id: '',
