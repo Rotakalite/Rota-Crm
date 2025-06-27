@@ -883,17 +883,28 @@ async def delete_consumption(
 @api_router.get("/consumptions/analytics")
 async def get_consumption_analytics(
     year: Optional[int] = None,
+    client_id: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
     """Get consumption analytics and comparisons"""
     
+    logging.info(f"🔍 GET /consumptions/analytics called by user: {current_user.role} - client_id param: {client_id}")
+    
     # Get client_id based on user role
     if current_user.role == UserRole.ADMIN:
-        client_id = current_user.client_id
+        # Admin can specify client_id or see all data
+        if client_id:
+            target_client_id = client_id
+        else:
+            # If no client_id specified, return error - admin must select client
+            raise HTTPException(status_code=400, detail="Admin must specify client_id for analytics")
     else:
+        # Client users can only see their own analytics
         if not current_user.client_id:
             raise HTTPException(status_code=400, detail="Client not assigned to user")
-        client_id = current_user.client_id
+        target_client_id = current_user.client_id
+    
+    logging.info(f"📊 Generating analytics for client_id: {target_client_id}")
     
     # Default to current year if not specified
     if not year:
