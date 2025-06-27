@@ -26,9 +26,7 @@ ChartJS.register(
   Legend
 );
 
-const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
-
-// API Configuration - FIXED URL
+// API Configuration - FIXED URL with cache busting
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://1f0c3a30-ba23-4cb9-a340-2a6d39e2d493.preview.emergentagent.com';
 const API = `${BACKEND_URL}/api`;
 
@@ -36,6 +34,47 @@ const API = `${BACKEND_URL}/api`;
 console.log('🔧 API URL configured as:', API);
 console.log('🔧 BACKEND_URL from env:', process.env.REACT_APP_BACKEND_URL);
 console.log('🔧 All REACT_APP env vars:', Object.keys(process.env).filter(key => key.startsWith('REACT_APP')));
+
+// Add cache busting and request interceptor
+axios.defaults.headers.common['Cache-Control'] = 'no-cache';
+axios.defaults.headers.common['Pragma'] = 'no-cache';
+axios.defaults.timeout = 30000; // 30 second timeout
+
+// Add request interceptor for debugging
+axios.interceptors.request.use(
+  (config) => {
+    console.log(`📤 API Request: ${config.method?.toUpperCase()} ${config.url}`);
+    return config;
+  },
+  (error) => {
+    console.error('📤 Request Error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for debugging and error handling
+axios.interceptors.response.use(
+  (response) => {
+    console.log(`📥 API Response: ${response.status} ${response.config.url}`);
+    return response;
+  },
+  (error) => {
+    console.error(`📥 API Error: ${error.response?.status} ${error.config?.url}`, error.response?.data);
+    
+    // Handle common errors
+    if (error.response?.status === 401) {
+      console.warn('🔐 Authentication error - token might be expired');
+    } else if (error.response?.status === 403) {
+      console.warn('🚫 Permission denied - user might not have access');
+    } else if (error.response?.status >= 500) {
+      console.error('🔥 Server error - backend might be down');
+    } else if (error.code === 'ECONNABORTED') {
+      console.error('⏰ Request timeout - server is slow');
+    }
+    
+    return Promise.reject(error);
+  }
+);
 
 if (!CLERK_PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key")
