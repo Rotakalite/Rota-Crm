@@ -183,20 +183,46 @@ const Header = () => {
 // Consumption Analytics Components
 const ConsumptionAnalytics = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
-  const [multiClientData, setMultiClientData] = useState(null);
   const [monthlyTrends, setMonthlyTrends] = useState(null);
-  const [selectedYear, setSelectedYear] = useState(2024); // 2024'e başla çünkü daha çok veri var
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [selectedYear, setSelectedYear] = useState(2024);
+  const [selectedComparisonYear, setSelectedComparisonYear] = useState(2023); // Karşılaştırma yılı
   const [loading, setLoading] = useState(false);
-  const [activeView, setActiveView] = useState('yearly'); // yearly, monthly, clients
+  const [activeView, setActiveView] = useState('yearly'); // yearly, trends
   const { authToken, userRole, dbUser } = useAuth();
 
   useEffect(() => {
-    fetchAnalyticsData();
     if (userRole === 'admin') {
-      fetchMultiClientData();
+      fetchClients();
     }
-    fetchMonthlyTrends();
-  }, [authToken, selectedYear]);
+  }, [authToken, userRole]);
+
+  useEffect(() => {
+    if (selectedClient || userRole === 'client') {
+      fetchAnalyticsData();
+      fetchMonthlyTrends();
+    }
+  }, [authToken, selectedYear, selectedComparisonYear, selectedClient]);
+
+  const fetchClients = async () => {
+    if (!authToken || userRole !== 'admin') return;
+    
+    try {
+      const response = await axios.get(`${API}/clients`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      setClients(Array.isArray(response.data) ? response.data : []);
+      
+      // İlk müşteriyi otomatik seç
+      if (response.data && response.data.length > 0) {
+        setSelectedClient(response.data[0].id);
+      }
+    } catch (error) {
+      console.error("❌ Error fetching clients:", error);
+      setClients([]);
+    }
+  };
 
   const fetchAnalyticsData = async () => {
     if (!authToken) {
@@ -206,8 +232,11 @@ const ConsumptionAnalytics = () => {
     
     setLoading(true);
     try {
-      console.log("🔍 Fetching analytics with token:", authToken ? authToken.substring(0, 20) + "..." : "null");
-      const response = await axios.get(`${API}/consumptions/analytics?year=${selectedYear}`, {
+      const clientId = userRole === 'admin' ? selectedClient : dbUser?.client_id;
+      if (!clientId) return;
+
+      console.log(`🔍 Fetching analytics for client: ${clientId}, year: ${selectedYear}`);
+      const response = await axios.get(`${API}/consumptions/analytics?year=${selectedYear}&client_id=${clientId}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       setAnalyticsData(response.data);
@@ -216,24 +245,6 @@ const ConsumptionAnalytics = () => {
       console.error("❌ Error fetching analytics:", error.response?.status, error.response?.data);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchMultiClientData = async () => {
-    if (!authToken || userRole !== 'admin') {
-      console.log("❌ No auth token or not admin for multi-client data");
-      return;
-    }
-    
-    try {
-      console.log("🔍 Fetching multi-client data with token:", authToken.substring(0, 20) + "...");
-      const response = await axios.get(`${API}/analytics/multi-client-comparison?year=${selectedYear}`, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      });
-      setMultiClientData(response.data);
-      console.log("✅ Multi-client data fetched:", response.data);
-    } catch (error) {
-      console.error("❌ Error fetching multi-client data:", error.response?.status, error.response?.data);
     }
   };
 
@@ -300,17 +311,25 @@ const ConsumptionAnalytics = () => {
     };
   };
 
-  const getMultiClientComparisonChart = () => {
-    if (!multiClientData || !multiClientData.clients_comparison) return null;
+  const getYearlyComparisonChart = () => {
+    if (!analyticsData) return null;
 
-    const clients = multiClientData.clients_comparison;
-    const hotelNames = clients.map(c => c.hotel_name.length > 15 ? c.hotel_name.substring(0, 15) + '...' : c.hotel_name);
-    const electricityData = clients.map(c => c.yearly_totals.electricity);
-    const waterData = clients.map(c => c.yearly_totals.water);
-    const gasData = clients.map(c => c.yearly_totals.natural_gas);
+    const years = [selectedYear - 1, selectedYear];
+    const electricityData = [
+      analyticsData.yearly_totals.previous_year.electricity,
+      analyticsData.yearly_totals.current_year.electricity
+    ];
+    const waterData = [
+      analyticsData.yearly_totals.previous_year.water,
+      analyticsData.yearly_totals.current_year.water
+    ];
+    const gasData = [
+      analyticsData.yearly_totals.previous_year.natural_gas,
+      analyticsData.yearly_totals.current_year.natural_gas
+    ];
 
     return {
-      labels: hotelNames,
+      labels: years,
       datasets: [
         {
           label: 'Elektrik (kWh)',
@@ -337,35 +356,6 @@ const ConsumptionAnalytics = () => {
     };
   };
 
-  const getPerPersonComparisonChart = () => {
-    if (!multiClientData || !multiClientData.clients_comparison) return null;
-
-    const clients = multiClientData.clients_comparison;
-    const hotelNames = clients.map(c => c.hotel_name.length > 15 ? c.hotel_name.substring(0, 15) + '...' : c.hotel_name);
-    const electricityPerPerson = clients.map(c => c.per_person_consumption.electricity);
-    const waterPerPerson = clients.map(c => c.per_person_consumption.water);
-
-    return {
-      labels: hotelNames,
-      datasets: [
-        {
-          label: 'Kişi Başı Elektrik (kWh)',
-          data: electricityPerPerson,
-          backgroundColor: 'rgba(139, 69, 19, 0.8)',
-          borderColor: 'rgb(139, 69, 19)',
-          borderWidth: 1
-        },
-        {
-          label: 'Kişi Başı Su (m³)',
-          data: waterPerPerson,
-          backgroundColor: 'rgba(30, 144, 255, 0.8)',
-          borderColor: 'rgb(30, 144, 255)',
-          borderWidth: 1
-        }
-      ]
-    };
-  };
-
   const chartOptions = {
     responsive: true,
     plugins: {
@@ -374,7 +364,7 @@ const ConsumptionAnalytics = () => {
       },
       title: {
         display: true,
-        text: 'Tüketim Karşılaştırması'
+        text: 'Tüketim Analizi'
       }
     },
     scales: {
@@ -382,6 +372,14 @@ const ConsumptionAnalytics = () => {
         beginAtZero: true
       }
     }
+  };
+
+  const getSelectedClientName = () => {
+    if (userRole === 'client') {
+      return dbUser?.name || 'Müşteri';
+    }
+    const client = clients.find(c => c.id === selectedClient);
+    return client ? client.hotel_name : 'Müşteri Seçin';
   };
 
   if (loading) {
@@ -398,9 +396,26 @@ const ConsumptionAnalytics = () => {
       <div className="bg-white p-6 rounded-lg shadow-md">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
           <h2 className="text-2xl font-bold text-gray-800 mb-4 md:mb-0">
-            📊 Tüketim Analizi ve Karşılaştırma
+            📊 {getSelectedClientName()} - Tüketim Analizi
           </h2>
           <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+            {/* Admin Client Selector */}
+            {userRole === 'admin' && (
+              <select
+                value={selectedClient}
+                onChange={(e) => setSelectedClient(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Müşteri Seçin</option>
+                {clients.map(client => (
+                  <option key={client.id} value={client.id}>
+                    {client.hotel_name}
+                  </option>
+                ))}
+              </select>
+            )}
+            
+            {/* Year Selector */}
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(parseInt(e.target.value))}
@@ -423,30 +438,18 @@ const ConsumptionAnalytics = () => {
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            Yıllık Karşılaştırma
+            Aylık Karşılaştırma
           </button>
           <button
-            onClick={() => setActiveView('monthly')}
+            onClick={() => setActiveView('trends')}
             className={`px-4 py-2 rounded-md transition-colors ${
-              activeView === 'monthly' 
+              activeView === 'trends' 
                 ? 'bg-blue-600 text-white' 
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            Aylık Trend
+            Yıllık Karşılaştırma
           </button>
-          {userRole === 'admin' && (
-            <button
-              onClick={() => setActiveView('clients')}
-              className={`px-4 py-2 rounded-md transition-colors ${
-                activeView === 'clients' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              Müşteri Karşılaştırma
-            </button>
-          )}
         </div>
       </div>
 
@@ -456,21 +459,21 @@ const ConsumptionAnalytics = () => {
           {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
-              <h3 className="text-lg font-semibold text-blue-700 mb-2">Toplam Elektrik</h3>
+              <h3 className="text-lg font-semibold text-blue-700 mb-2">Toplam Elektrik ({selectedYear})</h3>
               <p className="text-3xl font-bold text-blue-900">
                 {analyticsData.yearly_totals.current_year.electricity.toLocaleString()} kWh
               </p>
               <p className="text-sm text-gray-600 mt-1">
-                Önceki yıl: {analyticsData.yearly_totals.previous_year.electricity.toLocaleString()} kWh
+                {selectedYear - 1}: {analyticsData.yearly_totals.previous_year.electricity.toLocaleString()} kWh
               </p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
-              <h3 className="text-lg font-semibold text-green-700 mb-2">Toplam Su</h3>
+              <h3 className="text-lg font-semibold text-green-700 mb-2">Toplam Su ({selectedYear})</h3>
               <p className="text-3xl font-bold text-green-900">
                 {analyticsData.yearly_totals.current_year.water.toLocaleString()} m³
               </p>
               <p className="text-sm text-gray-600 mt-1">
-                Önceki yıl: {analyticsData.yearly_totals.previous_year.water.toLocaleString()} m³
+                {selectedYear - 1}: {analyticsData.yearly_totals.previous_year.water.toLocaleString()} m³
               </p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
@@ -479,7 +482,7 @@ const ConsumptionAnalytics = () => {
                 {analyticsData.yearly_per_person.current_year.electricity.toFixed(1)} kWh
               </p>
               <p className="text-sm text-gray-600 mt-1">
-                Önceki yıl: {analyticsData.yearly_per_person.previous_year.electricity.toFixed(1)} kWh
+                {selectedYear - 1}: {analyticsData.yearly_per_person.previous_year.electricity.toFixed(1)} kWh
               </p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
@@ -488,14 +491,16 @@ const ConsumptionAnalytics = () => {
                 {analyticsData.yearly_per_person.current_year.water.toFixed(1)} m³
               </p>
               <p className="text-sm text-gray-600 mt-1">
-                Önceki yıl: {analyticsData.yearly_per_person.previous_year.water.toFixed(1)} m³
+                {selectedYear - 1}: {analyticsData.yearly_per_person.previous_year.water.toFixed(1)} m³
               </p>
             </div>
           </div>
 
           {/* Monthly Comparison Chart */}
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Aylık Tüketim Karşılaştırması</h3>
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+              {selectedYear} vs {selectedYear - 1} Aylık Tüketim Karşılaştırması
+            </h3>
             {getMonthlyComparisonChart() && (
               <Line data={getMonthlyComparisonChart()} options={chartOptions} />
             )}
@@ -503,92 +508,67 @@ const ConsumptionAnalytics = () => {
         </div>
       )}
 
-      {/* Monthly Trends View */}
-      {activeView === 'monthly' && monthlyTrends && (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">
-            {selectedYear} Yılı Aylık Tüketim Trendi
-          </h3>
-          {monthlyTrends.monthly_trends && (
-            <Bar 
-              data={{
-                labels: monthlyTrends.monthly_trends.map(m => m.month_name),
-                datasets: [
-                  {
-                    label: 'Elektrik (kWh)',
-                    data: monthlyTrends.monthly_trends.map(m => m.electricity),
-                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                    borderColor: 'rgb(59, 130, 246)',
-                    borderWidth: 1
-                  },
-                  {
-                    label: 'Su (m³)',
-                    data: monthlyTrends.monthly_trends.map(m => m.water),
-                    backgroundColor: 'rgba(34, 197, 94, 0.8)',
-                    borderColor: 'rgb(34, 197, 94)',
-                    borderWidth: 1
-                  }
-                ]
-              }}
-              options={chartOptions}
-            />
+      {/* Yearly Trends View */}
+      {activeView === 'trends' && analyticsData && (
+        <div className="space-y-6">
+          {/* Yearly Comparison Chart */}
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+              Yıllık Tüketim Karşılaştırması ({selectedYear - 1} vs {selectedYear})
+            </h3>
+            {getYearlyComparisonChart() && (
+              <Bar data={getYearlyComparisonChart()} options={chartOptions} />
+            )}
+          </div>
+
+          {/* Percentage Change Analysis */}
+          {analyticsData && (
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">Değişim Analizi</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-blue-700">Elektrik Değişimi</h4>
+                  <p className="text-2xl font-bold text-blue-900">
+                    {(((analyticsData.yearly_totals.current_year.electricity - analyticsData.yearly_totals.previous_year.electricity) / analyticsData.yearly_totals.previous_year.electricity) * 100).toFixed(1)}%
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {analyticsData.yearly_totals.current_year.electricity > analyticsData.yearly_totals.previous_year.electricity ? '↗️ Artış' : '↘️ Azalış'}
+                  </p>
+                </div>
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-green-700">Su Değişimi</h4>
+                  <p className="text-2xl font-bold text-green-900">
+                    {(((analyticsData.yearly_totals.current_year.water - analyticsData.yearly_totals.previous_year.water) / analyticsData.yearly_totals.previous_year.water) * 100).toFixed(1)}%
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {analyticsData.yearly_totals.current_year.water > analyticsData.yearly_totals.previous_year.water ? '↗️ Artış' : '↘️ Azalış'}
+                  </p>
+                </div>
+                <div className="bg-yellow-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-yellow-700">Doğalgaz Değişimi</h4>
+                  <p className="text-2xl font-bold text-yellow-900">
+                    {(((analyticsData.yearly_totals.current_year.natural_gas - analyticsData.yearly_totals.previous_year.natural_gas) / analyticsData.yearly_totals.previous_year.natural_gas) * 100).toFixed(1)}%
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {analyticsData.yearly_totals.current_year.natural_gas > analyticsData.yearly_totals.previous_year.natural_gas ? '↗️ Artış' : '↘️ Azalış'}
+                  </p>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       )}
 
-      {/* Multi-Client Comparison View (Admin Only) */}
-      {activeView === 'clients' && userRole === 'admin' && multiClientData && (
-        <div className="space-y-6">
-          {/* Total Consumption Comparison */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">
-              Müşteriler Arası Toplam Tüketim Karşılaştırması
-            </h3>
-            {getMultiClientComparisonChart() && (
-              <Bar data={getMultiClientComparisonChart()} options={chartOptions} />
-            )}
-          </div>
-
-          {/* Per Person Consumption Comparison */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">
-              Kişi Başı Tüketim Karşılaştırması
-            </h3>
-            {getPerPersonComparisonChart() && (
-              <Bar data={getPerPersonComparisonChart()} options={chartOptions} />
-            )}
-          </div>
-
-          {/* Client Summary Table */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Müşteri Detayları</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3">Otel</th>
-                    <th className="px-6 py-3">Elektrik (kWh)</th>
-                    <th className="px-6 py-3">Su (m³)</th>
-                    <th className="px-6 py-3">Konaklama</th>
-                    <th className="px-6 py-3">Kişi Başı Elektrik</th>
-                    <th className="px-6 py-3">Kişi Başı Su</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {multiClientData.clients_comparison.map((client) => (
-                    <tr key={client.client_id} className="bg-white border-b hover:bg-gray-50">
-                      <td className="px-6 py-4 font-medium text-gray-900">{client.hotel_name}</td>
-                      <td className="px-6 py-4">{client.yearly_totals.electricity.toLocaleString()}</td>
-                      <td className="px-6 py-4">{client.yearly_totals.water.toLocaleString()}</td>
-                      <td className="px-6 py-4">{client.yearly_totals.accommodation_count.toLocaleString()}</td>
-                      <td className="px-6 py-4">{client.per_person_consumption.electricity.toFixed(2)}</td>
-                      <td className="px-6 py-4">{client.per_person_consumption.water.toFixed(2)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+      {/* No Data Message */}
+      {!analyticsData && !loading && (
+        <div className="bg-white p-8 rounded-lg shadow-md text-center">
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">Veri Bulunamadı</h3>
+          <p className="text-gray-600">
+            {userRole === 'admin' && !selectedClient 
+              ? 'Lütfen bir müşteri seçin.'
+              : 'Seçilen dönem için tüketim verisi bulunmuyor.'
+            }
+          </p>
         </div>
       )}
     </div>
