@@ -220,15 +220,20 @@ const ConsumptionAnalytics = () => {
   };
 
   const fetchMultiClientData = async () => {
-    if (!authToken || userRole !== 'admin') return;
+    if (!authToken || userRole !== 'admin') {
+      console.log("❌ No auth token or not admin for multi-client data");
+      return;
+    }
     
     try {
+      console.log("🔍 Fetching multi-client data with token:", authToken.substring(0, 20) + "...");
       const response = await axios.get(`${API}/analytics/multi-client-comparison?year=${selectedYear}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       setMultiClientData(response.data);
+      console.log("✅ Multi-client data fetched:", response.data);
     } catch (error) {
-      console.error("Error fetching multi-client data:", error);
+      console.error("❌ Error fetching multi-client data:", error.response?.status, error.response?.data);
     }
   };
 
