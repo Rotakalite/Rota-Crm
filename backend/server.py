@@ -54,11 +54,11 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],  # Allow ALL origins - simplified for development
+    allow_origins=["*"],  # Allow ALL origins completely
     allow_methods=["*"],  # Allow ALL methods
     allow_headers=["*"],  # Allow ALL headers
     expose_headers=["*"],
-    max_age=86400  # 24 hours
+    max_age=0  # No caching to avoid CORS issues
 )
 
 # Set maximum request size to 500MB
