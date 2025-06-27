@@ -1322,18 +1322,6 @@ async def get_monthly_trends(
 # Include the router in the main app
 app.include_router(api_router)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=[
-        "*"  # Allow ALL origins for development
-    ],
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
-    allow_headers=["*"],
-    expose_headers=["*"],
-    max_age=86400  # 24 hours
-)
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
