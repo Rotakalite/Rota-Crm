@@ -963,8 +963,28 @@ async def download_document(
             raise HTTPException(status_code=403, detail="Access denied: Cannot access other clients' documents")
     
     try:
-        # Check if it's a Supabase upload
-        if document.get("supabase_upload", False):
+        # Check if it's a GridFS upload (Primary)
+        if document.get("gridfs_upload", False):
+            # MongoDB GridFS file download
+            if mongo_gridfs and mongo_gridfs.fs:
+                logging.info(f"📥 Downloading from MongoDB GridFS: {document.get('file_id')}")
+                
+                file_content, metadata = await mongo_gridfs.download_file(document.get("file_id"))
+                
+                from fastapi.responses import Response
+                return Response(
+                    content=file_content,
+                    media_type=metadata.get('content_type', 'application/octet-stream'),
+                    headers={
+                        "Content-Disposition": f"attachment; filename=\"{metadata.get('original_filename', document.get('name', 'download'))}\""
+                    }
+                )
+            else:
+                logging.error("❌ MongoDB GridFS client not available")
+                raise HTTPException(status_code=500, detail="Storage service not available")
+        
+        # Check if it's a Supabase upload (Backup)
+        elif document.get("supabase_upload", False):
             # Supabase file download
             if supabase_storage and supabase_storage.client:
                 logging.info(f"📥 Downloading from Supabase: {document.get('file_path')}")
@@ -983,7 +1003,7 @@ async def download_document(
                 logging.error("❌ Supabase client not available")
                 raise HTTPException(status_code=500, detail="Storage service not available")
         
-        # Check if it's a local upload
+        # Check if it's a local upload (Fallback)
         elif document.get("local_upload", False):
             # Local file download
             import os
