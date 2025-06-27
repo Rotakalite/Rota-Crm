@@ -14,6 +14,9 @@ class MongoGridFS:
         self.mongo_url = os.getenv("MONGO_URL")
         self.db_name = os.getenv("DB_NAME")
         
+        print(f"🔍 Debug - MONGO_URL: {self.mongo_url}")
+        print(f"🔍 Debug - DB_NAME: {self.db_name}")
+        
         if not self.mongo_url or not self.db_name:
             logger.error("❌ MongoDB credentials not found!")
             self.client = None
