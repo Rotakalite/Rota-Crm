@@ -1085,7 +1085,7 @@ const Dashboard = ({ onNavigate }) => {
             <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white p-6 rounded-t-xl">
               <div className="flex justify-between items-center">
                 <div className="flex items-center">
-                  <span className="text-3xl mr-3">{getFileIcon(selectedDocument.file_path)}</span>
+                  <span className="text-3xl mr-3">{getFileIcon(selectedDocument?.original_filename || selectedDocument?.file_path || '')}</span>
                   <div>
                     <h3 className="text-xl font-bold">Karbon Ayak İzi Raporu</h3>
                     <p className="text-green-100 text-sm">{selectedDocument.name}</p>
