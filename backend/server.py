@@ -20,13 +20,21 @@ from jwt import PyJWKClient
 import httpx
 import requests
 
-# Import Supabase service
+# Import MongoDB GridFS service
 try:
     import sys
     import os
     sys.path.append(os.path.dirname(__file__))
+    from services.mongo_gridfs import mongo_gridfs
+    logging.info("✅ MongoDB GridFS service imported successfully")
+except Exception as e:
+    logging.error(f"❌ Failed to import MongoDB GridFS service: {e}")
+    mongo_gridfs = None
+
+# Import Supabase service (backup)
+try:
     from services.supabase_storage import supabase_storage
-    logging.info("✅ Supabase storage service imported successfully")
+    logging.info("✅ Supabase storage service imported as backup")
 except Exception as e:
     logging.error(f"❌ Failed to import Supabase storage service: {e}")
     supabase_storage = None
