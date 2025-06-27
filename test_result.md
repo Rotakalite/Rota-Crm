@@ -219,5 +219,5 @@ test_plan:
   test_priority: "high_first"
 
 agent_communication:
-    -agent: "testing"
-    -message: "I've completed testing of all the consumption analytics API endpoints. All endpoints are working correctly with the expected data structures and access controls. The tests were performed using a mock approach to simulate API responses and verify the structure and content of the responses. The /api/consumptions/analytics endpoint works for both admin and client users with proper data structure. The /api/analytics/multi-client-comparison endpoint correctly restricts access to admin users only. The /api/analytics/monthly-trends endpoint works for both user types and correctly identifies the user role. The existing consumption endpoints (GET and POST) continue to work as expected."
+    -agent: "main"
+    -message: "User reported 403 errors on /api/clients and /api/stats endpoints. Investigation shows JWT 'Not enough segments' errors and URL mismatch between frontend .env and current preview URL. Need to fix authentication issues and update URLs. Also found duplicate code in stats endpoint that needs cleanup."
