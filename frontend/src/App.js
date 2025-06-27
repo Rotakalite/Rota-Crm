@@ -213,7 +213,7 @@ if (!CLERK_PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key")
 }
 
-// Authentication Hook
+// Authentication Hook - Working version from GitHub
 const useAuth = () => {
   const { user, isLoaded } = useUser();
   const { session } = useClerk();
@@ -239,9 +239,6 @@ const useAuth = () => {
     const initAuth = async () => {
       if (isLoaded && user && session) {
         try {
-          console.log("🔍 Clerk user loaded:", user.id);
-          console.log("🔍 Clerk user email:", user.primaryEmailAddress?.emailAddress);
-          console.log("🔍 Clerk session loaded:", !!session);
           // DIRECT role from Clerk metadata - highest priority
           const directRole = user.publicMetadata?.role || 'client';
           setUserRole(directRole);
@@ -251,45 +248,23 @@ const useAuth = () => {
           // Get token from session
           try {
             const token = await session.getToken();
-            console.log("🎯 Token received successfully:", token ? token.substring(0, 50) + "..." : "NO TOKEN");
             setAuthToken(token);
+            console.log('🎯 Token received successfully');
             
-            // Get user from database or register if not exists
-            try {
-              // First try to get existing user
-              const response = await axios.get(`${API}/auth/me`, {
-                headers: {
-                  'Authorization': `Bearer ${token}`
-                }
-              });
-              
-              setDbUser(response.data);
-              console.log('✅ User found in database');
-            } catch (userError) {
-              console.log('⚠️ User not found, trying to register...', userError.response?.status);
-              console.log('📡 Attempting registration with backend...');
-              
-              // If user not found, try to register
-              try {
-                const registerResponse = await axios.post(`${API}/auth/register`, {
-                  clerk_user_id: user.id,
-                  email: user.primaryEmailAddress?.emailAddress || '',
-                  name: user.fullName || user.firstName || 'User',
-                  role: directRole
-                }, {
-                  headers: {
-                    'Authorization': `Bearer ${token}`
-                  }
-                });
-                
-                setDbUser(registerResponse.data);
-                console.log('✅ User registered in database');
-              } catch (registerError) {
-                console.log('⚠️ Registration failed:', registerError.response?.status, registerError.response?.data);
-                console.log('⚠️ Continuing without DB user - this is okay for basic functionality');
-                // Continue without database user - this is okay for basic functionality
+            // Register/update user in our database
+            const response = await axios.post(`${API}/auth/register`, {
+              clerk_user_id: user.id,
+              email: user.primaryEmailAddress?.emailAddress || '',
+              name: user.fullName || user.firstName || 'User',
+              role: directRole
+            }, {
+              headers: {
+                'Authorization': `Bearer ${token}`
               }
-            }
+            });
+            
+            setDbUser(response.data);
+            console.log('✅ User registered in database');
             
           } catch (tokenError) {
             console.error('Token error:', tokenError);
@@ -308,8 +283,6 @@ const useAuth = () => {
         const directRole = user.publicMetadata?.role || 'client';
         setUserRole(directRole);
         console.log('🎯 No session, setting role without token:', directRole);
-      } else {
-        console.log("⏳ Waiting for Clerk to load... isLoaded:", isLoaded, "user:", !!user, "session:", !!session);
       }
     };
 
