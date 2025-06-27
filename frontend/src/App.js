@@ -1573,6 +1573,26 @@ const ConsumptionManagement = ({ onNavigate }) => {
     }
   };
 
+  const fetchClients = async () => {
+    if (!authToken || userRole !== 'admin') {
+      return; // Only admin needs clients list
+    }
+    try {
+      const response = await axios.get(`${API}/clients`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      if (Array.isArray(response.data)) {
+        setClients(response.data);
+        console.log('✅ Clients fetched for consumption:', response.data.length);
+      } else {
+        setClients([]);
+      }
+    } catch (error) {
+      console.error("Error fetching clients for consumption:", error);
+      setClients([]);
+    }
+  };
+
   const handleConsumptionSubmit = async (e) => {
     e.preventDefault();
     
