@@ -486,15 +486,6 @@ async def get_clients(current_user: User = Depends(get_current_user)):
         logging.error(f"❌ Error in get_clients: {str(e)}")
         # Fallback: return empty list instead of error
         return []
-    else:
-        # Client can only see their own record
-        if not current_user.client_id:
-            logging.info("⚠️ Client user has no client_id - returning empty list")
-            return []
-        client = await db.clients.find_one({"id": current_user.client_id})
-        result = [Client(**client)] if client else []
-        logging.info(f"✅ Client user - returning {len(result)} clients")
-        return result
 
 @api_router.get("/clients/{client_id}", response_model=Client)
 async def get_client(client_id: str, current_user: User = Depends(get_client_access)):
