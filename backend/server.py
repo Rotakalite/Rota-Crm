@@ -887,35 +887,39 @@ async def download_document(
             file_url = document.get("file_url", "")
             
             if file_url and file_url.startswith("https://storage.googleapis.com/"):
-                # This is a mock upload, create a downloadable placeholder
-                logging.info(f"🎭 Mock upload detected, creating placeholder download")
+                # This is a mock upload, create a downloadable file
+                logging.info(f"🎭 Mock upload detected, creating downloadable file")
                 
-                # Create a base64 data URL for a simple placeholder image/document
-                placeholder_content = """iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="""
-                download_url = f"data:image/png;base64,{placeholder_content}"
+                # Create a simple text content for the document
+                file_content = f"""
+=== DOSYA BİLGİLERİ ===
+
+Dosya Adı: {document.get("name", "Bilinmeyen Dosya")}
+Dosya Boyutu: {document.get("file_size", 0)} bytes
+Yükleme Tarihi: {document.get("created_at", "Bilinmeyen")}
+Müşteri: {document.get("client_id", "Bilinmeyen")}
+
+=== UYARI ===
+Bu demo bir dosyadır. Gerçek dosya Google Cloud Storage'da saklanacaktır.
+
+Orijinal URL: {file_url}
+
+=== ROTA KALİTE DANIŞMANLIK ===
+Sürdürülebilir Turizm CRM Sistemi
+"""
                 
-                # Or create a simple HTML page as placeholder
-                if document.get("name", "").lower().endswith(('.pdf', '.doc', '.docx')):
-                    html_content = f'''
-                    <!DOCTYPE html>
-                    <html>
-                    <head><title>{document.get("name", "Document")}</title></head>
-                    <body style="font-family: Arial, sans-serif; padding: 20px;">
-                        <h1>📄 {document.get("name", "Document")}</h1>
-                        <p><strong>Bu bir demo dosyadır.</strong></p>
-                        <p>Dosya adı: {document.get("name", "Unknown")}</p>
-                        <p>Dosya boyutu: {document.get("file_size", 0)} bytes</p>
-                        <p>Yüklenme tarihi: {document.get("created_at", "Unknown")}</p>
-                        <hr>
-                        <p><em>Gerçek dosya Google Cloud Storage'da saklanacaktır.</em></p>
-                    </body>
-                    </html>
-                    '''
-                    import base64
-                    encoded_html = base64.b64encode(html_content.encode('utf-8')).decode('utf-8')
-                    download_url = f"data:text/html;base64,{encoded_html}"
+                # Create downloadable response
+                from io import BytesIO
+                import base64
                 
-                logging.info(f"🎭 Created mock download URL for: {document.get('name')}")
+                content_bytes = file_content.encode('utf-8')
+                content_b64 = base64.b64encode(content_bytes).decode('utf-8')
+                
+                # Use text/plain instead of data URL to avoid navigation issues
+                download_url = f"data:text/plain;charset=utf-8;base64,{content_b64}"
+                
+                # Better: create a blob URL that can be downloaded
+                logging.info(f"🎭 Created downloadable content for: {document.get('name')}")
             else:
                 # Use stored URL directly if available
                 download_url = file_url or "#"
