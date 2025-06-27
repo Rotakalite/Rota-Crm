@@ -105,6 +105,42 @@
 user_problem_statement: "Fix 403 authentication errors on /api/clients and /api/stats endpoints - user is authenticated but API calls failing"
 
 backend:
+  - task: "Fix 403 Authentication Errors"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "User experiencing 403 errors on /api/clients and /api/stats endpoints. Backend logs show 'Not enough segments' JWT errors. Frontend URL mismatch detected between .env file and current preview URL. User is authenticated with Clerk but API calls fail with 403 Forbidden."
+
+  - task: "Frontend URL Configuration"
+    implemented: false
+    working: false
+    file: "/app/frontend/.env"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "REACT_APP_BACKEND_URL in .env file shows different URL than current preview URL causing API call failures"
+
+  - task: "Cleanup Duplicate Code in Stats Endpoint"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "Stats endpoint has duplicate unreachable code that needs cleanup"
+
   - task: "Consumption Analytics Endpoint"
     implemented: true
     working: true
