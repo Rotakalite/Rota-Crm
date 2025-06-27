@@ -199,16 +199,21 @@ const ConsumptionAnalytics = () => {
   }, [authToken, selectedYear]);
 
   const fetchAnalyticsData = async () => {
-    if (!authToken) return;
+    if (!authToken) {
+      console.log("❌ No auth token available for analytics");
+      return;
+    }
     
     setLoading(true);
     try {
+      console.log("🔍 Fetching analytics with token:", authToken ? authToken.substring(0, 20) + "..." : "null");
       const response = await axios.get(`${API}/consumptions/analytics?year=${selectedYear}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       setAnalyticsData(response.data);
+      console.log("✅ Analytics data fetched:", response.data);
     } catch (error) {
-      console.error("Error fetching analytics:", error);
+      console.error("❌ Error fetching analytics:", error.response?.status, error.response?.data);
     } finally {
       setLoading(false);
     }
