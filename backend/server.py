@@ -344,10 +344,33 @@ async def get_current_user(payload: dict = Depends(verify_token)):
             logging.info("🎭 Creating ADMIN user")
         else:
             user_role = UserRole.CLIENT
-            # Get first client for now, later admin can assign proper client
-            first_client = await db.clients.find_one()
-            client_id = first_client["id"] if first_client else None
-            logging.info(f"👤 Creating CLIENT user with client_id: {client_id}")
+            # Create a new client_id for this user - they will create their own client record
+            client_id = str(uuid.uuid4())
+            logging.info(f"👤 Creating CLIENT user with new client_id: {client_id}")
+            
+            # Create a client record for this user
+            user_client = {
+                "id": client_id,
+                "name": f"{user_name} İşletmesi",
+                "hotel_name": f"{user_name} Otel",
+                "contact_person": user_name,
+                "email": user_email,
+                "phone": "+90 555 000 0000",
+                "address": "Türkiye",
+                "current_stage": "I.Aşama",
+                "services_completed": [],
+                "carbon_footprint": 100.0,
+                "sustainability_score": 75,
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+            
+            try:
+                await db.clients.insert_one(user_client)
+                logging.info(f"✅ Created client record for new user: {user_client['hotel_name']}")
+            except Exception as client_error:
+                logging.error(f"❌ Failed to create client record: {str(client_error)}")
+                client_id = None
         
         # Create new user from Clerk data
         new_user = {
