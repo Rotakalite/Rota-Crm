@@ -1336,8 +1336,16 @@ async def get_monthly_trends(
         "user_role": current_user.role.value
     }
 
-# Include the router in the main app
-app.include_router(api_router)
+# Health check and CORS test endpoint
+@api_router.get("/health")
+async def health_check():
+    """Health check endpoint for testing CORS and connectivity"""
+    return {
+        "status": "healthy",
+        "message": "CRM API is running",
+        "timestamp": datetime.utcnow().isoformat(),
+        "cors_enabled": True
+    }
 
 # Configure logging
 logging.basicConfig(
