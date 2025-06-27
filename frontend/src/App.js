@@ -238,15 +238,20 @@ const ConsumptionAnalytics = () => {
   };
 
   const fetchMonthlyTrends = async () => {
-    if (!authToken) return;
+    if (!authToken) {
+      console.log("❌ No auth token for monthly trends");
+      return;
+    }
     
     try {
+      console.log("🔍 Fetching monthly trends with token:", authToken.substring(0, 20) + "...");
       const response = await axios.get(`${API}/analytics/monthly-trends?year=${selectedYear}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       setMonthlyTrends(response.data);
+      console.log("✅ Monthly trends fetched:", response.data);
     } catch (error) {
-      console.error("Error fetching monthly trends:", error);
+      console.error("❌ Error fetching monthly trends:", error.response?.status, error.response?.data);
     }
   };
 
