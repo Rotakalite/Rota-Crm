@@ -113,7 +113,8 @@ const useAuth = () => {
                 setDbUser(registerResponse.data);
                 console.log('✅ User registered in database');
               } catch (registerError) {
-                console.log('⚠️ Registration failed, continuing without DB user:', registerError.response?.status);
+                console.log('⚠️ Registration failed:', registerError.response?.status, registerError.response?.data);
+                console.log('⚠️ Continuing without DB user - this is okay for basic functionality');
                 // Continue without database user - this is okay for basic functionality
               }
             }
