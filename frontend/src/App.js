@@ -95,6 +95,7 @@ const useAuth = () => {
               console.log('✅ User found in database');
             } catch (userError) {
               console.log('⚠️ User not found, trying to register...', userError.response?.status);
+              console.log('📡 Attempting registration with backend...');
               
               // If user not found, try to register
               try {
