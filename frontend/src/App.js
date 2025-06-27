@@ -27,10 +27,14 @@ ChartJS.register(
 );
 
 const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
-// API Configuration - Always use direct backend URL for now
+// API Configuration
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 const API = `${BACKEND_URL}/api`;
+
+// Debug log to see what URL is being used
 console.log('🔧 API URL configured as:', API);
+console.log('🔧 BACKEND_URL from env:', process.env.REACT_APP_BACKEND_URL);
+console.log('🔧 All REACT_APP env vars:', Object.keys(process.env).filter(key => key.startsWith('REACT_APP')));
 
 if (!CLERK_PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key")
