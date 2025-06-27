@@ -246,20 +246,34 @@ class TrainingCreate(BaseModel):
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
         token = credentials.credentials
-        logging.info(f"🔍 Received token: {token[:50]}...")
+        logging.info(f"🔍 TOKEN VERIFICATION START")
+        logging.info(f"🔍 Received token length: {len(token)}")
+        logging.info(f"🔍 Token preview: {token[:50]}...")
         
         # Get the signing key from Clerk
-        signing_key = jwks_client.get_signing_key_from_jwt(token)
-        logging.info("✅ Got signing key from Clerk")
+        try:
+            signing_key = jwks_client.get_signing_key_from_jwt(token)
+            logging.info("✅ Got signing key from Clerk")
+        except Exception as key_error:
+            logging.error(f"❌ Failed to get signing key: {str(key_error)}")
+            raise HTTPException(status_code=401, detail="Invalid token: could not get signing key")
         
         # Decode and verify the token
-        payload = jwt.decode(
-            token,
-            signing_key.key,
-            algorithms=["RS256"],
-            audience=None,  # Clerk doesn't use audience
-            options={"verify_aud": False}
-        )
+        try:
+            payload = jwt.decode(
+                token,
+                signing_key.key,
+                algorithms=["RS256"],
+                audience=None,  # Clerk doesn't use audience
+                options={"verify_aud": False}
+            )
+            logging.info(f"✅ JWT decode successful")
+        except jwt.ExpiredSignatureError:
+            logging.error("❌ Token has expired")
+            raise HTTPException(status_code=401, detail="Token has expired")
+        except jwt.InvalidTokenError as e:
+            logging.error(f"❌ Invalid token during decode: {str(e)}")
+            raise HTTPException(status_code=401, detail="Invalid token")
         
         # Log all available token data for debugging
         logging.info(f"🔍 Token payload keys: {list(payload.keys())}")
@@ -270,19 +284,12 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
         logging.info(f"✅ Token verified for user: {payload.get('sub', 'unknown')}")
         return payload
         
-    except jwt.ExpiredSignatureError:
-        logging.error("❌ Token has expired")
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.InvalidTokenError as e:
-        logging.error(f"❌ Invalid token: {str(e)}")
-        # Don't raise exception immediately - try fallback
-        logging.info("🔄 Trying fallback authentication...")
-        return {"sub": "fallback_user", "role": "admin"}  # Fallback for development
+    except HTTPException:
+        # Re-raise HTTP exceptions (already logged)
+        raise
     except Exception as e:
-        logging.error(f"❌ Token verification failed: {str(e)}")
-        # Don't raise exception immediately - try fallback
-        logging.info("🔄 Using fallback authentication for development...")
-        return {"sub": "fallback_user", "role": "admin"}  # Fallback for development
+        logging.error(f"❌ Unexpected token verification error: {str(e)}")
+        raise HTTPException(status_code=401, detail="Token verification failed")
 
 async def get_current_user(payload: dict = Depends(verify_token)):
     clerk_user_id = payload.get("sub")
