@@ -998,8 +998,6 @@ const DocumentManagement = () => {
       throw error;
     }
   };
-    return await uploadSingleFile(file, metadata);
-  };
 
   const uploadSingleFile = async (file, metadata) => {
     const formData = new FormData();
