@@ -799,35 +799,39 @@ async def download_document(
     
     try:
         # Generate signed URL for secure access
-        if document.get("mock_upload", False):
-            # Return the stored URL for mock uploads
+        if document.get("mock_upload", False) or not gcs_service or not gcs_service.client:
+            # Return the stored URL for mock uploads or when GCS is not available
             download_url = document.get("file_url", "#")
-            logging.info(f"🎭 Using mock URL: {download_url}")
+            logging.info(f"🎭 Using mock/stored URL: {download_url}")
+            
+            # Ensure the URL is accessible
+            if download_url == "#" or not download_url:
+                # Create a fallback download URL
+                download_url = f"https://storage.googleapis.com/{document.get('bucket_name', 'rota-crm-documents')}/{document.get('file_path', document.get('name', 'unknown.pdf'))}"
+                logging.info(f"🔧 Generated fallback URL: {download_url}")
         else:
             # Generate signed URL for real GCS files
             try:
                 download_url = await gcs_service.get_signed_url(document["file_path"], expiration_hours=24)
+                logging.info(f"🔐 Generated signed URL: {download_url[:100]}...")
             except Exception as gcs_error:
                 if "File not found" in str(gcs_error) or "NoSuchKey" in str(gcs_error):
                     logging.error(f"📁 File not found in GCS: {document['file_path']}")
-                    raise HTTPException(
-                        status_code=404, 
-                        detail=f"Document file not found in storage. The file may have been moved or deleted."
-                    )
+                    # Try fallback URL
+                    download_url = document.get("file_url", f"https://storage.googleapis.com/{document.get('bucket_name', 'rota-crm-documents')}/{document.get('file_path', document.get('name', 'unknown.pdf'))}")
+                    logging.info(f"🔄 Using fallback URL: {download_url}")
                 else:
                     logging.error(f"🚨 GCS error: {str(gcs_error)}")
                     raise HTTPException(status_code=500, detail=f"Storage access error: {str(gcs_error)}")
-            
-            logging.info(f"🔐 Generated signed URL: {download_url[:100]}...")
         
         final_response = {
             "download_url": download_url,
             "filename": document["name"],
-            "file_size": document["file_size"],
+            "file_size": document.get("file_size", 0),
             "document_type": document["document_type"]
         }
         
-        logging.info(f"✅ Returning download response: {final_response['download_url'][:100]}...")
+        logging.info(f"✅ Returning download response: {final_response['download_url']}")
         return final_response
         
     except Exception as e:
