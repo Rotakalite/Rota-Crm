@@ -727,27 +727,6 @@ async def get_statistics(current_user: User = Depends(get_current_user)):
             "total_documents": 0,
             "total_trainings": 0
         }
-        
-        client = await db.clients.find_one({"id": current_user.client_id})
-        client_documents = await db.documents.count_documents({"client_id": current_user.client_id})
-        client_trainings = await db.trainings.count_documents({"client_id": current_user.client_id})
-        
-        current_stage = client.get("current_stage", "I.Aşama") if client else "I.Aşama"
-        stage_distribution = {"stage_1": 0, "stage_2": 0, "stage_3": 0}
-        
-        if current_stage == "I.Aşama":
-            stage_distribution["stage_1"] = 1
-        elif current_stage == "II.Aşama":
-            stage_distribution["stage_2"] = 1
-        elif current_stage == "III.Aşama":
-            stage_distribution["stage_3"] = 1
-        
-        return {
-            "total_clients": 1,
-            "stage_distribution": stage_distribution,
-            "total_documents": client_documents,
-            "total_trainings": client_trainings
-        }
 
 # File Upload Endpoints with Google Cloud Storage
 @api_router.post("/upload-document")
