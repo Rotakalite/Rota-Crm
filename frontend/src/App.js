@@ -2114,9 +2114,15 @@ const ConsumptionManagement = ({ onNavigate }) => {
             value={consumptionData.client_id || ''}
             onChange={(e) => {
               setConsumptionData({...consumptionData, client_id: e.target.value});
-              // Trigger analytics fetch when client is selected
+              // Trigger both analytics and consumptions fetch when client is selected
               if (e.target.value) {
-                setTimeout(() => fetchAnalytics(), 100);
+                setTimeout(() => {
+                  fetchAnalytics();
+                  fetchConsumptions();
+                }, 100);
+              } else {
+                setAnalytics(null);
+                setConsumptions([]);
               }
             }}
             className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
