@@ -1564,13 +1564,28 @@ const ConsumptionManagement = ({ onNavigate }) => {
       console.log('⚠️ No authToken, skipping analytics fetch');
       return;
     }
+    
+    // For admin, require client selection
+    if (userRole === 'admin' && !consumptionData.client_id) {
+      console.log('⚠️ Admin must select client for analytics');
+      setAnalytics(null);
+      return;
+    }
+    
     try {
-      const response = await axios.get(`${API}/consumptions/analytics?year=${selectedYear}`, {
+      let url = `${API}/consumptions/analytics?year=${selectedYear}`;
+      if (userRole === 'admin' && consumptionData.client_id) {
+        url += `&client_id=${consumptionData.client_id}`;
+      }
+      
+      const response = await axios.get(url, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       setAnalytics(response.data);
+      console.log('✅ Analytics fetched for client:', consumptionData.client_id || 'current user');
     } catch (error) {
       console.error("Error fetching analytics:", error);
+      setAnalytics(null);
     }
   };
 
