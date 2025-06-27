@@ -296,10 +296,28 @@ async def get_current_user(payload: dict = Depends(verify_token)):
         logging.info(f"⚠️ User not found in database for clerk_user_id: {clerk_user_id}")
         
         # Extract user info from Clerk token
-        user_email = payload.get("email", "unknown@example.com")
-        user_name = payload.get("name", payload.get("given_name", "Unknown User"))
+        user_email = payload.get("email")
+        if not user_email:
+            # Try alternative email fields
+            email_addresses = payload.get("email_addresses", [])
+            if email_addresses and isinstance(email_addresses, list) and len(email_addresses) > 0:
+                user_email = email_addresses[0].get("email_address", "unknown@example.com")
+            else:
+                user_email = "unknown@example.com"
         
-        logging.info(f"👤 Clerk user info - Name: {user_name}, Email: {user_email}")
+        # Try to build full name from available fields
+        given_name = payload.get("given_name", "")
+        family_name = payload.get("family_name", "")
+        full_name = payload.get("name", "")
+        
+        if full_name:
+            user_name = full_name
+        elif given_name or family_name:
+            user_name = f"{given_name} {family_name}".strip()
+        else:
+            user_name = user_email.split("@")[0].title()  # Use email prefix as name
+        
+        logging.info(f"👤 Extracted user info - Name: '{user_name}', Email: '{user_email}'")
         
         # Create a fallback admin user for development
         if clerk_user_id == "fallback_user":
