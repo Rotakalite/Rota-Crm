@@ -1157,6 +1157,153 @@ async def get_consumption_analytics(
         }
     }
 
+# Multi-Client Comparison Analytics
+@api_router.get("/analytics/multi-client-comparison")
+async def get_multi_client_comparison(
+    year: Optional[int] = None,
+    current_user: User = Depends(get_admin_user)  # Only admin can compare multiple clients
+):
+    """Get consumption comparison across all clients for a given year"""
+    
+    logging.info(f"🔍 GET /analytics/multi-client-comparison called by admin user")
+    
+    # Default to current year if not specified
+    if not year:
+        year = datetime.now().year
+    
+    # Get all clients
+    clients = await db.clients.find().to_list(1000)
+    
+    client_comparisons = []
+    
+    for client in clients:
+        client_id = client["id"]
+        
+        # Get consumption data for this client
+        client_consumptions = await db.consumptions.find({
+            "client_id": client_id,
+            "year": year
+        }).sort("month", 1).to_list(length=12)
+        
+        # Calculate totals
+        yearly_totals = {
+            "electricity": sum(c["electricity"] for c in client_consumptions),
+            "water": sum(c["water"] for c in client_consumptions),
+            "natural_gas": sum(c["natural_gas"] for c in client_consumptions),
+            "coal": sum(c["coal"] for c in client_consumptions),
+            "accommodation_count": sum(c["accommodation_count"] for c in client_consumptions)
+        }
+        
+        # Calculate per-person consumption
+        per_person = {
+            "electricity": yearly_totals["electricity"] / yearly_totals["accommodation_count"] if yearly_totals["accommodation_count"] > 0 else 0,
+            "water": yearly_totals["water"] / yearly_totals["accommodation_count"] if yearly_totals["accommodation_count"] > 0 else 0,
+            "natural_gas": yearly_totals["natural_gas"] / yearly_totals["accommodation_count"] if yearly_totals["accommodation_count"] > 0 else 0,
+            "coal": yearly_totals["coal"] / yearly_totals["accommodation_count"] if yearly_totals["accommodation_count"] > 0 else 0
+        }
+        
+        client_comparisons.append({
+            "client_id": client_id,
+            "client_name": client["name"],
+            "hotel_name": client["hotel_name"],
+            "yearly_totals": yearly_totals,
+            "per_person_consumption": per_person,
+            "monthly_data": [
+                {
+                    "month": month,
+                    "month_name": ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", 
+                                  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"][month],
+                    "electricity": next((c["electricity"] for c in client_consumptions if c["month"] == month), 0),
+                    "water": next((c["water"] for c in client_consumptions if c["month"] == month), 0),
+                    "natural_gas": next((c["natural_gas"] for c in client_consumptions if c["month"] == month), 0),
+                    "coal": next((c["coal"] for c in client_consumptions if c["month"] == month), 0),
+                    "accommodation_count": next((c["accommodation_count"] for c in client_consumptions if c["month"] == month), 0)
+                }
+                for month in range(1, 13)
+            ]
+        })
+    
+    return {
+        "year": year,
+        "clients_comparison": client_comparisons,
+        "summary": {
+            "total_clients": len(client_comparisons),
+            "average_consumption": {
+                "electricity": sum(c["yearly_totals"]["electricity"] for c in client_comparisons) / len(client_comparisons) if client_comparisons else 0,
+                "water": sum(c["yearly_totals"]["water"] for c in client_comparisons) / len(client_comparisons) if client_comparisons else 0,
+                "natural_gas": sum(c["yearly_totals"]["natural_gas"] for c in client_comparisons) / len(client_comparisons) if client_comparisons else 0,
+                "coal": sum(c["yearly_totals"]["coal"] for c in client_comparisons) / len(client_comparisons) if client_comparisons else 0
+            }
+        }
+    }
+
+@api_router.get("/analytics/monthly-trends")
+async def get_monthly_trends(
+    year: Optional[int] = None,
+    consumption_type: Optional[str] = None,  # electricity, water, natural_gas, coal
+    current_user: User = Depends(get_current_user)
+):
+    """Get monthly trends for consumption data"""
+    
+    logging.info(f"🔍 GET /analytics/monthly-trends called by user: {current_user.role}")
+    
+    # Default to current year if not specified
+    if not year:
+        year = datetime.now().year
+    
+    # Get client_id based on user role
+    if current_user.role == UserRole.ADMIN:
+        # Admin can see trends for all clients combined
+        filter_query = {"year": year}
+    else:
+        # Client users can only see their own trends
+        if not current_user.client_id:
+            raise HTTPException(status_code=400, detail="Client not assigned to user")
+        filter_query = {"client_id": current_user.client_id, "year": year}
+    
+    consumptions = await db.consumptions.find(filter_query).sort("month", 1).to_list(1000)
+    
+    # Group by month if admin (multiple clients), or just organize by month if client
+    monthly_data = {}
+    for month in range(1, 13):
+        month_consumptions = [c for c in consumptions if c["month"] == month]
+        
+        if current_user.role == UserRole.ADMIN:
+            # For admin, aggregate all clients for each month
+            monthly_data[month] = {
+                "month": month,
+                "month_name": ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", 
+                              "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"][month],
+                "electricity": sum(c["electricity"] for c in month_consumptions),
+                "water": sum(c["water"] for c in month_consumptions),
+                "natural_gas": sum(c["natural_gas"] for c in month_consumptions),
+                "coal": sum(c["coal"] for c in month_consumptions),
+                "accommodation_count": sum(c["accommodation_count"] for c in month_consumptions),
+                "client_count": len(month_consumptions)
+            }
+        else:
+            # For client, just their data
+            month_consumption = month_consumptions[0] if month_consumptions else None
+            monthly_data[month] = {
+                "month": month,
+                "month_name": ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", 
+                              "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"][month],
+                "electricity": month_consumption["electricity"] if month_consumption else 0,
+                "water": month_consumption["water"] if month_consumption else 0,
+                "natural_gas": month_consumption["natural_gas"] if month_consumption else 0,
+                "coal": month_consumption["coal"] if month_consumption else 0,
+                "accommodation_count": month_consumption["accommodation_count"] if month_consumption else 0
+            }
+    
+    # Convert to list
+    monthly_trends = [monthly_data[month] for month in range(1, 13)]
+    
+    return {
+        "year": year,
+        "monthly_trends": monthly_trends,
+        "user_role": current_user.role.value
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
