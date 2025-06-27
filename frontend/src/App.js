@@ -194,9 +194,13 @@ const ConsumptionAnalytics = () => {
 
   useEffect(() => {
     if (userRole === 'admin') {
+      // Admin için müşteri listesini çek
       fetchClients();
+    } else if (userRole === 'client' && dbUser?.client_id) {
+      // Client için direkt kendi client_id'sini kullan
+      setSelectedClient(dbUser.client_id);
     }
-  }, [authToken, userRole]);
+  }, [authToken, userRole, dbUser]);
 
   useEffect(() => {
     if (selectedClient || userRole === 'client') {
