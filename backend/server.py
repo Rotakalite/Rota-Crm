@@ -1,6 +1,7 @@
 import os
 import uuid
 import logging
+import shutil
 from datetime import datetime, timedelta
 from typing import List, Optional
 from fastapi import FastAPI, APIRouter, HTTPException, status, Depends, UploadFile, File, Form
