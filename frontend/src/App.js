@@ -1720,17 +1720,17 @@ const DocumentManagement = () => {
     setShowDocumentModal(true);
   };
 
-  const handleDownloadDocument = async (document) => {
+  const handleDownloadDocument = async (docData) => {
     try {
-      console.log('📥 Starting download for:', document.name);
+      console.log('📥 Starting download for:', docData.name);
       
       // Directly download the file using the backend endpoint
-      const downloadUrl = `${API}/documents/${document.id}/download`;
+      const downloadUrl = `${API}/documents/${docData.id}/download`;
       
       // Create a temporary link and trigger download
-      const link = document.createElement('a');
+      const link = window.document.createElement('a');
       link.href = downloadUrl;
-      link.download = document.name || 'document';
+      link.download = docData.name || 'document';
       link.style.display = 'none';
       
       // Add authorization header via a fetch request instead
@@ -1744,12 +1744,12 @@ const DocumentManagement = () => {
       const url = window.URL.createObjectURL(blob);
       
       link.href = url;
-      link.download = document.original_filename || document.name || 'document';
-      document.body.appendChild(link);
+      link.download = docData.original_filename || docData.name || 'document';
+      window.document.body.appendChild(link);
       link.click();
       
       // Cleanup
-      document.body.removeChild(link);
+      window.document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
       
       console.log('✅ Download completed');
