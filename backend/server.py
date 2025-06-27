@@ -770,46 +770,83 @@ async def upload_document(
         # Read file content
         file_content = await file.read()
         
-        # Save file locally instead of GCS for now
-        import os
-        uploads_dir = "/app/backend/uploads"
-        os.makedirs(uploads_dir, exist_ok=True)
+        # Upload to Supabase Storage
+        if supabase_storage and supabase_storage.client:
+            logging.info("📤 Using Supabase Storage for upload")
+            
+            upload_result = await supabase_storage.upload_file(
+                file_content=file_content,
+                filename=file.filename,
+                user_id=current_user.clerk_user_id,
+                content_type=file.content_type or "application/octet-stream"
+            )
+            
+            # Create document record in database
+            document_data = {
+                "id": str(uuid.uuid4()),
+                "client_id": client_id,
+                "name": document_name,
+                "document_type": document_type,
+                "stage": stage,
+                "file_path": upload_result["file_path"],
+                "original_filename": upload_result["original_filename"],
+                "file_size": upload_result["file_size"],
+                "uploaded_by": current_user.clerk_user_id,
+                "created_at": datetime.utcnow(),
+                "supabase_upload": True
+            }
+            
+            await db.documents.insert_one(document_data)
+            
+            return {
+                "message": "Document uploaded successfully to Supabase",
+                "document_id": document_data["id"],
+                "file_size": upload_result["file_size"],
+                "supabase_upload": True
+            }
         
-        # Generate unique filename
-        file_id = str(uuid.uuid4())
-        file_extension = os.path.splitext(file.filename)[1]
-        local_filename = f"{file_id}{file_extension}"
-        local_path = os.path.join(uploads_dir, local_filename)
-        
-        # Save file
-        with open(local_path, "wb") as f:
-            f.write(file_content)
-        
-        logging.info(f"📁 File saved locally: {local_path}")
-        
-        # Create document record in database
-        document_data = {
-            "id": str(uuid.uuid4()),
-            "client_id": client_id,
-            "name": document_name,
-            "document_type": document_type,
-            "stage": stage,
-            "file_path": local_path,
-            "original_filename": file.filename,
-            "file_size": len(file_content),
-            "uploaded_by": current_user.clerk_user_id,
-            "created_at": datetime.utcnow(),
-            "local_upload": True
-        }
-        
-        await db.documents.insert_one(document_data)
-        
-        return {
-            "message": "Document uploaded successfully",
-            "document_id": document_data["id"],
-            "file_size": len(file_content),
-            "local_upload": True
-        }
+        else:
+            # Fallback to local storage
+            logging.warning("⚠️ Supabase not available, using local storage")
+            
+            uploads_dir = "/app/backend/uploads"
+            os.makedirs(uploads_dir, exist_ok=True)
+            
+            # Generate unique filename
+            file_id = str(uuid.uuid4())
+            file_extension = os.path.splitext(file.filename)[1]
+            local_filename = f"{file_id}{file_extension}"
+            local_path = os.path.join(uploads_dir, local_filename)
+            
+            # Save file
+            with open(local_path, "wb") as f:
+                f.write(file_content)
+            
+            logging.info(f"📁 File saved locally: {local_path}")
+            
+            # Create document record in database
+            document_data = {
+                "id": str(uuid.uuid4()),
+                "client_id": client_id,
+                "name": document_name,
+                "document_type": document_type,
+                "stage": stage,
+                "file_path": local_path,
+                "original_filename": file.filename,
+                "file_size": len(file_content),
+                "uploaded_by": current_user.clerk_user_id,
+                "created_at": datetime.utcnow(),
+                "local_upload": True
+            }
+            
+            await db.documents.insert_one(document_data)
+            
+            return {
+                "message": "Document uploaded successfully (local storage)",
+                "document_id": document_data["id"],
+                "file_size": len(file_content),
+                "local_upload": True
+            }
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"File upload failed: {str(e)}")
