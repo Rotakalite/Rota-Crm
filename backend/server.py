@@ -1021,10 +1021,20 @@ async def delete_consumption(
 ):
     """Delete consumption record"""
     
-    result = await db.consumptions.delete_one({"id": consumption_id})
-    if result.deleted_count == 0:
+    logging.info(f"🗑️ DELETE /consumptions/{consumption_id} called by admin user: {current_user.name}")
+    
+    # Check if consumption exists
+    existing = await db.consumptions.find_one({"id": consumption_id})
+    if not existing:
+        logging.info(f"❌ Consumption not found: {consumption_id}")
         raise HTTPException(status_code=404, detail="Tüketim verisi bulunamadı")
     
+    result = await db.consumptions.delete_one({"id": consumption_id})
+    if result.deleted_count == 0:
+        logging.info(f"❌ Failed to delete consumption: {consumption_id}")
+        raise HTTPException(status_code=404, detail="Tüketim verisi silinemedi")
+    
+    logging.info(f"✅ Consumption deleted successfully: {consumption_id}")
     return {"message": "Tüketim verisi başarıyla silindi"}
 
 @api_router.get("/consumptions/analytics")
