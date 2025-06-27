@@ -282,10 +282,19 @@ async def get_current_user(payload: dict = Depends(verify_token)):
     clerk_user_id = payload.get("sub")
     if not clerk_user_id:
         raise HTTPException(status_code=401, detail="Invalid token: missing user ID")
-        
+    
+    logging.info(f"🔍 Looking for user with Clerk ID: {clerk_user_id}")
+    
     user = await db.users.find_one({"clerk_user_id": clerk_user_id})
     if not user:
         logging.info(f"⚠️ User not found in database for clerk_user_id: {clerk_user_id}")
+        
+        # Extract user info from Clerk token
+        user_email = payload.get("email", "unknown@example.com")
+        user_name = payload.get("name", payload.get("given_name", "Unknown User"))
+        
+        logging.info(f"👤 Clerk user info - Name: {user_name}, Email: {user_email}")
+        
         # Create a fallback admin user for development
         if clerk_user_id == "fallback_user":
             logging.info("🔧 Creating fallback admin user for development")
@@ -295,12 +304,30 @@ async def get_current_user(payload: dict = Depends(verify_token)):
                 name="Admin User",
                 email="admin@test.com",
                 role=UserRole.ADMIN,
-                client_id="3619c337-899d-4792-9575-7cf18de6228f",  # Test client
+                client_id="7a2c8828-9d50-453e-9aff-38e11b102f21",  # First real client
                 created_at=datetime.utcnow(),
                 updated_at=datetime.utcnow()
             )
-        raise HTTPException(status_code=404, detail="User not found")
+        
+        # Create real user from Clerk data
+        logging.info(f"📝 Creating new user from Clerk data: {user_name}")
+        new_user = User(
+            id=str(uuid.uuid4()),
+            clerk_user_id=clerk_user_id,
+            name=user_name,
+            email=user_email,
+            role=UserRole.ADMIN,  # Default to admin for now
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
+        )
+        
+        # Save to database
+        await db.users.insert_one(new_user.dict())
+        logging.info(f"✅ New user created and saved: {user_name}")
+        
+        return new_user
     
+    logging.info(f"✅ User found: {user['name']} - Role: {user['role']}")
     return User(**user)
 
 async def get_admin_user(current_user: User = Depends(get_current_user)):
