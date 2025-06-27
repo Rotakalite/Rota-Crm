@@ -152,14 +152,15 @@ class MongoGridFS:
             logger.info(f"📋 Listing files for user: {user_id}")
             
             files = []
-            async for file_info in self.fs.find({"metadata.user_id": user_id}):
+            cursor = self.db.fs.files.find({"metadata.user_id": user_id})
+            async for file_info in cursor:
                 files.append({
-                    "file_id": str(file_info._id),
-                    "filename": file_info.filename,
-                    "original_filename": file_info.metadata.get("original_filename", file_info.filename),
-                    "file_size": file_info.length,
-                    "upload_date": file_info.upload_date,
-                    "content_type": file_info.metadata.get("content_type")
+                    "file_id": str(file_info["_id"]),
+                    "filename": file_info.get("filename", "unknown"),
+                    "original_filename": file_info.get("metadata", {}).get("original_filename", file_info.get("filename", "unknown")),
+                    "file_size": file_info.get("length", 0),
+                    "upload_date": file_info.get("uploadDate"),
+                    "content_type": file_info.get("metadata", {}).get("content_type", "application/octet-stream")
                 })
             
             logger.info(f"✅ Found {len(files)} files for user {user_id}")
