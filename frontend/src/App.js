@@ -185,7 +185,7 @@ const ConsumptionAnalytics = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [multiClientData, setMultiClientData] = useState(null);
   const [monthlyTrends, setMonthlyTrends] = useState(null);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState(2024); // 2024'e başla çünkü daha çok veri var
   const [loading, setLoading] = useState(false);
   const [activeView, setActiveView] = useState('yearly'); // yearly, monthly, clients
   const { authToken, userRole, dbUser } = useAuth();
