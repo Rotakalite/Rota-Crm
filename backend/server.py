@@ -94,13 +94,13 @@ api_router = APIRouter(prefix="/api")
 # Security
 security = HTTPBearer()
 
-# JWKS client with caching to avoid repeated requests
+# JWKS client - simple version without cache_ttl
 import functools
 import time
 
 @functools.lru_cache(maxsize=1)
 def get_jwks_client():
-    return PyJWKClient(CLERK_JWKS_URL, cache_ttl=300)  # Cache for 5 minutes
+    return PyJWKClient(CLERK_JWKS_URL)
 
 jwks_client = get_jwks_client()
 
