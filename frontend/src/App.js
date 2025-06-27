@@ -902,7 +902,7 @@ const DocumentManagement = () => {
   };
 
   const uploadLargeFile = async (file, metadata) => {
-    const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
+    const CHUNK_SIZE = 1 * 1024 * 1024; // 1MB chunks (smaller for better reliability)
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
     
     if (file.size < CHUNK_SIZE) {
@@ -912,7 +912,92 @@ const DocumentManagement = () => {
     
     console.log(`📦 Large file detected (${(file.size / 1024 / 1024).toFixed(2)}MB), using chunked upload: ${totalChunks} chunks`);
     
-    // For now, still use single upload but with longer timeout
+    // Initialize upload session
+    const uploadId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const chunks = [];
+    
+    try {
+      // Upload chunks with retry mechanism
+      for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+        const start = chunkIndex * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, file.size);
+        const chunk = file.slice(start, end);
+        
+        console.log(`📤 Uploading chunk ${chunkIndex + 1}/${totalChunks} (${(chunk.size / 1024).toFixed(1)}KB)`);
+        
+        const chunkFormData = new FormData();
+        chunkFormData.append('file_chunk', chunk);
+        chunkFormData.append('chunk_index', chunkIndex.toString());
+        chunkFormData.append('total_chunks', totalChunks.toString());
+        chunkFormData.append('upload_id', uploadId);
+        chunkFormData.append('original_filename', file.name);
+        
+        // Add metadata to first chunk
+        if (chunkIndex === 0) {
+          Object.keys(metadata).forEach(key => {
+            chunkFormData.append(key, metadata[key]);
+          });
+        }
+        
+        // Retry mechanism for each chunk
+        let chunkUploaded = false;
+        let retryCount = 0;
+        const maxRetries = 3;
+        
+        while (!chunkUploaded && retryCount < maxRetries) {
+          try {
+            const chunkResponse = await axios.post(`${API}/upload-chunk`, chunkFormData, {
+              headers: { 
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'multipart/form-data'
+              },
+              timeout: 60000, // 60 seconds per chunk
+              onUploadProgress: (progressEvent) => {
+                const chunkProgress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                const overallProgress = Math.round(((chunkIndex + (chunkProgress / 100)) * 100) / totalChunks);
+                setUploadProgress(overallProgress);
+                console.log(`📊 Chunk ${chunkIndex + 1} progress: ${chunkProgress}% (Overall: ${overallProgress}%)`);
+              }
+            });
+            
+            chunks.push(chunkResponse.data);
+            chunkUploaded = true;
+            console.log(`✅ Chunk ${chunkIndex + 1} uploaded successfully`);
+            
+          } catch (chunkError) {
+            retryCount++;
+            console.error(`❌ Chunk ${chunkIndex + 1} failed (attempt ${retryCount}):`, chunkError.message);
+            
+            if (retryCount < maxRetries) {
+              console.log(`🔄 Retrying chunk ${chunkIndex + 1} in 2 seconds...`);
+              await new Promise(resolve => setTimeout(resolve, 2000));
+            } else {
+              throw new Error(`Chunk ${chunkIndex + 1} failed after ${maxRetries} attempts: ${chunkError.message}`);
+            }
+          }
+        }
+      }
+      
+      // Finalize upload
+      console.log('🔗 Finalizing chunked upload...');
+      const finalizeResponse = await axios.post(`${API}/finalize-upload`, {
+        upload_id: uploadId,
+        total_chunks: totalChunks,
+        filename: file.name,
+        file_size: file.size
+      }, {
+        headers: { 'Authorization': `Bearer ${authToken}` },
+        timeout: 30000
+      });
+      
+      console.log('✅ Chunked upload completed successfully');
+      return finalizeResponse.data;
+      
+    } catch (error) {
+      console.error('❌ Chunked upload failed:', error);
+      throw error;
+    }
+  };
     return await uploadSingleFile(file, metadata);
   };
 
