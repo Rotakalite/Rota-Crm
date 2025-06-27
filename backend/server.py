@@ -778,9 +778,56 @@ async def upload_document(
         # Read file content
         file_content = await file.read()
         
-        # Upload to Supabase Storage
-        if supabase_storage and supabase_storage.client:
-            logging.info("📤 Using Supabase Storage for upload")
+        # Upload to MongoDB GridFS (Primary choice)
+        if mongo_gridfs and mongo_gridfs.fs:
+            logging.info("📤 Using MongoDB GridFS for upload")
+            
+            # Create metadata for the file
+            file_metadata = {
+                "client_id": client_id,
+                "document_name": document_name,
+                "document_type": document_type,
+                "stage": stage,
+                "uploaded_by": current_user.clerk_user_id
+            }
+            
+            upload_result = await mongo_gridfs.upload_file(
+                file_content=file_content,
+                filename=file.filename,
+                user_id=current_user.clerk_user_id,
+                content_type=file.content_type or "application/octet-stream",
+                metadata=file_metadata
+            )
+            
+            # Create document record in database
+            document_data = {
+                "id": str(uuid.uuid4()),
+                "client_id": client_id,
+                "name": document_name,
+                "document_type": document_type,
+                "stage": stage,
+                "file_id": upload_result["file_id"],  # GridFS file ID
+                "filename": upload_result["filename"],
+                "original_filename": upload_result["original_filename"],
+                "file_size": upload_result["file_size"],
+                "uploaded_by": current_user.clerk_user_id,
+                "created_at": datetime.utcnow(),
+                "gridfs_upload": True
+            }
+            
+            await db.documents.insert_one(document_data)
+            
+            return {
+                "message": "Document uploaded successfully to MongoDB GridFS",
+                "document_id": document_data["id"],
+                "file_id": upload_result["file_id"],
+                "file_size": upload_result["file_size"],
+                "gridfs_upload": True
+            }
+        
+        # Backup: Upload to Supabase Storage
+        elif supabase_storage and supabase_storage.client:
+            logging.info("📤 Using Supabase Storage for upload (backup)")
             
             upload_result = await supabase_storage.upload_file(
                 file_content=file_content,
@@ -815,7 +862,7 @@ async def upload_document(
         
         else:
             # Fallback to local storage
-            logging.warning("⚠️ Supabase not available, using local storage")
+            logging.warning("⚠️ GridFS and Supabase not available, using local storage")
             
             uploads_dir = "/app/backend/uploads"
             os.makedirs(uploads_dir, exist_ok=True)
