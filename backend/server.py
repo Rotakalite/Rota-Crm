@@ -261,6 +261,12 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
             options={"verify_aud": False}
         )
         
+        # Log all available token data for debugging
+        logging.info(f"🔍 Token payload keys: {list(payload.keys())}")
+        logging.info(f"👤 User info in token - sub: {payload.get('sub')}")
+        logging.info(f"📧 Email in token: {payload.get('email', payload.get('email_addresses', 'Not found'))}")
+        logging.info(f"👤 Name info: given_name={payload.get('given_name')}, family_name={payload.get('family_name')}, name={payload.get('name')}")
+        
         logging.info(f"✅ Token verified for user: {payload.get('sub', 'unknown')}")
         return payload
         
