@@ -2022,6 +2022,31 @@ const ConsumptionManagement = ({ onNavigate }) => {
       </div>
 
       {/* Analytics Section */}
+      {userRole === 'admin' && !consumptionData.client_id && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+          <h3 className="text-lg font-medium text-yellow-800 mb-2">📊 Analiz için Müşteri Seçin</h3>
+          <p className="text-yellow-600 mb-3">Tüketim analizlerini görüntülemek için yukarıdan bir müşteri seçin.</p>
+          <select
+            value={consumptionData.client_id || ''}
+            onChange={(e) => {
+              setConsumptionData({...consumptionData, client_id: e.target.value});
+              // Trigger analytics fetch when client is selected
+              if (e.target.value) {
+                setTimeout(() => fetchAnalytics(), 100);
+              }
+            }}
+            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Müşteri seçin...</option>
+            {(Array.isArray(clients) ? clients : []).map((client) => (
+              <option key={client.id} value={client.id}>
+                {client.hotel_name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {analytics && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Monthly Comparison */}
