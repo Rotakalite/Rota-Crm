@@ -177,20 +177,20 @@ class MongoGridFS:
         
         try:
             object_id = ObjectId(file_id)
-            file_info = await self.fs.find_one({"_id": object_id})
+            file_info = await self.db.fs.files.find_one({"_id": object_id})
             
             if not file_info:
                 raise Exception("File not found")
             
             return {
-                "file_id": str(file_info._id),
-                "filename": file_info.filename,
-                "original_filename": file_info.metadata.get("original_filename", file_info.filename),
-                "file_size": file_info.length,
-                "upload_date": file_info.upload_date,
-                "content_type": file_info.metadata.get("content_type"),
-                "user_id": file_info.metadata.get("user_id"),
-                "metadata": file_info.metadata
+                "file_id": str(file_info["_id"]),
+                "filename": file_info.get("filename", "unknown"),
+                "original_filename": file_info.get("metadata", {}).get("original_filename", file_info.get("filename", "unknown")),
+                "file_size": file_info.get("length", 0),
+                "upload_date": file_info.get("uploadDate"),
+                "content_type": file_info.get("metadata", {}).get("content_type", "application/octet-stream"),
+                "user_id": file_info.get("metadata", {}).get("user_id"),
+                "metadata": file_info.get("metadata", {})
             }
             
         except Exception as e:
