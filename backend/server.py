@@ -20,13 +20,21 @@ from jwt import PyJWKClient
 import httpx
 import requests
 
-# Import GCS service
+# Import Supabase service
 try:
     import sys
     import os
     sys.path.append(os.path.dirname(__file__))
+    from services.supabase_storage import supabase_storage
+    logging.info("✅ Supabase storage service imported successfully")
+except Exception as e:
+    logging.error(f"❌ Failed to import Supabase storage service: {e}")
+    supabase_storage = None
+
+# Import GCS service (fallback)
+try:
     from services.gcs import gcs_service
-    logging.info("✅ GCS service imported successfully")
+    logging.info("✅ GCS service imported as fallback")
 except Exception as e:
     logging.error(f"❌ Failed to import GCS service: {e}")
     gcs_service = None
