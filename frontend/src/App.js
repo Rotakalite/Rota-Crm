@@ -1527,8 +1527,9 @@ const ConsumptionManagement = ({ onNavigate }) => {
     if (authToken) {
       fetchConsumptions();
       fetchAnalytics();
+      fetchClients();
     }
-  }, [authToken, selectedYear]);
+  }, [authToken, selectedYear, userRole]);
 
   const fetchConsumptions = async () => {
     if (!authToken) {
