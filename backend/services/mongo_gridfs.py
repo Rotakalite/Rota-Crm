@@ -96,23 +96,23 @@ class MongoGridFS:
             # Convert string ID to ObjectId
             object_id = ObjectId(file_id)
             
+            # Get file metadata first using the files collection
+            file_info = await self.db.fs.files.find_one({"_id": object_id})
+            if not file_info:
+                raise Exception("File not found")
+            
             # Download file data
             file_stream = BytesIO()
             await self.fs.download_to_stream(object_id, file_stream)
             file_content = file_stream.getvalue()
             
-            # Get file metadata
-            file_info = await self.fs.find_one({"_id": object_id})
-            if not file_info:
-                raise Exception("File metadata not found")
-            
             metadata = {
-                "filename": file_info.filename,
-                "original_filename": file_info.metadata.get("original_filename", file_info.filename),
-                "content_type": file_info.metadata.get("content_type", "application/octet-stream"),
-                "file_size": file_info.length,
-                "upload_date": file_info.upload_date,
-                "user_id": file_info.metadata.get("user_id")
+                "filename": file_info.get("filename", "download"),
+                "original_filename": file_info.get("metadata", {}).get("original_filename", file_info.get("filename", "download")),
+                "content_type": file_info.get("metadata", {}).get("content_type", "application/octet-stream"),
+                "file_size": file_info.get("length", len(file_content)),
+                "upload_date": file_info.get("uploadDate"),
+                "user_id": file_info.get("metadata", {}).get("user_id")
             }
             
             logger.info(f"✅ File downloaded successfully from GridFS")
