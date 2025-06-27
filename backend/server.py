@@ -912,12 +912,12 @@ async def get_consumption_analytics(
     
     # Get current year and previous year data
     current_year_data = await db.consumptions.find({
-        "client_id": client_id,
+        "client_id": target_client_id,
         "year": year
     }).sort("month", 1).to_list(length=12)
     
     previous_year_data = await db.consumptions.find({
-        "client_id": client_id,
+        "client_id": target_client_id,
         "year": year - 1
     }).sort("month", 1).to_list(length=12)
     
