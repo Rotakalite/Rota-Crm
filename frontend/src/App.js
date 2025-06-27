@@ -136,6 +136,8 @@ const useAuth = () => {
         const directRole = user.publicMetadata?.role || 'client';
         setUserRole(directRole);
         console.log('🎯 No session, setting role without token:', directRole);
+      } else {
+        console.log("⏳ Waiting for Clerk to load... isLoaded:", isLoaded, "user:", !!user, "session:", !!session);
       }
     };
 
