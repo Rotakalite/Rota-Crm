@@ -1254,10 +1254,12 @@ async def finalize_upload(
         logging.info(f"✅ Chunked upload finalized: {local_final_path}")
         
         return {
-            "message": "File upload completed successfully",
+            "message": "File upload completed successfully ✅ (Local Storage)",
             "file_path": local_final_path,
             "file_size": file_size,
-            "upload_id": upload_id
+            "upload_id": upload_id,
+            "local_upload": True,
+            "storage": "Local Storage"
         }
         
     except Exception as e:
