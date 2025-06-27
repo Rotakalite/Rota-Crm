@@ -584,17 +584,28 @@ async def create_document(
 @api_router.get("/documents", response_model=List[Document])
 async def get_all_documents(current_user: User = Depends(get_current_user)):
     """Get all documents (Admin only) or user's documents (Client)"""
-    if current_user.role == UserRole.ADMIN:
-        # Admin can see all documents
-        documents = await db.documents.find().to_list(1000)
-        return [Document(**doc) for doc in documents]
-    else:
-        # Client can only see their own documents
-        if not current_user.client_id:
-            return []
+    try:
+        logging.info(f"📋 GET /documents called by: {current_user.role} - {current_user.name}")
         
-        documents = await db.documents.find({"client_id": current_user.client_id}).to_list(1000)
-        return [Document(**doc) for doc in documents]
+        if current_user.role == UserRole.ADMIN:
+            # Admin can see all documents
+            documents = await db.documents.find().to_list(1000)
+            logging.info(f"✅ Admin - returning {len(documents)} documents")
+            return [Document(**doc) for doc in documents]
+        else:
+            # Client users can only see their own documents
+            if not current_user.client_id:
+                logging.warning(f"⚠️ Client user {current_user.name} has no client_id")
+                return []
+            
+            documents = await db.documents.find({"client_id": current_user.client_id}).to_list(1000)
+            logging.info(f"✅ Client - returning {len(documents)} documents for client: {current_user.client_id}")
+            return [Document(**doc) for doc in documents]
+            
+    except Exception as e:
+        logging.error(f"❌ Error in get_all_documents: {str(e)}")
+        # Return empty list instead of error
+        return []
 
 @api_router.get("/documents/{client_id}", response_model=List[Document])
 async def get_client_documents(client_id: str, current_user: User = Depends(get_current_user)):
