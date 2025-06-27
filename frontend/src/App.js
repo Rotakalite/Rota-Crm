@@ -3647,7 +3647,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
   return (
     <div className="bg-gray-800 text-white w-64 min-h-screen p-4">
       <div className="mb-8">
-        <h1 className="text-xl font-bold">🌿 Sürdürülebilir Turizm CRM</h1>
+        <h1 className="text-xl font-bold">🔧 ROTA - CRM</h1>
         <p className="text-sm text-gray-300">
           {userRole === 'admin' ? 'Admin Paneli' : 'Müşteri Paneli'}
         </p>
