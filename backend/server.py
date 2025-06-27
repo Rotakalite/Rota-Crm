@@ -908,8 +908,28 @@ async def download_document(
             raise HTTPException(status_code=403, detail="Access denied: Cannot access other clients' documents")
     
     try:
+        # Check if it's a Supabase upload
+        if document.get("supabase_upload", False):
+            # Supabase file download
+            if supabase_storage and supabase_storage.client:
+                logging.info(f"📥 Downloading from Supabase: {document.get('file_path')}")
+                
+                file_content = await supabase_storage.download_file(document.get("file_path"))
+                
+                from fastapi.responses import Response
+                return Response(
+                    content=file_content,
+                    media_type='application/octet-stream',
+                    headers={
+                        "Content-Disposition": f"attachment; filename=\"{document.get('original_filename', document.get('name', 'download'))}\""
+                    }
+                )
+            else:
+                logging.error("❌ Supabase client not available")
+                raise HTTPException(status_code=500, detail="Storage service not available")
+        
         # Check if it's a local upload
-        if document.get("local_upload", False):
+        elif document.get("local_upload", False):
             # Local file download
             import os
             from fastapi.responses import FileResponse
@@ -927,7 +947,7 @@ async def download_document(
                 raise HTTPException(status_code=404, detail="File not found on server")
         
         # GCS fallback (existing logic)
-        if document.get("mock_upload", False) or not gcs_service or not gcs_service.client:
+        elif document.get("mock_upload", False) or not gcs_service or not gcs_service.client:
             # For mock uploads or when GCS is not available
             file_url = document.get("file_url", "")
             
