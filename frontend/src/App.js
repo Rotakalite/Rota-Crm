@@ -419,18 +419,27 @@ const ConsumptionAnalytics = () => {
           <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
             {/* Admin Client Selector */}
             {userRole === 'admin' && (
-              <select
-                value={selectedClient}
-                onChange={(e) => setSelectedClient(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Müşteri Seçin</option>
-                {clients.map(client => (
-                  <option key={client.id} value={client.id}>
-                    {client.hotel_name}
-                  </option>
-                ))}
-              </select>
+              <div className="flex space-x-2">
+                <select
+                  value={selectedClient}
+                  onChange={(e) => setSelectedClient(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Müşteri Seçin</option>
+                  {clients.map(client => (
+                    <option key={client.id} value={client.id}>
+                      {client.hotel_name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={fetchClients}
+                  className="px-3 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  title="Müşteri listesini yenile"
+                >
+                  🔄
+                </button>
+              </div>
             )}
             
             {/* Year Selector */}
