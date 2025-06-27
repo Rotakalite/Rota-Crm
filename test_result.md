@@ -210,11 +210,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Consumption Analytics Endpoint"
-    - "Multi-Client Comparison Endpoint"
-    - "Monthly Trends Endpoint"
-    - "Existing Consumption Endpoints"
-  stuck_tasks: []
+    - "Fix 403 Authentication Errors"
+    - "Frontend URL Configuration"
+    - "Cleanup Duplicate Code in Stats Endpoint"
+  stuck_tasks:
+    - "Fix 403 Authentication Errors"
   test_all: false
   test_priority: "high_first"
 
