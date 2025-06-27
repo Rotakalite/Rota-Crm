@@ -27,8 +27,9 @@ ChartJS.register(
 );
 
 const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
-// API Configuration
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+
+// API Configuration - FIXED URL
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://1f0c3a30-ba23-4cb9-a340-2a6d39e2d493.preview.emergentagent.com';
 const API = `${BACKEND_URL}/api`;
 
 // Debug log to see what URL is being used
