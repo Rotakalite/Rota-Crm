@@ -391,7 +391,9 @@ async def get_clients(current_user: User = Depends(get_current_user)):
     if current_user.role == UserRole.ADMIN:
         # Admin can see all clients
         clients = await db.clients.find().to_list(1000)
-        logging.info(f"✅ Admin user - returning {len(clients)} clients")
+        logging.info(f"✅ Admin user - returning {len(clients)} clients:")
+        for client in clients:
+            logging.info(f"   - {client['hotel_name']} (ID: {client['id']})")
         return [Client(**client) for client in clients]
     else:
         # Client can only see their own record
