@@ -2223,14 +2223,19 @@ const ConsumptionManagement = ({ onNavigate }) => {
   const handleDelete = async (id) => {
     if (window.confirm('Bu tüketim verisini silmek istediğinizden emin misiniz?')) {
       try {
-        await axios.delete(`${API}/consumptions/${id}`, {
+        console.log("🗑️ Deleting consumption with ID:", id);
+        console.log("🔑 Using token:", authToken ? authToken.substring(0, 20) + "..." : "null");
+        
+        const response = await axios.delete(`${API}/consumptions/${id}`, {
           headers: { 'Authorization': `Bearer ${authToken}` }
         });
+        
+        console.log("✅ Delete response:", response.data);
         fetchConsumptions();
         fetchAnalytics();
         alert('Tüketim verisi silindi!');
       } catch (error) {
-        console.error("Error deleting consumption:", error);
+        console.error("❌ Error deleting consumption:", error.response?.status, error.response?.data);
         alert('Silme hatası: ' + (error.response?.data?.detail || 'Bilinmeyen hata'));
       }
     }
