@@ -951,24 +951,33 @@ async def create_consumption(
 @api_router.get("/consumptions")
 async def get_consumptions(
     year: Optional[int] = None,
+    client_id: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
     """Get consumption records for client"""
     
-    logging.info(f"🔍 GET /consumptions called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
+    logging.info(f"🔍 GET /consumptions called by user: {current_user.role} - client_id param: {client_id}")
     
     # Get client_id based on user role
     if current_user.role == UserRole.ADMIN:
-        # Admin can see all or filter by client_id in query params
-        client_id = current_user.client_id  # For now, assume admin sees their assigned client
+        # Admin can specify client_id or see all data
+        if client_id:
+            target_client_id = client_id
+        else:
+            # If no client_id specified, use admin's assigned client (backward compatibility)
+            target_client_id = current_user.client_id
     else:
         # Client users can only see their own consumptions
         if not current_user.client_id:
             raise HTTPException(status_code=400, detail="Client not assigned to user")
-        client_id = current_user.client_id
+        target_client_id = current_user.client_id
+    
+    logging.info(f"📊 Fetching consumptions for client_id: {target_client_id}")
     
     # Build filter
-    filter_query = {"client_id": client_id}
+    filter_query = {}
+    if target_client_id:
+        filter_query["client_id"] = target_client_id
     if year:
         filter_query["year"] = year
     
