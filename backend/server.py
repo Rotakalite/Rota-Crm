@@ -255,22 +255,26 @@ class TrainingCreate(BaseModel):
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
         token = credentials.credentials
-        logging.info(f"🔍 TOKEN VERIFICATION START")
-        logging.info(f"🔍 Received token length: {len(token)}")
-        logging.info(f"🔍 Token preview: {token[:50]}...")
+        logging.info(f"🔍 TOKEN VERIFICATION START for token ending: ...{token[-10:]}")
         
         # Basic token format validation
         if not token or len(token.split('.')) != 3:
             logging.error(f"❌ Invalid token format: {len(token.split('.'))} segments")
             raise HTTPException(status_code=401, detail="Invalid token format")
         
-        # Get the signing key from Clerk
-        try:
-            signing_key = jwks_client.get_signing_key_from_jwt(token)
-            logging.info("✅ Got signing key from Clerk")
-        except Exception as key_error:
-            logging.error(f"❌ Failed to get signing key: {str(key_error)}")
-            raise HTTPException(status_code=401, detail="Invalid token: could not get signing key")
+        # Get the signing key from Clerk with retry logic
+        signing_key = None
+        for attempt in range(3):  # Retry up to 3 times
+            try:
+                signing_key = jwks_client.get_signing_key_from_jwt(token)
+                logging.info(f"✅ Got signing key from Clerk (attempt {attempt + 1})")
+                break
+            except Exception as key_error:
+                logging.warning(f"⚠️ Attempt {attempt + 1} failed to get signing key: {str(key_error)}")
+                if attempt == 2:  # Last attempt
+                    logging.error(f"❌ All attempts failed to get signing key")
+                    raise HTTPException(status_code=401, detail="Invalid token: could not get signing key")
+                time.sleep(0.1)  # Brief delay before retry
         
         # Decode and verify the token
         try:
@@ -281,7 +285,7 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
                 audience=None,  # Clerk doesn't use audience
                 options={"verify_aud": False}
             )
-            logging.info(f"✅ JWT decode successful")
+            logging.info(f"✅ JWT decode successful for user: {payload.get('sub', 'unknown')}")
         except jwt.ExpiredSignatureError:
             logging.error("❌ Token has expired")
             raise HTTPException(status_code=401, detail="Token has expired")
@@ -294,13 +298,6 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
             logging.error("❌ Token missing required 'sub' field")
             raise HTTPException(status_code=401, detail="Invalid token: missing user ID")
         
-        # Log all available token data for debugging
-        logging.info(f"🔍 Token payload keys: {list(payload.keys())}")
-        logging.info(f"👤 User info in token - sub: {payload.get('sub')}")
-        logging.info(f"📧 Email in token: {payload.get('email', payload.get('email_addresses', 'Not found'))}")
-        logging.info(f"👤 Name info: given_name={payload.get('given_name')}, family_name={payload.get('family_name')}, name={payload.get('name')}")
-        
-        logging.info(f"✅ Token verified for user: {payload.get('sub', 'unknown')}")
         return payload
         
     except HTTPException:
