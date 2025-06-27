@@ -2184,7 +2184,7 @@ const DocumentManagement = () => {
                       Belge Durumu
                     </h4>
                     <p className="text-sm text-green-700">
-                      Belge başarıyla <strong>Google Cloud Storage</strong>'a yüklenmiştir. 
+                      Belge başarıyla <strong>Local Storage</strong>'a yüklenmiştir. 
                       Aşağıdaki "İndir" butonuna tıklayarak dosyayı görüntüleyebilirsiniz.
                     </p>
                   </div>
