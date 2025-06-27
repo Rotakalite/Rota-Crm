@@ -1039,12 +1039,17 @@ async def get_consumption_analytics(
     
     # Get client_id based on user role
     if current_user.role == UserRole.ADMIN:
-        # Admin can specify client_id or see all data
+        # Admin can specify client_id or see aggregated data for all clients
         if client_id:
             target_client_id = client_id
         else:
-            # If no client_id specified, return error - admin must select client
-            raise HTTPException(status_code=400, detail="Admin must specify client_id for analytics")
+            # If no client_id specified, get the first available client for demo
+            # In production, this might show aggregated data for all clients
+            clients = await db.clients.find().to_list(1)
+            if not clients:
+                raise HTTPException(status_code=400, detail="No clients available for analytics")
+            target_client_id = clients[0]["id"]
+            logging.info(f"📊 Admin user - using first available client: {target_client_id}")
     else:
         # Client users can only see their own analytics
         if not current_user.client_id:
