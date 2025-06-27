@@ -1673,6 +1673,11 @@ const DocumentManagement = () => {
 
         const response = await uploadLargeFile(file, metadata);
         console.log(`✅ File ${i + 1} uploaded successfully:`, response.data);
+        
+        // Show success message with storage info
+        if (response.data?.message) {
+          alert(`✅ ${response.data.message}`);
+        }
       }
 
       fetchDocuments();
