@@ -111,6 +111,7 @@ class ServiceType(str, Enum):
     SITUATION_ANALYSIS = "Mevcut durum analizi"
     TEAM_DETERMINATION = "Çalışma ekibinin belirlenmesi"
     PROJECT_PLANNING = "Proje planının oluşturulması"
+    SUSTAINABILITY_PLAN = "Sürdürülebilirlik planı"
     RISK_ASSESSMENT = "Risk değerlendirmesi"
     TRAINING = "Eğitim-Bilinçlendirme faaliyetleri"
     MONITORING = "İzleme, Denetim Kayıtlarının Oluşturulması ve İyileştirme faaliyetleri"
