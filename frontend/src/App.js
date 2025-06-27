@@ -1716,7 +1716,7 @@ const DocumentManagement = () => {
         files: []
       });
       
-      alert(`${uploadData.files.length} dosya Google Cloud Storage'a başarıyla yüklendi! 🎉`);
+      alert(`${uploadData.files.length} dosya başarıyla yüklendi! 🎉 (Local Storage)`);
     } catch (error) {
       console.error("❌ Error uploading documents:", error);
       if (error.code === 'ECONNABORTED') {
