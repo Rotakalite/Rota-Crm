@@ -76,8 +76,8 @@ const useAuth = () => {
           // Get token from session
           try {
             const token = await session.getToken();
+            console.log("🎯 Token received successfully:", token ? token.substring(0, 50) + "..." : "NO TOKEN");
             setAuthToken(token);
-            console.log('🎯 Token received successfully');
             
             // Get user from database or register if not exists
             try {
