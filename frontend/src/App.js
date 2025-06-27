@@ -1946,19 +1946,24 @@ const ConsumptionManagement = ({ onNavigate }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleEdit(consumption)}
-                        className="text-blue-600 hover:text-blue-900 font-medium"
-                      >
-                        ✏️ Düzenle
-                      </button>
                       {userRole === 'admin' && (
-                        <button
-                          onClick={() => handleDelete(consumption.id)}
-                          className="text-red-600 hover:text-red-900 font-medium"
-                        >
-                          🗑️ Sil
-                        </button>
+                        <>
+                          <button
+                            onClick={() => handleEdit(consumption)}
+                            className="text-blue-600 hover:text-blue-900 font-medium"
+                          >
+                            ✏️ Düzenle
+                          </button>
+                          <button
+                            onClick={() => handleDelete(consumption.id)}
+                            className="text-red-600 hover:text-red-900 font-medium"
+                          >
+                            🗑️ Sil
+                          </button>
+                        </>
+                      )}
+                      {userRole === 'client' && (
+                        <span className="text-gray-500 text-sm">Sadece görüntüleme</span>
                       )}
                     </div>
                   </td>
