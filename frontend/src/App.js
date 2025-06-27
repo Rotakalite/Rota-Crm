@@ -67,6 +67,9 @@ const useAuth = () => {
     const initAuth = async () => {
       if (isLoaded && user && session) {
         try {
+          console.log("🔍 Clerk user loaded:", user.id);
+          console.log("🔍 Clerk user email:", user.primaryEmailAddress?.emailAddress);
+          console.log("🔍 Clerk session loaded:", !!session);
           // DIRECT role from Clerk metadata - highest priority
           const directRole = user.publicMetadata?.role || 'client';
           setUserRole(directRole);
