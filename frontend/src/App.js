@@ -1965,6 +1965,9 @@ const ConsumptionManagement = ({ onNavigate }) => {
                       {userRole === 'client' && (
                         <span className="text-gray-500 text-sm">Sadece görüntüleme</span>
                       )}
+                      {userRole === 'client' && (
+                        <span className="text-gray-500 text-sm">Sadece görüntüleme</span>
+                      )}
                     </div>
                   </td>
                 </tr>
