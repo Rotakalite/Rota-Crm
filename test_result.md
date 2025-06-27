@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the newly added consumption analytics API endpoints"
+user_problem_statement: "Fix 403 authentication errors on /api/clients and /api/stats endpoints - user is authenticated but API calls failing"
 
 backend:
   - task: "Consumption Analytics Endpoint"
