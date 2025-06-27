@@ -294,13 +294,14 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
 async def get_current_user(payload: dict = Depends(verify_token)):
     clerk_user_id = payload.get("sub")
     if not clerk_user_id:
+        logging.error("❌ Missing user ID in token payload")
         raise HTTPException(status_code=401, detail="Invalid token: missing user ID")
     
     logging.info(f"🔍 Looking for user with Clerk ID: {clerk_user_id}")
     
     user = await db.users.find_one({"clerk_user_id": clerk_user_id})
     if not user:
-        logging.info(f"⚠️ User not found in database for clerk_user_id: {clerk_user_id}")
+        logging.warning(f"⚠️ User not found in database for clerk_user_id: {clerk_user_id}")
         
         # Extract user info from Clerk token
         user_email = payload.get("email")
@@ -324,41 +325,44 @@ async def get_current_user(payload: dict = Depends(verify_token)):
         else:
             user_name = user_email.split("@")[0].title()  # Use email prefix as name
         
-        logging.info(f"👤 Extracted user info - Name: '{user_name}', Email: '{user_email}'")
+        logging.info(f"👤 CREATING NEW USER - Name: '{user_name}', Email: '{user_email}'")
         
-        # Create a fallback admin user for development
-        if clerk_user_id == "fallback_user":
-            logging.info("🔧 Creating fallback admin user for development")
-            return User(
-                id=str(uuid.uuid4()),
-                clerk_user_id=clerk_user_id,
-                name="Admin User",
-                email="admin@test.com",
-                role=UserRole.ADMIN,
-                client_id="7a2c8828-9d50-453e-9aff-38e11b102f21",  # First real client
-                created_at=datetime.utcnow(),
-                updated_at=datetime.utcnow()
-            )
+        # Determine user role based on email domain or default to client
+        if user_email.endswith("@rotakalitedanismanlik.com") or user_email == "bilgi@rotakalitedanismanlik.com":
+            user_role = UserRole.ADMIN
+            client_id = None  # Admin doesn't need client_id
+            logging.info("🎭 Creating ADMIN user")
+        else:
+            user_role = UserRole.CLIENT
+            # Get first client for now, later admin can assign proper client
+            first_client = await db.clients.find_one()
+            client_id = first_client["id"] if first_client else None
+            logging.info(f"👤 Creating CLIENT user with client_id: {client_id}")
         
-        # Create real user from Clerk data
-        logging.info(f"📝 Creating new user from Clerk data: {user_name}")
-        new_user = User(
-            id=str(uuid.uuid4()),
-            clerk_user_id=clerk_user_id,
-            name=user_name,
-            email=user_email,
-            role=UserRole.ADMIN,  # Default to admin for now
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
-        )
+        # Create new user from Clerk data
+        new_user = {
+            "id": str(uuid.uuid4()),
+            "clerk_user_id": clerk_user_id,
+            "name": user_name,
+            "email": user_email,
+            "role": user_role.value,
+            "client_id": client_id,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
         
-        # Save to database
-        await db.users.insert_one(new_user.dict())
-        logging.info(f"✅ New user created and saved: {user_name}")
-        
-        return new_user
+        try:
+            # Save to database
+            await db.users.insert_one(new_user)
+            logging.info(f"✅ NEW USER CREATED: {user_name} ({user_email}) - Role: {user_role.value}")
+            
+            # Return new user
+            return User(**new_user)
+        except Exception as save_error:
+            logging.error(f"❌ Failed to save new user: {str(save_error)}")
+            raise HTTPException(status_code=500, detail="Failed to create user")
     
-    logging.info(f"✅ User found: {user['name']} - Role: {user['role']}")
+    logging.info(f"✅ User found: {user['name']} ({user['email']}) - Role: {user['role']}")
     return User(**user)
 
 async def get_admin_user(current_user: User = Depends(get_current_user)):
