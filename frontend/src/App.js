@@ -2225,18 +2225,32 @@ const ConsumptionManagement = ({ onNavigate }) => {
       try {
         console.log("🗑️ Deleting consumption with ID:", id);
         console.log("🔑 Using token:", authToken ? authToken.substring(0, 20) + "..." : "null");
+        console.log("🌐 API URL:", `${API}/consumptions/${id}`);
         
         const response = await axios.delete(`${API}/consumptions/${id}`, {
-          headers: { 'Authorization': `Bearer ${authToken}` }
+          headers: { 
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+          }
         });
         
         console.log("✅ Delete response:", response.data);
-        fetchConsumptions();
-        fetchAnalytics();
-        alert('Tüketim verisi silindi!');
+        
+        // Refresh all data
+        await fetchConsumptions();
+        await fetchAnalytics();
+        
+        alert('✅ Tüketim verisi başarıyla silindi!');
+        
       } catch (error) {
-        console.error("❌ Error deleting consumption:", error.response?.status, error.response?.data);
-        alert('Silme hatası: ' + (error.response?.data?.detail || 'Bilinmeyen hata'));
+        console.error("❌ Error deleting consumption:", {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: error.message
+        });
+        
+        const errorMsg = error.response?.data?.detail || error.message || 'Bilinmeyen hata';
+        alert(`❌ Silme hatası: ${errorMsg}`);
       }
     }
   };
