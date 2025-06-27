@@ -658,34 +658,64 @@ async def update_training_status(
 # Statistics (Role-based)
 @api_router.get("/stats")
 async def get_statistics(current_user: User = Depends(get_current_user)):
-    if current_user.role == UserRole.ADMIN:
-        # Admin sees all statistics
-        total_clients = await db.clients.count_documents({})
-        stage_1_clients = await db.clients.count_documents({"current_stage": "I.Aşama"})
-        stage_2_clients = await db.clients.count_documents({"current_stage": "II.Aşama"})
-        stage_3_clients = await db.clients.count_documents({"current_stage": "III.Aşama"})
-        total_documents = await db.documents.count_documents({})
-        total_trainings = await db.trainings.count_documents({})
-        
-        return {
-            "total_clients": total_clients,
-            "stage_distribution": {
-                "stage_1": stage_1_clients,
-                "stage_2": stage_2_clients,
-                "stage_3": stage_3_clients
-            },
-            "total_documents": total_documents,
-            "total_trainings": total_trainings
-        }
-    else:
-        # Client sees only their own statistics
-        if not current_user.client_id:
+    try:
+        if current_user.role == UserRole.ADMIN:
+            # Admin sees all statistics
+            total_clients = await db.clients.count_documents({})
+            stage_1_clients = await db.clients.count_documents({"current_stage": "I.Aşama"})
+            stage_2_clients = await db.clients.count_documents({"current_stage": "II.Aşama"})
+            stage_3_clients = await db.clients.count_documents({"current_stage": "III.Aşama"})
+            total_documents = await db.documents.count_documents({})
+            total_trainings = await db.trainings.count_documents({})
+            
             return {
-                "total_clients": 0,
-                "stage_distribution": {"stage_1": 0, "stage_2": 0, "stage_3": 0},
-                "total_documents": 0,
-                "total_trainings": 0
+                "total_clients": total_clients,
+                "stage_distribution": {
+                    "stage_1": stage_1_clients,
+                    "stage_2": stage_2_clients,
+                    "stage_3": stage_3_clients
+                },
+                "total_documents": total_documents,
+                "total_trainings": total_trainings
             }
+        else:
+            # Client sees only their own statistics
+            if not current_user.client_id:
+                return {
+                    "total_clients": 0,
+                    "stage_distribution": {"stage_1": 0, "stage_2": 0, "stage_3": 0},
+                    "total_documents": 0,
+                    "total_trainings": 0
+                }
+            
+            client = await db.clients.find_one({"id": current_user.client_id})
+            client_documents = await db.documents.count_documents({"client_id": current_user.client_id})
+            client_trainings = await db.trainings.count_documents({"client_id": current_user.client_id})
+            
+            current_stage = client.get("current_stage", "I.Aşama") if client else "I.Aşama"
+            stage_distribution = {"stage_1": 0, "stage_2": 0, "stage_3": 0}
+            
+            if current_stage == "I.Aşama":
+                stage_distribution["stage_1"] = 1
+            elif current_stage == "II.Aşama":
+                stage_distribution["stage_2"] = 1
+            elif current_stage == "III.Aşama":
+                stage_distribution["stage_3"] = 1
+            
+            return {
+                "total_clients": 1,
+                "stage_distribution": stage_distribution,
+                "total_documents": client_documents,
+                "total_trainings": client_trainings
+            }
+    except Exception as e:
+        logging.error(f"Error in get_statistics: {str(e)}")
+        return {
+            "total_clients": 0,
+            "stage_distribution": {"stage_1": 0, "stage_2": 0, "stage_3": 0},
+            "total_documents": 0,
+            "total_trainings": 0
+        }
         
         client = await db.clients.find_one({"id": current_user.client_id})
         client_documents = await db.documents.count_documents({"client_id": current_user.client_id})
