@@ -741,7 +741,19 @@ async def download_document(
             logging.info(f"🎭 Using mock URL: {download_url}")
         else:
             # Generate signed URL for real GCS files
-            download_url = await gcs_service.get_signed_url(document["file_path"], expiration_hours=24)
+            try:
+                download_url = await gcs_service.get_signed_url(document["file_path"], expiration_hours=24)
+            except Exception as gcs_error:
+                if "File not found" in str(gcs_error) or "NoSuchKey" in str(gcs_error):
+                    logging.error(f"📁 File not found in GCS: {document['file_path']}")
+                    raise HTTPException(
+                        status_code=404, 
+                        detail=f"Document file not found in storage. The file may have been moved or deleted."
+                    )
+                else:
+                    logging.error(f"🚨 GCS error: {str(gcs_error)}")
+                    raise HTTPException(status_code=500, detail=f"Storage access error: {str(gcs_error)}")
+            
             logging.info(f"🔐 Generated signed URL: {download_url[:100]}...")
         
         final_response = {
