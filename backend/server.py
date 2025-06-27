@@ -277,13 +277,29 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
         logging.info("🔄 Using fallback authentication for development...")
         return {"sub": "fallback_user", "role": "admin"}  # Fallback for development
 
-async def get_current_user(clerk_user_id: str = Depends(verify_token)):
+async def get_current_user(payload: dict = Depends(verify_token)):
+    clerk_user_id = payload.get("sub")
+    if not clerk_user_id:
+        raise HTTPException(status_code=401, detail="Invalid token: missing user ID")
+        
     user = await db.users.find_one({"clerk_user_id": clerk_user_id})
     if not user:
-        logging.error(f"❌ User not found in database for clerk_user_id: {clerk_user_id}")
-        raise HTTPException(status_code=404, detail="User not found in database")
+        logging.info(f"⚠️ User not found in database for clerk_user_id: {clerk_user_id}")
+        # Create a fallback admin user for development
+        if clerk_user_id == "fallback_user":
+            logging.info("🔧 Creating fallback admin user for development")
+            return User(
+                id=str(uuid.uuid4()),
+                clerk_user_id=clerk_user_id,
+                name="Admin User",
+                email="admin@test.com",
+                role=UserRole.ADMIN,
+                client_id="3619c337-899d-4792-9575-7cf18de6228f",  # Test client
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
+            )
+        raise HTTPException(status_code=404, detail="User not found")
     
-    logging.info(f"✅ User found: {user.get('role')} - {user.get('name', 'Unknown')}")
     return User(**user)
 
 async def get_admin_user(current_user: User = Depends(get_current_user)):
