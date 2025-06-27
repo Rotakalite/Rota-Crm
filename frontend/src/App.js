@@ -76,6 +76,47 @@ axios.interceptors.response.use(
   }
 );
 
+// Add cache busting and request interceptor
+axios.defaults.headers.common['Cache-Control'] = 'no-cache';
+axios.defaults.headers.common['Pragma'] = 'no-cache';
+axios.defaults.timeout = 30000; // 30 second timeout
+
+// Add request interceptor for debugging
+axios.interceptors.request.use(
+  (config) => {
+    console.log(`📤 API Request: ${config.method?.toUpperCase()} ${config.url}`);
+    return config;
+  },
+  (error) => {
+    console.error('📤 Request Error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for debugging and error handling
+axios.interceptors.response.use(
+  (response) => {
+    console.log(`📥 API Response: ${response.status} ${response.config.url}`);
+    return response;
+  },
+  (error) => {
+    console.error(`📥 API Error: ${error.response?.status} ${error.config?.url}`, error.response?.data);
+    
+    // Handle common errors
+    if (error.response?.status === 401) {
+      console.warn('🔐 Authentication error - token might be expired');
+    } else if (error.response?.status === 403) {
+      console.warn('🚫 Permission denied - user might not have access');
+    } else if (error.response?.status >= 500) {
+      console.error('🔥 Server error - backend might be down');
+    } else if (error.code === 'ECONNABORTED') {
+      console.error('⏰ Request timeout - server is slow');
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
 if (!CLERK_PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key")
 }
