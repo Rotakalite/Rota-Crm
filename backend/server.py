@@ -1390,6 +1390,64 @@ async def health_check():
         "cors_enabled": True
     }
 
+# User-Client Management Endpoint
+@api_router.post("/admin/assign-client")
+async def assign_client_to_user(
+    clerk_user_id: str,
+    client_id: str,
+    current_user: User = Depends(get_admin_user)
+):
+    """Assign a client to a user (Admin only)"""
+    
+    logging.info(f"🔗 Admin assigning client {client_id} to user {clerk_user_id}")
+    
+    # Check if client exists
+    client = await db.clients.find_one({"id": client_id})
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    
+    # Update user's client_id
+    result = await db.users.update_one(
+        {"clerk_user_id": clerk_user_id},
+        {"$set": {"client_id": client_id, "updated_at": datetime.utcnow()}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    logging.info(f"✅ Client assigned successfully")
+    return {"message": f"Client {client['hotel_name']} assigned to user"}
+
+@api_router.get("/admin/users-clients")
+async def get_users_and_clients(current_user: User = Depends(get_admin_user)):
+    """Get all users and clients for admin management"""
+    
+    users = await db.users.find().to_list(1000)
+    clients = await db.clients.find().to_list(1000)
+    
+    return {
+        "users": [
+            {
+                "clerk_user_id": u["clerk_user_id"],
+                "name": u["name"],
+                "email": u["email"],
+                "role": u["role"],
+                "client_id": u.get("client_id"),
+                "client_name": next((c["hotel_name"] for c in clients if c["id"] == u.get("client_id")), "No Client")
+            }
+            for u in users
+        ],
+        "clients": [
+            {
+                "id": c["id"],
+                "hotel_name": c["hotel_name"],
+                "name": c["name"],
+                "contact_person": c["contact_person"]
+            }
+            for c in clients
+        ]
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
