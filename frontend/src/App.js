@@ -118,9 +118,37 @@ ChartJS.register(
 
 const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
-// API Configuration - FIXED URL with cache busting
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://aa553048-3daf-4672-a224-c7c6e3863ff1.preview.emergentagent.com';
-const API = `${BACKEND_URL}/api`;
+// Configure axios to automatically refresh tokens
+axios.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        console.log('🔄 Token expired, refreshing...');
+        const { session } = useClerk();
+        
+        if (session) {
+          const newToken = await session.getToken();
+          setAuthToken(newToken);
+          
+          // Retry original request with new token
+          originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+          return axios(originalRequest);
+        }
+      } catch (refreshError) {
+        console.error('❌ Token refresh failed:', refreshError);
+        // Redirect to login or show error
+        window.location.reload(); // Force page refresh to re-authenticate
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
 
 // Debug log to see what URL is being used
 console.log('🔧 API URL configured as:', API);
