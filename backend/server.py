@@ -1224,33 +1224,38 @@ async def finalize_upload(
                 with open(chunk_path, "rb") as chunk_file:
                     final_file.write(chunk_file.read())
         
-        # Upload final file to GCS
-        with open(final_file_path, "rb") as final_file:
-            file_content = final_file.read()
-            
-        # Generate file path and upload
-        file_extension = filename.split('.')[-1] if '.' in filename else ''
-        gcs_filename = f"documents/{filename}_{int(datetime.now().timestamp() * 1000)}.{file_extension}"
+        # Save final file to local storage instead of GCS
+        uploads_dir = "/app/backend/uploads"
+        os.makedirs(uploads_dir, exist_ok=True)
         
-        upload_result = await gcs_service.upload_file(
-            file_content=file_content,
-            file_name=gcs_filename,
-            content_type=f"application/{file_extension}"
-        )
+        # Generate unique filename for local storage
+        file_id = str(uuid.uuid4())
+        file_extension = os.path.splitext(filename)[1] if '.' in filename else ''
+        local_filename = f"{file_id}{file_extension}"
+        local_final_path = os.path.join(uploads_dir, local_filename)
+        
+        # Move temp file to uploads directory
+        shutil.move(final_file_path, local_final_path)
+        
+        logging.info(f"📁 Chunked file saved to local storage: {local_final_path}")
+        
+        upload_result = {
+            "file_path": local_final_path,
+            "file_size": file_size,
+            "local_upload": True
+        }
         
         # Cleanup temp files
-        import shutil
         shutil.rmtree(temp_dir, ignore_errors=True)
-        os.remove(final_file_path)
         
         # Remove chunk records
         await db.upload_chunks.delete_many({"upload_id": upload_id})
         
-        logging.info(f"✅ Chunked upload finalized: {gcs_filename}")
+        logging.info(f"✅ Chunked upload finalized: {local_final_path}")
         
         return {
             "message": "File upload completed successfully",
-            "file_path": gcs_filename,
+            "file_path": local_final_path,
             "file_size": file_size,
             "upload_id": upload_id
         }
