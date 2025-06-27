@@ -237,10 +237,18 @@ class Document(BaseModel):
     name: str
     document_type: DocumentType
     stage: ProjectStage
-    file_path: str
+    file_path: Optional[str] = None  # For local/Supabase uploads
+    file_id: Optional[str] = None    # For GridFS uploads
+    filename: Optional[str] = None   # GridFS filename
+    original_filename: Optional[str] = None
     file_size: Optional[int] = None
     uploaded_by: str = "admin"
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    # Upload type flags
+    gridfs_upload: Optional[bool] = False
+    supabase_upload: Optional[bool] = False
+    local_upload: Optional[bool] = False
+    mock_upload: Optional[bool] = False
 
 class DocumentCreate(BaseModel):
     client_id: str
