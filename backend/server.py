@@ -93,7 +93,16 @@ api_router = APIRouter(prefix="/api")
 
 # Security
 security = HTTPBearer()
-jwks_client = PyJWKClient(CLERK_JWKS_URL)
+
+# JWKS client with caching to avoid repeated requests
+import functools
+import time
+
+@functools.lru_cache(maxsize=1)
+def get_jwks_client():
+    return PyJWKClient(CLERK_JWKS_URL, cache_ttl=300)  # Cache for 5 minutes
+
+jwks_client = get_jwks_client()
 
 # Enums
 class ProjectStage(str, Enum):
