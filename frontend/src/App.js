@@ -911,10 +911,6 @@ const Dashboard = ({ onNavigate }) => {
   const fetchClients = async () => {
     try {
       const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
-      console.log('🔍 Clients API call:', {
-        authToken: authToken ? `${authToken.substring(0, 20)}...` : 'null',
-        hasHeaders: !!headers.Authorization
-      });
       const response = await axios.get(`${API}/clients`, { headers });
       
       // Check if response is actually JSON array
@@ -928,6 +924,24 @@ const Dashboard = ({ onNavigate }) => {
     } catch (error) {
       console.error("❌ Error fetching clients:", error.response?.status, error.response?.data);
       setClients([]);
+    }
+  };
+
+  const fetchFolders = async () => {
+    if (!authToken) return;
+    
+    try {
+      const headers = { 'Authorization': `Bearer ${authToken}` };
+      console.log('📁 Dashboard: Fetching folders...');
+      
+      const response = await axios.get(`${API}/folders`, { headers });
+      console.log('📁 Dashboard: Folders response:', response.data);
+      
+      setFolders(Array.isArray(response.data) ? response.data : []);
+      console.log('✅ Dashboard: Folders set in state:', Array.isArray(response.data) ? response.data.length : 0, 'folders');
+    } catch (error) {
+      console.error("❌ Dashboard: Error fetching folders:", error);
+      setFolders([]);
     }
   };
 
