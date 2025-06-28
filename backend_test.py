@@ -1530,4 +1530,4 @@ def run_client_dashboard_stats_tests():
 
 if __name__ == "__main__":
     import requests  # Import here to avoid issues with mocking
-    run_client_dashboard_stats_tests()
+    run_tests()  # Run all tests including client dashboard statistics tests
