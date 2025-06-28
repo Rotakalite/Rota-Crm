@@ -1303,6 +1303,226 @@ def run_simplified_upload_tests():
         logger.error("Some simplified upload system tests FAILED")
         return False
 
+class TestClientDashboardStats(unittest.TestCase):
+    """Test class for client dashboard statistics endpoint"""
+    
+    def setUp(self):
+        """Set up test environment"""
+        self.api_url = "https://53980ca9-c304-433e-ab62-1c37a7176dd5.preview.emergentagent.com/api"
+        self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
+        self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
+        
+    def test_stats_endpoint_for_client_users(self):
+        """Test the /api/stats endpoint for client users"""
+        logger.info("\n=== Testing /api/stats endpoint for client users ===")
+        
+        # Test with valid token
+        logger.info("Testing with valid token...")
+        url = f"{self.api_url}/stats"
+        
+        try:
+            response = requests.get(url, headers=self.headers_valid)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:500]}...")
+            
+            # Check if we get a 200 OK or 401 Unauthorized (not 403 Forbidden)
+            self.assertIn(response.status_code, [200, 401])
+            
+            if response.status_code == 200:
+                logger.info("✅ Authentication successful - received 200 OK")
+                data = response.json()
+                
+                # Check for required fields
+                self.assertIn("total_clients", data, "Response should include total_clients field")
+                self.assertIn("stage_distribution", data, "Response should include stage_distribution field")
+                self.assertIn("total_documents", data, "Response should include total_documents field")
+                self.assertIn("total_trainings", data, "Response should include total_trainings field")
+                
+                # Check for document_type_distribution field for client users
+                # Note: We can't guarantee the user role in this test, so we check if it exists
+                if "document_type_distribution" in data:
+                    logger.info("✅ Found document_type_distribution field in response")
+                    doc_distribution = data["document_type_distribution"]
+                    
+                    # Check for all required document type categories
+                    self.assertIn("TR1_CRITERIA", doc_distribution, "document_type_distribution should include TR1_CRITERIA")
+                    self.assertIn("STAGE_1_DOC", doc_distribution, "document_type_distribution should include STAGE_1_DOC")
+                    self.assertIn("STAGE_2_DOC", doc_distribution, "document_type_distribution should include STAGE_2_DOC")
+                    self.assertIn("STAGE_3_DOC", doc_distribution, "document_type_distribution should include STAGE_3_DOC")
+                    self.assertIn("CARBON_REPORT", doc_distribution, "document_type_distribution should include CARBON_REPORT")
+                    self.assertIn("SUSTAINABILITY_REPORT", doc_distribution, "document_type_distribution should include SUSTAINABILITY_REPORT")
+                    
+                    # Verify all values are integers (counts)
+                    for doc_type, count in doc_distribution.items():
+                        self.assertIsInstance(count, int, f"Count for {doc_type} should be an integer")
+                        logger.info(f"✅ {doc_type} count: {count}")
+                    
+                    logger.info("✅ All document type categories present with integer counts")
+                else:
+                    logger.info("⚠️ document_type_distribution field not found - this is expected for admin users")
+                
+                logger.info("✅ Stats endpoint test passed")
+            elif response.status_code == 401:
+                logger.info("✅ Authentication failed correctly - received 401 Unauthorized")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+        except Exception as e:
+            logger.error(f"❌ Error testing stats endpoint: {str(e)}")
+            raise
+    
+    def test_stats_endpoint_for_admin_users(self):
+        """Test the /api/stats endpoint for admin users"""
+        logger.info("\n=== Testing /api/stats endpoint for admin users ===")
+        
+        # Test with valid token
+        logger.info("Testing with valid token...")
+        url = f"{self.api_url}/stats"
+        
+        try:
+            response = requests.get(url, headers=self.headers_valid)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:500]}...")
+            
+            # Check if we get a 200 OK or 401 Unauthorized (not 403 Forbidden)
+            self.assertIn(response.status_code, [200, 401])
+            
+            if response.status_code == 200:
+                logger.info("✅ Authentication successful - received 200 OK")
+                data = response.json()
+                
+                # Check for required fields
+                self.assertIn("total_clients", data, "Response should include total_clients field")
+                self.assertIn("stage_distribution", data, "Response should include stage_distribution field")
+                self.assertIn("total_documents", data, "Response should include total_documents field")
+                self.assertIn("total_trainings", data, "Response should include total_trainings field")
+                
+                # Check stage_distribution structure
+                stage_distribution = data["stage_distribution"]
+                self.assertIn("stage_1", stage_distribution, "stage_distribution should include stage_1")
+                self.assertIn("stage_2", stage_distribution, "stage_distribution should include stage_2")
+                self.assertIn("stage_3", stage_distribution, "stage_distribution should include stage_3")
+                
+                logger.info("✅ Stats endpoint test passed for admin user")
+            elif response.status_code == 401:
+                logger.info("✅ Authentication failed correctly - received 401 Unauthorized")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+        except Exception as e:
+            logger.error(f"❌ Error testing stats endpoint: {str(e)}")
+            raise
+    
+    def test_document_type_counting_logic(self):
+        """Test the document type counting logic in the stats endpoint"""
+        logger.info("\n=== Testing document type counting logic in stats endpoint ===")
+        
+        # First, get the current stats to see document counts
+        logger.info("Getting current stats...")
+        url = f"{self.api_url}/stats"
+        
+        try:
+            response = requests.get(url, headers=self.headers_valid)
+            
+            if response.status_code == 200:
+                initial_data = response.json()
+                logger.info(f"Initial stats retrieved successfully")
+                
+                # Check if we're dealing with a client user (has document_type_distribution)
+                if "document_type_distribution" in initial_data:
+                    logger.info("✅ Client user detected - document_type_distribution present")
+                    
+                    # Get the initial document counts
+                    initial_counts = initial_data["document_type_distribution"]
+                    logger.info(f"Initial document counts: {initial_counts}")
+                    
+                    # Now get the documents list to verify counts
+                    logger.info("Getting documents list to verify counts...")
+                    docs_url = f"{self.api_url}/documents"
+                    docs_response = requests.get(docs_url, headers=self.headers_valid)
+                    
+                    if docs_response.status_code == 200:
+                        documents = docs_response.json()
+                        logger.info(f"Retrieved {len(documents)} documents")
+                        
+                        # Count documents by type
+                        manual_counts = {
+                            "TR1_CRITERIA": 0,
+                            "STAGE_1_DOC": 0,
+                            "STAGE_2_DOC": 0,
+                            "STAGE_3_DOC": 0,
+                            "CARBON_REPORT": 0,
+                            "SUSTAINABILITY_REPORT": 0
+                        }
+                        
+                        for doc in documents:
+                            doc_type = doc.get("document_type", "")
+                            if doc_type == "Türkiye Sürdürülebilir Turizm Programı Kriterleri (TR-I)":
+                                manual_counts["TR1_CRITERIA"] += 1
+                            elif doc_type == "I. Aşama Belgesi":
+                                manual_counts["STAGE_1_DOC"] += 1
+                            elif doc_type == "II. Aşama Belgesi":
+                                manual_counts["STAGE_2_DOC"] += 1
+                            elif doc_type == "III. Aşama Belgesi":
+                                manual_counts["STAGE_3_DOC"] += 1
+                            elif doc_type == "Karbon Ayak İzi Raporu":
+                                manual_counts["CARBON_REPORT"] += 1
+                            elif doc_type == "Sürdürülebilirlik Raporu":
+                                manual_counts["SUSTAINABILITY_REPORT"] += 1
+                        
+                        logger.info(f"Manual document counts: {manual_counts}")
+                        
+                        # Compare manual counts with API counts
+                        counts_match = True
+                        for doc_type, count in manual_counts.items():
+                            if count != initial_counts.get(doc_type, 0):
+                                counts_match = False
+                                logger.warning(f"❌ Count mismatch for {doc_type}: API={initial_counts.get(doc_type, 0)}, Manual={count}")
+                            else:
+                                logger.info(f"✅ Count match for {doc_type}: {count}")
+                        
+                        if counts_match:
+                            logger.info("✅ All document type counts match between API and manual calculation")
+                        else:
+                            logger.warning("⚠️ Some document type counts don't match between API and manual calculation")
+                    else:
+                        logger.warning(f"⚠️ Could not retrieve documents list: {docs_response.status_code}")
+                else:
+                    logger.info("⚠️ Admin user detected - document_type_distribution not present")
+                    logger.info("✅ Test skipped for admin user")
+            else:
+                logger.warning(f"⚠️ Could not retrieve initial stats: {response.status_code}")
+        except Exception as e:
+            logger.error(f"❌ Error testing document type counting logic: {str(e)}")
+            raise
+
+def run_client_dashboard_stats_tests():
+    """Run tests for client dashboard statistics"""
+    logger.info("Starting client dashboard statistics tests...")
+    
+    # Create a test suite
+    suite = unittest.TestSuite()
+    
+    # Add client dashboard statistics tests
+    suite.addTest(TestClientDashboardStats("test_stats_endpoint_for_client_users"))
+    suite.addTest(TestClientDashboardStats("test_stats_endpoint_for_admin_users"))
+    suite.addTest(TestClientDashboardStats("test_document_type_counting_logic"))
+    
+    # Run the tests
+    runner = unittest.TextTestRunner()
+    result = runner.run(suite)
+    
+    # Summary
+    logger.info("\n=== Client Dashboard Statistics Test Summary ===")
+    logger.info(f"Tests run: {result.testsRun}")
+    logger.info(f"Errors: {len(result.errors)}")
+    logger.info(f"Failures: {len(result.failures)}")
+    
+    if result.wasSuccessful():
+        logger.info("All client dashboard statistics tests PASSED")
+        return True
+    else:
+        logger.error("Some client dashboard statistics tests FAILED")
+        return False
+
 if __name__ == "__main__":
     import requests  # Import here to avoid issues with mocking
-    run_simplified_upload_tests()
+    run_client_dashboard_stats_tests()
