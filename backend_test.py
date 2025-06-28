@@ -1054,6 +1054,11 @@ def run_tests():
     suite.addTest(TestAnalyticsEndpoints("test_monthly_trends_endpoint"))
     suite.addTest(TestAnalyticsEndpoints("test_existing_consumption_endpoints"))
     
+    # Add client dashboard statistics tests
+    suite.addTest(TestClientDashboardStats("test_stats_endpoint_for_client_users"))
+    suite.addTest(TestClientDashboardStats("test_stats_endpoint_for_admin_users"))
+    suite.addTest(TestClientDashboardStats("test_document_type_counting_logic"))
+    
     # Run the tests
     runner = unittest.TextTestRunner()
     result = runner.run(suite)
