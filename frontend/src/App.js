@@ -1909,17 +1909,16 @@ const ClientDocuments = () => {
 
 const DocumentManagement = () => {
   const [documents, setDocuments] = useState([]);
-  const [clients, setClients] = useState([]);
   const [folders, setFolders] = useState([]);
-  const [selectedClient, setSelectedClient] = useState('');
-  const [showUploadForm, setShowUploadForm] = useState(false);
-  const [showDocumentModal, setShowDocumentModal] = useState(false);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedFolder, setSelectedFolder] = useState(null);
   const [selectedDocument, setSelectedDocument] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [showDocumentModal, setShowDocumentModal] = useState(false);
   const [uploadData, setUploadData] = useState({
     client_id: '',
     name: '',
-    document_type: 'Türkiye Sürdürülebilir Turizm Programı Kriterleri (TR-I)',
+    document_type: 'TR-I Kriterleri',
     stage: 'I.Aşama',
     files: [],
     folder_id: ''
