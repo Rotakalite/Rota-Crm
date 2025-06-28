@@ -1288,12 +1288,13 @@ async def finalize_upload(
         logging.info(f"✅ Chunked upload finalized: {local_final_path}")
         
         return {
-            "message": "File upload completed successfully ✅ (Yerel Depolama)",
+            "message": f"✅ {filename} başarıyla yüklendi! (Yerel Depolama - {file_size} bytes)",
+            "document_id": document_data["id"],
             "file_path": local_final_path,
             "file_size": file_size,
             "upload_id": upload_id,
             "local_upload": True,
-            "storage": "Local Storage"
+            "storage": "Yerel Depolama"
         }
         
     except Exception as e:
