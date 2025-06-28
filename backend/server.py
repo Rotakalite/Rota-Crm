@@ -85,9 +85,9 @@ app.add_middleware(
         "http://localhost:3000",  # Local development
         "https://1ec08c3c-6aac-4fbe-a51f-120fca82320d.preview.emergentagent.com"  # Current backend
     ],
-    allow_methods=["*"],  # Allow ALL methods
-    allow_headers=["*"],  # Allow ALL headers
-    expose_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],  # Explicit methods
+    allow_headers=["accept", "accept-encoding", "authorization", "content-type", "dnt", "origin", "user-agent", "x-csrftoken", "x-requested-with"],  # Explicit headers
+    expose_headers=["content-type", "authorization"],
     max_age=0  # No caching to avoid CORS issues
 )
 
