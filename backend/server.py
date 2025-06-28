@@ -1386,6 +1386,78 @@ Sürdürülebilir Turizm CRM Sistemi
 #         logging.error(f"❌ Upload finalization failed: {str(e)}")
 #         raise HTTPException(status_code=500, detail=f"Upload finalization failed: {str(e)}")
 
+# Folder Management Endpoints
+@api_router.get("/folders")
+async def get_folders(current_user: User = Depends(get_current_user)):
+    """Get folder tree for current user"""
+    try:
+        if current_user.role == UserRole.ADMIN:
+            # Admin sees all folders
+            folders = await db.folders.find({}).to_list(length=None)
+        else:
+            # Client sees only their own folders
+            folders = await db.folders.find({"client_id": current_user.client_id}).to_list(length=None)
+        
+        # Sort by level and name
+        folders.sort(key=lambda x: (x.get("level", 0), x.get("name", "")))
+        
+        return folders
+    except Exception as e:
+        logging.error(f"❌ Error fetching folders: {str(e)}")
+        return []
+
+@api_router.post("/folders")
+async def create_folder(
+    folder_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new folder"""
+    try:
+        # Extract data
+        folder_name = folder_data.get("name", "")
+        parent_folder_id = folder_data.get("parent_folder_id")
+        client_id = folder_data.get("client_id", current_user.client_id)
+        
+        # Validate permissions
+        if current_user.role == UserRole.CLIENT and client_id != current_user.client_id:
+            raise HTTPException(status_code=403, detail="Can only create folders for your own client")
+        
+        # Build folder path
+        if parent_folder_id:
+            parent_folder = await db.folders.find_one({"id": parent_folder_id})
+            if not parent_folder:
+                raise HTTPException(status_code=404, detail="Parent folder not found")
+            folder_path = f"{parent_folder['folder_path']}/{folder_name}"
+            level = parent_folder.get("level", 0) + 1
+        else:
+            # Root level folder
+            client = await db.clients.find_one({"id": client_id})
+            client_name = client.get("name", "Unknown") if client else "Unknown"
+            folder_path = f"{client_name} SYS"
+            level = 0
+        
+        # Create folder
+        folder = {
+            "id": str(uuid.uuid4()),
+            "client_id": client_id,
+            "name": folder_name,
+            "parent_folder_id": parent_folder_id,
+            "folder_path": folder_path,
+            "level": level,
+            "created_at": datetime.utcnow()
+        }
+        
+        await db.folders.insert_one(folder)
+        logging.info(f"📁 Created folder: {folder_path}")
+        
+        return folder
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ Error creating folder: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to create folder: {str(e)}")
+
 # Consumption Management Endpoints
 @api_router.post("/consumptions")
 async def create_consumption(
