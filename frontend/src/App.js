@@ -1570,8 +1570,7 @@ const ClientManagement = ({ onNavigate }) => {
   );
 };
 
-// Client Documents Management Component
-const ClientDocuments = () => {
+const DocumentManagement = () => {
   const [documents, setDocuments] = useState([]);
   const [folders, setFolders] = useState([]);
   const [selectedFolder, setSelectedFolder] = useState(null);
