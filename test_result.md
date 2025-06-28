@@ -319,11 +319,25 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+  - task: "Refactor Admin Document Management - Client and Folder Based View"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Completed refactoring of admin DocumentManagement component to implement client and folder-based document viewing. Removed 'Select All Clients' feature and implemented proper client selection dropdown with folder-based document filtering. The component now shows folder hierarchy for selected client and filters documents by selected folder. All necessary functions (handleViewDocument, handleDownloadDocument, handleDelete, getFileIcon, formatFileSize) are integrated and DocumentModal is properly implemented."
+
 agent_communication:
     -agent: "main"
     -message: "User reported persistent 403 authentication errors on document-related endpoints (/api/documents, /api/upload-chunk, /api/finalize-upload) especially during large file chunked uploads. These endpoints seem to have authentication issues not present in other endpoints. Also need to fix document list refresh after uploads and incorrect success messages referencing Google Cloud instead of local storage."
     -agent: "main"
     -message: "Fixed critical JavaScript error in frontend: 'uploadData is not defined' at line 1145. The issue was caused by misplaced folder selection JSX code in the Dashboard component that was trying to reference uploadData state from DocumentManagement component. Removed the duplicate/misplaced folder selection code from Dashboard component. The proper folder selection remains in DocumentManagement component where uploadData state is defined."
+    -agent: "main"
+    -message: "Completed refactoring of admin DocumentManagement component to implement client and folder-based document viewing. The component now requires admins to select a specific client first, then shows that client's folder hierarchy (root folder + 4 column sub-folders). When a folder is selected, only documents in that specific folder are displayed. This removes the 'Select All Clients' feature and implements proper folder-based document management as requested. All necessary functions are integrated and the DocumentModal is properly implemented."
     -agent: "testing"
     -message: "I've tested all document-related authentication endpoints (/api/documents, /api/upload-chunk, /api/finalize-upload) with both valid and invalid JWT tokens. The authentication mechanism is working correctly now. The endpoints return 401 Unauthorized for invalid tokens and 403 Not authenticated when no token is provided, which is consistent with FastAPI's default behavior. The backend logs show proper error handling in the verify_token function with detailed logging of token verification attempts. The main issue was likely the missing time module import in the verify_token function, which has been fixed. The document-related endpoints are now handling authentication in the same way as the working endpoints like /api/clients and /api/stats."
     -agent: "testing"
