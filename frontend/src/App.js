@@ -802,6 +802,7 @@ const Dashboard = ({ onNavigate }) => {
   const [stats, setStats] = useState(null);
   const [clients, setClients] = useState([]);
   const [documents, setDocuments] = useState([]);
+  const [folders, setFolders] = useState([]);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
   const { authToken, userRole, dbUser } = useAuth();
