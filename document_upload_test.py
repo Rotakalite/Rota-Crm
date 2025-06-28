@@ -102,19 +102,45 @@ class TestDocumentUploadFunctionality(unittest.TestCase):
         
         # Check specifically in the finalize-upload endpoint
         finalize_upload_start = server_code.find('@api_router.post("/finalize-upload")')
-        finalize_upload_end = server_code.find('@api_router.delete("/documents/{document_id}/file")')
-        if finalize_upload_end == -1:  # If not found, try another endpoint
-            finalize_upload_end = server_code.find('@api_router.get("/documents/{document_id}/download")')
-        finalize_upload_section = server_code[finalize_upload_start:finalize_upload_end]
+        logger.info(f"finalize_upload_start: {finalize_upload_start}")
         
+        # Find the end of the finalize-upload section
+        next_endpoint_start = server_code.find('@api_router', finalize_upload_start + 1)
+        logger.info(f"next_endpoint_start: {next_endpoint_start}")
+        
+        if next_endpoint_start == -1:
+            finalize_upload_section = server_code[finalize_upload_start:]
+        else:
+            finalize_upload_section = server_code[finalize_upload_start:next_endpoint_start]
+        
+        logger.info(f"finalize_upload_section length: {len(finalize_upload_section)}")
+        logger.info(f"finalize_upload_section excerpt: {finalize_upload_section[:100]}...")
+        
+        # Check for Turkish success message in the finalize-upload section
         self.assertIn('Yerel Depolama', finalize_upload_section)
         self.assertNotIn('Local Storage', finalize_upload_section)
         self.assertNotIn('Google Cloud', finalize_upload_section)
         
         # Check specifically in the upload-document endpoint
         upload_document_start = server_code.find('@api_router.post("/upload-document")')
-        upload_document_end = server_code.find('@api_router.post("/finalize-upload")')
-        upload_document_section = server_code[upload_document_start:upload_document_end]
+        logger.info(f"upload_document_start: {upload_document_start}")
+        
+        # Find the end of the upload-document section
+        next_endpoint_after_upload = server_code.find('@api_router', upload_document_start + 1)
+        logger.info(f"next_endpoint_after_upload: {next_endpoint_after_upload}")
+        
+        if next_endpoint_after_upload == -1:
+            upload_document_section = server_code[upload_document_start:]
+        else:
+            upload_document_section = server_code[upload_document_start:next_endpoint_after_upload]
+        
+        logger.info(f"upload_document_section length: {len(upload_document_section)}")
+        logger.info(f"upload_document_section excerpt: {upload_document_section[:100]}...")
+        
+        # Check for Turkish success message in the upload-document section
+        self.assertIn('Yerel Depolama', upload_document_section)
+        self.assertNotIn('Local Storage', upload_document_section)
+        self.assertNotIn('Google Cloud', upload_document_section)
         self.assertIn('Yerel Depolama', upload_document_section)
         self.assertNotIn('Local Storage', upload_document_section)
         self.assertNotIn('Google Cloud', upload_document_section)
