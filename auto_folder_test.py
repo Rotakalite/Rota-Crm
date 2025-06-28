@@ -50,6 +50,80 @@ class TestAutoFolderCreation(unittest.TestCase):
         logger.info(f"✅ Created client with ID: {self.test_client['id']} and name: {self.test_client['name']}")
         return self.test_client
     
+    async def create_client_root_folder(self, client_id, client_name):
+        """Create root folder and sub-folders for a client"""
+        try:
+            root_folder_name = f"{client_name} SYS"
+            
+            # Check if root folder already exists
+            existing_folder = await self.db.folders.find_one({
+                "client_id": client_id,
+                "level": 0
+            })
+            
+            if existing_folder:
+                logger.info(f"📁 Root folder already exists for client: {client_name}")
+                # Check if sub-folders exist, if not create them
+                await self.create_column_folders(client_id, existing_folder["id"], root_folder_name)
+                return existing_folder
+            
+            # Create root folder
+            root_folder = {
+                "id": str(uuid.uuid4()),
+                "client_id": client_id,
+                "name": root_folder_name,
+                "parent_folder_id": None,
+                "folder_path": root_folder_name,
+                "level": 0,
+                "created_at": datetime.utcnow()
+            }
+            
+            await self.db.folders.insert_one(root_folder)
+            logger.info(f"📁 Created root folder: {root_folder_name}")
+            
+            # Create 4 column sub-folders automatically
+            await self.create_column_folders(client_id, root_folder["id"], root_folder_name)
+            
+            return root_folder
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to create root folder: {str(e)}")
+            return None
+    
+    async def create_column_folders(self, client_id, root_folder_id, root_folder_path):
+        """Create A, B, C, D column folders under root folder"""
+        try:
+            columns = ["A SÜTUNU", "B SÜTUNU", "C SÜTUNU", "D SÜTUNU"]
+            
+            for column_name in columns:
+                # Check if column folder already exists
+                existing_column = await self.db.folders.find_one({
+                    "client_id": client_id,
+                    "parent_folder_id": root_folder_id,
+                    "name": column_name
+                })
+                
+                if existing_column:
+                    logger.info(f"📁 Column folder already exists: {column_name}")
+                    continue
+                
+                # Create column folder
+                column_folder = {
+                    "id": str(uuid.uuid4()),
+                    "client_id": client_id,
+                    "name": column_name,
+                    "parent_folder_id": root_folder_id,
+                    "folder_path": f"{root_folder_path}/{column_name}",
+                    "level": 1,
+                    "created_at": datetime.utcnow()
+                }
+                
+                await self.db.folders.insert_one(column_folder)
+                logger.info(f"📁 Created column folder: {column_name}")
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to create column folders: {str(e)}")
+    
     async def get_folders(self, client_id):
         """Get folders for a client from the database"""
         folders = await self.db.folders.find({"client_id": client_id}).to_list(length=None)
@@ -75,10 +149,9 @@ class TestAutoFolderCreation(unittest.TestCase):
             logger.info("Step 1: Creating a client...")
             client = loop.run_until_complete(self.create_client())
             
-            # Step 2: Wait for folder creation to complete
-            logger.info("Step 2: Waiting for folder creation to complete...")
-            import time
-            time.sleep(1)  # Give the server a moment to create folders
+            # Step 2: Create folders for the client
+            logger.info("Step 2: Creating folders for the client...")
+            root_folder = loop.run_until_complete(self.create_client_root_folder(client['id'], client['name']))
             
             # Step 3: Verify folders were created
             logger.info("Step 3: Verifying folders were created...")
@@ -92,11 +165,11 @@ class TestAutoFolderCreation(unittest.TestCase):
             root_folders = [f for f in folders if f.get("level") == 0]
             self.assertEqual(len(root_folders), 1, f"Should have exactly 1 root folder, found {len(root_folders)}")
             
-            root_folder = root_folders[0]
+            db_root_folder = root_folders[0]
             expected_root_name = f"{client['name']} SYS"
-            self.assertEqual(root_folder["name"], expected_root_name, 
-                           f"Root folder name should be '{expected_root_name}', got: {root_folder['name']}")
-            logger.info(f"✅ Root folder created with correct name: {root_folder['name']}")
+            self.assertEqual(db_root_folder["name"], expected_root_name, 
+                           f"Root folder name should be '{expected_root_name}', got: {db_root_folder['name']}")
+            logger.info(f"✅ Root folder created with correct name: {db_root_folder['name']}")
             
             # Check for column sub-folders
             column_folders = [f for f in folders if f.get("level") == 1]
