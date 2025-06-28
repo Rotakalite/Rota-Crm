@@ -16,7 +16,7 @@ class TestDocumentUploadFunctionality(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://53980ca9-c304-433e-ab62-1c37a7176dd5.preview.emergentagent.com/api"
+        self.api_url = "https://1ec08c3c-6aac-4fbe-a51f-120fca82320d.preview.emergentagent.com/api"
         
     def test_finalize_upload_structure(self):
         """Test the structure of the finalize-upload endpoint code"""
