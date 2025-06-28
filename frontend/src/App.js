@@ -1553,6 +1553,7 @@ const ClientManagement = ({ onNavigate }) => {
 const DocumentManagement = () => {
   const [documents, setDocuments] = useState([]);
   const [clients, setClients] = useState([]);
+  const [folders, setFolders] = useState([]);
   const [selectedClient, setSelectedClient] = useState('');
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
@@ -1563,7 +1564,8 @@ const DocumentManagement = () => {
     name: '',
     document_type: 'Türkiye Sürdürülebilir Turizm Programı Kriterleri (TR-I)',
     stage: 'I.Aşama',
-    files: []
+    files: [],
+    folder_id: ''
   });
   const { authToken, userRole, dbUser } = useAuth();
 
