@@ -26,7 +26,7 @@ class TestAnalyticsEndpoints(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://aa553048-3daf-4672-a224-c7c6e3863ff1.preview.emergentagent.com/api"
+        self.api_url = "https://53980ca9-c304-433e-ab62-1c37a7176dd5.preview.emergentagent.com/api"
         
         # Sample data structures for mocking responses
         self.client_data = [

@@ -133,7 +133,7 @@ backend:
         -comment: "REACT_APP_BACKEND_URL in .env file shows different URL than current preview URL causing API call failures"
         -working: true
         -agent: "main"
-        -comment: "Updated REACT_APP_BACKEND_URL to match current preview URL: https://1f0c3a30-ba23-4cb9-a340-2a6d39e2d493.preview.emergentagent.com"
+        -comment: "Updated REACT_APP_BACKEND_URL to match current preview URL: https://53980ca9-c304-433e-ab62-1c37a7176dd5.preview.emergentagent.com"
 
   - task: "Cleanup Duplicate Code in Stats Endpoint"
     implemented: true
