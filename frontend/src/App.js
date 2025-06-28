@@ -1752,52 +1752,63 @@ const ClientDocuments = () => {
         )}
 
         {/* Documents List */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-800">
-            {selectedFolder ? `📄 ${selectedFolder.name} İçindeki Belgeler` : '📄 Tüm Belgeler'}
-          </h3>
-          
-          {filteredDocuments.length > 0 ? (
-            <div className="space-y-3">
-              {filteredDocuments.map((document) => (
-                <div key={document.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center flex-1">
-                      <span className="text-2xl mr-3">{getFileIcon(document.original_filename || document.file_path || '')}</span>
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-gray-800">{document.name}</h4>
-                        <div className="flex items-center text-sm text-gray-500 space-x-4">
-                          <span>📋 {document.document_type}</span>
-                          <span>🎯 {document.stage}</span>
-                          <span>📅 {new Date(document.created_at).toLocaleDateString('tr-TR')}</span>
+        {selectedFolder && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800">
+              📄 {selectedFolder.name} İçindeki Belgeler
+            </h3>
+            
+            {filteredDocuments.length > 0 ? (
+              <div className="space-y-3">
+                {filteredDocuments.map((document) => (
+                  <div key={document.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center flex-1">
+                        <span className="text-2xl mr-3">{getFileIcon(document.original_filename || document.file_path || '')}</span>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-800">{document.name}</h4>
+                          <div className="flex items-center text-sm text-gray-500 space-x-4">
+                            <span>📋 {document.document_type}</span>
+                            <span>🎯 {document.stage}</span>
+                            <span>📅 {new Date(document.created_at).toLocaleDateString('tr-TR')}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleViewDocument(document)}
-                        className="bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm"
-                      >
-                        👁️ Görüntüle
-                      </button>
-                      <button
-                        onClick={() => handleDownloadDocument(document)}
-                        className="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 transition-colors text-sm"
-                      >
-                        📥 İndir
-                      </button>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleViewDocument(document)}
+                          className="bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm"
+                        >
+                          👁️ Görüntüle
+                        </button>
+                        <button
+                          onClick={() => handleDownloadDocument(document)}
+                          className="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 transition-colors text-sm"
+                        >
+                          📥 İndir
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              <span className="text-4xl mb-4 block">📄</span>
-              <p>{selectedFolder ? 'Bu klasörde henüz belge bulunmuyor.' : 'Henüz belge yüklenmemiş.'}</p>
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <span className="text-4xl mb-4 block">📄</span>
+                <p>Bu klasörde henüz belge bulunmuyor.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Instruction when no folder selected */}
+        {!selectedFolder && (
+          <div className="text-center py-12 text-gray-500">
+            <span className="text-6xl mb-4 block">📁</span>
+            <h3 className="text-xl font-semibold mb-2">Bir klasör seçin</h3>
+            <p>Belgelerinizi görüntülemek için yukarıdaki klasörlerden birini seçin.</p>
+          </div>
+        )}
       </div>
 
       {/* Document Detail Modal */}
