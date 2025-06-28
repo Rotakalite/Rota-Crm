@@ -977,6 +977,30 @@ const Dashboard = ({ onNavigate }) => {
             </div>
           </div>
         )}
+        
+        {/* Additional document type cards for client */}
+        {stats && userRole === 'client' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+              <h3 className="text-lg font-semibold text-red-700">III. Aşama Belgeleri</h3>
+              <p className="text-3xl font-bold text-red-900">
+                {stats.document_type_distribution?.STAGE_3_DOC || 0}
+              </p>
+            </div>
+            <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
+              <h3 className="text-lg font-semibold text-orange-700">Karbon Ayak İzi</h3>
+              <p className="text-3xl font-bold text-orange-900">
+                {stats.document_type_distribution?.CARBON_REPORT || 0}
+              </p>
+            </div>
+            <div className="bg-indigo-50 p-4 rounded-lg border-l-4 border-indigo-500">
+              <h3 className="text-lg font-semibold text-indigo-700">Sürdürülebilirlik</h3>
+              <p className="text-3xl font-bold text-indigo-900">
+                {stats.document_type_distribution?.SUSTAINABILITY_REPORT || 0}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-md">
