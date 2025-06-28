@@ -4266,7 +4266,9 @@ const MainApp = () => {
       case 'project':
         return <ProjectManagement client={selectedClient} onNavigate={handleNavigate} />;
       case 'documents':
-        return <DocumentManagement />;
+        return userRole === 'admin' ? <DocumentManagement /> : <ClientDocuments />;
+      case 'client-documents':
+        return <ClientDocuments />;
       case 'reports':
         return (
           <div className="bg-white p-6 rounded-lg shadow-md">
