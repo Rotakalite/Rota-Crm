@@ -1838,11 +1838,14 @@ const DocumentManagement = () => {
 
   const fetchDocuments = async () => {
     try {
+      console.log('📄 Admin: Fetching documents...');
       const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
       const response = await axios.get(`${API}/documents`, { headers });
+      console.log('📄 Admin: Documents response:', response.data);
+      console.log('📄 Admin: Documents count:', response.data?.length || 0);
       setDocuments(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
-      console.error("Error fetching documents:", error);
+      console.error("❌ Admin: Error fetching documents:", error);
       setDocuments([]);
     }
   };
