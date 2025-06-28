@@ -1570,6 +1570,90 @@ const ClientManagement = ({ onNavigate }) => {
   );
 };
 
+// Document Modal Component
+const DocumentModal = ({ document, onClose, onDownload }) => {
+  const getFileIcon = (filePath) => {
+    const extension = filePath?.split('.').pop().toLowerCase();
+    switch (extension) {
+      case 'pdf': return '📄';
+      case 'doc':
+      case 'docx': return '📝';
+      case 'xls':
+      case 'xlsx': return '📊';
+      case 'jpg':
+      case 'jpeg':
+      case 'png': return '🖼️';
+      case 'zip':
+      case 'rar': return '📦';
+      default: return '📋';
+    }
+  };
+
+  if (!document) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">Belge Detayları</h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            ✕
+          </button>
+        </div>
+        
+        <div className="space-y-3">
+          <div className="flex items-center">
+            <span className="text-3xl mr-3">
+              {getFileIcon(document.original_filename || document.file_path || '')}
+            </span>
+            <div>
+              <h4 className="font-semibold text-gray-800">{document.name}</h4>
+              <p className="text-sm text-gray-500">{document.original_filename}</p>
+            </div>
+          </div>
+          
+          <div className="border-t pt-3 space-y-2">
+            <div className="flex justify-between">
+              <span className="font-medium">Doküman Türü:</span>
+              <span>{document.document_type}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-medium">Aşama:</span>
+              <span>{document.stage}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-medium">Yüklenme Tarihi:</span>
+              <span>{new Date(document.created_at).toLocaleDateString('tr-TR')}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-medium">Dosya Boyutu:</span>
+              <span>{(document.file_size / 1024 / 1024).toFixed(2)} MB</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex space-x-2 mt-6">
+          <button
+            onClick={() => onDownload(document)}
+            className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
+          >
+            📥 İndir
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors"
+          >
+            Kapat
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ClientDocuments = () => {
   const [documents, setDocuments] = useState([]);
   const [folders, setFolders] = useState([]);
