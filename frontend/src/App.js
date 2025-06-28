@@ -1687,7 +1687,8 @@ const DocumentManagement = () => {
           clientId: clientId,
           documentName: uploadData.files.length === 1 ? uploadData.name : `${uploadData.name} - ${fileName}`,
           documentType: uploadData.document_type,
-          stage: uploadData.stage
+          stage: uploadData.stage,
+          folderId: uploadData.folder_id
         };
 
         console.log('🔍 Auth Token:', authToken ? authToken.substring(0, 50) + '...' : 'No token');
