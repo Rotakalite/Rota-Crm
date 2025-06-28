@@ -138,9 +138,16 @@ class TestDocumentUploadFunctionality(unittest.TestCase):
         logger.info(f"upload_document_section excerpt: {upload_document_section[:100]}...")
         
         # Check for Turkish success message in the upload-document section
-        self.assertIn('Yerel Depolama', upload_document_section)
-        self.assertNotIn('Local Storage', upload_document_section)
-        self.assertNotIn('Google Cloud', upload_document_section)
+        # We need to find the return statement with the success message
+        success_message_start = upload_document_section.find('return {')
+        success_message_end = upload_document_section.find('}', success_message_start)
+        success_message = upload_document_section[success_message_start:success_message_end+1]
+        
+        logger.info(f"Success message: {success_message}")
+        
+        # Check if the success message contains "Yerel Depolama"
+        self.assertIn('Yerel Depolama', success_message)
+        self.assertNotIn('Local Storage', success_message)
         self.assertIn('Yerel Depolama', upload_document_section)
         self.assertNotIn('Local Storage', upload_document_section)
         self.assertNotIn('Google Cloud', upload_document_section)
