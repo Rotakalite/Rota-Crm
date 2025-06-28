@@ -755,6 +755,17 @@ class TestDocumentEndpoints(unittest.TestCase):
                 logger.info("✅ Authentication successful - received 200 OK")
                 data = response.json()
                 self.assertIn("message", data)
+                
+                # Check for Turkish success message
+                if "message" in data:
+                    logger.info(f"Success message: {data['message']}")
+                    self.assertIn("Yerel Depolama", data['message'], 
+                                 "Success message should contain 'Yerel Depolama' instead of 'Local Storage' or 'Google Cloud'")
+                    self.assertNotIn("Local Storage", data['message'], 
+                                    "Success message should not contain 'Local Storage'")
+                    self.assertNotIn("Google Cloud", data['message'], 
+                                    "Success message should not contain 'Google Cloud'")
+                    logger.info("✅ Success message contains 'Yerel Depolama' as expected")
             elif response.status_code == 401:
                 logger.info("✅ Authentication failed correctly - received 401 Unauthorized")
                 error_data = response.json()
