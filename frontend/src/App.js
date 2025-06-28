@@ -936,9 +936,11 @@ const Dashboard = ({ onNavigate }) => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
               <h3 className="text-lg font-semibold text-blue-700">
-                {userRole === 'admin' ? 'Toplam Müşteri' : 'Hesap Durumu'}
+                {userRole === 'admin' ? 'Toplam Müşteri' : 'Toplam Belge'}
               </h3>
-              <p className="text-3xl font-bold text-blue-900">{stats.total_clients}</p>
+              <p className="text-3xl font-bold text-blue-900">
+                {userRole === 'admin' ? stats.total_clients : stats.total_documents}
+              </p>
             </div>
             <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
               <h3 className="text-lg font-semibold text-green-700">I. Aşama</h3>
