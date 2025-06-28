@@ -276,6 +276,21 @@ backend:
         -agent: "testing"
         -comment: "Created a dedicated test client that automatically creates folders with the 4 column structure. Verified that the folders were created correctly with the expected naming convention and hierarchy. The root folder is named '[Client Name] SYS' and the 4 column sub-folders are named 'A SÜTUNU', 'B SÜTUNU', 'C SÜTUNU', and 'D SÜTUNU'. Each folder has the correct folder_path and level. The GET /api/folders endpoint exists and requires authentication. The folder system is working as expected and meets all the requirements specified in the review request."
 
+  - task: "Fix Frontend JavaScript Error - UploadData Undefined"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "User reported JavaScript error 'uploadData is not defined' at line 1145 causing frontend crash and preventing folder selection dropdown from working"
+        -working: true
+        -agent: "main"
+        -comment: "Fixed by removing misplaced folder selection JSX code from Dashboard component (lines 1139-1167). The code was trying to reference uploadData state that only exists in DocumentManagement component. Proper folder selection remains in DocumentManagement component."
+
 frontend:
   - task: "Frontend Consumption Analytics"
     implemented: true
