@@ -927,7 +927,7 @@ async def upload_document(
             await db.documents.insert_one(document_data)
             
             return {
-                "message": "Document uploaded successfully (local storage)",
+                "message": "Document uploaded successfully (Yerel Depolama)",
                 "document_id": document_data["id"],
                 "file_size": len(file_content),
                 "local_upload": True
