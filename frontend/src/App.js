@@ -919,11 +919,6 @@ const Dashboard = ({ onNavigate }) => {
     }
   };
 
-  const handleViewDocument = (document) => {
-    setSelectedDocument(document);
-    setShowDocumentModal(true);
-  };
-
   const handleDownloadDocument = async (document) => {
     try {
       console.log('🔍 Download request for document:', document.id);
