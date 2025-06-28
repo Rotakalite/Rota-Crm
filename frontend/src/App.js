@@ -1703,6 +1703,10 @@ const DocumentManagement = () => {
         // Show success message with storage info
         if (response.data?.message) {
           alert(`✅ ${response.data.message}`);
+        } else if (response?.message) {
+          alert(`✅ ${response.message}`);
+        } else {
+          alert(`✅ Dosya başarıyla yüklendi! (Yerel Depolama)`);
         }
       }
 
