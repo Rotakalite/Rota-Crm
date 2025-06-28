@@ -2460,7 +2460,7 @@ const DocumentManagement = () => {
                             📥 İndir
                           </button>
                           <button
-                            onClick={() => handleDeleteDocument(document)}
+                            onClick={() => handleDelete(document.id)}
                             className="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 transition-colors text-sm"
                           >
                             🗑️ Sil
