@@ -253,10 +253,9 @@ metadata:
 test_plan:
   current_focus:
     - "Fix Document List Refresh After Upload"
-    - "Fix Upload Success Message"
   stuck_tasks: []
   test_all: false
-  test_priority: "high_first"
+  test_priority: "medium_first"
 
 agent_communication:
     -agent: "main"
