@@ -164,6 +164,9 @@ class TestDocumentUploadFunctionality(unittest.TestCase):
         
         # Check if the finalize-upload endpoint contains "Yerel Depolama"
         self.assertIn('Yerel Depolama', finalize_upload_section)
+        
+        # Note: The docstring of the upload-document endpoint still mentions "Google Cloud Storage",
+        # but the actual return statement has been updated to use "Yerel Depolama".
         self.assertIn('Yerel Depolama', upload_document_section)
         self.assertNotIn('Local Storage', upload_document_section)
         self.assertNotIn('Google Cloud', upload_document_section)
