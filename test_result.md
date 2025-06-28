@@ -152,6 +152,21 @@ backend:
         -working: true
         -agent: "main"
         -comment: "Successfully updated success messages in both upload-document and finalize-upload endpoints to show 'Yerel Depolama' instead of 'Local Storage' or 'Google Cloud'. Messages are now properly localized in Turkish."
+        -working: true
+        -agent: "testing"
+        -comment: "Verified that the finalize-upload endpoint returns a success message with 'Yerel Depolama' instead of 'Local Storage' or 'Google Cloud'. The upload-document endpoint also has a return statement with 'Yerel Depolama' for local storage uploads. The Turkish success messages are working as expected."
+
+  - task: "Document Record Creation in Database"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: true
+        -agent: "testing"
+        -comment: "Verified that the finalize-upload endpoint creates document records in the database with all required fields: id, client_id, document_name, document_type, stage, file_path, file_size, original_filename, etc. The document_id is included in the response, allowing the frontend to reference the newly created document. The backend is properly creating and storing document records in the database."
 
   - task: "Frontend URL Configuration"
     implemented: true
