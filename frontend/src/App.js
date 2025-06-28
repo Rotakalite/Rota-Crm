@@ -1521,6 +1521,13 @@ const DocumentManagement = () => {
   const { authToken, userRole, dbUser } = useAuth();
 
   useEffect(() => {
+    // Token hazır olmadan API call yapma
+    if (!authToken) {
+      console.log('🔄 Waiting for auth token for documents...');
+      return;
+    }
+    
+    console.log('🎯 Auth token ready, fetching documents and clients...');
     fetchDocuments();
     if (userRole === 'admin') {
       fetchClients();
