@@ -376,6 +376,14 @@ const ConsumptionAnalytics = () => {
   const { authToken, userRole, dbUser } = useAuth();
 
   useEffect(() => {
+    // Token hazır olmadan API call yapma
+    if (!authToken) {
+      console.log('🔄 Waiting for auth token...');
+      return;
+    }
+    
+    console.log('🎯 Auth token ready, making API calls...');
+    
     if (userRole === 'admin') {
       // Admin için müşteri listesini çek
       fetchClients();
