@@ -2065,29 +2065,28 @@ const DocumentManagement = () => {
                 >
                   <option value="">Klasör seçiniz</option>
 {(() => {
-                    console.log('🔍 Folder dropdown debug:');
-                    console.log('📁 Total folders:', folders.length);
-                    console.log('📁 Folders:', folders);
-                    console.log('👤 User role:', userRole);
-                    console.log('🆔 Upload client_id:', uploadData.client_id);
-                    console.log('🆔 DB user client_id:', dbUser?.client_id);
+                    console.log('🔍 FOLDER DEBUG:');
+                    console.log('- Total folders in state:', folders.length);
+                    console.log('- Selected client_id:', uploadData.client_id);
+                    console.log('- User role:', userRole);
                     
-                    const filteredFolders = folders.filter(folder => {
-                      // Show only folders for selected client
+                    const filtered = folders.filter(folder => {
                       if (userRole === 'admin') {
-                        const match = folder.client_id === uploadData.client_id;
-                        console.log(`📁 Folder ${folder.name} (client_id: ${folder.client_id}) matches ${uploadData.client_id}:`, match);
-                        return match;
+                        return folder.client_id === uploadData.client_id;
                       } else {
-                        const match = folder.client_id === dbUser?.client_id;
-                        console.log(`📁 Folder ${folder.name} (client_id: ${folder.client_id}) matches ${dbUser?.client_id}:`, match);
-                        return match;
+                        return folder.client_id === dbUser?.client_id;
                       }
                     });
                     
-                    console.log('📋 Filtered folders:', filteredFolders);
+                    console.log('- Filtered folders:', filtered.length);
+                    console.log('- Filtered folder names:', filtered.map(f => f.name));
                     
-                    return filteredFolders.map(folder => (
+                    return filtered.map(folder => (
+                      <option key={folder.id} value={folder.id}>
+                        {'  '.repeat(folder.level)} {folder.name}
+                      </option>
+                    ));
+                  })()}
                       <option key={folder.id} value={folder.id}>
                         {'  '.repeat(folder.level)} {folder.name}
                       </option>
