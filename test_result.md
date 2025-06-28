@@ -136,16 +136,19 @@ backend:
         -comment: "Document list not refreshing automatically after large file chunked uploads complete. Need to ensure fetchDocuments() is properly called after finalize-upload."
 
   - task: "Fix Upload Success Message"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "low"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: false
         -agent: "main"
         -comment: "Success message still references 'Google Cloud' instead of 'Local Storage' for chunked uploads in finalize-upload endpoint."
+        -working: true
+        -agent: "main"
+        -comment: "Successfully updated success messages in both upload-document and finalize-upload endpoints to show 'Yerel Depolama' instead of 'Local Storage' or 'Google Cloud'. Messages are now properly localized in Turkish."
 
   - task: "Frontend URL Configuration"
     implemented: true
