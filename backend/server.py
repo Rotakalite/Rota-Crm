@@ -526,6 +526,9 @@ async def create_client(
     client = Client(**client_dict)
     await db.clients.insert_one(client.dict())
     
+    # Create root folder for the new client
+    await create_client_root_folder(client.id, client.name)
+    
     # If client user is creating their own record, update their user record
     if current_user.role == UserRole.CLIENT:
         await db.users.update_one(
