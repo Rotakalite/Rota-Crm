@@ -821,9 +821,6 @@ const Dashboard = ({ onNavigate }) => {
       fetchDocuments();
       fetchFolders(); // Client kullanıcıları için klasörleri de getir
     }
-      fetchFolders(); // Client kullanıcıları için klasörleri de getir
-    }
-    }
   }, [authToken, userRole, dbUser]);
 
 
