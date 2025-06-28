@@ -307,6 +307,8 @@ test_plan:
 agent_communication:
     -agent: "main"
     -message: "User reported persistent 403 authentication errors on document-related endpoints (/api/documents, /api/upload-chunk, /api/finalize-upload) especially during large file chunked uploads. These endpoints seem to have authentication issues not present in other endpoints. Also need to fix document list refresh after uploads and incorrect success messages referencing Google Cloud instead of local storage."
+    -agent: "main"
+    -message: "Fixed critical JavaScript error in frontend: 'uploadData is not defined' at line 1145. The issue was caused by misplaced folder selection JSX code in the Dashboard component that was trying to reference uploadData state from DocumentManagement component. Removed the duplicate/misplaced folder selection code from Dashboard component. The proper folder selection remains in DocumentManagement component where uploadData state is defined."
     -agent: "testing"
     -message: "I've tested all document-related authentication endpoints (/api/documents, /api/upload-chunk, /api/finalize-upload) with both valid and invalid JWT tokens. The authentication mechanism is working correctly now. The endpoints return 401 Unauthorized for invalid tokens and 403 Not authenticated when no token is provided, which is consistent with FastAPI's default behavior. The backend logs show proper error handling in the verify_token function with detailed logging of token verification attempts. The main issue was likely the missing time module import in the verify_token function, which has been fixed. The document-related endpoints are now handling authentication in the same way as the working endpoints like /api/clients and /api/stats."
     -agent: "testing"
