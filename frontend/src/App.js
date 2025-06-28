@@ -1570,6 +1570,222 @@ const ClientManagement = ({ onNavigate }) => {
   );
 };
 
+// Client Documents Management Component
+const ClientDocuments = () => {
+  const [documents, setDocuments] = useState([]);
+  const [folders, setFolders] = useState([]);
+  const [selectedFolder, setSelectedFolder] = useState(null);
+  const [selectedDocument, setSelectedDocument] = useState(null);
+  const [showDocumentModal, setShowDocumentModal] = useState(false);
+  const { authToken, userRole, dbUser } = useAuth();
+
+  useEffect(() => {
+    if (!authToken || !dbUser?.client_id) return;
+    
+    console.log('📄 Client: Fetching documents and folders...');
+    fetchDocuments();
+    fetchFolders();
+  }, [authToken, dbUser]);
+
+  const fetchDocuments = async () => {
+    try {
+      console.log('📄 Client: Fetching documents...');
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      const response = await axios.get(`${API}/documents`, { headers });
+      console.log('📄 Client: Documents response:', response.data);
+      setDocuments(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("❌ Client: Error fetching documents:", error);
+      setDocuments([]);
+    }
+  };
+
+  const fetchFolders = async () => {
+    if (!authToken) return;
+    
+    try {
+      const headers = { 'Authorization': `Bearer ${authToken}` };
+      console.log('📁 Client: Fetching folders...');
+      
+      const response = await axios.get(`${API}/folders`, { headers });
+      console.log('📁 Client: Folders response:', response.data);
+      
+      setFolders(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("❌ Client: Error fetching folders:", error);
+      setFolders([]);
+    }
+  };
+
+  const handleViewDocument = (document) => {
+    setSelectedDocument(document);
+    setShowDocumentModal(true);
+  };
+
+  const handleDownloadDocument = async (docData) => {
+    try {
+      console.log('📥 Starting download for:', docData.name);
+      
+      const downloadUrl = `${API}/documents/${docData.id}/download`;
+      
+      const response = await axios.get(downloadUrl, {
+        headers: { 'Authorization': `Bearer ${authToken}` },
+        responseType: 'blob'
+      });
+      
+      const blob = new Blob([response.data]);
+      const url = window.URL.createObjectURL(blob);
+      
+      const link = window.document.createElement('a');
+      link.href = url;
+      link.download = docData.original_filename || docData.name || 'document';
+      link.style.display = 'none';
+      window.document.body.appendChild(link);
+      link.click();
+      
+      window.document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      console.log('✅ Download completed');
+    } catch (error) {
+      console.error('❌ Download error:', error);
+      alert('Dosya indirilemedi!');
+    }
+  };
+
+  // Filter folders for current client
+  const clientFolders = folders.filter(folder => folder.client_id === dbUser?.client_id);
+  
+  // Filter documents by selected folder
+  const filteredDocuments = selectedFolder 
+    ? documents.filter(doc => doc.folder_id === selectedFolder.id)
+    : documents;
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">📁 Belgelerim</h2>
+        
+        {/* Breadcrumb */}
+        <div className="flex items-center mb-4 text-sm text-gray-600">
+          <button
+            onClick={() => setSelectedFolder(null)}
+            className={`hover:text-blue-600 ${!selectedFolder ? 'text-blue-600 font-semibold' : ''}`}
+          >
+            📂 Ana Dizin
+          </button>
+          {selectedFolder && (
+            <>
+              <span className="mx-2">›</span>
+              <span className="text-blue-600 font-semibold">{selectedFolder.name}</span>
+            </>
+          )}
+        </div>
+
+        {/* Folder Grid */}
+        {!selectedFolder && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            {clientFolders
+              .filter(folder => folder.level === 0) // Root folders
+              .map((folder) => (
+                <div
+                  key={folder.id}
+                  onClick={() => setSelectedFolder(folder)}
+                  className="bg-blue-50 border border-blue-200 rounded-lg p-4 cursor-pointer hover:bg-blue-100 transition-colors"
+                >
+                  <div className="flex items-center">
+                    <span className="text-3xl mr-3">📂</span>
+                    <div>
+                      <h3 className="font-semibold text-blue-800">{folder.name}</h3>
+                      <p className="text-xs text-blue-600">Ana Klasör</p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            }
+            
+            {clientFolders
+              .filter(folder => folder.level === 1) // Sub folders
+              .map((folder) => (
+                <div
+                  key={folder.id}
+                  onClick={() => setSelectedFolder(folder)}
+                  className="bg-gray-50 border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center">
+                    <span className="text-3xl mr-3">📁</span>
+                    <div>
+                      <h3 className="font-semibold text-gray-700">{folder.name}</h3>
+                      <p className="text-xs text-gray-500">Alt Klasör</p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        )}
+
+        {/* Documents List */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-800">
+            {selectedFolder ? `📄 ${selectedFolder.name} İçindeki Belgeler` : '📄 Tüm Belgeler'}
+          </h3>
+          
+          {filteredDocuments.length > 0 ? (
+            <div className="space-y-3">
+              {filteredDocuments.map((document) => (
+                <div key={document.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center flex-1">
+                      <span className="text-2xl mr-3">{getFileIcon(document.original_filename || document.file_path || '')}</span>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-800">{document.name}</h4>
+                        <div className="flex items-center text-sm text-gray-500 space-x-4">
+                          <span>📋 {document.document_type}</span>
+                          <span>🎯 {document.stage}</span>
+                          <span>📅 {new Date(document.created_at).toLocaleDateString('tr-TR')}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleViewDocument(document)}
+                        className="bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm"
+                      >
+                        👁️ Görüntüle
+                      </button>
+                      <button
+                        onClick={() => handleDownloadDocument(document)}
+                        className="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 transition-colors text-sm"
+                      >
+                        📥 İndir
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <span className="text-4xl mb-4 block">📄</span>
+              <p>{selectedFolder ? 'Bu klasörde henüz belge bulunmuyor.' : 'Henüz belge yüklenmemiş.'}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Document Detail Modal */}
+      {showDocumentModal && selectedDocument && (
+        <DocumentModal 
+          document={selectedDocument} 
+          onClose={() => setShowDocumentModal(false)}
+          onDownload={handleDownloadDocument}
+        />
+      )}
+    </div>
+  );
+};
+
 const DocumentManagement = () => {
   const [documents, setDocuments] = useState([]);
   const [clients, setClients] = useState([]);
