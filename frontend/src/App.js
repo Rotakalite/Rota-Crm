@@ -1837,12 +1837,15 @@ const DocumentManagement = () => {
           <h2 className="text-2xl font-bold text-gray-800">
             {userRole === 'admin' ? 'Belge Yönetimi' : 'Belgelerim'}
           </h2>
+        {/* Admin Upload Button */}
+        {userRole === 'admin' && (
           <button
             onClick={() => setShowUploadForm(true)}
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
           >
-            {userRole === 'admin' ? 'Yeni Belge Yükle' : 'Belge Yükle'}
+            Yeni Belge Yükle
           </button>
+        )}
         </div>
 
         {/* Admin Client Filter */}
