@@ -1139,62 +1139,62 @@ Sürdürülebilir Turizm CRM Sistemi
         logging.error(f"❌ Download URL generation failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to generate download URL: {str(e)}")
 
-# Chunked Upload Endpoints
-@api_router.post("/upload-chunk")
-async def upload_chunk(
-    file_chunk: UploadFile = File(...),
-    chunk_index: int = Form(...),
-    total_chunks: int = Form(...),
-    upload_id: str = Form(...),
-    original_filename: str = Form(...),
-    client_id: Optional[str] = Form(None),
-    name: Optional[str] = Form(None),
-    document_type: Optional[str] = Form(None),
-    stage: Optional[str] = Form(None),
-    current_user: User = Depends(get_current_user)
-):
-    """Upload a file chunk"""
-    try:
-        logging.info(f"📦 Chunk upload: {chunk_index + 1}/{total_chunks} for upload_id: {upload_id}")
-        
-        # Create temp directory for chunks if not exists
-        import tempfile
-        temp_dir = f"/tmp/chunks_{upload_id}"
-        os.makedirs(temp_dir, exist_ok=True)
-        
-        # Save chunk to temporary file
-        chunk_path = f"{temp_dir}/chunk_{chunk_index:04d}"
-        with open(chunk_path, "wb") as chunk_file:
-            content = await file_chunk.read()
-            chunk_file.write(content)
-        
-        logging.info(f"✅ Chunk {chunk_index + 1} saved: {len(content)} bytes")
-        
-        # Store chunk metadata in database for tracking
-        chunk_record = {
-            "upload_id": upload_id,
-            "chunk_index": chunk_index,
-            "chunk_path": chunk_path,
-            "chunk_size": len(content),
-            "uploaded_at": datetime.utcnow(),
-            "original_filename": original_filename,
-            "client_id": client_id,
-            "document_name": name,
-            "document_type": document_type,
-            "stage": stage if chunk_index == 0 else None  # Only store metadata in first chunk
-        }
-        
-        await db.upload_chunks.insert_one(chunk_record)
-        
-        return {
-            "message": f"Chunk {chunk_index + 1}/{total_chunks} uploaded successfully",
-            "upload_id": upload_id,
-            "chunk_index": chunk_index
-        }
-        
-    except Exception as e:
-        logging.error(f"❌ Chunk upload failed: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Chunk upload failed: {str(e)}")
+# Chunked Upload Endpoints - DEACTIVATED (Using simple upload instead)
+# @api_router.post("/upload-chunk")
+# async def upload_chunk(
+#     file_chunk: UploadFile = File(...),
+#     chunk_index: int = Form(...),
+#     total_chunks: int = Form(...),
+#     upload_id: str = Form(...),
+#     original_filename: str = Form(...),
+#     client_id: Optional[str] = Form(None),
+#     name: Optional[str] = Form(None),
+#     document_type: Optional[str] = Form(None),
+#     stage: Optional[str] = Form(None),
+#     current_user: User = Depends(get_current_user)
+# ):
+#     """Upload a file chunk"""
+#     try:
+#         logging.info(f"📦 Chunk upload: {chunk_index + 1}/{total_chunks} for upload_id: {upload_id}")
+#         
+#         # Create temp directory for chunks if not exists
+#         import tempfile
+#         temp_dir = f"/tmp/chunks_{upload_id}"
+#         os.makedirs(temp_dir, exist_ok=True)
+#         
+#         # Save chunk to temporary file
+#         chunk_path = f"{temp_dir}/chunk_{chunk_index:04d}"
+#         with open(chunk_path, "wb") as chunk_file:
+#             content = await file_chunk.read()
+#             chunk_file.write(content)
+#         
+#         logging.info(f"✅ Chunk {chunk_index + 1} saved: {len(content)} bytes")
+#         
+#         # Store chunk metadata in database for tracking
+#         chunk_record = {
+#             "upload_id": upload_id,
+#             "chunk_index": chunk_index,
+#             "chunk_path": chunk_path,
+#             "chunk_size": len(content),
+#             "uploaded_at": datetime.utcnow(),
+#             "original_filename": original_filename,
+#             "client_id": client_id,
+#             "document_name": name,
+#             "document_type": document_type,
+#             "stage": stage if chunk_index == 0 else None  # Only store metadata in first chunk
+#         }
+#         
+#         await db.upload_chunks.insert_one(chunk_record)
+#         
+#         return {
+#             "message": f"Chunk {chunk_index + 1}/{total_chunks} uploaded successfully",
+#             "upload_id": upload_id,
+#             "chunk_index": chunk_index
+#         }
+#         
+#     except Exception as e:
+#         logging.error(f"❌ Chunk upload failed: {str(e)}")
+#         raise HTTPException(status_code=500, detail=f"Chunk upload failed: {str(e)}")
 
 @api_router.post("/finalize-upload")
 async def finalize_upload(
