@@ -2087,11 +2087,6 @@ const DocumentManagement = () => {
                       </option>
                     ));
                   })()}
-                      <option key={folder.id} value={folder.id}>
-                        {'  '.repeat(folder.level)} {folder.name}
-                      </option>
-                    ));
-                  })()}
                 </select>
               </div>
 
