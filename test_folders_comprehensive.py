@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://1ec08c3c-6aac-4fbe-a51f-120fca82320d.preview.emergentagent.com"
+BACKEND_URL = "https://a8c99106-2f85-4c4d-bdad-22c18652c48e.preview.emergentagent.com"
 API_URL = f"{BACKEND_URL}/api"
 
 # Test JWT token - this is a sample token for testing

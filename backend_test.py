@@ -35,7 +35,7 @@ class TestAnalyticsEndpoints(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://1ec08c3c-6aac-4fbe-a51f-120fca82320d.preview.emergentagent.com/api"
+        self.api_url = "https://a8c99106-2f85-4c4d-bdad-22c18652c48e.preview.emergentagent.com/api"
         
         # Sample data structures for mocking responses
         self.client_data = [
@@ -591,7 +591,7 @@ class TestDocumentEndpoints(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://1ec08c3c-6aac-4fbe-a51f-120fca82320d.preview.emergentagent.com/api"
+        self.api_url = "https://a8c99106-2f85-4c4d-bdad-22c18652c48e.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         
@@ -1093,7 +1093,7 @@ class TestSimplifiedUploadSystem(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://1ec08c3c-6aac-4fbe-a51f-120fca82320d.preview.emergentagent.com/api"
+        self.api_url = "https://a8c99106-2f85-4c4d-bdad-22c18652c48e.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         
@@ -1325,7 +1325,7 @@ class TestClientDashboardStats(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://1ec08c3c-6aac-4fbe-a51f-120fca82320d.preview.emergentagent.com/api"
+        self.api_url = "https://a8c99106-2f85-4c4d-bdad-22c18652c48e.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         
@@ -1545,7 +1545,7 @@ class TestFolderSystem(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://1ec08c3c-6aac-4fbe-a51f-120fca82320d.preview.emergentagent.com/api"
+        self.api_url = "https://a8c99106-2f85-4c4d-bdad-22c18652c48e.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         
@@ -1951,7 +1951,7 @@ class TestFolderCreation(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://1ec08c3c-6aac-4fbe-a51f-120fca82320d.preview.emergentagent.com/api"
+        self.api_url = "https://a8c99106-2f85-4c4d-bdad-22c18652c48e.preview.emergentagent.com/api"
         
         # MongoDB connection
         self.mongo_url = "mongodb://localhost:27017"
