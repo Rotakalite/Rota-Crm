@@ -424,6 +424,40 @@ async def get_admin_user(current_user: User = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
 
+async def create_client_root_folder(client_id: str, client_name: str):
+    """Create root folder for a new client"""
+    try:
+        root_folder_name = f"{client_name} SYS"
+        
+        # Check if root folder already exists
+        existing_folder = await db.folders.find_one({
+            "client_id": client_id,
+            "level": 0
+        })
+        
+        if existing_folder:
+            logging.info(f"📁 Root folder already exists for client: {client_name}")
+            return existing_folder
+        
+        # Create root folder
+        root_folder = {
+            "id": str(uuid.uuid4()),
+            "client_id": client_id,
+            "name": root_folder_name,
+            "parent_folder_id": None,
+            "folder_path": root_folder_name,
+            "level": 0,
+            "created_at": datetime.utcnow()
+        }
+        
+        await db.folders.insert_one(root_folder)
+        logging.info(f"📁 Created root folder: {root_folder_name}")
+        return root_folder
+        
+    except Exception as e:
+        logging.error(f"❌ Failed to create root folder: {str(e)}")
+        return None
+
 async def get_client_access(current_user: User = Depends(get_current_user)):
     # Both admin and client can access, but with different permissions
     return current_user
