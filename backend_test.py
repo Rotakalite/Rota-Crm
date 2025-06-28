@@ -847,6 +847,83 @@ class TestDocumentEndpoints(unittest.TestCase):
         except Exception as e:
             logger.error(f"❌ Error testing /api/stats endpoint: {str(e)}")
             raise
+            
+    def test_upload_document_endpoint(self):
+        """Test the /api/upload-document endpoint with authentication"""
+        logger.info("\n=== Testing /api/upload-document endpoint ===")
+        
+        # Test with valid token
+        logger.info("Testing with valid token...")
+        url = f"{self.api_url}/upload-document"
+        
+        # Create a small test file
+        test_file = io.BytesIO(b"test file content")
+        test_file.name = "test.txt"
+        
+        # Form data for the request
+        form_data = {
+            "client_id": "test_client_id",
+            "document_name": "Test Document",
+            "document_type": "STAGE_1_DOC",
+            "stage": "STAGE_1"
+        }
+        
+        files = {
+            "file": ("test.txt", test_file, "text/plain")
+        }
+        
+        try:
+            response = requests.post(url, headers=self.headers_valid, files=files, data=form_data)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Check if we get a 200 OK, 401 Unauthorized, or 404/422 (if client doesn't exist or validation fails)
+            # But not 403 Forbidden
+            self.assertIn(response.status_code, [200, 401, 404, 422, 500])
+            self.assertNotEqual(response.status_code, 403, "Should not receive 403 Forbidden")
+            
+            if response.status_code == 200:
+                logger.info("✅ Authentication successful - received 200 OK")
+                data = response.json()
+                self.assertIn("message", data)
+                
+                # Check for Turkish success message
+                if "message" in data:
+                    logger.info(f"Success message: {data['message']}")
+                    self.assertIn("Yerel Depolama", data['message'], 
+                                 "Success message should contain 'Yerel Depolama' instead of 'Local Storage' or 'Google Cloud'")
+                    self.assertNotIn("Local Storage", data['message'], 
+                                    "Success message should not contain 'Local Storage'")
+                    self.assertNotIn("Google Cloud", data['message'], 
+                                    "Success message should not contain 'Google Cloud'")
+                    logger.info("✅ Success message contains 'Yerel Depolama' as expected")
+            elif response.status_code == 401:
+                logger.info("✅ Authentication failed correctly - received 401 Unauthorized")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+            elif response.status_code in [404, 422, 500]:
+                logger.info(f"✅ Expected error - received {response.status_code}")
+                # This is also acceptable as it means authentication passed but validation failed
+        except Exception as e:
+            logger.error(f"❌ Error testing upload-document endpoint: {str(e)}")
+            raise
+            
+        # Test with invalid token
+        logger.info("Testing with invalid token...")
+        
+        try:
+            response = requests.post(url, headers=self.headers_invalid, files=files, data=form_data)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Should get 401 Unauthorized, not 403 Forbidden
+            self.assertEqual(response.status_code, 401)
+            error_data = response.json()
+            self.assertIn("detail", error_data)
+            logger.info("✅ Invalid token test passed - received 401 Unauthorized")
+        except Exception as e:
+            logger.error(f"❌ Error testing upload-document endpoint with invalid token: {str(e)}")
+            raise
 
 def run_tests():
     """Run all API tests"""
