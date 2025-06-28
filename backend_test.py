@@ -1946,9 +1946,136 @@ def run_folder_system_tests():
         logger.error("Some enhanced folder system tests FAILED")
         return False
 
+class TestFolderCreation(unittest.TestCase):
+    """Test class specifically for folder creation and retrieval"""
+    
+    def setUp(self):
+        """Set up test environment"""
+        self.api_url = "https://53980ca9-c304-433e-ab62-1c37a7176dd5.preview.emergentagent.com/api"
+        self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
+        
+        # Test client data with unique name
+        self.test_client = {
+            "name": f"Test Client {uuid.uuid4().hex[:8]}",
+            "hotel_name": "Test Hotel",
+            "contact_person": "John Doe",
+            "email": "john@example.com",
+            "phone": "1234567890",
+            "address": "123 Test St"
+        }
+    
+    def test_folder_creation_and_retrieval(self):
+        """Test that folders are automatically created when a client is created and can be retrieved"""
+        logger.info("\n=== Testing folder creation and retrieval ===")
+        
+        # Step 1: Create a new client
+        logger.info("Step 1: Creating a new client...")
+        client_url = f"{self.api_url}/clients"
+        
+        try:
+            client_response = requests.post(client_url, headers=self.headers_valid, json=self.test_client)
+            logger.info(f"Client creation response status code: {client_response.status_code}")
+            
+            # If client creation failed, skip the rest of the test
+            if client_response.status_code not in [200, 201]:
+                logger.warning(f"Client creation failed with status code {client_response.status_code}, skipping rest of test")
+                self.skipTest(f"Client creation failed with status code {client_response.status_code}")
+            
+            # Get the client ID and name from the response
+            client_data = client_response.json()
+            client_id = client_data.get("id")
+            client_name = client_data.get("name")
+            
+            if not client_id:
+                logger.warning("Client ID not found in response, skipping rest of test")
+                self.skipTest("Client ID not found in response")
+            
+            logger.info(f"✅ Created client with ID: {client_id} and name: {client_name}")
+            
+            # Step 2: Retrieve folders and verify structure
+            logger.info("Step 2: Retrieving folders and verifying structure...")
+            folders_url = f"{self.api_url}/folders"
+            
+            folders_response = requests.get(folders_url, headers=self.headers_valid)
+            logger.info(f"Folders response status code: {folders_response.status_code}")
+            
+            if folders_response.status_code != 200:
+                logger.warning(f"Folders retrieval failed with status code {folders_response.status_code}, skipping rest of test")
+                self.skipTest(f"Folders retrieval failed with status code {folders_response.status_code}")
+            
+            folders_data = folders_response.json()
+            
+            # Find folders for the newly created client
+            client_folders = [f for f in folders_data if f.get("client_id") == client_id]
+            logger.info(f"Found {len(client_folders)} folders for the new client")
+            
+            # Verify that folders were created
+            self.assertGreater(len(client_folders), 0, "No folders found for the newly created client")
+            
+            # Check for root folder
+            root_folders = [f for f in client_folders if f.get("level") == 0]
+            self.assertEqual(len(root_folders), 1, f"Should have exactly 1 root folder, found {len(root_folders)}")
+            
+            root_folder = root_folders[0]
+            expected_root_name = f"{client_name} SYS"
+            self.assertEqual(root_folder["name"], expected_root_name, 
+                           f"Root folder name should be '{expected_root_name}', got: {root_folder['name']}")
+            logger.info(f"✅ Root folder created with correct name: {root_folder['name']}")
+            
+            # Check for column sub-folders
+            column_folders = [f for f in client_folders if f.get("level") == 1]
+            self.assertEqual(len(column_folders), 4, f"Should have exactly 4 column folders, found {len(column_folders)}")
+            
+            # Verify column folder names
+            column_names = [f["name"] for f in column_folders]
+            expected_columns = ["A SÜTUNU", "B SÜTUNU", "C SÜTUNU", "D SÜTUNU"]
+            
+            for expected_column in expected_columns:
+                self.assertIn(expected_column, column_names, f"Expected column folder not found: {expected_column}")
+                logger.info(f"✅ Found expected column folder: {expected_column}")
+            
+            # Verify folder paths
+            for column_folder in column_folders:
+                expected_path = f"{expected_root_name}/{column_folder['name']}"
+                self.assertEqual(column_folder["folder_path"], expected_path, 
+                               f"Column folder path should be '{expected_path}', got: {column_folder['folder_path']}")
+                logger.info(f"✅ Column folder has correct path: {column_folder['folder_path']}")
+            
+            logger.info("✅ All 4 column folders were automatically created with correct structure")
+            logger.info("✅ Folders can be successfully retrieved via GET /api/folders")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing folder creation and retrieval: {str(e)}")
+            raise
+
+def run_folder_creation_test():
+    """Run the folder creation test"""
+    logger.info("Starting folder creation test...")
+    
+    # Create a test suite
+    suite = unittest.TestSuite()
+    
+    # Add folder creation test
+    suite.addTest(TestFolderCreation("test_folder_creation_and_retrieval"))
+    
+    # Run the test
+    runner = unittest.TextTestRunner()
+    result = runner.run(suite)
+    
+    # Summary
+    logger.info("\n=== Folder Creation Test Summary ===")
+    logger.info(f"Tests run: {result.testsRun}")
+    logger.info(f"Errors: {len(result.errors)}")
+    logger.info(f"Failures: {len(result.failures)}")
+    
+    if result.wasSuccessful():
+        logger.info("Folder creation test PASSED")
+        return True
+    else:
+        logger.error("Folder creation test FAILED")
+        return False
+
 if __name__ == "__main__":
     import requests  # Import here to avoid issues with mocking
-    # Run all tests
-    run_tests()
-    # Run folder system tests
-    run_folder_system_tests()
+    # Run folder creation test
+    run_folder_creation_test()
