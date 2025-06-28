@@ -77,6 +77,7 @@ app.add_middleware(
     allow_origins=[
         "*",  # Allow all origins
         "https://rota-knt2yrp8n-rotas-projects-62181e6e.vercel.app",  # Vercel frontend (old)
+        "https://rota-bh5f0rj9l-rotas-projects-62181e6e.vercel.app",  # Vercel frontend (new)
         "https://1ec08c3c-6aac-4fbe-a51f-120fca82320d.preview.emergentagent.com",  # Vercel backend URL (wrong)
         "https://*.vercel.app",  # All Vercel apps
         "http://localhost:3000",  # Local development
