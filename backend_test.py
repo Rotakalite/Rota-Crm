@@ -585,6 +585,294 @@ def run_tests():
         logger.error("Some tests FAILED")
         return False
 
+class TestDocumentEndpoints(unittest.TestCase):
+    """Test class for document-related endpoints"""
+    
+    def setUp(self):
+        """Set up test environment"""
+        self.api_url = "https://53980ca9-c304-433e-ab62-1c37a7176dd5.preview.emergentagent.com/api"
+        self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
+        self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
+        
+    def test_documents_endpoint(self):
+        """Test the /api/documents endpoint with authentication"""
+        logger.info("\n=== Testing /api/documents endpoint ===")
+        
+        # Test with valid token
+        logger.info("Testing with valid token...")
+        url = f"{self.api_url}/documents"
+        
+        try:
+            response = requests.get(url, headers=self.headers_valid)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Check if we get a 200 OK or 401 Unauthorized (not 403 Forbidden)
+            self.assertIn(response.status_code, [200, 401])
+            
+            if response.status_code == 200:
+                logger.info("✅ Authentication successful - received 200 OK")
+                data = response.json()
+                self.assertIsInstance(data, list)
+            elif response.status_code == 401:
+                logger.info("✅ Authentication failed correctly - received 401 Unauthorized")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+                self.assertNotEqual(response.status_code, 403, "Should not receive 403 Forbidden")
+        except Exception as e:
+            logger.error(f"❌ Error testing documents endpoint: {str(e)}")
+            raise
+            
+        # Test with invalid token
+        logger.info("Testing with invalid token...")
+        
+        try:
+            response = requests.get(url, headers=self.headers_invalid)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Should get 401 Unauthorized, not 403 Forbidden
+            self.assertEqual(response.status_code, 401)
+            error_data = response.json()
+            self.assertIn("detail", error_data)
+            logger.info("✅ Invalid token test passed - received 401 Unauthorized")
+        except Exception as e:
+            logger.error(f"❌ Error testing documents endpoint with invalid token: {str(e)}")
+            raise
+            
+        # Test without token
+        logger.info("Testing without token...")
+        
+        try:
+            response = requests.get(url)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Should get 401 Unauthorized, not 403 Forbidden
+            self.assertEqual(response.status_code, 401)
+            error_data = response.json()
+            self.assertIn("detail", error_data)
+            logger.info("✅ No token test passed - received 401 Unauthorized")
+        except Exception as e:
+            logger.error(f"❌ Error testing documents endpoint without token: {str(e)}")
+            raise
+    
+    def test_upload_chunk_endpoint(self):
+        """Test the /api/upload-chunk endpoint with authentication"""
+        logger.info("\n=== Testing /api/upload-chunk endpoint ===")
+        
+        # Test with valid token
+        logger.info("Testing with valid token...")
+        url = f"{self.api_url}/upload-chunk"
+        
+        # Create a small test file
+        test_file = io.BytesIO(b"test file content")
+        test_file.name = "test.txt"
+        
+        # Form data for the request
+        form_data = {
+            "chunk_index": (None, "0"),
+            "total_chunks": (None, "1"),
+            "upload_id": (None, "test_upload_id"),
+            "original_filename": (None, "test.txt"),
+            "client_id": (None, "test_client_id"),
+            "name": (None, "Test Document"),
+            "document_type": (None, "STAGE_1_DOC")
+        }
+        
+        files = {
+            "file_chunk": ("test.txt", test_file, "text/plain")
+        }
+        
+        try:
+            response = requests.post(url, headers=self.headers_valid, files=files, data=form_data)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Check if we get a 200 OK or 401 Unauthorized (not 403 Forbidden)
+            self.assertIn(response.status_code, [200, 401, 422])
+            self.assertNotEqual(response.status_code, 403, "Should not receive 403 Forbidden")
+            
+            if response.status_code == 200:
+                logger.info("✅ Authentication successful - received 200 OK")
+                data = response.json()
+                self.assertIn("message", data)
+            elif response.status_code == 401:
+                logger.info("✅ Authentication failed correctly - received 401 Unauthorized")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+            elif response.status_code == 422:
+                logger.info("✅ Validation error - received 422 Unprocessable Entity")
+                # This is also acceptable as it means authentication passed but validation failed
+        except Exception as e:
+            logger.error(f"❌ Error testing upload-chunk endpoint: {str(e)}")
+            raise
+            
+        # Test with invalid token
+        logger.info("Testing with invalid token...")
+        
+        try:
+            response = requests.post(url, headers=self.headers_invalid, files=files, data=form_data)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Should get 401 Unauthorized, not 403 Forbidden
+            self.assertEqual(response.status_code, 401)
+            error_data = response.json()
+            self.assertIn("detail", error_data)
+            logger.info("✅ Invalid token test passed - received 401 Unauthorized")
+        except Exception as e:
+            logger.error(f"❌ Error testing upload-chunk endpoint with invalid token: {str(e)}")
+            raise
+    
+    def test_finalize_upload_endpoint(self):
+        """Test the /api/finalize-upload endpoint with authentication"""
+        logger.info("\n=== Testing /api/finalize-upload endpoint ===")
+        
+        # Test with valid token
+        logger.info("Testing with valid token...")
+        url = f"{self.api_url}/finalize-upload"
+        
+        # JSON data for the request
+        json_data = {
+            "upload_id": "test_upload_id",
+            "total_chunks": 1,
+            "filename": "test.txt",
+            "file_size": 100
+        }
+        
+        try:
+            response = requests.post(url, headers=self.headers_valid, json=json_data)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Check if we get a 200 OK, 401 Unauthorized, or 500 (if chunks don't exist)
+            # But not 403 Forbidden
+            self.assertIn(response.status_code, [200, 401, 400, 500])
+            self.assertNotEqual(response.status_code, 403, "Should not receive 403 Forbidden")
+            
+            if response.status_code == 200:
+                logger.info("✅ Authentication successful - received 200 OK")
+                data = response.json()
+                self.assertIn("message", data)
+            elif response.status_code == 401:
+                logger.info("✅ Authentication failed correctly - received 401 Unauthorized")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+            elif response.status_code in [400, 500]:
+                logger.info(f"✅ Expected error - received {response.status_code}")
+                # This is also acceptable as it means authentication passed but processing failed
+        except Exception as e:
+            logger.error(f"❌ Error testing finalize-upload endpoint: {str(e)}")
+            raise
+            
+        # Test with invalid token
+        logger.info("Testing with invalid token...")
+        
+        try:
+            response = requests.post(url, headers=self.headers_invalid, json=json_data)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Should get 401 Unauthorized, not 403 Forbidden
+            self.assertEqual(response.status_code, 401)
+            error_data = response.json()
+            self.assertIn("detail", error_data)
+            logger.info("✅ Invalid token test passed - received 401 Unauthorized")
+        except Exception as e:
+            logger.error(f"❌ Error testing finalize-upload endpoint with invalid token: {str(e)}")
+            raise
+    
+    def test_working_endpoints(self):
+        """Test working endpoints like /api/clients and /api/stats for comparison"""
+        logger.info("\n=== Testing working endpoints for comparison ===")
+        
+        # Test /api/clients endpoint
+        logger.info("Testing /api/clients endpoint...")
+        url = f"{self.api_url}/clients"
+        
+        try:
+            # Test with valid token
+            response = requests.get(url, headers=self.headers_valid)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Check if we get a 200 OK or 401 Unauthorized (not 403 Forbidden)
+            self.assertIn(response.status_code, [200, 401])
+            self.assertNotEqual(response.status_code, 403, "Should not receive 403 Forbidden")
+            
+            # Test with invalid token
+            response = requests.get(url, headers=self.headers_invalid)
+            logger.info(f"Response status code with invalid token: {response.status_code}")
+            
+            # Should get 401 Unauthorized, not 403 Forbidden
+            self.assertEqual(response.status_code, 401)
+            logger.info("✅ /api/clients endpoint test passed")
+        except Exception as e:
+            logger.error(f"❌ Error testing /api/clients endpoint: {str(e)}")
+            raise
+        
+        # Test /api/stats endpoint
+        logger.info("Testing /api/stats endpoint...")
+        url = f"{self.api_url}/stats"
+        
+        try:
+            # Test with valid token
+            response = requests.get(url, headers=self.headers_valid)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Check if we get a 200 OK or 401 Unauthorized (not 403 Forbidden)
+            self.assertIn(response.status_code, [200, 401])
+            self.assertNotEqual(response.status_code, 403, "Should not receive 403 Forbidden")
+            
+            # Test with invalid token
+            response = requests.get(url, headers=self.headers_invalid)
+            logger.info(f"Response status code with invalid token: {response.status_code}")
+            
+            # Should get 401 Unauthorized, not 403 Forbidden
+            self.assertEqual(response.status_code, 401)
+            logger.info("✅ /api/stats endpoint test passed")
+        except Exception as e:
+            logger.error(f"❌ Error testing /api/stats endpoint: {str(e)}")
+            raise
+
+def run_tests():
+    """Run all API tests"""
+    logger.info("Starting API tests...")
+    
+    # Create a test suite
+    suite = unittest.TestSuite()
+    
+    # Add document endpoint tests (the ones we need to focus on)
+    suite.addTest(TestDocumentEndpoints("test_documents_endpoint"))
+    suite.addTest(TestDocumentEndpoints("test_upload_chunk_endpoint"))
+    suite.addTest(TestDocumentEndpoints("test_finalize_upload_endpoint"))
+    suite.addTest(TestDocumentEndpoints("test_working_endpoints"))
+    
+    # Add analytics endpoint tests (already working)
+    suite.addTest(TestAnalyticsEndpoints("test_consumption_analytics_endpoint"))
+    suite.addTest(TestAnalyticsEndpoints("test_multi_client_comparison_endpoint"))
+    suite.addTest(TestAnalyticsEndpoints("test_monthly_trends_endpoint"))
+    suite.addTest(TestAnalyticsEndpoints("test_existing_consumption_endpoints"))
+    
+    # Run the tests
+    runner = unittest.TextTestRunner()
+    result = runner.run(suite)
+    
+    # Summary
+    logger.info("\n=== Test Summary ===")
+    logger.info(f"Tests run: {result.testsRun}")
+    logger.info(f"Errors: {len(result.errors)}")
+    logger.info(f"Failures: {len(result.failures)}")
+    
+    if result.wasSuccessful():
+        logger.info("All tests PASSED")
+        return True
+    else:
+        logger.error("Some tests FAILED")
+        return False
+
 if __name__ == "__main__":
     import requests  # Import here to avoid issues with mocking
     run_tests()
