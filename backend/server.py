@@ -309,6 +309,7 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
                 if attempt == 2:  # Last attempt
                     logging.error(f"❌ All attempts failed to get signing key")
                     raise HTTPException(status_code=401, detail="Invalid token: could not get signing key")
+                import time
                 time.sleep(0.1)  # Brief delay before retry
         
         # Decode and verify the token
