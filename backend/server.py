@@ -74,17 +74,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=[
-        "*",  # Allow all origins
-        "https://rota-knt2yrp8n-rotas-projects-62181e6e.vercel.app",  # Vercel frontend (old)
-        "https://rota-bh5f0rj9l-rotas-projects-62181e6e.vercel.app",  # Vercel frontend (old2)
-        "https://rota-8rtucrpn9-rotas-projects-62181e6e.vercel.app",  # Vercel frontend (current)
-        "https://1ec08c3c-6aac-4fbe-a51f-120fca82320d.preview.emergentagent.com",  # Vercel backend URL (wrong)
-        "https://*.vercel.app",  # All Vercel apps
-        "https://*.preview.emergentagent.com",  # All preview URLs
-        "http://localhost:3000",  # Local development
-        "https://1ec08c3c-6aac-4fbe-a51f-120fca82320d.preview.emergentagent.com"  # Current backend
-    ],
+    allow_origins=["*"],  # Allow all origins completely
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],  # Explicit methods
     allow_headers=["accept", "accept-encoding", "authorization", "content-type", "dnt", "origin", "user-agent", "x-csrftoken", "x-requested-with"],  # Explicit headers
     expose_headers=["content-type", "authorization"],
