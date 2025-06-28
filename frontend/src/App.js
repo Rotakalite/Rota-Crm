@@ -1135,6 +1135,36 @@ const Dashboard = ({ onNavigate }) => {
                   </button>
                 )}
               </div>
+
+              {/* Folder Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Klasör <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={uploadData.folder_id}
+                  onChange={(e) => setUploadData({...uploadData, folder_id: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-md"
+                  required
+                >
+                  <option value="">Klasör seçiniz</option>
+                  {folders
+                    .filter(folder => {
+                      // Show only folders for selected client
+                      if (userRole === 'admin') {
+                        return folder.client_id === uploadData.client_id;
+                      } else {
+                        return folder.client_id === dbUser?.client_id;
+                      }
+                    })
+                    .map(folder => (
+                      <option key={folder.id} value={folder.id}>
+                        {'  '.repeat(folder.level)} {folder.name}
+                      </option>
+                    ))
+                  }
+                </select>
+              </div>
               
               {client.carbon_footprint && (
                 <div className="mt-4 pt-4 border-t border-green-200">
