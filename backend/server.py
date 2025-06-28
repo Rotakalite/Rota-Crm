@@ -1150,6 +1150,7 @@ async def upload_chunk(
     client_id: Optional[str] = Form(None),
     name: Optional[str] = Form(None),
     document_type: Optional[str] = Form(None),
+    stage: Optional[str] = Form(None),
     current_user: User = Depends(get_current_user)
 ):
     """Upload a file chunk"""
