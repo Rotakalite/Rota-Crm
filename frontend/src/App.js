@@ -394,6 +394,12 @@ const ConsumptionAnalytics = () => {
   }, [authToken, userRole, dbUser]);
 
   useEffect(() => {
+    // Token hazır olmadan API call yapma
+    if (!authToken) {
+      console.log('🔄 Waiting for auth token for analytics...');
+      return;
+    }
+    
     if (selectedClient || userRole === 'client') {
       fetchAnalyticsData();
       fetchMonthlyTrends();
