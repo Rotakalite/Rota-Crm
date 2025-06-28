@@ -349,7 +349,7 @@ async def get_current_user(payload: dict = Depends(verify_token)):
         logging.error("❌ Missing user ID in token payload")
         raise HTTPException(status_code=401, detail="Invalid token: missing user ID")
     
-    logging.info(f"🔍 Looking for user with Clerk ID: {clerk_user_id}")
+    logging.info(f"🔍 USER LOOKUP: Looking for user with Clerk ID: {clerk_user_id}")
     
     user = await db.users.find_one({"clerk_user_id": clerk_user_id})
     if not user:
@@ -379,43 +379,33 @@ async def get_current_user(payload: dict = Depends(verify_token)):
         
         logging.info(f"👤 CREATING NEW USER - Name: '{user_name}', Email: '{user_email}'")
         
-        # Determine user role based on email domain or default to client
-        if user_email.endswith("@rotakalitedanismanlik.com") or user_email == "bilgi@rotakalitedanismanlik.com":
-            user_role = UserRole.ADMIN
-            client_id = None  # Admin doesn't need client_id
-            logging.info("🎭 Creating ADMIN user")
-        else:
-            user_role = UserRole.CLIENT
-            # Client users don't automatically get a client_id
-            # They should be manually assigned to existing clients
-            client_id = None
-            logging.info(f"👤 Creating CLIENT user - will be assigned to client later")
-        
-        # Create new user from Clerk data
+        # Create new user in database
         new_user = {
             "id": str(uuid.uuid4()),
             "clerk_user_id": clerk_user_id,
             "name": user_name,
             "email": user_email,
-            "role": user_role.value,
-            "client_id": client_id,
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow()
+            "role": "admin",  # Default role
+            "client_id": "",  # Will be set later via client setup
+            "created_at": datetime.utcnow()
         }
         
-        try:
-            # Save to database
-            await db.users.insert_one(new_user)
-            logging.info(f"✅ NEW USER CREATED: {user_name} ({user_email}) - Role: {user_role.value}")
-            
-            # Return new user
-            return User(**new_user)
-        except Exception as save_error:
-            logging.error(f"❌ Failed to save new user: {str(save_error)}")
-            raise HTTPException(status_code=500, detail="Failed to create user")
+        await db.users.insert_one(new_user)
+        user = new_user
+        logging.info(f"✅ NEW USER CREATED: {user['id']} - {user['name']} ({user['email']})")
+    else:
+        logging.info(f"✅ USER FOUND: {user['id']} - {user['name']} ({user['email']}) - Role: {user['role']}")
     
-    logging.info(f"✅ User found: {user['name']} ({user['email']}) - Role: {user['role']}")
-    return User(**user)
+    # Convert to User object
+    return User(
+        id=user["id"],
+        clerk_user_id=user["clerk_user_id"],
+        name=user["name"],
+        email=user["email"],
+        role=UserRole(user["role"]),
+        client_id=user.get("client_id", ""),
+        created_at=user["created_at"]
+    )
 
 async def get_admin_user(current_user: User = Depends(get_current_user)):
     if current_user.role != UserRole.ADMIN:
