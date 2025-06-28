@@ -138,23 +138,20 @@ backend:
         -agent: "testing"
         -comment: "Tested the complete document upload flow end-to-end including chunk upload, finalize-upload, and document list retrieval. The backend endpoints are working correctly. The document list endpoint (/api/documents) returns the expected data structure. Authentication is working properly with 401 Unauthorized responses for invalid tokens instead of 403 Forbidden. The backend part of the document list refresh functionality is working as expected."
 
-  - task: "Fix Upload Success Message"
+  - task: "Simplified Upload System"
     implemented: true
     working: true
     file: "/app/backend/server.py"
     stuck_count: 0
-    priority: "low"
+    priority: "high"
     needs_retesting: false
     status_history:
-        -working: false
+        -working: "NA"
         -agent: "main"
-        -comment: "Success message still references 'Google Cloud' instead of 'Local Storage' for chunked uploads in finalize-upload endpoint."
-        -working: true
-        -agent: "main"
-        -comment: "Successfully updated success messages in both upload-document and finalize-upload endpoints to show 'Yerel Depolama' instead of 'Local Storage' or 'Google Cloud'. Messages are now properly localized in Turkish."
+        -comment: "Simplified upload system by removing chunked upload functionality and using only simple direct upload for all files."
         -working: true
         -agent: "testing"
-        -comment: "Verified that the finalize-upload endpoint returns a success message with 'Yerel Depolama' instead of 'Local Storage' or 'Google Cloud'. The upload-document endpoint also has a return statement with 'Yerel Depolama' for local storage uploads. The Turkish success messages are working as expected."
+        -comment: "Tested the simplified upload system after removing chunk functionality. The simple upload endpoint POST /api/upload-document works correctly, saving files to local storage and creating document records in the database. The chunked upload endpoints (/api/upload-chunk and /api/finalize-upload) are properly deactivated, returning 404 Not Found as expected. Document retrieval via GET /api/documents works correctly. The success message format is in Turkish ('Yerel Depolama') not English. No references to Google Cloud or chunked upload were found in the responses."
 
   - task: "Document Record Creation in Database"
     implemented: true
