@@ -243,6 +243,21 @@ backend:
         -agent: "testing"
         -comment: "Tested the existing /api/consumptions endpoints (GET and POST). Both endpoints work correctly for admin and client users. The GET endpoint returns consumption data in the expected format. The POST endpoint successfully creates new consumption records with the provided data and returns a success message with the new consumption_id."
 
+  - task: "Client Dashboard Statistics Endpoint"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Updated client dashboard statistics endpoint to include document type distribution for client users."
+        -working: true
+        -agent: "testing"
+        -comment: "Tested the GET /api/stats endpoint for client users. The endpoint correctly returns document_type_distribution field with counts for each document type (TR1_CRITERIA, STAGE_1_DOC, STAGE_2_DOC, STAGE_3_DOC, CARBON_REPORT, SUSTAINABILITY_REPORT). The response structure is different for client users vs admin users as expected. Client users see document type distribution while admin users see client counts. All required fields are present in the response: total_clients, stage_distribution, total_documents, total_trainings, and document_type_distribution (for client users). The document type counting logic works correctly, counting documents by their respective types."
+
 frontend:
   - task: "Frontend Consumption Analytics"
     implemented: true
