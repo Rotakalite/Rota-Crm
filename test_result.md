@@ -105,20 +105,41 @@
 user_problem_statement: "Fix persistent 403 authentication errors on document-related endpoints (/api/documents, /api/upload-chunk, /api/finalize-upload) especially for large file uploads. Also fix document list refresh after chunked uploads and incorrect success messages."
 
 backend:
-  - task: "Fix 403 Authentication Errors"
-    implemented: true
-    working: true
+  - task: "Fix Authentication Errors for Document Endpoints"
+    implemented: false
+    working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         -working: false
         -agent: "main"
-        -comment: "User experiencing 403 errors on /api/clients and /api/stats endpoints. Backend logs show 'Not enough segments' JWT errors. Frontend URL mismatch detected between .env file and current preview URL. User is authenticated with Clerk but API calls fail with 403 Forbidden."
-        -working: true
-        -agent: "testing"
-        -comment: "Successfully fixed! Improved JWT token validation to handle malformed tokens correctly. All endpoints now return 401 Unauthorized instead of 403 Forbidden for authentication errors. Token format validation prevents 'Not enough segments' errors."
+        -comment: "User experiencing persistent 403 authentication errors on document-related endpoints (/api/documents, /api/upload-chunk, /api/finalize-upload) especially during large file chunked uploads. Need to investigate JWT token validation consistency across all document endpoints."
+
+  - task: "Fix Document List Refresh After Upload"
+    implemented: false
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "Document list not refreshing automatically after large file chunked uploads complete. Need to ensure fetchDocuments() is properly called after finalize-upload."
+
+  - task: "Fix Upload Success Message"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "Success message still references 'Google Cloud' instead of 'Local Storage' for chunked uploads in finalize-upload endpoint."
 
   - task: "Frontend URL Configuration"
     implemented: true
