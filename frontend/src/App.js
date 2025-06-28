@@ -1191,40 +1191,6 @@ const Dashboard = ({ onNavigate }) => {
         </div>
       )}
 
-      {/* Folders Section for Client Users */}
-      {userRole === 'client' && folders.length > 0 && (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-            📁 Klasör Yapım
-          </h3>
-          
-          <div className="space-y-3">
-            {folders
-              .filter(folder => folder.client_id === dbUser?.client_id)
-              .sort((a, b) => (a.level - b.level) || a.name.localeCompare(b.name))
-              .map((folder) => (
-                <div 
-                  key={folder.id} 
-                  className={`flex items-center p-3 rounded-lg border ${
-                    folder.level === 0 
-                      ? 'bg-blue-50 border-blue-200 font-semibold text-blue-800' 
-                      : 'bg-gray-50 border-gray-200 text-gray-700 ml-6'
-                  }`}
-                >
-                  <span className="mr-3">
-                    {folder.level === 0 ? '📂' : '📁'}
-                  </span>
-                  <span>{folder.name}</span>
-                  <span className="ml-auto text-xs text-gray-500">
-                    {folder.level === 0 ? 'Ana Klasör' : 'Alt Klasör'}
-                  </span>
-                </div>
-              ))
-            }
-          </div>
-        </div>
-      )}
-
       {/* Document Detail Modal for Dashboard */}
       {showDocumentModal && selectedDocument && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
