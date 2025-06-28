@@ -671,6 +671,8 @@ async def get_all_documents(current_user: User = Depends(get_current_user)):
         # Convert MongoDB documents to JSON-serializable format
         serialized_documents = []
         for doc in documents:
+            logging.info(f"📄 Processing document: {doc.get('name')} - folder_id: {doc.get('folder_id')}")
+            
             # Remove MongoDB-specific fields and convert to dict
             doc_dict = {
                 "id": doc.get("id"),
@@ -690,6 +692,7 @@ async def get_all_documents(current_user: User = Depends(get_current_user)):
                 "gridfs_upload": doc.get("gridfs_upload", False),
                 "mock_upload": doc.get("mock_upload", False)
             }
+            logging.info(f"📄 Serialized document folder_id: {doc_dict['folder_id']}")
             serialized_documents.append(doc_dict)
         
         return serialized_documents
