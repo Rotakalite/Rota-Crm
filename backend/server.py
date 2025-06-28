@@ -425,7 +425,7 @@ async def get_admin_user(current_user: User = Depends(get_current_user)):
     return current_user
 
 async def create_client_root_folder(client_id: str, client_name: str):
-    """Create root folder for a new client"""
+    """Create root folder and sub-folders for a new client"""
     try:
         root_folder_name = f"{client_name} SYS"
         
@@ -437,6 +437,8 @@ async def create_client_root_folder(client_id: str, client_name: str):
         
         if existing_folder:
             logging.info(f"📁 Root folder already exists for client: {client_name}")
+            # Check if sub-folders exist, if not create them
+            await create_column_folders(client_id, existing_folder["id"], root_folder_name)
             return existing_folder
         
         # Create root folder
@@ -452,11 +454,49 @@ async def create_client_root_folder(client_id: str, client_name: str):
         
         await db.folders.insert_one(root_folder)
         logging.info(f"📁 Created root folder: {root_folder_name}")
+        
+        # Create 4 column sub-folders automatically
+        await create_column_folders(client_id, root_folder["id"], root_folder_name)
+        
         return root_folder
         
     except Exception as e:
         logging.error(f"❌ Failed to create root folder: {str(e)}")
         return None
+
+async def create_column_folders(client_id: str, root_folder_id: str, root_folder_path: str):
+    """Create A, B, C, D column folders under root folder"""
+    try:
+        columns = ["A SÜTUNU", "B SÜTUNU", "C SÜTUNU", "D SÜTUNU"]
+        
+        for column_name in columns:
+            # Check if column folder already exists
+            existing_column = await db.folders.find_one({
+                "client_id": client_id,
+                "parent_folder_id": root_folder_id,
+                "name": column_name
+            })
+            
+            if existing_column:
+                logging.info(f"📁 Column folder already exists: {column_name}")
+                continue
+            
+            # Create column folder
+            column_folder = {
+                "id": str(uuid.uuid4()),
+                "client_id": client_id,
+                "name": column_name,
+                "parent_folder_id": root_folder_id,
+                "folder_path": f"{root_folder_path}/{column_name}",
+                "level": 1,
+                "created_at": datetime.utcnow()
+            }
+            
+            await db.folders.insert_one(column_folder)
+            logging.info(f"📁 Created column folder: {column_name}")
+            
+    except Exception as e:
+        logging.error(f"❌ Failed to create column folders: {str(e)}")
 
 async def get_client_access(current_user: User = Depends(get_current_user)):
     # Both admin and client can access, but with different permissions
