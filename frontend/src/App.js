@@ -1605,6 +1605,21 @@ const DocumentManagement = () => {
     }
   };
 
+  const fetchFolders = async () => {
+    if (!authToken) return;
+    
+    try {
+      const headers = { 'Authorization': `Bearer ${authToken}` };
+      console.log('📁 Fetching folders...');
+      const response = await axios.get(`${API}/folders`, { headers });
+      setFolders(Array.isArray(response.data) ? response.data : []);
+      console.log('✅ Folders fetched:', response.data?.length || 0);
+    } catch (error) {
+      console.error("Error fetching folders:", error);
+      setFolders([]);
+    }
+  };
+
   const uploadLargeFile = async (file, metadata) => {
     // Her dosya için direkt upload kullan - chunk karmaşıklığı kaldırıldı
     console.log(`📤 Uploading file: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
