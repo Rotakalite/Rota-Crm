@@ -967,7 +967,10 @@ async def upload_document(
                     "file_size": upload_result["file_size"],
                     "uploaded_by": current_user.clerk_user_id,
                     "created_at": datetime.utcnow(),
-                    "gridfs_upload": True
+                    "gridfs_upload": True,
+                    "folder_id": folder_id,
+                    "folder_path": folder["folder_path"],
+                    "folder_level": folder["level"]
                 }
                 
                 await db.documents.insert_one(document_data)
