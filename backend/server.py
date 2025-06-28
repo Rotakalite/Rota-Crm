@@ -721,18 +721,53 @@ async def get_statistics(current_user: User = Depends(get_current_user)):
                 "total_trainings": total_trainings
             }
         else:
-            # Client sees only their own statistics
+            # Client sees only their own statistics - document type distribution
             if not current_user.client_id:
                 return {
                     "total_clients": 0,
                     "stage_distribution": {"stage_1": 0, "stage_2": 0, "stage_3": 0},
                     "total_documents": 0,
-                    "total_trainings": 0
+                    "total_trainings": 0,
+                    "document_type_distribution": {
+                        "TR1_CRITERIA": 0,
+                        "STAGE_1_DOC": 0,
+                        "STAGE_2_DOC": 0,
+                        "STAGE_3_DOC": 0,
+                        "CARBON_REPORT": 0,
+                        "SUSTAINABILITY_REPORT": 0
+                    }
                 }
             
             client = await db.clients.find_one({"id": current_user.client_id})
             client_documents = await db.documents.count_documents({"client_id": current_user.client_id})
             client_trainings = await db.trainings.count_documents({"client_id": current_user.client_id})
+            
+            # Calculate document type distribution for client
+            document_type_counts = {
+                "TR1_CRITERIA": 0,
+                "STAGE_1_DOC": 0,
+                "STAGE_2_DOC": 0,
+                "STAGE_3_DOC": 0,
+                "CARBON_REPORT": 0,
+                "SUSTAINABILITY_REPORT": 0
+            }
+            
+            # Get all documents for this client and count by type
+            documents = await db.documents.find({"client_id": current_user.client_id}).to_list(length=None)
+            for doc in documents:
+                doc_type = doc.get("document_type", "")
+                if doc_type == "Türkiye Sürdürülebilir Turizm Programı Kriterleri (TR-I)":
+                    document_type_counts["TR1_CRITERIA"] += 1
+                elif doc_type == "I. Aşama Belgesi":
+                    document_type_counts["STAGE_1_DOC"] += 1
+                elif doc_type == "II. Aşama Belgesi":
+                    document_type_counts["STAGE_2_DOC"] += 1
+                elif doc_type == "III. Aşama Belgesi":
+                    document_type_counts["STAGE_3_DOC"] += 1
+                elif doc_type == "Karbon Ayak İzi Raporu":
+                    document_type_counts["CARBON_REPORT"] += 1
+                elif doc_type == "Sürdürülebilirlik Raporu":
+                    document_type_counts["SUSTAINABILITY_REPORT"] += 1
             
             current_stage = client.get("current_stage", "I.Aşama") if client else "I.Aşama"
             stage_distribution = {"stage_1": 0, "stage_2": 0, "stage_3": 0}
@@ -748,7 +783,8 @@ async def get_statistics(current_user: User = Depends(get_current_user)):
                 "total_clients": 1,
                 "stage_distribution": stage_distribution,
                 "total_documents": client_documents,
-                "total_trainings": client_trainings
+                "total_trainings": client_trainings,
+                "document_type_distribution": document_type_counts
             }
     except Exception as e:
         logging.error(f"Error in get_statistics: {str(e)}")
