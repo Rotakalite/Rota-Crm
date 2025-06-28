@@ -1633,6 +1633,7 @@ const DocumentManagement = () => {
     formData.append('document_name', metadata.documentName);
     formData.append('document_type', metadata.documentType);
     formData.append('stage', metadata.stage);
+    formData.append('folder_id', metadata.folderId);  // Required folder selection
 
     // Calculate timeout based on file size (minimum 30s, max 10 minutes)
     const timeoutMs = Math.max(30000, Math.min(file.size / (1024 * 100), 600000)); // ~100KB/s minimum speed
