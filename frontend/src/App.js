@@ -1709,6 +1709,7 @@ const DocumentManagement = () => {
       // Refresh documents list after all uploads
       console.log('🔄 Refreshing documents list...');
       await fetchDocuments();
+      console.log('✅ Documents list refreshed successfully');
       
       setShowUploadForm(false);
       setUploadData({
