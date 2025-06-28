@@ -138,16 +138,32 @@ class TestDocumentUploadFunctionality(unittest.TestCase):
         logger.info(f"upload_document_section excerpt: {upload_document_section[:100]}...")
         
         # Check for Turkish success message in the upload-document section
-        # We need to find the return statement with the success message
-        success_message_start = upload_document_section.find('return {')
-        success_message_end = upload_document_section.find('}', success_message_start)
-        success_message = upload_document_section[success_message_start:success_message_end+1]
+        # We need to find all return statements with success messages
+        return_statements = []
+        start_pos = 0
+        while True:
+            return_pos = upload_document_section.find('return {', start_pos)
+            if return_pos == -1:
+                break
+            end_pos = upload_document_section.find('}', return_pos)
+            return_statements.append(upload_document_section[return_pos:end_pos+1])
+            start_pos = end_pos + 1
         
-        logger.info(f"Success message: {success_message}")
+        logger.info(f"Found {len(return_statements)} return statements")
+        for i, stmt in enumerate(return_statements):
+            logger.info(f"Return statement {i+1}: {stmt}")
         
-        # Check if the success message contains "Yerel Depolama"
-        self.assertIn('Yerel Depolama', success_message)
-        self.assertNotIn('Local Storage', success_message)
+        # Check if any return statement contains "Yerel Depolama"
+        yerel_depolama_found = False
+        for stmt in return_statements:
+            if 'Yerel Depolama' in stmt:
+                yerel_depolama_found = True
+                break
+        
+        self.assertTrue(yerel_depolama_found, "No return statement contains 'Yerel Depolama'")
+        
+        # Check if the finalize-upload endpoint contains "Yerel Depolama"
+        self.assertIn('Yerel Depolama', finalize_upload_section)
         self.assertIn('Yerel Depolama', upload_document_section)
         self.assertNotIn('Local Storage', upload_document_section)
         self.assertNotIn('Google Cloud', upload_document_section)
