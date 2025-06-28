@@ -1674,8 +1674,18 @@ const ClientDocuments = () => {
   
   // Filter documents by selected folder
   const filteredDocuments = selectedFolder 
-    ? documents.filter(doc => doc.folder_id === selectedFolder.id)
+    ? documents.filter(doc => {
+        console.log(`🔍 Document ${doc.name} folder_id: ${doc.folder_id}, selected folder id: ${selectedFolder.id}`);
+        return doc.folder_id === selectedFolder.id;
+      })
     : documents;
+
+  console.log('📊 Filtering debug:', {
+    selectedFolder: selectedFolder?.name,
+    totalDocuments: documents.length,
+    filteredDocuments: filteredDocuments.length,
+    documentsWithFolderIds: documents.map(d => ({ name: d.name, folder_id: d.folder_id }))
+  });
 
   return (
     <div className="space-y-6">
