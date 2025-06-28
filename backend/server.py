@@ -649,7 +649,7 @@ async def create_document(
     await db.documents.insert_one(document.dict())
     return document
 
-@api_router.get("/documents", response_model=List[Document])
+@api_router.get("/documents")
 async def get_all_documents(current_user: User = Depends(get_current_user)):
     """Get all documents (Admin only) or user's documents (Client)"""
     try:
