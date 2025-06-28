@@ -243,10 +243,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Consumption Analytics Endpoint"
-    - "Multi-Client Comparison Endpoint"
-    - "Monthly Trends Endpoint"
-  stuck_tasks: []
+    - "Fix Authentication Errors for Document Endpoints"
+    - "Fix Document List Refresh After Upload"
+    - "Fix Upload Success Message"
+  stuck_tasks:
+    - "Fix Authentication Errors for Document Endpoints"
   test_all: false
   test_priority: "high_first"
 
