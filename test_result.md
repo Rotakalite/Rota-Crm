@@ -106,7 +106,7 @@ user_problem_statement: "Fix persistent 403 authentication errors on document-re
 
 backend:
   - task: "Fix Authentication Errors for Document Endpoints"
-    implemented: false
+    implemented: true
     working: false
     file: "/app/backend/server.py"
     stuck_count: 1
@@ -116,6 +116,9 @@ backend:
         -working: false
         -agent: "main"
         -comment: "User experiencing persistent 403 authentication errors on document-related endpoints (/api/documents, /api/upload-chunk, /api/finalize-upload) especially during large file chunked uploads. Need to investigate JWT token validation consistency across all document endpoints."
+        -working: false
+        -agent: "main"
+        -comment: "Enhanced logging in verify_token and get_current_user functions to better debug authentication issues. Added missing import statement for time module in verify_token function. This should help identify where the authentication is failing during document operations."
 
   - task: "Fix Document List Refresh After Upload"
     implemented: false
