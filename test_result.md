@@ -249,11 +249,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Fix Authentication Errors for Document Endpoints"
     - "Fix Document List Refresh After Upload"
     - "Fix Upload Success Message"
-  stuck_tasks:
-    - "Fix Authentication Errors for Document Endpoints"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
