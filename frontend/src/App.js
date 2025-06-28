@@ -1642,11 +1642,18 @@ const DocumentManagement = () => {
     try {
       const headers = { 'Authorization': `Bearer ${authToken}` };
       console.log('📁 Fetching folders...');
+      console.log('🔗 API URL:', `${API}/folders`);
+      console.log('🎫 Auth token:', authToken ? 'Present' : 'Missing');
+      
       const response = await axios.get(`${API}/folders`, { headers });
+      console.log('📁 Folders response:', response.data);
+      console.log('📁 Folders array length:', response.data?.length || 0);
+      
       setFolders(Array.isArray(response.data) ? response.data : []);
-      console.log('✅ Folders fetched:', response.data?.length || 0);
+      console.log('✅ Folders set in state:', Array.isArray(response.data) ? response.data.length : 0, 'folders');
     } catch (error) {
-      console.error("Error fetching folders:", error);
+      console.error("❌ Error fetching folders:", error);
+      console.error("❌ Error response:", error.response?.data);
       setFolders([]);
     }
   };
