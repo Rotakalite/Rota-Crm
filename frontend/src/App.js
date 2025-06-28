@@ -807,6 +807,13 @@ const Dashboard = ({ onNavigate }) => {
   const { authToken, userRole, dbUser } = useAuth();
 
   useEffect(() => {
+    // Token hazır olmadan API call yapma
+    if (!authToken) {
+      console.log('🔄 Waiting for auth token for initial data fetch...');
+      return;
+    }
+    
+    console.log('🎯 Auth token ready, fetching initial data...');
     fetchStats();
     fetchClients();
     if (userRole === 'client' && dbUser?.client_id) {
