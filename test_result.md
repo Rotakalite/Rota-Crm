@@ -258,7 +258,7 @@ backend:
         -agent: "testing"
         -comment: "Tested the GET /api/stats endpoint for client users. The endpoint correctly returns document_type_distribution field with counts for each document type (TR1_CRITERIA, STAGE_1_DOC, STAGE_2_DOC, STAGE_3_DOC, CARBON_REPORT, SUSTAINABILITY_REPORT). The response structure is different for client users vs admin users as expected. Client users see document type distribution while admin users see client counts. All required fields are present in the response: total_clients, stage_distribution, total_documents, total_trainings, and document_type_distribution (for client users). The document type counting logic works correctly, counting documents by their respective types."
 
-  - task: "Folder System Implementation"
+  - task: "Enhanced Folder System with 4 Column Sub-folders"
     implemented: true
     working: true
     file: "/app/backend/server.py"
@@ -268,10 +268,10 @@ backend:
     status_history:
         -working: "NA"
         -agent: "main"
-        -comment: "Implemented folder system with proper hierarchy and automatic root folder creation for clients."
+        -comment: "Implemented folder system with 4 column sub-folders: 'A SÜTUNU', 'B SÜTUNU', 'C SÜTUNU', 'D SÜTUNU' that are automatically created when clients are created."
         -working: true
         -agent: "testing"
-        -comment: "Tested the folder system implementation. The GET /api/folders endpoint correctly returns folder tree for the current user. The POST /api/folders endpoint successfully creates new folders with proper hierarchy. The folder model structure includes all required fields: id, client_id, name, parent_folder_id, folder_path, level, and created_at. Root folders follow the naming convention '[Client Name] SYS'. Root folders are automatically created when clients are created. Proper permissions are implemented: admin users can see all folders, client users can only see their own folders, and client users can only create folders for their own client."
+        -comment: "Tested the enhanced folder system with 4 column sub-folders. The GET /api/folders endpoint correctly returns the hierarchical folder tree with proper authentication. Root folders follow the naming convention '[Client Name] SYS' and have level=0. Column sub-folders ('A SÜTUNU', 'B SÜTUNU', 'C SÜTUNU', 'D SÜTUNU') are created with level=1 and proper folder paths. The automatic creation of these folders when clients are created is working correctly. The upload endpoint now requires a folder_id parameter and verifies that the folder belongs to the specified client. Documents are saved with the correct folder information including folder_path and folder_level. Admin-only upload access is enforced, and proper validation is performed for folder-client relationships."
 
 frontend:
   - task: "Frontend Consumption Analytics"
