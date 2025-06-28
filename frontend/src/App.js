@@ -1576,8 +1576,9 @@ const DocumentManagement = () => {
       return;
     }
     
-    console.log('🎯 Auth token ready, fetching documents and clients...');
+    console.log('🎯 Auth token ready, fetching documents, clients and folders...');
     fetchDocuments();
+    fetchFolders();
     if (userRole === 'admin') {
       fetchClients();
     }
