@@ -892,17 +892,23 @@ async def upload_document(
     document_type: DocumentType = Form(...),
     stage: ProjectStage = Form(...),
     file: UploadFile = File(...),
-    current_user: User = Depends(get_current_user)
+    folder_id: str = Form(...),  # Required folder selection
+    current_user: User = Depends(get_admin_user)  # Only admin can upload
 ):
-    """Upload document file to Google Cloud Storage and save metadata to database"""
+    """Upload document file to local storage and save metadata to database (Admin only)"""
     
-    logging.info(f"📤 Upload document request - User: {current_user.role} - Client: {client_id} - File: {file.filename}")
+    logging.info(f"📤 Upload document request - Admin: {current_user.name} - Client: {client_id} - Folder: {folder_id} - File: {file.filename}")
     
     # Check file size (500MB limit)
     if file.size and file.size > 500 * 1024 * 1024:  # 500MB
         raise HTTPException(status_code=413, detail="File too large. Maximum size is 500MB.")
     
     logging.info(f"📦 File size: {file.size / 1024 / 1024:.2f}MB")
+    
+    # Verify folder exists and belongs to the specified client
+    folder = await db.folders.find_one({"id": folder_id, "client_id": client_id})
+    if not folder:
+        raise HTTPException(status_code=404, detail="Folder not found or doesn't belong to specified client")
     
     # Check permissions
     if current_user.role == UserRole.ADMIN:
