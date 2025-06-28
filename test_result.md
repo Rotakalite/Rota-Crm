@@ -119,6 +119,9 @@ backend:
         -working: false
         -agent: "main"
         -comment: "Enhanced logging in verify_token and get_current_user functions to better debug authentication issues. Added missing import statement for time module in verify_token function. This should help identify where the authentication is failing during document operations."
+        -working: true
+        -agent: "testing"
+        -comment: "Tested all document-related authentication endpoints (/api/documents, /api/upload-chunk, /api/finalize-upload) with both valid and invalid JWT tokens. The endpoints are now correctly returning 401 Unauthorized for invalid tokens instead of 403 Forbidden. When no token is provided, the endpoints return 403 Not authenticated, which is consistent with FastAPI's default behavior. The backend logs show proper error handling in the verify_token function with detailed logging of token verification attempts. The authentication mechanism is working as expected."
 
   - task: "Fix Document List Refresh After Upload"
     implemented: false
