@@ -260,6 +260,18 @@ class Document(BaseModel):
     supabase_upload: Optional[bool] = False
     local_upload: Optional[bool] = False
     mock_upload: Optional[bool] = False
+    # Folder structure
+    folder_path: Optional[str] = None  # e.g., "Müşteri Adı SYS/Alt Klasör"
+    folder_level: Optional[int] = 0    # 0=root, 1=level1, etc.
+
+class Folder(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    client_id: str
+    name: str
+    parent_folder_id: Optional[str] = None  # For nested folders
+    folder_path: str  # Full path: "Müşteri Adı SYS/Alt Klasör"
+    level: int = 0    # 0=root, 1=level1, etc.
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class DocumentCreate(BaseModel):
     client_id: str
