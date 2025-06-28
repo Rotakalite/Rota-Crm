@@ -659,7 +659,6 @@ async def get_all_documents(current_user: User = Depends(get_current_user)):
             # Admin can see all documents
             documents = await db.documents.find().to_list(1000)
             logging.info(f"✅ Admin - returning {len(documents)} documents")
-            return [Document(**doc) for doc in documents]
         else:
             # Client users can only see their own documents
             if not current_user.client_id:
@@ -668,7 +667,32 @@ async def get_all_documents(current_user: User = Depends(get_current_user)):
             
             documents = await db.documents.find({"client_id": current_user.client_id}).to_list(1000)
             logging.info(f"✅ Client - returning {len(documents)} documents for client: {current_user.client_id}")
-            return [Document(**doc) for doc in documents]
+        
+        # Convert MongoDB documents to JSON-serializable format
+        serialized_documents = []
+        for doc in documents:
+            # Remove MongoDB-specific fields and convert to dict
+            doc_dict = {
+                "id": doc.get("id"),
+                "client_id": doc.get("client_id"),
+                "name": doc.get("name"),
+                "document_type": doc.get("document_type"),
+                "stage": doc.get("stage"),
+                "file_path": doc.get("file_path"),
+                "original_filename": doc.get("original_filename"),
+                "file_size": doc.get("file_size"),
+                "uploaded_by": doc.get("uploaded_by"),
+                "created_at": doc.get("created_at").isoformat() if doc.get("created_at") else None,
+                "folder_id": doc.get("folder_id"),
+                "folder_path": doc.get("folder_path"),
+                "folder_level": doc.get("folder_level", 0),
+                "local_upload": doc.get("local_upload", False),
+                "gridfs_upload": doc.get("gridfs_upload", False),
+                "mock_upload": doc.get("mock_upload", False)
+            }
+            serialized_documents.append(doc_dict)
+        
+        return serialized_documents
             
     except Exception as e:
         logging.error(f"❌ Error in get_all_documents: {str(e)}")
