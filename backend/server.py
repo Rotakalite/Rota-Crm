@@ -1241,10 +1241,37 @@ async def finalize_upload(
         
         logging.info(f"📁 Chunked file saved to local storage: {local_final_path}")
         
+        # ⭐ CREATE DOCUMENT RECORD IN DATABASE
+        # Get metadata from first chunk if available
+        first_chunk = chunks[0] if chunks else {}
+        client_id = first_chunk.get("client_id", "")
+        document_name = first_chunk.get("document_name", filename)
+        document_type = first_chunk.get("document_type", "")
+        stage = first_chunk.get("stage", "")
+        
+        # Create document record
+        document_data = {
+            "id": str(uuid.uuid4()),
+            "client_id": client_id,
+            "document_name": document_name,
+            "document_type": document_type,
+            "stage": stage,
+            "file_path": local_final_path,
+            "file_size": file_size,
+            "original_filename": filename,
+            "upload_date": datetime.utcnow(),
+            "upload_method": "chunked"
+        }
+        
+        # Save document to database
+        await db.documents.insert_one(document_data)
+        logging.info(f"📄 Document record created in database: {document_data['id']}")
+        
         upload_result = {
             "file_path": local_final_path,
             "file_size": file_size,
-            "local_upload": True
+            "local_upload": True,
+            "document_id": document_data["id"]
         }
         
         # Cleanup temp files
