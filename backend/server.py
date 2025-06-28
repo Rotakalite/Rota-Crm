@@ -1453,10 +1453,25 @@ async def get_folders(current_user: User = Depends(get_current_user)):
             # Client sees only their own folders
             folders = await db.folders.find({"client_id": current_user.client_id}).to_list(length=None)
         
-        # Sort by level and name
-        folders.sort(key=lambda x: (x.get("level", 0), x.get("name", "")))
+        # Convert MongoDB documents to JSON-serializable format
+        serialized_folders = []
+        for folder in folders:
+            # Remove MongoDB-specific fields and convert to dict
+            folder_dict = {
+                "id": folder.get("id"),
+                "client_id": folder.get("client_id"),
+                "name": folder.get("name"),
+                "parent_folder_id": folder.get("parent_folder_id"),
+                "folder_path": folder.get("folder_path"),
+                "level": folder.get("level", 0),
+                "created_at": folder.get("created_at").isoformat() if folder.get("created_at") else None
+            }
+            serialized_folders.append(folder_dict)
         
-        return folders
+        # Sort by level and name
+        serialized_folders.sort(key=lambda x: (x.get("level", 0), x.get("name", "")))
+        
+        return serialized_folders
     except Exception as e:
         logging.error(f"❌ Error fetching folders: {str(e)}")
         return []
