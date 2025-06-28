@@ -807,6 +807,84 @@ const Dashboard = ({ onNavigate }) => {
   const [showDocumentModal, setShowDocumentModal] = useState(false);
   const { authToken, userRole, dbUser } = useAuth();
 
+  const getFileIcon = (filePath) => {
+    const extension = filePath?.split('.').pop().toLowerCase();
+    switch (extension) {
+      case 'pdf': return '📄';
+      case 'doc':
+      case 'docx': return '📝';
+      case 'xls':
+      case 'xlsx': return '📊';
+      case 'jpg':
+      case 'jpeg':
+      case 'png': return '🖼️';
+      case 'zip':
+      case 'rar': return '📦';
+      default: return '📋';
+    }
+  };
+
+  const handleViewDocument = (document) => {
+    setSelectedDocument(document);
+    setShowDocumentModal(true);
+  };
+
+  const handleDownloadDocument = async (docData) => {
+    try {
+      console.log('📥 Starting download for:', docData.name);
+      
+      const downloadUrl = `${API}/documents/${docData.id}/download`;
+      
+      const response = await axios.get(downloadUrl, {
+        headers: { 'Authorization': `Bearer ${authToken}` },
+        responseType: 'blob'
+      });
+      
+      const blob = new Blob([response.data]);
+      const url = window.URL.createObjectURL(blob);
+      
+      const link = window.document.createElement('a');
+      link.href = url;
+      link.download = docData.original_filename || docData.name || 'document';
+      link.style.display = 'none';
+      window.document.body.appendChild(link);
+      link.click();
+      
+      window.document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      console.log('✅ Download completed');
+    } catch (error) {
+      console.error('❌ Download error:', error);
+      alert('Dosya indirilemedi!');
+    }
+  };
+
+  const handleDeleteDocument = async (document) => {
+    if (!window.confirm(`"${document.name}" belgesini silmek istediğinizden emin misiniz?`)) {
+      return;
+    }
+
+    try {
+      console.log('🗑️ Deleting document:', document.name);
+      
+      const response = await axios.delete(`${API}/documents/${document.id}`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      
+      console.log('✅ Document deleted successfully');
+      alert('Belge başarıyla silindi!');
+      
+      // Refresh documents list
+      if (selectedClient) {
+        fetchDocuments(selectedClient.id);
+      }
+    } catch (error) {
+      console.error('❌ Delete error:', error);
+      alert('Belge silinemedi!');
+    }
+  };
+
   useEffect(() => {
     // Token hazır olmadan API call yapma
     if (!authToken) {
