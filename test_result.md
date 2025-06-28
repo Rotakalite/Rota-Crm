@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Fix 403 authentication errors on /api/clients and /api/stats endpoints - user is authenticated but API calls failing"
+user_problem_statement: "Fix persistent 403 authentication errors on document-related endpoints (/api/documents, /api/upload-chunk, /api/finalize-upload) especially for large file uploads. Also fix document list refresh after chunked uploads and incorrect success messages."
 
 backend:
   - task: "Fix 403 Authentication Errors"
