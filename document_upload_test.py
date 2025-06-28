@@ -101,13 +101,20 @@ class TestDocumentUploadFunctionality(unittest.TestCase):
         self.assertNotIn('"message": "Document uploaded successfully to Google Cloud Storage"', server_code)
         
         # Check specifically in the finalize-upload endpoint
-        finalize_upload_section = server_code[server_code.find('@api_router.post("/finalize-upload")'):server_code.find('@api_router.delete("/documents/{document_id}/file")')]
+        finalize_upload_start = server_code.find('@api_router.post("/finalize-upload")')
+        finalize_upload_end = server_code.find('@api_router.delete("/documents/{document_id}/file")')
+        if finalize_upload_end == -1:  # If not found, try another endpoint
+            finalize_upload_end = server_code.find('@api_router.get("/documents/{document_id}/download")')
+        finalize_upload_section = server_code[finalize_upload_start:finalize_upload_end]
+        
         self.assertIn('Yerel Depolama', finalize_upload_section)
         self.assertNotIn('Local Storage', finalize_upload_section)
         self.assertNotIn('Google Cloud', finalize_upload_section)
         
         # Check specifically in the upload-document endpoint
-        upload_document_section = server_code[server_code.find('@api_router.post("/upload-document")'):server_code.find('@api_router.delete("/documents/{document_id}/file")')]
+        upload_document_start = server_code.find('@api_router.post("/upload-document")')
+        upload_document_end = server_code.find('@api_router.post("/finalize-upload")')
+        upload_document_section = server_code[upload_document_start:upload_document_end]
         self.assertIn('Yerel Depolama', upload_document_section)
         self.assertNotIn('Local Storage', upload_document_section)
         self.assertNotIn('Google Cloud', upload_document_section)
