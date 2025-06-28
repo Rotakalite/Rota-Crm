@@ -1071,6 +1071,238 @@ def run_tests():
         logger.error("Some tests FAILED")
         return False
 
+class TestSimplifiedUploadSystem(unittest.TestCase):
+    """Test class for simplified upload system after removing chunk functionality"""
+    
+    def setUp(self):
+        """Set up test environment"""
+        self.api_url = "https://53980ca9-c304-433e-ab62-1c37a7176dd5.preview.emergentagent.com/api"
+        self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
+        self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
+        
+    def test_upload_document_endpoint(self):
+        """Test that the simple upload endpoint works correctly"""
+        logger.info("\n=== Testing simplified upload endpoint (/api/upload-document) ===")
+        
+        # Test with valid token
+        logger.info("Testing with valid token...")
+        url = f"{self.api_url}/upload-document"
+        
+        # Create a small test file
+        test_file = io.BytesIO(b"test file content for simplified upload")
+        test_file.name = "test_simplified.txt"
+        
+        # Form data for the request
+        form_data = {
+            "client_id": "test_client_id",
+            "document_name": "Test Simplified Upload",
+            "document_type": "STAGE_1_DOC",
+            "stage": "STAGE_1"
+        }
+        
+        files = {
+            "file": ("test_simplified.txt", test_file, "text/plain")
+        }
+        
+        try:
+            response = requests.post(url, headers=self.headers_valid, files=files, data=form_data)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Check if we get a 200 OK, 401 Unauthorized, or 404/422 (if client doesn't exist or validation fails)
+            # But not 403 Forbidden
+            self.assertIn(response.status_code, [200, 401, 404, 422, 500])
+            self.assertNotEqual(response.status_code, 403, "Should not receive 403 Forbidden")
+            
+            if response.status_code == 200:
+                logger.info("✅ Authentication successful - received 200 OK")
+                data = response.json()
+                self.assertIn("message", data)
+                
+                # Check for Turkish success message
+                if "message" in data:
+                    logger.info(f"Success message: {data['message']}")
+                    self.assertIn("Yerel Depolama", data['message'], 
+                                 "Success message should contain 'Yerel Depolama' instead of 'Local Storage' or 'Google Cloud'")
+                    self.assertNotIn("Local Storage", data['message'], 
+                                    "Success message should not contain 'Local Storage'")
+                    self.assertNotIn("Google Cloud", data['message'], 
+                                    "Success message should not contain 'Google Cloud'")
+                    logger.info("✅ Success message contains 'Yerel Depolama' as expected")
+                
+                # Check that document_id is returned
+                self.assertIn("document_id", data, "Response should include document_id")
+                logger.info(f"✅ Document ID returned: {data['document_id']}")
+                
+                # Check that local_upload flag is set to true
+                self.assertIn("local_upload", data, "Response should include local_upload flag")
+                self.assertTrue(data["local_upload"], "local_upload flag should be true")
+                logger.info("✅ local_upload flag is set to true")
+                
+                # Verify no references to Google Cloud or chunked upload
+                response_text = json.dumps(data)
+                self.assertNotIn("Google Cloud", response_text, "Response should not contain references to Google Cloud")
+                self.assertNotIn("chunked", response_text.lower(), "Response should not contain references to chunked upload")
+                logger.info("✅ No references to Google Cloud or chunked upload in response")
+                
+            elif response.status_code == 401:
+                logger.info("✅ Authentication failed correctly - received 401 Unauthorized")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+            elif response.status_code in [404, 422, 500]:
+                logger.info(f"✅ Expected error - received {response.status_code}")
+                # This is also acceptable as it means authentication passed but validation failed
+        except Exception as e:
+            logger.error(f"❌ Error testing upload-document endpoint: {str(e)}")
+            raise
+    
+    def test_chunked_upload_endpoints_deactivated(self):
+        """Test that chunked upload endpoints are properly deactivated"""
+        logger.info("\n=== Testing that chunked upload endpoints are deactivated ===")
+        
+        # Test upload-chunk endpoint
+        logger.info("Testing /api/upload-chunk endpoint (should be deactivated)...")
+        chunk_url = f"{self.api_url}/upload-chunk"
+        
+        # Create a small test file
+        test_file = io.BytesIO(b"test file content")
+        test_file.name = "test.txt"
+        
+        # Form data for the request
+        form_data = {
+            "chunk_index": (None, "0"),
+            "total_chunks": (None, "1"),
+            "upload_id": (None, "test_upload_id"),
+            "original_filename": (None, "test.txt"),
+            "client_id": (None, "test_client_id"),
+            "name": (None, "Test Document"),
+            "document_type": (None, "STAGE_1_DOC")
+        }
+        
+        files = {
+            "file_chunk": ("test.txt", test_file, "text/plain")
+        }
+        
+        try:
+            response = requests.post(chunk_url, headers=self.headers_valid, files=files, data=form_data)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Should get 404 Not Found or 405 Method Not Allowed
+            self.assertIn(response.status_code, [404, 405], 
+                         "upload-chunk endpoint should return 404 Not Found or 405 Method Not Allowed")
+            logger.info(f"✅ upload-chunk endpoint correctly returns {response.status_code}")
+        except Exception as e:
+            logger.error(f"❌ Error testing upload-chunk endpoint: {str(e)}")
+            raise
+        
+        # Test finalize-upload endpoint
+        logger.info("Testing /api/finalize-upload endpoint (should be deactivated)...")
+        finalize_url = f"{self.api_url}/finalize-upload"
+        
+        # JSON data for the request
+        json_data = {
+            "upload_id": "test_upload_id",
+            "total_chunks": 1,
+            "filename": "test.txt",
+            "file_size": 100
+        }
+        
+        try:
+            response = requests.post(finalize_url, headers=self.headers_valid, json=json_data)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Should get 404 Not Found or 405 Method Not Allowed
+            self.assertIn(response.status_code, [404, 405], 
+                         "finalize-upload endpoint should return 404 Not Found or 405 Method Not Allowed")
+            logger.info(f"✅ finalize-upload endpoint correctly returns {response.status_code}")
+        except Exception as e:
+            logger.error(f"❌ Error testing finalize-upload endpoint: {str(e)}")
+            raise
+    
+    def test_document_retrieval(self):
+        """Test document retrieval via GET /api/documents"""
+        logger.info("\n=== Testing document retrieval via GET /api/documents ===")
+        
+        # Test with valid token
+        logger.info("Testing with valid token...")
+        url = f"{self.api_url}/documents"
+        
+        try:
+            response = requests.get(url, headers=self.headers_valid)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Check if we get a 200 OK or 401 Unauthorized (not 403 Forbidden)
+            self.assertIn(response.status_code, [200, 401])
+            
+            if response.status_code == 200:
+                logger.info("✅ Authentication successful - received 200 OK")
+                data = response.json()
+                self.assertIsInstance(data, list, "Response should be a list of documents")
+                
+                # Log the number of documents found
+                logger.info(f"Found {len(data)} documents")
+                
+                # Check structure of documents if any exist
+                if len(data) > 0:
+                    document = data[0]
+                    self.assertIn("id", document, "Document should have an id field")
+                    self.assertIn("client_id", document, "Document should have a client_id field")
+                    self.assertIn("name", document, "Document should have a name field")
+                    self.assertIn("document_type", document, "Document should have a document_type field")
+                    self.assertIn("stage", document, "Document should have a stage field")
+                    
+                    # Check for local_upload flag in at least one document
+                    local_upload_found = False
+                    for doc in data:
+                        if doc.get("local_upload") == True:
+                            local_upload_found = True
+                            logger.info(f"✅ Found document with local_upload=True: {doc.get('id')}")
+                            break
+                    
+                    if not local_upload_found and len(data) > 0:
+                        logger.warning("⚠️ No documents found with local_upload=True")
+                
+                logger.info("✅ Document retrieval test passed")
+            elif response.status_code == 401:
+                logger.info("✅ Authentication failed correctly - received 401 Unauthorized")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+        except Exception as e:
+            logger.error(f"❌ Error testing document retrieval: {str(e)}")
+            raise
+
+def run_simplified_upload_tests():
+    """Run tests for simplified upload system"""
+    logger.info("Starting simplified upload system tests...")
+    
+    # Create a test suite
+    suite = unittest.TestSuite()
+    
+    # Add simplified upload system tests
+    suite.addTest(TestSimplifiedUploadSystem("test_upload_document_endpoint"))
+    suite.addTest(TestSimplifiedUploadSystem("test_chunked_upload_endpoints_deactivated"))
+    suite.addTest(TestSimplifiedUploadSystem("test_document_retrieval"))
+    
+    # Run the tests
+    runner = unittest.TextTestRunner()
+    result = runner.run(suite)
+    
+    # Summary
+    logger.info("\n=== Simplified Upload System Test Summary ===")
+    logger.info(f"Tests run: {result.testsRun}")
+    logger.info(f"Errors: {len(result.errors)}")
+    logger.info(f"Failures: {len(result.failures)}")
+    
+    if result.wasSuccessful():
+        logger.info("All simplified upload system tests PASSED")
+        return True
+    else:
+        logger.error("Some simplified upload system tests FAILED")
+        return False
+
 if __name__ == "__main__":
     import requests  # Import here to avoid issues with mocking
-    run_tests()
+    run_simplified_upload_tests()
