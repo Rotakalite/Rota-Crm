@@ -1055,7 +1055,10 @@ async def upload_document(
                 "file_size": len(file_content),
                 "uploaded_by": current_user.clerk_user_id,
                 "created_at": datetime.utcnow(),
-                "local_upload": True
+                "local_upload": True,
+                "folder_id": folder_id,
+                "folder_path": folder["folder_path"],
+                "folder_level": folder["level"]
             }
             
             await db.documents.insert_one(document_data)
