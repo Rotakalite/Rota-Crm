@@ -824,11 +824,14 @@ const Dashboard = ({ onNavigate }) => {
 
   const fetchDocuments = async () => {
     try {
+      console.log('📄 Fetching documents...');
       const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
       const response = await axios.get(`${API}/documents`, { headers });
+      console.log('📄 Documents response:', response.data);
+      console.log('📄 Documents count:', response.data?.length || 0);
       setDocuments(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
-      console.error("Error fetching documents:", error);
+      console.error("❌ Error fetching documents:", error);
       setDocuments([]);
     }
   };
