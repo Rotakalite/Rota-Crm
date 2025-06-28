@@ -752,12 +752,13 @@ class TestDocumentEndpoints(unittest.TestCase):
             logger.info(f"Response status code: {response.status_code}")
             logger.info(f"Response body: {response.text[:200]}...")
             
-            # Check if we get a 200 OK, 401 Unauthorized, or 500 (if chunks don't exist)
-            # But not 403 Forbidden
-            self.assertIn(response.status_code, [200, 401, 400, 500])
-            self.assertNotEqual(response.status_code, 403, "Should not receive 403 Forbidden")
+            # Check if we get a 200 OK, 401 Unauthorized, 400/500 (if chunks don't exist), or 404 Not Found
+            # 404 is expected since the chunked upload endpoints have been deactivated
+            self.assertIn(response.status_code, [200, 401, 400, 500, 404])
             
-            if response.status_code == 200:
+            if response.status_code == 404:
+                logger.info("✅ Endpoint correctly returns 404 Not Found (chunked upload has been deactivated)")
+            elif response.status_code == 200:
                 logger.info("✅ Authentication successful - received 200 OK")
                 data = response.json()
                 self.assertIn("message", data)
@@ -791,11 +792,15 @@ class TestDocumentEndpoints(unittest.TestCase):
             logger.info(f"Response status code: {response.status_code}")
             logger.info(f"Response body: {response.text[:200]}...")
             
-            # Should get 401 Unauthorized, not 403 Forbidden
-            self.assertEqual(response.status_code, 401)
-            error_data = response.json()
-            self.assertIn("detail", error_data)
-            logger.info("✅ Invalid token test passed - received 401 Unauthorized")
+            # Should get 401 Unauthorized or 404 Not Found
+            self.assertIn(response.status_code, [401, 404])
+            
+            if response.status_code == 401:
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+                logger.info("✅ Invalid token test passed - received 401 Unauthorized")
+            elif response.status_code == 404:
+                logger.info("✅ Endpoint correctly returns 404 Not Found (chunked upload has been deactivated)")
         except Exception as e:
             logger.error(f"❌ Error testing finalize-upload endpoint with invalid token: {str(e)}")
             raise
