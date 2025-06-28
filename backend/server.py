@@ -1196,110 +1196,110 @@ Sürdürülebilir Turizm CRM Sistemi
 #         logging.error(f"❌ Chunk upload failed: {str(e)}")
 #         raise HTTPException(status_code=500, detail=f"Chunk upload failed: {str(e)}")
 
-@api_router.post("/finalize-upload")
-async def finalize_upload(
-    upload_data: dict,
-    current_user: User = Depends(get_current_user)
-):
-    """Finalize chunked upload by combining chunks"""
-    try:
-        upload_id = upload_data.get("upload_id")
-        total_chunks = upload_data.get("total_chunks")
-        filename = upload_data.get("filename")
-        file_size = upload_data.get("file_size")
-        
-        logging.info(f"🔗 Finalizing upload: {upload_id} with {total_chunks} chunks")
-        
-        # Get all chunks for this upload
-        chunks = await db.upload_chunks.find({
-            "upload_id": upload_id
-        }).sort("chunk_index", 1).to_list(length=total_chunks)
-        
-        if len(chunks) != total_chunks:
-            raise HTTPException(
-                status_code=400, 
-                detail=f"Missing chunks: expected {total_chunks}, got {len(chunks)}"
-            )
-        
-        # Combine chunks into final file
-        temp_dir = f"/tmp/chunks_{upload_id}"
-        final_file_path = f"/tmp/final_{upload_id}_{filename}"
-        
-        with open(final_file_path, "wb") as final_file:
-            for chunk in chunks:
-                chunk_path = chunk["chunk_path"]
-                with open(chunk_path, "rb") as chunk_file:
-                    final_file.write(chunk_file.read())
-        
-        # Save final file to local storage instead of GCS
-        uploads_dir = "/app/backend/uploads"
-        os.makedirs(uploads_dir, exist_ok=True)
-        
-        # Generate unique filename for local storage
-        file_id = str(uuid.uuid4())
-        file_extension = os.path.splitext(filename)[1] if '.' in filename else ''
-        local_filename = f"{file_id}{file_extension}"
-        local_final_path = os.path.join(uploads_dir, local_filename)
-        
-        # Move temp file to uploads directory
-        shutil.move(final_file_path, local_final_path)
-        
-        logging.info(f"📁 Chunked file saved to local storage: {local_final_path}")
-        
-        # ⭐ CREATE DOCUMENT RECORD IN DATABASE
-        # Get metadata from first chunk if available
-        first_chunk = chunks[0] if chunks else {}
-        client_id = first_chunk.get("client_id", "")
-        document_name = first_chunk.get("document_name", filename)
-        document_type = first_chunk.get("document_type", "")
-        stage = first_chunk.get("stage", "")
-        
-        # Create document record
-        document_data = {
-            "id": str(uuid.uuid4()),
-            "client_id": client_id,
-            "document_name": document_name,
-            "document_type": document_type,
-            "stage": stage,
-            "file_path": local_final_path,
-            "file_size": file_size,
-            "original_filename": filename,
-            "upload_date": datetime.utcnow(),
-            "upload_method": "chunked"
-        }
-        
-        # Save document to database
-        await db.documents.insert_one(document_data)
-        logging.info(f"📄 Document record created in database: {document_data['id']}")
-        
-        upload_result = {
-            "file_path": local_final_path,
-            "file_size": file_size,
-            "local_upload": True,
-            "document_id": document_data["id"]
-        }
-        
-        # Cleanup temp files
-        shutil.rmtree(temp_dir, ignore_errors=True)
-        
-        # Remove chunk records
-        await db.upload_chunks.delete_many({"upload_id": upload_id})
-        
-        logging.info(f"✅ Chunked upload finalized: {local_final_path}")
-        
-        return {
-            "message": f"✅ {filename} başarıyla yüklendi! (Yerel Depolama - {file_size} bytes)",
-            "document_id": document_data["id"],
-            "file_path": local_final_path,
-            "file_size": file_size,
-            "upload_id": upload_id,
-            "local_upload": True,
-            "storage": "Yerel Depolama"
-        }
-        
-    except Exception as e:
-        logging.error(f"❌ Upload finalization failed: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Upload finalization failed: {str(e)}")
+# @api_router.post("/finalize-upload")
+# async def finalize_upload(
+#     upload_data: dict,
+#     current_user: User = Depends(get_current_user)
+# ):
+#     """Finalize chunked upload by combining chunks"""
+#     try:
+#         upload_id = upload_data.get("upload_id")
+#         total_chunks = upload_data.get("total_chunks")
+#         filename = upload_data.get("filename")
+#         file_size = upload_data.get("file_size")
+#         
+#         logging.info(f"🔗 Finalizing upload: {upload_id} with {total_chunks} chunks")
+#         
+#         # Get all chunks for this upload
+#         chunks = await db.upload_chunks.find({
+#             "upload_id": upload_id
+#         }).sort("chunk_index", 1).to_list(length=total_chunks)
+#         
+#         if len(chunks) != total_chunks:
+#             raise HTTPException(
+#                 status_code=400, 
+#                 detail=f"Missing chunks: expected {total_chunks}, got {len(chunks)}"
+#             )
+#         
+#         # Combine chunks into final file
+#         temp_dir = f"/tmp/chunks_{upload_id}"
+#         final_file_path = f"/tmp/final_{upload_id}_{filename}"
+#         
+#         with open(final_file_path, "wb") as final_file:
+#             for chunk in chunks:
+#                 chunk_path = chunk["chunk_path"]
+#                 with open(chunk_path, "rb") as chunk_file:
+#                     final_file.write(chunk_file.read())
+#         
+#         # Save final file to local storage instead of GCS
+#         uploads_dir = "/app/backend/uploads"
+#         os.makedirs(uploads_dir, exist_ok=True)
+#         
+#         # Generate unique filename for local storage
+#         file_id = str(uuid.uuid4())
+#         file_extension = os.path.splitext(filename)[1] if '.' in filename else ''
+#         local_filename = f"{file_id}{file_extension}"
+#         local_final_path = os.path.join(uploads_dir, local_filename)
+#         
+#         # Move temp file to uploads directory
+#         shutil.move(final_file_path, local_final_path)
+#         
+#         logging.info(f"📁 Chunked file saved to local storage: {local_final_path}")
+#         
+#         # ⭐ CREATE DOCUMENT RECORD IN DATABASE
+#         # Get metadata from first chunk if available
+#         first_chunk = chunks[0] if chunks else {}
+#         client_id = first_chunk.get("client_id", "")
+#         document_name = first_chunk.get("document_name", filename)
+#         document_type = first_chunk.get("document_type", "")
+#         stage = first_chunk.get("stage", "")
+#         
+#         # Create document record
+#         document_data = {
+#             "id": str(uuid.uuid4()),
+#             "client_id": client_id,
+#             "document_name": document_name,
+#             "document_type": document_type,
+#             "stage": stage,
+#             "file_path": local_final_path,
+#             "file_size": file_size,
+#             "original_filename": filename,
+#             "upload_date": datetime.utcnow(),
+#             "upload_method": "chunked"
+#         }
+#         
+#         # Save document to database
+#         await db.documents.insert_one(document_data)
+#         logging.info(f"📄 Document record created in database: {document_data['id']}")
+#         
+#         upload_result = {
+#             "file_path": local_final_path,
+#             "file_size": file_size,
+#             "local_upload": True,
+#             "document_id": document_data["id"]
+#         }
+#         
+#         # Cleanup temp files
+#         shutil.rmtree(temp_dir, ignore_errors=True)
+#         
+#         # Remove chunk records
+#         await db.upload_chunks.delete_many({"upload_id": upload_id})
+#         
+#         logging.info(f"✅ Chunked upload finalized: {local_final_path}")
+#         
+#         return {
+#             "message": f"✅ {filename} başarıyla yüklendi! (Yerel Depolama - {file_size} bytes)",
+#             "document_id": document_data["id"],
+#             "file_path": local_final_path,
+#             "file_size": file_size,
+#             "upload_id": upload_id,
+#             "local_upload": True,
+#             "storage": "Yerel Depolama"
+#         }
+#         
+#     except Exception as e:
+#         logging.error(f"❌ Upload finalization failed: {str(e)}")
+#         raise HTTPException(status_code=500, detail=f"Upload finalization failed: {str(e)}")
 
 # Consumption Management Endpoints
 @api_router.post("/consumptions")
