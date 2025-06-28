@@ -99,7 +99,7 @@ async def cors_and_upload_middleware(request, call_next):
     response.headers["Access-Control-Allow-Headers"] = "*"
     response.headers["Access-Control-Allow-Credentials"] = "false"
     response.headers["Access-Control-Expose-Headers"] = "*"
-    response.headers["Access-Control-Max-Age"] = "86400"
+    response.headers["Access-Control-Max-Age"] = "0"  # No caching
     
     return response
 
