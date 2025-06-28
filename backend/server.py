@@ -1177,7 +1177,11 @@ async def upload_chunk(
             "chunk_path": chunk_path,
             "chunk_size": len(content),
             "uploaded_at": datetime.utcnow(),
-            "original_filename": original_filename
+            "original_filename": original_filename,
+            "client_id": client_id,
+            "document_name": name,
+            "document_type": document_type,
+            "stage": stage if chunk_index == 0 else None  # Only store metadata in first chunk
         }
         
         await db.upload_chunks.insert_one(chunk_record)
