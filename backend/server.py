@@ -73,7 +73,7 @@ app = FastAPI(
 # Add CORS middleware first (CRITICAL FOR FRONTEND ACCESS)
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
+    allow_credentials=False,  # Set to False when using * origins
     allow_origins=["*"],  # Allow all origins completely
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],  # Explicit methods
     allow_headers=["accept", "accept-encoding", "authorization", "content-type", "dnt", "origin", "user-agent", "x-csrftoken", "x-requested-with"],  # Explicit headers
