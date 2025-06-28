@@ -2064,21 +2064,35 @@ const DocumentManagement = () => {
                   required
                 >
                   <option value="">Klasör seçiniz</option>
-                  {folders
-                    .filter(folder => {
+{(() => {
+                    console.log('🔍 Folder dropdown debug:');
+                    console.log('📁 Total folders:', folders.length);
+                    console.log('📁 Folders:', folders);
+                    console.log('👤 User role:', userRole);
+                    console.log('🆔 Upload client_id:', uploadData.client_id);
+                    console.log('🆔 DB user client_id:', dbUser?.client_id);
+                    
+                    const filteredFolders = folders.filter(folder => {
                       // Show only folders for selected client
                       if (userRole === 'admin') {
-                        return folder.client_id === uploadData.client_id;
+                        const match = folder.client_id === uploadData.client_id;
+                        console.log(`📁 Folder ${folder.name} (client_id: ${folder.client_id}) matches ${uploadData.client_id}:`, match);
+                        return match;
                       } else {
-                        return folder.client_id === dbUser?.client_id;
+                        const match = folder.client_id === dbUser?.client_id;
+                        console.log(`📁 Folder ${folder.name} (client_id: ${folder.client_id}) matches ${dbUser?.client_id}:`, match);
+                        return match;
                       }
-                    })
-                    .map(folder => (
+                    });
+                    
+                    console.log('📋 Filtered folders:', filteredFolders);
+                    
+                    return filteredFolders.map(folder => (
                       <option key={folder.id} value={folder.id}>
                         {'  '.repeat(folder.level)} {folder.name}
                       </option>
-                    ))
-                  }
+                    ));
+                  })()}
                 </select>
               </div>
 
