@@ -111,9 +111,9 @@ async def cors_and_upload_middleware(request, call_next):
         response.headers["Access-Control-Allow-Origin"] = "*"
     
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH"
-    response.headers["Access-Control-Allow-Headers"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "accept, accept-encoding, authorization, content-type, dnt, origin, user-agent, x-csrftoken, x-requested-with"
     response.headers["Access-Control-Allow-Credentials"] = "true"
-    response.headers["Access-Control-Expose-Headers"] = "*"
+    response.headers["Access-Control-Expose-Headers"] = "content-type, authorization"
     response.headers["Access-Control-Max-Age"] = "86400"
     
     return response
