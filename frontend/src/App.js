@@ -919,32 +919,6 @@ const Dashboard = ({ onNavigate }) => {
     }
   };
 
-  const handleDownloadDocument = async (document) => {
-    try {
-      console.log('🔍 Download request for document:', document.id);
-      console.log('🔍 Auth token exists:', !!authToken);
-      
-      const response = await axios.get(`${API}/documents/${document.id}/download`, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      });
-      
-      console.log('✅ Download response:', response.data);
-      
-      const downloadUrl = response.data.download_url;
-      if (downloadUrl && downloadUrl !== '#') {
-        console.log('🚀 Opening download URL:', downloadUrl);
-        // Open download URL in new tab
-        window.open(downloadUrl, '_blank');
-      } else {
-        console.error('❌ No download URL in response');
-        alert('Dosya indirme bağlantısı bulunamadı.');
-      }
-    } catch (error) {
-      console.error("❌ Error downloading document:", error);
-      alert('Dosya indirilirken hata oluştu: ' + (error.response?.data?.detail || 'Bilinmeyen hata'));
-    }
-  };
-
   const getFileIcon = (filePath) => {
     const extension = filePath.split('.').pop().toLowerCase();
     switch (extension) {
