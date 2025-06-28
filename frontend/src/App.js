@@ -1940,14 +1940,22 @@ const DocumentManagement = () => {
     }
   }, [authToken, userRole]);
 
-  const fetchDocuments = async () => {
+  const fetchDocuments = async (clientId = null) => {
     try {
-      console.log('📄 Admin: Fetching documents...');
+      console.log('📄 Admin: Fetching documents for client:', clientId);
       const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
       const response = await axios.get(`${API}/documents`, { headers });
       console.log('📄 Admin: Documents response:', response.data);
-      console.log('📄 Admin: Documents count:', response.data?.length || 0);
-      setDocuments(Array.isArray(response.data) ? response.data : []);
+      
+      let filteredDocs = Array.isArray(response.data) ? response.data : [];
+      
+      // Filter by client if selected
+      if (clientId) {
+        filteredDocs = filteredDocs.filter(doc => doc.client_id === clientId);
+      }
+      
+      console.log('📄 Admin: Filtered documents count:', filteredDocs.length);
+      setDocuments(filteredDocs);
     } catch (error) {
       console.error("❌ Admin: Error fetching documents:", error);
       setDocuments([]);
