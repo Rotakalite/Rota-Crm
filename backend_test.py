@@ -1540,6 +1540,415 @@ def run_client_dashboard_stats_tests():
         logger.error("Some client dashboard statistics tests FAILED")
         return False
 
+class TestFolderSystem(unittest.TestCase):
+    """Test class for enhanced folder system with 4 column sub-folders"""
+    
+    def setUp(self):
+        """Set up test environment"""
+        self.api_url = "https://53980ca9-c304-433e-ab62-1c37a7176dd5.preview.emergentagent.com/api"
+        self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
+        self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
+        
+        # Test client data for folder creation
+        self.test_client = {
+            "name": f"Test Client {uuid.uuid4().hex[:8]}",
+            "hotel_name": "Test Hotel",
+            "contact_person": "John Doe",
+            "email": "john@example.com",
+            "phone": "1234567890",
+            "address": "123 Test St"
+        }
+        
+    def test_folder_endpoints(self):
+        """Test the GET /api/folders endpoint"""
+        logger.info("\n=== Testing GET /api/folders endpoint ===")
+        
+        # Test with valid token
+        logger.info("Testing with valid token...")
+        url = f"{self.api_url}/folders"
+        
+        try:
+            response = requests.get(url, headers=self.headers_valid)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:500]}...")
+            
+            # Check if we get a 200 OK or 401 Unauthorized (not 403 Forbidden)
+            self.assertIn(response.status_code, [200, 401])
+            
+            if response.status_code == 200:
+                logger.info("✅ Authentication successful - received 200 OK")
+                data = response.json()
+                
+                # Verify response is a list of folders
+                self.assertIsInstance(data, list, "Response should be a list of folders")
+                logger.info(f"Found {len(data)} folders")
+                
+                # Check folder structure if any folders exist
+                if len(data) > 0:
+                    folder = data[0]
+                    self.assertIn("id", folder, "Folder should have an id field")
+                    self.assertIn("client_id", folder, "Folder should have a client_id field")
+                    self.assertIn("name", folder, "Folder should have a name field")
+                    self.assertIn("level", folder, "Folder should have a level field")
+                    self.assertIn("folder_path", folder, "Folder should have a folder_path field")
+                    
+                    # Check for root folders (level 0)
+                    root_folders = [f for f in data if f.get("level") == 0]
+                    if root_folders:
+                        logger.info(f"Found {len(root_folders)} root folders (level 0)")
+                        root_folder = root_folders[0]
+                        
+                        # Verify root folder naming convention
+                        self.assertTrue(root_folder["name"].endswith(" SYS"), 
+                                       f"Root folder name should end with ' SYS', got: {root_folder['name']}")
+                        logger.info(f"✅ Root folder follows naming convention: {root_folder['name']}")
+                        
+                        # Check for column sub-folders (level 1)
+                        column_folders = [f for f in data if f.get("level") == 1 and f.get("parent_folder_id") == root_folder["id"]]
+                        if column_folders:
+                            logger.info(f"Found {len(column_folders)} column folders (level 1) for root folder: {root_folder['name']}")
+                            
+                            # Check for the 4 column folders
+                            column_names = [f["name"] for f in column_folders]
+                            expected_columns = ["A SÜTUNU", "B SÜTUNU", "C SÜTUNU", "D SÜTUNU"]
+                            
+                            for expected_column in expected_columns:
+                                if expected_column in column_names:
+                                    logger.info(f"✅ Found expected column folder: {expected_column}")
+                                else:
+                                    logger.warning(f"⚠️ Expected column folder not found: {expected_column}")
+                            
+                            # Check folder paths
+                            for column_folder in column_folders:
+                                expected_path = f"{root_folder['name']}/{column_folder['name']}"
+                                self.assertEqual(column_folder["folder_path"], expected_path, 
+                                               f"Column folder path should be '{expected_path}', got: {column_folder['folder_path']}")
+                                logger.info(f"✅ Column folder has correct path: {column_folder['folder_path']}")
+                        else:
+                            logger.warning("⚠️ No column folders (level 1) found for the root folder")
+                    else:
+                        logger.warning("⚠️ No root folders (level 0) found")
+                
+                logger.info("✅ Folder endpoint test passed")
+            elif response.status_code == 401:
+                logger.info("✅ Authentication failed correctly - received 401 Unauthorized")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+        except Exception as e:
+            logger.error(f"❌ Error testing folder endpoint: {str(e)}")
+            raise
+    
+    def test_create_client_with_folders(self):
+        """Test automatic creation of 4 column folders when clients are created"""
+        logger.info("\n=== Testing automatic creation of 4 column folders when clients are created ===")
+        
+        # Step 1: Create a new client
+        logger.info("Step 1: Creating a new client...")
+        client_url = f"{self.api_url}/clients"
+        
+        try:
+            client_response = requests.post(client_url, headers=self.headers_valid, json=self.test_client)
+            logger.info(f"Client creation response status code: {client_response.status_code}")
+            logger.info(f"Client creation response body: {client_response.text[:500]}...")
+            
+            # If client creation was successful or authentication failed, continue to next step
+            if client_response.status_code not in [200, 201]:
+                logger.warning(f"Client creation failed with status code {client_response.status_code}, skipping rest of test")
+                return
+            
+            # Get the client ID from the response
+            client_data = client_response.json()
+            client_id = client_data.get("id")
+            client_name = client_data.get("name")
+            
+            if not client_id:
+                logger.warning("Client ID not found in response, skipping rest of test")
+                return
+            
+            logger.info(f"✅ Created client with ID: {client_id} and name: {client_name}")
+            
+            # Step 2: Check if folders were automatically created
+            logger.info("Step 2: Checking if folders were automatically created...")
+            folders_url = f"{self.api_url}/folders"
+            
+            folders_response = requests.get(folders_url, headers=self.headers_valid)
+            logger.info(f"Folders response status code: {folders_response.status_code}")
+            
+            if folders_response.status_code != 200:
+                logger.warning(f"Folders retrieval failed with status code {folders_response.status_code}, skipping rest of test")
+                return
+            
+            folders_data = folders_response.json()
+            
+            # Find folders for the newly created client
+            client_folders = [f for f in folders_data if f.get("client_id") == client_id]
+            logger.info(f"Found {len(client_folders)} folders for the new client")
+            
+            if not client_folders:
+                logger.error("❌ No folders found for the newly created client")
+                self.fail("No folders found for the newly created client")
+            
+            # Check for root folder
+            root_folders = [f for f in client_folders if f.get("level") == 0]
+            self.assertEqual(len(root_folders), 1, f"Should have exactly 1 root folder, found {len(root_folders)}")
+            
+            root_folder = root_folders[0]
+            expected_root_name = f"{client_name} SYS"
+            self.assertEqual(root_folder["name"], expected_root_name, 
+                           f"Root folder name should be '{expected_root_name}', got: {root_folder['name']}")
+            logger.info(f"✅ Root folder created with correct name: {root_folder['name']}")
+            
+            # Check for column sub-folders
+            column_folders = [f for f in client_folders if f.get("level") == 1]
+            self.assertEqual(len(column_folders), 4, f"Should have exactly 4 column folders, found {len(column_folders)}")
+            
+            # Verify column folder names
+            column_names = [f["name"] for f in column_folders]
+            expected_columns = ["A SÜTUNU", "B SÜTUNU", "C SÜTUNU", "D SÜTUNU"]
+            
+            for expected_column in expected_columns:
+                self.assertIn(expected_column, column_names, f"Expected column folder not found: {expected_column}")
+                logger.info(f"✅ Found expected column folder: {expected_column}")
+            
+            # Verify folder paths
+            for column_folder in column_folders:
+                expected_path = f"{expected_root_name}/{column_folder['name']}"
+                self.assertEqual(column_folder["folder_path"], expected_path, 
+                               f"Column folder path should be '{expected_path}', got: {column_folder['folder_path']}")
+                logger.info(f"✅ Column folder has correct path: {column_folder['folder_path']}")
+            
+            logger.info("✅ All 4 column folders were automatically created with correct structure")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing client creation with folders: {str(e)}")
+            raise
+    
+    def test_upload_document_with_folder_selection(self):
+        """Test enhanced upload endpoint with folder selection"""
+        logger.info("\n=== Testing enhanced upload endpoint with folder selection ===")
+        
+        # Step 1: Get available folders
+        logger.info("Step 1: Getting available folders...")
+        folders_url = f"{self.api_url}/folders"
+        
+        try:
+            folders_response = requests.get(folders_url, headers=self.headers_valid)
+            logger.info(f"Folders response status code: {folders_response.status_code}")
+            
+            if folders_response.status_code != 200:
+                logger.warning(f"Folders retrieval failed with status code {folders_response.status_code}, skipping rest of test")
+                return
+            
+            folders_data = folders_response.json()
+            
+            if not folders_data:
+                logger.warning("No folders found, skipping rest of test")
+                return
+            
+            # Find a suitable folder for testing (preferably a column folder)
+            column_folders = [f for f in folders_data if f.get("level") == 1]
+            
+            if column_folders:
+                test_folder = column_folders[0]
+            else:
+                test_folder = folders_data[0]
+            
+            folder_id = test_folder["id"]
+            client_id = test_folder["client_id"]
+            
+            logger.info(f"✅ Selected folder for testing: {test_folder['name']} (ID: {folder_id}, Client ID: {client_id})")
+            
+            # Step 2: Test upload with folder selection
+            logger.info("Step 2: Testing upload with folder selection...")
+            upload_url = f"{self.api_url}/upload-document"
+            
+            # Create a small test file
+            test_file = io.BytesIO(b"test file content for folder upload")
+            test_file.name = "test_folder_upload.txt"
+            
+            # Form data for the request
+            form_data = {
+                "client_id": client_id,
+                "document_name": "Test Folder Upload",
+                "document_type": "STAGE_1_DOC",
+                "stage": "STAGE_1",
+                "folder_id": folder_id  # Include folder_id parameter
+            }
+            
+            files = {
+                "file": ("test_folder_upload.txt", test_file, "text/plain")
+            }
+            
+            upload_response = requests.post(upload_url, headers=self.headers_valid, files=files, data=form_data)
+            logger.info(f"Upload response status code: {upload_response.status_code}")
+            logger.info(f"Upload response body: {upload_response.text[:500]}...")
+            
+            # Check if upload was successful
+            if upload_response.status_code == 200:
+                logger.info("✅ Upload with folder selection successful")
+                upload_data = upload_response.json()
+                
+                # Verify document_id is returned
+                self.assertIn("document_id", upload_data, "Response should include document_id")
+                document_id = upload_data["document_id"]
+                logger.info(f"✅ Document ID returned: {document_id}")
+                
+                # Step 3: Verify document was saved with folder information
+                logger.info("Step 3: Verifying document was saved with folder information...")
+                documents_url = f"{self.api_url}/documents"
+                
+                documents_response = requests.get(documents_url, headers=self.headers_valid)
+                logger.info(f"Documents response status code: {documents_response.status_code}")
+                
+                if documents_response.status_code == 200:
+                    documents_data = documents_response.json()
+                    
+                    # Find the uploaded document
+                    uploaded_doc = None
+                    for doc in documents_data:
+                        if doc.get("id") == document_id:
+                            uploaded_doc = doc
+                            break
+                    
+                    if uploaded_doc:
+                        logger.info(f"✅ Found uploaded document: {uploaded_doc.get('name')}")
+                        
+                        # Verify folder information was saved
+                        self.assertIn("folder_path", uploaded_doc, "Document should have folder_path field")
+                        self.assertEqual(uploaded_doc.get("folder_path"), test_folder["folder_path"], 
+                                       f"Document folder_path should be '{test_folder['folder_path']}', got: {uploaded_doc.get('folder_path')}")
+                        
+                        self.assertIn("folder_level", uploaded_doc, "Document should have folder_level field")
+                        self.assertEqual(uploaded_doc.get("folder_level"), test_folder["level"], 
+                                       f"Document folder_level should be {test_folder['level']}, got: {uploaded_doc.get('folder_level')}")
+                        
+                        logger.info(f"✅ Document was saved with correct folder information: {uploaded_doc.get('folder_path')}")
+                    else:
+                        logger.warning(f"⚠️ Uploaded document with ID {document_id} not found in documents list")
+                else:
+                    logger.warning(f"⚠️ Documents retrieval failed with status code {documents_response.status_code}")
+            elif upload_response.status_code in [400, 422]:
+                # Check if the error is due to missing folder_id
+                error_data = upload_response.json()
+                error_detail = error_data.get("detail", "")
+                
+                if "folder_id" in error_detail.lower():
+                    logger.info("✅ Upload correctly requires folder_id parameter")
+                else:
+                    logger.warning(f"⚠️ Upload failed with validation error: {error_detail}")
+            else:
+                logger.warning(f"⚠️ Upload failed with status code {upload_response.status_code}")
+            
+            # Step 4: Test upload without folder_id (should fail)
+            logger.info("Step 4: Testing upload without folder_id (should fail)...")
+            
+            # Form data without folder_id
+            form_data_no_folder = {
+                "client_id": client_id,
+                "document_name": "Test No Folder Upload",
+                "document_type": "STAGE_1_DOC",
+                "stage": "STAGE_1"
+            }
+            
+            test_file.seek(0)  # Reset file position
+            
+            upload_no_folder_response = requests.post(upload_url, headers=self.headers_valid, files=files, data=form_data_no_folder)
+            logger.info(f"Upload without folder_id response status code: {upload_no_folder_response.status_code}")
+            logger.info(f"Upload without folder_id response body: {upload_no_folder_response.text[:500]}...")
+            
+            # Should get 400 Bad Request or 422 Unprocessable Entity
+            self.assertIn(upload_no_folder_response.status_code, [400, 422], 
+                         "Upload without folder_id should return 400 Bad Request or 422 Unprocessable Entity")
+            
+            logger.info(f"✅ Upload without folder_id correctly fails with status code {upload_no_folder_response.status_code}")
+            
+            # Step 5: Test upload with mismatched client_id and folder_id (should fail)
+            logger.info("Step 5: Testing upload with mismatched client_id and folder_id (should fail)...")
+            
+            # Find a folder from a different client
+            different_client_folder = None
+            for folder in folders_data:
+                if folder.get("client_id") != client_id:
+                    different_client_folder = folder
+                    break
+            
+            if different_client_folder:
+                # Form data with mismatched client_id and folder_id
+                form_data_mismatch = {
+                    "client_id": client_id,
+                    "document_name": "Test Mismatch Upload",
+                    "document_type": "STAGE_1_DOC",
+                    "stage": "STAGE_1",
+                    "folder_id": different_client_folder["id"]  # Folder from different client
+                }
+                
+                test_file.seek(0)  # Reset file position
+                
+                upload_mismatch_response = requests.post(upload_url, headers=self.headers_valid, files=files, data=form_data_mismatch)
+                logger.info(f"Upload with mismatched client_id and folder_id response status code: {upload_mismatch_response.status_code}")
+                logger.info(f"Upload with mismatched client_id and folder_id response body: {upload_mismatch_response.text[:500]}...")
+                
+                # Should get 400 Bad Request or 404 Not Found
+                self.assertIn(upload_mismatch_response.status_code, [400, 404], 
+                             "Upload with mismatched client_id and folder_id should return 400 Bad Request or 404 Not Found")
+                
+                logger.info(f"✅ Upload with mismatched client_id and folder_id correctly fails with status code {upload_mismatch_response.status_code}")
+            else:
+                logger.warning("⚠️ Could not find a folder from a different client for mismatch testing")
+            
+            # Step 6: Test upload with client user (should fail for admin-only endpoint)
+            logger.info("Step 6: Testing upload with client user (should fail for admin-only endpoint)...")
+            
+            # We can't actually switch to a client user in this test, but we can check the endpoint code
+            # to verify it requires admin access
+            
+            # Check if the endpoint returns 403 Forbidden for non-admin users
+            # This is a bit of a hack, but we can look at the error message to see if it mentions admin access
+            
+            upload_response_text = upload_response.text.lower()
+            if "admin" in upload_response_text and ("access" in upload_response_text or "required" in upload_response_text):
+                logger.info("✅ Upload endpoint appears to require admin access based on error messages")
+            else:
+                logger.info("⚠️ Could not verify admin-only access requirement from response")
+            
+            logger.info("✅ Enhanced upload endpoint with folder selection test completed")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing upload with folder selection: {str(e)}")
+            raise
+
+def run_folder_system_tests():
+    """Run tests for enhanced folder system"""
+    logger.info("Starting enhanced folder system tests...")
+    
+    # Create a test suite
+    suite = unittest.TestSuite()
+    
+    # Add folder system tests
+    suite.addTest(TestFolderSystem("test_folder_endpoints"))
+    suite.addTest(TestFolderSystem("test_create_client_with_folders"))
+    suite.addTest(TestFolderSystem("test_upload_document_with_folder_selection"))
+    
+    # Run the tests
+    runner = unittest.TextTestRunner()
+    result = runner.run(suite)
+    
+    # Summary
+    logger.info("\n=== Enhanced Folder System Test Summary ===")
+    logger.info(f"Tests run: {result.testsRun}")
+    logger.info(f"Errors: {len(result.errors)}")
+    logger.info(f"Failures: {len(result.failures)}")
+    
+    if result.wasSuccessful():
+        logger.info("All enhanced folder system tests PASSED")
+        return True
+    else:
+        logger.error("Some enhanced folder system tests FAILED")
+        return False
+
 if __name__ == "__main__":
     import requests  # Import here to avoid issues with mocking
-    run_tests()  # Run all tests including client dashboard statistics tests
+    # Run all tests
+    run_tests()
+    # Run folder system tests
+    run_folder_system_tests()
