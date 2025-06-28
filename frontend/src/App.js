@@ -2236,48 +2236,181 @@ const DocumentManagement = () => {
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-lg shadow-md">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">
-            {userRole === 'admin' ? 'Belge Yönetimi' : 'Belgelerim'}
-          </h2>
-        {/* Admin Upload Button */}
-        {userRole === 'admin' && (
-          <button
-            onClick={() => setShowUploadForm(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Yeni Belge Yükle
-          </button>
-        )}
+          <h2 className="text-2xl font-bold text-gray-800">📋 Belge Yönetimi (Admin)</h2>
+          {selectedClient && (
+            <button
+              onClick={() => setShowUploadForm(true)}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Yeni Belge Yükle
+            </button>
+          )}
         </div>
 
-        {/* Admin Client Filter */}
-        {userRole === 'admin' && (
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Müşteriye Göre Filtrele:
-            </label>
-            <select
-              value={selectedClient}
-              onChange={(e) => setSelectedClient(e.target.value)}
-              className="w-full md:w-64 p-2 border border-gray-300 rounded-md"
-            >
-              <option value="">Tüm Müşteriler</option>
-              {Array.isArray(clients) ? clients.map((client) => (
-                <option key={client.id} value={client.id}>
-                  {client.hotel_name}
-                </option>
-              )) : null}
-            </select>
+        {/* Client Selection */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Müşteri Seçin: <span className="text-red-500">*</span>
+          </label>
+          <select
+            value={selectedClient?.id || ''}
+            onChange={(e) => {
+              const client = clients.find(c => c.id === e.target.value);
+              setSelectedClient(client || null);
+              setSelectedFolder(null);
+              if (client) {
+                fetchDocuments(client.id);
+              }
+            }}
+            className="w-full md:w-64 p-3 border border-gray-300 rounded-md"
+          >
+            <option value="">Müşteri seçiniz...</option>
+            {Array.isArray(clients) ? clients.map((client) => (
+              <option key={client.id} value={client.id}>
+                {client.hotel_name}
+              </option>
+            )) : null}
+          </select>
+        </div>
+
+        {/* Breadcrumb */}
+        {selectedClient && (
+          <div className="flex items-center mb-4 text-sm text-gray-600">
+            <span className="font-semibold text-blue-600">{selectedClient.hotel_name}</span>
+            {selectedFolder && (
+              <>
+                <span className="mx-2">›</span>
+                <button
+                  onClick={() => setSelectedFolder(null)}
+                  className="hover:text-blue-600"
+                >
+                  📂 Klasörler
+                </button>
+                <span className="mx-2">›</span>
+                <span className="text-blue-600 font-semibold">{selectedFolder.name}</span>
+              </>
+            )}
           </div>
         )}
 
-        {/* Documents Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-              <tr>
-                <th className="px-6 py-3">Belge Adı</th>
-                <th className="px-6 py-3">Tür</th>
+        {/* Folder Grid for Selected Client */}
+        {selectedClient && !selectedFolder && (
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">📁 Klasörler</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {folders
+                .filter(folder => folder.client_id === selectedClient.id)
+                .filter(folder => folder.level === 0) // Root folders
+                .map((folder) => (
+                  <div
+                    key={folder.id}
+                    onClick={() => setSelectedFolder(folder)}
+                    className="bg-blue-50 border border-blue-200 rounded-lg p-4 cursor-pointer hover:bg-blue-100 transition-colors"
+                  >
+                    <div className="flex items-center">
+                      <span className="text-3xl mr-3">📂</span>
+                      <div>
+                        <h3 className="font-semibold text-blue-800">{folder.name}</h3>
+                        <p className="text-xs text-blue-600">Ana Klasör</p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              }
+              
+              {folders
+                .filter(folder => folder.client_id === selectedClient.id)
+                .filter(folder => folder.level === 1) // Sub folders
+                .map((folder) => (
+                  <div
+                    key={folder.id}
+                    onClick={() => setSelectedFolder(folder)}
+                    className="bg-gray-50 border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex items-center">
+                      <span className="text-3xl mr-3">📁</span>
+                      <div>
+                        <h3 className="font-semibold text-gray-700">{folder.name}</h3>
+                        <p className="text-xs text-gray-500">Alt Klasör</p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        )}
+
+        {/* Documents List for Selected Folder */}
+        {selectedClient && selectedFolder && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800">
+              📄 {selectedFolder.name} İçindeki Belgeler
+            </h3>
+            
+            {documents
+              .filter(doc => doc.folder_id === selectedFolder.id)
+              .length > 0 ? (
+              <div className="space-y-3">
+                {documents
+                  .filter(doc => doc.folder_id === selectedFolder.id)
+                  .map((document) => (
+                    <div key={document.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center flex-1">
+                          <span className="text-2xl mr-3">{getFileIcon(document.original_filename || document.file_path || '')}</span>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-800">{document.name}</h4>
+                            <div className="flex items-center text-sm text-gray-500 space-x-4">
+                              <span>📋 {document.document_type}</span>
+                              <span>🎯 {document.stage}</span>
+                              <span>📅 {new Date(document.created_at).toLocaleDateString('tr-TR')}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleViewDocument(document)}
+                            className="bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm"
+                          >
+                            👁️ Görüntüle
+                          </button>
+                          <button
+                            onClick={() => handleDownloadDocument(document)}
+                            className="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 transition-colors text-sm"
+                          >
+                            📥 İndir
+                          </button>
+                          <button
+                            onClick={() => handleDeleteDocument(document)}
+                            className="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 transition-colors text-sm"
+                          >
+                            🗑️ Sil
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                }
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <span className="text-4xl mb-4 block">📄</span>
+                <p>Bu klasörde henüz belge bulunmuyor.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Instruction when no client selected */}
+        {!selectedClient && (
+          <div className="text-center py-12 text-gray-500">
+            <span className="text-6xl mb-4 block">👥</span>
+            <h3 className="text-xl font-semibold mb-2">Müşteri seçin</h3>
+            <p>Belgelerinizi yönetmek için yukarıdan bir müşteri seçin.</p>
+          </div>
+        )}
+      </div>
                 <th className="px-6 py-3">Aşama</th>
                 {userRole === 'admin' && <th className="px-6 py-3">Müşteri</th>}
                 <th className="px-6 py-3">Yüklenme Tarihi</th>
