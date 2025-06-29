@@ -1,0 +1,24 @@
+{
+  "name": "rota-crm-whatsapp-service",
+  "version": "1.0.0",
+  "description": "WhatsApp integration service for Rota CRM",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.6.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "qrcode-terminal": "^0.12.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["whatsapp", "crm", "baileys", "automation"],
+  "author": "Rota Kalite & Danışmanlık",
+  "license": "MIT"
+}
