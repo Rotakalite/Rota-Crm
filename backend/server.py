@@ -83,15 +83,21 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# ULTRA AGGRESSIVE CORS CONFIGURATION - FIXES ALL CORS ISSUES
+# RAILWAY CORS CONFIGURATION - VERCEL FRONTEND İÇİN
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Tüm domainlere izin ver
-    allow_credentials=False,  # * kullanırken False olmalı
-    allow_methods=["*"],  # Tüm method'lara izin ver
-    allow_headers=["*"],  # Tüm header'lara izin ver
+    allow_origins=[
+        "https://rota-a43ap7zfm-rotas-projects-62181e6e.vercel.app",  # Sizin Vercel URL'iniz
+        "https://*.vercel.app",  # Tüm Vercel domain'leri  
+        "http://localhost:3000",  # Development
+        "http://localhost:3001",  # Development
+        "*"  # Hepsine izin ver (geliştirme için)
+    ],
+    allow_credentials=True,  # Vercel için True
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
+    allow_headers=["*"],
     expose_headers=["*"],
-    max_age=0  # Cache'leme yok
+    max_age=86400  # 24 saat cache
 )
 
 # Set maximum request size to 500MB
