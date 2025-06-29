@@ -1071,6 +1071,16 @@ def run_tests():
     suite.addTest(TestClientDashboardStats("test_stats_endpoint_for_admin_users"))
     suite.addTest(TestClientDashboardStats("test_document_type_counting_logic"))
     
+    # Add folder system tests
+    suite.addTest(TestFolderSystem("test_folder_endpoints"))
+    suite.addTest(TestFolderSystem("test_create_client_with_folders"))
+    suite.addTest(TestFolderSystem("test_upload_document_with_folder_selection"))
+    
+    # Add hierarchical sub-folder tests
+    suite.addTest(TestHierarchicalSubFolderSystem("test_create_client_with_hierarchical_folders"))
+    suite.addTest(TestHierarchicalSubFolderSystem("test_admin_update_subfolders_endpoint"))
+    suite.addTest(TestHierarchicalSubFolderSystem("test_get_folders_after_update"))
+    
     # Run the tests
     runner = unittest.TextTestRunner()
     result = runner.run(suite)
