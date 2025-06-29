@@ -526,6 +526,35 @@ async def create_column_folders(client_id: str, root_folder_id: str, root_folder
                 
                 if existing_sub_folder:
                     logging.info(f"📁 Sub-folder already exists: {sub_folder_name}")
+                    
+                    # Create Level 3 sub-folders for existing D column folders
+                    if column_name == "D SÜTUNU" and sub_folder_name in d_level3_structure:
+                        level3_folders = d_level3_structure[sub_folder_name]
+                        for level3_folder_name in level3_folders:
+                            # Check if Level 3 folder already exists
+                            existing_level3_folder = await db.folders.find_one({
+                                "client_id": client_id,
+                                "parent_folder_id": existing_sub_folder["id"],
+                                "name": level3_folder_name
+                            })
+                            
+                            if existing_level3_folder:
+                                logging.info(f"📁 Level 3 folder already exists: {level3_folder_name}")
+                                continue
+                            
+                            # Create Level 3 folder
+                            level3_folder = {
+                                "id": str(uuid.uuid4()),
+                                "client_id": client_id,
+                                "name": level3_folder_name,
+                                "parent_folder_id": existing_sub_folder["id"],
+                                "folder_path": f"{root_folder_path}/{column_name}/{sub_folder_name}/{level3_folder_name}",
+                                "level": 3,
+                                "created_at": datetime.utcnow()
+                            }
+                            
+                            await db.folders.insert_one(level3_folder)
+                            logging.info(f"📁 Created Level 3 folder: {column_name}/{sub_folder_name}/{level3_folder_name}")
                     continue
                 
                 # Create sub-folder
