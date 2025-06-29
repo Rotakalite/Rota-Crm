@@ -3094,7 +3094,7 @@ async def send_bulk_document_notification(
         
         # Send bulk email
         await email_service.send_bulk_document_notification(
-            recipient_email=client["contact_person"],
+            recipient_email=client.get("email", ""),
             documents=documents,
             client_name=client["name"]
         )
@@ -3136,7 +3136,7 @@ async def send_bulk_document_notification(
         
         # Send bulk email
         await email_service.send_bulk_document_notification(
-            recipient_email=client["contact_person"],
+            recipient_email=client.get("email", ""),
             documents=documents,
             client_name=client["name"]
         )
