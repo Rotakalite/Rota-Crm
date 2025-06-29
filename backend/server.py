@@ -1168,25 +1168,33 @@ async def assign_client_to_user(
 
 @api_router.get("/clients", response_model=List[Client])
 async def get_clients(current_user: User = Depends(get_current_user)):
-    logging.info(f"🔍 GET /clients called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
+    print(f"🚨🚨🚨 SECURITY CHECK: GET /clients called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
+    logging.error(f"🚨🚨🚨 SECURITY CHECK: GET /clients called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
     
     if current_user.role == UserRole.ADMIN:
         clients = await db.clients.find().to_list(1000)
-        logging.info(f"✅ Admin user - returning {len(clients)} clients")
+        print(f"🚨 ADMIN USER - returning {len(clients)} clients")
+        logging.error(f"🚨 ADMIN USER - returning {len(clients)} clients")
         return [Client(**client) for client in clients]
     else:
+        print(f"🚨 CLIENT USER DETECTED - APPLYING SECURITY FILTER")
+        logging.error(f"🚨 CLIENT USER DETECTED - APPLYING SECURITY FILTER")
+        
         # CLIENT SECURITY: Client users can ONLY see their own client data
         if not current_user.client_id:
-            logging.error(f"🚨 CLIENT USER WITHOUT CLIENT_ID: {current_user.name} - Access denied")
+            print(f"🚨🚨🚨 CLIENT USER WITHOUT CLIENT_ID: {current_user.name} - BLOCKING ACCESS")
+            logging.error(f"🚨🚨🚨 CLIENT USER WITHOUT CLIENT_ID: {current_user.name} - BLOCKING ACCESS")
             raise HTTPException(status_code=403, detail="Client user not properly linked to a client")
         
         # Return only the client record for this specific user
         client = await db.clients.find_one({"id": current_user.client_id})
         if not client:
-            logging.error(f"🚨 CLIENT NOT FOUND: {current_user.client_id} for user {current_user.name}")
+            print(f"🚨🚨🚨 CLIENT NOT FOUND: {current_user.client_id} for user {current_user.name}")
+            logging.error(f"🚨🚨🚨 CLIENT NOT FOUND: {current_user.client_id} for user {current_user.name}")
             raise HTTPException(status_code=404, detail="Client record not found")
         
-        logging.info(f"✅ Client user - returning ONLY their client: {client['name']}")
+        print(f"🚨 CLIENT USER SECURITY APPLIED - returning ONLY their client: {client['name']}")
+        logging.error(f"🚨 CLIENT USER SECURITY APPLIED - returning ONLY their client: {client['name']}")
         return [Client(**client)]
 
 @api_router.get("/clients/{client_id}", response_model=Client)
