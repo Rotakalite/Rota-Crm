@@ -155,19 +155,44 @@ const getBackendURL = () => {
   
   // Method 2: Auto-detect from current window location
   const currentUrl = window.location.hostname;
+  const currentOrigin = window.location.origin;
   console.log('🔧 Current hostname:', currentUrl);
+  console.log('🔧 Current origin:', currentOrigin);
+  
+  // If we're on Vercel (production frontend)
+  if (currentUrl.includes('vercel.app')) {
+    // Try to get backend URL from a pattern or use the same origin concept
+    // For now, we'll need to dynamically determine the backend URL
+    // This could be improved by having a config endpoint or service discovery
+    
+    // Try to extract preview ID from referrer or use current session
+    const previewPattern = /https:\/\/([a-f0-9-]+)\.preview\.emergentagent\.com/;
+    const referrer = document.referrer;
+    
+    if (referrer && previewPattern.test(referrer)) {
+      const match = referrer.match(previewPattern);
+      if (match && match[1]) {
+        const backendUrl = `https://${match[1]}.preview.emergentagent.com`;
+        console.log('🔧 Auto-detected backend URL from referrer:', backendUrl);
+        return backendUrl;
+      }
+    }
+    
+    // If we have a stored backend URL in localStorage, use it
+    const storedBackendUrl = localStorage.getItem('ROTA_BACKEND_URL');
+    if (storedBackendUrl) {
+      console.log('🔧 Using stored backend URL:', storedBackendUrl);
+      return storedBackendUrl;
+    }
+    
+    // Fallback: try to determine from current session or use latest known
+    console.warn('⚠️ Could not auto-detect backend URL for Vercel deployment');
+  }
   
   // If we're on a preview URL (emergentagent.com domain)
   if (currentUrl.includes('emergentagent.com')) {
-    // Extract the unique ID from current URL and construct backend URL
-    const currentOrigin = window.location.origin;
-    console.log('🔧 Current origin:', currentOrigin);
-    
-    // If we're on a preview URL, try to find the backend URL pattern
-    // This assumes backend and frontend are on same domain but different ports/paths
-    const backendUrl = currentOrigin.replace('3000', '8001'); // Replace frontend port with backend port
-    console.log('🔧 Auto-detected backend URL:', backendUrl);
-    return backendUrl;
+    console.log('🔧 Using current preview URL as backend:', currentOrigin);
+    return currentOrigin;
   }
   
   // Method 3: Development fallback
@@ -176,15 +201,56 @@ const getBackendURL = () => {
     return 'http://localhost:8001';
   }
   
-  // Method 4: Production fallback - try to auto-detect the current preview URL
-  // This works if both frontend and backend are on the same preview domain
-  const autoDetectedUrl = window.location.origin.replace(/:\d+$/, '') + ':8001';
-  console.log('🔧 Auto-detected URL (fallback):', autoDetectedUrl);
-  return autoDetectedUrl;
+  // Method 4: Last resort - prompt user or use service discovery
+  console.error('❌ Could not determine backend URL automatically');
+  
+  // Try to discover backend URL by testing common patterns
+  return discoverBackendURL();
 };
 
-// Dynamic API Configuration
-const BACKEND_URL = getBackendURL();
+// Backend URL Discovery Function
+const discoverBackendURL = async () => {
+  const possibleUrls = [
+    // Current session's backend URL (stored in localStorage)
+    localStorage.getItem('ROTA_BACKEND_URL'),
+    // Latest known working URL pattern
+    'https://ddbdf62a-0dc7-4cf4-b9a6-6dc3e3277ae1.preview.emergentagent.com',
+    // Development
+    'http://localhost:8001'
+  ].filter(Boolean);
+  
+  for (const url of possibleUrls) {
+    try {
+      console.log('🔍 Testing backend URL:', url);
+      const response = await fetch(`${url}/api/health`, { 
+        method: 'GET',
+        timeout: 5000 
+      });
+      
+      if (response.ok) {
+        console.log('✅ Found working backend URL:', url);
+        localStorage.setItem('ROTA_BACKEND_URL', url); // Store for future use
+        return url;
+      }
+    } catch (error) {
+      console.log('❌ Backend URL not reachable:', url);
+    }
+  }
+  
+  // If all fails, return the current best guess
+  console.warn('⚠️ Using fallback backend URL');
+  return 'https://ddbdf62a-0dc7-4cf4-b9a6-6dc3e3277ae1.preview.emergentagent.com';
+};
+
+// Initialize backend URL
+let BACKEND_URL;
+try {
+  BACKEND_URL = getBackendURL();
+} catch (error) {
+  console.error('Error getting backend URL:', error);
+  BACKEND_URL = 'https://ddbdf62a-0dc7-4cf4-b9a6-6dc3e3277ae1.preview.emergentagent.com';
+}
+
 const API = `${BACKEND_URL}/api`;
 
 // Configure axios to automatically refresh tokens
