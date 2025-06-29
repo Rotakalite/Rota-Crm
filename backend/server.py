@@ -3007,7 +3007,7 @@ async def send_document_notification(
             
         await email_service.send_document_upload_notification(
             recipient_email=client["contact_person"],
-            document_name=document["document_name"],
+            document_name=document.get("name", "Bilinmiyen Doküman"),
             upload_date=upload_date,
             client_name=client["name"]
         )
