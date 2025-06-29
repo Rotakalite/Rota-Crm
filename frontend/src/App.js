@@ -2436,6 +2436,24 @@ const DocumentManagement = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
               {folders
                 .filter(folder => folder.parent_folder_id === selectedFolder.id)
+                .sort((a, b) => {
+                  // Natural sorting for folder names (A1, A2, ..., A9, A10)
+                  const aName = a.name;
+                  const bName = b.name;
+                  
+                  // Extract numbers from folder names for proper sorting
+                  const aMatch = aName.match(/(\d+\.?\d*)/);
+                  const bMatch = bName.match(/(\d+\.?\d*)/);
+                  
+                  if (aMatch && bMatch) {
+                    const aNum = parseFloat(aMatch[1]);
+                    const bNum = parseFloat(bMatch[1]);
+                    return aNum - bNum;
+                  }
+                  
+                  // Fallback to alphabetical sorting
+                  return aName.localeCompare(bName);
+                })
                 .map((subFolder) => (
                   <div
                     key={subFolder.id}
