@@ -448,16 +448,6 @@ const ConsumptionAnalytics = () => {
       setClients([]);
     }
   };
-      setClients([]);
-      
-      // Retry mechanism
-      if (error.response?.status === 403) {
-        console.log("🔄 Retrying clients fetch in 2 seconds...");
-        setTimeout(() => {
-          fetchClients();
-        }, 2000);
-      }
-    }
   };
 
   const fetchAnalyticsData = async () => {
