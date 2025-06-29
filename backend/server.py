@@ -2211,6 +2211,127 @@ async def get_users_and_clients(current_user: User = Depends(get_admin_user)):
         ]
     }
 
+# ==================== TRAINING ENDPOINTS ====================
+
+@api_router.post("/trainings", response_model=Training)
+async def create_training(training: TrainingCreate, current_user: User = Depends(get_admin_user)):
+    """Create a new training (Admin only)"""
+    logging.info(f"📚 POST /trainings called by admin: {current_user.name}")
+    
+    # Verify client exists
+    client = await db.clients.find_one({"id": training.client_id})
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    
+    # Create training record
+    training_data = Training(**training.dict())
+    
+    # Insert to database
+    await db.trainings.insert_one(training_data.dict())
+    
+    logging.info(f"✅ Training created: {training_data.name} for client {client['hotel_name']}")
+    return training_data
+
+@api_router.get("/trainings")
+async def get_trainings(current_user: User = Depends(get_current_user)):
+    """Get trainings - Admin sees all, Client sees only their own"""
+    logging.info(f"📚 GET /trainings called by user: {current_user.role}")
+    
+    try:
+        if current_user.role == UserRole.ADMIN:
+            # Admin sees all trainings
+            trainings = await db.trainings.find().to_list(length=None)
+        else:
+            # Client sees only their own trainings
+            trainings = await db.trainings.find({"client_id": current_user.client_id}).to_list(length=None)
+        
+        # Convert ObjectId to string and format response
+        formatted_trainings = []
+        for training in trainings:
+            if "_id" in training:
+                del training["_id"]
+            formatted_trainings.append(training)
+        
+        logging.info(f"📚 Returning {len(formatted_trainings)} trainings")
+        return formatted_trainings
+        
+    except Exception as e:
+        logging.error(f"❌ Error fetching trainings: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch trainings: {str(e)}")
+
+@api_router.get("/trainings/{training_id}", response_model=Training)
+async def get_training(training_id: str, current_user: User = Depends(get_current_user)):
+    """Get a specific training by ID"""
+    logging.info(f"📚 GET /trainings/{training_id} called by user: {current_user.role}")
+    
+    training = await db.trainings.find_one({"id": training_id})
+    if not training:
+        raise HTTPException(status_code=404, detail="Training not found")
+    
+    # Check access permissions
+    if current_user.role == UserRole.CLIENT and training["client_id"] != current_user.client_id:
+        raise HTTPException(status_code=403, detail="Access denied to this training")
+    
+    # Remove MongoDB _id
+    if "_id" in training:
+        del training["_id"]
+    
+    return Training(**training)
+
+@api_router.put("/trainings/{training_id}", response_model=Training)
+async def update_training(
+    training_id: str, 
+    training_update: TrainingUpdate,
+    current_user: User = Depends(get_admin_user)
+):
+    """Update a training (Admin only)"""
+    logging.info(f"📚 PUT /trainings/{training_id} called by admin: {current_user.name}")
+    
+    # Check if training exists
+    existing_training = await db.trainings.find_one({"id": training_id})
+    if not existing_training:
+        raise HTTPException(status_code=404, detail="Training not found")
+    
+    # Prepare update data
+    update_data = training_update.dict(exclude_unset=True)
+    update_data["updated_at"] = datetime.utcnow()
+    
+    # Update training
+    result = await db.trainings.update_one(
+        {"id": training_id},
+        {"$set": update_data}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Training not found or no changes made")
+    
+    # Return updated training
+    updated_training = await db.trainings.find_one({"id": training_id})
+    if "_id" in updated_training:
+        del updated_training["_id"]
+    
+    logging.info(f"✅ Training updated: {training_id}")
+    return Training(**updated_training)
+
+@api_router.delete("/trainings/{training_id}")
+async def delete_training(training_id: str, current_user: User = Depends(get_admin_user)):
+    """Delete a training (Admin only)"""
+    logging.info(f"📚 DELETE /trainings/{training_id} called by admin: {current_user.name}")
+    
+    # Check if training exists
+    training = await db.trainings.find_one({"id": training_id})
+    if not training:
+        raise HTTPException(status_code=404, detail="Training not found")
+    
+    # Delete training
+    result = await db.trainings.delete_one({"id": training_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Training not found")
+    
+    logging.info(f"✅ Training deleted: {training['name']}")
+    return {"message": "Training deleted successfully"}
+
 # Include the router in the main app
 app.include_router(api_router)
 
