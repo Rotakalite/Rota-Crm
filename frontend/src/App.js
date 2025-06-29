@@ -5031,6 +5031,7 @@ const EmailManagement = () => {
   const [loading, setLoading] = useState(false);
   const [documents, setDocuments] = useState([]);
   const [trainings, setTrainings] = useState([]);
+  const { authToken } = useAuth();
 
   const fetchDocuments = async () => {
     try {
