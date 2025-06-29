@@ -474,12 +474,18 @@ const ConsumptionAnalytics = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [monthlyTrends, setMonthlyTrends] = useState(null);
   const [clients, setClients] = useState([]);
+  const [documents, setDocuments] = useState([]);
   const [selectedClient, setSelectedClient] = useState('');
   const [selectedYear, setSelectedYear] = useState(2024);
   const [selectedComparisonYear, setSelectedComparisonYear] = useState(2023); // Karşılaştırma yılı
   const [loading, setLoading] = useState(false);
   const [activeView, setActiveView] = useState('yearly'); // yearly, trends
   const { authToken, userRole, dbUser } = useAuth();
+
+  // Get document count for a folder
+  const getFolderDocumentCount = (folderId) => {
+    return documents.filter(doc => doc.folder_id === folderId).length;
+  };
 
   // Get document count for a folder
   const getFolderDocumentCount = (folderId) => {
