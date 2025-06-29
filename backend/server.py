@@ -1029,7 +1029,23 @@ async def root():
 async def register_user(user_data: UserCreate):
     # Check if user already exists
     existing_user = await db.users.find_one({"clerk_user_id": user_data.clerk_user_id})
+    
     if existing_user:
+        # SECURITY FIX: Check if existing client user needs client_id linking
+        if existing_user.get("role") == UserRole.CLIENT and not existing_user.get("client_id"):
+            # Try to find matching client by email
+            matching_client = await db.clients.find_one({"contact_person": existing_user.get("email")})
+            if matching_client:
+                # Update existing user with client_id
+                await db.users.update_one(
+                    {"clerk_user_id": user_data.clerk_user_id},
+                    {"$set": {"client_id": matching_client["id"], "updated_at": datetime.utcnow()}}
+                )
+                existing_user["client_id"] = matching_client["id"]
+                logging.info(f"🔗 Existing client user linked to client: {matching_client['name']} (ID: {matching_client['id']})")
+            else:
+                logging.warning(f"⚠️ Existing client user but no matching client found for email: {existing_user.get('email')}")
+        
         return User(**existing_user)
     
     user_dict = user_data.dict()
@@ -1041,10 +1057,10 @@ async def register_user(user_data: UserCreate):
         if matching_client:
             # Link this user to the existing client
             user_dict["client_id"] = matching_client["id"]
-            logging.info(f"🔗 Client user linked to existing client: {matching_client['name']} (ID: {matching_client['id']})")
+            logging.info(f"🔗 New client user linked to existing client: {matching_client['name']} (ID: {matching_client['id']})")
         else:
             # No matching client found - client_id remains None for manual admin assignment
-            logging.warning(f"⚠️ Client user registered but no matching client found for email: {user_dict.get('email')}")
+            logging.warning(f"⚠️ New client user registered but no matching client found for email: {user_dict.get('email')}")
     
     user = User(**user_dict)
     await db.users.insert_one(user.dict())
