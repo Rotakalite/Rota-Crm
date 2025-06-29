@@ -4967,7 +4967,7 @@ const WhatsAppManagement = () => {
 
   const fetchClients = async () => {
     try {
-      const response = await fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/clients`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/clients`, {
         headers: {
           'Authorization': `Bearer ${await window.Clerk?.session?.getToken()}`
         }
