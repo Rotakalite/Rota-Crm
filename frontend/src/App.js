@@ -1904,8 +1904,8 @@ const ClientDocuments = () => {
           </div>
         )}
 
-        {/* Documents List */}
-        {selectedFolder && (
+        {/* Documents List - Only for level 2 folders (sub-folders) */}
+        {selectedFolder && selectedFolder.level === 2 && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">
               📄 {selectedFolder.name} İçindeki Belgeler
