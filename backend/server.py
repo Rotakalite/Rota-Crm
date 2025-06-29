@@ -1133,12 +1133,18 @@ async def get_clients(current_user: User = Depends(get_current_user)):
         logging.info(f"✅ Admin user - returning {len(clients)} clients")
         return [Client(**client) for client in clients]
     else:
+        # SECURITY FIX: Client users must only see their own data
         if not current_user.client_id:
-            logging.info("⚠️ Client user has no client_id - returning empty list")
+            logging.error(f"🚨 SECURITY BREACH: Client user {current_user.name} has no client_id - BLOCKING ACCESS")
             return []
+        
         client = await db.clients.find_one({"id": current_user.client_id})
-        result = [Client(**client)] if client else []
-        logging.info(f"✅ Client user - returning {len(result)} clients")
+        if not client:
+            logging.error(f"🚨 SECURITY: Client user {current_user.name} has invalid client_id {current_user.client_id}")
+            return []
+            
+        result = [Client(**client)]
+        logging.info(f"✅ Client user - returning {len(result)} clients (ONLY THEIR OWN)")
         return result
 
 @api_router.get("/clients/{client_id}", response_model=Client)
