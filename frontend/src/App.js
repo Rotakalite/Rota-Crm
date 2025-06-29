@@ -4134,8 +4134,10 @@ const ClientTrainings = () => {
 
 const TrainingManagement = () => {
   const [trainings, setTrainings] = useState([]);
+  const [clients, setClients] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
+    client_id: '',
     name: '',
     subject: '',
     participant_count: '',
@@ -4149,6 +4151,7 @@ const TrainingManagement = () => {
   useEffect(() => {
     if (authToken && userRole === 'admin') {
       fetchTrainings();
+      fetchClients();
     }
   }, [authToken, userRole]);
 
