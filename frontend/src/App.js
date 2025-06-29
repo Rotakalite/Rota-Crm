@@ -3978,6 +3978,600 @@ const ProjectManagement = ({ client, onNavigate }) => {
   );
 };
 
+// ==================== TRAINING MANAGEMENT ====================
+
+const TrainingManagement = () => {
+  const [trainings, setTrainings] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [showTrainingForm, setShowTrainingForm] = useState(false);
+  const [editingTraining, setEditingTraining] = useState(null);
+  const [trainingData, setTrainingData] = useState({
+    client_id: '',
+    name: '',
+    subject: '',
+    participant_count: '',
+    trainer: '',
+    training_date: '',
+    description: ''
+  });
+  const { authToken, userRole } = useAuth();
+
+  useEffect(() => {
+    if (authToken && userRole === 'admin') {
+      fetchTrainings();
+      fetchClients();
+    }
+  }, [authToken, userRole]);
+
+  const fetchTrainings = async () => {
+    if (!authToken) return;
+    
+    try {
+      console.log('📚 Fetching trainings...');
+      const response = await axios.get(`${API}/trainings`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      console.log('📚 Trainings response:', response.data);
+      setTrainings(response.data);
+    } catch (error) {
+      console.error('❌ Error fetching trainings:', error);
+      setTrainings([]);
+    }
+  };
+
+  const fetchClients = async () => {
+    if (!authToken) return;
+    
+    try {
+      console.log('👥 Fetching clients for training...');
+      const response = await axios.get(`${API}/clients`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      console.log('👥 Clients response:', response.data);
+      setClients(response.data);
+    } catch (error) {
+      console.error('❌ Error fetching clients:', error);
+      setClients([]);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!authToken) {
+      alert('Auth token bulunamadı!');
+      return;
+    }
+
+    try {
+      const payload = {
+        ...trainingData,
+        participant_count: parseInt(trainingData.participant_count),
+        training_date: new Date(trainingData.training_date).toISOString()
+      };
+
+      console.log('📚 Submitting training:', payload);
+
+      if (editingTraining) {
+        // Update existing training
+        await axios.put(`${API}/trainings/${editingTraining.id}`, payload, {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        alert('Eğitim başarıyla güncellendi!');
+      } else {
+        // Create new training
+        await axios.post(`${API}/trainings`, payload, {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        alert('Eğitim başarıyla eklendi!');
+      }
+
+      // Reset form and refresh data
+      setTrainingData({
+        client_id: '',
+        name: '',
+        subject: '',
+        participant_count: '',
+        trainer: '',
+        training_date: '',
+        description: ''
+      });
+      setShowTrainingForm(false);
+      setEditingTraining(null);
+      fetchTrainings();
+
+    } catch (error) {
+      console.error('❌ Error saving training:', error);
+      alert('Eğitim kaydedilirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  const handleEdit = (training) => {
+    setEditingTraining(training);
+    setTrainingData({
+      client_id: training.client_id,
+      name: training.name,
+      subject: training.subject,
+      participant_count: training.participant_count.toString(),
+      trainer: training.trainer,
+      training_date: new Date(training.training_date).toISOString().slice(0, 16),
+      description: training.description
+    });
+    setShowTrainingForm(true);
+  };
+
+  const handleDelete = async (trainingId) => {
+    if (!window.confirm('Bu eğitimi silmek istediğinizden emin misiniz?')) return;
+
+    try {
+      await axios.delete(`${API}/trainings/${trainingId}`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      alert('Eğitim başarıyla silindi!');
+      fetchTrainings();
+    } catch (error) {
+      console.error('❌ Error deleting training:', error);
+      alert('Eğitim silinirken hata oluştu!');
+    }
+  };
+
+  const getClientName = (clientId) => {
+    const client = clients.find(c => c.id === clientId);
+    return client ? client.hotel_name : 'Bilinmeyen Müşteri';
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('tr-TR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">📚 Eğitim Yönetimi</h2>
+        <button
+          onClick={() => setShowTrainingForm(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+        >
+          + Yeni Eğitim Ekle
+        </button>
+      </div>
+
+      {/* Training List */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Eğitim Adı
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Konu
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Müşteri
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Eğitmen
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Katılımcı
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Tarih
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                İşlemler
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {trainings.map((training) => (
+              <tr key={training.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900">{training.name}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900">{training.subject}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900">{getClientName(training.client_id)}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900">{training.trainer}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                    {training.participant_count} kişi
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900">{formatDate(training.training_date)}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <button
+                    onClick={() => handleEdit(training)}
+                    className="text-blue-600 hover:text-blue-900 mr-3"
+                  >
+                    ✏️ Düzenle
+                  </button>
+                  <button
+                    onClick={() => handleDelete(training.id)}
+                    className="text-red-600 hover:text-red-900"
+                  >
+                    🗑️ Sil
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {trainings.length === 0 && (
+              <tr>
+                <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                  Henüz eğitim eklenmemiş.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Training Form Modal */}
+      {showTrainingForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md max-h-90vh overflow-y-auto">
+            <h3 className="text-lg font-semibold mb-4">
+              {editingTraining ? 'Eğitimi Düzenle' : 'Yeni Eğitim Ekle'}
+            </h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Müşteri <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={trainingData.client_id}
+                  onChange={(e) => setTrainingData({...trainingData, client_id: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-md"
+                  required
+                >
+                  <option value="">Müşteri Seçin</option>
+                  {clients.map((client) => (
+                    <option key={client.id} value={client.id}>
+                      {client.hotel_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Eğitimin Adı <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Örn: ISO 14001 Temel Eğitimi"
+                  value={trainingData.name}
+                  onChange={(e) => setTrainingData({...trainingData, name: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Konu <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Örn: Çevre Yönetim Sistemi"
+                  value={trainingData.subject}
+                  onChange={(e) => setTrainingData({...trainingData, subject: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Katılımcı Sayısı <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={trainingData.participant_count}
+                  onChange={(e) => setTrainingData({...trainingData, participant_count: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Eğitimi Kimin Vereceği <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Örn: Ahmet Yılmaz"
+                  value={trainingData.trainer}
+                  onChange={(e) => setTrainingData({...trainingData, trainer: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Tarih ve Saat <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  value={trainingData.training_date}
+                  onChange={(e) => setTrainingData({...trainingData, training_date: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Açıklama <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  rows="3"
+                  placeholder="Eğitim detayları ve açıklamaları..."
+                  value={trainingData.description}
+                  onChange={(e) => setTrainingData({...trainingData, description: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  {editingTraining ? 'Güncelle' : 'Ekle'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowTrainingForm(false);
+                    setEditingTraining(null);
+                    setTrainingData({
+                      client_id: '',
+                      name: '',
+                      subject: '',
+                      participant_count: '',
+                      trainer: '',
+                      training_date: '',
+                      description: ''
+                    });
+                  }}
+                  className="flex-1 bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition-colors"
+                >
+                  İptal
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const ClientTrainings = () => {
+  const [trainings, setTrainings] = useState([]);
+  const [selectedTraining, setSelectedTraining] = useState(null);
+  const [showTrainingModal, setShowTrainingModal] = useState(false);
+  const { authToken, userRole, dbUser } = useAuth();
+
+  useEffect(() => {
+    if (authToken && userRole === 'client') {
+      fetchTrainings();
+    }
+  }, [authToken, userRole]);
+
+  const fetchTrainings = async () => {
+    if (!authToken) return;
+    
+    try {
+      console.log('📚 Client fetching trainings...');
+      const response = await axios.get(`${API}/trainings`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      console.log('📚 Client trainings response:', response.data);
+      setTrainings(response.data);
+    } catch (error) {
+      console.error('❌ Error fetching trainings:', error);
+      setTrainings([]);
+    }
+  };
+
+  const handleViewTraining = (training) => {
+    setSelectedTraining(training);
+    setShowTrainingModal(true);
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('tr-TR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const isUpcoming = (dateString) => {
+    return new Date(dateString) > new Date();
+  };
+
+  const upcomingTrainings = trainings.filter(t => isUpcoming(t.training_date));
+  const pastTrainings = trainings.filter(t => !isUpcoming(t.training_date));
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">📚 Eğitimlerim</h2>
+
+      {/* Upcoming Trainings */}
+      {upcomingTrainings.length > 0 && (
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold text-blue-800 mb-4">🔔 Yaklaşan Eğitimler</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {upcomingTrainings.map((training) => (
+              <div
+                key={training.id}
+                onClick={() => handleViewTraining(training)}
+                className="bg-blue-50 border border-blue-200 rounded-lg p-4 cursor-pointer hover:bg-blue-100 transition-colors"
+              >
+                <div className="flex items-center mb-2">
+                  <span className="text-2xl mr-2">📅</span>
+                  <h4 className="font-semibold text-blue-800">{training.name}</h4>
+                </div>
+                <p className="text-sm text-blue-600 mb-1">{training.subject}</p>
+                <p className="text-sm text-gray-600 mb-2">Eğitmen: {training.trainer}</p>
+                <p className="text-sm font-medium text-blue-800">{formatDate(training.training_date)}</p>
+                <p className="text-xs text-blue-600 mt-1">{training.participant_count} katılımcı</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Past Trainings */}
+      {pastTrainings.length > 0 && (
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">📋 Geçmiş Eğitimler</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {pastTrainings.map((training) => (
+              <div
+                key={training.id}
+                onClick={() => handleViewTraining(training)}
+                className="bg-gray-50 border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex items-center mb-2">
+                  <span className="text-2xl mr-2">✅</span>
+                  <h4 className="font-semibold text-gray-800">{training.name}</h4>
+                </div>
+                <p className="text-sm text-gray-600 mb-1">{training.subject}</p>
+                <p className="text-sm text-gray-600 mb-2">Eğitmen: {training.trainer}</p>
+                <p className="text-sm font-medium text-gray-800">{formatDate(training.training_date)}</p>
+                <p className="text-xs text-gray-600 mt-1">{training.participant_count} katılımcı</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* No Trainings */}
+      {trainings.length === 0 && (
+        <div className="text-center py-8">
+          <span className="text-6xl mb-4 block">📚</span>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Henüz eğitim planlanmamış</h3>
+          <p className="text-gray-600">Eğitimleriniz burada görünecektir.</p>
+        </div>
+      )}
+
+      {/* Training Detail Modal */}
+      {showTrainingModal && selectedTraining && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            {/* Header */}
+            <div className={`${isUpcoming(selectedTraining.training_date) ? 'bg-blue-600' : 'bg-gray-600'} text-white p-6 rounded-t-xl`}>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center">
+                  <span className="text-3xl mr-3">📚</span>
+                  <div>
+                    <h3 className="text-xl font-bold">Eğitim Detayları</h3>
+                    <p className={`${isUpcoming(selectedTraining.training_date) ? 'text-blue-100' : 'text-gray-100'} text-sm`}>
+                      {selectedTraining.name}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowTrainingModal(false)}
+                  className="text-white hover:text-red-300 text-2xl font-bold"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+            
+            {/* Content */}
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                  Konu
+                </label>
+                <p className="text-sm font-medium text-gray-900">{selectedTraining.subject}</p>
+              </div>
+              
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                  Eğitmen
+                </label>
+                <p className="text-sm font-medium text-gray-900">{selectedTraining.trainer}</p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                    Tarih & Saat
+                  </label>
+                  <p className="text-sm font-medium text-gray-900">{formatDate(selectedTraining.training_date)}</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                    Katılımcı Sayısı
+                  </label>
+                  <p className="text-sm font-medium text-gray-900">{selectedTraining.participant_count} kişi</p>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                  Açıklama
+                </label>
+                <p className="text-sm text-gray-900">{selectedTraining.description}</p>
+              </div>
+              
+              {isUpcoming(selectedTraining.training_date) && (
+                <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                  <div className="flex items-start">
+                    <span className="text-2xl mr-3">🔔</span>
+                    <div>
+                      <h4 className="text-sm font-semibold text-blue-800 mb-1">Yaklaşan Eğitim</h4>
+                      <p className="text-sm text-blue-700">
+                        Bu eğitim için hazırlıklı olunuz. Gerekli dokümanlar tarafınıza ayrıca iletilecektir.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="bg-gray-50 px-6 py-4 rounded-b-xl flex justify-end">
+              <button
+                onClick={() => setShowTrainingModal(false)}
+                className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-all"
+              >
+                Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const ClientSetupForm = ({ onComplete, onSkip }) => {
   const [formData, setFormData] = useState({
     name: '',
