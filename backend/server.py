@@ -938,15 +938,22 @@ async def create_training(
     training_data: TrainingCreate,
     current_user: User = Depends(get_admin_user)
 ):
-    # Check if admin can access this client
-    client = await db.clients.find_one({"id": training_data.client_id})
-    if not client:
-        raise HTTPException(status_code=404, detail="Client not found")
-    
-    training_dict = training_data.dict()
-    training = Training(**training_dict)
-    await db.trainings.insert_one(training.dict())
-    return training
+    try:
+        logging.info(f"📚 Creating training with data: {training_data}")
+        
+        # Check if admin can access this client
+        client = await db.clients.find_one({"id": training_data.client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        training_dict = training_data.dict()
+        training = Training(**training_dict)
+        await db.trainings.insert_one(training.dict())
+        return training
+    except Exception as e:
+        logging.error(f"❌ Error creating training: {str(e)}")
+        logging.error(f"❌ Training data received: {training_data}")
+        raise
 
 @api_router.get("/trainings/{client_id}", response_model=List[Training])
 async def get_client_trainings(client_id: str, current_user: User = Depends(get_client_access)):
