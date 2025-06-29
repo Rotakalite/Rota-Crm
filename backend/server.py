@@ -453,11 +453,17 @@ async def create_client_root_folder(client_id: str, client_name: str):
         return None
 
 async def create_column_folders(client_id: str, root_folder_id: str, root_folder_path: str):
-    """Create A, B, C, D column folders under root folder"""
+    """Create A, B, C, D column folders under root folder with their sub-folders"""
     try:
-        columns = ["A SÜTUNU", "B SÜTUNU", "C SÜTUNU", "D SÜTUNU"]
+        # Define main columns and their sub-folders
+        column_structure = {
+            "A SÜTUNU": ["A1", "A2", "A3", "A4", "A5", "A7.1", "A7.2", "A7.3", "A7.4", "A8", "A9", "A10"],
+            "B SÜTUNU": ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9"],
+            "C SÜTUNU": ["C1", "C2", "C3", "C4"],
+            "D SÜTUNU": ["D1", "D2", "D3"]
+        }
         
-        for column_name in columns:
+        for column_name, sub_folders in column_structure.items():
             # Check if column folder already exists
             existing_column = await db.folders.find_one({
                 "client_id": client_id,
@@ -465,23 +471,53 @@ async def create_column_folders(client_id: str, root_folder_id: str, root_folder
                 "name": column_name
             })
             
+            column_folder_id = None
+            
             if existing_column:
                 logging.info(f"📁 Column folder already exists: {column_name}")
-                continue
+                column_folder_id = existing_column["id"]
+            else:
+                # Create column folder
+                column_folder_id = str(uuid.uuid4())
+                column_folder = {
+                    "id": column_folder_id,
+                    "client_id": client_id,
+                    "name": column_name,
+                    "parent_folder_id": root_folder_id,
+                    "folder_path": f"{root_folder_path}/{column_name}",
+                    "level": 1,
+                    "created_at": datetime.utcnow()
+                }
+                
+                await db.folders.insert_one(column_folder)
+                logging.info(f"📁 Created column folder: {column_name}")
             
-            # Create column folder
-            column_folder = {
-                "id": str(uuid.uuid4()),
-                "client_id": client_id,
-                "name": column_name,
-                "parent_folder_id": root_folder_id,
-                "folder_path": f"{root_folder_path}/{column_name}",
-                "level": 1,
-                "created_at": datetime.utcnow()
-            }
-            
-            await db.folders.insert_one(column_folder)
-            logging.info(f"📁 Created column folder: {column_name}")
+            # Create sub-folders for this column
+            for sub_folder_name in sub_folders:
+                # Check if sub-folder already exists
+                existing_sub_folder = await db.folders.find_one({
+                    "client_id": client_id,
+                    "parent_folder_id": column_folder_id,
+                    "name": sub_folder_name
+                })
+                
+                if existing_sub_folder:
+                    logging.info(f"📁 Sub-folder already exists: {sub_folder_name}")
+                    continue
+                
+                # Create sub-folder
+                sub_folder = {
+                    "id": str(uuid.uuid4()),
+                    "client_id": client_id,
+                    "name": sub_folder_name,
+                    "parent_folder_id": column_folder_id,
+                    "folder_path": f"{root_folder_path}/{column_name}/{sub_folder_name}",
+                    "level": 2,
+                    "created_at": datetime.utcnow()
+                }
+                
+                await db.folders.insert_one(sub_folder)
+                logging.info(f"📁 Created sub-folder: {column_name}/{sub_folder_name}")
             
     except Exception as e:
         logging.error(f"❌ Failed to create column folders: {str(e)}")
