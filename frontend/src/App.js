@@ -2438,11 +2438,6 @@ const DocumentManagement = () => {
       </div>
 
 const ConsumptionManagement = ({ onNavigate }) => {
-                <tr key={document.id} className="bg-white border-b hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center">
-                      <span className="text-lg mr-2">{getFileIcon(document?.original_filename || document?.file_path || '')}</span>
-                      <span className="font-medium text-gray-900">{document.name}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
