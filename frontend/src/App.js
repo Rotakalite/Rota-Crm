@@ -4950,7 +4950,7 @@ const WhatsAppManagement = () => {
 
   const fetchQRCode = async () => {
     try {
-      const response = await fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/whatsapp/qr`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/whatsapp/qr`, {
         headers: {
           'Authorization': `Bearer ${await window.Clerk?.session?.getToken()}`
         }
