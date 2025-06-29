@@ -71,48 +71,16 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Custom CORS middleware to handle dynamic Vercel URLs
-@app.middleware("http")
-async def custom_cors_middleware(request, call_next):
-    origin = request.headers.get("origin")
-    allowed_origins = [
-        "https://portal.rotakalitedanismanlik.com",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000"
-    ]
-    
-    # Allow any Vercel deployment URL
-    vercel_pattern = re.compile(r"https://.*\.vercel\.app$")
-    emergent_pattern = re.compile(r"https://.*\.preview\.emergentagent\.com$")
-    
-    if (origin in allowed_origins or 
-        (origin and vercel_pattern.match(origin)) or
-        (origin and emergent_pattern.match(origin))):
-        
-        response = await call_next(request)
-        response.headers["Access-Control-Allow-Origin"] = origin
-        response.headers["Access-Control-Allow-Credentials"] = "true"
-        response.headers["Access-Control-Allow-Methods"] = "*"
-        response.headers["Access-Control-Allow-Headers"] = "*"
-        response.headers["Access-Control-Expose-Headers"] = "*"
-        return response
-    
-    # For preflight requests
-    if request.method == "OPTIONS":
-        if (origin in allowed_origins or 
-            (origin and vercel_pattern.match(origin)) or
-            (origin and emergent_pattern.match(origin))):
-            
-            response = Response()
-            response.headers["Access-Control-Allow-Origin"] = origin
-            response.headers["Access-Control-Allow-Credentials"] = "true"
-            response.headers["Access-Control-Allow-Methods"] = "*"
-            response.headers["Access-Control-Allow-Headers"] = "*"
-            response.headers["Access-Control-Max-Age"] = "0"
-            return response
-    
-    response = await call_next(request)
-    return response
+# Add CORS middleware first (CRITICAL FOR FRONTEND ACCESS)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins  
+    allow_credentials=False,  # False when using * origins
+    allow_methods=["*"],  # Allow ALL methods
+    allow_headers=["*"],  # Allow ALL headers
+    expose_headers=["*"],
+    max_age=0  # No caching to avoid CORS issues
+)
 
 # Set maximum request size to 500MB
 app.state.max_request_size = 500 * 1024 * 1024  # 500MB
