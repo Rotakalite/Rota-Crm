@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" width="800" height="300">
+  <!-- Modern ROTA Logo -->
+  <defs>
+    <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7ED321;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4CAF50;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2196F3;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0288D1;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="300" fill="#1a1a1a"/>
+  
+  <!-- Main ROTA text -->
+  <g fill="#666666" font-family="Arial Black, sans-serif" font-weight="900" font-size="140">
+    <text x="60" y="180">ROTA</text>
+  </g>
+  
+  <!-- Compass circle over O -->
+  <g transform="translate(295, 105)">
+    <!-- Outer circle -->
+    <circle cx="0" cy="0" r="55" fill="none" stroke="#333" stroke-width="4"/>
+    
+    <!-- North arrow (green) -->
+    <path d="M 0,-45 L 15,-25 L 0,-35 L -15,-25 Z" fill="url(#greenGradient)"/>
+    
+    <!-- East arrow (blue) -->
+    <path d="M 45,0 L 25,15 L 35,0 L 25,-15 Z" fill="url(#blueGradient)"/>
+    
+    <!-- South arrow (blue) -->
+    <path d="M 0,45 L -15,25 L 0,35 L 15,25 Z" fill="url(#blueGradient)"/>
+    
+    <!-- West arrow (green) -->
+    <path d="M -45,0 L -25,-15 L -35,0 L -25,15 Z" fill="url(#greenGradient)"/>
+    
+    <!-- Center dot -->
+    <circle cx="0" cy="0" r="6" fill="#333"/>
+  </g>
+  
+  <!-- Green accent line -->
+  <rect x="60" y="220" width="280" height="8" fill="url(#greenGradient)" rx="4"/>
+  
+  <!-- Subtitle -->
+  <g fill="#888" font-family="Arial, sans-serif" font-size="24" font-weight="normal" letter-spacing="8">
+    <text x="60" y="260">KALİTE &amp; DANIŞMANLIK</text>
+  </g>
+</svg>
