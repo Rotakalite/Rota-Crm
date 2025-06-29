@@ -24,6 +24,9 @@ import requests
 
 # WhatsApp service import
 try:
+    import sys
+    import os
+    sys.path.append(os.path.dirname(__file__))
     from whatsapp_service import whatsapp_service
     logging.info("✅ WhatsApp service imported successfully")
 except Exception as e:
