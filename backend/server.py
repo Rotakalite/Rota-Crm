@@ -3014,6 +3014,7 @@ async def send_document_notification(
             recipient_email=client_email,
             document_name=document.get("name", "Bilinmiyen Doküman"),
             upload_date=upload_date,
+            folder_path=document.get("folder_path", "Klasör belirtilmemiş"),
             client_name=client["name"]
         )
         
