@@ -703,15 +703,35 @@ async def get_clients(current_user: User = Depends(get_current_user)):
         return result
 
 @api_router.get("/clients/{client_id}", response_model=Client)
-async def get_client(client_id: str, current_user: User = Depends(get_client_access)):
-    # Check permissions
-    if current_user.role != UserRole.ADMIN and current_user.client_id != client_id:
-        raise HTTPException(status_code=403, detail="Access denied")
+async def get_client(client_id: str, current_user: User = Depends(get_current_user)):
+    logging.info(f"🔍 GET /clients/{client_id} called by user: {current_user.role}")
+    
+    if current_user.role == UserRole.CLIENT and current_user.client_id != client_id:
+        raise HTTPException(status_code=403, detail="Access denied to this client")
     
     client = await db.clients.find_one({"id": client_id})
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
+    
     return Client(**client)
+
+@api_router.post("/admin/update-subfolders")
+async def update_existing_clients_subfolders(current_user: User = Depends(get_current_user)):
+    """Admin-only endpoint to update existing clients with sub-folders"""
+    logging.info(f"🔧 POST /admin/update-subfolders called by user: {current_user.role}")
+    
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    try:
+        success = await update_existing_clients_with_subfolders()
+        if success:
+            return {"message": "Successfully updated all existing clients with sub-folders", "success": True}
+        else:
+            return {"message": "Failed to update some clients", "success": False}
+    except Exception as e:
+        logging.error(f"❌ Error in update-subfolders endpoint: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @api_router.put("/clients/{client_id}", response_model=Client)
 async def update_client(
