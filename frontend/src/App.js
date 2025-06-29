@@ -5104,6 +5104,7 @@ const EmailManagement = () => {
 
   useEffect(() => {
     if (authToken) {
+      fetchClients();
       fetchDocuments();
       fetchTrainings();
     }
