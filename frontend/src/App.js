@@ -5281,11 +5281,27 @@ const EmailManagement = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 10px;
-          margin: 5px 0;
+          padding: 15px;
+          margin: 8px 0;
           background: white;
-          border-radius: 4px;
+          border-radius: 8px;
           border: 1px solid #dee2e6;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .document-info {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          flex: 1;
+        }
+        .document-name, .training-name {
+          font-weight: 600;
+          color: #333;
+          font-size: 14px;
+        }
+        .document-client, .document-email, .document-date {
+          font-size: 12px;
+          color: #666;
         }
         .document-name, .training-name {
           font-weight: 500;
