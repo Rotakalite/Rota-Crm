@@ -145,8 +145,46 @@ ChartJS.register(
 
 const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
-// API Configuration - FIXED URL with cache busting
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://8f8909e6-0e12-4f66-9734-9213547bf4f4.preview.emergentagent.com';
+// Dynamic Backend URL Detection System
+const getBackendURL = () => {
+  // Method 1: Use environment variable if available
+  if (process.env.REACT_APP_BACKEND_URL) {
+    console.log('🔧 Using backend URL from environment:', process.env.REACT_APP_BACKEND_URL);
+    return process.env.REACT_APP_BACKEND_URL;
+  }
+  
+  // Method 2: Auto-detect from current window location
+  const currentUrl = window.location.hostname;
+  console.log('🔧 Current hostname:', currentUrl);
+  
+  // If we're on a preview URL (emergentagent.com domain)
+  if (currentUrl.includes('emergentagent.com')) {
+    // Extract the unique ID from current URL and construct backend URL
+    const currentOrigin = window.location.origin;
+    console.log('🔧 Current origin:', currentOrigin);
+    
+    // If we're on a preview URL, try to find the backend URL pattern
+    // This assumes backend and frontend are on same domain but different ports/paths
+    const backendUrl = currentOrigin.replace('3000', '8001'); // Replace frontend port with backend port
+    console.log('🔧 Auto-detected backend URL:', backendUrl);
+    return backendUrl;
+  }
+  
+  // Method 3: Development fallback
+  if (currentUrl === 'localhost' || currentUrl === '127.0.0.1') {
+    console.log('🔧 Using localhost development URL');
+    return 'http://localhost:8001';
+  }
+  
+  // Method 4: Production fallback - try to auto-detect the current preview URL
+  // This works if both frontend and backend are on the same preview domain
+  const autoDetectedUrl = window.location.origin.replace(/:\d+$/, '') + ':8001';
+  console.log('🔧 Auto-detected URL (fallback):', autoDetectedUrl);
+  return autoDetectedUrl;
+};
+
+// Dynamic API Configuration
+const BACKEND_URL = getBackendURL();
 const API = `${BACKEND_URL}/api`;
 
 // Configure axios to automatically refresh tokens
