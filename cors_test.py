@@ -17,7 +17,7 @@ class TestCORSConfiguration(unittest.TestCase):
     def setUp(self):
         """Set up test environment"""
         # Use the updated backend URL from frontend/.env
-        self.api_url = "https://ddbdf62a-0dc7-4cf4-b9a6-6dc3e3277ae1.preview.emergentagent.com/api"
+        self.api_url = "https://4aeb8cfa-61f1-4648-8b57-402bd2c9bfe3.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         
