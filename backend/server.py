@@ -191,6 +191,7 @@ class Client(BaseModel):
     contact_person: str
     email: str
     phone: str
+    phone_number: Optional[str] = None  # WhatsApp için ek telefon field
     address: str
     current_stage: ProjectStage = ProjectStage.STAGE_1
     services_completed: List[ServiceType] = []
