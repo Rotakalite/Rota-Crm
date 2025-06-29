@@ -4863,19 +4863,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
   return (
     <div className="bg-gray-800 text-white w-64 min-h-screen p-4">
       <div className="mb-8">
-        <div className="flex items-center space-x-3">
-          <img 
-            src="/logo.svg" 
-            alt="Rota Kalite & Danışmanlık" 
-            className="h-12 w-auto flex-shrink-0"
-          />
-          <div className="flex flex-col justify-center">
-            <h1 className="text-lg font-bold text-white leading-tight">CRM Sistemi</h1>
-            <p className="text-xs text-gray-300 leading-tight">
-              {userRole === 'admin' ? 'Admin Paneli' : 'Müşteri Paneli'}
-            </p>
-          </div>
-        </div>
+        {/* Header kaldırıldı */}
       </div>
       
       <nav className="space-y-2">
