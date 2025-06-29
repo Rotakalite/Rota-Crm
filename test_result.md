@@ -411,7 +411,7 @@ test_plan:
 
 agent_communication:
     -agent: "main"
-    -message: "Fixed critical frontend build issues: resolved duplicate getFileIcon function declarations and added missing TrainingManagement component. The duplicate functions were causing syntax errors preventing the app from building properly. Now there is a single global getFileIcon function and the TrainingManagement component has been implemented with a complete admin interface for creating and managing trainings. Admin sidebar now includes working 'Eğitim Yönetimi' menu item."
+    -message: "Fixed all critical frontend build issues: resolved duplicate getFileIcon and formatFileSize function declarations and added missing TrainingManagement component. The duplicate functions were causing syntax errors preventing the app from building properly on Vercel. Now there are single global utility functions and the TrainingManagement component has been implemented with a complete admin interface for creating and managing trainings. Admin sidebar now includes working 'Eğitim Yönetimi' menu item. Frontend should now build successfully."
     -agent: "main"
     -message: "Fixed critical JavaScript error in frontend: 'uploadData is not defined' at line 1145. The issue was caused by misplaced folder selection JSX code in the Dashboard component that was trying to reference uploadData state from DocumentManagement component. Removed the duplicate/misplaced folder selection code from Dashboard component. The proper folder selection remains in DocumentManagement component where uploadData state is defined."
     -agent: "main"
