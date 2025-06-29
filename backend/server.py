@@ -1124,6 +1124,48 @@ async def create_client(
     
     return client
 
+# Admin endpoint to fix user-client assignments
+@api_router.post("/admin/assign-client-to-user")
+async def assign_client_to_user(
+    user_email: str,
+    client_id: str,
+    current_user: User = Depends(get_admin_user)
+):
+    """Admin endpoint to manually assign client_id to a user"""
+    try:
+        # Find user by email
+        user = await db.users.find_one({"email": user_email})
+        if not user:
+            raise HTTPException(status_code=404, detail=f"User not found: {user_email}")
+        
+        # Verify client exists
+        client = await db.clients.find_one({"id": client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail=f"Client not found: {client_id}")
+        
+        # Update user with client_id
+        result = await db.users.update_one(
+            {"email": user_email},
+            {"$set": {"client_id": client_id, "updated_at": datetime.utcnow()}}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        logging.info(f"🔗 Admin assigned client {client['name']} to user {user_email}")
+        
+        return {
+            "success": True,
+            "message": f"User {user_email} assigned to client {client['name']}",
+            "user_email": user_email,
+            "client_id": client_id,
+            "client_name": client['name']
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Error assigning client to user: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/clients", response_model=List[Client])
 async def get_clients(current_user: User = Depends(get_current_user)):
     logging.info(f"🔍 GET /clients called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
