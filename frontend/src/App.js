@@ -1025,7 +1025,7 @@ const Dashboard = ({ onNavigate }) => {
   const fetchClients = async () => {
     try {
       const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
-      console.log('🔍 Fetching clients with role:', userRole, 'client_id:', clientId);
+      console.log('🔍 Fetching clients with role:', userRole);
       const response = await axios.get(`${API}/clients`, { headers });
       
       // Check if response is actually JSON array
