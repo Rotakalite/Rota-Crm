@@ -2435,7 +2435,6 @@ const DocumentManagement = () => {
             <p>Belgelerinizi yönetmek için yukarıdan bir müşteri seçin.</p>
           </div>
         )}
-      </div>
     </div>
   );
 };
