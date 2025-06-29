@@ -434,20 +434,19 @@ const ConsumptionAnalytics = () => {
   }, [authToken, selectedYear, selectedComparisonYear, selectedClient]);
 
   const fetchClients = async () => {
-    if (!authToken || userRole !== 'admin') {
-      console.log("❌ No auth token or not admin for clients fetch");
-      return;
-    }
+    if (!authToken) return;
     
     try {
-      console.log("🔍 Fetching clients with token:", authToken.substring(0, 20) + "...");
+      console.log('👥 Admin fetching clients...');
       const response = await axios.get(`${API}/clients`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
-      setClients(Array.isArray(response.data) ? response.data : []);
-      console.log("✅ Clients fetched successfully:", response.data.length, "clients");
-      
-      // İlk müşteriyi otomatik seç
+      console.log('👥 Admin clients response:', response.data);
+      setClients(response.data);
+    } catch (error) {
+      console.error('❌ Error fetching clients:', error);
+      setClients([]);
+    }
       if (response.data && response.data.length > 0) {
         setSelectedClient(response.data[0].id);
         console.log("🎯 Auto-selected first client:", response.data[0].hotel_name);
