@@ -4178,6 +4178,7 @@ const TrainingManagement = () => {
       const trainingData = {
         ...formData,
         participant_count: parseInt(formData.participant_count) || 0,
+        training_date: formData.training_date ? new Date(formData.training_date + "T00:00:00Z").toISOString() : null,
         training_date: formData.training_date ? new Date(formData.training_date + 'T00:00:00Z').toISOString() : null
       };
       
