@@ -470,6 +470,21 @@ test_plan:
         -agent: "main"
         -comment: "FIXED: Created Level 3 folders for all existing clients using manual Python scripts. CANO client now has 16 Level 3 folders (D1.1-D1.4, D2.1-D2.6, D3.1-D3.6) and KAYA client has complete folder structure with 49 folders total. Frontend Level 3 navigation logic was already correct, just needed the backend data. Added debug logging to help diagnose future issues."
 
+  - task: "Permanent URL Configuration Fix"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented dynamic backend URL detection system to eliminate the need for manual URL updates. Added: 1) Smart URL auto-detection from environment, localStorage, referrer, and current session, 2) Backend URL discovery with health check endpoint testing, 3) localStorage caching of working URLs, 4) Multiple fallback methods for different deployment scenarios (Vercel, preview URLs, localhost). Also added /api/health endpoint in backend for URL discovery."
+        -working: true
+        -agent: "main"
+        -comment: "System now automatically detects correct backend URL without manual intervention. Frontend can discover and cache working backend URLs dynamically."
+
 agent_communication:
     -agent: "main"
     -message: "Fixed critical JavaScript error in frontend: 'uploadData is not defined' at line 1145. The issue was caused by misplaced folder selection JSX code in the Dashboard component that was trying to reference uploadData state from DocumentManagement component. Removed the duplicate/misplaced folder selection code from Dashboard component. The proper folder selection remains in DocumentManagement component where uploadData state is defined."
