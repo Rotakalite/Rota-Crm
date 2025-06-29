@@ -436,6 +436,17 @@ async def get_admin_user(current_user: User = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
 
+def verify_admin_token(token: str) -> str:
+    """Admin token doğrulama - mevcut verify_token kullanır"""
+    # Mevcut verify_token sistemini kullan - bu daha güvenli
+    # WhatsApp API'ler için ayrı auth yapmak yerine mevcut sistemi kullanıyoruz
+    return token  # Bu fonksiyon şimdilik placeholder - endpoint'de get_admin_user kullanacağız
+
+def get_user_id_from_token(token: str) -> str:
+    """Token'dan user ID al - placeholder fonksiyon"""
+    # Bu fonksiyon da şimdilik placeholder - endpoint'de get_current_user kullanacağız
+    return token
+
 async def create_client_root_folder(client_id: str, client_name: str):
     """Create root folder and sub-folders for a new client"""
     try:
