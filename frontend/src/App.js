@@ -5030,7 +5030,7 @@ const WhatsAppManagement = () => {
 
   const checkWhatsAppStatus = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/whatsapp/status`, {
+      const response = await fetch(`${BACKEND_URL}/api/whatsapp/status`, {
         headers: {
           'Authorization': `Bearer ${await window.Clerk?.session?.getToken()}`
         }
