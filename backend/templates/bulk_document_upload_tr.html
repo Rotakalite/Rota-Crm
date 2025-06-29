@@ -96,9 +96,9 @@
                 <div class="document-list">
                     {% for document in documents %}
                     <div class="document-item">
-                        <div class="document-name">📄 {{ document.document_name }}</div>
+                        <div class="document-name">📄 {{ document.get('name', 'Bilinmiyen Doküman') }}</div>
                         <div class="document-date">
-                            📅 Yükleme: {{ document.created_at.strftime('%d.%m.%Y %H:%M') if document.created_at and hasattr(document.created_at, 'strftime') else 'Bilinmiyor' }}
+                            📅 Yükleme: {{ document.get('created_at').strftime('%d.%m.%Y %H:%M') if document.get('created_at') and hasattr(document.get('created_at'), 'strftime') else 'Bilinmiyor' }}
                         </div>
                     </div>
                     {% endfor %}
