@@ -447,12 +447,7 @@ const ConsumptionAnalytics = () => {
       console.error('❌ Error fetching clients:', error);
       setClients([]);
     }
-      if (response.data && response.data.length > 0) {
-        setSelectedClient(response.data[0].id);
-        console.log("🎯 Auto-selected first client:", response.data[0].hotel_name);
-      }
-    } catch (error) {
-      console.error("❌ Error fetching clients:", error.response?.status, error.response?.data);
+  };
       setClients([]);
       
       // Retry mechanism
