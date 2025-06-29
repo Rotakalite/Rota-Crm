@@ -327,6 +327,21 @@ metadata:
         -working: true
         -agent: "testing"
         -comment: "Tested the enhanced hierarchical folder system with sub-folders implementation. Verified that when a new client is created, the system automatically creates the complete 3-level folder hierarchy: Level 0 (root folder '[Client Name] SYS'), Level 1 (column folders: A SÜTUNU, B SÜTUNU, C SÜTUNU, D SÜTUNU), and Level 2 (sub-folders for each column). Confirmed that each sub-folder has the correct parent_folder_id pointing to its column folder, folder paths are correctly formed (e.g., '[Client Name] SYS/A SÜTUNU/A1'), and level values are correct (root=0, columns=1, sub-folders=2). Verified that the total folder count per client is 29 (1 root + 4 columns + 24 sub-folders). Tested creating multiple clients to ensure each gets their own complete folder structure without conflicts. All tests passed successfully."
+        
+  - task: "Admin Update Endpoint for Sub-folders"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented admin endpoint POST /api/admin/update-subfolders to retroactively add sub-folders to existing clients."
+        -working: true
+        -agent: "testing"
+        -comment: "Tested the admin endpoint POST /api/admin/update-subfolders. The endpoint correctly requires admin authentication, returning 401 Unauthorized for invalid tokens and 403 Forbidden for non-admin users. When called with valid admin credentials, it successfully updates existing clients with the complete sub-folder structure. Verified that calling the endpoint multiple times doesn't create duplicate sub-folders. The endpoint correctly returns a success message and status in the response. After calling the endpoint, verified that existing clients now have all the expected sub-folders: A SÜTUNU (12 sub-folders), B SÜTUNU (9 sub-folders), C SÜTUNU (4 sub-folders), and D SÜTUNU (3 sub-folders). Each sub-folder has the correct parent_folder_id, folder_path, and level=2. The GET /api/folders endpoint correctly returns all sub-folders after the update."
 
 test_plan:
   current_focus:
