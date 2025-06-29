@@ -1903,30 +1903,6 @@ const ClientDocuments = () => {
             </div>
           </div>
         )}
-            
-            {clientFolders
-              .filter(folder => folder.level === 2) // Sub-folders (A1, A2, B1, etc.)
-              .map((folder) => (
-                <div
-                  key={folder.id}
-                  onClick={() => setSelectedFolder(folder)}
-                  className="bg-green-50 border border-green-200 rounded-lg p-4 cursor-pointer hover:bg-green-100 transition-colors"
-                >
-                  <div className="flex items-center">
-                    <span className="text-2xl mr-3">📄</span>
-                    <div>
-                      <h3 className="font-semibold text-green-800">{folder.name}</h3>
-                      <p className="text-xs text-green-600">Alt Klasör</p>
-                      <p className="text-xs text-gray-500">
-                        {folder.folder_path.split('/').slice(-2).join(' › ')}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))
-            }
-          </div>
-        )}
 
         {/* Documents List */}
         {selectedFolder && (
