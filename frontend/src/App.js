@@ -4669,7 +4669,14 @@ const TrainingManagement = () => {
                       )}
                     </div>
                     
-                    <div className="flex items-center ml-4">
+                    <div className="flex items-center ml-4 space-x-2">
+                      <button
+                        onClick={() => deleteTraining(training.id)}
+                        className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors"
+                        title="Eğitimi sil"
+                      >
+                        🗑️ Sil
+                      </button>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         isUpcoming(training.training_date) 
                           ? 'bg-blue-100 text-blue-800' 
