@@ -4,8 +4,8 @@ import os
 from typing import Optional
 from datetime import datetime
 
-# WhatsApp servisi URL'i
-WHATSAPP_SERVICE_URL = "http://localhost:3001"
+# WhatsApp Service Configuration - Railway Environment
+WHATSAPP_SERVICE_URL = os.environ.get('WHATSAPP_SERVICE_URL', 'http://localhost:3001')
 
 # Türkçe mesaj şablonları
 DOCUMENT_MESSAGE_TEMPLATE = """🔔 Yeni Dokuman Bildirimi
