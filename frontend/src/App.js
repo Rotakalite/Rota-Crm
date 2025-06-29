@@ -5220,13 +5220,6 @@ const EmailManagement = () => {
       `}</style>
     </div>
   );
-};
-
-  useEffect(() => {
-    checkWhatsAppStatus();
-    fetchClients();
-    const interval = setInterval(checkWhatsAppStatus, 5000);
-    return () => clearInterval(interval);
   }, []);
 
   const checkWhatsAppStatus = async () => {
