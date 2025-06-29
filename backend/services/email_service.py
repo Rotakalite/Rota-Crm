@@ -5,6 +5,10 @@ from jinja2 import Environment, FileSystemLoader
 from typing import List, Dict
 import logging
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Gmail SMTP Configuration
 conf = ConnectionConfig(
