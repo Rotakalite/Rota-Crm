@@ -210,6 +210,37 @@ class ConsumptionInput(BaseModel):
     accommodation_count: int = 0
     client_id: Optional[str] = None  # Optional for admin users
 
+class Training(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    client_id: str
+    name: str  # Eğitimin Adı
+    subject: str  # Konusu
+    participant_count: int  # Katılımcı Sayısı
+    trainer: str  # Eğitimi Kimin Vereceği
+    training_date: datetime  # Tarih
+    description: str  # Açıklama
+    status: str = "planned"  # planned, completed, cancelled
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class TrainingCreate(BaseModel):
+    client_id: str
+    name: str
+    subject: str
+    participant_count: int
+    trainer: str
+    training_date: datetime
+    description: str
+
+class TrainingUpdate(BaseModel):
+    name: Optional[str] = None
+    subject: Optional[str] = None
+    participant_count: Optional[int] = None
+    trainer: Optional[str] = None
+    training_date: Optional[datetime] = None
+    description: Optional[str] = None
+    status: Optional[str] = None
+
 class ClientCreate(BaseModel):
     name: str
     hotel_name: str
