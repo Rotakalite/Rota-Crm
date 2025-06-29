@@ -313,13 +313,24 @@ metadata:
   test_sequence: 1
   run_ui: false
 
+  - task: "Implement Sub-folder Structure for Column Folders"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented hierarchical sub-folder structure for A, B, C, D columns based on user-provided images. A SÜTUNU: A1-A10 (including A7.1-A7.4), B SÜTUNU: B1-B9, C SÜTUNU: C1-C4, D SÜTUNU: D1-D3. Updated create_column_folders function to automatically create these sub-folders when new clients are created. Sub-folders are created at level 2 with proper parent-child relationships."
+
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Implement Sub-folder Structure for Column Folders"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
-
-  - task: "Refactor Admin Document Management - Client and Folder Based View"
     implemented: true
     working: true
     file: "/app/frontend/src/App.js"
