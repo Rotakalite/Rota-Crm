@@ -535,7 +535,6 @@ async def health_check():
         "version": "1.0.0"
     }
 
-@api_router.get("/health")
 async def health_check():
     """Health check endpoint"""
     return {
@@ -553,7 +552,6 @@ async def health_check():
         "version": "1.0.0"
     }
 
-@api_router.get("/health")
 async def health_check():
     """Health check endpoint"""
     return {
