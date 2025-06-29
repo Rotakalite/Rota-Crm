@@ -5060,17 +5060,6 @@ const EmailManagement = () => {
 
 
 
-  const fetchClients = async () => {
-    try {
-      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
-      const response = await axios.get(`${API}/clients`, { headers });
-      setClients(response.data || []);
-    } catch (error) {
-      console.error("❌ Error fetching clients:", error);
-      setClients([]);
-    }
-  };
-
   const fetchDocuments = async () => {
     try {
       const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
