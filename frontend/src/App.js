@@ -5151,6 +5151,62 @@ const EmailManagement = () => {
     }
   };
 
+  // Checkbox handling functions
+  const handleDocumentSelect = (docId, isSelected) => {
+    if (isSelected) {
+      setSelectedDocuments(prev => [...prev, docId]);
+    } else {
+      setSelectedDocuments(prev => prev.filter(id => id !== docId));
+    }
+  };
+
+  const handleSelectAll = (isSelected) => {
+    if (isSelected) {
+      setSelectedDocuments(documents.map(doc => doc.id));
+    } else {
+      setSelectedDocuments([]);
+    }
+  };
+
+  // Send bulk notification
+  const sendBulkNotification = async () => {
+    if (selectedDocuments.length === 0) {
+      alert('❌ Lütfen en az bir doküman seçin!');
+      return;
+    }
+
+    // Group documents by client
+    const selectedDocs = documents.filter(doc => selectedDocuments.includes(doc.id));
+    const groupedByClient = selectedDocs.reduce((groups, doc) => {
+      const clientId = doc.client_id;
+      if (!groups[clientId]) {
+        groups[clientId] = [];
+      }
+      groups[clientId].push(doc);
+      return groups;
+    }, {});
+
+    try {
+      // Send emails for each client group
+      for (const [clientId, clientDocs] of Object.entries(groupedByClient)) {
+        const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+        const formData = new FormData();
+        formData.append('document_ids', clientDocs.map(doc => doc.id).join(','));
+        
+        const response = await axios.post(`${API}/email/bulk-document-notification`, formData, { headers });
+        console.log(`✅ ${response.data.message}`);
+      }
+      
+      const clientCount = Object.keys(groupedByClient).length;
+      const docCount = selectedDocuments.length;
+      alert(`✅ ${docCount} doküman için ${clientCount} müşteriye toplu bildirim gönderildi!`);
+      setSelectedDocuments([]);
+      
+    } catch (error) {
+      alert(`❌ Toplu bildirim hatası: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
   return (
     <div className="email-management">
       <h2>📧 Email Yönetimi</h2>
