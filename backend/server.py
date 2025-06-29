@@ -1551,6 +1551,29 @@ async def upload_document(
             
             await db.documents.insert_one(document_data)
             
+            # 📱 WhatsApp bildirimi gönder
+            try:
+                if whatsapp_service:
+                    # Müşteri bilgilerini al
+                    client = await db.clients.find_one({"id": client_id})
+                    if client and client.get("phone_number"):
+                        # WhatsApp bildirimi gönder
+                        await whatsapp_service.send_document_notification(
+                            customer_name=client.get("hotel_name", "Değerli Müşterimiz"),
+                            customer_phone=client["phone_number"],
+                            document_name=document_name,
+                            folder_name=folder["name"],
+                            description=f"{document_type} - {stage}"
+                        )
+                        logging.info(f"📱 WhatsApp bildirimi gönderildi: {client['hotel_name']}")
+                    else:
+                        logging.warning(f"⚠️ Müşteri telefon numarası bulunamadı: {client_id}")
+                else:
+                    logging.warning("⚠️ WhatsApp servisi aktif değil")
+            except Exception as whatsapp_error:
+                logging.error(f"❌ WhatsApp bildirimi hatası: {whatsapp_error}")
+                # WhatsApp hatası upload işlemini etkilemesin
+            
             return {
                 "message": "Document uploaded successfully to Supabase",
                 "document_id": document_data["id"],
