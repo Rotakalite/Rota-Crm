@@ -258,11 +258,11 @@ app.get('/health', (req, res) => {
 })
 
 // Sunucuyu başlat
-
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`🌐 WhatsApp servisi çalışıyor: http://localhost:${PORT}`)
-    console.log('📱 QR kod için: http://localhost:${PORT}/qr')
-    console.log('📊 Durum için: http://localhost:${PORT}/status')
+    console.log(`📱 Health check: http://localhost:${PORT}/health`)
+    console.log(`🔍 QR kod: http://localhost:${PORT}/qr`)
+    console.log(`📊 Status: http://localhost:${PORT}/status`)
     
     // WhatsApp'ı başlat
     initWhatsApp()
