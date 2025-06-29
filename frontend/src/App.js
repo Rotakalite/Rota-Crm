@@ -360,11 +360,18 @@ const Header = () => {
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">🔧 ROTA - CRM</h1>
-          <p className="text-sm text-gray-600">
-            {userRole === 'admin' ? 'Admin Paneli' : 'Müşteri Paneli'}
-          </p>
+        <div className="flex items-center">
+          <img 
+            src="/logo.svg" 
+            alt="Rota Kalite & Danışmanlık" 
+            className="h-12 w-auto mr-4"
+          />
+          <div>
+            <h1 className="text-xl font-bold text-gray-800">CRM Sistemi</h1>
+            <p className="text-sm text-gray-600">
+              {userRole === 'admin' ? 'Admin Paneli' : 'Müşteri Paneli'}
+            </p>
+          </div>
         </div>
         <div className="flex items-center space-x-4">
           <div className="text-right">
