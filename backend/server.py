@@ -1175,9 +1175,19 @@ async def get_clients(current_user: User = Depends(get_current_user)):
         logging.info(f"✅ Admin user - returning {len(clients)} clients")
         return [Client(**client) for client in clients]
     else:
-        # HARD SECURITY BLOCK: Client users get EMPTY LIST until properly configured
-        logging.error(f"🚨 CLIENT USER BLOCKED: {current_user.name} - client_id: {current_user.client_id}")
-        return []
+        # CLIENT SECURITY: Client users can ONLY see their own client data
+        if not current_user.client_id:
+            logging.error(f"🚨 CLIENT USER WITHOUT CLIENT_ID: {current_user.name} - Access denied")
+            raise HTTPException(status_code=403, detail="Client user not properly linked to a client")
+        
+        # Return only the client record for this specific user
+        client = await db.clients.find_one({"id": current_user.client_id})
+        if not client:
+            logging.error(f"🚨 CLIENT NOT FOUND: {current_user.client_id} for user {current_user.name}")
+            raise HTTPException(status_code=404, detail="Client record not found")
+        
+        logging.info(f"✅ Client user - returning ONLY their client: {client['name']}")
+        return [Client(**client)]
 
 @api_router.get("/clients/{client_id}", response_model=Client)
 async def get_client(client_id: str, current_user: User = Depends(get_current_user)):
