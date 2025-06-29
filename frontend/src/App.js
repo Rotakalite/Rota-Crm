@@ -375,8 +375,8 @@ const Header = () => {
         </div>
         <div className="flex items-center space-x-4">
           <div className="text-right">
-            <p className="font-semibold text-gray-800">{user?.fullName || user?.firstName}</p>
-            <p className="text-sm text-gray-600">{user?.primaryEmailAddress?.emailAddress}</p>
+            <p className="font-semibold text-white">{user?.fullName || user?.firstName}</p>
+            <p className="text-sm text-gray-300">{user?.primaryEmailAddress?.emailAddress}</p>
             <span className={`inline-block px-2 py-1 text-xs rounded-full ${
               userRole === 'admin' 
                 ? 'bg-purple-100 text-purple-800' 
