@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eğitim Bildirimi</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header { 
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 30px; 
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .content { 
+            padding: 30px; 
+            line-height: 1.6;
+        }
+        .footer { 
+            background-color: #f8f9fa; 
+            padding: 20px; 
+            text-align: center; 
+            font-size: 12px;
+            color: #666;
+            border-radius: 0 0 8px 8px;
+        }
+        .training-info {
+            background-color: #e8f5e8;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .highlight {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Eğitim Bildirimi</h1>
+            <p>Rota Kalite Danışmanlık</p>
+        </div>
+        <div class="content">
+            <p>Sayın <strong>{{ client_name }}</strong>,</p>
+            
+            <p>Sizin için yeni bir eğitim programı düzenlenmiştir.</p>
+            
+            <div class="training-info">
+                <p><strong>📚 Eğitim Adı:</strong> <span class="highlight">{{ training_name }}</span></p>
+                <p><strong>📅 Eğitim Tarihi:</strong> <span class="highlight">{{ training_date }}</span></p>
+                <p><strong>👨‍🏫 Eğitmen:</strong> <span class="highlight">{{ trainer }}</span></p>
+                <p><strong>👥 Katılımcı Sayısı:</strong> <span class="highlight">{{ participant_count }} kişi</span></p>
+            </div>
+            
+            <p>Eğitim öncesi gerekli dokümanları sisteme yüklemeyi unutmayınız.</p>
+            
+            <p>Eğitim ile ilgili detaylı bilgi ve katılım için bizimle iletişime geçebilirsiniz.</p>
+            
+            <p>İyi çalışmalar dileriz,<br>
+            <strong>Rota Kalite Danışmanlık Ekibi</strong></p>
+        </div>
+        <div class="footer">
+            <p>Bu otomatik bir mesajdır, lütfen yanıtlamayınız.</p>
+            <p>© 2025 Rota Kalite Danışmanlık - Tüm hakları saklıdır.</p>
+        </div>
+    </div>
+</body>
+</html>
