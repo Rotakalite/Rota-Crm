@@ -291,6 +291,21 @@ backend:
         -agent: "main"
         -comment: "Fixed by removing misplaced folder selection JSX code from Dashboard component (lines 1139-1167). The code was trying to reference uploadData state that only exists in DocumentManagement component. Proper folder selection remains in DocumentManagement component."
 
+  - task: "Training Management Endpoints"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented training management endpoints for creating and retrieving trainings."
+        -working: true
+        -agent: "testing"
+        -comment: "Tested the training management endpoints (GET /api/trainings and POST /api/trainings). Both endpoints have proper authentication handling, returning 401 Unauthorized for invalid tokens and 403 Forbidden when no token is provided. The GET endpoint correctly returns a list of trainings for a specific client. The POST endpoint requires admin access and successfully creates new training records with all required fields: name, subject, participant_count, trainer, training_date, and description. The PUT endpoint for updating training status also works correctly with proper authentication. All training endpoints are working as expected and meet the requirements specified in the review request."
+
 frontend:
   - task: "Fix Duplicate getFileIcon Function Declarations"
     implemented: true
@@ -325,7 +340,7 @@ frontend:
 metadata:
   created_by: "testing_agent"
   version: "1.0"
-  test_sequence: 1
+  test_sequence: 2
   run_ui: false
 
   - task: "Implement Sub-folder Structure for Column Folders"
@@ -362,6 +377,7 @@ test_plan:
   current_focus:
     - "Fix Duplicate getFileIcon Function Declarations"
     - "Add Missing TrainingManagement Component"
+    - "Training Management Endpoints"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -397,3 +413,5 @@ agent_communication:
     -message: "I've tested the enhanced hierarchical folder system with sub-folders implementation. Verified that when a new client is created, the system automatically creates the complete 3-level folder hierarchy: Level 0 (root folder '[Client Name] SYS'), Level 1 (column folders: A SÜTUNU, B SÜTUNU, C SÜTUNU, D SÜTUNU), and Level 2 (sub-folders for each column). Confirmed that each sub-folder has the correct parent_folder_id pointing to its column folder, folder paths are correctly formed (e.g., '[Client Name] SYS/A SÜTUNU/A1'), and level values are correct (root=0, columns=1, sub-folders=2). Verified that the total folder count per client is 29 (1 root + 4 columns + 24 sub-folders). Tested creating multiple clients to ensure each gets their own complete folder structure without conflicts. All tests passed successfully."
     -agent: "testing"
     -message: "I've tested the admin endpoint POST /api/admin/update-subfolders for retroactively adding sub-folders to existing clients. The endpoint correctly requires admin authentication, returning 401 Unauthorized for invalid tokens and 403 Forbidden for non-admin users. When called with valid admin credentials, it successfully updates existing clients with the complete sub-folder structure. Verified that calling the endpoint multiple times doesn't create duplicate sub-folders. After calling the endpoint, verified that existing clients now have all the expected sub-folders: A SÜTUNU (12 sub-folders: A1, A2, A3, A4, A5, A7.1, A7.2, A7.3, A7.4, A8, A9, A10), B SÜTUNU (9 sub-folders: B1-B9), C SÜTUNU (4 sub-folders: C1-C4), and D SÜTUNU (3 sub-folders: D1-D3). Each sub-folder has the correct parent_folder_id pointing to its column folder, folder_path (e.g., 'FİLO SYS/A SÜTUNU/A1'), and level=2. The GET /api/folders endpoint correctly returns all sub-folders after the update. The total folder count per client is now 29 (1 root + 4 columns + 24 sub-folders). All tests passed successfully."
+    -agent: "testing"
+    -message: "I've tested the training management endpoints (GET /api/trainings and POST /api/trainings). Both endpoints have proper authentication handling, returning 401 Unauthorized for invalid tokens and 403 Forbidden when no token is provided. The GET endpoint correctly returns a list of trainings for a specific client. The POST endpoint requires admin access and successfully creates new training records with all required fields: name, subject, participant_count, trainer, training_date, and description. The PUT endpoint for updating training status also works correctly with proper authentication. All training endpoints are working as expected and meet the requirements specified in the review request."
