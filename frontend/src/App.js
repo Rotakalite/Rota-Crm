@@ -448,7 +448,6 @@ const ConsumptionAnalytics = () => {
       setClients([]);
     }
   };
-  };
 
   const fetchAnalyticsData = async () => {
     if (!authToken) {
