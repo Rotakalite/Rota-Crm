@@ -4990,7 +4990,7 @@ const WhatsAppManagement = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/whatsapp/send`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/whatsapp/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
