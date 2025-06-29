@@ -258,9 +258,9 @@ class TestCORSConfiguration(unittest.TestCase):
             
             if response.status_code == 200:
                 logger.info("✅ Backend URL is accessible")
-            elif response.status_code == 404:
-                # 404 is acceptable for the root endpoint if it's not defined
-                # Try a known endpoint
+            elif response.status_code in [404, 405]:
+                # 404/405 is acceptable for the root endpoint if it's not defined or doesn't allow GET
+                # Try a known endpoint with OPTIONS which should always work with CORS
                 known_url = f"{self.api_url}/stats"
                 known_response = requests.options(known_url)
                 self.assertEqual(known_response.status_code, 200, 
