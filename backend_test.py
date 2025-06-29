@@ -3243,12 +3243,15 @@ class TestHealthAndCORS(unittest.TestCase):
             # Verify response format
             data = response.json()
             self.assertIn("status", data, "Response should include 'status' field")
-            self.assertIn("service", data, "Response should include 'service' field")
             self.assertIn("timestamp", data, "Response should include 'timestamp' field")
-            self.assertIn("version", data, "Response should include 'version' field")
+            self.assertIn("message", data, "Response should include 'message' field")
+            self.assertIn("cors_enabled", data, "Response should include 'cors_enabled' field")
             
             # Verify status is "healthy"
             self.assertEqual(data["status"], "healthy", "Status should be 'healthy'")
+            
+            # Verify CORS is enabled
+            self.assertTrue(data["cors_enabled"], "CORS should be enabled")
             
             logger.info("✅ Health endpoint test passed")
         except Exception as e:
