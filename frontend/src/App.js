@@ -481,6 +481,11 @@ const ConsumptionAnalytics = () => {
   const [activeView, setActiveView] = useState('yearly'); // yearly, trends
   const { authToken, userRole, dbUser } = useAuth();
 
+  // Get document count for a folder
+  const getFolderDocumentCount = (folderId) => {
+    return documents.filter(doc => doc.folder_id === folderId).length;
+  };
+
   useEffect(() => {
     // Token hazır olmadan API call yapma
     if (!authToken) {
