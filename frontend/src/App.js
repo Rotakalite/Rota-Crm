@@ -2464,8 +2464,8 @@ const DocumentManagement = () => {
           </div>
         )}
 
-        {/* Documents List for Selected Folder */}
-        {selectedClient && selectedFolder && (
+        {/* Documents List for Selected Folder - Updated to show for level 2 and 3 folders */}
+        {selectedClient && selectedFolder && (selectedFolder.level === 2 || selectedFolder.level === 3) && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">
               📄 {selectedFolder.name} İçindeki Belgeler
