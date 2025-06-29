@@ -526,17 +526,22 @@ const ConsumptionAnalytics = () => {
   }, [authToken, selectedYear, selectedComparisonYear, selectedClient]);
 
   const fetchClients = async () => {
-    if (!authToken) return;
-    
     try {
-      console.log('👥 Admin fetching clients...');
-      const response = await axios.get(`${API}/clients`, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      });
-      console.log('👥 Admin clients response:', response.data);
-      setClients(response.data);
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      console.log('🔍 Fetching clients with role:', userRole);
+      const response = await axios.get(`${API}/clients`, { headers });
+      
+      // Check if response is actually JSON array
+      if (Array.isArray(response.data)) {
+        setClients(response.data);
+        console.log('✅ Clients fetched:', response.data.length, 'for role:', userRole);
+        console.log('📋 Client data:', response.data);
+      } else {
+        console.error('❌ Invalid response type:', typeof response.data, response.data);
+        setClients([]);
+      }
     } catch (error) {
-      console.error('❌ Error fetching clients:', error);
+      console.error("❌ Error fetching clients:", error.response?.status, error.response?.data);
       setClients([]);
     }
   };
