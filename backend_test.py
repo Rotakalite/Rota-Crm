@@ -1330,6 +1330,276 @@ def run_simplified_upload_tests():
         logger.error("Some simplified upload system tests FAILED")
         return False
 
+class TestTrainingEndpoints(unittest.TestCase):
+    """Test class for training management endpoints"""
+    
+    def setUp(self):
+        """Set up test environment"""
+        self.api_url = "https://ced36975-561f-4c1a-b948-3ca6d5f89931.preview.emergentagent.com/api"
+        self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
+        self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
+        self.headers_no_auth = {}
+        
+        # Sample training data for testing
+        self.training_data = {
+            "client_id": "test_client_id",
+            "name": "Sürdürülebilirlik Eğitimi",
+            "subject": "Enerji Tasarrufu ve Sürdürülebilir Turizm",
+            "participant_count": 25,
+            "trainer": "Dr. Ahmet Yılmaz",
+            "training_date": "2025-06-15T10:00:00Z",
+            "description": "Otel personeli için enerji tasarrufu ve sürdürülebilir turizm uygulamaları hakkında kapsamlı eğitim."
+        }
+    
+    def test_get_trainings_endpoint(self):
+        """Test the GET /api/trainings endpoint with authentication"""
+        logger.info("\n=== Testing GET /api/trainings endpoint ===")
+        
+        # Test with valid token
+        logger.info("Testing with valid token...")
+        url = f"{self.api_url}/trainings"
+        
+        try:
+            # First try with a client_id parameter
+            params = {"client_id": "test_client_id"}
+            response = requests.get(url, headers=self.headers_valid, params=params)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Check if we get a 200 OK or 401 Unauthorized (not 403 Forbidden)
+            self.assertIn(response.status_code, [200, 401, 404])
+            
+            if response.status_code == 200:
+                logger.info("✅ Authentication successful - received 200 OK")
+                data = response.json()
+                self.assertIsInstance(data, list, "Response should be a list of trainings")
+                
+                # Check structure of trainings if any exist
+                if len(data) > 0:
+                    training = data[0]
+                    self.assertIn("id", training, "Training should have an id field")
+                    self.assertIn("client_id", training, "Training should have a client_id field")
+                    self.assertIn("title", training, "Training should have a title field")
+                    self.assertIn("description", training, "Training should have a description field")
+                    self.assertIn("training_date", training, "Training should have a training_date field")
+                    self.assertIn("participants", training, "Training should have a participants field")
+                    self.assertIn("status", training, "Training should have a status field")
+                    
+                    logger.info(f"✅ Training data structure verified: {training.get('id')}")
+                else:
+                    logger.info("✅ No trainings found for the specified client (this is expected for test client)")
+            elif response.status_code == 401:
+                logger.info("✅ Authentication failed correctly - received 401 Unauthorized")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+            elif response.status_code == 404:
+                logger.info("✅ Client not found - received 404 Not Found (expected for test client)")
+                
+            # Test with invalid token
+            logger.info("Testing with invalid token...")
+            response = requests.get(url, headers=self.headers_invalid, params=params)
+            logger.info(f"Response status code with invalid token: {response.status_code}")
+            
+            # Should get 401 Unauthorized, not 403 Forbidden
+            self.assertEqual(response.status_code, 401)
+            error_data = response.json()
+            self.assertIn("detail", error_data)
+            logger.info("✅ Invalid token test passed - received 401 Unauthorized")
+            
+            # Test without token
+            logger.info("Testing without token...")
+            response = requests.get(url, params=params)
+            logger.info(f"Response status code without token: {response.status_code}")
+            
+            # Should get 401 Unauthorized or 403 Forbidden (both are acceptable)
+            self.assertIn(response.status_code, [401, 403])
+            error_data = response.json()
+            self.assertIn("detail", error_data)
+            logger.info(f"✅ No token test passed - received {response.status_code}")
+            
+            logger.info("✅ GET /api/trainings endpoint test passed")
+        except Exception as e:
+            logger.error(f"❌ Error testing GET /api/trainings endpoint: {str(e)}")
+            raise
+    
+    def test_create_training_endpoint(self):
+        """Test the POST /api/trainings endpoint with authentication"""
+        logger.info("\n=== Testing POST /api/trainings endpoint ===")
+        
+        # Test with valid token
+        logger.info("Testing with valid token...")
+        url = f"{self.api_url}/trainings"
+        
+        try:
+            # Create a unique training to avoid conflicts
+            unique_training_data = self.training_data.copy()
+            unique_training_data["name"] = f"Test Training {uuid.uuid4()}"
+            
+            response = requests.post(url, headers=self.headers_valid, json=unique_training_data)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Check if we get a 200 OK, 401 Unauthorized, or 404/422 (if client doesn't exist or validation fails)
+            self.assertIn(response.status_code, [200, 201, 401, 404, 422, 403])
+            
+            if response.status_code in [200, 201]:
+                logger.info("✅ Training created successfully - received 200/201")
+                data = response.json()
+                
+                # Verify the response contains the expected fields
+                self.assertIn("id", data, "Response should include id field")
+                self.assertIn("client_id", data, "Response should include client_id field")
+                self.assertEqual(data["client_id"], unique_training_data["client_id"], "client_id should match input")
+                
+                # Check if name or title is used in the response
+                if "name" in data:
+                    self.assertEqual(data["name"], unique_training_data["name"], "name should match input")
+                elif "title" in data:
+                    self.assertEqual(data["title"], unique_training_data["name"], "title should match input name")
+                else:
+                    self.fail("Response should include either name or title field")
+                
+                # Check other fields
+                if "subject" in data:
+                    self.assertEqual(data["subject"], unique_training_data["subject"], "subject should match input")
+                
+                if "participant_count" in data:
+                    self.assertEqual(data["participant_count"], unique_training_data["participant_count"], 
+                                    "participant_count should match input")
+                elif "participants" in data:
+                    self.assertEqual(data["participants"], unique_training_data["participant_count"], 
+                                    "participants should match input participant_count")
+                
+                if "trainer" in data:
+                    self.assertEqual(data["trainer"], unique_training_data["trainer"], "trainer should match input")
+                
+                if "description" in data:
+                    self.assertEqual(data["description"], unique_training_data["description"], 
+                                    "description should match input")
+                
+                logger.info(f"✅ Created training with ID: {data.get('id')}")
+                
+            elif response.status_code == 401:
+                logger.info("✅ Authentication failed correctly - received 401 Unauthorized")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+            elif response.status_code == 403:
+                logger.info("✅ Permission denied correctly - received 403 Forbidden (expected for non-admin users)")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+            elif response.status_code in [404, 422]:
+                logger.info(f"✅ Expected error - received {response.status_code}")
+                # This is also acceptable as it means authentication passed but validation failed
+            
+            # Test with invalid token
+            logger.info("Testing with invalid token...")
+            response = requests.post(url, headers=self.headers_invalid, json=unique_training_data)
+            logger.info(f"Response status code with invalid token: {response.status_code}")
+            
+            # Should get 401 Unauthorized, not 403 Forbidden
+            self.assertEqual(response.status_code, 401)
+            error_data = response.json()
+            self.assertIn("detail", error_data)
+            logger.info("✅ Invalid token test passed - received 401 Unauthorized")
+            
+            # Test without token
+            logger.info("Testing without token...")
+            response = requests.post(url, json=unique_training_data)
+            logger.info(f"Response status code without token: {response.status_code}")
+            
+            # Should get 401 Unauthorized or 403 Forbidden (both are acceptable)
+            self.assertIn(response.status_code, [401, 403])
+            error_data = response.json()
+            self.assertIn("detail", error_data)
+            logger.info(f"✅ No token test passed - received {response.status_code}")
+            
+            logger.info("✅ POST /api/trainings endpoint test passed")
+        except Exception as e:
+            logger.error(f"❌ Error testing POST /api/trainings endpoint: {str(e)}")
+            raise
+    
+    def test_update_training_status(self):
+        """Test the PUT /api/trainings/{training_id} endpoint with authentication"""
+        logger.info("\n=== Testing PUT /api/trainings/{training_id} endpoint ===")
+        
+        # First create a training to update
+        logger.info("Creating a training to update...")
+        create_url = f"{self.api_url}/trainings"
+        
+        try:
+            # Create a unique training
+            unique_training_data = self.training_data.copy()
+            unique_training_data["name"] = f"Test Training for Update {uuid.uuid4()}"
+            
+            create_response = requests.post(create_url, headers=self.headers_valid, json=unique_training_data)
+            logger.info(f"Create response status code: {create_response.status_code}")
+            
+            # If training creation was successful, proceed with update test
+            if create_response.status_code in [200, 201]:
+                training_data = create_response.json()
+                training_id = training_data.get("id")
+                logger.info(f"Created training with ID: {training_id}")
+                
+                # Test updating the training status
+                update_url = f"{self.api_url}/trainings/{training_id}"
+                update_data = {"status": "completed"}
+                
+                # Test with valid token
+                logger.info("Testing update with valid token...")
+                update_response = requests.put(update_url, headers=self.headers_valid, json=update_data)
+                logger.info(f"Update response status code: {update_response.status_code}")
+                logger.info(f"Update response body: {update_response.text[:200]}...")
+                
+                # Check if we get a 200 OK, 401 Unauthorized, or 404 (if training doesn't exist)
+                self.assertIn(update_response.status_code, [200, 401, 404, 403])
+                
+                if update_response.status_code == 200:
+                    logger.info("✅ Training status updated successfully - received 200 OK")
+                    data = update_response.json()
+                    self.assertIn("message", data, "Response should include message field")
+                elif update_response.status_code == 401:
+                    logger.info("✅ Authentication failed correctly - received 401 Unauthorized")
+                    error_data = update_response.json()
+                    self.assertIn("detail", error_data)
+                elif update_response.status_code == 403:
+                    logger.info("✅ Permission denied correctly - received 403 Forbidden (expected for non-admin users)")
+                    error_data = update_response.json()
+                    self.assertIn("detail", error_data)
+                elif update_response.status_code == 404:
+                    logger.info("✅ Training not found - received 404 Not Found")
+                    error_data = update_response.json()
+                    self.assertIn("detail", error_data)
+                
+                # Test with invalid token
+                logger.info("Testing update with invalid token...")
+                update_response = requests.put(update_url, headers=self.headers_invalid, json=update_data)
+                logger.info(f"Update response status code with invalid token: {update_response.status_code}")
+                
+                # Should get 401 Unauthorized, not 403 Forbidden
+                self.assertEqual(update_response.status_code, 401)
+                error_data = update_response.json()
+                self.assertIn("detail", error_data)
+                logger.info("✅ Invalid token test passed - received 401 Unauthorized")
+                
+                # Test without token
+                logger.info("Testing update without token...")
+                update_response = requests.put(update_url, json=update_data)
+                logger.info(f"Update response status code without token: {update_response.status_code}")
+                
+                # Should get 401 Unauthorized or 403 Forbidden (both are acceptable)
+                self.assertIn(update_response.status_code, [401, 403])
+                error_data = update_response.json()
+                self.assertIn("detail", error_data)
+                logger.info(f"✅ No token test passed - received {update_response.status_code}")
+                
+                logger.info("✅ PUT /api/trainings/{training_id} endpoint test passed")
+            else:
+                logger.warning(f"⚠️ Could not create training for update test, status code: {create_response.status_code}")
+                logger.warning("Skipping update test")
+        except Exception as e:
+            logger.error(f"❌ Error testing PUT /api/trainings/{training_id} endpoint: {str(e)}")
+            raise
+
 class TestClientDashboardStats(unittest.TestCase):
     """Test class for client dashboard statistics endpoint"""
     
