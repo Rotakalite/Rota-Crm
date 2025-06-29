@@ -527,27 +527,6 @@ async def send_test_message(
     except Exception as e:
         logging.error(f"WhatsApp test error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-@api_router.get("/whatsapp/status")
-async def get_whatsapp_status(current_user: User = Depends(get_admin_user)):
-    """WhatsApp bağlantı durumunu kontrol et"""
-    try:
-        if not whatsapp_service:
-            return {"connected": False, "error": "WhatsApp servis mevcut değil"}
-        
-        status = await whatsapp_service.get_status()
-        return status
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logging.error(f"WhatsApp status error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@api_router.get("/whatsapp/qr")
-async def get_whatsapp_qr(current_user: User = Depends(get_admin_user)):
-    """WhatsApp QR kodu al"""
-    try:
         if not whatsapp_service:
             return {"qr": None, "error": "WhatsApp servis mevcut değil"}
         
