@@ -3214,7 +3214,209 @@ def run_level3_subfolder_tests():
         logger.error("Some Level 3 sub-folder structure tests FAILED")
         return False
 
+class TestHealthAndCORS(unittest.TestCase):
+    """Test class for health check endpoint, CORS configuration, and URL discovery system"""
+    
+    def setUp(self):
+        """Set up test environment"""
+        # Use the correct backend URL from frontend/.env
+        self.api_url = "https://ddbdf62a-0dc7-4cf4-b9a6-6dc3e3277ae1.preview.emergentagent.com/api"
+        self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
+        self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
+        
+    def test_health_check_endpoint(self):
+        """Test the /api/health endpoint"""
+        logger.info("\n=== Testing /api/health endpoint ===")
+        
+        url = f"{self.api_url}/health"
+        
+        try:
+            # Test without authentication
+            logger.info("Testing health endpoint without authentication...")
+            response = requests.get(url)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:200]}...")
+            
+            # Should get 200 OK
+            self.assertEqual(response.status_code, 200, "Health endpoint should return 200 OK without authentication")
+            
+            # Verify response format
+            data = response.json()
+            self.assertIn("status", data, "Response should include 'status' field")
+            self.assertIn("service", data, "Response should include 'service' field")
+            self.assertIn("timestamp", data, "Response should include 'timestamp' field")
+            self.assertIn("version", data, "Response should include 'version' field")
+            
+            # Verify status is "healthy"
+            self.assertEqual(data["status"], "healthy", "Status should be 'healthy'")
+            
+            logger.info("✅ Health endpoint test passed")
+        except Exception as e:
+            logger.error(f"❌ Error testing health endpoint: {str(e)}")
+            raise
+    
+    def test_cors_configuration(self):
+        """Test CORS configuration for critical endpoints"""
+        logger.info("\n=== Testing CORS configuration ===")
+        
+        # List of critical endpoints to test
+        endpoints = [
+            "/auth/register",
+            "/stats",
+            "/clients"
+        ]
+        
+        for endpoint in endpoints:
+            url = f"{self.api_url}{endpoint}"
+            logger.info(f"Testing CORS for endpoint: {endpoint}")
+            
+            try:
+                # Test OPTIONS preflight request
+                logger.info("Testing OPTIONS preflight request...")
+                headers = {
+                    "Origin": "https://example.com",
+                    "Access-Control-Request-Method": "GET",
+                    "Access-Control-Request-Headers": "Content-Type, Authorization"
+                }
+                
+                response = requests.options(url, headers=headers)
+                logger.info(f"Response status code: {response.status_code}")
+                logger.info(f"Response headers: {dict(response.headers)}")
+                
+                # Should get 200 OK for OPTIONS request
+                self.assertEqual(response.status_code, 200, f"OPTIONS request for {endpoint} should return 200 OK")
+                
+                # Verify CORS headers
+                self.assertIn("Access-Control-Allow-Origin", response.headers, 
+                             f"Response for {endpoint} should include Access-Control-Allow-Origin header")
+                self.assertIn("Access-Control-Allow-Methods", response.headers, 
+                             f"Response for {endpoint} should include Access-Control-Allow-Methods header")
+                self.assertIn("Access-Control-Allow-Headers", response.headers, 
+                             f"Response for {endpoint} should include Access-Control-Allow-Headers header")
+                
+                # Verify Access-Control-Allow-Origin is "*" (allows all origins)
+                self.assertEqual(response.headers["Access-Control-Allow-Origin"], "*", 
+                                f"Access-Control-Allow-Origin for {endpoint} should be '*'")
+                
+                logger.info(f"✅ CORS test passed for {endpoint}")
+                
+                # Test actual request with Origin header
+                logger.info("Testing actual request with Origin header...")
+                headers = {
+                    "Origin": "https://example.com"
+                }
+                
+                # Use GET for /stats and /clients, POST for /auth/register
+                if endpoint == "/auth/register":
+                    # For /auth/register, we'll just check the CORS headers without sending actual data
+                    response = requests.options(url, headers=headers)
+                else:
+                    response = requests.get(url, headers=headers)
+                
+                # Verify CORS headers in actual response
+                self.assertIn("Access-Control-Allow-Origin", response.headers, 
+                             f"Response for {endpoint} should include Access-Control-Allow-Origin header")
+                
+                # Verify Access-Control-Allow-Origin is "*" (allows all origins)
+                self.assertEqual(response.headers["Access-Control-Allow-Origin"], "*", 
+                                f"Access-Control-Allow-Origin for {endpoint} should be '*'")
+                
+                logger.info(f"✅ Actual request CORS test passed for {endpoint}")
+            except Exception as e:
+                logger.error(f"❌ Error testing CORS for {endpoint}: {str(e)}")
+                raise
+    
+    def test_url_discovery_system(self):
+        """Test if the health check endpoint can be used for URL discovery"""
+        logger.info("\n=== Testing URL discovery system ===")
+        
+        url = f"{self.api_url}/health"
+        
+        try:
+            # Test response time
+            logger.info("Testing response time...")
+            import time
+            
+            start_time = time.time()
+            response = requests.get(url)
+            end_time = time.time()
+            
+            response_time = end_time - start_time
+            logger.info(f"Response time: {response_time:.4f} seconds")
+            
+            # Response time should be reasonable (less than 2 seconds)
+            self.assertLess(response_time, 2.0, "Response time should be less than 2 seconds")
+            
+            # Verify response is successful
+            self.assertEqual(response.status_code, 200, "Health endpoint should return 200 OK")
+            
+            # Test reliability by making multiple requests
+            logger.info("Testing reliability with multiple requests...")
+            success_count = 0
+            total_requests = 5
+            
+            for i in range(total_requests):
+                try:
+                    resp = requests.get(url, timeout=5)
+                    if resp.status_code == 200:
+                        success_count += 1
+                except Exception as req_error:
+                    logger.warning(f"Request {i+1} failed: {str(req_error)}")
+            
+            success_rate = success_count / total_requests
+            logger.info(f"Success rate: {success_rate * 100:.2f}% ({success_count}/{total_requests})")
+            
+            # Success rate should be at least 80%
+            self.assertGreaterEqual(success_rate, 0.8, "Success rate should be at least 80%")
+            
+            logger.info("✅ URL discovery system test passed")
+        except Exception as e:
+            logger.error(f"❌ Error testing URL discovery system: {str(e)}")
+            raise
+
+def run_health_and_cors_tests():
+    """Run tests for health check endpoint, CORS configuration, and URL discovery system"""
+    logger.info("Starting health check and CORS tests...")
+    
+    # Create a test suite
+    suite = unittest.TestSuite()
+    
+    # Add health and CORS tests
+    suite.addTest(TestHealthAndCORS("test_health_check_endpoint"))
+    suite.addTest(TestHealthAndCORS("test_cors_configuration"))
+    suite.addTest(TestHealthAndCORS("test_url_discovery_system"))
+    
+    # Run the tests
+    runner = unittest.TextTestRunner()
+    result = runner.run(suite)
+    
+    # Summary
+    logger.info("\n=== Health Check and CORS Test Summary ===")
+    logger.info(f"Tests run: {result.testsRun}")
+    logger.info(f"Errors: {len(result.errors)}")
+    logger.info(f"Failures: {len(result.failures)}")
+    
+    if result.wasSuccessful():
+        logger.info("All health check and CORS tests PASSED")
+        return True
+    else:
+        logger.error("Some health check and CORS tests FAILED")
+        return False
+
 if __name__ == "__main__":
     import requests  # Import here to avoid issues with mocking
-    # Run Level 3 sub-folder tests
-    run_level3_subfolder_tests()
+    
+    # Update API URL in all test classes to use the correct URL from frontend/.env
+    TestAnalyticsEndpoints.api_url = "https://ddbdf62a-0dc7-4cf4-b9a6-6dc3e3277ae1.preview.emergentagent.com/api"
+    TestDocumentEndpoints.api_url = "https://ddbdf62a-0dc7-4cf4-b9a6-6dc3e3277ae1.preview.emergentagent.com/api"
+    TestSimplifiedUploadSystem.api_url = "https://ddbdf62a-0dc7-4cf4-b9a6-6dc3e3277ae1.preview.emergentagent.com/api"
+    TestTrainingEndpoints.api_url = "https://ddbdf62a-0dc7-4cf4-b9a6-6dc3e3277ae1.preview.emergentagent.com/api"
+    TestClientDashboardStats.api_url = "https://ddbdf62a-0dc7-4cf4-b9a6-6dc3e3277ae1.preview.emergentagent.com/api"
+    TestFolderSystem.api_url = "https://ddbdf62a-0dc7-4cf4-b9a6-6dc3e3277ae1.preview.emergentagent.com/api"
+    TestHierarchicalSubFolderSystem.api_url = "https://ddbdf62a-0dc7-4cf4-b9a6-6dc3e3277ae1.preview.emergentagent.com/api"
+    
+    # Run the new health check and CORS tests
+    run_health_and_cors_tests()
+    
+    # Run other tests as needed
+    # run_level3_subfolder_tests()
