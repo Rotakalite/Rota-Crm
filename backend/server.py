@@ -2213,24 +2213,6 @@ async def get_users_and_clients(current_user: User = Depends(get_admin_user)):
 
 # ==================== TRAINING ENDPOINTS ====================
 
-@api_router.post("/trainings", response_model=Training)
-async def create_training(training: TrainingCreate, current_user: User = Depends(get_admin_user)):
-    """Create a new training (Admin only)"""
-    logging.info(f"📚 POST /trainings called by admin: {current_user.name}")
-    
-    # Verify client exists
-    client = await db.clients.find_one({"id": training.client_id})
-    if not client:
-        raise HTTPException(status_code=404, detail="Client not found")
-    
-    # Create training record
-    training_data = Training(**training.dict())
-    
-    # Insert to database
-    await db.trainings.insert_one(training_data.dict())
-    
-    logging.info(f"✅ Training created: {training_data.name} for client {client['hotel_name']}")
-    return training_data
 
 @api_router.get("/trainings")
 async def get_trainings(current_user: User = Depends(get_current_user)):
