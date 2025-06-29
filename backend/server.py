@@ -487,7 +487,7 @@ async def get_current_user(payload: dict = Depends(verify_token)):
             "clerk_user_id": clerk_user_id,
             "name": user_name,
             "email": user_email,
-            "role": "admin",  # Default role
+            "role": "client",  # Default role is CLIENT
             "client_id": "",  # Will be set later via client setup
             "created_at": datetime.utcnow()
         }
