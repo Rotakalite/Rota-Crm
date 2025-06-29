@@ -2018,7 +2018,7 @@ const DocumentManagement = () => {
   const [uploadData, setUploadData] = useState({
     client_id: '',
     name: '',
-    document_type: 'TR-I Kriterleri',
+    document_type: 'Türkiye Sürdürülebilir Turizm Programı Kriterleri (TR-I)',
     stage: 'I.Aşama',
     files: [],
     folder_id: ''
