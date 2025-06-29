@@ -2576,5 +2576,5 @@ def run_hierarchical_subfolder_tests():
 
 if __name__ == "__main__":
     import requests  # Import here to avoid issues with mocking
-    # Run hierarchical sub-folder tests
-    run_hierarchical_subfolder_tests()
+    # Run all tests
+    run_tests()
