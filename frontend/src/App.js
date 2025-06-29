@@ -871,9 +871,7 @@ const Dashboard = ({ onNavigate }) => {
       alert('Belge başarıyla silindi!');
       
       // Refresh documents list
-      if (selectedClient) {
-        fetchDocuments(selectedClient.id);
-      }
+      fetchDocuments();
     } catch (error) {
       console.error('❌ Delete error:', error);
       alert('Belge silinemedi!');
