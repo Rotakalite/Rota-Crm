@@ -2942,7 +2942,95 @@ async def delete_training(training_id: str, current_user: User = Depends(get_adm
     return {"message": "Training deleted successfully"}
 
 # Include the router in the main app
-app.include_router(api_router)
+# EMAIL NOTIFICATION ENDPOINTS
+@api_router.post("/email/test")
+async def send_test_email(current_user: User = Depends(get_current_user)):
+    """Send test email to current user"""
+    if not email_service:
+        raise HTTPException(status_code=500, detail="Email service not available")
+    
+    try:
+        success = await email_service.send_test_email(current_user.email)
+        if success:
+            return {"message": "Test email gönderildi!", "email": current_user.email}
+        else:
+            raise HTTPException(status_code=500, detail="Email gönderilemedi")
+    except Exception as e:
+        logging.error(f"❌ Test email error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Email gönderme hatası: {str(e)}")
+
+@api_router.post("/email/document-notification")
+async def send_document_notification(
+    document_id: str = Form(...),
+    current_user: User = Depends(get_admin_user)
+):
+    """Admin-only: Send document upload notification email"""
+    if not email_service:
+        raise HTTPException(status_code=500, detail="Email service not available")
+    
+    try:
+        # Get document details
+        document = await db.documents.find_one({"id": document_id})
+        if not document:
+            raise HTTPException(status_code=404, detail="Document not found")
+        
+        # Get client details
+        client = await db.clients.find_one({"id": document["client_id"]})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        # Send email
+        await email_service.send_document_upload_notification(
+            recipient_email=client["contact_person"],
+            document_name=document["document_name"],
+            upload_date=document["created_at"].strftime("%d.%m.%Y %H:%M"),
+            client_name=client["name"]
+        )
+        
+        return {"message": f"Doküman bildirimi {client['name']} müşterisine gönderildi!"}
+        
+    except Exception as e:
+        logging.error(f"❌ Document notification error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Email gönderme hatası: {str(e)}")
+
+@api_router.post("/email/training-notification")
+async def send_training_notification(
+    training_id: str = Form(...),
+    current_user: User = Depends(get_admin_user)
+):
+    """Admin-only: Send training notification email"""
+    if not email_service:
+        raise HTTPException(status_code=500, detail="Email service not available")
+    
+    try:
+        # Get training details
+        training = await db.trainings.find_one({"id": training_id})
+        if not training:
+            raise HTTPException(status_code=404, detail="Training not found")
+        
+        # Get client details
+        client = await db.clients.find_one({"id": training["client_id"]})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        # Send email
+        await email_service.send_training_notification(
+            recipient_email=client["contact_person"],
+            training_name=training["name"],
+            training_date=training["training_date"],
+            trainer=training["trainer"],
+            participant_count=training["participant_count"],
+            client_name=client["name"]
+        )
+        
+        return {"message": f"Eğitim bildirimi {client['name']} müşterisine gönderildi!"}
+        
+    except Exception as e:
+        logging.error(f"❌ Training notification error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Email gönderme hatası: {str(e)}")
+
+# Include the API router in the app
+app.include_router(api_router, prefix="/api")
 
 # Mount static files (React build) - KALICI ÇÖZÜM!
 # Bu CORS problemini tamamen ortadan kaldırır çünkü frontend ve backend aynı domain'de
