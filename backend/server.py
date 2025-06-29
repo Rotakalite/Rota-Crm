@@ -525,15 +525,7 @@ def get_user_id_from_token(token: str) -> str:
     # Bu fonksiyon da şimdilik placeholder - endpoint'de get_current_user kullanacağız
     return token
 
-@api_router.get("/health")
-async def health_check():
-    """Health check endpoint for frontend URL discovery"""
-    return {
-        "status": "healthy",
-        "service": "Rota CRM Backend",
-        "timestamp": datetime.now().isoformat(),
-        "version": "1.0.0"
-    }
+
 
 @api_router.get("/whatsapp/status")
 async def get_whatsapp_status(current_user: User = Depends(get_admin_user)):
