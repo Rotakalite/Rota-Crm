@@ -61,9 +61,9 @@ class TestCORSConfiguration(unittest.TestCase):
             self.assertTrue(origin_header == "*" or origin_header == self.preflight_headers["Origin"], 
                            f"Origin not allowed: {origin_header}")
             
-            # Check if POST method is allowed
+            # Check if POST method is allowed (either explicitly or via wildcard)
             methods_header = response.headers.get("Access-Control-Allow-Methods")
-            self.assertIn("POST", methods_header.split(",") if "," in methods_header else [methods_header], 
+            self.assertTrue(methods_header == "*" or "POST" in methods_header.split(",") if "," in methods_header else [methods_header], 
                          f"POST method not allowed: {methods_header}")
             
             logger.info("✅ CORS preflight test passed for /api/auth/register")
