@@ -5059,11 +5059,6 @@ const EmailManagement = () => {
   };
 
 
-  // Get client email helper function  
-  const getClientEmail = (clientId) => {
-    const client = clients.find(c => c.id === clientId);
-    return client ? client.contact_person : 'Email bulunamadı';
-  };
 
   const fetchClients = async () => {
     try {
