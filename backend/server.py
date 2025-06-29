@@ -1040,6 +1040,68 @@ async def get_client(client_id: str, current_user: User = Depends(get_current_us
     
     return Client(**client)
 
+# ==========================
+# CLIENT PHONE NUMBER MANAGEMENT
+# ==========================
+
+@api_router.post("/clients/{client_id}/phone")
+async def update_client_phone(
+    client_id: str,
+    request: dict,
+    current_user: User = Depends(get_admin_user)
+):
+    """Müşteri telefon numarasını güncelle (Admin only)"""
+    try:
+        phone_number = request.get("phone_number")
+        if not phone_number:
+            raise HTTPException(status_code=400, detail="Telefon numarası gerekli")
+        
+        # Telefon numarası formatını kontrol et
+        clean_phone = phone_number.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
+        if not clean_phone.startswith(("0", "+90", "90")):
+            raise HTTPException(status_code=400, detail="Geçersiz Türk telefon numarası formatı")
+        
+        # Müşteriyi güncelle
+        result = await db.clients.update_one(
+            {"id": client_id},
+            {"$set": {"phone_number": clean_phone, "updated_at": datetime.utcnow()}}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        logging.info(f"✅ Client phone updated: {client_id} -> {clean_phone}")
+        return {"message": "Telefon numarası güncellendi", "phone_number": clean_phone}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Client phone update error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/clients/{client_id}/phone")
+async def get_client_phone(
+    client_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Müşteri telefon numarasını al"""
+    try:
+        # Client sadece kendi telefon numarasını görebilir
+        if current_user.role == UserRole.CLIENT and current_user.client_id != client_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        client = await db.clients.find_one({"id": client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        return {"phone_number": client.get("phone_number", "")}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Get client phone error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/admin/update-subfolders")
 async def update_existing_clients_subfolders(current_user: User = Depends(get_current_user)):
     """Admin-only endpoint to update existing clients with sub-folders"""
