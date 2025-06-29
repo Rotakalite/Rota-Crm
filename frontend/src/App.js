@@ -1591,22 +1591,6 @@ const ClientManagement = ({ onNavigate }) => {
 
 // Document Modal Component
 const DocumentModal = ({ document, onClose, onDownload }) => {
-  const getFileIcon = (filePath) => {
-    const extension = filePath?.split('.').pop().toLowerCase();
-    switch (extension) {
-      case 'pdf': return '📄';
-      case 'doc':
-      case 'docx': return '📝';
-      case 'xls':
-      case 'xlsx': return '📊';
-      case 'jpg':
-      case 'jpeg':
-      case 'png': return '🖼️';
-      case 'zip':
-      case 'rar': return '📦';
-      default: return '📋';
-    }
-  };
 
   if (!document) return null;
 
