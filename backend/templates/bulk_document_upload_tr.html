@@ -98,7 +98,7 @@
                     <div class="document-item">
                         <div class="document-name">📄 {{ document.get('name', 'Bilinmiyen Doküman') }}</div>
                         <div class="document-date">
-                            📅 Yükleme: {% if document.get('created_at') %}{{ document.created_at.strftime('%d.%m.%Y %H:%M') }}{% else %}Bilinmiyor{% endif %}
+                            📅 Yükleme: {{ document.formatted_date }}
                         </div>
                     </div>
                     {% endfor %}
