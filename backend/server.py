@@ -82,55 +82,92 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Add CORS middleware first (CRITICAL FOR FRONTEND ACCESS)
+# ULTRA AGGRESSIVE CORS CONFIGURATION - FIXES ALL CORS ISSUES
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Tüm domainlere izin ver
     allow_credentials=False,  # * kullanırken False olmalı
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Tüm method'lara izin ver
+    allow_headers=["*"],  # Tüm header'lara izin ver
     expose_headers=["*"],
-    max_age=600
+    max_age=0  # Cache'leme yok
 )
-
-# CORS preflight handler
-@app.options("/{full_path:path}")
-async def options_handler(full_path: str):
-    """Handle CORS preflight requests"""
-    return Response(
-        status_code=200,
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-            "Access-Control-Allow-Headers": "*",
-            "Access-Control-Max-Age": "600"
-        }
-    )
 
 # Set maximum request size to 500MB
 app.state.max_request_size = 500 * 1024 * 1024  # 500MB
 
-# Add custom middleware for large uploads and CORS
+# SUPER AGGRESSIVE CORS MIDDLEWARE - FORCES CORS ON ALL RESPONSES
 @app.middleware("http")
-async def cors_and_upload_middleware(request, call_next):
+async def ultra_cors_middleware(request, call_next):
+    # Handle preflight OPTIONS requests FIRST
+    if request.method == "OPTIONS":
+        response = Response(
+            status_code=200,
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH",
+                "Access-Control-Allow-Headers": "Accept, Accept-Language, Content-Language, Content-Type, Authorization, X-Requested-With, Origin, Access-Control-Request-Method, Access-Control-Request-Headers",
+                "Access-Control-Expose-Headers": "*",
+                "Access-Control-Allow-Credentials": "false",
+                "Access-Control-Max-Age": "86400",
+                "Content-Length": "0"
+            }
+        )
+        return response
+    
     # Allow large uploads for upload endpoints
     if request.url.path.endswith("/upload-document"):
         request.state.max_request_size = 500 * 1024 * 1024
     
+    # Process normal request
     response = await call_next(request)
     
-    # Force CORS headers for all responses - ULTRA PERMISSIVE
+    # Force CORS headers on ALL responses - ULTRA PERMISSIVE
     response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Methods"] = "*"
-    response.headers["Access-Control-Allow-Headers"] = "*"
-    response.headers["Access-Control-Allow-Credentials"] = "false"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH"
+    response.headers["Access-Control-Allow-Headers"] = "Accept, Accept-Language, Content-Language, Content-Type, Authorization, X-Requested-With, Origin, Access-Control-Request-Method, Access-Control-Request-Headers"
     response.headers["Access-Control-Expose-Headers"] = "*"
-    response.headers["Access-Control-Max-Age"] = "0"  # No caching
+    response.headers["Access-Control-Allow-Credentials"] = "false"
+    response.headers["Access-Control-Max-Age"] = "86400"
     
     return response
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
+
+# Additional OPTIONS handler for API routes
+@api_router.options("/{full_path:path}")
+async def api_options_handler(full_path: str):
+    """Handle CORS preflight requests for API routes"""
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH",
+            "Access-Control-Allow-Headers": "Accept, Accept-Language, Content-Language, Content-Type, Authorization, X-Requested-With, Origin, Access-Control-Request-Method, Access-Control-Request-Headers",
+            "Access-Control-Expose-Headers": "*",
+            "Access-Control-Allow-Credentials": "false",
+            "Access-Control-Max-Age": "86400",
+            "Content-Length": "0"
+        }
+    )
+
+# Global OPTIONS handler for non-API routes
+@app.options("/{full_path:path}")
+async def global_options_handler(full_path: str):
+    """Handle CORS preflight requests for all routes"""
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH",
+            "Access-Control-Allow-Headers": "Accept, Accept-Language, Content-Language, Content-Type, Authorization, X-Requested-With, Origin, Access-Control-Request-Method, Access-Control-Request-Headers",
+            "Access-Control-Expose-Headers": "*",
+            "Access-Control-Allow-Credentials": "false",
+            "Access-Control-Max-Age": "86400",
+            "Content-Length": "0"
+        }
+    )
 
 # Security
 security = HTTPBearer()
