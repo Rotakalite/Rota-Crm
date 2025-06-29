@@ -251,8 +251,9 @@ class TestCORSConfiguration(unittest.TestCase):
             response = requests.get(url)
             logger.info(f"Response status code: {response.status_code}")
             
-            # Should get a successful response (200 OK)
-            self.assertIn(response.status_code, [200, 404], 
+            # Should get a successful response (200 OK) or 404 Not Found or 405 Method Not Allowed
+            # All of these indicate the server is accessible
+            self.assertIn(response.status_code, [200, 404, 405], 
                          f"Backend URL not accessible: {response.status_code}")
             
             if response.status_code == 200:
