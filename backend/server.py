@@ -10,6 +10,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from fastapi.middleware import Middleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from motor.motor_asyncio import AsyncIOMotorClient
 from pathlib import Path
