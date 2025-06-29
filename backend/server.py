@@ -2997,10 +2997,18 @@ async def send_document_notification(
             raise HTTPException(status_code=404, detail="Client not found")
         
         # Send email
+        upload_date = document.get("created_at", "Bilinmiyor")
+        if hasattr(upload_date, 'strftime'):
+            upload_date = upload_date.strftime("%d.%m.%Y %H:%M")
+        elif isinstance(upload_date, str):
+            upload_date = upload_date
+        else:
+            upload_date = "Bilinmiyor"
+            
         await email_service.send_document_upload_notification(
             recipient_email=client["contact_person"],
             document_name=document["document_name"],
-            upload_date=document["created_at"].strftime("%d.%m.%Y %H:%M"),
+            upload_date=upload_date,
             client_name=client["name"]
         )
         
