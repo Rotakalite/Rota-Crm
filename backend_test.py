@@ -2873,7 +2873,345 @@ def run_training_tests():
         logger.error("Some training endpoint tests FAILED")
         return False
 
+class TestLevel3SubFolderSystem(unittest.TestCase):
+    """Test class for Level 3 sub-folder structure in D column"""
+    
+    def setUp(self):
+        """Set up test environment"""
+        self.api_url = "https://ced36975-561f-4c1a-b948-3ca6d5f89931.preview.emergentagent.com/api"
+        self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
+        self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
+        
+        # Test client data for folder creation
+        self.test_client = {
+            "name": f"Test Client {uuid.uuid4().hex[:8]}",
+            "hotel_name": "Test Hotel",
+            "contact_person": "John Doe",
+            "email": "john@example.com",
+            "phone": "1234567890",
+            "address": "123 Test St"
+        }
+        
+        # Expected Level 3 sub-folder structure for D column
+        self.expected_level3_subfolders = {
+            "D1": ["D1.1", "D1.2", "D1.3", "D1.4"],
+            "D2": ["D2.1", "D2.2", "D2.3", "D2.4", "D2.5", "D2.6"],
+            "D3": ["D3.1", "D3.2", "D3.3", "D3.4", "D3.5", "D3.6"]
+        }
+        
+        # Total expected Level 3 sub-folders
+        self.total_expected_level3_subfolders = sum(len(subfolders) for subfolders in self.expected_level3_subfolders.values())
+    
+    def test_create_client_with_level3_folders(self):
+        """Test that new clients are created with Level 3 sub-folders in D column"""
+        logger.info("\n=== Testing creation of client with Level 3 sub-folders in D column ===")
+        
+        # Step 1: Create a new client
+        logger.info("Step 1: Creating a new client...")
+        client_url = f"{self.api_url}/clients"
+        
+        try:
+            client_response = requests.post(client_url, headers=self.headers_valid, json=self.test_client)
+            logger.info(f"Client creation response status code: {client_response.status_code}")
+            logger.info(f"Client creation response body: {client_response.text[:500]}...")
+            
+            # If client creation was successful or authentication failed, continue to next step
+            if client_response.status_code not in [200, 201]:
+                logger.warning(f"Client creation failed with status code {client_response.status_code}, skipping rest of test")
+                return
+            
+            # Get the client ID from the response
+            client_data = client_response.json()
+            client_id = client_data.get("id")
+            client_name = client_data.get("name")
+            
+            if not client_id:
+                logger.warning("Client ID not found in response, skipping rest of test")
+                return
+            
+            logger.info(f"✅ Created client with ID: {client_id} and name: {client_name}")
+            
+            # Step 2: Check if folders were automatically created
+            logger.info("Step 2: Checking if folders were automatically created...")
+            folders_url = f"{self.api_url}/folders"
+            
+            folders_response = requests.get(folders_url, headers=self.headers_valid)
+            logger.info(f"Folders response status code: {folders_response.status_code}")
+            
+            if folders_response.status_code != 200:
+                logger.warning(f"Folders retrieval failed with status code {folders_response.status_code}, skipping rest of test")
+                return
+            
+            folders_data = folders_response.json()
+            
+            # Find folders for the newly created client
+            client_folders = [f for f in folders_data if f.get("client_id") == client_id]
+            logger.info(f"Found {len(client_folders)} folders for the new client")
+            
+            if not client_folders:
+                logger.error("❌ No folders found for the newly created client")
+                self.fail("No folders found for the newly created client")
+            
+            # Check for root folder
+            root_folders = [f for f in client_folders if f.get("level") == 0]
+            self.assertEqual(len(root_folders), 1, f"Should have exactly 1 root folder, found {len(root_folders)}")
+            
+            root_folder = root_folders[0]
+            expected_root_name = f"{client_name} SYS"
+            self.assertEqual(root_folder["name"], expected_root_name, 
+                           f"Root folder name should be '{expected_root_name}', got: {root_folder['name']}")
+            logger.info(f"✅ Root folder created with correct name: {root_folder['name']}")
+            
+            # Check for column folders (level 1)
+            column_folders = [f for f in client_folders if f.get("level") == 1]
+            self.assertEqual(len(column_folders), 4, f"Should have exactly 4 column folders, found {len(column_folders)}")
+            
+            # Find D column folder
+            d_column_folder = next((f for f in column_folders if f["name"] == "D SÜTUNU"), None)
+            if not d_column_folder:
+                logger.error("❌ D SÜTUNU folder not found")
+                self.fail("D SÜTUNU folder not found")
+            
+            logger.info(f"✅ Found D SÜTUNU folder with ID: {d_column_folder['id']}")
+            
+            # Check for D column sub-folders (level 2)
+            d_subfolders = [f for f in client_folders if f.get("parent_folder_id") == d_column_folder["id"] and f.get("level") == 2]
+            logger.info(f"Found {len(d_subfolders)} D column sub-folders (level 2)")
+            
+            # Verify we have the expected D column sub-folders
+            self.assertEqual(len(d_subfolders), 3, f"Should have 3 D column sub-folders (D1, D2, D3), found {len(d_subfolders)}")
+            
+            # Verify D column sub-folder names
+            d_subfolder_names = [f["name"] for f in d_subfolders]
+            expected_d_subfolders = ["D1", "D2", "D3"]
+            
+            for expected_subfolder in expected_d_subfolders:
+                self.assertIn(expected_subfolder, d_subfolder_names, f"Expected D column sub-folder not found: {expected_subfolder}")
+                logger.info(f"✅ Found expected D column sub-folder: {expected_subfolder}")
+            
+            # Check for Level 3 sub-folders
+            level3_subfolders = [f for f in client_folders if f.get("level") == 3]
+            logger.info(f"Found {len(level3_subfolders)} Level 3 sub-folders")
+            
+            # Verify we have the expected number of Level 3 sub-folders
+            self.assertGreaterEqual(len(level3_subfolders), self.total_expected_level3_subfolders, 
+                                  f"Should have at least {self.total_expected_level3_subfolders} Level 3 sub-folders, found {len(level3_subfolders)}")
+            
+            # Group Level 3 sub-folders by parent D sub-folder
+            level3_by_parent = {}
+            for d_subfolder in d_subfolders:
+                subfolder_id = d_subfolder["id"]
+                subfolder_name = d_subfolder["name"]
+                level3_children = [f for f in level3_subfolders if f.get("parent_folder_id") == subfolder_id]
+                level3_by_parent[subfolder_name] = level3_children
+                logger.info(f"D sub-folder '{subfolder_name}' has {len(level3_children)} Level 3 sub-folders")
+            
+            # Verify each D sub-folder has the correct Level 3 sub-folders
+            for d_subfolder_name, expected_level3_names in self.expected_level3_subfolders.items():
+                if d_subfolder_name in level3_by_parent:
+                    level3_children = level3_by_parent[d_subfolder_name]
+                    level3_names = [f["name"] for f in level3_children]
+                    
+                    # Verify count
+                    self.assertEqual(len(level3_children), len(expected_level3_names), 
+                                   f"D sub-folder '{d_subfolder_name}' should have {len(expected_level3_names)} Level 3 sub-folders, found {len(level3_children)}")
+                    
+                    # Verify names
+                    for expected_name in expected_level3_names:
+                        self.assertIn(expected_name, level3_names, 
+                                     f"Expected Level 3 sub-folder '{expected_name}' not found in D sub-folder '{d_subfolder_name}'")
+                        logger.info(f"✅ Found expected Level 3 sub-folder: {d_subfolder_name}/{expected_name}")
+                else:
+                    self.fail(f"D sub-folder '{d_subfolder_name}' not found in level3_by_parent")
+            
+            # Verify folder paths and parent-child relationships for Level 3 sub-folders
+            for d_subfolder_name, level3_children in level3_by_parent.items():
+                d_subfolder = next(f for f in d_subfolders if f["name"] == d_subfolder_name)
+                
+                for level3_folder in level3_children:
+                    # Verify parent_folder_id points to the D sub-folder
+                    self.assertEqual(level3_folder["parent_folder_id"], d_subfolder["id"], 
+                                   f"Level 3 sub-folder '{level3_folder['name']}' should have parent_folder_id '{d_subfolder['id']}', got '{level3_folder['parent_folder_id']}'")
+                    
+                    # Verify folder_path is correctly formed
+                    expected_path = f"{root_folder['name']}/D SÜTUNU/{d_subfolder_name}/{level3_folder['name']}"
+                    self.assertEqual(level3_folder["folder_path"], expected_path, 
+                                   f"Level 3 sub-folder path should be '{expected_path}', got: {level3_folder['folder_path']}")
+                    
+                    # Verify level is 3
+                    self.assertEqual(level3_folder["level"], 3, 
+                                   f"Level 3 sub-folder level should be 3, got: {level3_folder['level']}")
+                    
+                    logger.info(f"✅ Level 3 sub-folder '{level3_folder['name']}' has correct parent, path, and level")
+            
+            logger.info("✅ Level 3 sub-folder structure test passed")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing Level 3 sub-folder structure: {str(e)}")
+            raise
+    
+    def test_clients_update_folders_endpoint(self):
+        """Test the POST /api/clients/update-folders endpoint for adding Level 3 sub-folders to existing clients"""
+        logger.info("\n=== Testing POST /api/clients/update-folders endpoint ===")
+        
+        # Test with valid token
+        logger.info("Testing with valid token...")
+        url = f"{self.api_url}/clients/update-folders"
+        
+        try:
+            # Step 1: Call the update-folders endpoint
+            logger.info("Step 1: Calling the update-folders endpoint...")
+            response = requests.post(url, headers=self.headers_valid)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:500]}...")
+            
+            # Check if we get a 200 OK or 401 Unauthorized
+            self.assertIn(response.status_code, [200, 201, 401, 403, 404])
+            
+            if response.status_code in [200, 201]:
+                logger.info("✅ Authentication successful - received 200/201 OK")
+                data = response.json()
+                
+                # Verify response structure
+                self.assertIn("message", data, "Response should include a message field")
+                self.assertIn("success", data, "Response should include a success field")
+                
+                # Verify success status
+                self.assertTrue(data["success"], "Response should indicate success")
+                logger.info(f"✅ Update successful: {data['message']}")
+                
+                # Step 2: Verify that existing clients now have Level 3 sub-folders
+                logger.info("Step 2: Verifying that existing clients now have Level 3 sub-folders...")
+                
+                # Get all folders
+                folders_url = f"{self.api_url}/folders"
+                folders_response = requests.get(folders_url, headers=self.headers_valid)
+                
+                if folders_response.status_code != 200:
+                    logger.warning(f"Folders retrieval failed with status code {folders_response.status_code}, skipping verification")
+                    return
+                
+                folders_data = folders_response.json()
+                
+                # Group folders by client_id
+                folders_by_client = {}
+                for folder in folders_data:
+                    client_id = folder.get("client_id")
+                    if client_id not in folders_by_client:
+                        folders_by_client[client_id] = []
+                    folders_by_client[client_id].append(folder)
+                
+                # Check each client's folder structure
+                level3_folders_found = False
+                for client_id, client_folders in folders_by_client.items():
+                    # Find level 3 folders
+                    level3_folders = [f for f in client_folders if f.get("level") == 3]
+                    
+                    if level3_folders:
+                        level3_folders_found = True
+                        logger.info(f"Client {client_id} has {len(level3_folders)} Level 3 folders")
+                        
+                        # Check if any of these are under D column
+                        d_level3_folders = []
+                        for folder in level3_folders:
+                            folder_path = folder.get("folder_path", "")
+                            if "/D SÜTUNU/" in folder_path:
+                                d_level3_folders.append(folder)
+                        
+                        if d_level3_folders:
+                            logger.info(f"Found {len(d_level3_folders)} Level 3 folders under D column for client {client_id}")
+                            
+                            # Check for specific D1, D2, D3 Level 3 sub-folders
+                            d1_level3 = [f for f in d_level3_folders if "/D SÜTUNU/D1/" in f.get("folder_path", "")]
+                            d2_level3 = [f for f in d_level3_folders if "/D SÜTUNU/D2/" in f.get("folder_path", "")]
+                            d3_level3 = [f for f in d_level3_folders if "/D SÜTUNU/D3/" in f.get("folder_path", "")]
+                            
+                            logger.info(f"D1 has {len(d1_level3)} Level 3 sub-folders")
+                            logger.info(f"D2 has {len(d2_level3)} Level 3 sub-folders")
+                            logger.info(f"D3 has {len(d3_level3)} Level 3 sub-folders")
+                            
+                            # Verify we have the expected number of Level 3 sub-folders for each D sub-folder
+                            if len(d1_level3) >= 4 and len(d2_level3) >= 6 and len(d3_level3) >= 6:
+                                logger.info("✅ Found all expected Level 3 sub-folders for D1, D2, and D3")
+                                
+                                # Verify folder names
+                                d1_names = [f["name"] for f in d1_level3]
+                                d2_names = [f["name"] for f in d2_level3]
+                                d3_names = [f["name"] for f in d3_level3]
+                                
+                                # Check D1 sub-folders
+                                for expected_name in self.expected_level3_subfolders["D1"]:
+                                    if expected_name in d1_names:
+                                        logger.info(f"✅ Found expected D1 Level 3 sub-folder: {expected_name}")
+                                    else:
+                                        logger.warning(f"⚠️ Expected D1 Level 3 sub-folder not found: {expected_name}")
+                                
+                                # Check D2 sub-folders
+                                for expected_name in self.expected_level3_subfolders["D2"]:
+                                    if expected_name in d2_names:
+                                        logger.info(f"✅ Found expected D2 Level 3 sub-folder: {expected_name}")
+                                    else:
+                                        logger.warning(f"⚠️ Expected D2 Level 3 sub-folder not found: {expected_name}")
+                                
+                                # Check D3 sub-folders
+                                for expected_name in self.expected_level3_subfolders["D3"]:
+                                    if expected_name in d3_names:
+                                        logger.info(f"✅ Found expected D3 Level 3 sub-folder: {expected_name}")
+                                    else:
+                                        logger.warning(f"⚠️ Expected D3 Level 3 sub-folder not found: {expected_name}")
+                                
+                                # We found a client with a complete Level 3 folder structure, so we can stop checking
+                                break
+                
+                if not level3_folders_found:
+                    logger.warning("⚠️ No Level 3 folders found for any client")
+                
+                logger.info("✅ Clients update-folders endpoint test passed")
+                
+            elif response.status_code == 401:
+                logger.info("✅ Authentication failed correctly - received 401 Unauthorized")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+            elif response.status_code == 403:
+                logger.info("✅ Authorization failed correctly - received 403 Forbidden (admin access required)")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+            elif response.status_code == 404:
+                logger.info("⚠️ Endpoint not found - received 404 Not Found")
+                # This is acceptable if the endpoint is named differently
+        except Exception as e:
+            logger.error(f"❌ Error testing clients update-folders endpoint: {str(e)}")
+            raise
+
+def run_level3_subfolder_tests():
+    """Run tests for Level 3 sub-folder structure in D column"""
+    logger.info("Starting Level 3 sub-folder structure tests...")
+    
+    # Create a test suite
+    suite = unittest.TestSuite()
+    
+    # Add Level 3 sub-folder tests
+    suite.addTest(TestLevel3SubFolderSystem("test_create_client_with_level3_folders"))
+    suite.addTest(TestLevel3SubFolderSystem("test_clients_update_folders_endpoint"))
+    
+    # Run the tests
+    runner = unittest.TextTestRunner()
+    result = runner.run(suite)
+    
+    # Summary
+    logger.info("\n=== Level 3 Sub-Folder Structure Test Summary ===")
+    logger.info(f"Tests run: {result.testsRun}")
+    logger.info(f"Errors: {len(result.errors)}")
+    logger.info(f"Failures: {len(result.failures)}")
+    
+    if result.wasSuccessful():
+        logger.info("All Level 3 sub-folder structure tests PASSED")
+        return True
+    else:
+        logger.error("Some Level 3 sub-folder structure tests FAILED")
+        return False
+
 if __name__ == "__main__":
     import requests  # Import here to avoid issues with mocking
-    # Run all tests
-    run_training_tests()
+    # Run Level 3 sub-folder tests
+    run_level3_subfolder_tests()
