@@ -2221,23 +2221,6 @@ const DocumentManagement = () => {
     }
   };
 
-  const getFileIcon = (filePath) => {
-    const extension = filePath.split('.').pop()?.toLowerCase();
-    switch (extension) {
-      case 'pdf': return '📄';
-      case 'doc':
-      case 'docx': return '📝';
-      case 'xls':
-      case 'xlsx': return '📊';
-      case 'zip':
-      case 'rar': return '📦';
-      case 'jpg':
-      case 'jpeg':
-      case 'png': return '🖼️';
-      default: return '📎';
-    }
-  };
-
   const formatFileSize = (bytes) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
