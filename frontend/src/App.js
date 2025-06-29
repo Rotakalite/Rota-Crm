@@ -4172,6 +4172,7 @@ const TrainingManagement = () => {
       
       console.log('✅ Training created:', response.data);
       setFormData({
+        client_id: '',
         name: '',
         subject: '',
         participant_count: '',
