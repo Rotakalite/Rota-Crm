@@ -156,7 +156,7 @@ async def ultra_cors_middleware(request, call_next):
     return response
 
 # Create a router with the /api prefix
-api_router = APIRouter(prefix="/api")
+api_router = APIRouter()
 
 # Additional OPTIONS handler for API routes
 @api_router.options("/{full_path:path}")
