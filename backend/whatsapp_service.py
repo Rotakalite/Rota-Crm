@@ -51,41 +51,17 @@ class WhatsAppService:
         self.service_url = WHATSAPP_SERVICE_URL
         
     async def get_status(self) -> dict:
-        """WhatsApp servis durumunu kontrol et"""
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.get(f"{self.service_url}/status", timeout=5.0)
-                return response.json()
-        except Exception as e:
-            logging.error(f"WhatsApp servis durumu alınamadı: {e}")
-            return {"connected": False, "error": str(e)}
+        """WhatsApp servis durumunu kontrol et - DISABLED for Railway production"""
+        return {"connected": False, "message": "WhatsApp service disabled in production"}
     
     async def get_qr_code(self) -> dict:
-        """QR kod al"""
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.get(f"{self.service_url}/qr", timeout=5.0)
-                return response.json()
-        except Exception as e:
-            logging.error(f"QR kod alınamadı: {e}")
-            return {"qr": None, "error": str(e)}
+        """QR kod al - DISABLED for Railway production"""
+        return {"qr": None, "message": "WhatsApp service disabled in production"}
     
     async def send_message(self, phone_number: str, message: str) -> dict:
-        """WhatsApp mesajı gönder"""
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    f"{self.service_url}/send",
-                    json={
-                        "phone_number": phone_number,
-                        "message": message
-                    },
-                    timeout=10.0
-                )
-                return response.json()
-        except Exception as e:
-            logging.error(f"WhatsApp mesajı gönderilemedi: {e}")
-            return {"success": False, "error": str(e)}
+        """WhatsApp mesajı gönder - DISABLED for Railway production"""
+        logging.info(f"WhatsApp disabled - Would send to {phone_number}: {message}")
+        return {"success": False, "message": "WhatsApp service disabled in production"}
     
     async def send_test_message(self, phone_number: str) -> dict:
         """Test mesajı gönder"""
