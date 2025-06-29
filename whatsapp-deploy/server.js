@@ -234,7 +234,6 @@ app.get('/health', (req, res) => {
 })
 
 // Sunucuyu başlat
-const PORT = process.env.PORT || 3001
 
 app.listen(PORT, () => {
     console.log(`🌐 WhatsApp servisi çalışıyor: http://localhost:${PORT}`)
