@@ -534,10 +534,6 @@ async def health_check():
         "timestamp": datetime.utcnow().isoformat(),
         "version": "1.0.0"
     }
-
-@api_router.get("/health")
-async def health_check():
-    """Health check endpoint"""
     return {
         "status": "healthy",
         "service": "Rota CRM Backend",
