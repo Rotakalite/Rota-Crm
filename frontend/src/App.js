@@ -5356,7 +5356,7 @@ const EmailManagement = () => {
                   onClick={() => sendTrainingNotification(training.id)}
                   className="btn-secondary"
                 >
-                  📧 Bildirim Gönder
+                  📧 Tek Gönder
                 </button>
               </div>
             ))
