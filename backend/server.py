@@ -71,8 +71,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-from fastapi.responses import Response
-
 # Custom CORS middleware to handle dynamic Vercel URLs
 @app.middleware("http")
 async def custom_cors_middleware(request, call_next):
