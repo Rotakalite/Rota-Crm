@@ -83,11 +83,12 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# RAILWAY CORS CONFIGURATION - VERCEL FRONTEND İÇİN
+# RAILWAY CORS CONFIGURATION - TÜM VERCEL URL'LERİ İÇİN
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://rota-a43ap7zfm-rotas-projects-62181e6e.vercel.app",  # Sizin Vercel URL'iniz
+        "https://rota-a43ap7zfm-rotas-projects-62181e6e.vercel.app",  # Eski Vercel URL
+        "https://rota-9asd83vl1-rotas-projects-62181e6e.vercel.app",  # Yeni Vercel URL
         "https://*.vercel.app",  # Tüm Vercel domain'leri  
         "http://localhost:3000",  # Development
         "http://localhost:3001",  # Development
@@ -95,7 +96,22 @@ app.add_middleware(
     ],
     allow_credentials=True,  # Vercel için True
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
-    allow_headers=["*"],
+    allow_headers=[
+        "Accept", 
+        "Accept-Language", 
+        "Content-Language", 
+        "Content-Type", 
+        "Authorization", 
+        "X-Requested-With", 
+        "Origin", 
+        "Access-Control-Request-Method", 
+        "Access-Control-Request-Headers",
+        "Cache-Control",  # Bu eksikti!
+        "Pragma",
+        "Expires",
+        "X-CSRF-Token",
+        "*"  # Tüm header'lara izin ver
+    ],
     expose_headers=["*"],
     max_age=86400  # 24 saat cache
 )
