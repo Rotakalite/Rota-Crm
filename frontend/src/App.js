@@ -4400,40 +4400,6 @@ const TrainingManagement = () => {
   );
 };
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? (
-              <div className="flex items-center justify-center">
-                <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                Kaydediliyor...
-              </div>
-            ) : (
-              'Otel Bilgilerini Kaydet'
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={onSkip}
-            className="w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors mt-2"
-          >
-            Şimdilik Atla (Sonra Tamamlayabilirim)
-          </button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500">
-            Bu bilgiler sürdürülebilirlik danışmanlığı sürecinde kullanılacaktır.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const Sidebar = ({ activeTab, onNavigate, userRole }) => {
   const adminMenuItems = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
