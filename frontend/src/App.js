@@ -4885,6 +4885,8 @@ const MainApp = () => {
             <p className="text-gray-600">Yakında eklenecek...</p>
           </div>
         );
+      case 'whatsapp':
+        return <WhatsAppManagement onNavigate={setActiveTab} />;
       case 'trainings':
         return userRole === 'admin' ? <TrainingManagement /> : <ClientTrainings />;
       default:
