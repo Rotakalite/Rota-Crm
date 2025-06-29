@@ -4154,6 +4154,22 @@ const TrainingManagement = () => {
     }
   };
 
+  const fetchClients = async () => {
+    if (!authToken) return;
+    
+    try {
+      console.log("👥 Admin fetching clients...");
+      const response = await axios.get(`${API}/clients`, {
+        headers: { "Authorization": `Bearer ${authToken}` }
+      });
+      console.log("👥 Admin clients response:", response.data);
+      setClients(response.data);
+    } catch (error) {
+      console.error("❌ Error fetching clients:", error);
+      setClients([]);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
