@@ -75,6 +75,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://portal.rotakalitedanismanlik.com",
+        "https://rota-g0kt3eipf-rotas-projects-62181e6e.vercel.app",
         "https://ced36975-561f-4c1a-b948-3ca6d5f89931.preview.emergentagent.com",
         "http://localhost:3000",
         "http://127.0.0.1:3000"
