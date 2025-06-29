@@ -348,6 +348,19 @@ frontend:
         -comment: "TrainingManagement component was missing from App.js despite being referenced in the renderContent switch case. Admin sidebar had 'Eğitim Yönetimi' menu item but clicking it would fail because the component didn't exist."
         -working: true
         -agent: "main"
+  - task: "Add Missing TrainingManagement Component" 
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high" 
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "TrainingManagement component was missing from App.js despite being referenced in the renderContent switch case. Admin sidebar had 'Eğitim Yönetimi' menu item but clicking it would fail because the component didn't exist."
+        -working: true
+        -agent: "main"
         -comment: "Successfully implemented TrainingManagement component with complete admin interface. Includes form for creating new trainings with all required fields (name, subject, participant_count, trainer, training_date, description), trainings list view, and proper integration with backend training endpoints."
 
 metadata:
