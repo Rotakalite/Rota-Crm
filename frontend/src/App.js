@@ -2843,6 +2843,15 @@ const DocumentManagement = () => {
           </div>
         )}
       </div>
+
+      {/* Document Detail Modal */}
+      {showDocumentModal && selectedDocument && (
+        <DocumentModal 
+          document={selectedDocument} 
+          onClose={() => setShowDocumentModal(false)}
+          onDownload={handleDownloadDocument}
+        />
+      )}
     </div>
   );
 };
