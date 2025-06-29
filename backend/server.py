@@ -23,16 +23,16 @@ from jwt import PyJWKClient
 import httpx
 import requests
 
-# WhatsApp service import
+# Email service import
 try:
     import sys
     import os
     sys.path.append(os.path.dirname(__file__))
-    from whatsapp_service import whatsapp_service
-    logging.info("✅ WhatsApp service imported successfully")
+    from services.email_service import email_service
+    logging.info("✅ Email service imported successfully")
 except Exception as e:
-    logging.error(f"❌ Failed to import WhatsApp service: {e}")
-    whatsapp_service = None
+    logging.error(f"❌ Failed to import Email service: {e}")
+    email_service = None
 
 # Import MongoDB GridFS service (DISABLED - PROBLEMATIC)
 # try:
