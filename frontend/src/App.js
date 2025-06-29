@@ -4654,10 +4654,19 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
   return (
     <div className="bg-gray-800 text-white w-64 min-h-screen p-4">
       <div className="mb-8">
-        <h1 className="text-xl font-bold">🔧 ROTA - CRM</h1>
-        <p className="text-sm text-gray-300">
-          {userRole === 'admin' ? 'Admin Paneli' : 'Müşteri Paneli'}
-        </p>
+        <div className="flex items-center">
+          <img 
+            src="/logo.svg" 
+            alt="Rota Kalite & Danışmanlık" 
+            className="h-12 w-auto mr-4"
+          />
+          <div>
+            <h1 className="text-xl font-bold text-gray-800">CRM Sistemi</h1>
+            <p className="text-sm text-gray-600">
+              {userRole === 'admin' ? 'Admin Paneli' : 'Müşteri Paneli'}
+            </p>
+          </div>
+        </div>
       </div>
       
       <nav className="space-y-2">
