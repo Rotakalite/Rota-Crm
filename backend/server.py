@@ -2837,6 +2837,15 @@ async def delete_training(training_id: str, current_user: User = Depends(get_adm
 # Include the router in the main app
 app.include_router(api_router)
 
+# Mount static files (React build) - KALICI ÇÖZÜM!
+# Bu CORS problemini tamamen ortadan kaldırır çünkü frontend ve backend aynı domain'de
+frontend_build_path = "/app/frontend/build"
+if os.path.exists(frontend_build_path):
+    app.mount("/", StaticFiles(directory=frontend_build_path, html=True), name="frontend")
+    logging.info(f"🌐 Frontend mounted from {frontend_build_path}")
+else:
+    logging.warning(f"⚠️ Frontend build not found at {frontend_build_path}")
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
