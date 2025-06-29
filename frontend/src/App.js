@@ -2511,6 +2511,53 @@ const DocumentManagement = () => {
           </div>
         )}
 
+        {/* Level 3 sub-folders when a level 2 folder (D1, D2, D3) is selected */}
+        {selectedClient && selectedFolder && selectedFolder.level === 2 && (
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              📁 {selectedFolder.name} - Alt Klasörler
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+              {folders
+                .filter(folder => folder.parent_folder_id === selectedFolder.id)
+                .sort((a, b) => {
+                  // Natural sorting for folder names (D1.1, D1.2, etc.)
+                  const aName = a.name;
+                  const bName = b.name;
+                  
+                  // Extract numbers from folder names for proper sorting
+                  const aMatch = aName.match(/(\d+\.?\d*)/);
+                  const bMatch = bName.match(/(\d+\.?\d*)/);
+                  
+                  if (aMatch && bMatch) {
+                    const aNum = parseFloat(aMatch[1]);
+                    const bNum = parseFloat(bMatch[1]);
+                    return aNum - bNum;
+                  }
+                  
+                  // Fallback to alphabetical sorting
+                  return aName.localeCompare(bName);
+                })
+                .map((level3Folder) => (
+                  <div
+                    key={level3Folder.id}
+                    onClick={() => setSelectedFolder(level3Folder)}
+                    className="bg-blue-50 border border-blue-200 rounded-lg p-3 cursor-pointer hover:bg-blue-100 transition-colors"
+                  >
+                    <div className="flex items-center">
+                      <span className="text-xl mr-2">📂</span>
+                      <div>
+                        <h4 className="font-semibold text-blue-800 text-sm">{level3Folder.name}</h4>
+                        <p className="text-xs text-blue-600">Level 3 Klasör</p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        )}
+
         {/* Documents List for Selected Folder - Updated to show for level 2 and 3 folders */}
         {selectedClient && selectedFolder && (selectedFolder.level === 2 || selectedFolder.level === 3) && (
           <div className="space-y-4">
