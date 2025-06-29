@@ -2435,7 +2435,7 @@ const DocumentManagement = () => {
             <h3 className="text-xl font-semibold mb-2">Müşteri seçin</h3>
             <p>Belgelerinizi yönetmek için yukarıdan bir müşteri seçin.</p>
           </div>
-        )}
+      )}
     </div>
   );
 };
