@@ -479,6 +479,13 @@ async def create_column_folders(client_id: str, root_folder_id: str, root_folder
             "D SÜTUNU": ["D1", "D2", "D3"]
         }
         
+        # Define Level 3 sub-folders for D column
+        d_level3_structure = {
+            "D1": ["D1.1", "D1.2", "D1.3", "D1.4"],
+            "D2": ["D2.1", "D2.2", "D2.3", "D2.4", "D2.5", "D2.6"],
+            "D3": ["D3.1", "D3.2", "D3.3", "D3.4", "D3.5", "D3.6"]
+        }
+        
         for column_name, sub_folders in column_structure.items():
             # Check if column folder already exists
             existing_column = await db.folders.find_one({
