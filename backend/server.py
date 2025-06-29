@@ -1033,6 +1033,19 @@ async def register_user(user_data: UserCreate):
         return User(**existing_user)
     
     user_dict = user_data.dict()
+    
+    # SECURITY FIX: If registering as client, find matching client record by email
+    if user_dict.get("role") == UserRole.CLIENT:
+        # Try to find existing client by email
+        matching_client = await db.clients.find_one({"contact_person": user_dict.get("email")})
+        if matching_client:
+            # Link this user to the existing client
+            user_dict["client_id"] = matching_client["id"]
+            logging.info(f"🔗 Client user linked to existing client: {matching_client['name']} (ID: {matching_client['id']})")
+        else:
+            # No matching client found - client_id remains None for manual admin assignment
+            logging.warning(f"⚠️ Client user registered but no matching client found for email: {user_dict.get('email')}")
+    
     user = User(**user_dict)
     await db.users.insert_one(user.dict())
     return user
