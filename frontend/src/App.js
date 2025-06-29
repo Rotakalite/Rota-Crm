@@ -4294,12 +4294,7 @@ const MainApp = () => {
           </div>
         );
       case 'trainings':
-        return (
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Eğitimlerim</h2>
-            <p className="text-gray-600">Yakında eklenecek...</p>
-          </div>
-        );
+        return userRole === 'admin' ? <TrainingManagement /> : <ClientTrainings />;
       default:
         return <Dashboard onNavigate={handleNavigate} />;
     }
