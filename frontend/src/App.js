@@ -5303,6 +5303,21 @@ const EmailManagement = () => {
           font-size: 12px;
           color: #666;
         }
+        .document-info {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          flex: 1;
+        }
+        .document-name, .training-name {
+          font-weight: 600;
+          color: #333;
+          font-size: 14px;
+        }
+        .document-client, .document-email, .document-date {
+          font-size: 12px;
+          color: #666;
+        }
         .document-name, .training-name {
           font-weight: 500;
           flex: 1;
