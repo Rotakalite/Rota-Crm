@@ -15,24 +15,6 @@ import {
 } from 'chart.js';
 import { Line, Bar } from 'react-chartjs-2';
 
-// Global utility function for file icons
-const getFileIcon = (filePath) => {
-  const extension = filePath?.split('.').pop()?.toLowerCase();
-  switch (extension) {
-    case 'pdf': return '📄';
-    case 'doc':
-    case 'docx': return '📝';
-    case 'xls':
-    case 'xlsx': return '📊';
-    case 'jpg':
-    case 'jpeg':
-    case 'png': return '🖼️';
-    case 'zip':
-    case 'rar': return '📦';
-    default: return '📋';
-  }
-};
-
 // Error Boundary Component
 class ErrorBoundary extends React.Component {
   constructor(props) {
