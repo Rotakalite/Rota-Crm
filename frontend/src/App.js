@@ -5222,6 +5222,7 @@ const EmailManagement = () => {
   );
 };
 };
+};
 
 // Müşteri telefon satırı bileşeni
 const ClientPhoneRow = ({ client, onUpdatePhone }) => {
