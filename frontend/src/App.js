@@ -5220,13 +5220,7 @@ const EmailManagement = () => {
       `}</style>
     </div>
   );
-  const [whatsappStatus, setWhatsappStatus] = useState('disconnected');
-  const [qrCode, setQrCode] = useState(null);
-  const [clients, setClients] = useState([]);
-  const [selectedClient, setSelectedClient] = useState(null);
-  const [testMessage, setTestMessage] = useState('');
-  const [testPhone, setTestPhone] = useState('');
-  const [loading, setLoading] = useState(false);
+};
 
   useEffect(() => {
     checkWhatsAppStatus();
