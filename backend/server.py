@@ -3054,6 +3054,47 @@ async def send_training_notification(
         logging.error(f"❌ Training notification error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Email gönderme hatası: {str(e)}")
 
+@api_router.post("/email/bulk-document-notification")
+async def send_bulk_document_notification(
+    document_ids: str = Form(...),
+    current_user: User = Depends(get_admin_user)
+):
+    """Admin-only: Send bulk document upload notification email"""
+    if not email_service:
+        raise HTTPException(status_code=500, detail="Email service not available")
+    
+    try:
+        doc_ids = document_ids.split(',')
+        
+        # Get documents
+        documents = []
+        for doc_id in doc_ids:
+            document = await db.documents.find_one({"id": doc_id.strip()})
+            if document:
+                documents.append(document)
+        
+        if not documents:
+            raise HTTPException(status_code=404, detail="No documents found")
+        
+        # Group by client (should be same client for bulk)
+        client_id = documents[0]["client_id"]
+        client = await db.clients.find_one({"id": client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        # Send bulk email
+        await email_service.send_bulk_document_notification(
+            recipient_email=client["contact_person"],
+            documents=documents,
+            client_name=client["name"]
+        )
+        
+        return {"message": f"{len(documents)} doküman bildirimi {client['name']} müşterisine gönderildi!"}
+        
+    except Exception as e:
+        logging.error(f"❌ Bulk document notification error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Email gönderme hatası: {str(e)}")
+
 # Include the API router in the app
 app.include_router(api_router, prefix="/api")
 
