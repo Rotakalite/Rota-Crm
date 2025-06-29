@@ -5,7 +5,20 @@ const QRCode = require('qrcode-terminal')
 require('dotenv').config()
 
 const app = express()
-app.use(cors())
+const PORT = process.env.PORT || 3000
+
+// CORS - Railway production için güncellenmiş
+app.use(cors({
+    origin: [
+        'https://rota-crm-production.up.railway.app',
+        'https://*.vercel.app',
+        'http://localhost:8001',
+        'http://localhost:3000',
+        '*' // Development için
+    ],
+    credentials: true
+}))
+
 app.use(express.json())
 
 // WhatsApp bağlantı durumu
