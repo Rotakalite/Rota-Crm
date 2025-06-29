@@ -265,7 +265,7 @@ class TestCORSConfiguration(unittest.TestCase):
                 known_response = requests.options(known_url)
                 self.assertEqual(known_response.status_code, 200, 
                                 "Known endpoint not accessible with OPTIONS request")
-                logger.info("✅ Backend URL is accessible (root returns 404 but known endpoint works)")
+                logger.info(f"✅ Backend URL is accessible (root returns {response.status_code} but known endpoint works)")
         except Exception as e:
             logger.error(f"❌ Error testing backend URL configuration: {str(e)}")
             raise
