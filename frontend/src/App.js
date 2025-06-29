@@ -2344,6 +2344,30 @@ const DocumentManagement = () => {
     return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
   };
 
+  const getFileIcon = (filePath) => {
+    const extension = filePath.split('.').pop().toLowerCase();
+    switch (extension) {
+      case 'pdf': return '📄';
+      case 'doc':
+      case 'docx': return '📝';
+      case 'xls':
+      case 'xlsx': return '📊';
+      case 'jpg':
+      case 'jpeg':
+      case 'png': return '🖼️';
+      case 'zip':
+      case 'rar': return '📦';
+      default: return '📋';
+    }
+  };
+
+  const formatFileSize = (bytes) => {
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    if (bytes === 0) return '0 B';
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+  };
+
   const getClientName = (clientId) => {
     const client = (clients || []).find(c => c.id === clientId);
     return client ? client.hotel_name : 'Bilinmeyen Müşteri';
