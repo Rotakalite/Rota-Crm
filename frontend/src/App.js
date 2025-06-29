@@ -1893,16 +1893,9 @@ const ClientDocuments = () => {
             <h3 className="text-lg font-semibold text-gray-800 mb-4">
               📁 {selectedFolder.name} - Alt Klasörler (Level 3)
             </h3>
-            {console.log('📁 Client Debug Level 3 - Selected folder:', selectedFolder)}
-            {console.log('📁 Client Debug Level 3 - All clientFolders count:', clientFolders.length)}
-            {console.log('📁 Client Debug Level 3 - Filtered folders:', clientFolders.filter(folder => folder.parent_folder_id === selectedFolder.id))}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
               {clientFolders
-                .filter(folder => {
-                  const isLevel3Child = folder.parent_folder_id === selectedFolder.id;
-                  console.log(`📁 Client Folder ${folder.name} - Parent ID: ${folder.parent_folder_id}, Selected ID: ${selectedFolder.id}, Is Child: ${isLevel3Child}`);
-                  return isLevel3Child;
-                })
+                .filter(folder => folder.parent_folder_id === selectedFolder.id)
                 .sort((a, b) => {
                   // Natural sorting for folder names (D1.1, D1.2, etc.)
                   const aName = a.name;
