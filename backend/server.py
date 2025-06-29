@@ -1243,6 +1243,31 @@ async def create_training(
         training_dict = training_data.dict()
         training = Training(**training_dict)
         await db.trainings.insert_one(training.dict())
+        
+        # 📱 WhatsApp bildirimi gönder
+        try:
+            if whatsapp_service:
+                # Müşteri telefon numarası kontrolü
+                if client and client.get("phone_number"):
+                    # WhatsApp bildirimi gönder
+                    await whatsapp_service.send_training_notification(
+                        customer_name=client.get("hotel_name", "Değerli Müşterimiz"),
+                        customer_phone=client["phone_number"],
+                        training_name=training_data.name,
+                        participant_count=training_data.participant_count,
+                        trainer=training_data.trainer,
+                        training_date=training_data.training_date.strftime("%d.%m.%Y"),
+                        description=training_data.description or ""
+                    )
+                    logging.info(f"📱 Eğitim WhatsApp bildirimi gönderildi: {client['hotel_name']}")
+                else:
+                    logging.warning(f"⚠️ Müşteri telefon numarası bulunamadı: {training_data.client_id}")
+            else:
+                logging.warning("⚠️ WhatsApp servisi aktif değil")
+        except Exception as whatsapp_error:
+            logging.error(f"❌ WhatsApp bildirimi hatası: {whatsapp_error}")
+            # WhatsApp hatası training create işlemini etkilemesin
+        
         return training
     except Exception as e:
         logging.error(f"❌ Error creating training: {str(e)}")
