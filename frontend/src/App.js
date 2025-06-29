@@ -4662,7 +4662,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
           />
           <div className="flex flex-col justify-center">
             <h1 className="text-lg font-bold text-gray-800 leading-tight">CRM Sistemi</h1>
-            <p className="text-xs text-gray-600 leading-tight">
+            <p className="text-xs text-gray-300 leading-tight">
               {userRole === 'admin' ? 'Admin Paneli' : 'Müşteri Paneli'}
             </p>
           </div>
