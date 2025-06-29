@@ -534,10 +534,6 @@ async def health_check():
         "timestamp": datetime.utcnow().isoformat(),
         "version": "1.0.0"
     }
-    return {
-        "status": "healthy",
-        "service": "Rota CRM Backend",
-        "timestamp": datetime.utcnow().isoformat(),
         "version": "1.0.0"
     }
 
