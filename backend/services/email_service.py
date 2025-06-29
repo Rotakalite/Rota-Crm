@@ -93,6 +93,35 @@ class EmailService:
             logging.error(f"❌ Error sending training email: {str(e)}")
             raise
     
+    async def send_bulk_document_notification(
+        self, 
+        recipient_email: EmailStr, 
+        documents: list,
+        client_name: str = "Değerli Müşteri"
+    ):
+        """Send Turkish notification for multiple document uploads"""
+        try:
+            template = self.jinja_env.get_template("bulk_document_upload_tr.html")
+            html_content = template.render(
+                client_name=client_name,
+                documents=documents,
+                total_count=len(documents)
+            )
+            
+            message = MessageSchema(
+                subject=f"📄 {len(documents)} Doküman Yükleme Bildirimi",
+                recipients=[recipient_email],
+                body=html_content,
+                subtype="html"
+            )
+            
+            await self.fastmail.send_message(message)
+            logging.info(f"📧 Bulk document email sent to {recipient_email} for {len(documents)} documents")
+            
+        except Exception as e:
+            logging.error(f"❌ Error sending bulk document email: {str(e)}")
+            raise
+
     async def send_test_email(self, recipient_email: EmailStr):
         """Send test email"""
         try:
