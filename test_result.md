@@ -360,7 +360,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Admin Update Endpoint for Sub-folders"
+    - "Fix Duplicate getFileIcon Function Declarations"
+    - "Add Missing TrainingManagement Component"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
