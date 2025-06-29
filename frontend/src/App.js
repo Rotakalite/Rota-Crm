@@ -5032,6 +5032,7 @@ const EmailManagement = () => {
   const [documents, setDocuments] = useState([]);
   const [trainings, setTrainings] = useState([]);
   const [clients, setClients] = useState([]);
+  const [selectedDocuments, setSelectedDocuments] = useState([]);
   const { authToken } = useAuth();
 
   // Get client name helper function
