@@ -549,8 +549,6 @@ async def health_check():
         "timestamp": datetime.utcnow().isoformat(),
         "version": "1.0.0"
     }
-        "version": "1.0.0"
-    }
 
 async def health_check():
     """Health check endpoint"""
