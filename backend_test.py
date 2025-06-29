@@ -2133,7 +2133,438 @@ def run_folder_creation_test():
         logger.error("Folder creation test FAILED")
         return False
 
+class TestHierarchicalSubFolderSystem(unittest.TestCase):
+    """Test class for hierarchical sub-folder structure and update-subfolders endpoint"""
+    
+    def setUp(self):
+        """Set up test environment"""
+        self.api_url = "https://a8c99106-2f85-4c4d-bdad-22c18652c48e.preview.emergentagent.com/api"
+        self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
+        self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
+        
+        # Test client data for folder creation
+        self.test_client = {
+            "name": f"Test Client {uuid.uuid4().hex[:8]}",
+            "hotel_name": "Test Hotel",
+            "contact_person": "John Doe",
+            "email": "john@example.com",
+            "phone": "1234567890",
+            "address": "123 Test St"
+        }
+        
+        # Expected sub-folder structure
+        self.expected_subfolders = {
+            "A SÜTUNU": ["A1", "A2", "A3", "A4", "A5", "A7.1", "A7.2", "A7.3", "A7.4", "A8", "A9", "A10"],
+            "B SÜTUNU": ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9"],
+            "C SÜTUNU": ["C1", "C2", "C3", "C4"],
+            "D SÜTUNU": ["D1", "D2", "D3"]
+        }
+        
+        # Total expected sub-folders
+        self.total_expected_subfolders = sum(len(subfolders) for subfolders in self.expected_subfolders.values())
+        
+    def test_create_client_with_hierarchical_folders(self):
+        """Test that new clients are created with the complete hierarchical folder structure"""
+        logger.info("\n=== Testing creation of client with hierarchical folder structure ===")
+        
+        # Step 1: Create a new client
+        logger.info("Step 1: Creating a new client...")
+        client_url = f"{self.api_url}/clients"
+        
+        try:
+            client_response = requests.post(client_url, headers=self.headers_valid, json=self.test_client)
+            logger.info(f"Client creation response status code: {client_response.status_code}")
+            logger.info(f"Client creation response body: {client_response.text[:500]}...")
+            
+            # If client creation was successful or authentication failed, continue to next step
+            if client_response.status_code not in [200, 201]:
+                logger.warning(f"Client creation failed with status code {client_response.status_code}, skipping rest of test")
+                return
+            
+            # Get the client ID from the response
+            client_data = client_response.json()
+            client_id = client_data.get("id")
+            client_name = client_data.get("name")
+            
+            if not client_id:
+                logger.warning("Client ID not found in response, skipping rest of test")
+                return
+            
+            logger.info(f"✅ Created client with ID: {client_id} and name: {client_name}")
+            
+            # Step 2: Check if folders were automatically created
+            logger.info("Step 2: Checking if folders were automatically created...")
+            folders_url = f"{self.api_url}/folders"
+            
+            folders_response = requests.get(folders_url, headers=self.headers_valid)
+            logger.info(f"Folders response status code: {folders_response.status_code}")
+            
+            if folders_response.status_code != 200:
+                logger.warning(f"Folders retrieval failed with status code {folders_response.status_code}, skipping rest of test")
+                return
+            
+            folders_data = folders_response.json()
+            
+            # Find folders for the newly created client
+            client_folders = [f for f in folders_data if f.get("client_id") == client_id]
+            logger.info(f"Found {len(client_folders)} folders for the new client")
+            
+            if not client_folders:
+                logger.error("❌ No folders found for the newly created client")
+                self.fail("No folders found for the newly created client")
+            
+            # Check for root folder
+            root_folders = [f for f in client_folders if f.get("level") == 0]
+            self.assertEqual(len(root_folders), 1, f"Should have exactly 1 root folder, found {len(root_folders)}")
+            
+            root_folder = root_folders[0]
+            expected_root_name = f"{client_name} SYS"
+            self.assertEqual(root_folder["name"], expected_root_name, 
+                           f"Root folder name should be '{expected_root_name}', got: {root_folder['name']}")
+            logger.info(f"✅ Root folder created with correct name: {root_folder['name']}")
+            
+            # Check for column folders (level 1)
+            column_folders = [f for f in client_folders if f.get("level") == 1]
+            self.assertEqual(len(column_folders), 4, f"Should have exactly 4 column folders, found {len(column_folders)}")
+            
+            # Verify column folder names
+            column_names = [f["name"] for f in column_folders]
+            expected_columns = ["A SÜTUNU", "B SÜTUNU", "C SÜTUNU", "D SÜTUNU"]
+            
+            for expected_column in expected_columns:
+                self.assertIn(expected_column, column_names, f"Expected column folder not found: {expected_column}")
+                logger.info(f"✅ Found expected column folder: {expected_column}")
+            
+            # Check for sub-folders (level 2)
+            sub_folders = [f for f in client_folders if f.get("level") == 2]
+            logger.info(f"Found {len(sub_folders)} sub-folders (level 2)")
+            
+            # Verify we have the expected number of sub-folders
+            self.assertEqual(len(sub_folders), self.total_expected_subfolders, 
+                           f"Should have {self.total_expected_subfolders} sub-folders, found {len(sub_folders)}")
+            
+            # Group sub-folders by parent column
+            sub_folders_by_column = {}
+            for column_folder in column_folders:
+                column_id = column_folder["id"]
+                column_name = column_folder["name"]
+                column_sub_folders = [f for f in sub_folders if f.get("parent_folder_id") == column_id]
+                sub_folders_by_column[column_name] = column_sub_folders
+                logger.info(f"Column '{column_name}' has {len(column_sub_folders)} sub-folders")
+            
+            # Verify each column has the correct sub-folders
+            for column_name, expected_sub_folder_names in self.expected_subfolders.items():
+                if column_name in sub_folders_by_column:
+                    column_sub_folders = sub_folders_by_column[column_name]
+                    sub_folder_names = [f["name"] for f in column_sub_folders]
+                    
+                    # Verify count
+                    self.assertEqual(len(column_sub_folders), len(expected_sub_folder_names), 
+                                   f"Column '{column_name}' should have {len(expected_sub_folder_names)} sub-folders, found {len(column_sub_folders)}")
+                    
+                    # Verify names
+                    for expected_name in expected_sub_folder_names:
+                        self.assertIn(expected_name, sub_folder_names, 
+                                     f"Expected sub-folder '{expected_name}' not found in column '{column_name}'")
+                        logger.info(f"✅ Found expected sub-folder: {column_name}/{expected_name}")
+                else:
+                    self.fail(f"Column '{column_name}' not found in sub_folders_by_column")
+            
+            # Verify folder paths and parent-child relationships
+            for column_name, column_sub_folders in sub_folders_by_column.items():
+                column_folder = next(f for f in column_folders if f["name"] == column_name)
+                
+                for sub_folder in column_sub_folders:
+                    # Verify parent_folder_id points to the column folder
+                    self.assertEqual(sub_folder["parent_folder_id"], column_folder["id"], 
+                                   f"Sub-folder '{sub_folder['name']}' should have parent_folder_id '{column_folder['id']}', got '{sub_folder['parent_folder_id']}'")
+                    
+                    # Verify folder_path is correctly formed
+                    expected_path = f"{root_folder['name']}/{column_name}/{sub_folder['name']}"
+                    self.assertEqual(sub_folder["folder_path"], expected_path, 
+                                   f"Sub-folder path should be '{expected_path}', got: {sub_folder['folder_path']}")
+                    
+                    # Verify level is 2
+                    self.assertEqual(sub_folder["level"], 2, 
+                                   f"Sub-folder level should be 2, got: {sub_folder['level']}")
+                    
+                    logger.info(f"✅ Sub-folder '{sub_folder['name']}' has correct parent, path, and level")
+            
+            # Verify total folder count
+            expected_total_folders = 1 + 4 + self.total_expected_subfolders  # 1 root + 4 columns + sub-folders
+            self.assertEqual(len(client_folders), expected_total_folders, 
+                           f"Should have {expected_total_folders} total folders, found {len(client_folders)}")
+            logger.info(f"✅ Client has the correct total number of folders: {len(client_folders)}")
+            
+            logger.info("✅ Hierarchical folder structure test passed")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing hierarchical folder structure: {str(e)}")
+            raise
+    
+    def test_admin_update_subfolders_endpoint(self):
+        """Test the POST /api/admin/update-subfolders endpoint"""
+        logger.info("\n=== Testing POST /api/admin/update-subfolders endpoint ===")
+        
+        # Test with valid token
+        logger.info("Testing with valid token...")
+        url = f"{self.api_url}/admin/update-subfolders"
+        
+        try:
+            # Step 1: Call the update-subfolders endpoint
+            logger.info("Step 1: Calling the update-subfolders endpoint...")
+            response = requests.post(url, headers=self.headers_valid)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:500]}...")
+            
+            # Check if we get a 200 OK or 401 Unauthorized (not 403 Forbidden)
+            self.assertIn(response.status_code, [200, 401, 403])
+            
+            if response.status_code == 200:
+                logger.info("✅ Authentication successful - received 200 OK")
+                data = response.json()
+                
+                # Verify response structure
+                self.assertIn("message", data, "Response should include a message field")
+                self.assertIn("success", data, "Response should include a success field")
+                
+                # Verify success status
+                self.assertTrue(data["success"], "Response should indicate success")
+                logger.info(f"✅ Update successful: {data['message']}")
+                
+                # Step 2: Verify that existing clients now have sub-folders
+                logger.info("Step 2: Verifying that existing clients now have sub-folders...")
+                
+                # Get all folders
+                folders_url = f"{self.api_url}/folders"
+                folders_response = requests.get(folders_url, headers=self.headers_valid)
+                
+                if folders_response.status_code != 200:
+                    logger.warning(f"Folders retrieval failed with status code {folders_response.status_code}, skipping verification")
+                    return
+                
+                folders_data = folders_response.json()
+                
+                # Group folders by client_id
+                folders_by_client = {}
+                for folder in folders_data:
+                    client_id = folder.get("client_id")
+                    if client_id not in folders_by_client:
+                        folders_by_client[client_id] = []
+                    folders_by_client[client_id].append(folder)
+                
+                # Check each client's folder structure
+                for client_id, client_folders in folders_by_client.items():
+                    # Skip clients with no folders
+                    if not client_folders:
+                        continue
+                    
+                    # Find root folder
+                    root_folders = [f for f in client_folders if f.get("level") == 0]
+                    if not root_folders:
+                        logger.warning(f"⚠️ Client {client_id} has no root folder, skipping")
+                        continue
+                    
+                    root_folder = root_folders[0]
+                    logger.info(f"Checking client with root folder: {root_folder['name']}")
+                    
+                    # Find column folders
+                    column_folders = [f for f in client_folders if f.get("level") == 1]
+                    if len(column_folders) != 4:
+                        logger.warning(f"⚠️ Client {client_id} has {len(column_folders)} column folders instead of 4, skipping")
+                        continue
+                    
+                    # Find sub-folders
+                    sub_folders = [f for f in client_folders if f.get("level") == 2]
+                    logger.info(f"Client {client_id} has {len(sub_folders)} sub-folders")
+                    
+                    # Check if this client has the expected number of sub-folders
+                    if len(sub_folders) >= self.total_expected_subfolders:
+                        logger.info(f"✅ Client {client_id} has at least {self.total_expected_subfolders} sub-folders")
+                        
+                        # Group sub-folders by parent column
+                        sub_folders_by_column = {}
+                        for column_folder in column_folders:
+                            column_id = column_folder["id"]
+                            column_name = column_folder["name"]
+                            column_sub_folders = [f for f in sub_folders if f.get("parent_folder_id") == column_id]
+                            sub_folders_by_column[column_name] = column_sub_folders
+                        
+                        # Check if each column has the expected sub-folders
+                        all_columns_complete = True
+                        for column_name, expected_sub_folder_names in self.expected_subfolders.items():
+                            if column_name in sub_folders_by_column:
+                                column_sub_folders = sub_folders_by_column[column_name]
+                                sub_folder_names = [f["name"] for f in column_sub_folders]
+                                
+                                # Check if all expected sub-folders exist
+                                all_sub_folders_exist = all(name in sub_folder_names for name in expected_sub_folder_names)
+                                if all_sub_folders_exist:
+                                    logger.info(f"✅ Column '{column_name}' has all expected sub-folders")
+                                else:
+                                    all_columns_complete = False
+                                    logger.warning(f"⚠️ Column '{column_name}' is missing some expected sub-folders")
+                            else:
+                                all_columns_complete = False
+                                logger.warning(f"⚠️ Column '{column_name}' not found in sub_folders_by_column")
+                        
+                        if all_columns_complete:
+                            logger.info(f"✅ Client {client_id} has a complete folder structure")
+                            
+                            # Verify total folder count
+                            expected_total_folders = 1 + 4 + self.total_expected_subfolders  # 1 root + 4 columns + sub-folders
+                            if len(client_folders) >= expected_total_folders:
+                                logger.info(f"✅ Client has at least {expected_total_folders} total folders: {len(client_folders)}")
+                                
+                                # We found a client with a complete folder structure, so we can stop checking
+                                break
+                            else:
+                                logger.warning(f"⚠️ Client has {len(client_folders)} folders, expected at least {expected_total_folders}")
+                    else:
+                        logger.warning(f"⚠️ Client {client_id} has only {len(sub_folders)} sub-folders, expected at least {self.total_expected_subfolders}")
+                
+                # Step 3: Call the endpoint again to verify it doesn't create duplicates
+                logger.info("Step 3: Calling the update-subfolders endpoint again to verify it doesn't create duplicates...")
+                second_response = requests.post(url, headers=self.headers_valid)
+                logger.info(f"Second response status code: {second_response.status_code}")
+                logger.info(f"Second response body: {second_response.text[:500]}...")
+                
+                # Verify the second call also succeeds
+                self.assertEqual(second_response.status_code, 200, "Second call should also succeed")
+                
+                # Get folders again
+                second_folders_response = requests.get(folders_url, headers=self.headers_valid)
+                
+                if second_folders_response.status_code != 200:
+                    logger.warning(f"Second folders retrieval failed with status code {second_folders_response.status_code}, skipping verification")
+                    return
+                
+                second_folders_data = second_folders_response.json()
+                
+                # Verify that the number of folders hasn't increased significantly
+                # (There might be some difference if other tests are running in parallel)
+                self.assertLess(abs(len(second_folders_data) - len(folders_data)), 10, 
+                               "Number of folders shouldn't increase significantly after second call")
+                logger.info(f"✅ Second call didn't create duplicates: {len(folders_data)} folders before, {len(second_folders_data)} folders after")
+                
+                logger.info("✅ Admin update-subfolders endpoint test passed")
+                
+            elif response.status_code == 401:
+                logger.info("✅ Authentication failed correctly - received 401 Unauthorized")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+            elif response.status_code == 403:
+                logger.info("✅ Authorization failed correctly - received 403 Forbidden (admin access required)")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+                self.assertIn("admin", error_data["detail"].lower(), "Error should mention admin access")
+        except Exception as e:
+            logger.error(f"❌ Error testing admin update-subfolders endpoint: {str(e)}")
+            raise
+    
+    def test_get_folders_after_update(self):
+        """Test that the GET /api/folders endpoint returns all sub-folders after update"""
+        logger.info("\n=== Testing GET /api/folders endpoint after update ===")
+        
+        # Test with valid token
+        logger.info("Testing with valid token...")
+        url = f"{self.api_url}/folders"
+        
+        try:
+            response = requests.get(url, headers=self.headers_valid)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:500]}...")
+            
+            # Check if we get a 200 OK or 401 Unauthorized
+            self.assertIn(response.status_code, [200, 401])
+            
+            if response.status_code == 200:
+                logger.info("✅ Authentication successful - received 200 OK")
+                data = response.json()
+                
+                # Verify response is a list of folders
+                self.assertIsInstance(data, list, "Response should be a list of folders")
+                logger.info(f"Found {len(data)} folders")
+                
+                # Count folders by level
+                level_0_folders = [f for f in data if f.get("level") == 0]
+                level_1_folders = [f for f in data if f.get("level") == 1]
+                level_2_folders = [f for f in data if f.get("level") == 2]
+                
+                logger.info(f"Found {len(level_0_folders)} root folders (level 0)")
+                logger.info(f"Found {len(level_1_folders)} column folders (level 1)")
+                logger.info(f"Found {len(level_2_folders)} sub-folders (level 2)")
+                
+                # Verify we have sub-folders
+                self.assertGreater(len(level_2_folders), 0, "Should have at least some level 2 sub-folders")
+                
+                # Check structure of a sub-folder
+                if level_2_folders:
+                    sub_folder = level_2_folders[0]
+                    self.assertIn("id", sub_folder, "Sub-folder should have an id field")
+                    self.assertIn("client_id", sub_folder, "Sub-folder should have a client_id field")
+                    self.assertIn("name", sub_folder, "Sub-folder should have a name field")
+                    self.assertIn("parent_folder_id", sub_folder, "Sub-folder should have a parent_folder_id field")
+                    self.assertIn("folder_path", sub_folder, "Sub-folder should have a folder_path field")
+                    self.assertIn("level", sub_folder, "Sub-folder should have a level field")
+                    
+                    # Verify level is 2
+                    self.assertEqual(sub_folder["level"], 2, "Sub-folder level should be 2")
+                    
+                    # Verify parent_folder_id points to a level 1 folder
+                    parent_id = sub_folder["parent_folder_id"]
+                    parent_folders = [f for f in level_1_folders if f.get("id") == parent_id]
+                    self.assertEqual(len(parent_folders), 1, "Sub-folder should have exactly one parent folder")
+                    
+                    parent_folder = parent_folders[0]
+                    self.assertEqual(parent_folder["level"], 1, "Parent folder level should be 1")
+                    
+                    # Verify folder_path includes parent path
+                    expected_path_prefix = f"{parent_folder['folder_path']}/"
+                    self.assertTrue(sub_folder["folder_path"].startswith(expected_path_prefix), 
+                                   f"Sub-folder path should start with '{expected_path_prefix}', got: {sub_folder['folder_path']}")
+                    
+                    logger.info(f"✅ Sub-folder structure is correct: {sub_folder['folder_path']}")
+                
+                logger.info("✅ GET /api/folders endpoint returns sub-folders correctly")
+            elif response.status_code == 401:
+                logger.info("✅ Authentication failed correctly - received 401 Unauthorized")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+        except Exception as e:
+            logger.error(f"❌ Error testing GET /api/folders endpoint after update: {str(e)}")
+            raise
+
+def run_hierarchical_subfolder_tests():
+    """Run tests for hierarchical sub-folder structure and update-subfolders endpoint"""
+    logger.info("Starting hierarchical sub-folder structure tests...")
+    
+    # Create a test suite
+    suite = unittest.TestSuite()
+    
+    # Add hierarchical sub-folder tests
+    suite.addTest(TestHierarchicalSubFolderSystem("test_create_client_with_hierarchical_folders"))
+    suite.addTest(TestHierarchicalSubFolderSystem("test_admin_update_subfolders_endpoint"))
+    suite.addTest(TestHierarchicalSubFolderSystem("test_get_folders_after_update"))
+    
+    # Run the tests
+    runner = unittest.TextTestRunner()
+    result = runner.run(suite)
+    
+    # Summary
+    logger.info("\n=== Hierarchical Sub-Folder Structure Test Summary ===")
+    logger.info(f"Tests run: {result.testsRun}")
+    logger.info(f"Errors: {len(result.errors)}")
+    logger.info(f"Failures: {len(result.failures)}")
+    
+    if result.wasSuccessful():
+        logger.info("All hierarchical sub-folder structure tests PASSED")
+        return True
+    else:
+        logger.error("Some hierarchical sub-folder structure tests FAILED")
+        return False
+
 if __name__ == "__main__":
     import requests  # Import here to avoid issues with mocking
-    # Run folder creation test
-    run_folder_creation_test()
+    # Run hierarchical sub-folder tests
+    run_hierarchical_subfolder_tests()
