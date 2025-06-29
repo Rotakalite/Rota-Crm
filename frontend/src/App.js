@@ -161,9 +161,9 @@ const getBackendURL = () => {
   
   // If we're on Vercel (production frontend)
   if (currentUrl.includes('vercel.app')) {
-    // KALICI ÇÖZÜM: Hard-coded backend URL for Vercel deployments
-    const backendUrl = 'https://ddbdf62a-0dc7-4cf4-b9a6-6dc3e3277ae1.preview.emergentagent.com';
-    console.log('🔧 Using hard-coded backend URL for Vercel:', backendUrl);
+    // KALICI ÇÖZÜM: Railway backend URL for Vercel deployments
+    const backendUrl = 'https://rota-crm-production.up.railway.app';
+    console.log('🔧 Using Railway backend URL for Vercel:', backendUrl);
     
     // Also store it for future use
     localStorage.setItem('ROTA_BACKEND_URL', backendUrl);
