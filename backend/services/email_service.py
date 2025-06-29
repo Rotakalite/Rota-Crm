@@ -101,10 +101,25 @@ class EmailService:
     ):
         """Send Turkish notification for multiple document uploads"""
         try:
+            # Process documents to ensure date formatting
+            processed_documents = []
+            for doc in documents:
+                processed_doc = dict(doc)
+                # Format created_at date
+                created_at = doc.get('created_at')
+                if created_at:
+                    if hasattr(created_at, 'strftime'):
+                        processed_doc['formatted_date'] = created_at.strftime('%d.%m.%Y %H:%M')
+                    else:
+                        processed_doc['formatted_date'] = str(created_at)
+                else:
+                    processed_doc['formatted_date'] = 'Bilinmiyor'
+                processed_documents.append(processed_doc)
+            
             template = self.jinja_env.get_template("bulk_document_upload_tr.html")
             html_content = template.render(
                 client_name=client_name,
-                documents=documents,
+                documents=processed_documents,
                 total_count=len(documents)
             )
             
