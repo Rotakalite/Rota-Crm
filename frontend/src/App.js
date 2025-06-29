@@ -4574,6 +4574,180 @@ const ClientSetupForm = ({ onComplete, onSkip }) => {
   );
 };
 
+const ClientSetupForm = ({ onComplete, onSkip }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    hotel_name: '',
+    contact_person: '',
+    email: '',
+    phone: '',
+    address: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const { user, authToken, refreshUser } = useAuth();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Create client record
+      const clientResponse = await axios.post(`${API}/clients`, {
+        ...formData,
+        email: user.primaryEmailAddress?.emailAddress || formData.email
+      }, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+
+      // Update user record with client_id
+      await axios.put(`${API}/auth/me`, {
+        client_id: clientResponse.data.id
+      }, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+
+      // Refresh user data
+      await refreshUser();
+
+      alert('Otel bilgileriniz başarıyla kaydedildi! Sistemi kullanmaya başlayabilirsiniz.');
+      onComplete();
+    } catch (error) {
+      console.error('Client setup error:', error);
+      alert('Hata oluştu: ' + (error.response?.data?.detail || 'Bilinmeyen hata'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">🏨 Otel Bilgilerinizi Tamamlayın</h1>
+          <p className="text-gray-600 mt-2">
+            Sürdürülebilir turizm yolculuğunuza başlamak için otel bilgilerinizi girin.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Firma Adı <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Örn: Antalya Turizm A.Ş."
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Otel/Tesis Adı <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Örn: Grand Resort & Spa"
+              value={formData.hotel_name}
+              onChange={(e) => setFormData({...formData, hotel_name: e.target.value})}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              İletişim Kişisi <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Örn: Ahmet Yılmaz"
+              value={formData.contact_person}
+              onChange={(e) => setFormData({...formData, contact_person: e.target.value})}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              E-posta <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              placeholder="Örn: info@grandresort.com"
+              value={formData.email || user?.primaryEmailAddress?.emailAddress || ''}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Telefon <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="tel"
+              placeholder="Örn: +90 242 123 4567"
+              value={formData.phone}
+              onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Adres <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              placeholder="Tam adresinizi girin..."
+              value={formData.address}
+              onChange={(e) => setFormData({...formData, address: e.target.value})}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              rows="3"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                Kaydediliyor...
+              </div>
+            ) : (
+              'Otel Bilgilerini Kaydet'
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={onSkip}
+            className="w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors mt-2"
+          >
+            Şimdilik Atla (Sonra Tamamlayabilirim)
+          </button>
+        </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-xs text-gray-500">
+            Bu bilgiler sürdürülebilirlik danışmanlığı sürecinde kullanılacaktır.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Sidebar = ({ activeTab, onNavigate, userRole }) => {
   const adminMenuItems = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
