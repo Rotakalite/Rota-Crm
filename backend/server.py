@@ -300,22 +300,6 @@ class DocumentCreate(BaseModel):
     file_path: str
     file_size: Optional[int] = None
 
-class Training(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_id: str
-    title: str
-    description: str
-    training_date: datetime
-    participants: int
-    status: str = "Planned"  # Planned, Completed, Cancelled
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-
-class TrainingCreate(BaseModel):
-    client_id: str
-    title: str
-    description: str
-    training_date: datetime
-    participants: int
 
 # Authentication Functions
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
