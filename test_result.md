@@ -166,12 +166,12 @@ backend:
         -comment: "Verified that the finalize-upload endpoint creates document records in the database with all required fields: id, client_id, document_name, document_type, stage, file_path, file_size, original_filename, etc. The document_id is included in the response, allowing the frontend to reference the newly created document. The backend is properly creating and storing document records in the database."
 
   - task: "Frontend URL Configuration"
-    implemented: true
-    working: true
+    implemented: false
+    working: false
     file: "/app/frontend/.env"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         -working: false
         -agent: "main"
@@ -179,6 +179,9 @@ backend:
         -working: true
         -agent: "main"
         -comment: "Updated REACT_APP_BACKEND_URL to match current preview URL: https://8f8909e6-0e12-4f66-9734-9213547bf4f4.preview.emergentagent.com"
+        -working: false
+        -agent: "user"
+        -comment: "User reporting persistent CORS error: 'Access to XMLHttpRequest at https://ddbdf62a-0dc7-4cf4-b9a6-6dc3e3277ae1.preview.emergentagent.com/api/auth/register from origin https://rota-r4invvuue-rotas-projects-62181e6e.vercel.app has been blocked by CORS policy'. Frontend .env shows different URL (8f8909e6...) than the one in error (ddbdf62a...). URL mismatch causing CORS failures."
 
   - task: "Cleanup Duplicate Code in Stats Endpoint"
     implemented: true
