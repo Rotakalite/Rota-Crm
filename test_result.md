@@ -488,7 +488,24 @@ test_plan:
         -agent: "testing"
         -comment: "Tested the health check endpoint (/api/health) and verified it returns proper health status with status code 200 OK without requiring authentication. The response format includes status, message, timestamp, and cors_enabled fields as expected. Also tested CORS configuration for critical endpoints (/api/auth/register, /api/stats, /api/clients) and verified that OPTIONS preflight requests are handled properly with appropriate CORS headers. All endpoints return Access-Control-Allow-Origin: * which allows requests from any origin. The URL discovery system was tested for response time and reliability, with 100% success rate across multiple requests. The health check endpoint is suitable for frontend auto-detection with fast response times (under 100ms). Additionally, tested the critical API endpoints that were failing (/api/auth/register, /api/stats, /api/clients) and confirmed they are now working correctly with proper authentication handling. All tests passed successfully."
 
+  - task: "Fix Critical Client Data Exposure Security Vulnerability"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "CRITICAL SECURITY ISSUE: Client users can see all clients instead of only their own client data. User reports in Turkish: 'müşteriler diğer müşterilerin bilgilerini görebiliyor' - this means clients can see other clients' information. This is a severe data exposure vulnerability."
+        -working: false
+        -agent: "main"
+        -comment: "ANALYSIS: Hard block is applied in backend - client users get empty list from /api/clients endpoint. However user still sees 3 clients in frontend, indicating cached data. Database has multiple duplicate users with same emails, most without client_id. Main issue: clients table has contact_person field with names (KAYA, CANO) instead of email addresses, breaking email-based matching logic. Need comprehensive fix: 1) Clean duplicate users, 2) Fix client contact_person emails, 3) Link existing client users to correct client_id, 4) Replace hard block with proper filtering, 5) Clear frontend cache."
+
 agent_communication:
+    -agent: "user"
+    -message: "URGENT SECURITY ALERT: 'bak müşteriler diğer müşterilerin bilgilerini görebiliyor. bunu acil engellemen lazım. müşteri dashboard kısmına dikkat et' - Client users can see other client users' data in dashboard. This is critical data exposure that must be fixed immediately."
     -agent: "main"
     -message: "Fixed critical JavaScript error in frontend: 'uploadData is not defined' at line 1145. The issue was caused by misplaced folder selection JSX code in the Dashboard component that was trying to reference uploadData state from DocumentManagement component. Removed the duplicate/misplaced folder selection code from Dashboard component. The proper folder selection remains in DocumentManagement component where uploadData state is defined."
     -agent: "main"
