@@ -167,7 +167,31 @@ app.get('/status', (req, res) => {
     })
 })
 
-// Mesaj gönder
+// Mesaj gönder (ana backend uyumlu)
+app.post('/send-message', async (req, res) => {
+    try {
+        const { phone, message } = req.body
+        
+        if (!phone || !message) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Telefon numarası ve mesaj gerekli' 
+            })
+        }
+
+        const result = await sendWhatsAppMessage(phone, message)
+        res.json(result)
+        
+    } catch (error) {
+        console.error('API Error:', error)
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        })
+    }
+})
+
+// Mesaj gönder (eski endpoint)
 app.post('/send', async (req, res) => {
     try {
         const { phone_number, message } = req.body
