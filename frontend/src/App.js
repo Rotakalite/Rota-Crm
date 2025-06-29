@@ -807,21 +807,9 @@ const Dashboard = ({ onNavigate }) => {
   const [showDocumentModal, setShowDocumentModal] = useState(false);
   const { authToken, userRole, dbUser } = useAuth();
 
-  const getFileIcon = (filePath) => {
-    const extension = filePath?.split('.').pop().toLowerCase();
-    switch (extension) {
-      case 'pdf': return '📄';
-      case 'doc':
-      case 'docx': return '📝';
-      case 'xls':
-      case 'xlsx': return '📊';
-      case 'jpg':
-      case 'jpeg':
-      case 'png': return '🖼️';
-      case 'zip':
-      case 'rar': return '📦';
-      default: return '📋';
-    }
+  const handleViewDocument = (document) => {
+    setSelectedDocument(document);
+    setShowDocumentModal(true);
   };
 
   const handleDownloadDocument = async (docData) => {
