@@ -4333,6 +4333,25 @@ const TrainingManagement = () => {
   const [loading, setLoading] = useState(false);
   const { authToken, userRole } = useAuth();
 
+  // Delete training function
+  const deleteTraining = async (trainingId) => {
+    if (!window.confirm('Bu eğitimi silmek istediğinizden emin misiniz?')) {
+      return;
+    }
+    
+    try {
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      await axios.delete(`${API}/trainings/${trainingId}`, { headers });
+      
+      // Remove from local state
+      setTrainings(prev => prev.filter(t => t.id !== trainingId));
+      alert('✅ Eğitim başarıyla silindi!');
+    } catch (error) {
+      console.error('❌ Error deleting training:', error);
+      alert(`❌ Eğitim silinirken hata: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
   useEffect(() => {
     if (authToken && userRole === 'admin') {
       fetchTrainings();
