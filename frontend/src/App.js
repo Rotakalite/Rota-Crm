@@ -992,7 +992,7 @@ const Dashboard = ({ onNavigate }) => {
             </div>
             <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
               <h3 className="text-lg font-semibold text-green-700">
-                {userRole === 'admin' ? 'I. Aşama' : 'TR-I Kriterleri'}
+                {userRole === 'admin' ? 'I. Aşama' : 'Türkiye Sürdürülebilir Turizm Programı Kriterleri (TR-I)'}
               </h3>
               <p className="text-3xl font-bold text-green-900">
                 {userRole === 'admin' 
