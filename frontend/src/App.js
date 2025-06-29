@@ -2438,11 +2438,6 @@ const DocumentManagement = () => {
       </div>
 
 const ConsumptionManagement = ({ onNavigate }) => {
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
-                      {document.document_type}
                     </span>
                   </td>
                   <td className="px-6 py-4">
