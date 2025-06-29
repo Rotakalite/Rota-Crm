@@ -97,9 +97,8 @@
                     {% for document in documents %}
                     <div class="document-item">
                         <div class="document-name">📄 {{ document.get('name', 'Bilinmiyen Doküman') }}</div>
-                        <div class="document-date">
-                            📅 Yükleme: {{ document.formatted_date }}
-                        </div>
+                        <div class="document-folder">📁 Klasör: {{ document.get('folder_path', 'Klasör belirtilmemiş') }}</div>
+                        <div class="document-date">📅 Yükleme: {{ document.formatted_date }}</div>
                     </div>
                     {% endfor %}
                 </div>
