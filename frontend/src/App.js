@@ -1948,6 +1948,7 @@ const DocumentManagement = () => {
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
+  const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploadData, setUploadData] = useState({
     client_id: '',
     name: '',
