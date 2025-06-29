@@ -526,6 +526,89 @@ async def get_client_access(current_user: User = Depends(get_current_user)):
     # Both admin and client can access, but with different permissions
     return current_user
 
+async def update_existing_clients_with_subfolders():
+    """Update existing clients to have sub-folders in their column folders"""
+    try:
+        # Get all clients
+        clients = await db.clients.find({}).to_list(length=None)
+        logging.info(f"📋 Found {len(clients)} existing clients to update")
+        
+        for client in clients:
+            client_id = client["id"]
+            client_name = client["name"]
+            
+            logging.info(f"🔄 Updating client: {client_name} ({client_id})")
+            
+            # Find the root folder for this client
+            root_folder = await db.folders.find_one({
+                "client_id": client_id,
+                "level": 0
+            })
+            
+            if not root_folder:
+                logging.warning(f"⚠️ No root folder found for client {client_name}")
+                continue
+            
+            # Find column folders
+            column_folders = await db.folders.find({
+                "client_id": client_id,
+                "level": 1
+            }).to_list(length=None)
+            
+            logging.info(f"📁 Found {len(column_folders)} column folders for {client_name}")
+            
+            # Create sub-folders for each column that doesn't have them
+            column_structure = {
+                "A SÜTUNU": ["A1", "A2", "A3", "A4", "A5", "A7.1", "A7.2", "A7.3", "A7.4", "A8", "A9", "A10"],
+                "B SÜTUNU": ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9"],
+                "C SÜTUNU": ["C1", "C2", "C3", "C4"],
+                "D SÜTUNU": ["D1", "D2", "D3"]
+            }
+            
+            for column_folder in column_folders:
+                column_id = column_folder["id"]
+                column_name = column_folder["name"]
+                column_path = column_folder["folder_path"]
+                
+                if column_name in column_structure:
+                    # Check if this column already has sub-folders
+                    existing_subfolders = await db.folders.find({
+                        "client_id": client_id,
+                        "parent_folder_id": column_id,
+                        "level": 2
+                    }).to_list(length=None)
+                    
+                    if len(existing_subfolders) > 0:
+                        logging.info(f"📁 Column {column_name} already has {len(existing_subfolders)} sub-folders, skipping")
+                        continue
+                    
+                    # Create sub-folders for this column
+                    sub_folders = column_structure[column_name]
+                    for sub_folder_name in sub_folders:
+                        sub_folder = {
+                            "id": str(uuid.uuid4()),
+                            "client_id": client_id,
+                            "name": sub_folder_name,
+                            "parent_folder_id": column_id,
+                            "folder_path": f"{column_path}/{sub_folder_name}",
+                            "level": 2,
+                            "created_at": datetime.utcnow()
+                        }
+                        
+                        await db.folders.insert_one(sub_folder)
+                        logging.info(f"📁 Created sub-folder: {column_name}/{sub_folder_name}")
+                    
+                    logging.info(f"✅ Created {len(sub_folders)} sub-folders for {column_name}")
+            
+            logging.info(f"✅ Completed updating client: {client_name}")
+        
+        logging.info("🎉 All existing clients updated with sub-folders!")
+        return True
+        
+    except Exception as e:
+        logging.error(f"❌ Failed to update existing clients: {str(e)}")
+        return False
+
 # Routes
 @api_router.get("/")
 async def root():
