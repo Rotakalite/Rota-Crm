@@ -145,8 +145,93 @@ ChartJS.register(
 
 const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
-// API Configuration - FIXED URL with cache busting
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://4aeb8cfa-61f1-4648-8b57-402bd2c9bfe3.preview.emergentagent.com';
+// Dynamic Backend URL Detection System
+const getBackendURL = () => {
+  // Method 1: Use environment variable if available
+  if (process.env.REACT_APP_BACKEND_URL) {
+    console.log('🔧 Using backend URL from environment:', process.env.REACT_APP_BACKEND_URL);
+    return process.env.REACT_APP_BACKEND_URL;
+  }
+  
+  // Method 2: Auto-detect from current window location
+  const currentUrl = window.location.hostname;
+  const currentOrigin = window.location.origin;
+  console.log('🔧 Current hostname:', currentUrl);
+  console.log('🔧 Current origin:', currentOrigin);
+  
+  // If we're on Vercel (production frontend)
+  if (currentUrl.includes('vercel.app')) {
+    // KALICI ÇÖZÜM: Railway backend URL for Vercel deployments
+    const backendUrl = 'https://rota-crm-production.up.railway.app';
+    console.log('🔧 Using Railway backend URL for Vercel:', backendUrl);
+    
+    // Also store it for future use
+    localStorage.setItem('ROTA_BACKEND_URL', backendUrl);
+    return backendUrl;
+  }
+  
+  // If we're on a preview URL (emergentagent.com domain)
+  if (currentUrl.includes('emergentagent.com')) {
+    console.log('🔧 Using current preview URL as backend:', currentOrigin);
+    return currentOrigin;
+  }
+  
+  // Method 3: Development fallback
+  if (currentUrl === 'localhost' || currentUrl === '127.0.0.1') {
+    console.log('🔧 Using localhost development URL');
+    return 'http://localhost:8001';
+  }
+  
+  // Method 4: Last resort - prompt user or use service discovery
+  console.error('❌ Could not determine backend URL automatically');
+  
+  // Try to discover backend URL by testing common patterns
+  return discoverBackendURL();
+};
+
+// Backend URL Discovery Function
+const discoverBackendURL = async () => {
+  const possibleUrls = [
+    // Current session's backend URL (stored in localStorage)
+    localStorage.getItem('ROTA_BACKEND_URL'),
+    // Latest known working URL pattern
+    'https://4aeb8cfa-61f1-4648-8b57-402bd2c9bfe3.preview.emergentagent.com',
+    // Development
+    'http://localhost:8001'
+  ].filter(Boolean);
+  
+  for (const url of possibleUrls) {
+    try {
+      console.log('🔍 Testing backend URL:', url);
+      const response = await fetch(`${url}/api/health`, { 
+        method: 'GET',
+        timeout: 5000 
+      });
+      
+      if (response.ok) {
+        console.log('✅ Found working backend URL:', url);
+        localStorage.setItem('ROTA_BACKEND_URL', url); // Store for future use
+        return url;
+      }
+    } catch (error) {
+      console.log('❌ Backend URL not reachable:', url);
+    }
+  }
+  
+  // If all fails, return the current best guess
+  console.warn('⚠️ Using fallback backend URL');
+  return 'https://4aeb8cfa-61f1-4648-8b57-402bd2c9bfe3.preview.emergentagent.com';
+};
+
+// Initialize backend URL
+let BACKEND_URL;
+try {
+  BACKEND_URL = getBackendURL();
+} catch (error) {
+  console.error('Error getting backend URL:', error);
+  BACKEND_URL = 'https://4aeb8cfa-61f1-4648-8b57-402bd2c9bfe3.preview.emergentagent.com';
+}
+
 const API = `${BACKEND_URL}/api`;
 
 // Configure axios to automatically refresh tokens
@@ -358,18 +443,25 @@ const Header = () => {
   };
 
   return (
-    <div className="bg-white border-b border-gray-200 px-6 py-4">
+    <div className="bg-gray-800 border-b border-gray-700 px-6 py-4">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">🔧 ROTA - CRM</h1>
-          <p className="text-sm text-gray-600">
-            {userRole === 'admin' ? 'Admin Paneli' : 'Müşteri Paneli'}
-          </p>
+        <div className="flex items-center space-x-3">
+          <img 
+            src="/logo.svg" 
+            alt="Rota Kalite & Danışmanlık" 
+            className="h-12 w-auto flex-shrink-0"
+          />
+          <div className="flex flex-col justify-center">
+            <h1 className="text-lg font-bold text-white leading-tight">CRM Sistemi</h1>
+            <p className="text-xs text-gray-300 leading-tight">
+              {userRole === 'admin' ? 'Admin Paneli' : 'Müşteri Paneli'}
+            </p>
+          </div>
         </div>
         <div className="flex items-center space-x-4">
           <div className="text-right">
-            <p className="font-semibold text-gray-800">{user?.fullName || user?.firstName}</p>
-            <p className="text-sm text-gray-600">{user?.primaryEmailAddress?.emailAddress}</p>
+            <p className="font-semibold text-white">{user?.fullName || user?.firstName}</p>
+            <p className="text-sm text-gray-300">{user?.primaryEmailAddress?.emailAddress}</p>
             <span className={`inline-block px-2 py-1 text-xs rounded-full ${
               userRole === 'admin' 
                 ? 'bg-purple-100 text-purple-800' 
@@ -434,35 +526,23 @@ const ConsumptionAnalytics = () => {
   }, [authToken, selectedYear, selectedComparisonYear, selectedClient]);
 
   const fetchClients = async () => {
-    if (!authToken || userRole !== 'admin') {
-      console.log("❌ No auth token or not admin for clients fetch");
-      return;
-    }
-    
     try {
-      console.log("🔍 Fetching clients with token:", authToken.substring(0, 20) + "...");
-      const response = await axios.get(`${API}/clients`, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      });
-      setClients(Array.isArray(response.data) ? response.data : []);
-      console.log("✅ Clients fetched successfully:", response.data.length, "clients");
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      console.log('🔍 Fetching clients with role:', userRole);
+      const response = await axios.get(`${API}/clients`, { headers });
       
-      // İlk müşteriyi otomatik seç
-      if (response.data && response.data.length > 0) {
-        setSelectedClient(response.data[0].id);
-        console.log("🎯 Auto-selected first client:", response.data[0].hotel_name);
+      // Check if response is actually JSON array
+      if (Array.isArray(response.data)) {
+        setClients(response.data);
+        console.log('✅ Clients fetched:', response.data.length, 'for role:', userRole);
+        console.log('📋 Client data:', response.data);
+      } else {
+        console.error('❌ Invalid response type:', typeof response.data, response.data);
+        setClients([]);
       }
     } catch (error) {
       console.error("❌ Error fetching clients:", error.response?.status, error.response?.data);
       setClients([]);
-      
-      // Retry mechanism
-      if (error.response?.status === 403) {
-        console.log("🔄 Retrying clients fetch in 2 seconds...");
-        setTimeout(() => {
-          fetchClients();
-        }, 2000);
-      }
     }
   };
 
@@ -950,12 +1030,14 @@ const Dashboard = ({ onNavigate }) => {
   const fetchClients = async () => {
     try {
       const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      console.log('🔍 Fetching clients with role:', userRole);
       const response = await axios.get(`${API}/clients`, { headers });
       
       // Check if response is actually JSON array
       if (Array.isArray(response.data)) {
         setClients(response.data);
-        console.log('✅ Clients fetched:', response.data.length);
+        console.log('✅ Clients fetched:', response.data.length, 'for role:', userRole);
+        console.log('📋 Client data:', response.data);
       } else {
         console.error('❌ Invalid response type:', typeof response.data, response.data);
         setClients([]);
@@ -1002,7 +1084,7 @@ const Dashboard = ({ onNavigate }) => {
             </div>
             <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
               <h3 className="text-lg font-semibold text-green-700">
-                {userRole === 'admin' ? 'I. Aşama' : 'TR-I Kriterleri'}
+                {userRole === 'admin' ? 'I. Aşama' : 'Türkiye Sürdürülebilir Turizm Programı Kriterleri (TR-I)'}
               </h3>
               <p className="text-3xl font-bold text-green-900">
                 {userRole === 'admin' 
@@ -1897,8 +1979,55 @@ const ClientDocuments = () => {
           </div>
         )}
 
-        {/* Documents List - Only for level 2 folders (sub-folders) */}
+        {/* Level 3 sub-folders when a level 2 folder (D1, D2, D3) is selected */}
         {selectedFolder && selectedFolder.level === 2 && (
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              📁 {selectedFolder.name} - Alt Klasörler (Level 3)
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+              {clientFolders
+                .filter(folder => folder.parent_folder_id === selectedFolder.id)
+                .sort((a, b) => {
+                  // Natural sorting for folder names (D1.1, D1.2, etc.)
+                  const aName = a.name;
+                  const bName = b.name;
+                  
+                  // Extract numbers from folder names for proper sorting
+                  const aMatch = aName.match(/(\d+\.?\d*)/);
+                  const bMatch = bName.match(/(\d+\.?\d*)/);
+                  
+                  if (aMatch && bMatch) {
+                    const aNum = parseFloat(aMatch[1]);
+                    const bNum = parseFloat(bMatch[1]);
+                    return aNum - bNum;
+                  }
+                  
+                  // Fallback to alphabetical sorting
+                  return aName.localeCompare(bName);
+                })
+                .map((level3Folder) => (
+                  <div
+                    key={level3Folder.id}
+                    onClick={() => setSelectedFolder(level3Folder)}
+                    className="bg-blue-50 border border-blue-200 rounded-lg p-3 cursor-pointer hover:bg-blue-100 transition-colors"
+                  >
+                    <div className="flex items-center">
+                      <span className="text-xl mr-2">📂</span>
+                      <div>
+                        <h4 className="font-semibold text-blue-800 text-sm">{level3Folder.name}</h4>
+                        <p className="text-xs text-blue-600">Level 3 Klasör</p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        )}
+
+        {/* Documents List - Updated to show for level 3 folders as well */}
+        {selectedFolder && (selectedFolder.level === 2 || selectedFolder.level === 3) && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">
               📄 {selectedFolder.name} İçindeki Belgeler
@@ -1981,7 +2110,7 @@ const DocumentManagement = () => {
   const [uploadData, setUploadData] = useState({
     client_id: '',
     name: '',
-    document_type: 'TR-I Kriterleri',
+    document_type: 'Türkiye Sürdürülebilir Turizm Programı Kriterleri (TR-I)',
     stage: 'I.Aşama',
     files: [],
     folder_id: ''
@@ -2239,13 +2368,6 @@ const DocumentManagement = () => {
     }
   };
 
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
 
   const filterDocuments = () => {
     if (userRole === 'admin' && selectedClient) {
@@ -2254,19 +2376,7 @@ const DocumentManagement = () => {
     return documents || [];
   };
 
-  const formatFileSize = (bytes) => {
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    if (bytes === 0) return '0 B';
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
-  };
 
-  const formatFileSize = (bytes) => {
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    if (bytes === 0) return '0 B';
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
-  };
 
   const getClientName = (clientId) => {
     const client = (clients || []).find(c => c.id === clientId);
@@ -2446,8 +2556,55 @@ const DocumentManagement = () => {
           </div>
         )}
 
-        {/* Documents List for Selected Folder */}
-        {selectedClient && selectedFolder && (
+        {/* Level 3 sub-folders when a level 2 folder (D1, D2, D3) is selected */}
+        {selectedClient && selectedFolder && selectedFolder.level === 2 && (
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              📁 {selectedFolder.name} - Alt Klasörler (Level 3)
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+              {folders
+                .filter(folder => folder.parent_folder_id === selectedFolder.id)
+                .sort((a, b) => {
+                  // Natural sorting for folder names (D1.1, D1.2, etc.)
+                  const aName = a.name;
+                  const bName = b.name;
+                  
+                  // Extract numbers from folder names for proper sorting
+                  const aMatch = aName.match(/(\d+\.?\d*)/);
+                  const bMatch = bName.match(/(\d+\.?\d*)/);
+                  
+                  if (aMatch && bMatch) {
+                    const aNum = parseFloat(aMatch[1]);
+                    const bNum = parseFloat(bMatch[1]);
+                    return aNum - bNum;
+                  }
+                  
+                  // Fallback to alphabetical sorting
+                  return aName.localeCompare(bName);
+                })
+                .map((level3Folder) => (
+                  <div
+                    key={level3Folder.id}
+                    onClick={() => setSelectedFolder(level3Folder)}
+                    className="bg-blue-50 border border-blue-200 rounded-lg p-3 cursor-pointer hover:bg-blue-100 transition-colors"
+                  >
+                    <div className="flex items-center">
+                      <span className="text-xl mr-2">📂</span>
+                      <div>
+                        <h4 className="font-semibold text-blue-800 text-sm">{level3Folder.name}</h4>
+                        <p className="text-xs text-blue-600">Level 3 Klasör</p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        )}
+
+        {/* Documents List for Selected Folder - Updated to show for level 2 and 3 folders */}
+        {selectedClient && selectedFolder && (selectedFolder.level === 2 || selectedFolder.level === 3) && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">
               📄 {selectedFolder.name} İçindeki Belgeler
@@ -2778,6 +2935,15 @@ const DocumentManagement = () => {
           </div>
         )}
       </div>
+
+      {/* Document Detail Modal */}
+      {showDocumentModal && selectedDocument && (
+        <DocumentModal 
+          document={selectedDocument} 
+          onClose={() => setShowDocumentModal(false)}
+          onDownload={handleDownloadDocument}
+        />
+      )}
     </div>
   );
 };
@@ -3603,12 +3769,6 @@ const ProjectManagement = ({ client, onNavigate }) => {
     }
   };
 
-  const formatFileSize = (bytes) => {
-    if (!bytes) return 'Unknown';
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
-  };
 
   const serviceTypes = [
     "Mevcut durum analizi",
@@ -4159,8 +4319,10 @@ const ClientTrainings = () => {
 
 const TrainingManagement = () => {
   const [trainings, setTrainings] = useState([]);
+  const [clients, setClients] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
+    client_id: '',
     name: '',
     subject: '',
     participant_count: '',
@@ -4174,6 +4336,7 @@ const TrainingManagement = () => {
   useEffect(() => {
     if (authToken && userRole === 'admin') {
       fetchTrainings();
+      fetchClients();
     }
   }, [authToken, userRole]);
 
@@ -4193,6 +4356,22 @@ const TrainingManagement = () => {
     }
   };
 
+  const fetchClients = async () => {
+    if (!authToken) return;
+    
+    try {
+      console.log("👥 Admin fetching clients...");
+      const response = await axios.get(`${API}/clients`, {
+        headers: { "Authorization": `Bearer ${authToken}` }
+      });
+      console.log("👥 Admin clients response:", response.data);
+      setClients(response.data);
+    } catch (error) {
+      console.error("❌ Error fetching clients:", error);
+      setClients([]);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -4200,7 +4379,9 @@ const TrainingManagement = () => {
     try {
       const trainingData = {
         ...formData,
-        participant_count: parseInt(formData.participant_count) || 0
+        participant_count: parseInt(formData.participant_count) || 0,
+        training_date: formData.training_date ? new Date(formData.training_date + "T00:00:00Z").toISOString() : null,
+        training_date: formData.training_date ? new Date(formData.training_date + 'T00:00:00Z').toISOString() : null
       };
       
       console.log('📚 Creating training:', trainingData);
@@ -4211,6 +4392,7 @@ const TrainingManagement = () => {
       
       console.log('✅ Training created:', response.data);
       setFormData({
+        client_id: '',
         name: '',
         subject: '',
         participant_count: '',
@@ -4239,6 +4421,11 @@ const TrainingManagement = () => {
     return new Date(dateString) > new Date();
   };
 
+  const getClientName = (clientId) => {
+    const client = clients.find(c => c.id === clientId);
+    return client ? (client.hotel_name || client.name) : "Bilinmeyen Müşteri";
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -4258,7 +4445,45 @@ const TrainingManagement = () => {
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold mb-4">Yeni Eğitim Ekle</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Müşteri Seçin *
+                </label>
+                <select
+                  value={formData.client_id}
+                  onChange={(e) => setFormData({ ...formData, client_id: e.target.value })}
+                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Bir müşteri seçin...</option>
+                  {clients.map((client) => (
+                    <option key={client.id} value={client.id}>
+                      {client.hotel_name || client.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Müşteri Seçin *
+                </label>
+                <select
+                  value={formData.client_id}
+                  onChange={(e) => setFormData({ ...formData, client_id: e.target.value })}
+                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Bir müşteri seçin...</option>
+                  {clients.map((client) => (
+                    <option key={client.id} value={client.id}>
+                      {client.hotel_name || client.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Eğitimin Adı *
@@ -4379,274 +4604,7 @@ const TrainingManagement = () => {
                         <div>
                           <h4 className="font-semibold text-lg">{training.name}</h4>
                           <p className="text-sm text-gray-600">{training.subject}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
-                        <div>
-                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Eğitmen</span>
-                          <p className="text-sm font-medium">{training.trainer}</p>
-                        </div>
-                        <div>
-                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tarih</span>
-                          <p className="text-sm font-medium">{formatDate(training.training_date)}</p>
-                        </div>
-                        <div>
-                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Katılımcı Sayısı</span>
-                          <p className="text-sm font-medium">{training.participant_count || 0}</p>
-                        </div>
-                      </div>
-                      
-                      {training.description && (
-                        <div className="mt-3">
-                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Açıklama</span>
-                          <p className="text-sm text-gray-700 mt-1">{training.description}</p>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center ml-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        isUpcoming(training.training_date) 
-                          ? 'bg-blue-100 text-blue-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {isUpcoming(training.training_date) ? 'Yaklaşan' : 'Geçmiş'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const TrainingManagement = () => {
-  const [trainings, setTrainings] = useState([]);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    subject: '',
-    participant_count: '',
-    trainer: '',
-    training_date: '',
-    description: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const { authToken, userRole } = useAuth();
-
-  useEffect(() => {
-    if (authToken && userRole === 'admin') {
-      fetchTrainings();
-    }
-  }, [authToken, userRole]);
-
-  const fetchTrainings = async () => {
-    if (!authToken) return;
-    
-    try {
-      console.log('📚 Admin fetching trainings...');
-      const response = await axios.get(`${API}/trainings`, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      });
-      console.log('📚 Admin trainings response:', response.data);
-      setTrainings(response.data);
-    } catch (error) {
-      console.error('❌ Error fetching trainings:', error);
-      setTrainings([]);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    try {
-      const trainingData = {
-        ...formData,
-        participant_count: parseInt(formData.participant_count) || 0
-      };
-      
-      console.log('📚 Creating training:', trainingData);
-      
-      const response = await axios.post(`${API}/trainings`, trainingData, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      });
-      
-      console.log('✅ Training created:', response.data);
-      setFormData({
-        name: '',
-        subject: '',
-        participant_count: '',
-        trainer: '',
-        training_date: '',
-        description: ''
-      });
-      setShowAddForm(false);
-      fetchTrainings();
-      
-    } catch (error) {
-      console.error('❌ Error creating training:', error);
-      alert('Eğitim oluşturma hatası: ' + (error.response?.data?.detail || error.message));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('tr-TR');
-  };
-
-  const isUpcoming = (dateString) => {
-    if (!dateString) return false;
-    return new Date(dateString) > new Date();
-  };
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Eğitim Yönetimi</h2>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-        >
-          <span className="mr-2">+</span>
-          Yeni Eğitim Ekle
-        </button>
-      </div>
-
-      {/* Add Training Form */}
-      {showAddForm && (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold mb-4">Yeni Eğitim Ekle</h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Eğitimin Adı *
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Konusu *
-                </label>
-                <input
-                  type="text"
-                  value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Katılımcı Sayısı
-                </label>
-                <input
-                  type="number"
-                  value={formData.participant_count}
-                  onChange={(e) => setFormData({ ...formData, participant_count: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  min="0"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Eğitimi Kimin Vereceği *
-                </label>
-                <input
-                  type="text"
-                  value={formData.trainer}
-                  onChange={(e) => setFormData({ ...formData, trainer: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tarih *
-                </label>
-                <input
-                  type="date"
-                  value={formData.training_date}
-                  onChange={(e) => setFormData({ ...formData, training_date: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Açıklama
-              </label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows="3"
-              />
-            </div>
-            
-            <div className="flex space-x-4">
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
-              >
-                {loading ? 'Ekleniyor...' : 'Eğitimi Ekle'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowAddForm(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                İptal
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* Trainings List */}
-      <div className="bg-white rounded-lg shadow-md">
-        <div className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Eğitimler</h3>
-          
-          {trainings.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <span className="text-6xl mb-4 block">📚</span>
-              <h4 className="text-xl font-semibold mb-2">Henüz eğitim yok</h4>
-              <p>İlk eğitimi eklemek için yukarıdaki butonu kullanın.</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {trainings.map((training) => (
-                <div key={training.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center mb-2">
-                        <span className="text-2xl mr-3">📚</span>
-                        <div>
-                          <h4 className="font-semibold text-lg">{training.name}</h4>
-                          <p className="text-sm text-gray-600">{training.subject}</p>
+                          <p className="text-xs text-blue-600 font-medium">🏨 {getClientName(training.client_id)}</p>
                         </div>
                       </div>
                       
@@ -4875,6 +4833,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'analytics', name: 'Tüketim Analizi', icon: '📈' },
     { id: 'documents', name: 'Belge Yönetimi', icon: '📋' },
     { id: 'trainings', name: 'Eğitim Yönetimi', icon: '🎓' },
+    { id: 'whatsapp', name: 'WhatsApp Yönetimi', icon: '📱' },
     { id: 'reports', name: 'Raporlar', icon: '📄' }
   ];
 
@@ -4891,10 +4850,19 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
   return (
     <div className="bg-gray-800 text-white w-64 min-h-screen p-4">
       <div className="mb-8">
-        <h1 className="text-xl font-bold">🔧 ROTA - CRM</h1>
-        <p className="text-sm text-gray-300">
-          {userRole === 'admin' ? 'Admin Paneli' : 'Müşteri Paneli'}
-        </p>
+        <div className="flex items-center space-x-3">
+          <img 
+            src="/logo.svg" 
+            alt="Rota Kalite & Danışmanlık" 
+            className="h-12 w-auto flex-shrink-0"
+          />
+          <div className="flex flex-col justify-center">
+            <h1 className="text-lg font-bold text-white leading-tight">CRM Sistemi</h1>
+            <p className="text-xs text-gray-300 leading-tight">
+              {userRole === 'admin' ? 'Admin Paneli' : 'Müşteri Paneli'}
+            </p>
+          </div>
+        </div>
       </div>
       
       <nav className="space-y-2">
@@ -5009,6 +4977,8 @@ const MainApp = () => {
             <p className="text-gray-600">Yakında eklenecek...</p>
           </div>
         );
+      case 'email-management':
+        return <EmailManagement />;
       case 'trainings':
         return userRole === 'admin' ? <TrainingManagement /> : <ClientTrainings />;
       default:
@@ -5026,6 +4996,557 @@ const MainApp = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// Email Management Component
+const EmailManagement = () => {
+  const [testEmailStatus, setTestEmailStatus] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [documents, setDocuments] = useState([]);
+  const [trainings, setTrainings] = useState([]);
+
+  const fetchDocuments = async () => {
+    try {
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      const response = await axios.get(`${API}/documents`, { headers });
+      setDocuments(response.data || []);
+    } catch (error) {
+      console.error("❌ Error fetching documents:", error);
+      setDocuments([]);
+    }
+  };
+
+  const fetchTrainings = async () => {
+    try {
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      const response = await axios.get(`${API}/trainings`, { headers });
+      setTrainings(response.data || []);
+    } catch (error) {
+      console.error("❌ Error fetching trainings:", error);
+      setTrainings([]);
+    }
+  };
+
+  useEffect(() => {
+    if (authToken) {
+      fetchDocuments();
+      fetchTrainings();
+    }
+  }, [authToken]);
+
+  const sendTestEmail = async () => {
+    setLoading(true);
+    setTestEmailStatus('');
+    try {
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      const response = await axios.post(`${API}/email/test`, {}, { headers });
+      setTestEmailStatus(`✅ ${response.data.message} (${response.data.email})`);
+    } catch (error) {
+      setTestEmailStatus(`❌ Hata: ${error.response?.data?.detail || error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendDocumentNotification = async (documentId) => {
+    try {
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      const formData = new FormData();
+      formData.append('document_id', documentId);
+      
+      const response = await axios.post(`${API}/email/document-notification`, formData, { headers });
+      alert(`✅ ${response.data.message}`);
+    } catch (error) {
+      alert(`❌ Hata: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
+  const sendTrainingNotification = async (trainingId) => {
+    try {
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      const formData = new FormData();
+      formData.append('training_id', trainingId);
+      
+      const response = await axios.post(`${API}/email/training-notification`, formData, { headers });
+      alert(`✅ ${response.data.message}`);
+    } catch (error) {
+      alert(`❌ Hata: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
+  return (
+    <div className="email-management">
+      <h2>📧 Email Yönetimi</h2>
+      
+      {/* Test Email Section */}
+      <div className="email-section">
+        <h3>🧪 Test Email</h3>
+        <p>Sistem email ayarlarını test etmek için kendinize test emaili gönderebilirsiniz.</p>
+        <button 
+          onClick={sendTestEmail}
+          disabled={loading}
+          className="btn-primary"
+        >
+          {loading ? 'Gönderiliyor...' : 'Test Email Gönder'}
+        </button>
+        {testEmailStatus && (
+          <div className={`status-message ${testEmailStatus.includes('✅') ? 'success' : 'error'}`}>
+            {testEmailStatus}
+          </div>
+        )}
+      </div>
+
+      {/* Document Notifications */}
+      <div className="email-section">
+        <h3>📄 Doküman Bildirimleri</h3>
+        <p>Yüklenen dokümanlar için müşterilere email bildirimi gönderebilirsiniz.</p>
+        <div className="documents-list">
+          {documents.length === 0 ? (
+            <p>Henüz doküman bulunmuyor.</p>
+          ) : (
+            documents.map(doc => (
+              <div key={doc.id} className="document-item">
+                <span className="document-name">📄 {doc.document_name}</span>
+                <span className="document-client">👤 {doc.client_id}</span>
+                <button 
+                  onClick={() => sendDocumentNotification(doc.id)}
+                  className="btn-secondary"
+                >
+                  📧 Bildirim Gönder
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Training Notifications */}
+      <div className="email-section">
+        <h3>🎓 Eğitim Bildirimleri</h3>
+        <p>Tanımlanan eğitimler için müşterilere email bildirimi gönderebilirsiniz.</p>
+        <div className="trainings-list">
+          {trainings.length === 0 ? (
+            <p>Henüz eğitim bulunmuyor.</p>
+          ) : (
+            trainings.map(training => (
+              <div key={training.id} className="training-item">
+                <span className="training-name">🎓 {training.name}</span>
+                <span className="training-date">📅 {training.training_date}</span>
+                <button 
+                  onClick={() => sendTrainingNotification(training.id)}
+                  className="btn-secondary"
+                >
+                  📧 Bildirim Gönder
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      <style jsx>{`
+        .email-management {
+          padding: 20px;
+        }
+        .email-section {
+          margin-bottom: 30px;
+          padding: 20px;
+          background: #f8f9fa;
+          border-radius: 8px;
+          border: 1px solid #dee2e6;
+        }
+        .email-section h3 {
+          margin-top: 0;
+          color: #495057;
+        }
+        .btn-primary, .btn-secondary {
+          padding: 8px 16px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 14px;
+          margin: 5px;
+        }
+        .btn-primary {
+          background-color: #007bff;
+          color: white;
+        }
+        .btn-primary:disabled {
+          background-color: #6c757d;
+          cursor: not-allowed;
+        }
+        .btn-secondary {
+          background-color: #28a745;
+          color: white;
+        }
+        .status-message {
+          margin-top: 10px;
+          padding: 10px;
+          border-radius: 4px;
+        }
+        .status-message.success {
+          background-color: #d4edda;
+          color: #155724;
+          border: 1px solid #c3e6cb;
+        }
+        .status-message.error {
+          background-color: #f8d7da;
+          color: #721c24;
+          border: 1px solid #f5c6cb;
+        }
+        .documents-list, .trainings-list {
+          margin-top: 15px;
+        }
+        .document-item, .training-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 10px;
+          margin: 5px 0;
+          background: white;
+          border-radius: 4px;
+          border: 1px solid #dee2e6;
+        }
+        .document-name, .training-name {
+          font-weight: 500;
+          flex: 1;
+        }
+        .document-client, .training-date {
+          color: #6c757d;
+          font-size: 12px;
+          margin: 0 10px;
+        }
+      `}</style>
+    </div>
+  );
+  }, []);
+
+  const checkWhatsAppStatus = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/whatsapp/status`, {
+        headers: {
+          'Authorization': `Bearer ${await window.Clerk?.session?.getToken()}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setWhatsappStatus(data.connected ? 'connected' : 'disconnected');
+        
+        if (!data.connected) {
+          fetchQRCode();
+        } else {
+          setQrCode(null);
+        }
+      }
+    } catch (error) {
+      console.error('WhatsApp status error:', error);
+      setWhatsappStatus('error');
+    }
+  };
+
+  const fetchQRCode = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/whatsapp/qr`, {
+        headers: {
+          'Authorization': `Bearer ${await window.Clerk?.session?.getToken()}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setQrCode(data.qr);
+      }
+    } catch (error) {
+      console.error('QR fetch error:', error);
+    }
+  };
+
+  const fetchClients = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/clients`, {
+        headers: {
+          'Authorization': `Bearer ${await window.Clerk?.session?.getToken()}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setClients(data);
+      }
+    } catch (error) {
+      console.error('Clients fetch error:', error);
+    }
+  };
+
+  const sendTestMessage = async () => {
+    if (!testPhone || !testMessage) {
+      alert('Telefon numarası ve mesaj gerekli');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/whatsapp/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await window.Clerk?.session?.getToken()}`
+        },
+        body: JSON.stringify({
+          phone_number: testPhone,
+          message: testMessage
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        alert('Mesaj başarıyla gönderildi!');
+        setTestMessage('');
+        setTestPhone('');
+      } else {
+        alert(`Hata: ${result.error}`);
+      }
+    } catch (error) {
+      alert(`Hata: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateClientPhone = async (clientId, phoneNumber) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/clients/${clientId}/phone`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await window.Clerk?.session?.getToken()}`
+        },
+        body: JSON.stringify({ phone_number: phoneNumber })
+      });
+
+      if (response.ok) {
+        alert('Telefon numarası güncellendi!');
+        fetchClients();
+      } else {
+        const error = await response.json();
+        alert(`Hata: ${error.detail}`);
+      }
+    } catch (error) {
+      alert(`Hata: ${error.message}`);
+    }
+  };
+
+  return (
+    <div className="p-6">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">WhatsApp Yönetimi</h2>
+        <p className="text-gray-600">WhatsApp entegrasyonu ve otomatik bildirim ayarları</p>
+      </div>
+
+      {/* WhatsApp Bağlantı Durumu */}
+      <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <h3 className="text-lg font-semibold mb-4">📱 WhatsApp Bağlantı Durumu</h3>
+        
+        {whatsappStatus === 'connected' && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <span className="text-green-500 text-xl mr-2">✅</span>
+              <div>
+                <h4 className="font-semibold text-green-800">Bağlı</h4>
+                <p className="text-green-600">WhatsApp aktif! Otomatik mesajlar gönderilebilir.</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {whatsappStatus === 'disconnected' && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="flex items-center mb-4">
+              <span className="text-yellow-500 text-xl mr-2">⚠️</span>
+              <div>
+                <h4 className="font-semibold text-yellow-800">Bağlı Değil</h4>
+                <p className="text-yellow-600">WhatsApp'a bağlanmak için QR kodu tarayın.</p>
+              </div>
+            </div>
+            
+            {qrCode && (
+              <div className="mt-4">
+                <div className="bg-white p-4 rounded-lg border border-gray-200 inline-block">
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCode)}`}
+                    alt="WhatsApp QR Code" 
+                    className="w-48 h-48"
+                  />
+                </div>
+                <div className="mt-2 text-sm text-gray-600">
+                  <p><strong>Adımlar:</strong></p>
+                  <ol className="list-decimal list-inside space-y-1">
+                    <li>WhatsApp'ı açın</li>
+                    <li>Ayarlar → Bağlı Cihazlar</li>
+                    <li>"Cihaz Bağla" butonuna basın</li>
+                    <li>Bu QR kodu tarayın</li>
+                  </ol>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {whatsappStatus === 'error' && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <span className="text-red-500 text-xl mr-2">❌</span>
+              <div>
+                <h4 className="font-semibold text-red-800">Bağlantı Hatası</h4>
+                <p className="text-red-600">WhatsApp servisine bağlanılamıyor. Lütfen tekrar deneyin.</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Test Mesajı */}
+      {whatsappStatus === 'connected' && (
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <h3 className="text-lg font-semibold mb-4">🧪 Test Mesajı Gönder</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Telefon Numarası
+              </label>
+              <input
+                type="text"
+                value={testPhone}
+                onChange={(e) => setTestPhone(e.target.value)}
+                placeholder="05xxxxxxxxx"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Mesaj
+              </label>
+              <textarea
+                value={testMessage}
+                onChange={(e) => setTestMessage(e.target.value)}
+                placeholder="Test mesajınızı yazın..."
+                rows="3"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
+          
+          <button
+            onClick={sendTestMessage}
+            disabled={loading}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          >
+            {loading ? 'Gönderiliyor...' : 'Test Mesajı Gönder'}
+          </button>
+        </div>
+      )}
+
+      {/* Müşteri Telefon Numaraları */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold mb-4">👥 Müşteri Telefon Numaraları</h3>
+        
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Müşteri
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Telefon Numarası
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  İşlemler
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {clients.map((client) => (
+                <ClientPhoneRow 
+                  key={client.id} 
+                  client={client} 
+                  onUpdatePhone={updateClientPhone}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Müşteri telefon satırı bileşeni
+const ClientPhoneRow = ({ client, onUpdatePhone }) => {
+  const [editing, setEditing] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState(client.phone_number || '');
+
+  const handleSave = () => {
+    onUpdatePhone(client.id, phoneNumber);
+    setEditing(false);
+  };
+
+  return (
+    <tr>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div>
+          <div className="text-sm font-medium text-gray-900">{client.hotel_name}</div>
+          <div className="text-sm text-gray-500">ID: {client.id.substring(0, 8)}...</div>
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        {editing ? (
+          <input
+            type="text"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            placeholder="05xxxxxxxxx"
+            className="px-3 py-1 border border-gray-300 rounded text-sm w-full"
+          />
+        ) : (
+          <span className="text-sm text-gray-900">
+            {client.phone_number || 'Telefon numarası yok'}
+          </span>
+        )}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+        {editing ? (
+          <div className="space-x-2">
+            <button
+              onClick={handleSave}
+              className="text-green-600 hover:text-green-900"
+            >
+              Kaydet
+            </button>
+            <button
+              onClick={() => {
+                setEditing(false);
+                setPhoneNumber(client.phone_number || '');
+              }}
+              className="text-gray-600 hover:text-gray-900"
+            >
+              İptal
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setEditing(true)}
+            className="text-blue-600 hover:text-blue-900"
+          >
+            Düzenle
+          </button>
+        )}
+      </td>
+    </tr>
   );
 };
 
