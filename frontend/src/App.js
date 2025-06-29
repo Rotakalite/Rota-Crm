@@ -4425,6 +4425,274 @@ const TrainingManagement = () => {
   );
 };
 
+const TrainingManagement = () => {
+  const [trainings, setTrainings] = useState([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    subject: '',
+    participant_count: '',
+    trainer: '',
+    training_date: '',
+    description: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const { authToken, userRole } = useAuth();
+
+  useEffect(() => {
+    if (authToken && userRole === 'admin') {
+      fetchTrainings();
+    }
+  }, [authToken, userRole]);
+
+  const fetchTrainings = async () => {
+    if (!authToken) return;
+    
+    try {
+      console.log('📚 Admin fetching trainings...');
+      const response = await axios.get(`${API}/trainings`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      console.log('📚 Admin trainings response:', response.data);
+      setTrainings(response.data);
+    } catch (error) {
+      console.error('❌ Error fetching trainings:', error);
+      setTrainings([]);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      const trainingData = {
+        ...formData,
+        participant_count: parseInt(formData.participant_count) || 0
+      };
+      
+      console.log('📚 Creating training:', trainingData);
+      
+      const response = await axios.post(`${API}/trainings`, trainingData, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      
+      console.log('✅ Training created:', response.data);
+      setFormData({
+        name: '',
+        subject: '',
+        participant_count: '',
+        trainer: '',
+        training_date: '',
+        description: ''
+      });
+      setShowAddForm(false);
+      fetchTrainings();
+      
+    } catch (error) {
+      console.error('❌ Error creating training:', error);
+      alert('Eğitim oluşturma hatası: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('tr-TR');
+  };
+
+  const isUpcoming = (dateString) => {
+    if (!dateString) return false;
+    return new Date(dateString) > new Date();
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-800">Eğitim Yönetimi</h2>
+        <button
+          onClick={() => setShowAddForm(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+        >
+          <span className="mr-2">+</span>
+          Yeni Eğitim Ekle
+        </button>
+      </div>
+
+      {/* Add Training Form */}
+      {showAddForm && (
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h3 className="text-lg font-semibold mb-4">Yeni Eğitim Ekle</h3>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Eğitimin Adı *
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Konusu *
+                </label>
+                <input
+                  type="text"
+                  value={formData.subject}
+                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Katılımcı Sayısı
+                </label>
+                <input
+                  type="number"
+                  value={formData.participant_count}
+                  onChange={(e) => setFormData({ ...formData, participant_count: e.target.value })}
+                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  min="0"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Eğitimi Kimin Vereceği *
+                </label>
+                <input
+                  type="text"
+                  value={formData.trainer}
+                  onChange={(e) => setFormData({ ...formData, trainer: e.target.value })}
+                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Tarih *
+                </label>
+                <input
+                  type="date"
+                  value={formData.training_date}
+                  onChange={(e) => setFormData({ ...formData, training_date: e.target.value })}
+                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Açıklama
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows="3"
+              />
+            </div>
+            
+            <div className="flex space-x-4">
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+              >
+                {loading ? 'Ekleniyor...' : 'Eğitimi Ekle'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAddForm(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                İptal
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Trainings List */}
+      <div className="bg-white rounded-lg shadow-md">
+        <div className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Eğitimler</h3>
+          
+          {trainings.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <span className="text-6xl mb-4 block">📚</span>
+              <h4 className="text-xl font-semibold mb-2">Henüz eğitim yok</h4>
+              <p>İlk eğitimi eklemek için yukarıdaki butonu kullanın.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {trainings.map((training) => (
+                <div key={training.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="flex items-center mb-2">
+                        <span className="text-2xl mr-3">📚</span>
+                        <div>
+                          <h4 className="font-semibold text-lg">{training.name}</h4>
+                          <p className="text-sm text-gray-600">{training.subject}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                        <div>
+                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Eğitmen</span>
+                          <p className="text-sm font-medium">{training.trainer}</p>
+                        </div>
+                        <div>
+                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tarih</span>
+                          <p className="text-sm font-medium">{formatDate(training.training_date)}</p>
+                        </div>
+                        <div>
+                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Katılımcı Sayısı</span>
+                          <p className="text-sm font-medium">{training.participant_count || 0}</p>
+                        </div>
+                      </div>
+                      
+                      {training.description && (
+                        <div className="mt-3">
+                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Açıklama</span>
+                          <p className="text-sm text-gray-700 mt-1">{training.description}</p>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center ml-4">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        isUpcoming(training.training_date) 
+                          ? 'bg-blue-100 text-blue-800' 
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {isUpcoming(training.training_date) ? 'Yaklaşan' : 'Geçmiş'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ClientSetupForm = ({ onComplete, onSkip }) => {
   const [formData, setFormData] = useState({
     name: '',
