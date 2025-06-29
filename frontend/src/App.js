@@ -5020,7 +5020,7 @@ const WhatsAppManagement = () => {
 
   const updateClientPhone = async (clientId, phoneNumber) => {
     try {
-      const response = await fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/clients/${clientId}/phone`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/clients/${clientId}/phone`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
