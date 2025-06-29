@@ -2769,16 +2769,7 @@ async def get_monthly_trends(
         "user_role": current_user.role.value
     }
 
-# Health check and CORS test endpoint
-@api_router.get("/health")
-async def health_check():
-    """Health check endpoint for testing CORS and connectivity"""
-    return {
-        "status": "healthy",
-        "message": "CRM API is running",
-        "timestamp": datetime.utcnow().isoformat(),
-        "cors_enabled": True
-    }
+
 
 # User-Client Management Endpoint
 @api_router.post("/admin/assign-client")
