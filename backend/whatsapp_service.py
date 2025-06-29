@@ -51,17 +51,53 @@ class WhatsAppService:
         self.service_url = WHATSAPP_SERVICE_URL
         
     async def get_status(self) -> dict:
-        """WhatsApp servis durumunu kontrol et - DISABLED for Railway production"""
-        return {"connected": False, "message": "WhatsApp service disabled in production"}
+        """WhatsApp servis durumunu kontrol et"""
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f"{self.service_url}/status", timeout=5.0)
+                if response.status_code == 200:
+                    return response.json()
+                else:
+                    return {"connected": False, "message": "Service unavailable"}
+        except Exception as e:
+            logging.error(f"WhatsApp servis durumu alınamadı: {e}")
+            return {"connected": False, "message": str(e)}
     
     async def get_qr_code(self) -> dict:
-        """QR kod al - DISABLED for Railway production"""
-        return {"qr": None, "message": "WhatsApp service disabled in production"}
+        """QR kod al"""
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f"{self.service_url}/qr", timeout=5.0)
+                if response.status_code == 200:
+                    data = response.json()
+                    return {"qr": data.get("qr")}
+                else:
+                    return {"qr": None, "message": "QR code not available"}
+        except Exception as e:
+            logging.error(f"QR kod alınamadı: {e}")
+            return {"qr": None, "message": str(e)}
     
     async def send_message(self, phone_number: str, message: str) -> dict:
-        """WhatsApp mesajı gönder - DISABLED for Railway production"""
-        logging.info(f"WhatsApp disabled - Would send to {phone_number}: {message}")
-        return {"success": False, "message": "WhatsApp service disabled in production"}
+        """WhatsApp mesajı gönder"""
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    f"{self.service_url}/send-message",
+                    json={
+                        "phone": phone_number,
+                        "message": message
+                    },
+                    timeout=10.0
+                )
+                
+                if response.status_code == 200:
+                    return {"success": True, "message": "Message sent successfully"}
+                else:
+                    return {"success": False, "message": "Failed to send message"}
+                
+        except Exception as e:
+            logging.error(f"WhatsApp mesaj gönderme hatası: {e}")
+            return {"success": False, "message": str(e)}
     
     async def send_test_message(self, phone_number: str) -> dict:
         """Test mesajı gönder"""
