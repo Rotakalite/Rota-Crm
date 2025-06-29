@@ -4761,7 +4761,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
           <img 
             src="/logo.svg" 
             alt="Rota Kalite & Danışmanlık" 
-            className="h-10 w-auto flex-shrink-0"
+            className="h-12 w-auto flex-shrink-0"
           />
           <div className="flex flex-col justify-center">
             <h1 className="text-lg font-bold text-white leading-tight">CRM Sistemi</h1>
