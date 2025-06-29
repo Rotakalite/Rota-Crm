@@ -2406,18 +2406,53 @@ const DocumentManagement = () => {
               
               {folders
                 .filter(folder => folder.client_id === selectedClient.id)
-                .filter(folder => folder.level === 1) // Sub folders
-                .map((folder) => (
+                .filter(folder => folder.level === 1) // Column folders
+                .map((folder) => {
+                  const subFolderCount = folders.filter(f => f.parent_folder_id === folder.id).length;
+                  return (
+                    <div
+                      key={folder.id}
+                      onClick={() => setSelectedFolder(folder)}
+                      className="bg-gray-50 border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <span className="text-3xl mr-3">📁</span>
+                          <div>
+                            <h3 className="font-semibold text-gray-700">{folder.name}</h3>
+                            <p className="text-xs text-gray-500">{subFolderCount} alt klasör</p>
+                          </div>
+                        </div>
+                        <span className="text-gray-400">›</span>
+                      </div>
+                    </div>
+                  );
+                })
+              }
+            </div>
+          </div>
+        )}
+
+        {/* Sub-folders when a column folder is selected */}
+        {selectedClient && selectedFolder && selectedFolder.level === 1 && (
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              📁 {selectedFolder.name} - Alt Klasörler
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+              {folders
+                .filter(folder => folder.parent_folder_id === selectedFolder.id)
+                .map((subFolder) => (
                   <div
-                    key={folder.id}
-                    onClick={() => setSelectedFolder(folder)}
-                    className="bg-gray-50 border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+                    key={subFolder.id}
+                    onClick={() => setSelectedFolder(subFolder)}
+                    className="bg-green-50 border border-green-200 rounded-lg p-3 cursor-pointer hover:bg-green-100 transition-colors"
                   >
                     <div className="flex items-center">
-                      <span className="text-3xl mr-3">📁</span>
+                      <span className="text-xl mr-2">📄</span>
                       <div>
-                        <h3 className="font-semibold text-gray-700">{folder.name}</h3>
-                        <p className="text-xs text-gray-500">Alt Klasör</p>
+                        <h4 className="font-semibold text-green-800 text-sm">{subFolder.name}</h4>
+                        <p className="text-xs text-green-600">Alt Klasör</p>
                       </div>
                     </div>
                   </div>
