@@ -5220,6 +5220,7 @@ const EmailManagement = () => {
       `}</style>
     </div>
   );
+};
 
 // Müşteri telefon satırı bileşeni
 const ClientPhoneRow = ({ client, onUpdatePhone }) => {
