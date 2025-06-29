@@ -161,32 +161,13 @@ const getBackendURL = () => {
   
   // If we're on Vercel (production frontend)
   if (currentUrl.includes('vercel.app')) {
-    // Try to get backend URL from a pattern or use the same origin concept
-    // For now, we'll need to dynamically determine the backend URL
-    // This could be improved by having a config endpoint or service discovery
+    // KALICI ÇÖZÜM: Hard-coded backend URL for Vercel deployments
+    const backendUrl = 'https://ddbdf62a-0dc7-4cf4-b9a6-6dc3e3277ae1.preview.emergentagent.com';
+    console.log('🔧 Using hard-coded backend URL for Vercel:', backendUrl);
     
-    // Try to extract preview ID from referrer or use current session
-    const previewPattern = /https:\/\/([a-f0-9-]+)\.preview\.emergentagent\.com/;
-    const referrer = document.referrer;
-    
-    if (referrer && previewPattern.test(referrer)) {
-      const match = referrer.match(previewPattern);
-      if (match && match[1]) {
-        const backendUrl = `https://${match[1]}.preview.emergentagent.com`;
-        console.log('🔧 Auto-detected backend URL from referrer:', backendUrl);
-        return backendUrl;
-      }
-    }
-    
-    // If we have a stored backend URL in localStorage, use it
-    const storedBackendUrl = localStorage.getItem('ROTA_BACKEND_URL');
-    if (storedBackendUrl) {
-      console.log('🔧 Using stored backend URL:', storedBackendUrl);
-      return storedBackendUrl;
-    }
-    
-    // Fallback: try to determine from current session or use latest known
-    console.warn('⚠️ Could not auto-detect backend URL for Vercel deployment');
+    // Also store it for future use
+    localStorage.setItem('ROTA_BACKEND_URL', backendUrl);
+    return backendUrl;
   }
   
   // If we're on a preview URL (emergentagent.com domain)
