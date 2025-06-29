@@ -5058,11 +5058,6 @@ const EmailManagement = () => {
     }
   };
 
-  // Get client name helper function
-  const getClientName = (clientId) => {
-    const client = clients.find(c => c.id === clientId);
-    return client ? client.name : 'Bilinmiyen Müşteri';
-  };
 
   // Get client email helper function  
   const getClientEmail = (clientId) => {
