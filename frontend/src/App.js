@@ -5289,12 +5289,39 @@ const EmailManagement = () => {
       <div className="email-section">
         <h3>📄 Doküman Bildirimleri</h3>
         <p>Yüklenen dokümanlar için müşterilere email bildirimi gönderebilirsiniz.</p>
+        
+        {documents.length > 0 && (
+          <div className="bulk-controls">
+            <label className="select-all">
+              <input
+                type="checkbox"
+                checked={selectedDocuments.length === documents.length}
+                onChange={(e) => handleSelectAll(e.target.checked)}
+              />
+              Tümünü Seç ({documents.length} doküman)
+            </label>
+            <button
+              onClick={sendBulkNotification}
+              disabled={selectedDocuments.length === 0}
+              className="btn-bulk"
+            >
+              📧 Seçilenleri Gönder ({selectedDocuments.length})
+            </button>
+          </div>
+        )}
+        
         <div className="documents-list">
           {documents.length === 0 ? (
             <p>Henüz doküman bulunmuyor.</p>
           ) : (
             documents.map(doc => (
               <div key={doc.id} className="document-item">
+                <input
+                  type="checkbox"
+                  checked={selectedDocuments.includes(doc.id)}
+                  onChange={(e) => handleDocumentSelect(doc.id, e.target.checked)}
+                  className="document-checkbox"
+                />
                 <div className="document-info">
                   <span className="document-name">📄 {doc.document_name}</span>
                   <span className="document-client">🏨 {getClientName(doc.client_id)}</span>
@@ -5305,7 +5332,7 @@ const EmailManagement = () => {
                   onClick={() => sendDocumentNotification(doc.id)}
                   className="btn-secondary"
                 >
-                  📧 Bildirim Gönder
+                  📧 Tek Gönder
                 </button>
               </div>
             ))
