@@ -4217,6 +4217,11 @@ const TrainingManagement = () => {
     return new Date(dateString) > new Date();
   };
 
+  const getClientName = (clientId) => {
+    const client = clients.find(c => c.id === clientId);
+    return client ? (client.hotel_name || client.name) : "Bilinmeyen Müşteri";
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
