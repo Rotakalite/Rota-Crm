@@ -4999,8 +4999,227 @@ const MainApp = () => {
   );
 };
 
-// WhatsApp Management Component
-const WhatsAppManagement = () => {
+// Email Management Component
+const EmailManagement = () => {
+  const [testEmailStatus, setTestEmailStatus] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [documents, setDocuments] = useState([]);
+  const [trainings, setTrainings] = useState([]);
+
+  const fetchDocuments = async () => {
+    try {
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      const response = await axios.get(`${API}/documents`, { headers });
+      setDocuments(response.data || []);
+    } catch (error) {
+      console.error("❌ Error fetching documents:", error);
+      setDocuments([]);
+    }
+  };
+
+  const fetchTrainings = async () => {
+    try {
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      const response = await axios.get(`${API}/trainings`, { headers });
+      setTrainings(response.data || []);
+    } catch (error) {
+      console.error("❌ Error fetching trainings:", error);
+      setTrainings([]);
+    }
+  };
+
+  useEffect(() => {
+    if (authToken) {
+      fetchDocuments();
+      fetchTrainings();
+    }
+  }, [authToken]);
+
+  const sendTestEmail = async () => {
+    setLoading(true);
+    setTestEmailStatus('');
+    try {
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      const response = await axios.post(`${API}/email/test`, {}, { headers });
+      setTestEmailStatus(`✅ ${response.data.message} (${response.data.email})`);
+    } catch (error) {
+      setTestEmailStatus(`❌ Hata: ${error.response?.data?.detail || error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendDocumentNotification = async (documentId) => {
+    try {
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      const formData = new FormData();
+      formData.append('document_id', documentId);
+      
+      const response = await axios.post(`${API}/email/document-notification`, formData, { headers });
+      alert(`✅ ${response.data.message}`);
+    } catch (error) {
+      alert(`❌ Hata: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
+  const sendTrainingNotification = async (trainingId) => {
+    try {
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      const formData = new FormData();
+      formData.append('training_id', trainingId);
+      
+      const response = await axios.post(`${API}/email/training-notification`, formData, { headers });
+      alert(`✅ ${response.data.message}`);
+    } catch (error) {
+      alert(`❌ Hata: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
+  return (
+    <div className="email-management">
+      <h2>📧 Email Yönetimi</h2>
+      
+      {/* Test Email Section */}
+      <div className="email-section">
+        <h3>🧪 Test Email</h3>
+        <p>Sistem email ayarlarını test etmek için kendinize test emaili gönderebilirsiniz.</p>
+        <button 
+          onClick={sendTestEmail}
+          disabled={loading}
+          className="btn-primary"
+        >
+          {loading ? 'Gönderiliyor...' : 'Test Email Gönder'}
+        </button>
+        {testEmailStatus && (
+          <div className={`status-message ${testEmailStatus.includes('✅') ? 'success' : 'error'}`}>
+            {testEmailStatus}
+          </div>
+        )}
+      </div>
+
+      {/* Document Notifications */}
+      <div className="email-section">
+        <h3>📄 Doküman Bildirimleri</h3>
+        <p>Yüklenen dokümanlar için müşterilere email bildirimi gönderebilirsiniz.</p>
+        <div className="documents-list">
+          {documents.length === 0 ? (
+            <p>Henüz doküman bulunmuyor.</p>
+          ) : (
+            documents.map(doc => (
+              <div key={doc.id} className="document-item">
+                <span className="document-name">📄 {doc.document_name}</span>
+                <span className="document-client">👤 {doc.client_id}</span>
+                <button 
+                  onClick={() => sendDocumentNotification(doc.id)}
+                  className="btn-secondary"
+                >
+                  📧 Bildirim Gönder
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Training Notifications */}
+      <div className="email-section">
+        <h3>🎓 Eğitim Bildirimleri</h3>
+        <p>Tanımlanan eğitimler için müşterilere email bildirimi gönderebilirsiniz.</p>
+        <div className="trainings-list">
+          {trainings.length === 0 ? (
+            <p>Henüz eğitim bulunmuyor.</p>
+          ) : (
+            trainings.map(training => (
+              <div key={training.id} className="training-item">
+                <span className="training-name">🎓 {training.name}</span>
+                <span className="training-date">📅 {training.training_date}</span>
+                <button 
+                  onClick={() => sendTrainingNotification(training.id)}
+                  className="btn-secondary"
+                >
+                  📧 Bildirim Gönder
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      <style jsx>{`
+        .email-management {
+          padding: 20px;
+        }
+        .email-section {
+          margin-bottom: 30px;
+          padding: 20px;
+          background: #f8f9fa;
+          border-radius: 8px;
+          border: 1px solid #dee2e6;
+        }
+        .email-section h3 {
+          margin-top: 0;
+          color: #495057;
+        }
+        .btn-primary, .btn-secondary {
+          padding: 8px 16px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 14px;
+          margin: 5px;
+        }
+        .btn-primary {
+          background-color: #007bff;
+          color: white;
+        }
+        .btn-primary:disabled {
+          background-color: #6c757d;
+          cursor: not-allowed;
+        }
+        .btn-secondary {
+          background-color: #28a745;
+          color: white;
+        }
+        .status-message {
+          margin-top: 10px;
+          padding: 10px;
+          border-radius: 4px;
+        }
+        .status-message.success {
+          background-color: #d4edda;
+          color: #155724;
+          border: 1px solid #c3e6cb;
+        }
+        .status-message.error {
+          background-color: #f8d7da;
+          color: #721c24;
+          border: 1px solid #f5c6cb;
+        }
+        .documents-list, .trainings-list {
+          margin-top: 15px;
+        }
+        .document-item, .training-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 10px;
+          margin: 5px 0;
+          background: white;
+          border-radius: 4px;
+          border: 1px solid #dee2e6;
+        }
+        .document-name, .training-name {
+          font-weight: 500;
+          flex: 1;
+        }
+        .document-client, .training-date {
+          color: #6c757d;
+          font-size: 12px;
+          margin: 0 10px;
+        }
+      `}</style>
+    </div>
+  );
   const [whatsappStatus, setWhatsappStatus] = useState('disconnected');
   const [qrCode, setQrCode] = useState(null);
   const [clients, setClients] = useState([]);
