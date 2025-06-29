@@ -444,16 +444,19 @@ test_plan:
         -comment: "Tested the Level 3 sub-folder structure implementation for D column. The code correctly creates Level 3 sub-folders for D1, D2, and D3 with the expected naming convention. D1 has 4 sub-folders (D1.1, D1.2, D1.3, D1.4), D2 has 6 sub-folders (D2.1-D2.6), and D3 has 6 sub-folders (D3.1-D3.6). The folder paths are correctly formed (e.g., 'Client SYS/D SÜTUNU/D1/D1.1'), parent-child relationships are properly established, and the level field is set to 3 for these folders. The POST /api/admin/update-subfolders endpoint works correctly for adding Level 3 sub-folders to existing clients. All tests passed successfully."
 
   - task: "Fix Level 3 Folder Display in Frontend"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "/app/frontend/src/App.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         -working: false
         -agent: "user"
         -comment: "User reports that Level 3 folder structure is not visible in either document upload or viewing sections. Backend is working correctly returning 38 folders, but frontend ClientDocuments and DocumentManagement components are not displaying Level 3 folders (D1.1-D1.4, D2.1-D2.6, D3.1-D3.6) when Level 2 folders (D1, D2, D3) are selected."
+        -working: true
+        -agent: "main"
+        -comment: "Fixed Level 3 folder display in both DocumentManagement and ClientDocuments components. Added proper Level 2 → Level 3 folder navigation logic in DocumentManagement component. Updated document display condition to only show documents for Level 2 and Level 3 folders. Both client viewing and admin document management sections now support full 3-level folder hierarchy."
 
 agent_communication:
     -agent: "main"
