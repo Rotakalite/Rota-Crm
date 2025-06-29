@@ -2844,7 +2844,36 @@ def run_hierarchical_subfolder_tests():
         logger.error("Some hierarchical sub-folder structure tests FAILED")
         return False
 
+def run_training_tests():
+    """Run tests for training endpoints"""
+    logger.info("Starting training endpoint tests...")
+    
+    # Create a test suite
+    suite = unittest.TestSuite()
+    
+    # Add training endpoint tests
+    suite.addTest(TestTrainingEndpoints("test_get_trainings_endpoint"))
+    suite.addTest(TestTrainingEndpoints("test_create_training_endpoint"))
+    suite.addTest(TestTrainingEndpoints("test_update_training_status"))
+    
+    # Run the tests
+    runner = unittest.TextTestRunner()
+    result = runner.run(suite)
+    
+    # Summary
+    logger.info("\n=== Training Endpoint Test Summary ===")
+    logger.info(f"Tests run: {result.testsRun}")
+    logger.info(f"Errors: {len(result.errors)}")
+    logger.info(f"Failures: {len(result.failures)}")
+    
+    if result.wasSuccessful():
+        logger.info("All training endpoint tests PASSED")
+        return True
+    else:
+        logger.error("Some training endpoint tests FAILED")
+        return False
+
 if __name__ == "__main__":
     import requests  # Import here to avoid issues with mocking
     # Run all tests
-    run_tests()
+    run_training_tests()
