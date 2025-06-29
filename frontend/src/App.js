@@ -4400,6 +4400,7 @@ const TrainingManagement = () => {
                         <div>
                           <h4 className="font-semibold text-lg">{training.name}</h4>
                           <p className="text-sm text-gray-600">{training.subject}</p>
+                          <p className="text-xs text-blue-600 font-medium">🏨 {getClientName(training.client_id)}</p>
                         </div>
                       </div>
                       
