@@ -402,6 +402,7 @@ metadata:
 test_plan:
   current_focus:
     - "Fix Duplicate getFileIcon Function Declarations"
+    - "Fix Duplicate formatFileSize Function Declarations"
     - "Add Missing TrainingManagement Component"
     - "Training Management Endpoints"
   stuck_tasks: []
