@@ -412,9 +412,20 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
-agent_communication:
-    -agent: "main"
-    -message: "Fixed all critical frontend build issues: resolved duplicate getFileIcon and formatFileSize function declarations and added missing TrainingManagement component. The duplicate functions were causing syntax errors preventing the app from building properly on Vercel. Now there are single global utility functions and the TrainingManagement component has been implemented with a complete admin interface for creating and managing trainings. Admin sidebar now includes working 'Eğitim Yönetimi' menu item. Frontend should now build successfully."
+  - task: "Level 3 Sub-folders for D Column"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented Level 3 sub-folders for D column (D1, D2, D3) with their respective sub-folders."
+        -working: true
+        -agent: "testing"
+        -comment: "Tested the Level 3 sub-folder structure implementation for D column. The code correctly creates Level 3 sub-folders for D1, D2, and D3 with the expected naming convention. D1 has 4 sub-folders (D1.1, D1.2, D1.3, D1.4), D2 has 6 sub-folders (D2.1-D2.6), and D3 has 6 sub-folders (D3.1-D3.6). The folder paths are correctly formed (e.g., 'Client SYS/D SÜTUNU/D1/D1.1'), parent-child relationships are properly established, and the level field is set to 3 for these folders. The POST /api/admin/update-subfolders endpoint works correctly for adding Level 3 sub-folders to existing clients. All tests passed successfully."
     -agent: "main"
     -message: "Fixed critical JavaScript error in frontend: 'uploadData is not defined' at line 1145. The issue was caused by misplaced folder selection JSX code in the Dashboard component that was trying to reference uploadData state from DocumentManagement component. Removed the duplicate/misplaced folder selection code from Dashboard component. The proper folder selection remains in DocumentManagement component where uploadData state is defined."
     -agent: "main"
