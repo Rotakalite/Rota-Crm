@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Get MongoDB URL from environment
 MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
-DB_NAME = 'rota_crm'
+DB_NAME = 'sustainable_tourism_crm'
 
 async def create_level3_folders():
     """Create Level 3 folders for all existing clients"""
