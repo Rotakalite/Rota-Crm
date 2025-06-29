@@ -5443,6 +5443,40 @@ const EmailManagement = () => {
           font-size: 12px;
           color: #666;
         }
+        .bulk-controls {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin: 15px 0;
+          padding: 12px;
+          background: #e3f2fd;
+          border-radius: 6px;
+          border: 1px solid #2196F3;
+        }
+        .select-all {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 500;
+          color: #1976d2;
+        }
+        .btn-bulk {
+          background-color: #4CAF50;
+          color: white;
+          padding: 8px 16px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 500;
+        }
+        .btn-bulk:disabled {
+          background-color: #ccc;
+          cursor: not-allowed;
+        }
+        .document-checkbox {
+          margin-right: 10px;
+        }
         .document-info {
           display: flex;
           flex-direction: column;
