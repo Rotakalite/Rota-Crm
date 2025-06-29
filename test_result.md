@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Fix persistent 403 authentication errors on document-related endpoints (/api/documents, /api/upload-chunk, /api/finalize-upload) especially for large file uploads. Also fix document list refresh after chunked uploads and incorrect success messages."
+user_problem_statement: "CRITICAL SECURITY VULNERABILITY: Client users can see all client data instead of only their own client data. User reports 'müşteriler diğer müşterilerin bilgilerini görebiliyor' - this is a critical data exposure issue in client dashboard. Must be fixed immediately."
 
 backend:
   - task: "Fix Authentication Errors for Document Endpoints"
