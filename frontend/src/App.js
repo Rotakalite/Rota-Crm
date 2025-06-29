@@ -2436,14 +2436,8 @@ const DocumentManagement = () => {
           </div>
         )}
       </div>
-                <th className="px-6 py-3">Aşama</th>
-                {userRole === 'admin' && <th className="px-6 py-3">Müşteri</th>}
-                <th className="px-6 py-3">Yüklenme Tarihi</th>
-                <th className="px-6 py-3">İşlemler</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filterDocuments().map((document) => (
+
+const ConsumptionManagement = ({ onNavigate }) => {
                 <tr key={document.id} className="bg-white border-b hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div className="flex items-center">
