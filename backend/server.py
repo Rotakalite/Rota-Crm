@@ -3038,9 +3038,14 @@ async def send_training_notification(
         if not client:
             raise HTTPException(status_code=404, detail="Client not found")
         
+        # Validate email address
+        client_email = client["contact_person"]
+        if not client_email or "@" not in client_email or "." not in client_email:
+            raise HTTPException(status_code=400, detail=f"Geçersiz email adresi: {client_email}. Lütfen client email'ini düzeltin.")
+        
         # Send email
         await email_service.send_training_notification(
-            recipient_email=client["contact_person"],
+            recipient_email=client_email,
             training_name=training["name"],
             training_date=training["training_date"],
             trainer=training["trainer"],
