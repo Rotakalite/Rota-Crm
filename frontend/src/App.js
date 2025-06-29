@@ -4907,6 +4907,351 @@ const MainApp = () => {
   );
 };
 
+// WhatsApp Management Component
+const WhatsAppManagement = () => {
+  const [whatsappStatus, setWhatsappStatus] = useState('disconnected');
+  const [qrCode, setQrCode] = useState(null);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [testMessage, setTestMessage] = useState('');
+  const [testPhone, setTestPhone] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    checkWhatsAppStatus();
+    fetchClients();
+    const interval = setInterval(checkWhatsAppStatus, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const checkWhatsAppStatus = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/whatsapp/status`, {
+        headers: {
+          'Authorization': `Bearer ${await window.Clerk?.session?.getToken()}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setWhatsappStatus(data.connected ? 'connected' : 'disconnected');
+        
+        if (!data.connected) {
+          fetchQRCode();
+        } else {
+          setQrCode(null);
+        }
+      }
+    } catch (error) {
+      console.error('WhatsApp status error:', error);
+      setWhatsappStatus('error');
+    }
+  };
+
+  const fetchQRCode = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/whatsapp/qr`, {
+        headers: {
+          'Authorization': `Bearer ${await window.Clerk?.session?.getToken()}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setQrCode(data.qr);
+      }
+    } catch (error) {
+      console.error('QR fetch error:', error);
+    }
+  };
+
+  const fetchClients = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/clients`, {
+        headers: {
+          'Authorization': `Bearer ${await window.Clerk?.session?.getToken()}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setClients(data);
+      }
+    } catch (error) {
+      console.error('Clients fetch error:', error);
+    }
+  };
+
+  const sendTestMessage = async () => {
+    if (!testPhone || !testMessage) {
+      alert('Telefon numarası ve mesaj gerekli');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/whatsapp/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await window.Clerk?.session?.getToken()}`
+        },
+        body: JSON.stringify({
+          phone_number: testPhone,
+          message: testMessage
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        alert('Mesaj başarıyla gönderildi!');
+        setTestMessage('');
+        setTestPhone('');
+      } else {
+        alert(`Hata: ${result.error}`);
+      }
+    } catch (error) {
+      alert(`Hata: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateClientPhone = async (clientId, phoneNumber) => {
+    try {
+      const response = await fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/clients/${clientId}/phone`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await window.Clerk?.session?.getToken()}`
+        },
+        body: JSON.stringify({ phone_number: phoneNumber })
+      });
+
+      if (response.ok) {
+        alert('Telefon numarası güncellendi!');
+        fetchClients();
+      } else {
+        const error = await response.json();
+        alert(`Hata: ${error.detail}`);
+      }
+    } catch (error) {
+      alert(`Hata: ${error.message}`);
+    }
+  };
+
+  return (
+    <div className="p-6">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">WhatsApp Yönetimi</h2>
+        <p className="text-gray-600">WhatsApp entegrasyonu ve otomatik bildirim ayarları</p>
+      </div>
+
+      {/* WhatsApp Bağlantı Durumu */}
+      <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <h3 className="text-lg font-semibold mb-4">📱 WhatsApp Bağlantı Durumu</h3>
+        
+        {whatsappStatus === 'connected' && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <span className="text-green-500 text-xl mr-2">✅</span>
+              <div>
+                <h4 className="font-semibold text-green-800">Bağlı</h4>
+                <p className="text-green-600">WhatsApp aktif! Otomatik mesajlar gönderilebilir.</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {whatsappStatus === 'disconnected' && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="flex items-center mb-4">
+              <span className="text-yellow-500 text-xl mr-2">⚠️</span>
+              <div>
+                <h4 className="font-semibold text-yellow-800">Bağlı Değil</h4>
+                <p className="text-yellow-600">WhatsApp'a bağlanmak için QR kodu tarayın.</p>
+              </div>
+            </div>
+            
+            {qrCode && (
+              <div className="mt-4">
+                <div className="bg-white p-4 rounded-lg border border-gray-200 inline-block">
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCode)}`}
+                    alt="WhatsApp QR Code" 
+                    className="w-48 h-48"
+                  />
+                </div>
+                <div className="mt-2 text-sm text-gray-600">
+                  <p><strong>Adımlar:</strong></p>
+                  <ol className="list-decimal list-inside space-y-1">
+                    <li>WhatsApp'ı açın</li>
+                    <li>Ayarlar → Bağlı Cihazlar</li>
+                    <li>"Cihaz Bağla" butonuna basın</li>
+                    <li>Bu QR kodu tarayın</li>
+                  </ol>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {whatsappStatus === 'error' && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <span className="text-red-500 text-xl mr-2">❌</span>
+              <div>
+                <h4 className="font-semibold text-red-800">Bağlantı Hatası</h4>
+                <p className="text-red-600">WhatsApp servisine bağlanılamıyor. Lütfen tekrar deneyin.</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Test Mesajı */}
+      {whatsappStatus === 'connected' && (
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <h3 className="text-lg font-semibold mb-4">🧪 Test Mesajı Gönder</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Telefon Numarası
+              </label>
+              <input
+                type="text"
+                value={testPhone}
+                onChange={(e) => setTestPhone(e.target.value)}
+                placeholder="05xxxxxxxxx"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Mesaj
+              </label>
+              <textarea
+                value={testMessage}
+                onChange={(e) => setTestMessage(e.target.value)}
+                placeholder="Test mesajınızı yazın..."
+                rows="3"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
+          
+          <button
+            onClick={sendTestMessage}
+            disabled={loading}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          >
+            {loading ? 'Gönderiliyor...' : 'Test Mesajı Gönder'}
+          </button>
+        </div>
+      )}
+
+      {/* Müşteri Telefon Numaraları */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold mb-4">👥 Müşteri Telefon Numaraları</h3>
+        
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Müşteri
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Telefon Numarası
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  İşlemler
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {clients.map((client) => (
+                <ClientPhoneRow 
+                  key={client.id} 
+                  client={client} 
+                  onUpdatePhone={updateClientPhone}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Müşteri telefon satırı bileşeni
+const ClientPhoneRow = ({ client, onUpdatePhone }) => {
+  const [editing, setEditing] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState(client.phone_number || '');
+
+  const handleSave = () => {
+    onUpdatePhone(client.id, phoneNumber);
+    setEditing(false);
+  };
+
+  return (
+    <tr>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div>
+          <div className="text-sm font-medium text-gray-900">{client.hotel_name}</div>
+          <div className="text-sm text-gray-500">ID: {client.id.substring(0, 8)}...</div>
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        {editing ? (
+          <input
+            type="text"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            placeholder="05xxxxxxxxx"
+            className="px-3 py-1 border border-gray-300 rounded text-sm w-full"
+          />
+        ) : (
+          <span className="text-sm text-gray-900">
+            {client.phone_number || 'Telefon numarası yok'}
+          </span>
+        )}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+        {editing ? (
+          <div className="space-x-2">
+            <button
+              onClick={handleSave}
+              className="text-green-600 hover:text-green-900"
+            >
+              Kaydet
+            </button>
+            <button
+              onClick={() => {
+                setEditing(false);
+                setPhoneNumber(client.phone_number || '');
+              }}
+              className="text-gray-600 hover:text-gray-900"
+            >
+              İptal
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setEditing(true)}
+            className="text-blue-600 hover:text-blue-900"
+          >
+            Düzenle
+          </button>
+        )}
+      </td>
+    </tr>
+  );
+};
+
 // Root App Component with Clerk Provider
 function App() {
   return (
