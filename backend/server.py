@@ -447,6 +447,87 @@ def get_user_id_from_token(token: str) -> str:
     # Bu fonksiyon da şimdilik placeholder - endpoint'de get_current_user kullanacağız
     return token
 
+@api_router.get("/whatsapp/status")
+async def get_whatsapp_status(current_user: User = Depends(get_admin_user)):
+    """WhatsApp bağlantı durumunu kontrol et"""
+    try:
+        if not whatsapp_service:
+            return {"connected": False, "error": "WhatsApp servis mevcut değil"}
+        
+        status = await whatsapp_service.get_status()
+        return status
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"WhatsApp status error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/whatsapp/qr")
+async def get_whatsapp_qr(current_user: User = Depends(get_admin_user)):
+    """WhatsApp QR kodu al"""
+    try:
+        if not whatsapp_service:
+            return {"qr": None, "error": "WhatsApp servis mevcut değil"}
+        
+        qr_data = await whatsapp_service.get_qr_code()
+        return qr_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"WhatsApp QR error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/whatsapp/send")
+async def send_whatsapp_message(
+    request: dict,
+    current_user: User = Depends(get_admin_user)
+):
+    """Manuel WhatsApp mesajı gönder"""
+    try:
+        phone_number = request.get("phone_number")
+        message = request.get("message")
+        
+        if not phone_number or not message:
+            raise HTTPException(status_code=400, detail="Telefon numarası ve mesaj gerekli")
+        
+        if not whatsapp_service:
+            raise HTTPException(status_code=503, detail="WhatsApp servis mevcut değil")
+        
+        result = await whatsapp_service.send_message(phone_number, message)
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"WhatsApp send error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/whatsapp/test")
+async def send_test_message(
+    request: dict,
+    current_user: User = Depends(get_admin_user)
+):
+    """Test mesajı gönder"""
+    try:
+        phone_number = request.get("phone_number")
+        
+        if not phone_number:
+            raise HTTPException(status_code=400, detail="Telefon numarası gerekli")
+        
+        if not whatsapp_service:
+            raise HTTPException(status_code=503, detail="WhatsApp servis mevcut değil")
+        
+        result = await whatsapp_service.send_test_message(phone_number)
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"WhatsApp test error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 async def create_client_root_folder(client_id: str, client_name: str):
     """Create root folder and sub-folders for a new client"""
     try:
