@@ -5182,8 +5182,12 @@ const EmailManagement = () => {
           ) : (
             documents.map(doc => (
               <div key={doc.id} className="document-item">
-                <span className="document-name">📄 {doc.document_name}</span>
-                <span className="document-client">👤 {doc.client_id}</span>
+                <div className="document-info">
+                  <span className="document-name">📄 {doc.document_name}</span>
+                  <span className="document-client">🏨 {getClientName(doc.client_id)}</span>
+                  <span className="document-email">📧 {getClientEmail(doc.client_id)}</span>
+                  <span className="document-date">📅 {doc.created_at ? new Date(doc.created_at).toLocaleDateString('tr-TR') : 'Bilinmiyor'}</span>
+                </div>
                 <button 
                   onClick={() => sendDocumentNotification(doc.id)}
                   className="btn-secondary"
