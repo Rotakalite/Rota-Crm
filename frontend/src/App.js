@@ -1025,12 +1025,14 @@ const Dashboard = ({ onNavigate }) => {
   const fetchClients = async () => {
     try {
       const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      console.log('🔍 Fetching clients with role:', userRole, 'client_id:', clientId);
       const response = await axios.get(`${API}/clients`, { headers });
       
       // Check if response is actually JSON array
       if (Array.isArray(response.data)) {
         setClients(response.data);
-        console.log('✅ Clients fetched:', response.data.length);
+        console.log('✅ Clients fetched:', response.data.length, 'for role:', userRole);
+        console.log('📋 Client data:', response.data);
       } else {
         console.error('❌ Invalid response type:', typeof response.data, response.data);
         setClients([]);
