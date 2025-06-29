@@ -2996,6 +2996,11 @@ async def send_document_notification(
         if not client:
             raise HTTPException(status_code=404, detail="Client not found")
         
+        # Validate email address
+        client_email = client["contact_person"]
+        if not client_email or "@" not in client_email or "." not in client_email:
+            raise HTTPException(status_code=400, detail=f"Geçersiz email adresi: {client_email}. Lütfen client email'ini düzeltin.")
+        
         # Send email
         upload_date = document.get("created_at", "Bilinmiyor")
         if hasattr(upload_date, 'strftime'):
@@ -3006,7 +3011,7 @@ async def send_document_notification(
             upload_date = "Bilinmiyor"
             
         await email_service.send_document_upload_notification(
-            recipient_email=client["contact_person"],
+            recipient_email=client_email,
             document_name=document.get("name", "Bilinmiyen Doküman"),
             upload_date=upload_date,
             client_name=client["name"]
