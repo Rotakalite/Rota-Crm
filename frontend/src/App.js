@@ -1685,8 +1685,6 @@ const ClientDocuments = () => {
   const [showDocumentModal, setShowDocumentModal] = useState(false);
   const { authToken, userRole, dbUser } = useAuth();
 
-  const formatFileSize = (bytes) => {
-
   useEffect(() => {
     if (!authToken || !dbUser?.client_id) return;
     
