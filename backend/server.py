@@ -73,8 +73,13 @@ app = FastAPI(
 # Add CORS middleware first (CRITICAL FOR FRONTEND ACCESS)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins completely  
-    allow_credentials=False,  # Set to False when using * origins
+    allow_origins=[
+        "https://portal.rotakalitedanismanlik.com",
+        "https://ced36975-561f-4c1a-b948-3ca6d5f89931.preview.emergentagent.com",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"
+    ],
+    allow_credentials=True,  # Allow credentials for authentication
     allow_methods=["*"],  # Allow ALL methods
     allow_headers=["*"],  # Allow ALL headers
     expose_headers=["*"],
