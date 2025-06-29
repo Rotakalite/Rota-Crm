@@ -3195,7 +3195,7 @@ def run_level3_subfolder_tests():
     
     # Add Level 3 sub-folder tests
     suite.addTest(TestLevel3SubFolderSystem("test_create_client_with_level3_folders"))
-    suite.addTest(TestLevel3SubFolderSystem("test_clients_update_folders_endpoint"))
+    suite.addTest(TestLevel3SubFolderSystem("test_admin_update_subfolders_endpoint"))
     
     # Run the tests
     runner = unittest.TextTestRunner()
