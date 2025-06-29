@@ -3408,6 +3408,7 @@ def run_health_and_cors_tests():
 
 if __name__ == "__main__":
     import requests  # Import here to avoid issues with mocking
+    from critical_api_tests import run_critical_api_endpoints_tests
     
     # Update API URL in all test classes to use the correct URL from frontend/.env
     TestAnalyticsEndpoints.api_url = "https://ddbdf62a-0dc7-4cf4-b9a6-6dc3e3277ae1.preview.emergentagent.com/api"
@@ -3420,6 +3421,9 @@ if __name__ == "__main__":
     
     # Run the new health check and CORS tests
     run_health_and_cors_tests()
+    
+    # Run critical API endpoints tests
+    run_critical_api_endpoints_tests()
     
     # Run other tests as needed
     # run_level3_subfolder_tests()
