@@ -322,7 +322,20 @@ frontend:
         -agent: "main"
         -comment: "Successfully resolved duplicate getFileIcon function declarations. Created single global getFileIcon utility function at the top of the file and removed all duplicate instances. This fixes the persistent build errors that were preventing the frontend from compiling."
 
-  - task: "Add Missing TrainingManagement Component" 
+  - task: "Fix Duplicate formatFileSize Function Declarations"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "Frontend build failing due to duplicate formatFileSize function declarations at multiple lines causing SyntaxError during Vercel build. Multiple instances found in Dashboard, ClientDocuments, DocumentManagement, and other components."
+        -working: true
+        -agent: "main"
+        -comment: "Successfully resolved duplicate formatFileSize function declarations. Created single global formatFileSize utility function and removed all duplicate instances using sed command. This fixes the build errors that were preventing successful deployment." 
     implemented: true
     working: true
     file: "/app/frontend/src/App.js"
