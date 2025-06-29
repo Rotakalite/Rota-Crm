@@ -34,13 +34,6 @@ const getFileIcon = (filePath) => {
 };
 
 // Global utility function for file size formatting
-const formatFileSize = (bytes) => {
-  if (!bytes || bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-};
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component {
@@ -2239,13 +2232,6 @@ const DocumentManagement = () => {
     }
   };
 
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
 
   const filterDocuments = () => {
     if (userRole === 'admin' && selectedClient) {
@@ -2254,19 +2240,7 @@ const DocumentManagement = () => {
     return documents || [];
   };
 
-  const formatFileSize = (bytes) => {
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    if (bytes === 0) return '0 B';
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
-  };
 
-  const formatFileSize = (bytes) => {
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    if (bytes === 0) return '0 B';
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
-  };
 
   const getClientName = (clientId) => {
     const client = (clients || []).find(c => c.id === clientId);
@@ -3603,12 +3577,6 @@ const ProjectManagement = ({ client, onNavigate }) => {
     }
   };
 
-  const formatFileSize = (bytes) => {
-    if (!bytes) return 'Unknown';
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
-  };
 
   const serviceTypes = [
     "Mevcut durum analizi",
