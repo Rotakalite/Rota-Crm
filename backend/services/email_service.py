@@ -34,6 +34,7 @@ class EmailService:
         recipient_email: EmailStr, 
         document_name: str,
         upload_date: str,
+        folder_path: str = "Klasör belirtilmemiş",
         client_name: str = "Değerli Müşteri"
     ):
         """Send Turkish notification for document upload"""
@@ -42,7 +43,8 @@ class EmailService:
             html_content = template.render(
                 client_name=client_name,
                 document_name=document_name,
-                upload_date=upload_date
+                upload_date=upload_date,
+                folder_path=folder_path
             )
             
             message = MessageSchema(
