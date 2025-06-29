@@ -85,12 +85,18 @@ app = FastAPI(
 # Add CORS middleware first (CRITICAL FOR FRONTEND ACCESS)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins  
-    allow_credentials=False,  # False when using * origins
-    allow_methods=["*"],  # Allow ALL methods
-    allow_headers=["*"],  # Allow ALL headers
+    allow_origins=[
+        "http://localhost:3000",
+        "https://ddbdf62a-0dc7-4cf4-b9a6-6dc3e3277ae1.preview.emergentagent.com",
+        "https://rota-ak4hxutbl-rotas-projects-62181e6e.vercel.app",
+        "https://*.vercel.app",
+        "https://*.emergentagent.com"
+    ],
+    allow_credentials=True,  # Token gönderimi için True
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
     expose_headers=["*"],
-    max_age=0  # No caching to avoid CORS issues
+    max_age=600
 )
 
 # Set maximum request size to 500MB
