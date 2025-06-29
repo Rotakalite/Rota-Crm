@@ -4661,7 +4661,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
             className="h-10 w-auto flex-shrink-0"
           />
           <div className="flex flex-col justify-center">
-            <h1 className="text-lg font-bold text-white leading-tight">CRM Sistemi</h1>
+            <h1 className="text-lg font-bold text-gray-800 leading-tight">CRM Sistemi</h1>
             <p className="text-xs text-gray-600 leading-tight">
               {userRole === 'admin' ? 'Admin Paneli' : 'Müşteri Paneli'}
             </p>
