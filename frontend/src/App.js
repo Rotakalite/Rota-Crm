@@ -5031,7 +5031,31 @@ const EmailManagement = () => {
   const [loading, setLoading] = useState(false);
   const [documents, setDocuments] = useState([]);
   const [trainings, setTrainings] = useState([]);
+  const [clients, setClients] = useState([]);
   const { authToken } = useAuth();
+
+  // Get client name helper function
+  const getClientName = (clientId) => {
+    const client = clients.find(c => c.id === clientId);
+    return client ? client.name : 'Bilinmiyen Müşteri';
+  };
+
+  // Get client email helper function  
+  const getClientEmail = (clientId) => {
+    const client = clients.find(c => c.id === clientId);
+    return client ? client.contact_person : 'Email bulunamadı';
+  };
+
+  const fetchClients = async () => {
+    try {
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      const response = await axios.get(`${API}/clients`, { headers });
+      setClients(response.data || []);
+    } catch (error) {
+      console.error("❌ Error fetching clients:", error);
+      setClients([]);
+    }
+  };
 
   const fetchDocuments = async () => {
     try {
