@@ -367,8 +367,8 @@ const Header = () => {
             className="h-12 w-auto mr-4"
           />
           <div>
-            <h1 className="text-xl font-bold text-gray-800">CRM Sistemi</h1>
-            <p className="text-sm text-gray-600">
+            <h1 className="text-xl font-bold text-white">CRM Sistemi</h1>
+            <p className="text-sm text-gray-300">
               {userRole === 'admin' ? 'Admin Paneli' : 'Müşteri Paneli'}
             </p>
           </div>
