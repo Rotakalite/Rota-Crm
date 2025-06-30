@@ -2766,11 +2766,14 @@ const DocumentManagement = () => {
                     required
                   >
                     <option value="">Klasör seçiniz</option>
-                    {folders.filter(folder => folder.client_id === uploadData.client_id).map(folder => (
-                      <option key={folder.id} value={folder.id}>
-                        {'  '.repeat(folder.level)} {folder.name}
-                      </option>
-                    ))}
+                    {folders.filter(folder => folder.client_id === uploadData.client_id).map(folder => {
+                      const docCount = getFolderDocumentCount(folder.id);
+                      return (
+                        <option key={folder.id} value={folder.id}>
+                          {"  ".repeat(folder.level)} {folder.name} ({docCount} doküman)
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
 
