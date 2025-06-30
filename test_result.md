@@ -529,6 +529,21 @@ test_plan:
         -agent: "testing"
         -comment: "Comprehensive CORS testing completed. Created and executed tests specifically targeting the reported issue with requests from origin 'https://portal.rotakalitedanismanlik.com' to 'https://4aeb8cfa-61f1-4648-8b57-402bd2c9bfe3.preview.emergentagent.com/api/stats'. All tests passed successfully. The server correctly responds to OPTIONS preflight requests with appropriate CORS headers including 'Access-Control-Allow-Origin: *' which allows requests from any origin. Tested all critical endpoints (/api/stats, /api/clients, /api/auth/register, /api/health) with both preflight OPTIONS requests and actual GET/POST requests. All endpoints return proper CORS headers. The CORS configuration fix has been successfully implemented and verified."
 
+  - task: "Fix Folder Document Count Display"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "User reports that folder document count feature (showing number of documents in each folder) was implemented before but is not working. The feature should show 'X doküman' next to each folder name in dropdowns."
+        -working: true
+        -agent: "main"
+        -comment: "Investigated and found getFolderDocumentCount function already exists and is being used in folder dropdowns. Added debug logging to help diagnose why counts might not be appearing. Function filters documents by folder_id and returns count. Frontend service restarted to apply changes."
+
 agent_communication:
     -agent: "user"
     -message: "URGENT SECURITY ALERT: 'bak müşteriler diğer müşterilerin bilgilerini görebiliyor. bunu acil engellemen lazım. müşteri dashboard kısmına dikkat et' - Client users can see other client users' data in dashboard. This is critical data exposure that must be fixed immediately."
