@@ -936,6 +936,47 @@ const ConsumptionAnalytics = () => {
           </p>
         </div>
       )}
+
+      {/* Monthly Per Person View */}
+      {activeView === "monthly-per-person" && analyticsData && (
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">
+            📊 Kişi Başı Aylık Tüketim Takibi ({selectedYear})
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white border border-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 border-b text-left font-medium text-gray-900">Ay</th>
+                  <th className="px-4 py-2 border-b text-left font-medium text-gray-900">Elektrik (kWh/kişi)</th>
+                  <th className="px-4 py-2 border-b text-left font-medium text-gray-900">Su (m³/kişi)</th>
+                  <th className="px-4 py-2 border-b text-left font-medium text-gray-900">Doğalgaz (m³/kişi)</th>
+                  <th className="px-4 py-2 border-b text-left font-medium text-gray-900">Kömür (kg/kişi)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {analyticsData.monthly_comparison && analyticsData.monthly_comparison.map((month, index) => (
+                  <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                    <td className="px-4 py-2 border-b font-medium">{month.month_name}</td>
+                    <td className="px-4 py-2 border-b text-blue-700">
+                      {month.current_year_per_person?.electricity?.toFixed(1) || "0.0"}
+                    </td>
+                    <td className="px-4 py-2 border-b text-green-700">
+                      {month.current_year_per_person?.water?.toFixed(1) || "0.0"}
+                    </td>
+                    <td className="px-4 py-2 border-b text-orange-700">
+                      {month.current_year_per_person?.natural_gas?.toFixed(1) || "0.0"}
+                    </td>
+                    <td className="px-4 py-2 border-b text-gray-700">
+                      {month.current_year_per_person?.coal?.toFixed(1) || "0.0"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
