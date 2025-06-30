@@ -524,7 +524,7 @@ test_plan:
         -comment: "User reports persistent CORS error: 'Access to XMLHttpRequest at https://4aeb8cfa-61f1-4648-8b57-402bd2c9bfe3.preview.emergentagent.com/api/stats from origin https://portal.rotakalitedanismanlik.com has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No Access-Control-Allow-Origin header is present on the requested resource.'"
         -working: true
         -agent: "main"
-        -comment: "Updated CORS configuration to include both reported URL (4aeb8cfa-61f1-4648-8b57-402bd2c9bfe3.preview.emergentagent.com) and current environment URL (f071690c-46e0-42d0-8892-e750466ac123.preview.emergentagent.com) in allowed origins list. Backend service restarted to apply changes. Backend health check confirms service is running properly on localhost:8001."
+        -comment: "CORS FIX ATTEMPT: Updated backend CORS configuration to include both the URL from user's error message (4aeb8cfa-61f1-4648-8b57-402bd2c9bfe3.preview.emergentagent.com) and current environment URL (f071690c-46e0-42d0-8892-e750466ac123.preview.emergentagent.com) in allowed origins. Backend service restarted and health check confirms it's running. Need to test if this resolves the CORS policy error for api/stats endpoint."
 
 agent_communication:
     -agent: "user"
