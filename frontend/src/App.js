@@ -1137,6 +1137,50 @@ const ConsumptionAnalytics = () => {
         </div>
       )}
 
+      {/* Monthly Per Person View */}
+      {activeView === 'monthly-per-person' && analyticsData && (
+        <div className="space-y-6">
+          {/* Monthly Per Person Chart */}
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+              Kişi Başı Aylık Tüketim Takibi ({selectedYear - 1} vs {selectedYear})
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Her ay için kişi başı düşen tüketim miktarları - elektrik, su, doğalgaz ve kömür dahil
+            </p>
+            {getMonthlyPerPersonChart() && (
+              <Line data={getMonthlyPerPersonChart()} options={{
+                responsive: true,
+                plugins: {
+                  legend: {
+                    position: 'top',
+                  },
+                  title: {
+                    display: true,
+                    text: 'Kişi Başı Aylık Tüketim Grafiği'
+                  }
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    title: {
+                      display: true,
+                      text: 'Tüketim Miktarı'
+                    }
+                  },
+                  x: {
+                    title: {
+                      display: true,
+                      text: 'Aylar'
+                    }
+                  }
+                }
+              }} />
+            )}
+          </div>
+        </div>
+      )}
+
       {/* No Data Message */}
       {!analyticsData && !loading && (
         <div className="bg-white p-8 rounded-lg shadow-md text-center">
