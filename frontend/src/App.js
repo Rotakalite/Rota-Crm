@@ -1933,7 +1933,7 @@ const ClientDocuments = () => {
                         <div>
                           <h3 className="font-semibold text-gray-700">{folder.name}</h3>
                           <p className="text-xs text-gray-500">
-                            {subFolderCount} alt klasör
+                            {subFolderCount} alt klasör • {getFolderDocumentCount(folder.id)} doküman
                           </p>
                         </div>
                       </div>
