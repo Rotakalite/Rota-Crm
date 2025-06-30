@@ -4866,10 +4866,8 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'analytics', name: 'Tüketim Analizi', icon: '📈' },
     { id: 'documents', name: 'Belge Yönetimi', icon: '📋' },
     { id: 'trainings', name: 'Eğitim Yönetimi', icon: '🎓' },
+    { id: 'email', name: 'Email Yönetimi', icon: '📧' },
     { id: 'reports', name: 'Raporlar', icon: '📊' },
-    { id: 'email', name: 'Email Yönetimi', icon: '📧' },
-    { id: 'email', name: 'Email Yönetimi', icon: '📧' },
-    { id: 'reports', name: 'Raporlar', icon: '📄' }
   ];
 
   const clientMenuItems = [
