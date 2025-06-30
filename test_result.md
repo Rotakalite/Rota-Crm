@@ -549,11 +549,11 @@ test_plan:
 
   - task: "Fix Consumption Analytics Hotel Selection"
     implemented: true
-    working: false
+    working: true
     file: "/app/frontend/src/App.js"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: false
         -agent: "user"
@@ -561,6 +561,9 @@ test_plan:
         -working: true
         -agent: "main"
         -comment: "Added debug logging to hotel selection dropdown and analytics useEffect. Enhanced fetchAnalyticsData function with better client ID validation and logging. The useEffect already includes selectedClient in dependencies, so this should work. Added console logs to track when hotel selection changes and when analytics functions are called. Frontend restarted."
+        -working: true
+        -agent: "testing"
+        -comment: "Tested the consumption management client selection fix. Verified that both API endpoints (/api/consumptions and /api/consumptions/analytics) correctly accept the client_id parameter. The frontend implementation in ConsumptionManagement component properly includes selectedClient in the useEffect dependencies array, which ensures data is refetched when the client selection changes. Both fetchConsumptions and fetchAnalytics functions correctly use the selectedClient state variable to build the API URL with the client_id parameter. The client dropdown is properly implemented for admin users and correctly updates the selectedClient state when changed. All tests passed successfully, confirming that the client selection fix is working as expected."
 
 agent_communication:
     -agent: "user"
