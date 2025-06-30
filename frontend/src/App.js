@@ -2062,6 +2062,13 @@ const ClientDocuments = () => {
   const [showDocumentModal, setShowDocumentModal] = useState(false);
   const { authToken, userRole, dbUser } = useAuth();
 
+
+  // Get document count for a folder
+  const getFolderDocumentCount = (folderId) => {
+    const count = documents.filter(doc => doc.folder_id === folderId).length;
+    console.log(`📊 ClientDocuments - Folder ${folderId} has ${count} documents. Total documents: ${documents.length}`);
+    return count;
+  };
   useEffect(() => {
     if (!authToken || !dbUser?.client_id) return;
     
