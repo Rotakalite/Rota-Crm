@@ -799,6 +799,86 @@ const ConsumptionAnalytics = () => {
     };
   };
 
+
+  const getSelectedClientName = () => {
+    if (userRole === 'client') {
+      return dbUser?.name || 'Müşteri';
+    }
+    const client = clients.find(c => c.id === selectedClient);
+    return client ? client.hotel_name : 'Müşteri Seçin';
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4 md:mb-0">
+            📊 {getSelectedClientName()} - Tüketim Analizi
+          </h2>
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+            {/* Admin Client Selector */}
+            {userRole === 'admin' && (
+              <div className="flex space-x-2">
+                <select
+                  id="client-selector-analytics"
+                  value={selectedClient}
+                  onChange={(e) => {
+                    console.log('🏨 Hotel selected (Analytics):', e.target.value, typeof e.target.value);
+                    console.log('🏨 Current selectedClient before:', selectedClient);
+                    setSelectedClient(e.target.value);
+                    console.log('🏨 setSelectedClient called with:', e.target.value);
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Müşteri Seçin</option>
+                  {clients.map((client, index) => {
+                    console.log(`🏨 Rendering client option ${index}:`, client.id, client.hotel_name);
+                    return (
+                      <option key={client.id} value={client.id}>
+                        {client.hotel_name}
+                      </option>
+                    );
+                  })}
+                </select>
+                <button
+                  onClick={fetchClients}
+                  className="px-3 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  title="Müşteri listesini yenile"
+                >
+                  🔄
+                </button>
+              </div>
+            )}
+            
+            {/* Year Selector */}
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {Array.from({length: 5}, (_, i) => new Date().getFullYear() - i).map(year => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* View Toggle */}
+        <div className="flex flex-wrap space-x-2 mb-4">
+          <button
+            onClick={() => setActiveView('yearly')}
+            className={`px-4 py-2 rounded-md transition-colors ${
+              activeView === 'yearly' 
+                ? 'bg-blue-600 text-white' 
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
