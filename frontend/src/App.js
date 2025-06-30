@@ -487,10 +487,6 @@ const ConsumptionAnalytics = () => {
     return documents.filter(doc => doc.folder_id === folderId).length;
   };
 
-  // Get document count for a folder
-  const getFolderDocumentCount = (folderId) => {
-    return documents.filter(doc => doc.folder_id === folderId).length;
-  };
 
   useEffect(() => {
     // Token hazır olmadan API call yapma
