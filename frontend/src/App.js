@@ -684,21 +684,105 @@ const ConsumptionAnalytics = () => {
               <h3 className="text-lg font-bold mb-2">⚡ Elektrik</h3>
               <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.electricity?.toLocaleString() || 0}</p>
               <p className="text-blue-100">kWh</p>
+              {analyticsData.yearly_totals?.previous_year?.electricity && (
+                <p className="text-sm mt-2">
+                  {(() => {
+                    const current = analyticsData.yearly_totals.current_year.electricity || 0;
+                    const previous = analyticsData.yearly_totals.previous_year.electricity || 0;
+                    const change = previous > 0 ? ((current - previous) / previous * 100) : 0;
+                    return (
+                      <span className={`font-bold ${change > 0 ? 'text-red-200' : 'text-green-200'}`}>
+                        {change > 0 ? '↗' : '↘'} {Math.abs(change).toFixed(1)}%
+                      </span>
+                    );
+                  })()}
+                </p>
+              )}
             </div>
             <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
               <h3 className="text-lg font-bold mb-2">💧 Su</h3>
               <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.water?.toLocaleString() || 0}</p>
               <p className="text-green-100">m³</p>
+              {analyticsData.yearly_totals?.previous_year?.water && (
+                <p className="text-sm mt-2">
+                  {(() => {
+                    const current = analyticsData.yearly_totals.current_year.water || 0;
+                    const previous = analyticsData.yearly_totals.previous_year.water || 0;
+                    const change = previous > 0 ? ((current - previous) / previous * 100) : 0;
+                    return (
+                      <span className={`font-bold ${change > 0 ? 'text-red-200' : 'text-green-200'}`}>
+                        {change > 0 ? '↗' : '↘'} {Math.abs(change).toFixed(1)}%
+                      </span>
+                    );
+                  })()}
+                </p>
+              )}
             </div>
             <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg">
               <h3 className="text-lg font-bold mb-2">🔥 Doğalgaz</h3>
               <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.natural_gas?.toLocaleString() || 0}</p>
               <p className="text-orange-100">m³</p>
+              {analyticsData.yearly_totals?.previous_year?.natural_gas && (
+                <p className="text-sm mt-2">
+                  {(() => {
+                    const current = analyticsData.yearly_totals.current_year.natural_gas || 0;
+                    const previous = analyticsData.yearly_totals.previous_year.natural_gas || 0;
+                    const change = previous > 0 ? ((current - previous) / previous * 100) : 0;
+                    return (
+                      <span className={`font-bold ${change > 0 ? 'text-red-200' : 'text-green-200'}`}>
+                        {change > 0 ? '↗' : '↘'} {Math.abs(change).toFixed(1)}%
+                      </span>
+                    );
+                  })()}
+                </p>
+              )}
             </div>
             <div className="bg-gradient-to-br from-gray-500 to-gray-600 p-6 rounded-xl text-white shadow-lg">
               <h3 className="text-lg font-bold mb-2">🏔️ Kömür</h3>
               <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.coal?.toLocaleString() || 0}</p>
               <p className="text-gray-100">kg</p>
+              {analyticsData.yearly_totals?.previous_year?.coal && (
+                <p className="text-sm mt-2">
+                  {(() => {
+                    const current = analyticsData.yearly_totals.current_year.coal || 0;
+                    const previous = analyticsData.yearly_totals.previous_year.coal || 0;
+                    const change = previous > 0 ? ((current - previous) / previous * 100) : 0;
+                    return (
+                      <span className={`font-bold ${change > 0 ? 'text-red-200' : 'text-green-200'}`}>
+                        {change > 0 ? '↗' : '↘'} {Math.abs(change).toFixed(1)}%
+                      </span>
+                    );
+                  })()}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Kişi Başı Aylık Tüketim */}
+          <div className="bg-gradient-to-br from-purple-100 to-pink-100 border-l-4 border-purple-500 p-6 rounded-lg">
+            <h4 className="text-lg font-bold text-purple-800 mb-4">👥 Kişi Başı Aylık Tüketim ({selectedYear})</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {analyticsData.monthly_comparison && analyticsData.monthly_comparison.length > 0 && (
+                analyticsData.monthly_comparison.map((month, index) => (
+                  <div key={index} className="text-center bg-white p-3 rounded-lg shadow-sm">
+                    <div className="text-sm font-bold text-purple-700 mb-2">{month.month_name}</div>
+                    <div className="space-y-1">
+                      <div className="text-xs text-blue-600 font-medium">
+                        ⚡ {month.current_year_per_person?.electricity?.toFixed(1) || '0.0'}
+                      </div>
+                      <div className="text-xs text-green-600 font-medium">
+                        💧 {month.current_year_per_person?.water?.toFixed(1) || '0.0'}
+                      </div>
+                      <div className="text-xs text-orange-600 font-medium">
+                        🔥 {month.current_year_per_person?.natural_gas?.toFixed(1) || '0.0'}
+                      </div>
+                      <div className="text-xs text-gray-600 font-medium">
+                        🏔️ {month.current_year_per_person?.coal?.toFixed(1) || '0.0'}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
