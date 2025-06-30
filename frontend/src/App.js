@@ -484,34 +484,147 @@ const Header = () => {
 
 // Consumption Analytics Components
 const ConsumptionAnalytics = () => {
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [selectedYear, setSelectedYear] = useState(2024);
+  const [loading, setLoading] = useState(false);
+
+  const { authToken, userRole, dbUser } = useAuth();
+
+  useEffect(() => {
+    if (!authToken) return;
+    if (userRole === 'admin') fetchClients();
+  }, [authToken, userRole]);
+
+  useEffect(() => {
+    if (!authToken) return;
+    if (selectedClient || userRole === 'client') fetchAnalyticsData();
+  }, [authToken, selectedYear, selectedClient]);
+
+  const fetchClients = async () => {
+    try {
+      const response = await axios.get(`${API}/clients`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      setClients(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+    }
+  };
+
+  const fetchAnalyticsData = async () => {
+    setLoading(true);
+    try {
+      const clientId = userRole === 'admin' ? selectedClient : dbUser?.client_id;
+      if (!clientId) {
+        setLoading(false);
+        return;
+      }
+      const response = await axios.get(`${API}/consumptions/analytics?year=${selectedYear}&client_id=${clientId}`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      setAnalyticsData(response.data);
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+    }
+    setLoading(false);
+  };
+
+  if (loading) {
+    return <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div></div>;
+  }
+
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-r from-blue-600 to-green-600 text-white p-6 rounded-lg shadow-lg">
+      <div className="bg-gradient-to-r from-blue-600 to-green-600 text-white p-6 rounded-lg">
         <h1 className="text-2xl font-bold">📊 Tüketim Analizi</h1>
-        <p className="mt-2 text-blue-100">Kişi başı aylık tüketim özelliği geliştiriliyor...</p>
-      </div>
-      
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">🔧 Geliştirilen Özellikler</h2>
-        <div className="space-y-2">
-          <div className="flex items-center">
-            <span className="text-green-500 mr-2">✅</span>
-            <span>Backend Analytics API hazır</span>
-          </div>
-          <div className="flex items-center">
-            <span className="text-green-500 mr-2">✅</span>
-            <span>Kişi başı tüketim verileri mevcut</span>
-          </div>
-          <div className="flex items-center">
-            <span className="text-yellow-500 mr-2">🔄</span>
-            <span>Frontend grafik entegrasyonu geliştiriliyor</span>
-          </div>
-          <div className="flex items-center">
-            <span className="text-yellow-500 mr-2">🔄</span>
-            <span>Kömür ve doğalgaz detaylı analizi geliştiriliyor</span>
-          </div>
+        
+        <div className="flex gap-4 mt-4">
+          {userRole === 'admin' && (
+            <select
+              value={selectedClient}
+              onChange={(e) => setSelectedClient(e.target.value)}
+              className="px-3 py-2 rounded text-gray-800"
+            >
+              <option value="">Müşteri Seçin</option>
+              {clients.map(client => (
+                <option key={client.id} value={client.id}>{client.hotel_name}</option>
+              ))}
+            </select>
+          )}
+          
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+            className="px-3 py-2 rounded text-gray-800"
+          >
+            <option value={2024}>2024</option>
+            <option value={2023}>2023</option>
+          </select>
         </div>
       </div>
+
+      {analyticsData ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white p-4 rounded shadow border-l-4 border-blue-500">
+            <h3 className="text-blue-700 font-bold">Elektrik</h3>
+            <p className="text-2xl font-bold">{analyticsData.yearly_totals?.current_year?.electricity || 0} kWh</p>
+          </div>
+          <div className="bg-white p-4 rounded shadow border-l-4 border-green-500">
+            <h3 className="text-green-700 font-bold">Su</h3>
+            <p className="text-2xl font-bold">{analyticsData.yearly_totals?.current_year?.water || 0} m³</p>
+          </div>
+          <div className="bg-white p-4 rounded shadow border-l-4 border-orange-500">
+            <h3 className="text-orange-700 font-bold">Doğalgaz</h3>
+            <p className="text-2xl font-bold">{analyticsData.yearly_totals?.current_year?.natural_gas || 0} m³</p>
+          </div>
+          <div className="bg-white p-4 rounded shadow border-l-4 border-gray-500">
+            <h3 className="text-gray-700 font-bold">Kömür</h3>
+            <p className="text-2xl font-bold">{analyticsData.yearly_totals?.current_year?.coal || 0} kg</p>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white p-8 rounded-lg shadow text-center">
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">Veri Bulunamadı</h3>
+          <p className="text-gray-600">
+            {userRole === 'admin' && !selectedClient 
+              ? 'Lütfen bir müşteri seçin'
+              : 'Seçilen dönem için tüketim verisi bulunmuyor.'
+            }
+          </p>
+        </div>
+      )}
+
+      {analyticsData && analyticsData.monthly_comparison && (
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h3 className="text-xl font-semibold mb-4">📊 Aylık Tüketim Tablosu</h3>
+          <div className="overflow-x-auto">
+            <table className="min-w-full border">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 border text-left">Ay</th>
+                  <th className="px-4 py-2 border text-left">Elektrik (kWh)</th>
+                  <th className="px-4 py-2 border text-left">Su (m³)</th>
+                  <th className="px-4 py-2 border text-left">Doğalgaz (m³)</th>
+                  <th className="px-4 py-2 border text-left">Kömür (kg)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {analyticsData.monthly_comparison.map((month, index) => (
+                  <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <td className="px-4 py-2 border font-medium">{month.month_name}</td>
+                    <td className="px-4 py-2 border text-blue-700">{month.current_year?.electricity || 0}</td>
+                    <td className="px-4 py-2 border text-green-700">{month.current_year?.water || 0}</td>
+                    <td className="px-4 py-2 border text-orange-700">{month.current_year?.natural_gas || 0}</td>
+                    <td className="px-4 py-2 border text-gray-700">{month.current_year?.coal || 0}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
