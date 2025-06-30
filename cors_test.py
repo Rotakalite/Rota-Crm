@@ -23,7 +23,7 @@ class TestCORSConfiguration(unittest.TestCase):
         
         # Headers for CORS preflight requests
         self.preflight_headers = {
-            "Origin": "https://rota-r4invvuue-rotas-projects-62181e6e.vercel.app",
+            "Origin": "https://portal.rotakalitedanismanlik.com",
             "Access-Control-Request-Method": "GET",
             "Access-Control-Request-Headers": "Authorization,Content-Type"
         }
