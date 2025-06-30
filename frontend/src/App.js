@@ -4868,6 +4868,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'trainings', name: 'Eğitim Yönetimi', icon: '🎓' },
     { id: 'reports', name: 'Raporlar', icon: '📊' },
     { id: 'email', name: 'Email Yönetimi', icon: '📧' },
+    { id: 'email', name: 'Email Yönetimi', icon: '📧' },
     { id: 'reports', name: 'Raporlar', icon: '📄' }
   ];
 
