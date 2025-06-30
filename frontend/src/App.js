@@ -985,6 +985,16 @@ const ConsumptionAnalytics = () => {
           >
             Kişi Başı Aylık
           </button>
+          <button
+            onClick={() => setActiveView('monthly-per-person')}
+            className={`px-4 py-2 rounded-md transition-colors ${
+              activeView === 'monthly-per-person' 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Kişi Başı Aylık
+          </button>
         </div>
       </div>
 
