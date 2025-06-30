@@ -3501,7 +3501,24 @@ const ConsumptionManagement = ({ onNavigate }) => {
         </div>
       )}
 
-      {analytics && (
+      {/* Admin için müşteri seçim uyarısı */}
+      {userRole === 'admin' && !selectedClient && (
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
+          <div className="flex items-center">
+            <div className="text-yellow-400 mr-3">
+              ⚠️
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-yellow-800">Müşteri Seçimi Gerekli</h3>
+              <p className="text-yellow-700 mt-1">
+                Tüketim verilerini görüntülemek için lütfen yukarıdan bir müşteri seçin.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {analytics && selectedClient && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Monthly Comparison */}
           <div className="bg-white rounded-lg shadow-md p-6">
