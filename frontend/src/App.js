@@ -149,23 +149,24 @@ const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 const getApiUrl = () => {
   // Production domain
   if (window.location.hostname === 'portal.rotakalitedanismanlik.com') {
-    return 'https://your-production-backend.com'; // Buraya production backend URL'i gelecek
+    return 'https://your-production-backend.com/api'; // Buraya production backend URL'i gelecek
   }
   
   // Development/Preview domains  
   if (window.location.hostname.includes('.preview.emergentagent.com')) {
     // Aynı hostname'i kullan, sadece port farklı
     const currentHost = window.location.hostname;
-    return `https://${currentHost}`;
+    return `https://${currentHost}/api`;
   }
   
   // Localhost
   if (window.location.hostname === 'localhost') {
-    return 'http://localhost:8001';
+    return 'http://localhost:8001/api';
   }
   
   // Fallback to env variable
-  return process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+  const baseUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+  return `${baseUrl}/api`;
 };
 
 // Backend URL Discovery Function
