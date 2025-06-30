@@ -3387,8 +3387,9 @@ const ConsumptionManagement = ({ onNavigate }) => {
         </div>
       )}
 
-      {/* Consumption List */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      {/* Consumption List - Admin için müşteri seçimi gerekli */}
+      {(userRole === 'client' || (userRole === 'admin' && selectedClient)) && (
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="bg-gray-50 px-6 py-4 border-b">
           <h3 className="text-lg font-semibold text-gray-800">
             📊 {selectedYear} Yılı Tüketim Verileri
