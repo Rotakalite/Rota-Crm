@@ -145,48 +145,27 @@ ChartJS.register(
 
 const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
-// Dynamic Backend URL Detection System
-const getBackendURL = () => {
-  // Method 1: Use environment variable if available
-  if (process.env.REACT_APP_BACKEND_URL) {
-    console.log('🔧 Using backend URL from environment:', process.env.REACT_APP_BACKEND_URL);
-    return process.env.REACT_APP_BACKEND_URL;
+// Dynamic API URL detection
+const getApiUrl = () => {
+  // Production domain
+  if (window.location.hostname === 'portal.rotakalitedanismanlik.com') {
+    return 'https://your-production-backend.com'; // Buraya production backend URL'i gelecek
   }
   
-  // Method 2: Auto-detect from current window location
-  const currentUrl = window.location.hostname;
-  const currentOrigin = window.location.origin;
-  console.log('🔧 Current hostname:', currentUrl);
-  console.log('🔧 Current origin:', currentOrigin);
-  
-  // If we're on Vercel (production frontend)
-  if (currentUrl.includes('vercel.app')) {
-    // KALICI ÇÖZÜM: Railway backend URL for Vercel deployments
-    const backendUrl = 'https://rota-crm-production.up.railway.app';
-    console.log('🔧 Using Railway backend URL for Vercel:', backendUrl);
-    
-    // Also store it for future use
-    localStorage.setItem('ROTA_BACKEND_URL', backendUrl);
-    return backendUrl;
+  // Development/Preview domains  
+  if (window.location.hostname.includes('.preview.emergentagent.com')) {
+    // Aynı hostname'i kullan, sadece port farklı
+    const currentHost = window.location.hostname;
+    return `https://${currentHost}`;
   }
   
-  // If we're on a preview URL (emergentagent.com domain)
-  if (currentUrl.includes('emergentagent.com')) {
-    console.log('🔧 Using current preview URL as backend:', currentOrigin);
-    return currentOrigin;
-  }
-  
-  // Method 3: Development fallback
-  if (currentUrl === 'localhost' || currentUrl === '127.0.0.1') {
-    console.log('🔧 Using localhost development URL');
+  // Localhost
+  if (window.location.hostname === 'localhost') {
     return 'http://localhost:8001';
   }
   
-  // Method 4: Last resort - prompt user or use service discovery
-  console.error('❌ Could not determine backend URL automatically');
-  
-  // Try to discover backend URL by testing common patterns
-  return discoverBackendURL();
+  // Fallback to env variable
+  return process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 };
 
 // Backend URL Discovery Function
