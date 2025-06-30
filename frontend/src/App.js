@@ -1067,6 +1067,11 @@ const Dashboard = ({ onNavigate }) => {
       
       setFolders(Array.isArray(response.data) ? response.data : []);
       console.log('✅ Dashboard: Folders set in state:', Array.isArray(response.data) ? response.data.length : 0, 'folders');
+      
+      // Folders yüklendikten sonra documents da yükle ki doküman sayısı hesaplanabilsin
+      if (userRole === 'admin') {
+        fetchDocuments();
+      }
     } catch (error) {
       console.error("❌ Dashboard: Error fetching folders:", error);
       setFolders([]);
