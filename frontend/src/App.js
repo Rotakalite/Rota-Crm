@@ -487,8 +487,9 @@ const ConsumptionAnalytics = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState('');
-  const [selectedYear, setSelectedYear] = useState(2024);
+  const [selectedYear, setSelectedYear] = useState(2025);
   const [loading, setLoading] = useState(false);
+  const [activeView, setActiveView] = useState('charts');
 
   const { authToken, userRole, dbUser } = useAuth();
 
@@ -531,21 +532,101 @@ const ConsumptionAnalytics = () => {
     setLoading(false);
   };
 
+  const getMonthlyChart = () => {
+    if (!analyticsData?.monthly_comparison) return null;
+    
+    const months = analyticsData.monthly_comparison.map(m => m.month_name);
+    const electricity = analyticsData.monthly_comparison.map(m => m.current_year?.electricity || 0);
+    const water = analyticsData.monthly_comparison.map(m => m.current_year?.water || 0);
+    const gas = analyticsData.monthly_comparison.map(m => m.current_year?.natural_gas || 0);
+    const coal = analyticsData.monthly_comparison.map(m => m.current_year?.coal || 0);
+
+    return {
+      labels: months,
+      datasets: [
+        {
+          label: 'Elektrik (kWh)',
+          data: electricity,
+          borderColor: 'rgb(59, 130, 246)',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          tension: 0.4
+        },
+        {
+          label: 'Su (m³)',
+          data: water,
+          borderColor: 'rgb(34, 197, 94)',
+          backgroundColor: 'rgba(34, 197, 94, 0.1)',
+          tension: 0.4
+        },
+        {
+          label: 'Doğalgaz (m³)',
+          data: gas,
+          borderColor: 'rgb(249, 115, 22)',
+          backgroundColor: 'rgba(249, 115, 22, 0.1)',
+          tension: 0.4
+        },
+        {
+          label: 'Kömür (kg)',
+          data: coal,
+          borderColor: 'rgb(107, 114, 128)',
+          backgroundColor: 'rgba(107, 114, 128, 0.1)',
+          tension: 0.4
+        }
+      ]
+    };
+  };
+
+  const getYearlyChart = () => {
+    if (!analyticsData?.yearly_totals) return null;
+    
+    const current = analyticsData.yearly_totals.current_year;
+    const previous = analyticsData.yearly_totals.previous_year;
+
+    return {
+      labels: ['Elektrik', 'Su', 'Doğalgaz', 'Kömür'],
+      datasets: [
+        {
+          label: `${selectedYear}`,
+          data: [current?.electricity || 0, current?.water || 0, current?.natural_gas || 0, current?.coal || 0],
+          backgroundColor: ['#3B82F6', '#22C55E', '#F97316', '#6B7280'],
+          borderWidth: 2
+        },
+        {
+          label: `${selectedYear - 1}`,
+          data: [previous?.electricity || 0, previous?.water || 0, previous?.natural_gas || 0, previous?.coal || 0],
+          backgroundColor: ['#93C5FD', '#86EFAC', '#FDBA74', '#D1D5DB'],
+          borderWidth: 2
+        }
+      ]
+    };
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top' },
+      title: { display: true, text: 'Tüketim Analizi' }
+    },
+    scales: {
+      y: { beginAtZero: true }
+    }
+  };
+
   if (loading) {
     return <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div></div>;
   }
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-r from-blue-600 to-green-600 text-white p-6 rounded-lg">
-        <h1 className="text-2xl font-bold">📊 Tüketim Analizi</h1>
+      <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-green-600 text-white p-6 rounded-lg shadow-xl">
+        <h1 className="text-3xl font-bold mb-4">📊 Elite Tüketim Analizi</h1>
         
-        <div className="flex gap-4 mt-4">
+        <div className="flex flex-wrap gap-4">
           {userRole === 'admin' && (
             <select
               value={selectedClient}
               onChange={(e) => setSelectedClient(e.target.value)}
-              className="px-3 py-2 rounded text-gray-800"
+              className="px-4 py-2 rounded-lg text-gray-800 font-medium"
             >
               <option value="">Müşteri Seçin</option>
               {clients.map(client => (
@@ -557,73 +638,113 @@ const ConsumptionAnalytics = () => {
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-            className="px-3 py-2 rounded text-gray-800"
+            className="px-4 py-2 rounded-lg text-gray-800 font-medium"
           >
+            <option value={2025}>2025</option>
             <option value={2024}>2024</option>
             <option value={2023}>2023</option>
           </select>
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => setActiveView('charts')}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                activeView === 'charts' ? 'bg-white text-purple-600' : 'bg-purple-500 hover:bg-purple-400'
+              }`}
+            >
+              📈 Grafikler
+            </button>
+            <button
+              onClick={() => setActiveView('comparison')}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                activeView === 'comparison' ? 'bg-white text-purple-600' : 'bg-purple-500 hover:bg-purple-400'
+              }`}
+            >
+              🔄 Karşılaştırma
+            </button>
+          </div>
         </div>
       </div>
 
-      {analyticsData ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded shadow border-l-4 border-blue-500">
-            <h3 className="text-blue-700 font-bold">Elektrik</h3>
-            <p className="text-2xl font-bold">{analyticsData.yearly_totals?.current_year?.electricity || 0} kWh</p>
-          </div>
-          <div className="bg-white p-4 rounded shadow border-l-4 border-green-500">
-            <h3 className="text-green-700 font-bold">Su</h3>
-            <p className="text-2xl font-bold">{analyticsData.yearly_totals?.current_year?.water || 0} m³</p>
-          </div>
-          <div className="bg-white p-4 rounded shadow border-l-4 border-orange-500">
-            <h3 className="text-orange-700 font-bold">Doğalgaz</h3>
-            <p className="text-2xl font-bold">{analyticsData.yearly_totals?.current_year?.natural_gas || 0} m³</p>
-          </div>
-          <div className="bg-white p-4 rounded shadow border-l-4 border-gray-500">
-            <h3 className="text-gray-700 font-bold">Kömür</h3>
-            <p className="text-2xl font-bold">{analyticsData.yearly_totals?.current_year?.coal || 0} kg</p>
-          </div>
-        </div>
-      ) : (
+      {!analyticsData ? (
         <div className="bg-white p-8 rounded-lg shadow text-center">
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">Veri Bulunamadı</h3>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">📊 Analiz İçin Müşteri Seçin</h3>
           <p className="text-gray-600">
             {userRole === 'admin' && !selectedClient 
-              ? 'Lütfen bir müşteri seçin'
+              ? 'Lütfen bir müşteri seçin ve elite analizi başlatın'
               : 'Seçilen dönem için tüketim verisi bulunmuyor.'
             }
           </p>
         </div>
-      )}
-
-      {analyticsData && analyticsData.monthly_comparison && (
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-xl font-semibold mb-4">📊 Aylık Tüketim Tablosu</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full border">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-2 border text-left">Ay</th>
-                  <th className="px-4 py-2 border text-left">Elektrik (kWh)</th>
-                  <th className="px-4 py-2 border text-left">Su (m³)</th>
-                  <th className="px-4 py-2 border text-left">Doğalgaz (m³)</th>
-                  <th className="px-4 py-2 border text-left">Kömür (kg)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analyticsData.monthly_comparison.map((month, index) => (
-                  <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                    <td className="px-4 py-2 border font-medium">{month.month_name}</td>
-                    <td className="px-4 py-2 border text-blue-700">{month.current_year?.electricity || 0}</td>
-                    <td className="px-4 py-2 border text-green-700">{month.current_year?.water || 0}</td>
-                    <td className="px-4 py-2 border text-orange-700">{month.current_year?.natural_gas || 0}</td>
-                    <td className="px-4 py-2 border text-gray-700">{month.current_year?.coal || 0}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      ) : (
+        <>
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-2">⚡ Elektrik</h3>
+              <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.electricity?.toLocaleString() || 0}</p>
+              <p className="text-blue-100">kWh</p>
+            </div>
+            <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-2">💧 Su</h3>
+              <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.water?.toLocaleString() || 0}</p>
+              <p className="text-green-100">m³</p>
+            </div>
+            <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-2">🔥 Doğalgaz</h3>
+              <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.natural_gas?.toLocaleString() || 0}</p>
+              <p className="text-orange-100">m³</p>
+            </div>
+            <div className="bg-gradient-to-br from-gray-500 to-gray-600 p-6 rounded-xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-2">🏔️ Kömür</h3>
+              <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.coal?.toLocaleString() || 0}</p>
+              <p className="text-gray-100">kg</p>
+            </div>
           </div>
-        </div>
+
+          {activeView === 'charts' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-white p-6 rounded-xl shadow-lg">
+                <h3 className="text-xl font-bold mb-4">📈 Aylık Trend Analizi</h3>
+                {getMonthlyChart() && <Line data={getMonthlyChart()} options={chartOptions} />}
+              </div>
+              <div className="bg-white p-6 rounded-xl shadow-lg">
+                <h3 className="text-xl font-bold mb-4">📊 Yıllık Karşılaştırma</h3>
+                {getYearlyChart() && <Bar data={getYearlyChart()} options={chartOptions} />}
+              </div>
+            </div>
+          )}
+
+          {activeView === 'comparison' && analyticsData.monthly_comparison && (
+            <div className="bg-white p-6 rounded-xl shadow-lg">
+              <h3 className="text-xl font-bold mb-4">🔄 Detaylı Aylık Karşılaştırma</h3>
+              <div className="overflow-x-auto">
+                <table className="min-w-full border-collapse">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-purple-100 to-blue-100">
+                      <th className="px-4 py-3 border text-left font-bold">Ay</th>
+                      <th className="px-4 py-3 border text-left font-bold text-blue-700">⚡ Elektrik (kWh)</th>
+                      <th className="px-4 py-3 border text-left font-bold text-green-700">💧 Su (m³)</th>
+                      <th className="px-4 py-3 border text-left font-bold text-orange-700">🔥 Doğalgaz (m³)</th>
+                      <th className="px-4 py-3 border text-left font-bold text-gray-700">🏔️ Kömür (kg)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {analyticsData.monthly_comparison.map((month, index) => (
+                      <tr key={index} className={`hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-25'}`}>
+                        <td className="px-4 py-3 border font-bold text-purple-800">{month.month_name}</td>
+                        <td className="px-4 py-3 border text-blue-700 font-semibold">{(month.current_year?.electricity || 0).toLocaleString()}</td>
+                        <td className="px-4 py-3 border text-green-700 font-semibold">{(month.current_year?.water || 0).toLocaleString()}</td>
+                        <td className="px-4 py-3 border text-orange-700 font-semibold">{(month.current_year?.natural_gas || 0).toLocaleString()}</td>
+                        <td className="px-4 py-3 border text-gray-700 font-semibold">{(month.current_year?.coal || 0).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
