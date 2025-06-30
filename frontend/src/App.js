@@ -759,11 +759,14 @@ const ConsumptionAnalytics = () => {
                   className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Müşteri Seçin</option>
-                  {clients.map(client => (
-                    <option key={client.id} value={client.id}>
-                      {client.hotel_name}
-                    </option>
-                  ))}
+                  {clients.map((client, index) => {
+                    console.log(`🏨 Rendering client option ${index}:`, client.id, client.hotel_name);
+                    return (
+                      <option key={client.id} value={client.id}>
+                        {client.hotel_name}
+                      </option>
+                    );
+                  })}
                 </select>
                 <button
                   onClick={fetchClients}
