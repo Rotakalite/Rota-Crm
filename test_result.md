@@ -515,6 +515,21 @@ test_plan:
         -agent: "testing"
         -comment: "ADDITIONAL SECURITY VERIFICATION: Created comprehensive code-level tests to verify the security fix implementation. Tests confirmed: 1) The backend code properly checks for admin role and returns all clients for admins, 2) Client users without client_id are correctly blocked with a 403 Forbidden error and appropriate error message, 3) Client users with valid client_id can only see their own client data through proper database filtering, 4) Proper logging is implemented for both successful and error cases. All security tests passed successfully, confirming that the client data exposure vulnerability has been completely fixed with proper role-based access control."
 
+  - task: "Fix Current CORS Policy Error"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "User reports persistent CORS error: 'Access to XMLHttpRequest at https://4aeb8cfa-61f1-4648-8b57-402bd2c9bfe3.preview.emergentagent.com/api/stats from origin https://portal.rotakalitedanismanlik.com has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No Access-Control-Allow-Origin header is present on the requested resource.'"
+        -working: true
+        -agent: "main"
+        -comment: "Updated CORS configuration to include both reported URL (4aeb8cfa-61f1-4648-8b57-402bd2c9bfe3.preview.emergentagent.com) and current environment URL (f071690c-46e0-42d0-8892-e750466ac123.preview.emergentagent.com) in allowed origins list. Backend service restarted to apply changes. Backend health check confirms service is running properly on localhost:8001."
+
 agent_communication:
     -agent: "user"
     -message: "URGENT SECURITY ALERT: 'bak müşteriler diğer müşterilerin bilgilerini görebiliyor. bunu acil engellemen lazım. müşteri dashboard kısmına dikkat et' - Client users can see other client users' data in dashboard. This is critical data exposure that must be fixed immediately."
