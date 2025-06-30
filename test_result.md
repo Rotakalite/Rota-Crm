@@ -428,11 +428,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Fix Duplicate getFileIcon Function Declarations"
-    - "Fix Duplicate formatFileSize Function Declarations"
-    - "Add Missing TrainingManagement Component"
-    - "Training Management Endpoints"
-    - "Level 3 Sub-folders for D Column"
+    - "Fix Current CORS Policy Error"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
