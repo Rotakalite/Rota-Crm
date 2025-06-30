@@ -2853,9 +2853,30 @@ const ConsumptionManagement = ({ onNavigate }) => {
         </div>
       </div>
 
-      {/* Year Selector & New Entry Button */}
+      {/* Year Selector & Client Selector & New Entry Button */}
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-4">
+          {userRole === 'admin' && (
+            <>
+              <label className="font-semibold text-gray-700">Müşteri:</label>
+              <select
+                value={selectedClient}
+                onChange={(e) => {
+                  console.log('🏨 Client selected in ConsumptionManagement:', e.target.value);
+                  setSelectedClient(e.target.value);
+                }}
+                className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Tüm Müşteriler</option>
+                {(Array.isArray(clients) ? clients : []).map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.hotel_name}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
+          
           <label className="font-semibold text-gray-700">Yıl:</label>
           <select
             value={selectedYear}
