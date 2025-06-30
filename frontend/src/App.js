@@ -484,9 +484,179 @@ const Header = () => {
 
 // Consumption Analytics Components
 const ConsumptionAnalytics = () => {
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [selectedYear, setSelectedYear] = useState(2024);
+  const [loading, setLoading] = useState(false);
+  const [activeView, setActiveView] = useState('yearly'); // yearly, trends, monthly-per-person
+
+  const { authToken, userRole, dbUser } = useAuth();
+
+  // Data fetching functions
+  useEffect(() => {
+    if (!authToken) return;
+    if (userRole === 'admin') {
+      fetchClients();
+    }
+  }, [authToken, userRole]);
+
+  useEffect(() => {
+    if (!authToken) return;
+    if (selectedClient || userRole === 'client') {
+      fetchAnalyticsData();
+    }
+  }, [authToken, selectedYear, selectedClient]);
+
+  const fetchClients = async () => {
+    if (!authToken || userRole !== 'admin') return;
+    try {
+      const headers = { 'Authorization': `Bearer ${authToken}` };
+      const response = await axios.get(`${API}/clients`, { headers });
+      setClients(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("❌ Error fetching clients:", error);
+      setClients([]);
+    }
+  };
+
+  const fetchAnalyticsData = async () => {
+    if (!authToken) return;
+    setLoading(true);
+    try {
+      const clientId = userRole === 'admin' ? selectedClient : dbUser?.client_id;
+      if (!clientId) {
+        setLoading(false);
+        return;
+      }
+      const response = await axios.get(`${API}/consumptions/analytics?year=${selectedYear}&client_id=${clientId}`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      setAnalyticsData(response.data);
+    } catch (error) {
+      console.error("❌ Error fetching analytics:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getSelectedClientName = () => {
+    if (userRole === 'client') return dbUser?.name || 'Müşteri';
+    const client = clients.find(c => c.id === selectedClient);
+    return client ? client.hotel_name : 'Müşteri Seçin';
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <h1>Tüketim Analizi - Geliştiriliyor</h1>
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-green-600 text-white p-6 rounded-lg shadow-lg">
+        <div className="flex flex-col md:flex-row md:items-center justify-between">
+          <div className="mb-4 md:mb-0">
+            📊 {getSelectedClientName()} - Tüketim Analizi
+          </div>
+          
+          {/* Controls */}
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+            {userRole === 'admin' && (
+              <div className="flex space-x-2">
+                <select
+                  value={selectedClient}
+                  onChange={(e) => setSelectedClient(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+                >
+                  <option value="">Müşteri Seçin</option>
+                  {clients.map(client => (
+                    <option key={client.id} value={client.id}>
+                      {client.hotel_name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={fetchClients}
+                  className="px-3 py-2 bg-white text-blue-600 rounded-md hover:bg-gray-50 transition-colors"
+                  title="Müşteri listesini yenile"
+                >
+                  🔄
+                </button>
+              </div>
+            )}
+            
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+            >
+              <option value={2024}>2024</option>
+              <option value={2023}>2023</option>
+              <option value={2022}>2022</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* View Toggle */}
+      <div className="flex flex-wrap space-x-2 mb-4">
+        <button
+          onClick={() => setActiveView('yearly')}
+          className={`px-4 py-2 rounded-md transition-colors ${
+            activeView === 'yearly' 
+              ? 'bg-blue-600 text-white' 
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+        >
+          Aylık Karşılaştırma
+        </button>
+        <button
+          onClick={() => setActiveView('trends')}
+          className={`px-4 py-2 rounded-md transition-colors ${
+            activeView === 'trends' 
+              ? 'bg-blue-600 text-white' 
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+        >
+          Yıllık Karşılaştırma
+        </button>
+        <button
+          onClick={() => setActiveView('monthly-per-person')}
+          className={`px-4 py-2 rounded-md transition-colors ${
+            activeView === 'monthly-per-person' 
+              ? 'bg-blue-600 text-white' 
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+        >
+          📊 Kişi Başı Aylık
+        </button>
+      </div>
+
+      {/* No Data Message */}
+      {!analyticsData && !loading && (
+        <div className="bg-white p-8 rounded-lg shadow-md text-center">
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">Veri Bulunamadı</h3>
+          <p className="text-gray-600">
+            {userRole === 'admin' && !selectedClient 
+              ? 'Lütfen bir müşteri seçin'
+              : 'Seçilen dönem için tüketim verisi bulunmuyor.'
+            }
+          </p>
+        </div>
+      )}
+
+      {/* Development Message */}
+      {analyticsData && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <p className="text-yellow-800">
+            📊 Tüketim Analizi özellikleri geliştiriliyor... Veri başarıyla yüklendi!
+          </p>
+        </div>
+      )}
     </div>
   );
 };
