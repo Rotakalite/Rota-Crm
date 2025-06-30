@@ -428,7 +428,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Fix Current CORS Policy Error"
+    - "Fix Folder Document Count Display"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
