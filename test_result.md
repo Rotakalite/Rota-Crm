@@ -547,6 +547,21 @@ test_plan:
         -agent: "testing"
         -comment: "Comprehensive testing of the folder document count functionality confirms that the backend data structure is correct. All documents in the database have valid folder_id fields that correctly reference existing folders. The folder hierarchy is properly implemented with levels 0-3 (root, columns, sub-folders, and level 3 folders). The frontend getFolderDocumentCount function correctly filters documents by folder_id and returns the count. Testing shows that out of 49 folders, 3 folders have documents: A1 (1 document), A5 (1 document), and A9 (2 documents). The remaining 46 folders have 0 documents, which is expected as they are newly created folders. The folder document count feature is working correctly from a data perspective - the counts are accurate based on the actual document-folder relationships in the database."
 
+  - task: "Fix Consumption Analytics Hotel Selection"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "User reports that in Consumption Analytics (Tüketim Yönetimi), when they select a hotel, data doesn't load immediately. Data only loads when they change the year. The hotel selection dropdown is not triggering data refresh properly."
+        -working: true
+        -agent: "main"
+        -comment: "Added debug logging to hotel selection dropdown and analytics useEffect. Enhanced fetchAnalyticsData function with better client ID validation and logging. The useEffect already includes selectedClient in dependencies, so this should work. Added console logs to track when hotel selection changes and when analytics functions are called. Frontend restarted."
+
 agent_communication:
     -agent: "user"
     -message: "URGENT SECURITY ALERT: 'bak müşteriler diğer müşterilerin bilgilerini görebiliyor. bunu acil engellemen lazım. müşteri dashboard kısmına dikkat et' - Client users can see other client users' data in dashboard. This is critical data exposure that must be fixed immediately."
