@@ -498,7 +498,7 @@ const ConsumptionAnalytics = () => {
   // Get document count for a folder
   const getFolderDocumentCount = (folderId) => {
     const count = documents.filter(doc => doc.folder_id === folderId).length;
-    console.log(`📊 Folder ${folderId} has ${count} documents. Total documents: ${documents.length}`);
+    console.log(`📊 DocumentManagement - Folder ${folderId} has ${count} documents. Total documents: ${documents.length}`);
     return count;
   };
 
