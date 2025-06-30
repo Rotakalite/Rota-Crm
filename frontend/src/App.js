@@ -718,6 +718,86 @@ const ConsumptionAnalytics = () => {
     }
   };
 
+  // Aylık kişi başı tüketim grafik fonksiyonu
+  const getMonthlyPerPersonChart = () => {
+    if (!analyticsData) return null;
+
+    const months = analyticsData.monthly_comparison.map(m => m.month_name);
+    const currentElectricityPerPerson = analyticsData.monthly_comparison.map(m => m.current_year_per_person.electricity);
+    const previousElectricityPerPerson = analyticsData.monthly_comparison.map(m => m.previous_year_per_person.electricity);
+    const currentWaterPerPerson = analyticsData.monthly_comparison.map(m => m.current_year_per_person.water);
+    const previousWaterPerPerson = analyticsData.monthly_comparison.map(m => m.previous_year_per_person.water);
+    const currentGasPerPerson = analyticsData.monthly_comparison.map(m => m.current_year_per_person.natural_gas);
+    const previousGasPerPerson = analyticsData.monthly_comparison.map(m => m.previous_year_per_person.natural_gas);
+    const currentCoalPerPerson = analyticsData.monthly_comparison.map(m => m.current_year_per_person.coal);
+    const previousCoalPerPerson = analyticsData.monthly_comparison.map(m => m.previous_year_per_person.coal);
+
+    return {
+      labels: months,
+      datasets: [
+        {
+          label: `${selectedYear} Elektrik (kWh/kişi)`,
+          data: currentElectricityPerPerson,
+          borderColor: 'rgb(59, 130, 246)',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          tension: 0.1
+        },
+        {
+          label: `${selectedYear - 1} Elektrik (kWh/kişi)`,
+          data: previousElectricityPerPerson,
+          borderColor: 'rgba(59, 130, 246, 0.5)',
+          backgroundColor: 'rgba(59, 130, 246, 0.05)',
+          tension: 0.1,
+          borderDash: [5, 5]
+        },
+        {
+          label: `${selectedYear} Su (m³/kişi)`,
+          data: currentWaterPerPerson,
+          borderColor: 'rgb(34, 197, 94)',
+          backgroundColor: 'rgba(34, 197, 94, 0.1)',
+          tension: 0.1
+        },
+        {
+          label: `${selectedYear - 1} Su (m³/kişi)`,
+          data: previousWaterPerPerson,
+          borderColor: 'rgba(34, 197, 94, 0.5)',
+          backgroundColor: 'rgba(34, 197, 94, 0.05)',
+          tension: 0.1,
+          borderDash: [5, 5]
+        },
+        {
+          label: `${selectedYear} Doğalgaz (m³/kişi)`,
+          data: currentGasPerPerson,
+          borderColor: 'rgb(234, 88, 12)',
+          backgroundColor: 'rgba(234, 88, 12, 0.1)',
+          tension: 0.1
+        },
+        {
+          label: `${selectedYear - 1} Doğalgaz (m³/kişi)`,
+          data: previousGasPerPerson,
+          borderColor: 'rgba(234, 88, 12, 0.5)',
+          backgroundColor: 'rgba(234, 88, 12, 0.05)',
+          tension: 0.1,
+          borderDash: [5, 5]
+        },
+        {
+          label: `${selectedYear} Kömür (kg/kişi)`,
+          data: currentCoalPerPerson,
+          borderColor: 'rgb(75, 85, 99)',
+          backgroundColor: 'rgba(75, 85, 99, 0.1)',
+          tension: 0.1
+        },
+        {
+          label: `${selectedYear - 1} Kömür (kg/kişi)`,
+          data: previousCoalPerPerson,
+          borderColor: 'rgba(75, 85, 99, 0.5)',
+          backgroundColor: 'rgba(75, 85, 99, 0.05)',
+          tension: 0.1,
+          borderDash: [5, 5]
+        }
+      ]
+    };
+  };
 
 
   const getSelectedClientName = () => {
@@ -813,6 +893,16 @@ const ConsumptionAnalytics = () => {
             }`}
           >
             Yıllık Karşılaştırma
+          </button>
+          <button
+            onClick={() => setActiveView('monthly-per-person')}
+            className={`px-4 py-2 rounded-md transition-colors ${
+              activeView === 'monthly-per-person' 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Kişi Başı Aylık
           </button>
       </div>
 
@@ -922,8 +1012,93 @@ const ConsumptionAnalytics = () => {
         </div>
       )}
 
+      {/* Monthly Per Person View */}
+      {activeView === 'monthly-per-person' && analyticsData && (
+        <div className="space-y-6">
+          {/* Monthly Per Person Chart */}
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+              Kişi Başı Aylık Tüketim Takibi ({selectedYear - 1} vs {selectedYear})
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Her ay için kişi başı düşen tüketim miktarları - elektrik, su, doğalgaz ve kömür dahil
+            </p>
+            {getMonthlyPerPersonChart() && (
+              <Line data={getMonthlyPerPersonChart()} options={{
+                responsive: true,
+                plugins: {
+                  legend: {
+                    position: 'top',
+                  },
+                  title: {
+                    display: true,
+                    text: 'Kişi Başı Aylık Tüketim Grafiği'
+                  }
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    title: {
+                      display: true,
+                      text: 'Tüketim Miktarı'
+                    }
+                  },
+                  x: {
+                    title: {
+                      display: true,
+                      text: 'Aylar'
+                    }
+                  }
+                }
+              }} />
+            )}
+          </div>
+        </div>
+      )}
 
-
+      {/* Monthly Per Person View */}
+      {activeView === 'monthly-per-person' && analyticsData && (
+        <div className="space-y-6">
+          {/* Monthly Per Person Chart */}
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+              Kişi Başı Aylık Tüketim Takibi ({selectedYear - 1} vs {selectedYear})
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Her ay için kişi başı düşen tüketim miktarları - elektrik, su, doğalgaz ve kömür dahil
+            </p>
+            {getMonthlyPerPersonChart() && (
+              <Line data={getMonthlyPerPersonChart()} options={{
+                responsive: true,
+                plugins: {
+                  legend: {
+                    position: 'top',
+                  },
+                  title: {
+                    display: true,
+                    text: 'Kişi Başı Aylık Tüketim Grafiği'
+                  }
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    title: {
+                      display: true,
+                      text: 'Tüketim Miktarı'
+                    }
+                  },
+                  x: {
+                    title: {
+                      display: true,
+                      text: 'Aylar'
+                    }
+                  }
+                }
+              }} />
+            )}
+          </div>
+        </div>
+      )}
 
       {/* No Data Message */}
       {!analyticsData && !loading && (
@@ -940,7 +1115,6 @@ const ConsumptionAnalytics = () => {
     </div>
   );
 };
-
 const Dashboard = ({ onNavigate }) => {
   const [stats, setStats] = useState(null);
   const [clients, setClients] = useState([]);
