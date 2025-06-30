@@ -3469,6 +3469,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
           </table>
         </div>
       </div>
+      )}
 
       {/* Analytics Section */}
       {userRole === 'admin' && !consumptionData.client_id && (
