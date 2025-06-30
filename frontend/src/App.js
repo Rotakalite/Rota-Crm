@@ -564,7 +564,11 @@ const ConsumptionAnalytics = () => {
     setLoading(true);
     try {
       const clientId = userRole === 'admin' ? selectedClient : dbUser?.client_id;
-      if (!clientId) return;
+      if (!clientId || clientId === '') {
+        console.log("⚠️ No client selected, skipping analytics fetch");
+        setLoading(false);
+        return;
+      }
 
       console.log(`🔍 Fetching analytics for client: ${clientId}, year: ${selectedYear}`);
       const response = await axios.get(`${API}/consumptions/analytics?year=${selectedYear}&client_id=${clientId}`, {
