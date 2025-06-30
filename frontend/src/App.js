@@ -2852,6 +2852,13 @@ const ConsumptionManagement = ({ onNavigate }) => {
       return;
     }
     
+    // Admin için müşteri seçimi zorunlu
+    if (userRole === 'admin' && !selectedClient) {
+      console.log('⚠️ Admin must select client for consumptions');
+      setConsumptions([]);
+      return;
+    }
+    
     try {
       let url = `${API}/consumptions?year=${selectedYear}`;
       if (userRole === 'admin' && selectedClient) {
@@ -2860,7 +2867,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
       
       console.log('🔍 Fetching consumptions:', {
         year: selectedYear,
-        client_id: selectedClient || 'all clients or current user',
+        client_id: selectedClient || 'current user',
         authToken: authToken ? `${authToken.substring(0, 20)}...` : 'null'
       });
       
