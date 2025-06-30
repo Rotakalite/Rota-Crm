@@ -1983,7 +1983,7 @@ const ClientDocuments = () => {
                       <span className="text-xl mr-2">📄</span>
                       <div>
                         <h4 className="font-semibold text-green-800 text-sm">{subFolder.name}</h4>
-                        <p className="text-xs text-green-600">Alt Klasör</p>
+                        <p className="text-xs text-green-600">Alt Klasör • {getFolderDocumentCount(subFolder.id)} doküman</p>
                       </div>
                     </div>
                   </div>
@@ -2560,7 +2560,7 @@ const DocumentManagement = () => {
                       <span className="text-xl mr-2">📄</span>
                       <div>
                         <h4 className="font-semibold text-green-800 text-sm">{subFolder.name}</h4>
-                        <p className="text-xs text-green-600">Alt Klasör</p>
+                        <p className="text-xs text-green-600">Alt Klasör • {getFolderDocumentCount(subFolder.id)} doküman</p>
                       </div>
                     </div>
                   </div>
