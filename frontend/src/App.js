@@ -748,10 +748,13 @@ const ConsumptionAnalytics = () => {
             {userRole === 'admin' && (
               <div className="flex space-x-2">
                 <select
+                  id="client-selector-analytics"
                   value={selectedClient}
                   onChange={(e) => {
-                    console.log('🏨 Hotel selected:', e.target.value);
+                    console.log('🏨 Hotel selected (Analytics):', e.target.value, typeof e.target.value);
+                    console.log('🏨 Current selectedClient before:', selectedClient);
                     setSelectedClient(e.target.value);
+                    console.log('🏨 setSelectedClient called with:', e.target.value);
                   }}
                   className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
