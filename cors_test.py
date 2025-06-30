@@ -150,7 +150,7 @@ class TestCORSConfiguration(unittest.TestCase):
         try:
             # Add Origin header to simulate cross-origin request
             headers = {
-                "Origin": "https://rota-r4invvuue-rotas-projects-62181e6e.vercel.app",
+                "Origin": "https://portal.rotakalitedanismanlik.com",
                 "Content-Type": "application/json"
             }
             
