@@ -2588,6 +2588,7 @@ const DocumentManagement = () => {
 const ConsumptionManagement = ({ onNavigate }) => {
   const [consumptions, setConsumptions] = useState([]);
   const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState('');
   const [showConsumptionForm, setShowConsumptionForm] = useState(false);
   const [editingConsumption, setEditingConsumption] = useState(null);
   const [analytics, setAnalytics] = useState(null);
@@ -2609,7 +2610,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
       fetchAnalytics();
       fetchClients();
     }
-  }, [authToken, selectedYear, userRole]);
+  }, [authToken, selectedYear, selectedClient, userRole]);
 
   const fetchConsumptions = async () => {
     if (!authToken) {
