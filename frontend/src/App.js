@@ -939,6 +939,7 @@ const ConsumptionAnalytics = () => {
     </div>
   );
 };
+
 const Dashboard = ({ onNavigate }) => {
   const [stats, setStats] = useState(null);
   const [clients, setClients] = useState([]);
