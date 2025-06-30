@@ -528,9 +528,19 @@ const ConsumptionAnalytics = () => {
       return;
     }
     
+    console.log('🎯 Analytics useEffect triggered:', {
+      selectedClient,
+      selectedYear,
+      selectedComparisonYear,
+      userRole
+    });
+    
     if (selectedClient || userRole === 'client') {
+      console.log('✅ Calling analytics functions...');
       fetchAnalyticsData();
       fetchMonthlyTrends();
+    } else {
+      console.log('⚠️ No client selected, skipping analytics');
     }
   }, [authToken, selectedYear, selectedComparisonYear, selectedClient]);
 
