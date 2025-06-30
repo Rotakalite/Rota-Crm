@@ -202,16 +202,7 @@ const discoverBackendURL = async () => {
   return 'https://f071690c-46e0-42d0-8892-e750466ac123.preview.emergentagent.com';
 };
 
-// Initialize backend URL
-let BACKEND_URL;
-try {
-  BACKEND_URL = getBackendURL();
-} catch (error) {
-  console.error('Error getting backend URL:', error);
-  BACKEND_URL = 'https://f071690c-46e0-42d0-8892-e750466ac123.preview.emergentagent.com';
-}
-
-const API = `${BACKEND_URL}/api`;
+const API = getApiUrl();
 
 // Configure axios to automatically refresh tokens
 axios.interceptors.response.use(
