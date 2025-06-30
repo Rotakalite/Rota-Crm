@@ -4868,7 +4868,6 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'trainings', name: 'Eğitim Yönetimi', icon: '🎓' },
     { id: 'email', name: 'Email Yönetimi', icon: '📧' },
     { id: 'reports', name: 'Raporlar', icon: '📊' },
-  ];
 
   const clientMenuItems = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
