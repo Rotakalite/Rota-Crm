@@ -323,6 +323,7 @@ def run_tests():
     suite.addTest(TestDEFRACarbonCalculation("test_carbon_calculation"))
     suite.addTest(TestDEFRACarbonCalculation("test_benchmark_performance"))
     suite.addTest(TestDEFRACarbonCalculation("test_validation"))
+    suite.addTest(TestDEFRACarbonCalculation("test_f_gas_carbon_calculation"))
     
     # Run the tests
     runner = unittest.TextTestRunner()
