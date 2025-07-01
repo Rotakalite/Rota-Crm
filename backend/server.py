@@ -299,6 +299,9 @@ class Consumption(BaseModel):
     gasoline: float = 0.0     # litre (benzin)
     lpg: float = 0.0          # litre (LPG)
     fuel_oil: float = 0.0     # litre (fuel oil)
+    # DEFRA Refrigerant Gases (F-Gases)
+    hfc_gases: float = 0.0    # kg CO2 equivalent (HFC gases from AC, refrigerators)
+    other_fgases: float = 0.0 # kg CO2 equivalent (Other F-gases)
     accommodation_count: int = 0  # Konaklama sayısı
     # Carbon footprint calculations (auto-calculated)
     total_co2_emissions: Optional[float] = None  # kg CO2
