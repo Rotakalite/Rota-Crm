@@ -99,8 +99,8 @@ app.add_middleware(
         "https://rota-a43ap7zfm-rotas-projects-62181e6e.vercel.app",  # Eski Vercel URL
         "https://rota-9asd83vl1-rotas-projects-62181e6e.vercel.app",  # Yeni Vercel URL
         "https://*.vercel.app",  # Tüm Vercel domain'leri  
-        "https://45c51488-b08d-4ec3-832c-628720c8dcae.preview.emergentagent.com",  # Current reported URL
-        "https://45c51488-b08d-4ec3-832c-628720c8dcae.preview.emergentagent.com",  # Current env URL
+        "https://9f48b84c-034b-45a8-ad5e-21ebcb0ee2a7.preview.emergentagent.com",  # Current reported URL
+        "https://9f48b84c-034b-45a8-ad5e-21ebcb0ee2a7.preview.emergentagent.com",  # Current env URL
         "http://localhost:3000",  # Development
         "http://localhost:3001",  # Development
         "*"  # Hepsine izin ver (geliştirme için)
