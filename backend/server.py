@@ -34,6 +34,14 @@ except Exception as e:
     logging.error(f"❌ Failed to import Email service: {e}")
     email_service = None
 
+# DEFRA Carbon calculation import
+try:
+    from defra_carbon import calculate_carbon_emissions, get_emission_factor, validate_consumption_data, benchmark_performance
+    logging.info("✅ DEFRA Carbon module imported successfully")
+except ImportError as e:
+    logging.warning(f"⚠️ DEFRA Carbon module import failed: {e}")
+    calculate_carbon_emissions = None
+
 # Import MongoDB GridFS service (DISABLED - PROBLEMATIC)
 # try:
 #     import sys
