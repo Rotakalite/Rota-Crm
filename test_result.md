@@ -477,6 +477,7 @@ test_plan:
     - "Update Frontend Environment Variables"
     - "DEFRA Fuel Types Expansion"
     - "DEFRA Carbon Calculation System"
+    - "DEFRA F-Gas Carbon Calculation"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
