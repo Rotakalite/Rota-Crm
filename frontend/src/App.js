@@ -529,30 +529,6 @@ const ConsumptionAnalytics = () => {
     setCarbonLoading(false);
   };
 
-  const fetchCarbonData = async () => {
-    setCarbonLoading(true);
-    try {
-      const clientId = userRole === 'admin' ? selectedClient : dbUser?.client_id;
-      if (!clientId) {
-        setCarbonLoading(false);
-        return;
-      }
-      
-      console.log('🌍 Fetching carbon data for client:', clientId, 'year:', selectedYear);
-      
-      const response = await axios.get(`${API}/analytics/carbon-footprint?year=${selectedYear}&client_id=${clientId}`, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      });
-      
-      console.log('🌍 Carbon data received:', response.data);
-      setCarbonData(response.data);
-    } catch (error) {
-      console.error("❌ Error fetching carbon data:", error);
-      setCarbonData(null);
-    }
-    setCarbonLoading(false);
-  };
-
   const getMonthlyChart = () => {
     if (!analyticsData?.monthly_comparison) return null;
     
