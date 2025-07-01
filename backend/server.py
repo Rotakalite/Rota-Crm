@@ -2455,6 +2455,14 @@ async def create_consumption(
         "gasoline": consumption_data.gasoline,
         "lpg": consumption_data.lpg,
         "fuel_oil": consumption_data.fuel_oil,
+        # DEFRA Refrigerant Gases (F-Gases)
+        "r134a_gas": consumption_data.r134a_gas,
+        "r600a_gas": consumption_data.r600a_gas,
+        "r410a_gas": consumption_data.r410a_gas,
+        "r32_gas": consumption_data.r32_gas,
+        # DEFRA Fire Suppressants
+        "co2_fire": consumption_data.co2_fire,
+        "fm200_fire": consumption_data.fm200_fire,
         "accommodation_count": consumption_data.accommodation_count
     }
     
