@@ -195,7 +195,6 @@ class TestURLConfiguration(unittest.TestCase):
         # Test endpoints
         endpoints = [
             "/health",
-            "/auth/register",
             "/stats",
             "/clients"
         ]
@@ -223,6 +222,39 @@ class TestURLConfiguration(unittest.TestCase):
             except Exception as e:
                 logger.error(f"❌ Error testing endpoint {endpoint}: {str(e)}")
                 raise
+        
+        # Test POST endpoint separately
+        post_url = f"{self.api_url}/auth/register"
+        logger.info(f"Testing POST endpoint: {post_url}")
+        
+        try:
+            # Create test user data
+            test_user = {
+                "clerk_user_id": "test_clerk_id",
+                "email": "test@example.com",
+                "name": "Test User",
+                "role": "client"
+            }
+            
+            # Send POST request
+            response = requests.post(post_url, json=test_user, headers=self.headers_valid)
+            
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response body: {response.text[:100]}...")
+            
+            # Check if endpoint is accessible (200 OK, 401 Unauthorized, or 422 Validation Error)
+            self.assertIn(response.status_code, [200, 201, 401, 422])
+            
+            if response.status_code in [200, 201]:
+                logger.info(f"✅ POST endpoint {post_url} is accessible")
+            elif response.status_code == 401:
+                logger.info(f"✅ POST endpoint {post_url} requires valid authentication")
+            elif response.status_code == 422:
+                logger.info(f"✅ POST endpoint {post_url} validation working correctly")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing POST endpoint {post_url}: {str(e)}")
+            raise
     
     def test_authentication(self):
         """Test authentication with the Railway backend URL"""
