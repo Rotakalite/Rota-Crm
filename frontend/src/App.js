@@ -3064,6 +3064,11 @@ const ConsumptionManagement = ({ onNavigate }) => {
       water: consumption.water,
       natural_gas: consumption.natural_gas,
       coal: consumption.coal,
+      // DEFRA Additional Fuel Types
+      diesel: consumption.diesel || '',
+      gasoline: consumption.gasoline || '',
+      lpg: consumption.lpg || '',
+      fuel_oil: consumption.fuel_oil || '',
       accommodation_count: consumption.accommodation_count
     });
     setShowConsumptionForm(true);
