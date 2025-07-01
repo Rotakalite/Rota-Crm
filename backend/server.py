@@ -2426,20 +2426,49 @@ async def create_consumption(
         raise HTTPException(status_code=400, detail="Bu ay için tüketim verisi zaten mevcut. Güncelleme yapın.")
     
     # Create consumption record
-    consumption = Consumption(
-        client_id=client_id,
-        year=consumption_data.year,
-        month=consumption_data.month,
-        electricity=consumption_data.electricity,
-        water=consumption_data.water,
-        natural_gas=consumption_data.natural_gas,
-        coal=consumption_data.coal,
+    consumption_dict = {
+        "client_id": client_id,
+        "year": consumption_data.year,
+        "month": consumption_data.month,
+        "electricity": consumption_data.electricity,
+        "water": consumption_data.water,
+        "natural_gas": consumption_data.natural_gas,
+        "coal": consumption_data.coal,
         # DEFRA Additional Fuel Types
-        diesel=consumption_data.diesel,
-        gasoline=consumption_data.gasoline,
-        lpg=consumption_data.lpg,
-        fuel_oil=consumption_data.fuel_oil,
-        accommodation_count=consumption_data.accommodation_count
+        "diesel": consumption_data.diesel,
+        "gasoline": consumption_data.gasoline,
+        "lpg": consumption_data.lpg,
+        "fuel_oil": consumption_data.fuel_oil,
+        "accommodation_count": consumption_data.accommodation_count
+    }
+    
+    # Calculate carbon emissions using DEFRA factors
+    carbon_data = {}
+    if calculate_carbon_emissions:
+        try:
+            carbon_results = calculate_carbon_emissions(consumption_dict)
+            carbon_data = {
+                "total_co2_emissions": carbon_results.get("total_co2_emissions"),
+                "total_co2_tonnes": carbon_results.get("total_co2_tonnes"),
+                "per_person_co2": carbon_results.get("per_person_co2")
+            }
+            
+            # Add benchmark analysis
+            if consumption_data.accommodation_count > 0:
+                benchmark = benchmark_performance(
+                    carbon_results.get("total_co2_emissions", 0),
+                    consumption_data.accommodation_count
+                )
+                carbon_data["carbon_benchmark"] = benchmark.get("performance_level")
+            
+            logging.info(f"🌍 Carbon calculation successful: {carbon_results.get('total_co2_emissions', 0)} kg CO2")
+        except Exception as e:
+            logging.warning(f"⚠️ Carbon calculation failed: {e}")
+    
+    # Create consumption record with carbon data
+    consumption = Consumption(
+        **consumption_dict,
+        **carbon_data
     )
     
     await db.consumptions.insert_one(consumption.dict())
