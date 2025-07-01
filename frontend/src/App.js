@@ -3498,6 +3498,18 @@ const ConsumptionManagement = ({ onNavigate }) => {
                 water: '',
                 natural_gas: '',
                 coal: '',
+                // DEFRA Additional Fuel Types
+                diesel: '',
+                gasoline: '',
+                lpg: '',
+                fuel_oil: '',
+                // DEFRA F-Gases
+                r134a_gas: '',
+                r600a_gas: '',
+                r410a_gas: '',
+                r32_gas: '',
+                co2_fire: '',
+                fm200_fire: '',
                 accommodation_count: ''
               });
               setShowConsumptionForm(true);
