@@ -551,8 +551,8 @@ const CarbonFootprint = () => {
             >
               <option value="">Müşteri Seçin</option>
               {clients.map(client => (
-                <option key={client.id} value={client.client_id}>
-                  {client.client_name}
+                <option key={client.id} value={client.id}>
+                  {client.name}
                 </option>
               ))}
             </select>
