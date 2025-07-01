@@ -328,6 +328,14 @@ class ConsumptionInput(BaseModel):
     gasoline: float = 0.0     # litre (benzin)
     lpg: float = 0.0          # litre (LPG)
     fuel_oil: float = 0.0     # litre (fuel oil)
+    # DEFRA Refrigerant Gases (F-Gases) - Specific Types
+    r134a_gas: float = 0.0   # kg (HFC-134a for Air Conditioning)
+    r600a_gas: float = 0.0   # kg (Isobutane for Refrigerators)  
+    r410a_gas: float = 0.0   # kg (HFC-410A for Modern AC)
+    r32_gas: float = 0.0     # kg (HFC-32 for New Generation AC)
+    # DEFRA Fire Suppressants
+    co2_fire: float = 0.0    # kg (CO2 fire extinguishers)
+    fm200_fire: float = 0.0  # kg (FM200/HFC-227ea fire suppressant)
     accommodation_count: int = 0
     client_id: Optional[str] = None  # Optional for admin users
 
