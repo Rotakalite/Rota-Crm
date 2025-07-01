@@ -302,6 +302,11 @@ class ConsumptionInput(BaseModel):
     water: float = 0.0  
     natural_gas: float = 0.0
     coal: float = 0.0
+    # DEFRA Additional Fuel Types
+    diesel: float = 0.0       # litre (mazot)
+    gasoline: float = 0.0     # litre (benzin)
+    lpg: float = 0.0          # litre (LPG)
+    fuel_oil: float = 0.0     # litre (fuel oil)
     accommodation_count: int = 0
     client_id: Optional[str] = None  # Optional for admin users
 
