@@ -794,6 +794,11 @@ const ConsumptionAnalytics = () => {
                         <td className="px-4 py-3 border text-green-700 font-semibold">{(month.current_year?.water || 0).toLocaleString()}</td>
                         <td className="px-4 py-3 border text-orange-700 font-semibold">{(month.current_year?.natural_gas || 0).toLocaleString()}</td>
                         <td className="px-4 py-3 border text-gray-700 font-semibold">{(month.current_year?.coal || 0).toLocaleString()}</td>
+                        {/* DEFRA Additional Fuel Types */}
+                        <td className="px-4 py-3 border text-red-700 font-semibold">{(month.current_year?.diesel || 0).toLocaleString()}</td>
+                        <td className="px-4 py-3 border text-yellow-700 font-semibold">{(month.current_year?.gasoline || 0).toLocaleString()}</td>
+                        <td className="px-4 py-3 border text-purple-700 font-semibold">{(month.current_year?.lpg || 0).toLocaleString()}</td>
+                        <td className="px-4 py-3 border text-indigo-700 font-semibold">{(month.current_year?.fuel_oil || 0).toLocaleString()}</td>
                       </tr>
                     ))}
                   </tbody>
