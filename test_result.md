@@ -446,6 +446,7 @@ test_plan:
     - "Fix Fallback URL in getApiUrl Function"
     - "Update Frontend Environment Variables"
     - "DEFRA Fuel Types Expansion"
+    - "DEFRA Carbon Calculation System"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
