@@ -463,12 +463,15 @@ const CarbonFootprint = () => {
   // Fetch clients for admin users
   const fetchClients = async () => {
     try {
+      console.log('🏨 Fetching clients for admin...');
       const response = await axios.get(`${API}/clients`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
+      console.log('🏨 Clients response:', response.data);
       setClients(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
-      console.error("Error fetching clients:", error);
+      console.error("❌ Error fetching clients:", error);
+      setClients([]);
     }
   };
 
