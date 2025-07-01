@@ -445,6 +445,7 @@ test_plan:
   current_focus:
     - "Fix Fallback URL in getApiUrl Function"
     - "Update Frontend Environment Variables"
+    - "DEFRA Fuel Types Expansion"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
