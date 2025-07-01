@@ -73,7 +73,14 @@ class TestDEFRACarbonCalculation(unittest.TestCase):
             "diesel": 2.51,          # kg CO2/litre
             "gasoline": 2.16,        # kg CO2/litre
             "lpg": 1.51,             # kg CO2/litre
-            "fuel_oil": 2.54         # kg CO2/litre
+            "fuel_oil": 2.54,        # kg CO2/litre
+            # F-Gas emission factors
+            "r134a_gas": 1430.0,     # kg CO2e/kg
+            "r600a_gas": 3.0,        # kg CO2e/kg
+            "r410a_gas": 2088.0,     # kg CO2e/kg
+            "r32_gas": 675.0,        # kg CO2e/kg
+            "co2_fire": 1.0,         # kg CO2e/kg
+            "fm200_fire": 3220.0     # kg CO2e/kg
         }
         
         # Expected carbon calculation results
