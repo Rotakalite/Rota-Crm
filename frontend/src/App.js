@@ -784,10 +784,6 @@ const ConsumptionAnalytics = () => {
                       <th className="px-4 py-3 border text-left font-bold text-yellow-700">⛽ Benzin (lt)</th>
                       <th className="px-4 py-3 border text-left font-bold text-purple-700">🔥 LPG (lt)</th>
                       <th className="px-4 py-3 border text-left font-bold text-indigo-700">🏭 Fuel Oil (lt)</th>
-                      {/* DEFRA Additional Fuel Types */}
-                      <th className="px-4 py-3 border text-left font-bold text-red-700">🚛 Mazot (lt)</th>
-                      <th className="px-4 py-3 border text-left font-bold text-yellow-700">⛽ Benzin (lt)</th>
-                      <th className="px-4 py-3 border text-left font-bold text-purple-700">🔥 LPG (lt)</th>
                       <th className="px-4 py-3 border text-left font-bold text-indigo-700">🏭 Fuel Oil (lt)</th>
                     </tr>
                   </thead>
