@@ -152,20 +152,18 @@ const getApiUrl = () => {
     return 'https://rota-crm-production.up.railway.app/api';
   }
   
-  // Development/Preview domains  
+  // Development/Preview domains - ALSO use Railway!
   if (window.location.hostname.includes('.preview.emergentagent.com')) {
-    // Aynı hostname'i kullan
-    const currentHost = window.location.hostname;
-    return `https://${currentHost}/api`;
+    return 'https://rota-crm-production.up.railway.app/api';
   }
   
-  // Localhost
+  // Localhost - local development
   if (window.location.hostname === 'localhost') {
     return 'http://localhost:8001/api';
   }
   
-  // Fallback to current environment
-  return 'https://f071690c-46e0-42d0-8892-e750466ac123.preview.emergentagent.com/api';
+  // Fallback to Railway
+  return 'https://rota-crm-production.up.railway.app/api';
 };
 
 // Backend URL Discovery Function
