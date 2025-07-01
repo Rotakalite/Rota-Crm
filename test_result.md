@@ -765,8 +765,20 @@ agent_communication:
         -agent: "testing"
         -comment: "Successfully tested DEFRA Carbon Calculation System. Verified: All 2024 emission factors correct, automatic carbon calculation on consumption creation, carbon footprint API endpoint working, benchmarking system categorizing performance correctly, role-based access working. All tests passed."
 
+  - task: "Frontend Carbon Dashboard Integration"
+    implemented: true
+    working: "pending_test"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented complete frontend carbon dashboard: Added carbon tab to ConsumptionAnalytics, fetchCarbonData function, carbon overview cards, monthly carbon data table, DEFRA emission sources breakdown, performance benchmarks, client selection requirement."
+
     -agent: "main"
-    -message: "DEFRA CARBON CALCULATION SYSTEM COMPLETED! Successfully implemented complete carbon footprint calculation using official DEFRA 2024 emission factors. Backend tested and working correctly with automatic carbon calculation and benchmarking."
+    -message: "FRONTEND CARBON DASHBOARD COMPLETED! Successfully integrated complete carbon footprint visualization into ConsumptionAnalytics component with client selection requirement. Ready for testing."
 
 agent_communication:
     -agent: "testing"
