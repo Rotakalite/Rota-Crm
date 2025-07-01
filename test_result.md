@@ -568,11 +568,11 @@ test_plan:
 
   - task: "Fix Fallback URL in getApiUrl Function"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/App.js"
     stuck_count: 0
     priority: "critical"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: "NA"
         -agent: "main"
@@ -580,6 +580,9 @@ test_plan:
         -working: "NA"
         -agent: "main"
         -comment: "FIXED: Fallback URL in getApiUrl function was already updated to use Railway backend. The function now returns 'https://rota-crm-production.up.railway.app/api' as fallback, ensuring all environments connect to stable Railway backend."
+        -working: true
+        -agent: "testing"
+        -comment: "Tested the getApiUrl function implementation. The function correctly returns the Railway backend URL (https://rota-crm-production.up.railway.app/api) for all environments: production domain (portal.rotakalitedanismanlik.com), Emergent preview domains (*.preview.emergentagent.com), and as a fallback. The fallback URL is properly set to the stable Railway backend URL, which eliminates the issues with changing Emergent preview URLs. The function is working as expected and meets the requirements specified in the review request."
 
   - task: "Update Frontend Environment Variables"
     implemented: true
