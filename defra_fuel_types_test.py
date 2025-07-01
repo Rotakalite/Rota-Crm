@@ -303,6 +303,7 @@ def run_defra_fuel_types_tests():
     # Add tests
     suite.addTest(TestDEFRAFuelTypes("test_post_consumption_with_defra_fuel_types"))
     suite.addTest(TestDEFRAFuelTypes("test_get_consumption_with_defra_fuel_types"))
+    suite.addTest(TestDEFRAFuelTypes("test_put_consumption_with_defra_fuel_types"))
     suite.addTest(TestDEFRAFuelTypes("test_backward_compatibility"))
     
     # Run the tests
