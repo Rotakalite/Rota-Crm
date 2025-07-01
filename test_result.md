@@ -750,8 +750,23 @@ agent_communication:
         -agent: "testing"
         -comment: "Successfully tested expanded consumption system with new DEFRA fuel types. Verified: POST /api/consumptions accepts new fuel fields, GET /api/consumptions returns new fuel types, PUT endpoint updates correctly, backward compatibility maintained for old records without new fields (default 0.0 values). All tests passed."
 
+  - task: "DEFRA Carbon Calculation System"
+    implemented: true
+    working: true
+    file: "/app/backend/defra_carbon.py, /app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented complete DEFRA carbon calculation system: defra_carbon.py module with 2024 emission factors, enhanced Consumption model with carbon fields, automatic carbon calculation on POST, new /api/analytics/carbon-footprint endpoint, benchmarking system."
+        -working: true
+        -agent: "testing"
+        -comment: "Successfully tested DEFRA Carbon Calculation System. Verified: All 2024 emission factors correct, automatic carbon calculation on consumption creation, carbon footprint API endpoint working, benchmarking system categorizing performance correctly, role-based access working. All tests passed."
+
     -agent: "main"
-    -message: "DEFRA FUEL TYPES EXPANSION COMPLETED! Successfully added 4 new DEFRA fuel types (diesel, gasoline, lpg, fuel_oil) to consumption system. Both backend and frontend updated. Backend tested and working correctly with backward compatibility."
+    -message: "DEFRA CARBON CALCULATION SYSTEM COMPLETED! Successfully implemented complete carbon footprint calculation using official DEFRA 2024 emission factors. Backend tested and working correctly with automatic carbon calculation and benchmarking."
 
 agent_communication:
     -agent: "testing"
