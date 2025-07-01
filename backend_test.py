@@ -3605,6 +3605,37 @@ def run_health_and_cors_tests():
         logger.error("Some health check and CORS tests FAILED")
         return False
 
+def run_railway_security_tests():
+    """Run tests for Railway backend security fix"""
+    logger.info("Starting Railway backend security tests...")
+    
+    # Create a test suite
+    suite = unittest.TestSuite()
+    
+    # Add client security tests
+    suite.addTest(TestClientSecurity("test_admin_can_see_all_clients"))
+    suite.addTest(TestClientSecurity("test_client_users_can_only_see_own_client"))
+    suite.addTest(TestClientSecurity("test_client_user_without_client_id_gets_403"))
+    suite.addTest(TestClientSecurity("test_invalid_token_gets_401"))
+    suite.addTest(TestClientSecurity("test_no_token_gets_403"))
+    
+    # Run the tests
+    runner = unittest.TextTestRunner()
+    result = runner.run(suite)
+    
+    # Summary
+    logger.info("\n=== Railway Backend Security Test Summary ===")
+    logger.info(f"Tests run: {result.testsRun}")
+    logger.info(f"Errors: {len(result.errors)}")
+    logger.info(f"Failures: {len(result.failures)}")
+    
+    if result.wasSuccessful():
+        logger.info("All Railway backend security tests PASSED")
+        return True
+    else:
+        logger.error("Some Railway backend security tests FAILED")
+        return False
+
 if __name__ == "__main__":
     import requests  # Import here to avoid issues with mocking
     from critical_api_tests import run_critical_api_endpoints_tests
@@ -3617,6 +3648,9 @@ if __name__ == "__main__":
     TestClientDashboardStats.api_url = "https://45c51488-b08d-4ec3-832c-628720c8dcae.preview.emergentagent.com/api"
     TestFolderSystem.api_url = "https://45c51488-b08d-4ec3-832c-628720c8dcae.preview.emergentagent.com/api"
     TestHierarchicalSubFolderSystem.api_url = "https://45c51488-b08d-4ec3-832c-628720c8dcae.preview.emergentagent.com/api"
+    
+    # Run the Railway backend security tests
+    run_railway_security_tests()
     
     # Run the new health check and CORS tests
     run_health_and_cors_tests()
