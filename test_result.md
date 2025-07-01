@@ -428,7 +428,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Fix Folder Document Count Display"
+    - "Fix Fallback URL in getApiUrl Function"
+    - "Update Frontend Environment Variables"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
