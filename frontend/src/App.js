@@ -3628,6 +3628,174 @@ const ConsumptionManagement = ({ onNavigate }) => {
                   required
                 />
               </div>
+
+              {/* DEFRA Additional Fuel Types Section */}
+              <div className="border-t pt-4 mt-4">
+                <h4 className="font-medium text-gray-700 mb-3">🌍 DEFRA Ek Yakıt Tipleri</h4>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      🚛 Mazot/Dizel (litre)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={consumptionData.diesel || ''}
+                      onChange={(e) => setConsumptionData({...consumptionData, diesel: e.target.value})}
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      ⛽ Benzin (litre)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={consumptionData.gasoline || ''}
+                      onChange={(e) => setConsumptionData({...consumptionData, gasoline: e.target.value})}
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      🔥 LPG (litre)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={consumptionData.lpg || ''}
+                      onChange={(e) => setConsumptionData({...consumptionData, lpg: e.target.value})}
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      🏭 Fuel Oil (litre)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={consumptionData.fuel_oil || ''}
+                      onChange={(e) => setConsumptionData({...consumptionData, fuel_oil: e.target.value})}
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* DEFRA Refrigerant Gases Section */}
+              <div className="border-t pt-4 mt-4">
+                <h4 className="font-medium text-gray-700 mb-3">❄️ DEFRA Soğutucu Gazlar</h4>
+                <p className="text-xs text-gray-500 mb-3">Klimalar, soğutucular, minibarlar için kullanılan spesifik gazlar (kg)</p>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      🌀 R134a (Klimalar) - kg
+                    </label>
+                    <input
+                      type="number"
+                      step="0.001"
+                      value={consumptionData.r134a_gas || ''}
+                      onChange={(e) => setConsumptionData({...consumptionData, r134a_gas: e.target.value})}
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="0.000"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      🧊 R600a (Buzdolapları) - kg
+                    </label>
+                    <input
+                      type="number"
+                      step="0.001"
+                      value={consumptionData.r600a_gas || ''}
+                      onChange={(e) => setConsumptionData({...consumptionData, r600a_gas: e.target.value})}
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="0.000"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      ❄️ R410A (Modern AC) - kg
+                    </label>
+                    <input
+                      type="number"
+                      step="0.001"
+                      value={consumptionData.r410a_gas || ''}
+                      onChange={(e) => setConsumptionData({...consumptionData, r410a_gas: e.target.value})}
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="0.000"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      🌀 R32 (Yeni Nesil AC) - kg
+                    </label>
+                    <input
+                      type="number"
+                      step="0.001"
+                      value={consumptionData.r32_gas || ''}
+                      onChange={(e) => setConsumptionData({...consumptionData, r32_gas: e.target.value})}
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="0.000"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* DEFRA Fire Suppressants Section */}
+              <div className="border-t pt-4 mt-4">
+                <h4 className="font-medium text-gray-700 mb-3">🧯 DEFRA Yangın Söndürücüler</h4>
+                <p className="text-xs text-gray-500 mb-3">Yangın söndürme sistemlerinde kullanılan gazlar (kg)</p>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      💨 CO2 Söndürücü - kg
+                    </label>
+                    <input
+                      type="number"
+                      step="0.001"
+                      value={consumptionData.co2_fire || ''}
+                      onChange={(e) => setConsumptionData({...consumptionData, co2_fire: e.target.value})}
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="0.000"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      🧯 FM200 (HFC-227ea) - kg
+                    </label>
+                    <input
+                      type="number"
+                      step="0.001"
+                      value={consumptionData.fm200_fire || ''}
+                      onChange={(e) => setConsumptionData({...consumptionData, fm200_fire: e.target.value})}
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="0.000"
+                    />
+                  </div>
+                </div>
+              </div>
+
             </form>
             
             {/* Modal Footer with Action Buttons */}
