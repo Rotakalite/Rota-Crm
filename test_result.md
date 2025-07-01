@@ -601,6 +601,17 @@ test_plan:
         -working: true
         -agent: "testing"
         -comment: "Verified that the REACT_APP_BACKEND_URL in the frontend .env file has been correctly updated to use the stable Railway backend URL (https://rota-crm-production.up.railway.app/api). This ensures that all API calls from the frontend will use the stable Railway backend instead of the changing Emergent preview URLs. Comprehensive testing of the CORS configuration confirms that the Railway backend properly handles requests from all origins, including Emergent preview domains, Vercel domains, and the production domain. All preflight OPTIONS requests are handled correctly with appropriate CORS headers, and actual API requests include the necessary CORS headers in the responses. The URL configuration fix has successfully resolved the CORS and connectivity issues."
+  - task: "Railway Backend Authentication Issue"
+    implemented: false
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "User reports 403 error when accessing Railway backend: 'Failed to load resource: the server responded with a status of 403 () API Error: 403 https://rota-crm-production.up.railway.app/api/clients Permission denied - user might not have access'. User logged in as registered client but stuck on hotel registration page. Railway backend returning 403 for /api/clients endpoint despite successful authentication."
 
 agent_communication:
     -agent: "user"
