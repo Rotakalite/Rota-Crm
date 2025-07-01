@@ -663,39 +663,6 @@ const CarbonFootprint = () => {
             </div>
           </div>
 
-          {/* DEFRA Emission Sources Breakdown */}
-          {carbonData.monthly_carbon_data?.length > 0 && (
-            <div className="bg-white p-6 rounded-xl shadow-lg">
-              <h3 className="text-xl font-bold mb-4">🔍 Son Ay Emisyon Kaynakları (DEFRA Breakdown)</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {Object.entries(carbonData.monthly_carbon_data[carbonData.monthly_carbon_data.length - 1]?.emissions_breakdown || {}).map(([source, data]) => (
-                  <div key={source} className="bg-gray-50 p-4 rounded-lg border hover:shadow-md transition-shadow">
-                    <h4 className="font-semibold text-gray-700 capitalize mb-2">
-                      {source === 'electricity' ? '⚡ Elektrik' :
-                       source === 'water' ? '💧 Su' :
-                       source === 'natural_gas' ? '🔥 Doğalgaz' :
-                       source === 'coal' ? '🏔️ Kömür' :
-                       source === 'diesel' ? '🚛 Mazot' :
-                       source === 'gasoline' ? '⛽ Benzin' :
-                       source === 'lpg' ? '🔥 LPG' :
-                       source === 'fuel_oil' ? '🏭 Fuel Oil' : source}
-                    </h4>
-                    <p className="text-2xl font-bold text-gray-800">
-                      {data.co2_emissions?.toFixed(2) || 0}
-                    </p>
-                    <p className="text-sm text-gray-600">kg CO2</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {data.consumption?.toFixed(2) || 0} {data.unit}
-                    </p>
-                    <p className="text-xs text-blue-600 mt-1">
-                      Factor: {data.emission_factor} kg CO2/{data.unit}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* DEFRA Methodology & Benchmarks */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* DEFRA Methodology */}
