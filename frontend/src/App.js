@@ -195,9 +195,9 @@ const discoverBackendURL = async () => {
     }
   }
   
-  // If all fails, return the current best guess
-  console.warn('⚠️ Using fallback backend URL');
-  return 'https://45c51488-b08d-4ec3-832c-628720c8dcae.preview.emergentagent.com';
+  // If all fails, return the Railway backend (stable)
+  console.warn('⚠️ Using fallback Railway backend URL');
+  return 'https://rota-crm-production.up.railway.app/api';
 };
 
 const API = getApiUrl();
