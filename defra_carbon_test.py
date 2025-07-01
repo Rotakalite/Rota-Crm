@@ -44,6 +44,26 @@ class TestDEFRACarbonCalculation(unittest.TestCase):
             "accommodation_count": 150
         }
         
+        # Test consumption data with F-Gas values from the review request
+        self.f_gas_consumption = {
+            "electricity": 1000.0,  # kWh
+            "water": 500.0,         # m³
+            "natural_gas": 300.0,   # kWh
+            "coal": 200.0,          # kg
+            "diesel": 100.0,        # litre
+            "gasoline": 50.0,       # litre
+            "lpg": 25.0,            # litre
+            "fuel_oil": 75.0,       # litre
+            # F-Gas values from the review request
+            "r134a_gas": 1.5,      # kg (Klima gazı - 1430 kg CO2e/kg)
+            "r600a_gas": 0.5,      # kg (Buzdolabı gazı - 3 kg CO2e/kg)
+            "r410a_gas": 2.0,      # kg (Modern AC - 2088 kg CO2e/kg)
+            "r32_gas": 1.0,        # kg (Yeni nesil AC - 675 kg CO2e/kg)
+            "co2_fire": 10.0,      # kg (CO2 söndürücü - 1 kg CO2/kg)
+            "fm200_fire": 5.0,     # kg (FM200 söndürücü - 3220 kg CO2e/kg)
+            "accommodation_count": 100
+        }
+        
         # Expected emission factors from DEFRA 2024
         self.expected_factors = {
             "electricity": 0.19338,  # kg CO2/kWh
