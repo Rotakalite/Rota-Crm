@@ -801,8 +801,20 @@ agent_communication:
         -agent: "main"
         -comment: "Enhanced fetchClients debug logging with detailed auth token, user role, API response checking. Added comprehensive error handling. Frontend restarted to clear cache and resolve carbonLoading undefined error."
 
+  - task: "Fix Client Dropdown & Remove Duplicate DEFRA Fields"
+    implemented: true
+    working: "pending_test"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Fixed client dropdown mapping (client.name instead of client.client_name, client.id instead of client.client_id) and removed duplicate DEFRA Additional Fuel Types section from ConsumptionManagement form. Frontend restarted."
+
     -agent: "main"
-    -message: "CARBON VIEW CLEANUP & DEBUG COMPLETED! Enhanced fetchClients with comprehensive debug logging, cleared frontend cache, resolved carbonLoading issues. Ready for testing with detailed console logs."
+    -message: "CLIENT DROPDOWN & DUPLICATE FIELDS FIXED! Corrected client mapping in CarbonFootprint dropdown and removed duplicate DEFRA fuel types section from consumption form. Both issues resolved."
 
 agent_communication:
     -agent: "testing"
