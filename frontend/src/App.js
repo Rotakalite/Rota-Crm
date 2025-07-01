@@ -453,10 +453,12 @@ const Header = () => {
 // Consumption Analytics Components
 const ConsumptionAnalytics = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
+  const [carbonData, setCarbonData] = useState(null); // New carbon analytics state
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState('');
   const [selectedYear, setSelectedYear] = useState(2025);
   const [loading, setLoading] = useState(false);
+  const [carbonLoading, setCarbonLoading] = useState(false); // Loading state for carbon
   const [activeView, setActiveView] = useState('charts');
 
   const { authToken, userRole, dbUser } = useAuth();
