@@ -472,7 +472,6 @@ const ConsumptionAnalytics = () => {
     if (!authToken) return;
     if (selectedClient || userRole === 'client') {
       fetchAnalyticsData();
-      fetchCarbonData(); // Add carbon data fetching
     }
   }, [authToken, selectedYear, selectedClient]);
 
