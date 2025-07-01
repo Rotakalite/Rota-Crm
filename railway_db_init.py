@@ -16,8 +16,8 @@ import uuid
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Railway MongoDB URL - UPDATE THIS WITH YOUR ACTUAL RAILWAY MONGO URL
-RAILWAY_MONGO_URL = "mongodb://mongo:OeJzgbhMhSQbSKMtcTUW@roundhouse.proxy.rlwy.net:58050"
+# Railway MongoDB URL - YOUR ACTUAL RAILWAY MONGO URL
+RAILWAY_MONGO_URL = "mongodb://mongo:LbwPeZMoFflpreeQGSoEnUATtNpFRXRG@turntable.proxy.rlwy.net:14941"
 
 def generate_uuid():
     """Generate a UUID string"""
