@@ -149,10 +149,7 @@ const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 const getApiUrl = () => {
   // Production domain - Use Railway backend
   if (window.location.hostname === 'portal.rotakalitedanismanlik.com') {
-    // Railway backend URL'inizi buraya yazın
-    // Örnek: 'https://rota-crm-production.up.railway.app/api'
-    // Şimdilik mevcut environment kullanıyoruz
-    return 'https://f071690c-46e0-42d0-8892-e750466ac123.preview.emergentagent.com/api';
+    return 'https://rota-crm-production.up.railway.app/api';
   }
   
   // Development/Preview domains  
@@ -167,7 +164,7 @@ const getApiUrl = () => {
     return 'http://localhost:8001/api';
   }
   
-  // Fallback to env variable or current environment
+  // Fallback to current environment
   return 'https://f071690c-46e0-42d0-8892-e750466ac123.preview.emergentagent.com/api';
 };
 
