@@ -67,6 +67,21 @@ DEFRA_EMISSION_FACTORS = {
         "unit": "litre",
         "source": "DEFRA 2024 - Fuel oil combustion",
         "category": "fuel"
+    },
+    
+    # Refrigerant Gases (F-Gases) - Already in CO2 equivalent
+    "hfc_gases": {
+        "factor": 1.0,      # Already in kg CO2 equivalent
+        "unit": "kg CO2e",
+        "source": "DEFRA 2024 - HFC gases (already CO2e)",
+        "category": "refrigerant"
+    },
+    
+    "other_fgases": {
+        "factor": 1.0,      # Already in kg CO2 equivalent  
+        "unit": "kg CO2e",
+        "source": "DEFRA 2024 - Other F-gases (already CO2e)",
+        "category": "refrigerant"
     }
 }
 
