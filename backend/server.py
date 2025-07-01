@@ -286,6 +286,11 @@ class Consumption(BaseModel):
     water: float = 0.0        # m³
     natural_gas: float = 0.0  # m³
     coal: float = 0.0         # kg
+    # DEFRA Additional Fuel Types
+    diesel: float = 0.0       # litre (mazot)
+    gasoline: float = 0.0     # litre (benzin)
+    lpg: float = 0.0          # litre (LPG)
+    fuel_oil: float = 0.0     # litre (fuel oil)
     accommodation_count: int = 0  # Konaklama sayısı
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
