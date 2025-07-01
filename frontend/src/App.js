@@ -3628,10 +3628,13 @@ const ConsumptionManagement = ({ onNavigate }) => {
                   required
                 />
               </div>
-
-              <div className="flex space-x-3 pt-4">
+            </form>
+            
+            {/* Modal Footer with Action Buttons */}
+            <div className="p-6 border-t bg-gray-50 rounded-b-xl">
+              <div className="flex space-x-3">
                 <button
-                  type="submit"
+                  onClick={handleConsumptionSubmit}
                   className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   {editingConsumption ? 'Güncelle' : 'Kaydet'}
@@ -3647,7 +3650,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
                   İptal
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
