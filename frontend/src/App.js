@@ -746,6 +746,302 @@ const CarbonFootprint = () => {
   );
 };
 
+// Carbon Footprint Component
+const CarbonFootprint = () => {
+  const [carbonData, setCarbonData] = useState(null);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [selectedYear, setSelectedYear] = useState(2025);
+  const [loading, setLoading] = useState(false);
+
+  const { authToken, userRole, dbUser } = useAuth();
+
+  // Fetch clients for admin users
+  const fetchClients = async () => {
+    try {
+      const response = await axios.get(`${API}/clients`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      setClients(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+    }
+  };
+
+  // Fetch carbon footprint data
+  const fetchCarbonData = async () => {
+    setLoading(true);
+    try {
+      const clientId = userRole === 'admin' ? selectedClient : dbUser?.client_id;
+      if (!clientId) {
+        setLoading(false);
+        return;
+      }
+      
+      console.log('🌍 Fetching carbon data for client:', clientId, 'year:', selectedYear);
+      
+      const response = await axios.get(`${API}/analytics/carbon-footprint?year=${selectedYear}&client_id=${clientId}`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      
+      console.log('🌍 Carbon data received:', response.data);
+      setCarbonData(response.data);
+    } catch (error) {
+      console.error("❌ Error fetching carbon data:", error);
+      setCarbonData(null);
+    }
+    setLoading(false);
+  };
+
+  // Initial data fetch
+  useEffect(() => {
+    if (authToken && userRole === 'admin') {
+      fetchClients();
+    }
+  }, [authToken, userRole]);
+
+  // Fetch carbon data when client or year changes
+  useEffect(() => {
+    if (!authToken) return;
+    if (selectedClient || userRole === 'client') {
+      fetchCarbonData();
+    }
+  }, [authToken, selectedYear, selectedClient]);
+
+  return (
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white p-6 rounded-xl shadow-lg">
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h1 className="text-3xl font-bold">🌍 Karbon Ayak İzi</h1>
+            <p className="text-green-100">DEFRA 2024 Standartları ile Hesaplanmış</p>
+          </div>
+          <div className="text-right">
+            <div className="bg-white bg-opacity-20 px-4 py-2 rounded-lg">
+              <p className="text-sm">Metodoloji</p>
+              <p className="font-bold">DEFRA 2024</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Controls */}
+        <div className="flex flex-wrap gap-4 items-center">
+          {/* Admin Client Selection */}
+          {userRole === 'admin' && (
+            <select
+              value={selectedClient}
+              onChange={(e) => setSelectedClient(e.target.value)}
+              className="px-4 py-2 rounded-lg bg-white text-gray-800 font-medium min-w-[200px]"
+            >
+              <option value="">Müşteri Seçin</option>
+              {clients.map(client => (
+                <option key={client.id} value={client.client_id}>
+                  {client.client_name}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* Year Selection */}
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+            className="px-4 py-2 rounded-lg bg-white text-gray-800 font-medium"
+          >
+            <option value={2025}>2025</option>
+            <option value={2024}>2024</option>
+            <option value={2023}>2023</option>
+          </select>
+
+          {/* Refresh Button */}
+          <button
+            onClick={fetchCarbonData}
+            disabled={loading || (!selectedClient && userRole === 'admin')}
+            className="px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg font-medium transition-all disabled:opacity-50"
+          >
+            {loading ? '🔄 Yükleniyor...' : '🔄 Yenile'}
+          </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      {!carbonData ? (
+        <div className="bg-white p-8 rounded-lg shadow text-center">
+          <span className="text-6xl mb-4 block">🌍</span>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">
+            {userRole === 'admin' && !selectedClient 
+              ? '📊 Karbon Analizi İçin Müşteri Seçin'
+              : '📊 Karbon Verisi Bulunamadı'
+            }
+          </h3>
+          <p className="text-gray-600">
+            {userRole === 'admin' && !selectedClient 
+              ? 'Lütfen bir müşteri seçin ve karbon ayak izi analizini başlatın'
+              : 'Seçilen yıl için karbon ayak izi verisi bulunmuyor. Lütfen tüketim verileri girişi yapın.'
+            }
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* Carbon Overview Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-2">🌍 Toplam CO2</h3>
+              <p className="text-3xl font-bold">{carbonData.total_carbon_emissions?.toLocaleString() || 0}</p>
+              <p className="text-green-100">kg CO2</p>
+            </div>
+            
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-2">📊 CO2 (Ton)</h3>
+              <p className="text-3xl font-bold">{carbonData.total_carbon_tonnes?.toFixed(3) || 0}</p>
+              <p className="text-blue-100">Ton CO2</p>
+            </div>
+            
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-2">👤 Kişi Başına</h3>
+              <p className="text-3xl font-bold">{carbonData.average_per_person_co2?.toFixed(2) || 0}</p>
+              <p className="text-purple-100">kg CO2/kişi</p>
+            </div>
+            
+            <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-2">⭐ Performans</h3>
+              <p className="text-2xl font-bold">
+                {carbonData.yearly_benchmarks?.performance_level || 'Hesaplanıyor'}
+              </p>
+              <p className="text-orange-100">
+                {carbonData.yearly_benchmarks?.co2_per_room_night?.toFixed(2) || 0} kg/oda/gece
+              </p>
+            </div>
+          </div>
+
+          {/* Monthly Carbon Data Table */}
+          <div className="bg-white p-6 rounded-xl shadow-lg">
+            <h3 className="text-xl font-bold mb-4">📊 Aylık Karbon Ayak İzi Detayı</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full border-collapse">
+                <thead>
+                  <tr className="bg-gradient-to-r from-green-100 to-blue-100">
+                    <th className="px-4 py-3 border text-left font-bold">Ay</th>
+                    <th className="px-4 py-3 border text-left font-bold text-green-700">🌍 CO2 (kg)</th>
+                    <th className="px-4 py-3 border text-left font-bold text-blue-700">👤 Kişi Başına</th>
+                    <th className="px-4 py-3 border text-left font-bold text-purple-700">🏨 Konaklama</th>
+                    <th className="px-4 py-3 border text-left font-bold text-orange-700">⭐ Performans</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {carbonData.monthly_carbon_data?.map((month, index) => (
+                    <tr key={index} className={`hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-25'}`}>
+                      <td className="px-4 py-3 border font-bold text-gray-800">{month.month_name}</td>
+                      <td className="px-4 py-3 border text-green-700 font-semibold">
+                        {month.total_co2_emissions?.toFixed(2) || 0}
+                      </td>
+                      <td className="px-4 py-3 border text-blue-700 font-semibold">
+                        {month.per_person_co2?.toFixed(2) || 0}
+                      </td>
+                      <td className="px-4 py-3 border text-purple-700 font-semibold">
+                        {month.accommodation_count || 0}
+                      </td>
+                      <td className="px-4 py-3 border">
+                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                          month.benchmark?.performance_level === 'Excellent' ? 'bg-green-100 text-green-800' :
+                          month.benchmark?.performance_level === 'Good' ? 'bg-blue-100 text-blue-800' :
+                          month.benchmark?.performance_level === 'Average' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {month.benchmark?.performance_level || 'N/A'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* DEFRA Emission Sources Breakdown */}
+          {carbonData.monthly_carbon_data?.length > 0 && (
+            <div className="bg-white p-6 rounded-xl shadow-lg">
+              <h3 className="text-xl font-bold mb-4">🔍 Son Ay Emisyon Kaynakları (DEFRA Breakdown)</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {Object.entries(carbonData.monthly_carbon_data[carbonData.monthly_carbon_data.length - 1]?.emissions_breakdown || {}).map(([source, data]) => (
+                  <div key={source} className="bg-gray-50 p-4 rounded-lg border hover:shadow-md transition-shadow">
+                    <h4 className="font-semibold text-gray-700 capitalize mb-2">
+                      {source === 'electricity' ? '⚡ Elektrik' :
+                       source === 'water' ? '💧 Su' :
+                       source === 'natural_gas' ? '🔥 Doğalgaz' :
+                       source === 'coal' ? '🏔️ Kömür' :
+                       source === 'diesel' ? '🚛 Mazot' :
+                       source === 'gasoline' ? '⛽ Benzin' :
+                       source === 'lpg' ? '🔥 LPG' :
+                       source === 'fuel_oil' ? '🏭 Fuel Oil' : source}
+                    </h4>
+                    <p className="text-2xl font-bold text-gray-800">
+                      {data.co2_emissions?.toFixed(2) || 0}
+                    </p>
+                    <p className="text-sm text-gray-600">kg CO2</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {data.consumption?.toFixed(2) || 0} {data.unit}
+                    </p>
+                    <p className="text-xs text-blue-600 mt-1">
+                      Factor: {data.emission_factor} kg CO2/{data.unit}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* DEFRA Methodology & Benchmarks */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* DEFRA Methodology */}
+            <div className="bg-blue-50 p-6 rounded-xl border-l-4 border-blue-500">
+              <h4 className="font-bold text-blue-800 mb-3 flex items-center">
+                📋 DEFRA 2024 Metodolojisi
+              </h4>
+              <p className="text-sm text-blue-700 mb-3">
+                Bu hesaplamalar <strong>UK Department for Environment, Food and Rural Affairs (DEFRA)</strong> 
+                tarafından yayınlanan 2024 yılı resmi emisyon faktörleri kullanılarak yapılmıştır.
+              </p>
+              <ul className="text-xs text-blue-600 space-y-1">
+                <li>✅ Uluslararası standartlara uygun</li>
+                <li>✅ ISO 14064 ile uyumlu</li>
+                <li>✅ Greenhouse Gas Protocol sertifikalı</li>
+                <li>✅ Türkiye elektrik şebekesi faktörleri</li>
+              </ul>
+            </div>
+
+            {/* Performance Benchmarks */}
+            <div className="bg-green-50 p-6 rounded-xl border-l-4 border-green-500">
+              <h4 className="font-bold text-green-800 mb-3 flex items-center">
+                ⭐ Performans Kriterleri
+              </h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-green-700">🏆 Mükemmel:</span>
+                  <span className="font-bold text-green-800">≤ 20 kg CO2/oda/gece</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-blue-700">👍 İyi:</span>
+                  <span className="font-bold text-blue-800">≤ 30 kg CO2/oda/gece</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-yellow-700">📊 Ortalama:</span>
+                  <span className="font-bold text-yellow-800">≤ 45 kg CO2/oda/gece</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-red-700">⚠️ Geliştirilmeli:</span>
+                  <span className="font-bold text-red-800">> 45 kg CO2/oda/gece</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
 // Consumption Analytics Components
 const ConsumptionAnalytics = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
