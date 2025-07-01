@@ -5243,6 +5243,8 @@ const MainApp = () => {
         return <ConsumptionManagement onNavigate={handleNavigate} />;
       case 'analytics':
         return <ConsumptionAnalytics />;
+      case 'carbon':
+        return <CarbonFootprint />;
       case 'project':
         return <ProjectManagement client={selectedClient} onNavigate={handleNavigate} />;
       case 'documents':
