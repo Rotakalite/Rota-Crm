@@ -300,6 +300,11 @@ class Consumption(BaseModel):
     lpg: float = 0.0          # litre (LPG)
     fuel_oil: float = 0.0     # litre (fuel oil)
     accommodation_count: int = 0  # Konaklama sayısı
+    # Carbon footprint calculations (auto-calculated)
+    total_co2_emissions: Optional[float] = None  # kg CO2
+    total_co2_tonnes: Optional[float] = None     # tonnes CO2
+    per_person_co2: Optional[float] = None       # kg CO2 per person
+    carbon_benchmark: Optional[str] = None       # Performance level
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
