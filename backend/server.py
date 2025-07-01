@@ -2563,9 +2563,31 @@ async def update_consumption(
     if current_user.role == UserRole.CLIENT and current_user.client_id != consumption["client_id"]:
         raise HTTPException(status_code=403, detail="Bu tüketim verisini güncelleme yetkiniz yok")
     
-    # Update consumption
+    # Update consumption data and recalculate carbon emissions
     update_data = consumption_data.dict()
     update_data["updated_at"] = datetime.utcnow()
+    
+    # Calculate carbon emissions using DEFRA factors
+    if calculate_carbon_emissions:
+        try:
+            carbon_results = calculate_carbon_emissions(update_data)
+            update_data.update({
+                "total_co2_emissions": carbon_results.get("total_co2_emissions"),
+                "total_co2_tonnes": carbon_results.get("total_co2_tonnes"),
+                "per_person_co2": carbon_results.get("per_person_co2")
+            })
+            
+            # Add benchmark analysis
+            if consumption_data.accommodation_count > 0:
+                benchmark = benchmark_performance(
+                    carbon_results.get("total_co2_emissions", 0),
+                    consumption_data.accommodation_count
+                )
+                update_data["carbon_benchmark"] = benchmark.get("performance_level")
+            
+            logging.info(f"🌍 Carbon calculation updated: {carbon_results.get('total_co2_emissions', 0)} kg CO2")
+        except Exception as e:
+            logging.warning(f"⚠️ Carbon calculation failed during update: {e}")
     
     await db.consumptions.update_one(
         {"id": consumption_id},
