@@ -3367,6 +3367,13 @@ const ConsumptionManagement = ({ onNavigate }) => {
       gasoline: consumption.gasoline || '',
       lpg: consumption.lpg || '',
       fuel_oil: consumption.fuel_oil || '',
+      // DEFRA F-Gases
+      r134a_gas: consumption.r134a_gas || '',
+      r600a_gas: consumption.r600a_gas || '',
+      r410a_gas: consumption.r410a_gas || '',
+      r32_gas: consumption.r32_gas || '',
+      co2_fire: consumption.co2_fire || '',
+      fm200_fire: consumption.fm200_fire || '',
       accommodation_count: consumption.accommodation_count
     });
     setShowConsumptionForm(true);
