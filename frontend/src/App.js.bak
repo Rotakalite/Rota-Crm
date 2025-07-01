@@ -146,7 +146,7 @@ ChartJS.register(
 const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
 // API Configuration - FIXED URL with cache busting
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://f071690c-46e0-42d0-8892-e750466ac123.preview.emergentagent.com';
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://45c51488-b08d-4ec3-832c-628720c8dcae.preview.emergentagent.com';
 const API = `${BACKEND_URL}/api`;
 
 // Configure axios to automatically refresh tokens

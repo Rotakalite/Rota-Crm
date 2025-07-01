@@ -172,7 +172,7 @@ const discoverBackendURL = async () => {
     // Current session's backend URL (stored in localStorage)
     localStorage.getItem('ROTA_BACKEND_URL'),
     // Latest known working URL pattern
-    'https://f071690c-46e0-42d0-8892-e750466ac123.preview.emergentagent.com',
+    'https://45c51488-b08d-4ec3-832c-628720c8dcae.preview.emergentagent.com',
     // Development
     'http://localhost:8001'
   ].filter(Boolean);
@@ -197,7 +197,7 @@ const discoverBackendURL = async () => {
   
   // If all fails, return the current best guess
   console.warn('⚠️ Using fallback backend URL');
-  return 'https://f071690c-46e0-42d0-8892-e750466ac123.preview.emergentagent.com';
+  return 'https://45c51488-b08d-4ec3-832c-628720c8dcae.preview.emergentagent.com';
 };
 
 const API = getApiUrl();

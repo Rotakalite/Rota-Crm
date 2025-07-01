@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # API URL
-API_URL = "https://f071690c-46e0-42d0-8892-e750466ac123.preview.emergentagent.com/api"
+API_URL = "https://45c51488-b08d-4ec3-832c-628720c8dcae.preview.emergentagent.com/api"
 
 class MockResponse:
     def __init__(self, json_data, status_code):
