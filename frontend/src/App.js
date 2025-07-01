@@ -3307,6 +3307,13 @@ const ConsumptionManagement = ({ onNavigate }) => {
         gasoline: parseFloat(consumptionData.gasoline) || 0,
         lpg: parseFloat(consumptionData.lpg) || 0,
         fuel_oil: parseFloat(consumptionData.fuel_oil) || 0,
+        // DEFRA F-Gases
+        r134a_gas: parseFloat(consumptionData.r134a_gas) || 0,
+        r600a_gas: parseFloat(consumptionData.r600a_gas) || 0,
+        r410a_gas: parseFloat(consumptionData.r410a_gas) || 0,
+        r32_gas: parseFloat(consumptionData.r32_gas) || 0,
+        co2_fire: parseFloat(consumptionData.co2_fire) || 0,
+        fm200_fire: parseFloat(consumptionData.fm200_fire) || 0,
         accommodation_count: parseInt(consumptionData.accommodation_count) || 0,
         ...(userRole === 'admin' && consumptionData.client_id && { client_id: consumptionData.client_id })
       }, {
