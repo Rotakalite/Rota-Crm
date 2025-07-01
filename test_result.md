@@ -330,6 +330,21 @@ backend:
         -agent: "testing"
         -comment: "Tested the training management endpoints (GET /api/trainings and POST /api/trainings). Both endpoints have proper authentication handling, returning 401 Unauthorized for invalid tokens and 403 Forbidden when no token is provided. The GET endpoint correctly returns a list of trainings for a specific client. The POST endpoint requires admin access and successfully creates new training records with all required fields: name, subject, participant_count, trainer, training_date, and description. The PUT endpoint for updating training status also works correctly with proper authentication. All training endpoints are working as expected and meet the requirements specified in the review request."
 
+  - task: "DEFRA Carbon Calculation System"
+    implemented: true
+    working: true
+    file: "/app/backend/defra_carbon.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented DEFRA Carbon calculation module with official 2024 emission factors, enhanced Consumption model with carbon footprint fields, automatic carbon calculation on consumption creation/update, new API endpoint for carbon footprint analytics, and carbon benchmarking against hotel industry standards."
+        -working: true
+        -agent: "testing"
+        -comment: "Tested the DEFRA Carbon calculation system thoroughly. Verified that all emission factors match the official DEFRA 2024 values: electricity (0.19338 kg CO2/kWh), water (0.344 kg CO2/m³), natural gas (0.18316 kg CO2/kWh), coal (2240 kg CO2/tonne), diesel (2.51 kg CO2/litre), gasoline (2.16 kg CO2/litre), LPG (1.51 kg CO2/litre), and fuel oil (2.54 kg CO2/litre). The carbon calculation function correctly processes all fuel types and produces accurate CO2 emissions results. The POST /api/consumptions endpoint automatically calculates carbon footprint fields (total_co2_emissions, total_co2_tonnes, per_person_co2, carbon_benchmark) when creating new consumption records. The GET /api/analytics/carbon-footprint endpoint works correctly, providing detailed carbon analytics with monthly breakdowns and yearly totals. The benchmarking system correctly categorizes performance as Excellent/Good/Average/Poor based on industry standards. All tests passed successfully."
+
 frontend:
   - task: "Fix Duplicate getFileIcon Function Declarations"
     implemented: true
