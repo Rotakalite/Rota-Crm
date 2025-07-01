@@ -69,19 +69,48 @@ DEFRA_EMISSION_FACTORS = {
         "category": "fuel"
     },
     
-    # Refrigerant Gases (F-Gases) - Already in CO2 equivalent
-    "hfc_gases": {
-        "factor": 1.0,      # Already in kg CO2 equivalent
-        "unit": "kg CO2e",
-        "source": "DEFRA 2024 - HFC gases (already CO2e)",
+    # Specific Refrigerant Gases - DEFRA 2024 GWP Values
+    "r134a_gas": {
+        "factor": 1430.0,   # kg CO2e per kg (GWP for HFC-134a)
+        "unit": "kg",
+        "source": "DEFRA 2024 - HFC-134a GWP",
         "category": "refrigerant"
     },
     
-    "other_fgases": {
-        "factor": 1.0,      # Already in kg CO2 equivalent  
-        "unit": "kg CO2e",
-        "source": "DEFRA 2024 - Other F-gases (already CO2e)",
+    "r600a_gas": {
+        "factor": 3.0,      # kg CO2e per kg (GWP for Isobutane R600a)
+        "unit": "kg", 
+        "source": "DEFRA 2024 - R600a GWP",
         "category": "refrigerant"
+    },
+    
+    "r410a_gas": {
+        "factor": 2088.0,   # kg CO2e per kg (GWP for HFC-410A)
+        "unit": "kg",
+        "source": "DEFRA 2024 - HFC-410A GWP", 
+        "category": "refrigerant"
+    },
+    
+    "r32_gas": {
+        "factor": 675.0,    # kg CO2e per kg (GWP for HFC-32)
+        "unit": "kg",
+        "source": "DEFRA 2024 - HFC-32 GWP",
+        "category": "refrigerant"
+    },
+    
+    # Fire Suppressants - DEFRA 2024
+    "co2_fire": {
+        "factor": 1.0,      # kg CO2 per kg (Direct CO2 emission)
+        "unit": "kg",
+        "source": "DEFRA 2024 - CO2 fire extinguisher direct emission",
+        "category": "fire_suppressant"
+    },
+    
+    "fm200_fire": {
+        "factor": 3220.0,   # kg CO2e per kg (GWP for HFC-227ea/FM200)
+        "unit": "kg",
+        "source": "DEFRA 2024 - FM200/HFC-227ea GWP",
+        "category": "fire_suppressant"
     }
 }
 
