@@ -147,9 +147,10 @@ const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
 // Dynamic API URL detection
 const getApiUrl = () => {
-  // Production domain
+  // Production domain - Use current environment backend
   if (window.location.hostname === 'portal.rotakalitedanismanlik.com') {
-    return 'https://your-production-backend.com/api'; // Buraya production backend URL'i gelecek
+    // Production'da aynı backend URL'i kullan
+    return 'https://f071690c-46e0-42d0-8892-e750466ac123.preview.emergentagent.com/api';
   }
   
   // Development/Preview domains  
