@@ -586,11 +586,11 @@ test_plan:
 
   - task: "Update Frontend Environment Variables"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/.env"
     stuck_count: 0
     priority: "critical"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: "NA"
         -agent: "main"
@@ -598,6 +598,9 @@ test_plan:
         -working: "NA"
         -agent: "main"
         -comment: "FIXED: Updated REACT_APP_BACKEND_URL from 'https://45c51488-b08d-4ec3-832c-628720c8dcae.preview.emergentagent.com' to 'https://rota-crm-production.up.railway.app/api' to ensure consistent Railway backend usage across all environments."
+        -working: true
+        -agent: "testing"
+        -comment: "Verified that the REACT_APP_BACKEND_URL in the frontend .env file has been correctly updated to use the stable Railway backend URL (https://rota-crm-production.up.railway.app/api). This ensures that all API calls from the frontend will use the stable Railway backend instead of the changing Emergent preview URLs. Comprehensive testing of the CORS configuration confirms that the Railway backend properly handles requests from all origins, including Emergent preview domains, Vercel domains, and the production domain. All preflight OPTIONS requests are handled correctly with appropriate CORS headers, and actual API requests include the necessary CORS headers in the responses. The URL configuration fix has successfully resolved the CORS and connectivity issues."
 
 agent_communication:
     -agent: "user"
