@@ -470,7 +470,10 @@ const ConsumptionAnalytics = () => {
 
   useEffect(() => {
     if (!authToken) return;
-    if (selectedClient || userRole === 'client') fetchAnalyticsData();
+    if (selectedClient || userRole === 'client') {
+      fetchAnalyticsData();
+      fetchCarbonData(); // Add carbon data fetching
+    }
   }, [authToken, selectedYear, selectedClient]);
 
   const fetchClients = async () => {
