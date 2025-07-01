@@ -1495,7 +1495,7 @@ const Dashboard = ({ onNavigate }) => {
       {/* Document Detail Modal for Dashboard */}
       {showDocumentModal && selectedDocument && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-90vh overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
             {/* Header */}
             <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white p-6 rounded-t-xl">
               <div className="flex justify-between items-center">
