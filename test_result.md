@@ -567,7 +567,7 @@ test_plan:
         -comment: "Tested the consumption management client selection fix. Verified that both API endpoints (/api/consumptions and /api/consumptions/analytics) correctly accept the client_id parameter. The frontend implementation in ConsumptionManagement component properly includes selectedClient in the useEffect dependencies array, which ensures data is refetched when the client selection changes. Both fetchConsumptions and fetchAnalytics functions correctly use the selectedClient state variable to build the API URL with the client_id parameter. The client dropdown is properly implemented for admin users and correctly updates the selectedClient state when changed. All tests passed successfully, confirming that the client selection fix is working as expected."
 
   - task: "Fix Fallback URL in getApiUrl Function"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "/app/frontend/src/App.js"
     stuck_count: 0
@@ -577,9 +577,12 @@ test_plan:
         -working: "NA"
         -agent: "main"
         -comment: "Current getApiUrl function has correct Railway backend URL for production and development, but fallback URL still uses old Emergent preview URL. Need to update fallback to use Railway backend to prevent CORS issues when auto-detection fails."
+        -working: "NA"
+        -agent: "main"
+        -comment: "FIXED: Fallback URL in getApiUrl function was already updated to use Railway backend. The function now returns 'https://rota-crm-production.up.railway.app/api' as fallback, ensuring all environments connect to stable Railway backend."
 
   - task: "Update Frontend Environment Variables"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "/app/frontend/.env"
     stuck_count: 0
@@ -589,6 +592,9 @@ test_plan:
         -working: "NA"
         -agent: "main"
         -comment: "Frontend .env file REACT_APP_BACKEND_URL still points to old Emergent preview URL. Need to update to Railway backend URL for consistency and to prevent fallback issues."
+        -working: "NA"
+        -agent: "main"
+        -comment: "FIXED: Updated REACT_APP_BACKEND_URL from 'https://45c51488-b08d-4ec3-832c-628720c8dcae.preview.emergentagent.com' to 'https://rota-crm-production.up.railway.app/api' to ensure consistent Railway backend usage across all environments."
 
 agent_communication:
     -agent: "user"
