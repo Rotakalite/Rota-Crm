@@ -2826,6 +2826,124 @@ async def get_carbon_analytics(
         "units": "kg CO2 equivalent"
     }
 
+# Carbon Analytics Endpoint
+@api_router.get("/analytics/carbon-footprint")
+async def get_carbon_analytics(
+    year: Optional[int] = None,
+    client_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get carbon footprint analytics and comparisons"""
+    
+    logging.info(f"🌍 GET /analytics/carbon-footprint called by user: {current_user.role}")
+    
+    # Get client_id based on user role
+    if current_user.role == UserRole.ADMIN:
+        if client_id:
+            target_client_id = client_id
+        else:
+            # Admin needs to specify client_id for carbon analytics
+            raise HTTPException(status_code=400, detail="Client ID required for carbon analytics")
+    else:
+        # Client users can only see their own carbon data
+        if not current_user.client_id:
+            raise HTTPException(status_code=403, detail="Client user not properly linked to a client")
+        target_client_id = current_user.client_id
+    
+    # Default to current year if not specified
+    if not year:
+        year = datetime.now().year
+    
+    # Get consumption data for carbon calculation
+    filter_query = {"client_id": target_client_id, "year": year}
+    consumptions = await db.consumptions.find(filter_query).to_list(length=100)
+    
+    if not consumptions:
+        return {
+            "year": year,
+            "client_id": target_client_id,
+            "total_carbon_emissions": 0,
+            "monthly_carbon_data": [],
+            "carbon_benchmarks": {},
+            "message": "No consumption data found for carbon analysis"
+        }
+    
+    # Calculate carbon emissions for each month
+    monthly_carbon_data = []
+    total_yearly_co2 = 0.0
+    total_yearly_accommodation = 0
+    
+    for consumption in consumptions:
+        if calculate_carbon_emissions:
+            try:
+                # Prepare consumption data for carbon calculation
+                consumption_data = {
+                    "electricity": consumption.get("electricity", 0),
+                    "water": consumption.get("water", 0),
+                    "natural_gas": consumption.get("natural_gas", 0),
+                    "coal": consumption.get("coal", 0),
+                    "diesel": consumption.get("diesel", 0),
+                    "gasoline": consumption.get("gasoline", 0),
+                    "lpg": consumption.get("lpg", 0),
+                    "fuel_oil": consumption.get("fuel_oil", 0),
+                    "accommodation_count": consumption.get("accommodation_count", 0)
+                }
+                
+                # Calculate carbon emissions
+                carbon_results = calculate_carbon_emissions(consumption_data)
+                
+                # Get benchmark analysis
+                benchmark_result = {}
+                if consumption.get("accommodation_count", 0) > 0:
+                    benchmark_result = benchmark_performance(
+                        carbon_results.get("total_co2_emissions", 0),
+                        consumption.get("accommodation_count", 0)
+                    )
+                
+                monthly_data = {
+                    "month": consumption.get("month"),
+                    "month_name": ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+                                 "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"][consumption.get("month", 1)],
+                    "total_co2_emissions": carbon_results.get("total_co2_emissions", 0),
+                    "total_co2_tonnes": carbon_results.get("total_co2_tonnes", 0),
+                    "per_person_co2": carbon_results.get("per_person_co2", 0),
+                    "accommodation_count": consumption.get("accommodation_count", 0),
+                    "emissions_breakdown": carbon_results.get("emissions_breakdown", {}),
+                    "benchmark": benchmark_result
+                }
+                
+                monthly_carbon_data.append(monthly_data)
+                total_yearly_co2 += carbon_results.get("total_co2_emissions", 0)
+                total_yearly_accommodation += consumption.get("accommodation_count", 0)
+                
+            except Exception as e:
+                logging.error(f"❌ Carbon calculation error for month {consumption.get('month')}: {e}")
+    
+    # Calculate yearly benchmarks
+    yearly_benchmarks = {}
+    if total_yearly_accommodation > 0:
+        yearly_benchmarks = benchmark_performance(
+            total_yearly_co2,
+            total_yearly_accommodation,
+            nights=365  # Yearly calculation
+        )
+    
+    # Sort monthly data by month
+    monthly_carbon_data.sort(key=lambda x: x["month"])
+    
+    return {
+        "year": year,
+        "client_id": target_client_id,
+        "total_carbon_emissions": round(total_yearly_co2, 3),
+        "total_carbon_tonnes": round(total_yearly_co2 / 1000.0, 6),
+        "average_per_person_co2": round(total_yearly_co2 / total_yearly_accommodation if total_yearly_accommodation > 0 else 0, 3),
+        "total_accommodation_count": total_yearly_accommodation,
+        "monthly_carbon_data": monthly_carbon_data,
+        "yearly_benchmarks": yearly_benchmarks,
+        "methodology": "DEFRA 2024 Emission Factors",
+        "units": "kg CO2 equivalent"
+    }
+
 # Multi-Client Comparison Analytics
 @api_router.get("/analytics/multi-client-comparison")
 async def get_multi_client_comparison(
