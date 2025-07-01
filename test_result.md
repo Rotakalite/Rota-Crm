@@ -613,6 +613,9 @@ test_plan:
         -agent: "user"
         -comment: "User reports 403 error when accessing Railway backend: 'Failed to load resource: the server responded with a status of 403 () API Error: 403 https://rota-crm-production.up.railway.app/api/clients Permission denied - user might not have access'. User logged in as registered client but stuck on hotel registration page. Railway backend returning 403 for /api/clients endpoint despite successful authentication."
         -working: false
+        -agent: "user"
+        -comment: "DETAILED ERROR: User getting specific error message: 'Client user not properly linked to a client'. This confirms the issue is client_id missing or incorrect in Railway backend database for the authenticated user. User's account exists in Railway backend but client_id field is null/empty or pointing to non-existent client record."
+        -working: false
         -agent: "testing"
         -comment: "Comprehensive testing of the Railway backend authentication issue completed. Created and executed multiple test scripts to compare Railway and Emergent backends. Both backends handle authentication similarly: 401 for invalid tokens and 403 for no authentication. CORS is properly configured on both backends. The JWKS URL is accessible and returns valid data. The most likely causes of the 403 errors are: 1) Client users don't have client_id set correctly in Railway database, 2) The client_id in user records doesn't match any client in Railway database, or 3) Client records don't exist in Railway database. This is a database synchronization issue between Emergent and Railway, not a code issue. Recommended fixes: 1) Verify CLERK_JWKS_URL and CLERK_SECRET_KEY in Railway environment, 2) Check client_id in user records, 3) Ensure client records exist with matching IDs, 4) Add detailed error logging, 5) Create a database migration script to preserve user-client relationships when switching backends."
 
