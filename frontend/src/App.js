@@ -3505,7 +3505,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
               </h3>
             </div>
             
-            <form onSubmit={handleConsumptionSubmit} className="p-6 overflow-y-auto flex-1 space-y-4">
+            <form className="p-6 overflow-y-auto flex-1 space-y-4">
               {userRole === 'admin' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Müşteri Seçin</label>
