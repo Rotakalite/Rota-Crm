@@ -789,8 +789,20 @@ agent_communication:
         -agent: "main"
         -comment: "Created complete standalone CarbonFootprint component with: Client selection requirement, DEFRA dashboard visualization, carbon overview cards, monthly data table, emission sources breakdown, performance benchmarks, DEFRA methodology info."
 
+  - task: "Carbon View Cleanup & Debug Enhancement"
+    implemented: true
+    working: "pending_test"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Enhanced fetchClients debug logging with detailed auth token, user role, API response checking. Added comprehensive error handling. Frontend restarted to clear cache and resolve carbonLoading undefined error."
+
     -agent: "main"
-    -message: "CARBONFOOOTPRINT COMPONENT COMPLETED! Successfully created standalone React component with complete DEFRA carbon dashboard, client selection requirement, and all necessary features. Ready for testing."
+    -message: "CARBON VIEW CLEANUP & DEBUG COMPLETED! Enhanced fetchClients with comprehensive debug logging, cleared frontend cache, resolved carbonLoading issues. Ready for testing with detailed console logs."
 
 agent_communication:
     -agent: "testing"
