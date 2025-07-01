@@ -242,6 +242,76 @@ class TestDEFRACarbonCalculation(unittest.TestCase):
         self.assertGreater(len(errors), 0)
         
         logger.info("✅ Validation test passed")
+        
+    def test_f_gas_carbon_calculation(self):
+        """Test carbon calculation with F-Gas values"""
+        logger.info("\n=== Testing carbon calculation with F-Gas values ===")
+        
+        # Calculate carbon emissions with F-Gas values
+        results = calculate_carbon_emissions(self.f_gas_consumption)
+        logger.info(f"F-Gas carbon calculation results: {results}")
+        
+        # Expected CO2 emissions from F-Gases
+        expected_f_gas_emissions = {
+            "r134a_gas": 1.5 * 1430.0,    # 2,145 kg CO2e
+            "r600a_gas": 0.5 * 3.0,       # 1.5 kg CO2e
+            "r410a_gas": 2.0 * 2088.0,    # 4,176 kg CO2e
+            "r32_gas": 1.0 * 675.0,       # 675 kg CO2e
+            "co2_fire": 10.0 * 1.0,       # 10 kg CO2e
+            "fm200_fire": 5.0 * 3220.0    # 16,100 kg CO2e
+        }
+        
+        # Total expected CO2 from F-Gases: ~23,107.5 kg CO2e
+        expected_total_f_gas_co2 = sum(expected_f_gas_emissions.values())
+        logger.info(f"Expected total F-Gas CO2: {expected_total_f_gas_co2:.1f} kg CO2e")
+        
+        # Check emissions breakdown includes F-Gas emissions
+        breakdown = results["emissions_breakdown"]
+        
+        # Check each F-Gas emission
+        for gas_type, expected_co2 in expected_f_gas_emissions.items():
+            self.assertIn(gas_type, breakdown, f"{gas_type} should be in emissions breakdown")
+            
+            gas_data = breakdown[gas_type]
+            self.assertIn("co2_emissions", gas_data, f"{gas_type} data should contain co2_emissions")
+            
+            # Verify the CO2 emissions match expected values
+            gas_co2 = gas_data["co2_emissions"]
+            logger.info(f"{gas_type} emissions: {gas_co2:.1f} kg CO2e (expected: {expected_co2:.1f})")
+            
+            # Allow for small rounding differences
+            self.assertAlmostEqual(gas_co2, expected_co2, delta=1.0, 
+                                  msg=f"{gas_type} emissions should be close to expected value")
+            
+            # Verify category is correct
+            self.assertIn("category", gas_data, f"{gas_type} data should contain category")
+            if gas_type in ["r134a_gas", "r600a_gas", "r410a_gas", "r32_gas"]:
+                self.assertEqual(gas_data["category"], "refrigerant", 
+                                f"{gas_type} should be categorized as refrigerant")
+            elif gas_type in ["co2_fire", "fm200_fire"]:
+                self.assertEqual(gas_data["category"], "fire_suppressant", 
+                                f"{gas_type} should be categorized as fire_suppressant")
+        
+        # Verify total CO2 is high due to F-Gas emissions
+        total_co2 = results["total_co2_emissions"]
+        logger.info(f"Total CO2 emissions: {total_co2:.1f} kg CO2e")
+        
+        # The total should be high due to F-Gas emissions (around 24,000 kg CO2e)
+        self.assertGreater(total_co2, 20000, "Total CO2 should be high due to F-Gas emissions")
+        
+        # Verify CO2 tonnes is correctly calculated
+        co2_tonnes = results["total_co2_tonnes"]
+        expected_tonnes = total_co2 / 1000.0
+        self.assertAlmostEqual(co2_tonnes, expected_tonnes, places=3, 
+                              msg="CO2 tonnes should be total CO2 / 1000")
+        
+        # Verify per-person CO2 is correctly calculated
+        per_person_co2 = results["per_person_co2"]
+        expected_per_person = total_co2 / self.f_gas_consumption["accommodation_count"]
+        self.assertAlmostEqual(per_person_co2, expected_per_person, places=3, 
+                              msg="Per-person CO2 should be total CO2 / accommodation_count")
+        
+        logger.info("✅ F-Gas carbon calculation test passed")
 
 def run_tests():
     """Run all DEFRA carbon calculation tests"""
