@@ -2421,6 +2421,11 @@ async def create_consumption(
         water=consumption_data.water,
         natural_gas=consumption_data.natural_gas,
         coal=consumption_data.coal,
+        # DEFRA Additional Fuel Types
+        diesel=consumption_data.diesel,
+        gasoline=consumption_data.gasoline,
+        lpg=consumption_data.lpg,
+        fuel_oil=consumption_data.fuel_oil,
         accommodation_count=consumption_data.accommodation_count
     )
     
