@@ -906,14 +906,6 @@ const ConsumptionAnalytics = () => {
             >
               🔄 Karşılaştırma
             </button>
-            <button
-              onClick={() => setActiveView('carbon')}
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                activeView === 'carbon' ? 'bg-white text-purple-600' : 'bg-purple-500 hover:bg-purple-400'
-              }`}
-            >
-              🌍 Karbon Ayak İzi
-            </button>
           </div>
         </div>
       </div>
