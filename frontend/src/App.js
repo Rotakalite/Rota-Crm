@@ -823,6 +823,136 @@ const ConsumptionAnalytics = () => {
               </div>
             </div>
           )}
+
+          {/* Carbon Footprint View */}
+          {activeView === 'carbon' && (
+            <div className="space-y-6">
+              {carbonLoading ? (
+                <div className="text-center py-8">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                  <p className="mt-2 text-gray-600">Karbon verileri yükleniyor...</p>
+                </div>
+              ) : carbonData ? (
+                <>
+                  {/* Carbon Overview Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
+                      <h3 className="text-lg font-bold mb-2">🌍 Toplam CO2 Emisyonu</h3>
+                      <p className="text-3xl font-bold">{carbonData.total_carbon_emissions?.toLocaleString() || 0}</p>
+                      <p className="text-green-100">kg CO2</p>
+                    </div>
+                    
+                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
+                      <h3 className="text-lg font-bold mb-2">👤 Kişi Başına CO2</h3>
+                      <p className="text-3xl font-bold">{carbonData.average_per_person_co2?.toFixed(2) || 0}</p>
+                      <p className="text-blue-100">kg CO2/kişi</p>
+                    </div>
+                    
+                    <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
+                      <h3 className="text-lg font-bold mb-2">⭐ Performans</h3>
+                      <p className="text-2xl font-bold">
+                        {carbonData.yearly_benchmarks?.performance_level || 'Hesaplanıyor'}
+                      </p>
+                      <p className="text-purple-100">
+                        {carbonData.yearly_benchmarks?.co2_per_room_night?.toFixed(2) || 0} kg CO2/oda/gece
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Monthly Carbon Data Table */}
+                  <div className="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 className="text-xl font-bold mb-4">📊 Aylık Karbon Ayak İzi Detayı</h3>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full border-collapse">
+                        <thead>
+                          <tr className="bg-gradient-to-r from-green-100 to-blue-100">
+                            <th className="px-4 py-3 border text-left font-bold">Ay</th>
+                            <th className="px-4 py-3 border text-left font-bold text-green-700">🌍 CO2 Emisyonu (kg)</th>
+                            <th className="px-4 py-3 border text-left font-bold text-blue-700">👤 Kişi Başına (kg)</th>
+                            <th className="px-4 py-3 border text-left font-bold text-purple-700">🏨 Konaklama</th>
+                            <th className="px-4 py-3 border text-left font-bold text-orange-700">⭐ Performans</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {carbonData.monthly_carbon_data?.map((month, index) => (
+                            <tr key={index} className={`hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-25'}`}>
+                              <td className="px-4 py-3 border font-bold text-gray-800">{month.month_name}</td>
+                              <td className="px-4 py-3 border text-green-700 font-semibold">
+                                {month.total_co2_emissions?.toFixed(2) || 0}
+                              </td>
+                              <td className="px-4 py-3 border text-blue-700 font-semibold">
+                                {month.per_person_co2?.toFixed(2) || 0}
+                              </td>
+                              <td className="px-4 py-3 border text-purple-700 font-semibold">
+                                {month.accommodation_count || 0}
+                              </td>
+                              <td className="px-4 py-3 border">
+                                <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                                  month.benchmark?.performance_level === 'Excellent' ? 'bg-green-100 text-green-800' :
+                                  month.benchmark?.performance_level === 'Good' ? 'bg-blue-100 text-blue-800' :
+                                  month.benchmark?.performance_level === 'Average' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-red-100 text-red-800'
+                                }`}>
+                                  {month.benchmark?.performance_level || 'N/A'}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* DEFRA Emission Sources Breakdown */}
+                  {carbonData.monthly_carbon_data?.length > 0 && (
+                    <div className="bg-white p-6 rounded-xl shadow-lg">
+                      <h3 className="text-xl font-bold mb-4">🔍 Son Ay Emisyon Kaynakları</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {Object.entries(carbonData.monthly_carbon_data[carbonData.monthly_carbon_data.length - 1]?.emissions_breakdown || {}).map(([source, data]) => (
+                          <div key={source} className="bg-gray-50 p-4 rounded-lg border">
+                            <h4 className="font-semibold text-gray-700 capitalize mb-2">
+                              {source === 'electricity' ? '⚡ Elektrik' :
+                               source === 'water' ? '💧 Su' :
+                               source === 'natural_gas' ? '🔥 Doğalgaz' :
+                               source === 'coal' ? '🏔️ Kömür' :
+                               source === 'diesel' ? '🚛 Mazot' :
+                               source === 'gasoline' ? '⛽ Benzin' :
+                               source === 'lpg' ? '🔥 LPG' :
+                               source === 'fuel_oil' ? '🏭 Fuel Oil' : source}
+                            </h4>
+                            <p className="text-2xl font-bold text-gray-800">
+                              {data.co2_emissions?.toFixed(2) || 0}
+                            </p>
+                            <p className="text-sm text-gray-600">kg CO2</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {data.consumption?.toFixed(2) || 0} {data.unit}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* DEFRA Methodology Note */}
+                      <div className="mt-6 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                        <h4 className="font-semibold text-blue-800 mb-2">📋 Metodoloji</h4>
+                        <p className="text-sm text-blue-700">
+                          Bu hesaplamalar <strong>DEFRA 2024 Emission Factors</strong> kullanılarak yapılmıştır. 
+                          Uluslararası standartlara uygun, güvenilir karbon ayak izi analizi sağlar.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="bg-gray-50 p-8 rounded-lg text-center">
+                  <span className="text-4xl mb-4 block">🌍</span>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">Karbon Verisi Bulunamadı</h3>
+                  <p className="text-gray-600">
+                    Seçilen yıl için karbon ayak izi verisi bulunmuyor. Lütfen tüketim verileri girişi yapın.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </>
       )}
     </div>
