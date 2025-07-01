@@ -3013,6 +3013,11 @@ const ConsumptionManagement = ({ onNavigate }) => {
         water: parseFloat(consumptionData.water) || 0,
         natural_gas: parseFloat(consumptionData.natural_gas) || 0,
         coal: parseFloat(consumptionData.coal) || 0,
+        // DEFRA Additional Fuel Types
+        diesel: parseFloat(consumptionData.diesel) || 0,
+        gasoline: parseFloat(consumptionData.gasoline) || 0,
+        lpg: parseFloat(consumptionData.lpg) || 0,
+        fuel_oil: parseFloat(consumptionData.fuel_oil) || 0,
         accommodation_count: parseInt(consumptionData.accommodation_count) || 0,
         ...(userRole === 'admin' && consumptionData.client_id && { client_id: consumptionData.client_id })
       }, {
