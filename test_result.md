@@ -719,7 +719,22 @@ agent_communication:
         -agent: "main"
         -comment: "SUCCESS! Railway database initialized with: 5 users (2 admin + 3 client), 3 clients (KAYA, CANO, DENEME), 15 folders (complete folder structure), 1 test document, 1 test training. Client users properly linked to their client_ids. Database collections created: users, clients, folders, documents, trainings."
 
+  - task: "DEFRA Fuel Types Expansion"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py, /app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented DEFRA fuel types expansion: Added diesel, gasoline, lpg, fuel_oil to both backend models and frontend forms. Updated Consumption/ConsumptionInput models, API endpoints, frontend forms and table displays."
+        -working: true
+        -agent: "testing"
+        -comment: "Successfully tested expanded consumption system with new DEFRA fuel types. Verified: POST /api/consumptions accepts new fuel fields, GET /api/consumptions returns new fuel types, PUT endpoint updates correctly, backward compatibility maintained for old records without new fields (default 0.0 values). All tests passed."
+
     -agent: "main"
-    -message: "CRITICAL: Railway MongoDB database is completely empty! No collections exist. This explains the 403 errors. Need to initialize Railway database with admin users, test clients, and basic structure. User approved database initialization option."
+    -message: "DEFRA FUEL TYPES EXPANSION COMPLETED! Successfully added 4 new DEFRA fuel types (diesel, gasoline, lpg, fuel_oil) to consumption system. Both backend and frontend updated. Backend tested and working correctly with backward compatibility."
 
 agent_communication:
