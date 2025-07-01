@@ -240,6 +240,18 @@ backend:
         -agent: "testing"
         -comment: "Tested the /api/analytics/monthly-trends endpoint with both admin and client users. The endpoint correctly returns monthly trends data with the proper structure: year, monthly_trends, and user_role. Each month in monthly_trends contains month, month_name, electricity, water, natural_gas, coal, and accommodation_count. Verified that the user_role field correctly reflects the user's role (admin or client). Tested with different years and confirmed the response updates accordingly."
 
+  - task: "DEFRA Fuel Types Expansion"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: true
+        -agent: "testing"
+        -comment: "Tested the expanded consumption system with new DEFRA fuel types (diesel, gasoline, lpg, fuel_oil). Verified that the Consumption and ConsumptionInput models correctly include these new fields. The POST /api/consumptions endpoint correctly accepts and processes these fields. The GET /api/consumptions endpoint correctly returns these fields in the response. The PUT /api/consumptions/{consumption_id} endpoint correctly updates these fields. Also verified backward compatibility - old consumption records without the new fields are handled correctly, with default values (0.0) for the new fields. All tests passed successfully."
+
   - task: "Existing Consumption Endpoints"
     implemented: true
     working: true
