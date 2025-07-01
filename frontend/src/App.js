@@ -2886,6 +2886,11 @@ const ConsumptionManagement = ({ onNavigate }) => {
     water: '',
     natural_gas: '',
     coal: '',
+    // DEFRA Additional Fuel Types
+    diesel: '',
+    gasoline: '',
+    lpg: '',
+    fuel_oil: '',
     accommodation_count: ''
   });
   const { authToken, userRole } = useAuth();
