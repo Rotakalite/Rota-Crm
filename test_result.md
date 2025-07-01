@@ -405,6 +405,21 @@ frontend:
         -agent: "testing"
         -comment: "Tested the TrainingManagement component after fixing syntax errors in App.js. The component is properly implemented at line 4135 and includes all required functionality: form for creating new trainings with fields for name, subject, participant_count, trainer, training_date, description, and a trainings list view. The sidebar navigation includes the 'Eğitim Yönetimi' menu item that correctly routes to the TrainingManagement component for admin users."
 
+  - task: "DEFRA F-Gas Carbon Calculation"
+    implemented: true
+    working: true
+    file: "/app/backend/defra_carbon.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented F-Gas fields (r134a_gas, r600a_gas, r410a_gas, r32_gas, co2_fire, fm200_fire) in Consumption model and DEFRA carbon calculation system."
+        -working: true
+        -agent: "testing"
+        -comment: "Tested the DEFRA F-Gas carbon calculation system thoroughly. Verified that all F-Gas emission factors match the expected values: r134a_gas (1430 kg CO2e/kg), r600a_gas (3 kg CO2e/kg), r410a_gas (2088 kg CO2e/kg), r32_gas (675 kg CO2e/kg), co2_fire (1 kg CO2e/kg), and fm200_fire (3220 kg CO2e/kg). The carbon calculation function correctly processes all F-Gas values and produces accurate CO2 emissions results. The POST /api/consumptions endpoint correctly accepts and processes F-Gas fields. The PUT /api/consumptions/{id} endpoint correctly updates F-Gas fields. The GET /api/analytics/carbon-footprint endpoint correctly includes F-Gas emissions in the carbon footprint analysis. The emissions breakdown correctly categorizes refrigerants (r134a_gas, r600a_gas, r410a_gas, r32_gas) and fire suppressants (co2_fire, fm200_fire). All tests passed successfully."
+
 metadata:
   created_by: "testing_agent"
   version: "1.0"
