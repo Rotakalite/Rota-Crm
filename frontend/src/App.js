@@ -147,15 +147,17 @@ const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
 // Dynamic API URL detection
 const getApiUrl = () => {
-  // Production domain - Use current environment backend
+  // Production domain - Use Railway backend
   if (window.location.hostname === 'portal.rotakalitedanismanlik.com') {
-    // Production'da aynı backend URL'i kullan
+    // Railway backend URL'inizi buraya yazın
+    // Örnek: 'https://rota-crm-production.up.railway.app/api'
+    // Şimdilik mevcut environment kullanıyoruz
     return 'https://f071690c-46e0-42d0-8892-e750466ac123.preview.emergentagent.com/api';
   }
   
   // Development/Preview domains  
   if (window.location.hostname.includes('.preview.emergentagent.com')) {
-    // Aynı hostname'i kullan, sadece port farklı
+    // Aynı hostname'i kullan
     const currentHost = window.location.hostname;
     return `https://${currentHost}/api`;
   }
@@ -165,9 +167,8 @@ const getApiUrl = () => {
     return 'http://localhost:8001/api';
   }
   
-  // Fallback to env variable
-  const baseUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
-  return `${baseUrl}/api`;
+  // Fallback to env variable or current environment
+  return 'https://f071690c-46e0-42d0-8892-e750466ac123.preview.emergentagent.com/api';
 };
 
 // Backend URL Discovery Function
