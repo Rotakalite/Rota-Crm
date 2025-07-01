@@ -251,6 +251,9 @@ backend:
         -working: true
         -agent: "testing"
         -comment: "Tested the existing /api/consumptions endpoints (GET and POST). Both endpoints work correctly for admin and client users. The GET endpoint returns consumption data in the expected format. The POST endpoint successfully creates new consumption records with the provided data and returns a success message with the new consumption_id."
+        -working: true
+        -agent: "testing"
+        -comment: "Tested the expanded consumption system with new DEFRA fuel types. Verified that the POST /api/consumptions endpoint correctly accepts and processes the new fuel type fields (diesel, gasoline, lpg, fuel_oil). The GET /api/consumptions endpoint correctly returns these fields in the response. The PUT /api/consumptions/{consumption_id} endpoint correctly updates these fields. Also verified backward compatibility - old consumption records without the new fields are handled correctly, with default values (0.0) for the new fields. All tests passed successfully."
 
   - task: "Client Dashboard Statistics Endpoint"
     implemented: true
