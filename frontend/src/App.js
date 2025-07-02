@@ -17,7 +17,7 @@ import { Line, Bar } from 'react-chartjs-2';
 
 // Global utility function for file icons
 const getFileIcon = (filePath) => {
-  const extension = filePath?.split('.').pop()?.toLowerCase();
+  const extension = filePath && filePath.split('.').pop() && filePath.split('.').pop().toLowerCase();
   switch (extension) {
     case 'pdf': return '📄';
     case 'doc':
