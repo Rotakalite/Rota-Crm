@@ -5893,6 +5893,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'consumption', name: 'Tüketim Takibi', icon: '⚡' },
     { id: 'analytics', name: 'Tüketim Analizi', icon: '📈' },
     { id: 'carbon', name: 'Karbon Ayak İzi', icon: '🌍' },
+    { id: 'guest-engagement', name: 'Guest Engagement', icon: '🎯' },
     { id: 'documents', name: 'Belgelerim', icon: '📋' },
     { id: 'trainings', name: 'Eğitimlerim', icon: '🎓' }
   ];
