@@ -726,137 +726,230 @@ const CarbonFootprint = () => {
                 🔬 Kaynak Bazında Emisyon Analizi
               </h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {/* Temel Enerji Kaynakları */}
-                {carbonData.total_emission_sources.electricity && carbonData.total_emission_sources.electricity > 0 && (
-                  <div className="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500 min-h-fit">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <span className="font-semibold text-yellow-800 flex items-center">⚡ Elektrik:</span>
-                      <span className="text-lg font-bold text-yellow-900">{(carbonData.total_emission_sources.electricity || 0).toFixed(2)} kg CO2</span>
+                {carbonData.total_emission_sources.electricity > 0 && (
+                  <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 rounded-lg border-l-4 border-yellow-500 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-yellow-600 text-xl">⚡</span>
+                        <span className="font-semibold text-yellow-800">Elektrik</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-yellow-900">{carbonData.total_emission_sources.electricity.toFixed(2)}</div>
+                        <div className="text-xs text-yellow-600">kg CO2</div>
+                      </div>
                     </div>
                   </div>
                 )}
                 
-                {carbonData.total_emission_sources.water && carbonData.total_emission_sources.water > 0 && (
-                  <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 min-h-fit">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <span className="font-semibold text-blue-800 flex items-center">💧 Su:</span>
-                      <span className="text-lg font-bold text-blue-900">{(carbonData.total_emission_sources.water || 0).toFixed(2)} kg CO2</span>
+                {carbonData.total_emission_sources.water > 0 && (
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border-l-4 border-blue-500 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-blue-600 text-xl">💧</span>
+                        <span className="font-semibold text-blue-800">Su</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-blue-900">{carbonData.total_emission_sources.water.toFixed(2)}</div>
+                        <div className="text-xs text-blue-600">kg CO2</div>
+                      </div>
                     </div>
                   </div>
                 )}
                 
                 {carbonData.total_emission_sources.natural_gas > 0 && (
-                  <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500 min-h-fit">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <span className="font-semibold text-orange-800 flex items-center">🔥 Doğalgaz:</span>
-                      <span className="text-lg font-bold text-orange-900">{carbonData.total_emission_sources.natural_gas.toFixed(2)} kg CO2</span>
+                  <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-lg border-l-4 border-orange-500 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-orange-600 text-xl">🔥</span>
+                        <span className="font-semibold text-orange-800">Doğalgaz</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-orange-900">{carbonData.total_emission_sources.natural_gas.toFixed(2)}</div>
+                        <div className="text-xs text-orange-600">kg CO2</div>
+                      </div>
                     </div>
                   </div>
                 )}
                 
-                {carbonData.total_emission_sources.coal && carbonData.total_emission_sources.coal > 0 && (
-                  <div className="bg-gray-50 p-4 rounded-lg border-l-4 border-gray-500 min-h-fit">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <span className="font-semibold text-gray-800 flex items-center">⚫ Kömür:</span>
-                      <span className="text-lg font-bold text-gray-900">{(carbonData.total_emission_sources.coal || 0).toFixed(2)} kg CO2</span>
+                {carbonData.total_emission_sources.coal > 0 && (
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border-l-4 border-gray-500 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-gray-600 text-xl">⚫</span>
+                        <span className="font-semibold text-gray-800">Kömür</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-gray-900">{carbonData.total_emission_sources.coal.toFixed(2)}</div>
+                        <div className="text-xs text-gray-600">kg CO2</div>
+                      </div>
                     </div>
                   </div>
                 )}
                 
                 {/* Sıvı Yakıtlar */}
                 {carbonData.total_emission_sources.diesel > 0 && (
-                  <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500 min-h-fit">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <span className="font-semibold text-green-800 flex items-center">🚛 Mazot:</span>
-                      <span className="text-lg font-bold text-green-900">{carbonData.total_emission_sources.diesel.toFixed(2)} kg CO2</span>
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border-l-4 border-green-500 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-green-600 text-xl">🚛</span>
+                        <span className="font-semibold text-green-800">Mazot</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-green-900">{carbonData.total_emission_sources.diesel.toFixed(2)}</div>
+                        <div className="text-xs text-green-600">kg CO2</div>
+                      </div>
                     </div>
                   </div>
                 )}
                 
                 {carbonData.total_emission_sources.gasoline > 0 && (
-                  <div className="bg-red-50 p-4 rounded-lg border-l-4 border-red-500 min-h-fit">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <span className="font-semibold text-red-800 flex items-center">⛽ Benzin:</span>
-                      <span className="text-lg font-bold text-red-900">{carbonData.total_emission_sources.gasoline.toFixed(2)} kg CO2</span>
+                  <div className="bg-gradient-to-br from-red-50 to-red-100 p-4 rounded-lg border-l-4 border-red-500 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-red-600 text-xl">⛽</span>
+                        <span className="font-semibold text-red-800">Benzin</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-red-900">{carbonData.total_emission_sources.gasoline.toFixed(2)}</div>
+                        <div className="text-xs text-red-600">kg CO2</div>
+                      </div>
                     </div>
                   </div>
                 )}
                 
-                {carbonData.total_emission_sources.lpg && carbonData.total_emission_sources.lpg > 0 && (
-                  <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500 min-h-fit">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <span className="font-semibold text-purple-800 flex items-center">🔥 LPG:</span>
-                      <span className="text-lg font-bold text-purple-900">{(carbonData.total_emission_sources.lpg || 0).toFixed(2)} kg CO2</span>
+                {carbonData.total_emission_sources.lpg > 0 && (
+                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border-l-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-purple-600 text-xl">🔥</span>
+                        <span className="font-semibold text-purple-800">LPG</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-purple-900">{carbonData.total_emission_sources.lpg.toFixed(2)}</div>
+                        <div className="text-xs text-purple-600">kg CO2</div>
+                      </div>
                     </div>
                   </div>
                 )}
                 
-                {carbonData.total_emission_sources.fuel_oil && carbonData.total_emission_sources.fuel_oil > 0 && (
-                  <div className="bg-indigo-50 p-4 rounded-lg border-l-4 border-indigo-500 min-h-fit">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <span className="font-semibold text-indigo-800 flex items-center">🏭 Fuel Oil:</span>
-                      <span className="text-lg font-bold text-indigo-900">{(carbonData.total_emission_sources.fuel_oil || 0).toFixed(2)} kg CO2</span>
+                {carbonData.total_emission_sources.fuel_oil > 0 && (
+                  <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-lg border-l-4 border-indigo-500 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-indigo-600 text-xl">🏭</span>
+                        <span className="font-semibold text-indigo-800">Fuel Oil</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-indigo-900">{carbonData.total_emission_sources.fuel_oil.toFixed(2)}</div>
+                        <div className="text-xs text-indigo-600">kg CO2</div>
+                      </div>
                     </div>
                   </div>
                 )}
                 
                 {/* F-Gas Soğutucular */}
                 {carbonData.total_emission_sources.r134a_gas > 0 && (
-                  <div className="bg-cyan-50 p-4 rounded-lg border-l-4 border-cyan-500 min-h-fit">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <span className="font-semibold text-cyan-800 flex items-center">❄️ R134a (Klimalar):</span>
-                      <span className="text-lg font-bold text-cyan-900">{carbonData.total_emission_sources.r134a_gas.toFixed(2)} kg CO2e</span>
+                  <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 p-4 rounded-lg border-l-4 border-cyan-500 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-cyan-600 text-xl">❄️</span>
+                        <span className="font-semibold text-cyan-800">R134a (Klimalar)</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-cyan-900">{carbonData.total_emission_sources.r134a_gas.toFixed(2)}</div>
+                        <div className="text-xs text-cyan-600">kg CO2e</div>
+                      </div>
                     </div>
                   </div>
                 )}
                 
-                {carbonData.total_emission_sources.r600a_gas && carbonData.total_emission_sources.r600a_gas > 0 && (
-                  <div className="bg-teal-50 p-4 rounded-lg border-l-4 border-teal-500 min-h-fit">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <span className="font-semibold text-teal-800 flex items-center">🧊 R600a (Buzdolapları):</span>
-                      <span className="text-lg font-bold text-teal-900">{(carbonData.total_emission_sources.r600a_gas || 0).toFixed(2)} kg CO2e</span>
+                {carbonData.total_emission_sources.r600a_gas > 0 && (
+                  <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-4 rounded-lg border-l-4 border-teal-500 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-teal-600 text-xl">🧊</span>
+                        <span className="font-semibold text-teal-800">R600a (Buzdolapları)</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-teal-900">{carbonData.total_emission_sources.r600a_gas.toFixed(2)}</div>
+                        <div className="text-xs text-teal-600">kg CO2e</div>
+                      </div>
                     </div>
                   </div>
                 )}
                 
-                {carbonData.total_emission_sources.r410a_gas && carbonData.total_emission_sources.r410a_gas > 0 && (
-                  <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-600 min-h-fit">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <span className="font-semibold text-blue-800 flex items-center">🌀 R410A (Modern AC):</span>
-                      <span className="text-lg font-bold text-blue-900">{(carbonData.total_emission_sources.r410a_gas || 0).toFixed(2)} kg CO2e</span>
+                {carbonData.total_emission_sources.r410a_gas > 0 && (
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border-l-4 border-blue-600 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-blue-600 text-xl">🌀</span>
+                        <span className="font-semibold text-blue-800">R410A (Modern AC)</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-blue-900">{carbonData.total_emission_sources.r410a_gas.toFixed(2)}</div>
+                        <div className="text-xs text-blue-600">kg CO2e</div>
+                      </div>
                     </div>
                   </div>
                 )}
                 
-                {carbonData.total_emission_sources.r32_gas && carbonData.total_emission_sources.r32_gas > 0 && (
-                  <div className="bg-emerald-50 p-4 rounded-lg border-l-4 border-emerald-500 min-h-fit">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <span className="font-semibold text-emerald-800 flex items-center">💨 R32 (Yeni Nesil AC):</span>
-                      <span className="text-lg font-bold text-emerald-900">{(carbonData.total_emission_sources.r32_gas || 0).toFixed(2)} kg CO2e</span>
+                {carbonData.total_emission_sources.r32_gas > 0 && (
+                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-lg border-l-4 border-emerald-500 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-emerald-600 text-xl">💨</span>
+                        <span className="font-semibold text-emerald-800">R32 (Yeni Nesil AC)</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-emerald-900">{carbonData.total_emission_sources.r32_gas.toFixed(2)}</div>
+                        <div className="text-xs text-emerald-600">kg CO2e</div>
+                      </div>
                     </div>
                   </div>
                 )}
                 
                 {/* Yangın Söndürücüler */}
-                {carbonData.total_emission_sources.co2_fire && carbonData.total_emission_sources.co2_fire > 0 && (
-                  <div className="bg-slate-50 p-4 rounded-lg border-l-4 border-slate-500 min-h-fit">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <span className="font-semibold text-slate-800 flex items-center">🧯 CO2 Söndürücü:</span>
-                      <span className="text-lg font-bold text-slate-900">{(carbonData.total_emission_sources.co2_fire || 0).toFixed(2)} kg CO2</span>
+                {carbonData.total_emission_sources.co2_fire > 0 && (
+                  <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 rounded-lg border-l-4 border-slate-500 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-slate-600 text-xl">🧯</span>
+                        <span className="font-semibold text-slate-800">CO2 Söndürücü</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-slate-900">{carbonData.total_emission_sources.co2_fire.toFixed(2)}</div>
+                        <div className="text-xs text-slate-600">kg CO2</div>
+                      </div>
                     </div>
                   </div>
                 )}
                 
                 {carbonData.total_emission_sources.fm200_fire > 0 && (
-                  <div className="bg-rose-50 p-4 rounded-lg border-l-4 border-rose-500 min-h-fit">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <span className="font-semibold text-rose-800 flex items-center">🚨 FM200:</span>
-                      <span className="text-lg font-bold text-rose-900">{carbonData.total_emission_sources.fm200_fire.toFixed(2)} kg CO2e</span>
+                  <div className="bg-gradient-to-br from-rose-50 to-rose-100 p-4 rounded-lg border-l-4 border-rose-500 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-rose-600 text-xl">🚨</span>
+                        <span className="font-semibold text-rose-800">FM200</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-rose-900">{carbonData.total_emission_sources.fm200_fire.toFixed(2)}</div>
+                        <div className="text-xs text-rose-600">kg CO2e</div>
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
+              
+              {/* Veri Yoksa Uyarı Mesajı */}
+              {Object.values(carbonData.total_emission_sources).every(value => value === 0 || value === null || value === undefined) && (
+                <div className="text-center py-8">
+                  <div className="text-gray-400 text-6xl mb-4">📊</div>
+                  <h3 className="text-lg font-semibold text-gray-600 mb-2">Henüz Emisyon Verisi Yok</h3>
+                  <p className="text-gray-500">Tüketim verisi girdikten sonra kaynak bazında emisyon analizi burada görünecek.</p>
+                </div>
+              )}
             </div>
           )}
 
