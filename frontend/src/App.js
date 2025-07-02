@@ -937,7 +937,6 @@ const CarbonFootprint = () => {
   );
 };
 
-// Consumption Analytics Components
 const ConsumptionAnalytics = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [clients, setClients] = useState([]);
