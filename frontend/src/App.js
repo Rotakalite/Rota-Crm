@@ -727,10 +727,10 @@ const CarbonFootprint = () => {
               </h3>
               
               <div className="space-y-4">
-                {carbonData.total_emission_sources.electricity > 0 && (
+                {carbonData.total_emission_sources.electricity && carbonData.total_emission_sources.electricity > 0 && (
                   <div className="bg-yellow-50 p-4 rounded border-l-4 border-yellow-500">
                     <span className="font-semibold">⚡ Elektrik: </span>
-                    <span className="text-lg font-bold">{carbonData.total_emission_sources.electricity.toFixed(2)} kg CO2</span>
+                    <span className="text-lg font-bold">{(carbonData.total_emission_sources.electricity || 0).toFixed(2)} kg CO2</span>
                   </div>
                 )}
                 
