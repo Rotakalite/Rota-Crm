@@ -33,6 +33,129 @@ const getFileIcon = (filePath) => {
   }
 };
 
+// Dashboard Component
+const Dashboard = ({ onNavigate }) => {
+  const { user } = useUser();
+  const { authToken, userRole, dbUser } = useAuth();
+
+  return (
+    <div className="p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Hoş Geldiniz, {user?.firstName || 'Kullanıcı'}! 👋
+          </h1>
+          <p className="text-gray-600">
+            {userRole === 'admin' ? 'Admin Panel - Sistemin tüm özelliklerine erişebilirsiniz.' 
+            : 'Müşteri Paneli - Kendi verilerinizi görüntüleyebilir ve yönetebilirsiniz.'}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Carbon Footprint Card */}
+          <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+               onClick={() => onNavigate('carbon')}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">🌍 Karbon Ayak İzi</h3>
+              <span className="text-2xl">→</span>
+            </div>
+            <p className="text-green-100">
+              DEFRA standardında karbon emisyon analizi ve raporlama
+            </p>
+          </div>
+
+          {/* Guest Engagement Card */}
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+               onClick={() => onNavigate('guest-engagement')}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">🎯 Guest Engagement</h3>
+              <span className="text-2xl">→</span>
+            </div>
+            <p className="text-blue-100">
+              Misafir sürdürülebilirlik skorları ve eğitim
+            </p>
+          </div>
+
+          {/* Consumption Management Card */}
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+               onClick={() => onNavigate('consumption')}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">⚡ Tüketim Takibi</h3>
+              <span className="text-2xl">→</span>
+            </div>
+            <p className="text-purple-100">
+              Enerji, su ve yakıt tüketim verilerini yönetin
+            </p>
+          </div>
+
+          {userRole === 'admin' && (
+            <>
+              {/* Client Management Card */}
+              <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                   onClick={() => onNavigate('clients')}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">🏨 Müşteri Yönetimi</h3>
+                  <span className="text-2xl">→</span>
+                </div>
+                <p className="text-orange-100">
+                  Müşteri bilgilerini yönetin ve analiz edin
+                </p>
+              </div>
+
+              {/* Document Management Card */}
+              <div className="bg-gradient-to-br from-red-500 to-red-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                   onClick={() => onNavigate('documents')}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">📄 Doküman Yönetimi</h3>
+                  <span className="text-2xl">→</span>
+                </div>
+                <p className="text-red-100">
+                  Dokümanları klasörler halinde organize edin
+                </p>
+              </div>
+
+              {/* Training Management Card */}
+              <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                   onClick={() => onNavigate('trainings')}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">🎓 Eğitim Yönetimi</h3>
+                  <span className="text-2xl">→</span>
+                </div>
+                <p className="text-indigo-100">
+                  Eğitim programlarını planlayın ve yönetin
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Quick Stats */}
+        <div className="mt-8 bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">📊 Hızlı İstatistikler</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">100%</div>
+              <div className="text-sm text-gray-600">Sistem Durumu</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">24/7</div>
+              <div className="text-sm text-gray-600">Destek</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">DEFRA</div>
+              <div className="text-sm text-gray-600">Standart</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-orange-600">2025</div>
+              <div className="text-sm text-gray-600">Güncel</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Global utility function for file size formatting
 const formatFileSize = (bytes) => {
   if (!bytes || bytes === 0) return '0 B';
