@@ -713,7 +713,7 @@ const CarbonFootprint = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-red-700">⚠️ Geliştirilmeli:</span>
-                  <span className="font-bold text-red-800">{">"} 45 kg CO2/oda/gece</span>
+                  <span className="font-bold text-red-800">&gt; 45 kg CO2/oda/gece</span>
                 </div>
               </div>
             </div>
