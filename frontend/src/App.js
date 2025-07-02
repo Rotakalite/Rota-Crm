@@ -652,7 +652,7 @@ const CarbonFootprint = () => {
                         {(month.total_co2_emissions || 0).toFixed(2)}
                       </td>
                       <td className="px-4 py-3 border text-blue-700 font-semibold">
-                        {month.per_person_co2 && per_person_co2.toFixed(2) || 0}
+                        {(month.per_person_co2 || 0).toFixed(2)}
                       </td>
                       <td className="px-4 py-3 border text-purple-700 font-semibold">
                         {month.accommodation_count || 0}
