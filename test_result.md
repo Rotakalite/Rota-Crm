@@ -476,8 +476,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Fix Fallback URL in getApiUrl Function"
-    - "Update Frontend Environment Variables"
+    - "Fix Frontend JSX Syntax Errors - Guest Engagement Module"
+    - "Guest Engagement Backend APIs"
+    - "Guest Self-Assessment Backend APIs" 
     - "DEFRA Fuel Types Expansion"
     - "DEFRA Carbon Calculation System"
     - "DEFRA F-Gas Carbon Calculation"
