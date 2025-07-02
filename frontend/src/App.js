@@ -625,7 +625,7 @@ const CarbonFootprint = () => {
                 {carbonData.yearly_benchmarks?.performance_level || 'Hesaplanıyor'}
               </p>
               <p className="text-orange-100">
-                {carbonData.yearly_benchmarks?.co2_per_room_night && co2_per_room_night.toFixed(2) || 0} kg/oda/gece
+                {(carbonData.yearly_benchmarks?.co2_per_room_night || 0).toFixed(2)} kg/oda/gece
               </p>
             </div>
           </div>
