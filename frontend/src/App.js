@@ -1515,14 +1515,6 @@ const GuestSelfAssessment = () => {
     </div>
   );
 };
-
-
-                      </span>
-                    );
-                  })()}
-                </p>
-              )}
-            </div>
             <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
               <h3 className="text-lg font-bold mb-2">💧 Su</h3>
               <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.water?.toLocaleString() || 0}</p>
