@@ -6329,6 +6329,8 @@ const MainApp = () => {
         return <ConsumptionAnalytics />;
       case 'carbon':
         return <CarbonFootprint />;
+      case 'guest-engagement':
+        return <GuestEngagement />;
       case 'project':
         return <ProjectManagement client={selectedClient} onNavigate={handleNavigate} />;
       case 'documents':
