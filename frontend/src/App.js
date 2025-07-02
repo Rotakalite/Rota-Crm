@@ -1516,6 +1516,240 @@ const GuestSelfAssessment = () => {
   );
 };
 
+// Guest Self-Assessment Component
+const GuestSelfAssessment = () => {
+  const [guestData, setGuestData] = useState(null);
+  const [ecoTips, setEcoTips] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [completedActions, setCompletedActions] = useState([]);
+  const [feedback, setFeedback] = useState({
+    rating: null,
+    comment: ''
+  });
+
+  // Get guest_id from URL params (in real implementation)
+  const guestId = new URLSearchParams(window.location.search).get('guest_id');
+
+  useEffect(() => {
+    if (guestId) {
+      fetchGuestAssessment();
+    }
+  }, [guestId]);
+
+  const fetchGuestAssessment = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/guest-engagement/self-assessment/${guestId}`);
+      setGuestData(response.data.guest);
+      setEcoTips(response.data.eco_tips);
+      setCompletedActions(response.data.guest.eco_actions || []);
+      setFeedback({
+        rating: response.data.guest.feedback_rating,
+        comment: response.data.guest.feedback_comment || ''
+      });
+    } catch (error) {
+      console.error('Guest assessment fetch error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleAction = (actionTitle) => {
+    setCompletedActions(prev => 
+      prev.includes(actionTitle) 
+        ? prev.filter(action => action !== actionTitle)
+        : [...prev, actionTitle]
+    );
+  };
+
+  const handleSubmitAssessment = async () => {
+    try {
+      setSubmitting(true);
+      const assessmentData = {
+        eco_actions: completedActions,
+        feedback_rating: feedback.rating,
+        feedback_comment: feedback.comment
+      };
+
+      const response = await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/api/guest-engagement/self-assessment/${guestId}`,
+        assessmentData
+      );
+
+      alert(`Tebrikler! Sürdürülebilirlik puanınız güncellendi: ${response.data.new_score} puan!`);
+      fetchGuestAssessment(); // Refresh data
+    } catch (error) {
+      console.error('Assessment submission error:', error);
+      alert('Değerlendirme gönderilirken hata oluştu.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">🔄</div>
+          <p className="text-lg text-gray-600">Yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!guestId || !guestData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="text-6xl mb-4">❌</div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Erişim Hatası</h1>
+          <p className="text-gray-600">Geçersiz konuk bilgisi. Lütfen QR kodu tekrar tarayın.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const currentScore = completedActions.length * 10;
+  const maxScore = ecoTips.length * 15; // Assuming max 15 points per tip
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+      {/* Header */}
+      <div className="bg-white shadow-lg">
+        <div className="max-w-4xl mx-auto px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">🌿 Sürdürülebilirlik Değerlendirme</h1>
+              <p className="text-gray-600 mt-1">
+                Merhaba {guestData.guest_name}! Oda: {guestData.room_number}
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-600">{currentScore}</div>
+              <div className="text-sm text-gray-500">puan</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-6 py-8 space-y-8">
+        {/* Progress Bar */}
+        <div className="bg-white p-6 rounded-xl shadow-lg">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-800">İlerleme Durumu</h2>
+            <span className="text-sm text-gray-600">{completedActions.length}/{ecoTips.length} aksiyon</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-4">
+            <div 
+              className="bg-gradient-to-r from-green-500 to-blue-500 h-4 rounded-full transition-all duration-300"
+              style={{ width: `${(completedActions.length / ecoTips.length) * 100}%` }}
+            ></div>
+          </div>
+          <p className="text-sm text-gray-600 mt-2">
+            Her tamamladığınız aksiyon için puan kazanırsınız!
+          </p>
+        </div>
+
+        {/* Eco Actions */}
+        <div className="bg-white p-6 rounded-xl shadow-lg">
+          <h2 className="text-xl font-bold text-gray-800 mb-6">🎯 Sürdürülebilirlik Aksiyonları</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {ecoTips.map(tip => {
+              const isCompleted = completedActions.includes(tip.title);
+              return (
+                <div 
+                  key={tip.id}
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                    isCompleted 
+                      ? 'border-green-500 bg-green-50' 
+                      : 'border-gray-200 bg-white hover:border-green-300'
+                  }`}
+                  onClick={() => toggleAction(tip.title)}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-2xl">{tip.icon}</span>
+                    <div className="flex items-center space-x-2">
+                      <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                        +{tip.points} puan
+                      </span>
+                      {isCompleted && <span className="text-green-500 text-xl">✅</span>}
+                    </div>
+                  </div>
+                  <h3 className="font-semibold text-gray-800 mb-2">{tip.title}</h3>
+                  <p className="text-sm text-gray-600">{tip.description}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Feedback Section */}
+        <div className="bg-white p-6 rounded-xl shadow-lg">
+          <h2 className="text-xl font-bold text-gray-800 mb-6">⭐ Konaklama Değerlendirme</h2>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Konaklama deneyiminizi nasıl değerlendirirsiniz?
+              </label>
+              <div className="flex space-x-2">
+                {[1,2,3,4,5].map(rating => (
+                  <button
+                    key={rating}
+                    onClick={() => setFeedback(prev => ({...prev, rating}))}
+                    className={`text-3xl transition-colors ${
+                      feedback.rating >= rating ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-200'
+                    }`}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Yorumunuz (opsiyonel)
+              </label>
+              <textarea
+                value={feedback.comment}
+                onChange={(e) => setFeedback(prev => ({...prev, comment: e.target.value}))}
+                placeholder="Deneyiminiz hakkında düşüncelerinizi paylaşın..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 h-24"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <div className="text-center">
+          <button
+            onClick={handleSubmitAssessment}
+            disabled={submitting}
+            className={`px-8 py-3 rounded-lg text-white font-semibold text-lg transition-colors ${
+              submitting 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600'
+            }`}
+          >
+            {submitting ? 'Kaydediliyor...' : '🎯 Değerlendirmeyi Kaydet'}
+          </button>
+        </div>
+
+        {/* Current Score Summary */}
+        <div className="bg-gradient-to-r from-green-500 to-blue-500 text-white p-6 rounded-xl text-center">
+          <h3 className="text-2xl font-bold mb-2">🏆 Toplam Puanınız</h3>
+          <div className="text-4xl font-bold mb-2">{currentScore} puan</div>
+          <p className="text-green-100">
+            Sürdürülebilirlik konusundaki katkılarınız için teşekkürler!
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ConsumptionAnalytics = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [clients, setClients] = useState([]);
