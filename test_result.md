@@ -476,9 +476,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Fix Frontend JSX Syntax Errors - Guest Engagement Module"
-    - "Guest Engagement Backend APIs"
-    - "Guest Self-Assessment Backend APIs" 
     - "DEFRA Fuel Types Expansion"
     - "DEFRA Carbon Calculation System"
     - "DEFRA F-Gas Carbon Calculation"
