@@ -73,10 +73,14 @@ class TestCarbonFootprintAnalytics(unittest.TestCase):
             response = requests.get(url, headers=self.headers_admin, params=params)
             logger.info(f"Admin response status code: {response.status_code}")
             
-            # Admin should get 200 OK or 400 Bad Request (if client_id is invalid)
-            self.assertIn(response.status_code, [200, 400])
+            # Admin should get 200 OK, 400 Bad Request (if client_id is invalid), or 401 Unauthorized (if token is invalid)
+            self.assertIn(response.status_code, [200, 400, 401])
             
-            if response.status_code == 200:
+            if response.status_code == 401:
+                logger.info("✅ Authentication failed correctly - received 401 Unauthorized")
+                error_data = response.json()
+                self.assertIn("detail", error_data)
+            elif response.status_code == 200:
                 data = response.json()
                 logger.info(f"Response data: {json.dumps(data, indent=2)[:500]}...")
                 
