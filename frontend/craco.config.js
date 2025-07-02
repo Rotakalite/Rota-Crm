@@ -7,6 +7,11 @@ const config = {
 };
 
 module.exports = {
+  babel: {
+    plugins: [
+      '@babel/plugin-proposal-optional-chaining'
+    ]
+  },
   webpack: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
