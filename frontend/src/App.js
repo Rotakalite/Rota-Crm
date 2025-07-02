@@ -727,6 +727,7 @@ const CarbonFootprint = () => {
               </h3>
               
               <div className="space-y-4">
+                {/* Temel Enerji Kaynakları */}
                 {carbonData.total_emission_sources.electricity && carbonData.total_emission_sources.electricity > 0 && (
                   <div className="bg-yellow-50 p-4 rounded border-l-4 border-yellow-500">
                     <span className="font-semibold">⚡ Elektrik: </span>
@@ -748,6 +749,14 @@ const CarbonFootprint = () => {
                   </div>
                 )}
                 
+                {carbonData.total_emission_sources.coal && carbonData.total_emission_sources.coal > 0 && (
+                  <div className="bg-gray-50 p-4 rounded border-l-4 border-gray-500">
+                    <span className="font-semibold">⚫ Kömür: </span>
+                    <span className="text-lg font-bold">{(carbonData.total_emission_sources.coal || 0).toFixed(2)} kg CO2</span>
+                  </div>
+                )}
+                
+                {/* Sıvı Yakıtlar */}
                 {carbonData.total_emission_sources.diesel > 0 && (
                   <div className="bg-green-50 p-4 rounded border-l-4 border-green-500">
                     <span className="font-semibold">🚛 Mazot: </span>
@@ -762,16 +771,60 @@ const CarbonFootprint = () => {
                   </div>
                 )}
                 
+                {carbonData.total_emission_sources.lpg && carbonData.total_emission_sources.lpg > 0 && (
+                  <div className="bg-purple-50 p-4 rounded border-l-4 border-purple-500">
+                    <span className="font-semibold">🔥 LPG: </span>
+                    <span className="text-lg font-bold">{(carbonData.total_emission_sources.lpg || 0).toFixed(2)} kg CO2</span>
+                  </div>
+                )}
+                
+                {carbonData.total_emission_sources.fuel_oil && carbonData.total_emission_sources.fuel_oil > 0 && (
+                  <div className="bg-indigo-50 p-4 rounded border-l-4 border-indigo-500">
+                    <span className="font-semibold">🏭 Fuel Oil: </span>
+                    <span className="text-lg font-bold">{(carbonData.total_emission_sources.fuel_oil || 0).toFixed(2)} kg CO2</span>
+                  </div>
+                )}
+                
+                {/* F-Gas Soğutucular - Klimalar için */}
                 {carbonData.total_emission_sources.r134a_gas > 0 && (
                   <div className="bg-cyan-50 p-4 rounded border-l-4 border-cyan-500">
-                    <span className="font-semibold">❄️ R134a F-Gas: </span>
+                    <span className="font-semibold">❄️ R134a (Klimalar): </span>
                     <span className="text-lg font-bold">{carbonData.total_emission_sources.r134a_gas.toFixed(2)} kg CO2e</span>
+                  </div>
+                )}
+                
+                {carbonData.total_emission_sources.r600a_gas && carbonData.total_emission_sources.r600a_gas > 0 && (
+                  <div className="bg-teal-50 p-4 rounded border-l-4 border-teal-500">
+                    <span className="font-semibold">🧊 R600a (Buzdolapları): </span>
+                    <span className="text-lg font-bold">{(carbonData.total_emission_sources.r600a_gas || 0).toFixed(2)} kg CO2e</span>
+                  </div>
+                )}
+                
+                {carbonData.total_emission_sources.r410a_gas && carbonData.total_emission_sources.r410a_gas > 0 && (
+                  <div className="bg-blue-50 p-4 rounded border-l-4 border-blue-600">
+                    <span className="font-semibold">🌀 R410A (Modern AC): </span>
+                    <span className="text-lg font-bold">{(carbonData.total_emission_sources.r410a_gas || 0).toFixed(2)} kg CO2e</span>
+                  </div>
+                )}
+                
+                {carbonData.total_emission_sources.r32_gas && carbonData.total_emission_sources.r32_gas > 0 && (
+                  <div className="bg-emerald-50 p-4 rounded border-l-4 border-emerald-500">
+                    <span className="font-semibold">💨 R32 (Yeni Nesil AC): </span>
+                    <span className="text-lg font-bold">{(carbonData.total_emission_sources.r32_gas || 0).toFixed(2)} kg CO2e</span>
+                  </div>
+                )}
+                
+                {/* Yangın Söndürücüler */}
+                {carbonData.total_emission_sources.co2_fire && carbonData.total_emission_sources.co2_fire > 0 && (
+                  <div className="bg-slate-50 p-4 rounded border-l-4 border-slate-500">
+                    <span className="font-semibold">🧯 CO2 Söndürücü: </span>
+                    <span className="text-lg font-bold">{(carbonData.total_emission_sources.co2_fire || 0).toFixed(2)} kg CO2</span>
                   </div>
                 )}
                 
                 {carbonData.total_emission_sources.fm200_fire > 0 && (
                   <div className="bg-rose-50 p-4 rounded border-l-4 border-rose-500">
-                    <span className="font-semibold">🚨 FM200: </span>
+                    <span className="font-semibold">🚨 FM200 (Gaz Söndürücü): </span>
                     <span className="text-lg font-bold">{carbonData.total_emission_sources.fm200_fire.toFixed(2)} kg CO2e</span>
                   </div>
                 )}
