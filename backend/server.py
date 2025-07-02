@@ -3309,6 +3309,122 @@ async def get_sustainability_leaderboard(
     top_guests = await db.guest_engagement.aggregate(pipeline).to_list(length=10)
     return {"leaderboard": top_guests}
 
+@api_router.get("/guest-engagement/self-assessment/{guest_id}")
+async def get_guest_self_assessment(guest_id: str):
+    """Get guest's own assessment form"""
+    guest = await db.guest_engagement.find_one({"id": guest_id})
+    if not guest:
+        raise HTTPException(status_code=404, detail="Guest not found")
+    
+    return {
+        "guest": guest,
+        "eco_tips": [
+            {
+                "id": 1,
+                "category": "energy",
+                "icon": "💡",
+                "title": "Enerji Tasarrufu",
+                "description": "Odadan çıkarken klimayı ve ışıkları kapatmayı unutmayın.",
+                "points": 10
+            },
+            {
+                "id": 2,
+                "category": "water",
+                "icon": "💧",
+                "title": "Su Tasarrufu",
+                "description": "Dişlerinizi fırçalarken veya ellerinizi yıkarken suyu kapatın.",
+                "points": 10
+            },
+            {
+                "id": 3,
+                "category": "waste",
+                "icon": "♻️",
+                "title": "Geri Dönüşüm",
+                "description": "Çöplerinizi ayrıştırarak geri dönüşüm kutularına atın.",
+                "points": 15
+            },
+            {
+                "id": 4,
+                "category": "towel",
+                "icon": "🏨",
+                "title": "Havlu Tasarrufu",
+                "description": "Havlularınızı gereksiz yere değiştirmeyin.",
+                "points": 10
+            },
+            {
+                "id": 5,
+                "category": "local",
+                "icon": "🌿",
+                "title": "Yerel Ürünler",
+                "description": "Restoranlarımızda yerel ve organik ürünleri tercih edin.",
+                "points": 20
+            },
+            {
+                "id": 6,
+                "category": "transport",
+                "icon": "🚶",
+                "title": "Yürüyerek Keşfet",
+                "description": "Yakın mesafeleri araç kullanmadan yürüyerek keşfedin.",
+                "points": 15
+            }
+        ]
+    }
+
+@api_router.put("/guest-engagement/self-assessment/{guest_id}")
+async def update_guest_self_assessment(
+    guest_id: str,
+    assessment_data: dict
+):
+    """Update guest's self-assessment"""
+    guest = await db.guest_engagement.find_one({"id": guest_id})
+    if not guest:
+        raise HTTPException(status_code=404, detail="Guest not found")
+    
+    # Calculate new sustainability score
+    completed_actions = assessment_data.get("eco_actions", [])
+    new_score = len(completed_actions) * 10  # 10 points per action
+    
+    # Update guest record
+    update_data = {
+        "eco_actions": completed_actions,
+        "sustainability_score": new_score,
+        "feedback_rating": assessment_data.get("feedback_rating"),
+        "feedback_comment": assessment_data.get("feedback_comment"),
+        "updated_at": datetime.utcnow()
+    }
+    
+    await db.guest_engagement.update_one(
+        {"id": guest_id},
+        {"$set": update_data}
+    )
+    
+    return {"message": "Assessment updated successfully", "new_score": new_score}
+
+@api_router.get("/guest-engagement/qr-access/{room_number}")
+async def get_guest_by_room(room_number: str, client_id: str):
+    """Get guest access by room number for QR code system"""
+    guest = await db.guest_engagement.find_one({
+        "room_number": room_number,
+        "client_id": client_id
+    })
+    
+    if not guest:
+        # Create a temporary guest record for QR access
+        guest_dict = {
+            "id": str(uuid.uuid4()),
+            "guest_name": f"Guest Room {room_number}",
+            "room_number": room_number,
+            "client_id": client_id,
+            "eco_actions": [],
+            "sustainability_score": 0,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        await db.guest_engagement.insert_one(guest_dict)
+        return {"guest_id": guest_dict["id"], "is_new": True}
+    
+    return {"guest_id": guest["id"], "is_new": False}
+
 # Multi-Client Comparison Analytics
 @api_router.get("/analytics/multi-client-comparison")
 async def get_multi_client_comparison(
