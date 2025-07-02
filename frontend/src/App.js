@@ -724,10 +724,8 @@ const CarbonFootprint = () => {
     </div>
   );
 };
-                </span>
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+// Consumption Analytics Components
                 {/* Energy Sources */}
                 {carbonData.total_emission_sources.electricity && (
                   <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 rounded-lg border-l-4 border-yellow-500">
