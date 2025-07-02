@@ -3178,6 +3178,137 @@ async def get_sustainability_leaderboard(
     top_guests = await db.guest_engagement.aggregate(pipeline).to_list(length=10)
     return {"leaderboard": top_guests}
 
+# Guest Engagement Endpoints
+@api_router.post("/guest-engagement")
+async def create_guest_engagement(
+    guest_data: GuestEngagementInput,
+    current_user: User = Depends(get_current_user)
+):
+    """Create guest engagement record"""
+    
+    # Determine client_id
+    if current_user.role == UserRole.ADMIN:
+        if not guest_data.client_id:
+            raise HTTPException(status_code=400, detail="Admin must specify client_id")
+        client_id = guest_data.client_id
+    else:
+        client_id = current_user.client_id
+    
+    # Calculate sustainability score based on eco actions
+    score = len(guest_data.eco_actions) * 10  # 10 points per action
+    
+    guest_dict = {
+        **guest_data.dict(exclude={'client_id'}),
+        "client_id": client_id,
+        "sustainability_score": score,
+        "id": str(uuid.uuid4()),
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
+    }
+    
+    await db.guest_engagement.insert_one(guest_dict)
+    return {"message": "Guest engagement record created", "id": guest_dict["id"], "score": score}
+
+@api_router.get("/guest-engagement")
+async def get_guest_engagement(
+    client_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get guest engagement records"""
+    
+    if current_user.role == UserRole.ADMIN:
+        if client_id:
+            filter_query = {"client_id": client_id}
+        else:
+            filter_query = {}
+    else:
+        filter_query = {"client_id": current_user.client_id}
+    
+    guests = await db.guest_engagement.find(filter_query).to_list(length=100)
+    return guests
+
+@api_router.get("/guest-engagement/eco-tips")
+async def get_eco_tips():
+    """Get sustainability tips for guests"""
+    
+    eco_tips = [
+        {
+            "id": 1,
+            "category": "energy",
+            "icon": "💡",
+            "title": "Enerji Tasarrufu",
+            "description": "Odadan çıkarken klimayı ve ışıkları kapatmayı unutmayın.",
+            "points": 10
+        },
+        {
+            "id": 2,
+            "category": "water",
+            "icon": "💧",
+            "title": "Su Tasarrufu",
+            "description": "Dişlerinizi fırçalarken veya ellerinizi yıkarken suyu kapatın.",
+            "points": 10
+        },
+        {
+            "id": 3,
+            "category": "waste",
+            "icon": "♻️",
+            "title": "Geri Dönüşüm",
+            "description": "Çöplerinizi ayrıştırarak geri dönüşüm kutularına atın.",
+            "points": 15
+        },
+        {
+            "id": 4,
+            "category": "towel",
+            "icon": "🏨",
+            "title": "Havlu Tasarrufu",
+            "description": "Havlularınızı gereksiz yere değiştirmeyin.",
+            "points": 10
+        },
+        {
+            "id": 5,
+            "category": "local",
+            "icon": "🌿",
+            "title": "Yerel Ürünler",
+            "description": "Restoranlarımızda yerel ve organik ürünleri tercih edin.",
+            "points": 20
+        },
+        {
+            "id": 6,
+            "category": "transport",
+            "icon": "🚶",
+            "title": "Yürüyerek Keşfet",
+            "description": "Yakın mesafeleri araç kullanmadan yürüyerek keşfedin.",
+            "points": 15
+        }
+    ]
+    
+    return {"eco_tips": eco_tips}
+
+@api_router.get("/guest-engagement/leaderboard")
+async def get_sustainability_leaderboard(
+    client_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get sustainability leaderboard"""
+    
+    if current_user.role == UserRole.ADMIN:
+        if client_id:
+            filter_query = {"client_id": client_id}
+        else:
+            filter_query = {}
+    else:
+        filter_query = {"client_id": current_user.client_id}
+    
+    # Get top guests by sustainability score
+    pipeline = [
+        {"$match": filter_query},
+        {"$sort": {"sustainability_score": -1}},
+        {"$limit": 10}
+    ]
+    
+    top_guests = await db.guest_engagement.aggregate(pipeline).to_list(length=10)
+    return {"leaderboard": top_guests}
+
 # Multi-Client Comparison Analytics
 @api_router.get("/analytics/multi-client-comparison")
 async def get_multi_client_comparison(
