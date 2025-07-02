@@ -285,6 +285,29 @@ class Client(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
+# Guest Engagement Models
+class GuestEngagementInput(BaseModel):
+    guest_name: str
+    room_number: str
+    eco_actions: List[str] = []  # Completed eco actions
+    sustainability_score: int = 0
+    feedback_rating: Optional[int] = None
+    feedback_comment: Optional[str] = None
+    client_id: Optional[str] = None
+
+class GuestEngagement(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    guest_name: str
+    room_number: str
+    eco_actions: List[str] = []
+    sustainability_score: int = 0
+    feedback_rating: Optional[int] = None
+    feedback_comment: Optional[str] = None
+    client_id: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+# Consumption Models
 class Consumption(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     client_id: str
