@@ -733,36 +733,172 @@ const CarbonFootprint = () => {
                 {Object.entries(carbonData.total_emission_sources).map(([key, value]) => {
                   if (!value || value === 0) return null;
                   
-                  const sourceInfo = {
-                    electricity: { icon: "⚡", name: "Elektrik", color: "yellow", category: "Enerji", unit: "kg CO2" },
-                    water: { icon: "💧", name: "Su", color: "blue", category: "Su", unit: "kg CO2" },
-                    natural_gas: { icon: "🔥", name: "Doğalgaz", color: "orange", category: "Yakıt", unit: "kg CO2" },
-                    coal: { icon: "⚫", name: "Kömür", color: "gray", category: "Yakıt", unit: "kg CO2" },
-                    diesel: { icon: "🚛", name: "Mazot", color: "green", category: "Yakıt", unit: "kg CO2" },
-                    gasoline: { icon: "⛽", name: "Benzin", color: "red", category: "Yakıt", unit: "kg CO2" },
-                    lpg: { icon: "🔥", name: "LPG", color: "purple", category: "Yakıt", unit: "kg CO2" },
-                    fuel_oil: { icon: "🏭", name: "Fuel Oil", color: "indigo", category: "Yakıt", unit: "kg CO2" },
-                    r134a_gas: { icon: "❄️", name: "R134a", color: "cyan", category: "F-Gas", unit: "kg CO2e" },
-                    r600a_gas: { icon: "🧊", name: "R600a", color: "teal", category: "F-Gas", unit: "kg CO2e" },
-                    r410a_gas: { icon: "🌀", name: "R410A", color: "blue", category: "F-Gas", unit: "kg CO2e" },
-                    r32_gas: { icon: "💨", name: "R32", color: "emerald", category: "F-Gas", unit: "kg CO2e" },
-                    co2_fire: { icon: "🧯", name: "CO2 Söndürücü", color: "slate", category: "Söndürücü", unit: "kg CO2" },
-                    fm200_fire: { icon: "🚨", name: "FM200", color: "rose", category: "Söndürücü", unit: "kg CO2e" }
+                  const getSourceCard = (key, value) => {
+                    const valueText = typeof value === "number" ? value.toFixed(2) : 0;
+                    
+                    switch (key) {
+                      case "electricity":
+                        return (
+                          <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 rounded-lg border-l-4 border-yellow-500">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-yellow-800">⚡ Elektrik</span>
+                              <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded">Enerji</span>
+                            </div>
+                            <p className="text-2xl font-bold text-yellow-900">{valueText}</p>
+                            <p className="text-xs text-yellow-700">kg CO2</p>
+                          </div>
+                        );
+                      case "water":
+                        return (
+                          <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border-l-4 border-blue-500">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-blue-800">💧 Su</span>
+                              <span className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded">Su</span>
+                            </div>
+                            <p className="text-2xl font-bold text-blue-900">{valueText}</p>
+                            <p className="text-xs text-blue-700">kg CO2</p>
+                          </div>
+                        );
+                      case "natural_gas":
+                        return (
+                          <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-lg border-l-4 border-orange-500">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-orange-800">🔥 Doğalgaz</span>
+                              <span className="text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded">Yakıt</span>
+                            </div>
+                            <p className="text-2xl font-bold text-orange-900">{valueText}</p>
+                            <p className="text-xs text-orange-700">kg CO2</p>
+                          </div>
+                        );
+                      case "coal":
+                        return (
+                          <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border-l-4 border-gray-500">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-gray-800">⚫ Kömür</span>
+                              <span className="text-xs bg-gray-200 text-gray-800 px-2 py-1 rounded">Yakıt</span>
+                            </div>
+                            <p className="text-2xl font-bold text-gray-900">{valueText}</p>
+                            <p className="text-xs text-gray-700">kg CO2</p>
+                          </div>
+                        );
+                      case "diesel":
+                        return (
+                          <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border-l-4 border-green-500">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-green-800">🚛 Mazot</span>
+                              <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">Yakıt</span>
+                            </div>
+                            <p className="text-2xl font-bold text-green-900">{valueText}</p>
+                            <p className="text-xs text-green-700">kg CO2</p>
+                          </div>
+                        );
+                      case "gasoline":
+                        return (
+                          <div className="bg-gradient-to-br from-red-50 to-red-100 p-4 rounded-lg border-l-4 border-red-500">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-red-800">⛽ Benzin</span>
+                              <span className="text-xs bg-red-200 text-red-800 px-2 py-1 rounded">Yakıt</span>
+                            </div>
+                            <p className="text-2xl font-bold text-red-900">{valueText}</p>
+                            <p className="text-xs text-red-700">kg CO2</p>
+                          </div>
+                        );
+                      case "lpg":
+                        return (
+                          <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border-l-4 border-purple-500">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-purple-800">🔥 LPG</span>
+                              <span className="text-xs bg-purple-200 text-purple-800 px-2 py-1 rounded">Yakıt</span>
+                            </div>
+                            <p className="text-2xl font-bold text-purple-900">{valueText}</p>
+                            <p className="text-xs text-purple-700">kg CO2</p>
+                          </div>
+                        );
+                      case "fuel_oil":
+                        return (
+                          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-lg border-l-4 border-indigo-500">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-indigo-800">🏭 Fuel Oil</span>
+                              <span className="text-xs bg-indigo-200 text-indigo-800 px-2 py-1 rounded">Yakıt</span>
+                            </div>
+                            <p className="text-2xl font-bold text-indigo-900">{valueText}</p>
+                            <p className="text-xs text-indigo-700">kg CO2</p>
+                          </div>
+                        );
+                      case "r134a_gas":
+                        return (
+                          <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 p-4 rounded-lg border-l-4 border-cyan-500">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-cyan-800">❄️ R134a</span>
+                              <span className="text-xs bg-cyan-200 text-cyan-800 px-2 py-1 rounded">F-Gas</span>
+                            </div>
+                            <p className="text-2xl font-bold text-cyan-900">{valueText}</p>
+                            <p className="text-xs text-cyan-700">kg CO2e</p>
+                          </div>
+                        );
+                      case "r600a_gas":
+                        return (
+                          <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-4 rounded-lg border-l-4 border-teal-500">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-teal-800">🧊 R600a</span>
+                              <span className="text-xs bg-teal-200 text-teal-800 px-2 py-1 rounded">F-Gas</span>
+                            </div>
+                            <p className="text-2xl font-bold text-teal-900">{valueText}</p>
+                            <p className="text-xs text-teal-700">kg CO2e</p>
+                          </div>
+                        );
+                      case "r410a_gas":
+                        return (
+                          <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border-l-4 border-blue-600">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-blue-800">🌀 R410A</span>
+                              <span className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded">F-Gas</span>
+                            </div>
+                            <p className="text-2xl font-bold text-blue-900">{valueText}</p>
+                            <p className="text-xs text-blue-700">kg CO2e</p>
+                          </div>
+                        );
+                      case "r32_gas":
+                        return (
+                          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-lg border-l-4 border-emerald-500">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-emerald-800">💨 R32</span>
+                              <span className="text-xs bg-emerald-200 text-emerald-800 px-2 py-1 rounded">F-Gas</span>
+                            </div>
+                            <p className="text-2xl font-bold text-emerald-900">{valueText}</p>
+                            <p className="text-xs text-emerald-700">kg CO2e</p>
+                          </div>
+                        );
+                      case "co2_fire":
+                        return (
+                          <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 rounded-lg border-l-4 border-slate-500">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-slate-800">🧯 CO2 Söndürücü</span>
+                              <span className="text-xs bg-slate-200 text-slate-800 px-2 py-1 rounded">Söndürücü</span>
+                            </div>
+                            <p className="text-2xl font-bold text-slate-900">{valueText}</p>
+                            <p className="text-xs text-slate-700">kg CO2</p>
+                          </div>
+                        );
+                      case "fm200_fire":
+                        return (
+                          <div className="bg-gradient-to-br from-rose-50 to-rose-100 p-4 rounded-lg border-l-4 border-rose-500">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-rose-800">🚨 FM200</span>
+                              <span className="text-xs bg-rose-200 text-rose-800 px-2 py-1 rounded">Söndürücü</span>
+                            </div>
+                            <p className="text-2xl font-bold text-rose-900">{valueText}</p>
+                            <p className="text-xs text-rose-700">kg CO2e</p>
+                          </div>
+                        );
+                      default:
+                        return null;
+                    }
                   };
                   
-                  const info = sourceInfo[key];
-                  if (!info) return null;
-                  
                   return (
-                    <div key={key} className={`bg-gradient-to-br from-${info.color}-50 to-${info.color}-100 p-4 rounded-lg border-l-4 border-${info.color}-500`}>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className={`font-semibold text-${info.color}-800`}>{info.icon} {info.name}</span>
-                        <span className={`text-xs bg-${info.color}-200 text-${info.color}-800 px-2 py-1 rounded`}>{info.category}</span>
-                      </div>
-                      <p className={`text-2xl font-bold text-${info.color}-900`}>
-                        {typeof value === "number" ? value.toFixed(2) : 0}
-                      </p>
-                      <p className={`text-xs text-${info.color}-700`}>{info.unit}</p>
+                    <div key={key}>
+                      {getSourceCard(key, value)}
                     </div>
                   );
                 })}
