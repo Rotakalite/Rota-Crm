@@ -419,6 +419,9 @@ frontend:
         -working: true
         -agent: "testing"
         -comment: "Tested the DEFRA F-Gas carbon calculation system thoroughly. Verified that all F-Gas emission factors match the expected values: r134a_gas (1430 kg CO2e/kg), r600a_gas (3 kg CO2e/kg), r410a_gas (2088 kg CO2e/kg), r32_gas (675 kg CO2e/kg), co2_fire (1 kg CO2e/kg), and fm200_fire (3220 kg CO2e/kg). The carbon calculation function correctly processes all F-Gas values and produces accurate CO2 emissions results. The POST /api/consumptions endpoint correctly accepts and processes F-Gas fields. The PUT /api/consumptions/{id} endpoint correctly updates F-Gas fields. The GET /api/analytics/carbon-footprint endpoint correctly includes F-Gas emissions in the carbon footprint analysis. The emissions breakdown correctly categorizes refrigerants (r134a_gas, r600a_gas, r410a_gas, r32_gas) and fire suppressants (co2_fire, fm200_fire). All tests passed successfully."
+        -working: true
+        -agent: "testing"
+        -comment: "Conducted additional testing of the carbon footprint analytics endpoint. Verified that the endpoint returns all required emission sources in the total_emission_sources object, including electricity, water, natural_gas, coal, diesel, gasoline, lpg, fuel_oil, r134a_gas, r600a_gas, r410a_gas, r32_gas, co2_fire, and fm200_fire. The response structure matches the expected format from the review request. The F-Gas emission values are correctly calculated using the DEFRA 2024 emission factors. The endpoint properly categorizes refrigerants and fire suppressants in the emissions breakdown. All tests passed successfully, confirming that the carbon footprint analytics endpoint is fully functional and includes all required F-Gas emission sources."
 
 metadata:
   created_by: "testing_agent"
