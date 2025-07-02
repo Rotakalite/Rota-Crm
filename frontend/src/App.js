@@ -1517,12 +1517,6 @@ const GuestSelfAssessment = () => {
 };
             <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
               <h3 className="text-lg font-bold mb-2">💧 Su</h3>
-              <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.water?.toLocaleString() || 0}</p>
-              <p className="text-green-100">m³</p>
-              {analyticsData.yearly_totals?.previous_year?.water && (
-                <p className="text-sm mt-2">
-                  {(() => {
-                    const current = analyticsData.yearly_totals.current_year.water || 0;
                     const previous = analyticsData.yearly_totals.previous_year.water || 0;
                     const change = previous > 0 ? ((current - previous) / previous * 100) : 0;
                     return (
