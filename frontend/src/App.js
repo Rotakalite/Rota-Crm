@@ -1282,6 +1282,329 @@ const GuestEngagement = () => {
   );
 };
 
+// Guest Engagement Component
+const GuestEngagement = () => {
+  const [guests, setGuests] = useState([]);
+  const [ecoTips, setEcoTips] = useState([]);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [showAddGuest, setShowAddGuest] = useState(false);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState('');
+  
+  const [guestData, setGuestData] = useState({
+    guest_name: '',
+    room_number: '',
+    eco_actions: [],
+    feedback_rating: null,
+    feedback_comment: ''
+  });
+
+  const { authToken, userRole, dbUser } = useAuth();
+
+  useEffect(() => {
+    if (!authToken) return;
+    fetchClients();
+    fetchEcoTips();
+  }, [authToken]);
+
+  useEffect(() => {
+    if (selectedClient || userRole === 'client') {
+      fetchGuestData();
+      fetchLeaderboard();
+    }
+  }, [selectedClient, userRole]);
+
+  const fetchClients = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/clients`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setClients(response.data);
+      if (userRole === 'client' && dbUser?.client_id) {
+        setSelectedClient(dbUser.client_id);
+      }
+    } catch (error) {
+      console.error('Clients fetch error:', error);
+    }
+  };
+
+  const fetchGuestData = async () => {
+    try {
+      setLoading(true);
+      const clientParam = userRole === 'admin' && selectedClient ? `?client_id=${selectedClient}` : '';
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/guest-engagement${clientParam}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setGuests(response.data);
+    } catch (error) {
+      console.error('Guest data fetch error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchEcoTips = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/guest-engagement/eco-tips`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setEcoTips(response.data.eco_tips);
+    } catch (error) {
+      console.error('Eco tips fetch error:', error);
+    }
+  };
+
+  const fetchLeaderboard = async () => {
+    try {
+      const clientParam = userRole === 'admin' && selectedClient ? `?client_id=${selectedClient}` : '';
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/guest-engagement/leaderboard${clientParam}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setLeaderboard(response.data.leaderboard);
+    } catch (error) {
+      console.error('Leaderboard fetch error:', error);
+    }
+  };
+
+  const handleSubmitGuest = async () => {
+    try {
+      const payload = {
+        ...guestData,
+        client_id: userRole === 'admin' ? selectedClient : undefined
+      };
+
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/guest-engagement`, payload, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      setShowAddGuest(false);
+      setGuestData({
+        guest_name: '',
+        room_number: '',
+        eco_actions: [],
+        feedback_rating: null,
+        feedback_comment: ''
+      });
+      
+      fetchGuestData();
+      fetchLeaderboard();
+    } catch (error) {
+      console.error('Guest submission error:', error);
+    }
+  };
+
+  const toggleEcoAction = (actionId) => {
+    const tipTitle = ecoTips.find(tip => tip.id === actionId)?.title;
+    setGuestData(prev => ({
+      ...prev,
+      eco_actions: prev.eco_actions.includes(tipTitle)
+        ? prev.eco_actions.filter(action => action !== tipTitle)
+        : [...prev.eco_actions, tipTitle]
+    }));
+  };
+
+  return (
+    <div className="p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold text-gray-800">🎯 Guest Engagement & Education</h2>
+        <button
+          onClick={() => setShowAddGuest(true)}
+          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+        >
+          + Konuk Ekle
+        </button>
+      </div>
+
+      {/* Client Selection for Admin */}
+      {userRole === 'admin' && (
+        <div className="bg-white p-4 rounded-lg shadow">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Client Seçin:</label>
+          <select
+            value={selectedClient}
+            onChange={(e) => setSelectedClient(e.target.value)}
+            className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Client Seçin</option>
+            {clients.map(client => (
+              <option key={client.id} value={client.id}>{client.company_name}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* Eco Tips Grid */}
+      <div className="bg-white p-6 rounded-xl shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-green-800">🌿 Sürdürülebilirlik İpuçları</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {ecoTips.map(tip => (
+            <div key={tip.id} className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-2xl">{tip.icon}</span>
+                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                  +{tip.points} puan
+                </span>
+              </div>
+              <h4 className="font-semibold text-green-900">{tip.title}</h4>
+              <p className="text-sm text-green-700 mt-1">{tip.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Leaderboard */}
+      <div className="bg-white p-6 rounded-xl shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-purple-800">🏆 Sürdürülebilirlik Liderlik Tablosu</h3>
+        <div className="space-y-2">
+          {leaderboard.map((guest, index) => (
+            <div key={guest.id} className={`p-3 rounded-lg flex items-center justify-between ${
+              index === 0 ? 'bg-yellow-50 border-yellow-300' :
+              index === 1 ? 'bg-gray-50 border-gray-300' :
+              index === 2 ? 'bg-orange-50 border-orange-300' : 'bg-white border-gray-200'
+            } border`}>
+              <div className="flex items-center space-x-3">
+                <span className="text-lg">
+                  {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`}
+                </span>
+                <div>
+                  <span className="font-semibold">{guest.guest_name}</span>
+                  <span className="text-gray-500 ml-2">Oda {guest.room_number}</span>
+                </div>
+              </div>
+              <span className="font-bold text-purple-600">{guest.sustainability_score} puan</span>
+            </div>
+          ))}
+          {leaderboard.length === 0 && (
+            <p className="text-gray-500 text-center py-4">Henüz konuk verisi bulunmuyor.</p>
+          )}
+        </div>
+      </div>
+
+      {/* Guest List */}
+      <div className="bg-white p-6 rounded-xl shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-blue-800">👥 Konuk Listesi</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full table-auto">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="px-4 py-2 text-left">Konuk Adı</th>
+                <th className="px-4 py-2 text-left">Oda</th>
+                <th className="px-4 py-2 text-left">Sürdürülebilirlik Puanı</th>
+                <th className="px-4 py-2 text-left">Eco Aksiyonlar</th>
+                <th className="px-4 py-2 text-left">Değerlendirme</th>
+              </tr>
+            </thead>
+            <tbody>
+              {guests.map(guest => (
+                <tr key={guest.id} className="border-t">
+                  <td className="px-4 py-2 font-medium">{guest.guest_name}</td>
+                  <td className="px-4 py-2">{guest.room_number}</td>
+                  <td className="px-4 py-2">
+                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
+                      {guest.sustainability_score} puan
+                    </span>
+                  </td>
+                  <td className="px-4 py-2">
+                    <span className="text-green-600">{guest.eco_actions.length} aksiyon</span>
+                  </td>
+                  <td className="px-4 py-2">
+                    {guest.feedback_rating && (
+                      <span className="text-yellow-500">
+                        {'★'.repeat(guest.feedback_rating)}
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Add Guest Modal */}
+      {showAddGuest && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <h3 className="text-xl font-bold mb-4">Yeni Konuk Ekle</h3>
+            
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="Konuk Adı"
+                value={guestData.guest_name}
+                onChange={(e) => setGuestData(prev => ({...prev, guest_name: e.target.value}))}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+              
+              <input
+                type="text"
+                placeholder="Oda Numarası"
+                value={guestData.room_number}
+                onChange={(e) => setGuestData(prev => ({...prev, room_number: e.target.value}))}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Eco Aksiyonlar:</label>
+                <div className="space-y-2">
+                  {ecoTips.map(tip => (
+                    <label key={tip.id} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={guestData.eco_actions.includes(tip.title)}
+                        onChange={() => toggleEcoAction(tip.id)}
+                        className="rounded"
+                      />
+                      <span className="text-sm">{tip.icon} {tip.title} (+{tip.points} puan)</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Değerlendirme (1-5):</label>
+                <div className="flex space-x-2">
+                  {[1,2,3,4,5].map(rating => (
+                    <button
+                      key={rating}
+                      onClick={() => setGuestData(prev => ({...prev, feedback_rating: rating}))}
+                      className={`text-2xl ${guestData.feedback_rating >= rating ? 'text-yellow-500' : 'text-gray-300'}`}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <textarea
+                placeholder="Yorum (opsiyonel)"
+                value={guestData.feedback_comment}
+                onChange={(e) => setGuestData(prev => ({...prev, feedback_comment: e.target.value}))}
+                className="w-full px-3 py-2 border rounded-lg h-20"
+              />
+            </div>
+
+            <div className="flex space-x-3 mt-6">
+              <button
+                onClick={handleSubmitGuest}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+              >
+                Kaydet
+              </button>
+              <button
+                onClick={() => setShowAddGuest(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+              >
+                İptal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const ConsumptionAnalytics = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [clients, setClients] = useState([]);
