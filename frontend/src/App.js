@@ -719,8 +719,8 @@ const CarbonFootprint = () => {
             </div>
           </div>
 
-          {/* Emission Sources Breakdown - Simplified */}
-          {carbonData.total_emission_sources && Object.keys(carbonData.total_emission_sources).length > 0 && (
+          {/* Emission Sources Breakdown - Basic */}
+          {carbonData.total_emission_sources && (
             <div className="bg-white p-6 rounded-xl shadow-lg">
               <h3 className="text-xl font-bold mb-4 flex items-center">
                 🔬 Kaynak Bazında Emisyon Analizi
