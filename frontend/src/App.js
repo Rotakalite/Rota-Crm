@@ -734,10 +734,10 @@ const CarbonFootprint = () => {
                   </div>
                 )}
                 
-                {carbonData.total_emission_sources.water > 0 && (
+                {carbonData.total_emission_sources.water && carbonData.total_emission_sources.water > 0 && (
                   <div className="bg-blue-50 p-4 rounded border-l-4 border-blue-500">
                     <span className="font-semibold">💧 Su: </span>
-                    <span className="text-lg font-bold">{carbonData.total_emission_sources.water.toFixed(2)} kg CO2</span>
+                    <span className="text-lg font-bold">{(carbonData.total_emission_sources.water || 0).toFixed(2)} kg CO2</span>
                   </div>
                 )}
                 
