@@ -933,16 +933,10 @@ const CarbonFootprint = () => {
             </div>
           )}
 
-          {/* Emission Sources Breakdown */}
-          {carbonData.total_emission_sources && Object.keys(carbonData.total_emission_sources).length > 0 && (
-            <div className="bg-white p-6 rounded-xl shadow-lg">
-              <h3 className="text-xl font-bold mb-4 flex items-center">
-                🔬 Kaynak Bazında Emisyon Analizi
-                <span className="ml-2 text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                  DEFRA 2024
-                </span>
-              </h3>
-              
+        </>
+      )}
+    </div>
+  );
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {/* Energy Sources */}
                 {carbonData.total_emission_sources.electricity && (
