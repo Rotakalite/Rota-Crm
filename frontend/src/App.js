@@ -615,7 +615,7 @@ const CarbonFootprint = () => {
             
             <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
               <h3 className="text-lg font-bold mb-2">👤 Kişi Başına</h3>
-              <p className="text-3xl font-bold">{carbonData.average_per_person_co2 && average_per_person_co2.toFixed(2) || 0}</p>
+              <p className="text-3xl font-bold">{(carbonData.average_per_person_co2 || 0).toFixed(2)}</p>
               <p className="text-purple-100">kg CO2/kişi</p>
             </div>
             
