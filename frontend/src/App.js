@@ -786,6 +786,7 @@ const CarbonFootprint = () => {
 };
 
 const ConsumptionAnalytics = () => {
+  const [analyticsData, setAnalyticsData] = useState(null);
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState('');
   const [selectedYear, setSelectedYear] = useState(2025);
