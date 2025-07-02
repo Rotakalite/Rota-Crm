@@ -615,7 +615,7 @@ const CarbonFootprint = () => {
             
             <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
               <h3 className="text-lg font-bold mb-2">👤 Kişi Başına</h3>
-              <p className="text-3xl font-bold">{carbonData.average_per_person_co2?.toFixed(2) || 0}</p>
+              <p className="text-3xl font-bold">{carbonData.average_per_person_co2 && average_per_person_co2.toFixed(2) || 0}</p>
               <p className="text-purple-100">kg CO2/kişi</p>
             </div>
             
@@ -625,7 +625,7 @@ const CarbonFootprint = () => {
                 {carbonData.yearly_benchmarks?.performance_level || 'Hesaplanıyor'}
               </p>
               <p className="text-orange-100">
-                {carbonData.yearly_benchmarks?.co2_per_room_night?.toFixed(2) || 0} kg/oda/gece
+                {carbonData.yearly_benchmarks?.co2_per_room_night && co2_per_room_night.toFixed(2) || 0} kg/oda/gece
               </p>
             </div>
           </div>
@@ -649,10 +649,10 @@ const CarbonFootprint = () => {
                     <tr key={index} className={`hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-25'}`}>
                       <td className="px-4 py-3 border font-bold text-gray-800">{month.month_name}</td>
                       <td className="px-4 py-3 border text-green-700 font-semibold">
-                        {month.total_co2_emissions?.toFixed(2) || 0}
+                        {month.total_co2_emissions && total_co2_emissions.toFixed(2) || 0}
                       </td>
                       <td className="px-4 py-3 border text-blue-700 font-semibold">
-                        {month.per_person_co2?.toFixed(2) || 0}
+                        {month.per_person_co2 && per_person_co2.toFixed(2) || 0}
                       </td>
                       <td className="px-4 py-3 border text-purple-700 font-semibold">
                         {month.accommodation_count || 0}
@@ -738,7 +738,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded">Enerji</span>
                     </div>
                     <p className="text-2xl font-bold text-yellow-900">
-                      {carbonData.total_emission_sources.electricity?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.electricity && electricity.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-yellow-700">kg CO2</p>
                   </div>
@@ -751,7 +751,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded">Su</span>
                     </div>
                     <p className="text-2xl font-bold text-blue-900">
-                      {carbonData.total_emission_sources.water?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.water && water.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-blue-700">kg CO2</p>
                   </div>
@@ -764,7 +764,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded">Yakıt</span>
                     </div>
                     <p className="text-2xl font-bold text-orange-900">
-                      {carbonData.total_emission_sources.natural_gas?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.natural_gas && natural_gas.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-orange-700">kg CO2</p>
                   </div>
@@ -777,7 +777,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-gray-200 text-gray-800 px-2 py-1 rounded">Yakıt</span>
                     </div>
                     <p className="text-2xl font-bold text-gray-900">
-                      {carbonData.total_emission_sources.coal?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.coal && coal.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-gray-700">kg CO2</p>
                   </div>
@@ -791,7 +791,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">Yakıt</span>
                     </div>
                     <p className="text-2xl font-bold text-green-900">
-                      {carbonData.total_emission_sources.diesel?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.diesel && diesel.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-green-700">kg CO2</p>
                   </div>
@@ -804,7 +804,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-red-200 text-red-800 px-2 py-1 rounded">Yakıt</span>
                     </div>
                     <p className="text-2xl font-bold text-red-900">
-                      {carbonData.total_emission_sources.gasoline?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.gasoline && gasoline.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-red-700">kg CO2</p>
                   </div>
@@ -817,7 +817,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-purple-200 text-purple-800 px-2 py-1 rounded">Yakıt</span>
                     </div>
                     <p className="text-2xl font-bold text-purple-900">
-                      {carbonData.total_emission_sources.lpg?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.lpg && lpg.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-purple-700">kg CO2</p>
                   </div>
@@ -830,7 +830,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-indigo-200 text-indigo-800 px-2 py-1 rounded">Yakıt</span>
                     </div>
                     <p className="text-2xl font-bold text-indigo-900">
-                      {carbonData.total_emission_sources.fuel_oil?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.fuel_oil && fuel_oil.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-indigo-700">kg CO2</p>
                   </div>
@@ -844,7 +844,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-cyan-200 text-cyan-800 px-2 py-1 rounded">F-Gas</span>
                     </div>
                     <p className="text-2xl font-bold text-cyan-900">
-                      {carbonData.total_emission_sources.r134a_gas?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.r134a_gas && r134a_gas.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-cyan-700">kg CO2e</p>
                   </div>
@@ -857,7 +857,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-teal-200 text-teal-800 px-2 py-1 rounded">F-Gas</span>
                     </div>
                     <p className="text-2xl font-bold text-teal-900">
-                      {carbonData.total_emission_sources.r600a_gas?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.r600a_gas && r600a_gas.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-teal-700">kg CO2e</p>
                   </div>
@@ -870,7 +870,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded">F-Gas</span>
                     </div>
                     <p className="text-2xl font-bold text-blue-900">
-                      {carbonData.total_emission_sources.r410a_gas?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.r410a_gas && r410a_gas.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-blue-700">kg CO2e</p>
                   </div>
@@ -883,7 +883,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-emerald-200 text-emerald-800 px-2 py-1 rounded">F-Gas</span>
                     </div>
                     <p className="text-2xl font-bold text-emerald-900">
-                      {carbonData.total_emission_sources.r32_gas?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.r32_gas && r32_gas.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-emerald-700">kg CO2e</p>
                   </div>
@@ -897,7 +897,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-slate-200 text-slate-800 px-2 py-1 rounded">Söndürücü</span>
                     </div>
                     <p className="text-2xl font-bold text-slate-900">
-                      {carbonData.total_emission_sources.co2_fire?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.co2_fire && co2_fire.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-slate-700">kg CO2</p>
                   </div>
@@ -910,7 +910,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-rose-200 text-rose-800 px-2 py-1 rounded">Söndürücü</span>
                     </div>
                     <p className="text-2xl font-bold text-rose-900">
-                      {carbonData.total_emission_sources.fm200_fire?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.fm200_fire && fm200_fire.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-rose-700">kg CO2e</p>
                   </div>
@@ -950,7 +950,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded">Enerji</span>
                     </div>
                     <p className="text-2xl font-bold text-yellow-900">
-                      {carbonData.total_emission_sources.electricity?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.electricity && electricity.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-yellow-700">kg CO2</p>
                   </div>
@@ -963,7 +963,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded">Su</span>
                     </div>
                     <p className="text-2xl font-bold text-blue-900">
-                      {carbonData.total_emission_sources.water?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.water && water.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-blue-700">kg CO2</p>
                   </div>
@@ -976,7 +976,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded">Yakıt</span>
                     </div>
                     <p className="text-2xl font-bold text-orange-900">
-                      {carbonData.total_emission_sources.natural_gas?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.natural_gas && natural_gas.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-orange-700">kg CO2</p>
                   </div>
@@ -989,7 +989,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-gray-200 text-gray-800 px-2 py-1 rounded">Yakıt</span>
                     </div>
                     <p className="text-2xl font-bold text-gray-900">
-                      {carbonData.total_emission_sources.coal?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.coal && coal.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-gray-700">kg CO2</p>
                   </div>
@@ -1003,7 +1003,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">Yakıt</span>
                     </div>
                     <p className="text-2xl font-bold text-green-900">
-                      {carbonData.total_emission_sources.diesel?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.diesel && diesel.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-green-700">kg CO2</p>
                   </div>
@@ -1016,7 +1016,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-red-200 text-red-800 px-2 py-1 rounded">Yakıt</span>
                     </div>
                     <p className="text-2xl font-bold text-red-900">
-                      {carbonData.total_emission_sources.gasoline?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.gasoline && gasoline.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-red-700">kg CO2</p>
                   </div>
@@ -1029,7 +1029,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-purple-200 text-purple-800 px-2 py-1 rounded">Yakıt</span>
                     </div>
                     <p className="text-2xl font-bold text-purple-900">
-                      {carbonData.total_emission_sources.lpg?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.lpg && lpg.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-purple-700">kg CO2</p>
                   </div>
@@ -1042,7 +1042,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-indigo-200 text-indigo-800 px-2 py-1 rounded">Yakıt</span>
                     </div>
                     <p className="text-2xl font-bold text-indigo-900">
-                      {carbonData.total_emission_sources.fuel_oil?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.fuel_oil && fuel_oil.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-indigo-700">kg CO2</p>
                   </div>
@@ -1056,7 +1056,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-cyan-200 text-cyan-800 px-2 py-1 rounded">F-Gas</span>
                     </div>
                     <p className="text-2xl font-bold text-cyan-900">
-                      {carbonData.total_emission_sources.r134a_gas?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.r134a_gas && r134a_gas.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-cyan-700">kg CO2e</p>
                   </div>
@@ -1069,7 +1069,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-teal-200 text-teal-800 px-2 py-1 rounded">F-Gas</span>
                     </div>
                     <p className="text-2xl font-bold text-teal-900">
-                      {carbonData.total_emission_sources.r600a_gas?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.r600a_gas && r600a_gas.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-teal-700">kg CO2e</p>
                   </div>
@@ -1082,7 +1082,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded">F-Gas</span>
                     </div>
                     <p className="text-2xl font-bold text-blue-900">
-                      {carbonData.total_emission_sources.r410a_gas?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.r410a_gas && r410a_gas.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-blue-700">kg CO2e</p>
                   </div>
@@ -1095,7 +1095,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-emerald-200 text-emerald-800 px-2 py-1 rounded">F-Gas</span>
                     </div>
                     <p className="text-2xl font-bold text-emerald-900">
-                      {carbonData.total_emission_sources.r32_gas?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.r32_gas && r32_gas.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-emerald-700">kg CO2e</p>
                   </div>
@@ -1109,7 +1109,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-slate-200 text-slate-800 px-2 py-1 rounded">Söndürücü</span>
                     </div>
                     <p className="text-2xl font-bold text-slate-900">
-                      {carbonData.total_emission_sources.co2_fire?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.co2_fire && co2_fire.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-slate-700">kg CO2</p>
                   </div>
@@ -1122,7 +1122,7 @@ const CarbonFootprint = () => {
                       <span className="text-xs bg-rose-200 text-rose-800 px-2 py-1 rounded">Söndürücü</span>
                     </div>
                     <p className="text-2xl font-bold text-rose-900">
-                      {carbonData.total_emission_sources.fm200_fire?.toFixed(2) || 0}
+                      {carbonData.total_emission_sources.fm200_fire && fm200_fire.toFixed(2) || 0}
                     </p>
                     <p className="text-xs text-rose-700">kg CO2e</p>
                   </div>
