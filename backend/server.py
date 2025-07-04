@@ -38,6 +38,9 @@ except Exception as e:
     logging.error(f"❌ Failed to import Email service: {e}")
     email_service = None
 
+# WhatsApp service - DISABLED
+whatsapp_service = None  # WhatsApp service deactivated
+
 # DEFRA Carbon calculation import
 try:
     from defra_carbon import calculate_carbon_emissions, get_emission_factor, validate_consumption_data, benchmark_performance
