@@ -7168,7 +7168,19 @@ const MainApp = () => {
     );
   }
 
-  // Show client setup form for new client users
+  // Show 2FA verification (ÖNCE 2FA, SONRA CLIENT SETUP)
+  if (show2FA && !twoFACompleted) {
+    return (
+      <TwoFactorAuth 
+        onVerificationComplete={() => {
+          setTwoFACompleted(true);
+          setShow2FA(false);
+        }} 
+      />
+    );
+  }
+
+  // Show client setup form for new client users (2FA'DAN SONRA)
   if (showClientSetup && userRole === 'client') {
     return <ClientSetupForm onComplete={handleSetupComplete} onSkip={handleSetupSkip} />;
   }
