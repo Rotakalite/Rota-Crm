@@ -2756,7 +2756,16 @@ const ConsumptionAnalytics = () => {
                         Doğalgaz (m³)
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Kömür (kg)
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Konaklama
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Elektrik/Kişi
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Su/Kişi
                       </th>
                     </tr>
                   </thead>
@@ -2776,7 +2785,16 @@ const ConsumptionAnalytics = () => {
                           {month.current_year?.natural_gas?.toLocaleString() || 0}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {month.current_year?.coal?.toLocaleString() || 0}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {month.current_year?.accommodation_count?.toLocaleString() || 0}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {month.per_person?.electricity?.toFixed(2) || '0.00'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {month.per_person?.water?.toFixed(2) || '0.00'}
                         </td>
                       </tr>
                     ))}
