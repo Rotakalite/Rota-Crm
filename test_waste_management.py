@@ -40,11 +40,15 @@ def test_create_waste_record():
     url = f"{BACKEND_URL}/waste-management"
     
     try:
-        # Test with admin user
-        logger.info("Testing with admin user...")
+        # Test with admin user and specific client_id
+        logger.info("Testing with admin user and specific client_id...")
         response = requests.post(url, headers=HEADERS_ADMIN, json=test_waste_data)
         logger.info(f"Admin response status code: {response.status_code}")
         logger.info(f"Admin response body: {response.text}")
+        
+        # Check CORS headers
+        logger.info(f"CORS headers: {response.headers.get('Access-Control-Allow-Origin', 'Not present')}")
+        cors_headers_present = 'Access-Control-Allow-Origin' in response.headers
         
         admin_success = response.status_code in [200, 201, 400]  # 400 is acceptable if record already exists
         
@@ -60,7 +64,23 @@ def test_create_waste_record():
         
         client_success = response.status_code in [200, 201, 400]  # 400 is acceptable if record already exists
         
-        return admin_success and client_success
+        # Test authentication handling
+        logger.info("Testing authentication handling...")
+        
+        # Test with invalid token
+        headers_invalid = {"Authorization": "Bearer invalid.token.format"}
+        response = requests.post(url, headers=headers_invalid, json=test_waste_data)
+        logger.info(f"Invalid token response status code: {response.status_code}")
+        
+        invalid_token_success = response.status_code == 401  # Should get 401 Unauthorized
+        
+        # Test with no token
+        response = requests.post(url, json=test_waste_data)
+        logger.info(f"No token response status code: {response.status_code}")
+        
+        no_token_success = response.status_code == 403  # Should get 403 Not authenticated
+        
+        return admin_success and client_success and invalid_token_success and no_token_success and cors_headers_present
     except Exception as e:
         logger.error(f"Error testing POST /api/waste-management: {str(e)}")
         return False
