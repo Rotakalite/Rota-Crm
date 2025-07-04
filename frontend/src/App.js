@@ -1862,8 +1862,7 @@ const WasteManagement = () => {
       if (selectedYear) params.append('year', selectedYear);
       if (userRole === 'admin' && selectedClient) params.append('client_id', selectedClient);
 
-      console.log('🔐 Auth Debug:', { authToken: authToken ? 'PRESENT' : 'MISSING', userRole, API });
-      const response = await axios.get(`${API}/waste-records?${params}`, {
+      const response = await axios.get(`${API}/atik-data?${params}`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setWasteRecords(response.data || []);
