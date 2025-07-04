@@ -2055,6 +2055,263 @@ const WasteManagement = () => {
   );
 };
 
+// Client Management Component
+const ClientManagement = ({ onNavigate }) => {
+  const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showAddClient, setShowAddClient] = useState(false);
+  const [newClient, setNewClient] = useState({
+    name: '',
+    hotel_name: '',
+    email: '',
+    phone: '',
+    address: ''
+  });
+
+  const { authToken, userRole } = useAuth();
+  const API = getApiUrl();
+
+  // Fetch clients
+  const fetchClients = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/clients`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setClients(response.data || []);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      setClients([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Add new client
+  const handleAddClient = async () => {
+    try {
+      await axios.post(`${API}/clients`, newClient, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      alert('Müşteri başarıyla eklendi!');
+      setShowAddClient(false);
+      setNewClient({
+        name: '',
+        hotel_name: '',
+        email: '',
+        phone: '',
+        address: ''
+      });
+      fetchClients();
+    } catch (error) {
+      console.error('Error adding client:', error);
+      alert('Hata: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  useEffect(() => {
+    if (authToken && userRole === 'admin') {
+      fetchClients();
+    }
+  }, [authToken, userRole]);
+
+  if (userRole !== 'admin') {
+    return (
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800">Bu bölüme erişim yetkiniz bulunmamaktadır.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">🏨 Müşteri Yönetimi</h1>
+          <p className="text-gray-600">
+            Müşteri bilgilerini yönetin ve projelerini takip edin
+          </p>
+        </div>
+
+        {/* Header Actions */}
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Müşteri Listesi</h2>
+              <p className="text-sm text-gray-600">Toplam {clients.length} müşteri</p>
+            </div>
+            <button
+              onClick={() => setShowAddClient(true)}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              ➕ Yeni Müşteri
+            </button>
+          </div>
+        </div>
+
+        {/* Clients Grid */}
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="text-gray-600 mt-4">Müşteriler yükleniyor...</p>
+          </div>
+        ) : clients.length === 0 ? (
+          <div className="bg-white rounded-lg shadow p-8 text-center">
+            <p className="text-gray-500">Henüz müşteri bulunmuyor. İlk müşterinizi ekleyin.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {clients.map((client) => (
+              <div key={client.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                      {client.hotel_name}
+                    </h3>
+                    <p className="text-sm text-gray-600">{client.name}</p>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Aktif
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <span className="mr-2">📧</span>
+                    {client.email || 'Email belirtilmemiş'}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <span className="mr-2">📞</span>
+                    {client.phone || 'Telefon belirtilmemiş'}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <span className="mr-2">📍</span>
+                    {client.address || 'Adres belirtilmemiş'}
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => onNavigate('documents')}
+                    className="flex-1 bg-blue-50 text-blue-600 px-3 py-2 rounded text-sm hover:bg-blue-100 transition-colors"
+                  >
+                    📄 Belgeleri
+                  </button>
+                  <button
+                    onClick={() => onNavigate('consumption')}
+                    className="flex-1 bg-green-50 text-green-600 px-3 py-2 rounded text-sm hover:bg-green-100 transition-colors"
+                  >
+                    ⚡ Tüketim
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Add Client Modal */}
+      {showAddClient && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Yeni Müşteri Ekle</h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Firma Adı *
+                  </label>
+                  <input
+                    type="text"
+                    value={newClient.name}
+                    onChange={(e) => setNewClient({...newClient, name: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="Firma adını girin"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Otel Adı *
+                  </label>
+                  <input
+                    type="text"
+                    value={newClient.hotel_name}
+                    onChange={(e) => setNewClient({...newClient, hotel_name: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="Otel adını girin"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={newClient.email}
+                    onChange={(e) => setNewClient({...newClient, email: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="Email adresi"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Telefon
+                  </label>
+                  <input
+                    type="tel"
+                    value={newClient.phone}
+                    onChange={(e) => setNewClient({...newClient, phone: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="Telefon numarası"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Adres
+                  </label>
+                  <textarea
+                    value={newClient.address}
+                    onChange={(e) => setNewClient({...newClient, address: e.target.value})}
+                    rows={3}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="Adres bilgisi"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  onClick={handleAddClient}
+                  disabled={!newClient.name || !newClient.hotel_name}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Kaydet
+                </button>
+                <button
+                  onClick={() => setShowAddClient(false)}
+                  className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600"
+                >
+                  İptal
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Guest Self-Assessment Component
 const GuestSelfAssessment = () => {
   const [guestData, setGuestData] = useState(null);
