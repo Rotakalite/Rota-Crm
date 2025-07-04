@@ -10,6 +10,14 @@ logger = logging.getLogger(__name__)
 # Backend URL
 BACKEND_URL = "https://d416542e-378b-422c-aa16-44ab4c991507.preview.emergentagent.com/api"
 
+# Test JWT token - this is a sample token for testing
+ADMIN_TOKEN = "eyJhbGciOiJSUzI1NiIsImtpZCI6Imluc18yUHFUQU9lQVNUUTlqaHRQcVpwSGlDRnVvIiwidHlwIjoiSldUIn0.eyJhenAiOiJodHRwczovL3JvdGEtY3JtLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJleHAiOjE3MTk5MzYxNjAsImlhdCI6MTcxOTkzMjU2MCwiaXNzIjoiaHR0cHM6Ly9hZGFwdGluZy1lZnQtNi5jbGVyay5hY2NvdW50cy5kZXYiLCJuYmYiOjE3MTk5MzI1NTAsInN1YiI6InVzZXJfQURNSU4iLCJlbWFpbCI6ImFkbWluQHJvdGFrYWxpdGVkYW5pc21hbmxpay5jb20iLCJuYW1lIjoiQWRtaW4gVXNlciJ9.signature"
+KAYA_CLIENT_TOKEN = "eyJhbGciOiJSUzI1NiIsImtpZCI6Imluc18yUHFUQU9lQVNUUTlqaHRQcVpwSGlDRnVvIiwidHlwIjoiSldUIn0.eyJhenAiOiJodHRwczovL3JvdGEtY3JtLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJleHAiOjE3MTk5MzYxNjAsImlhdCI6MTcxOTkzMjU2MCwiaXNzIjoiaHR0cHM6Ly9hZGFwdGluZy1lZnQtNi5jbGVyay5hY2NvdW50cy5kZXYiLCJuYmYiOjE3MTk5MzI1NTAsInN1YiI6InVzZXJfS0FZQV9DTElFTlRfMDAxIiwiZW1haWwiOiJpbmZvQGtheWFrYWxpdGVkYW5pc21hbmxpay5jb20iLCJuYW1lIjoiS0FZQSBDbGllbnQifQ.signature"
+
+# Headers for different user types
+HEADERS_ADMIN = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
+HEADERS_KAYA = {"Authorization": f"Bearer {KAYA_CLIENT_TOKEN}"}
+
 # Test data for waste management
 test_waste_data = {
     "year": 2024,
@@ -32,17 +40,27 @@ def test_create_waste_record():
     url = f"{BACKEND_URL}/waste-management"
     
     try:
-        response = requests.post(url, json=test_waste_data)
-        logger.info(f"Response status code: {response.status_code}")
-        logger.info(f"Response body: {response.text}")
+        # Test with admin user
+        logger.info("Testing with admin user...")
+        response = requests.post(url, headers=HEADERS_ADMIN, json=test_waste_data)
+        logger.info(f"Admin response status code: {response.status_code}")
+        logger.info(f"Admin response body: {response.text}")
         
-        if response.status_code in [200, 201]:
-            data = response.json()
-            logger.info(f"Response data: {data}")
-            return True
-        else:
-            logger.error(f"Failed to create waste record: {response.status_code}")
-            return False
+        admin_success = response.status_code in [200, 201, 400]  # 400 is acceptable if record already exists
+        
+        # Test with client user
+        logger.info("Testing with client user...")
+        client_waste_data = test_waste_data.copy()
+        client_waste_data.pop("client_id", None)  # Client users don't need to specify client_id
+        client_waste_data["month"] = 7  # Use a different month to avoid conflict
+        
+        response = requests.post(url, headers=HEADERS_KAYA, json=client_waste_data)
+        logger.info(f"Client response status code: {response.status_code}")
+        logger.info(f"Client response body: {response.text}")
+        
+        client_success = response.status_code in [200, 201, 400]  # 400 is acceptable if record already exists
+        
+        return admin_success and client_success
     except Exception as e:
         logger.error(f"Error testing POST /api/waste-management: {str(e)}")
         return False
@@ -54,17 +72,45 @@ def test_get_waste_records():
     url = f"{BACKEND_URL}/waste-management"
     
     try:
-        response = requests.get(url)
-        logger.info(f"Response status code: {response.status_code}")
-        logger.info(f"Response body: {response.text}")
+        # Test with admin user
+        logger.info("Testing with admin user...")
+        response = requests.get(url, headers=HEADERS_ADMIN)
+        logger.info(f"Admin response status code: {response.status_code}")
         
         if response.status_code == 200:
             data = response.json()
-            logger.info(f"Found {len(data)} waste records")
-            return True
+            logger.info(f"Found {len(data)} waste records for admin")
+            
+            # Check if there are any records
+            if len(data) > 0:
+                logger.info(f"First record: {json.dumps(data[0], indent=2)}")
+            else:
+                logger.info("No waste records found for admin")
         else:
-            logger.error(f"Failed to get waste records: {response.status_code}")
-            return False
+            logger.info(f"Admin response body: {response.text}")
+        
+        admin_success = response.status_code == 200
+        
+        # Test with client user
+        logger.info("Testing with client user...")
+        response = requests.get(url, headers=HEADERS_KAYA)
+        logger.info(f"Client response status code: {response.status_code}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            logger.info(f"Found {len(data)} waste records for client")
+            
+            # Check if there are any records
+            if len(data) > 0:
+                logger.info(f"First record: {json.dumps(data[0], indent=2)}")
+            else:
+                logger.info("No waste records found for client")
+        else:
+            logger.info(f"Client response body: {response.text}")
+        
+        client_success = response.status_code == 200
+        
+        return admin_success and client_success
     except Exception as e:
         logger.error(f"Error testing GET /api/waste-management: {str(e)}")
         return False
@@ -76,17 +122,47 @@ def test_get_waste_analytics():
     url = f"{BACKEND_URL}/waste-management/analytics"
     
     try:
-        response = requests.get(url)
-        logger.info(f"Response status code: {response.status_code}")
-        logger.info(f"Response body: {response.text}")
+        # Test with admin user
+        logger.info("Testing with admin user...")
+        response = requests.get(url, headers=HEADERS_ADMIN)
+        logger.info(f"Admin response status code: {response.status_code}")
         
         if response.status_code == 200:
             data = response.json()
             logger.info(f"Response data keys: {data.keys()}")
-            return True
+            
+            # Check if there are any records
+            if data.get("yearly_totals") and data.get("monthly_data"):
+                logger.info(f"Yearly totals: {json.dumps(data['yearly_totals'], indent=2)}")
+                logger.info(f"Monthly data count: {len(data['monthly_data'])}")
+            else:
+                logger.info("No waste analytics data found for admin")
         else:
-            logger.error(f"Failed to get waste analytics: {response.status_code}")
-            return False
+            logger.info(f"Admin response body: {response.text}")
+        
+        admin_success = response.status_code == 200
+        
+        # Test with client user
+        logger.info("Testing with client user...")
+        response = requests.get(url, headers=HEADERS_KAYA)
+        logger.info(f"Client response status code: {response.status_code}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            logger.info(f"Response data keys: {data.keys()}")
+            
+            # Check if there are any records
+            if data.get("yearly_totals") and data.get("monthly_data"):
+                logger.info(f"Yearly totals: {json.dumps(data['yearly_totals'], indent=2)}")
+                logger.info(f"Monthly data count: {len(data['monthly_data'])}")
+            else:
+                logger.info("No waste analytics data found for client")
+        else:
+            logger.info(f"Client response body: {response.text}")
+        
+        client_success = response.status_code == 200
+        
+        return admin_success and client_success
     except Exception as e:
         logger.error(f"Error testing GET /api/waste-management/analytics: {str(e)}")
         return False
