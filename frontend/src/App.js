@@ -88,6 +88,18 @@ const Dashboard = ({ onNavigate }) => {
             </p>
           </div>
 
+          {/* Waste Management Card */}
+          <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+               onClick={() => onNavigate('waste-management')}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">🗑️ Atık Yönetimi</h3>
+              <span className="text-2xl">→</span>
+            </div>
+            <p className="text-amber-100">
+              Atık takibi, geri dönüşüm analizi ve maliyet hesaplama
+            </p>
+          </div>
+
           {userRole === 'admin' && (
             <>
               {/* Client Management Card */}
