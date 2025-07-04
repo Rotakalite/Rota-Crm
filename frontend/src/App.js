@@ -2773,6 +2773,146 @@ const ConsumptionAnalytics = () => {
                 </table>
               </div>
             </div>
+
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+              {/* Monthly Consumption Chart */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Aylık Tüketim Trendi</h3>
+                <div className="h-80">
+                  <Line
+                    data={{
+                      labels: analyticsData.monthly_comparison?.map(m => m.month_name) || [],
+                      datasets: [
+                        {
+                          label: 'Elektrik (kWh)',
+                          data: analyticsData.monthly_comparison?.map(m => m.current_year?.electricity || 0) || [],
+                          borderColor: 'rgb(59, 130, 246)',
+                          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                          tension: 0.4,
+                        },
+                        {
+                          label: 'Su (m³)',
+                          data: analyticsData.monthly_comparison?.map(m => m.current_year?.water || 0) || [],
+                          borderColor: 'rgb(34, 197, 94)',
+                          backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                          tension: 0.4,
+                        },
+                        {
+                          label: 'Doğalgaz (m³)',
+                          data: analyticsData.monthly_comparison?.map(m => m.current_year?.natural_gas || 0) || [],
+                          borderColor: 'rgb(249, 115, 22)',
+                          backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                          tension: 0.4,
+                        }
+                      ]
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: 'top',
+                        },
+                        title: {
+                          display: false,
+                        },
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                        },
+                      },
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Yearly Comparison Chart */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Yıllık Karşılaştırma</h3>
+                <div className="h-80">
+                  <Bar
+                    data={{
+                      labels: ['Elektrik', 'Su', 'Doğalgaz', 'Konaklama'],
+                      datasets: [
+                        {
+                          label: `${selectedYear}`,
+                          data: [
+                            analyticsData.yearly_totals?.current_year?.electricity || 0,
+                            analyticsData.yearly_totals?.current_year?.water || 0,
+                            analyticsData.yearly_totals?.current_year?.natural_gas || 0,
+                            analyticsData.yearly_totals?.current_year?.accommodation_count || 0
+                          ],
+                          backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                          borderColor: 'rgb(59, 130, 246)',
+                          borderWidth: 1,
+                        },
+                        ...(analyticsData.yearly_totals?.previous_year ? [{
+                          label: `${selectedYear - 1}`,
+                          data: [
+                            analyticsData.yearly_totals.previous_year.electricity || 0,
+                            analyticsData.yearly_totals.previous_year.water || 0,
+                            analyticsData.yearly_totals.previous_year.natural_gas || 0,
+                            analyticsData.yearly_totals.previous_year.accommodation_count || 0
+                          ],
+                          backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                          borderColor: 'rgb(34, 197, 94)',
+                          borderWidth: 1,
+                        }] : [])
+                      ]
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: 'top',
+                        },
+                        title: {
+                          display: false,
+                        },
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                        },
+                      },
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Per Person Analysis */}
+            {analyticsData.yearly_totals?.current_year && (
+              <div className="bg-white rounded-lg shadow p-6 mt-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Kişi Başı Analiz</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-blue-600 mb-2">
+                      {analyticsData.yearly_totals.per_person?.electricity?.toFixed(1) || '0.0'}
+                    </div>
+                    <div className="text-sm text-gray-600">kWh/kişi/gece</div>
+                    <div className="text-xs text-gray-500 mt-1">Elektrik</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-green-600 mb-2">
+                      {analyticsData.yearly_totals.per_person?.water?.toFixed(1) || '0.0'}
+                    </div>
+                    <div className="text-sm text-gray-600">m³/kişi/gece</div>
+                    <div className="text-xs text-gray-500 mt-1">Su</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-orange-600 mb-2">
+                      {analyticsData.yearly_totals.per_person?.natural_gas?.toFixed(1) || '0.0'}
+                    </div>
+                    <div className="text-sm text-gray-600">m³/kişi/gece</div>
+                    <div className="text-xs text-gray-500 mt-1">Doğalgaz</div>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
