@@ -1171,11 +1171,12 @@ def run_tests():
     # Create a test suite
     suite = unittest.TestSuite()
     
-    # Only run waste management tests for this specific issue
-    logger.info("Running waste management tests to investigate data visibility issue...")
-    suite.addTest(TestWasteManagementEndpoints("test_create_waste_record"))
-    suite.addTest(TestWasteManagementEndpoints("test_get_waste_records"))
-    suite.addTest(TestWasteManagementEndpoints("test_get_waste_analytics"))
+    # Run waste management tests to verify CORS and configuration fixes
+    logger.info("Running waste management tests to verify CORS and configuration fixes...")
+    
+    # Add waste management tests
+    waste_management_tests = unittest.TestLoader().loadTestsFromTestCase(TestWasteManagementEndpoints)
+    suite.addTests(waste_management_tests)
     
     # Run the tests
     runner = unittest.TextTestRunner()
