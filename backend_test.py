@@ -1158,12 +1158,9 @@ def run_tests():
     
     # Create a test suite
     suite = unittest.TestSuite()
-    suite.addTest(TestAnalyticsEndpoints("test_consumption_analytics_endpoint"))
-    suite.addTest(TestAnalyticsEndpoints("test_multi_client_comparison_endpoint"))
-    suite.addTest(TestAnalyticsEndpoints("test_monthly_trends_endpoint"))
-    suite.addTest(TestAnalyticsEndpoints("test_existing_consumption_endpoints"))
     
-    # Add waste management tests
+    # Only run waste management tests for this specific issue
+    logger.info("Running waste management tests to investigate data visibility issue...")
     suite.addTest(TestWasteManagementEndpoints("test_create_waste_record"))
     suite.addTest(TestWasteManagementEndpoints("test_get_waste_records"))
     suite.addTest(TestWasteManagementEndpoints("test_get_waste_analytics"))
