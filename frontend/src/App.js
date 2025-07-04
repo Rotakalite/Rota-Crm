@@ -2926,7 +2926,7 @@ const ConsumptionAnalytics = () => {
             {analyticsData.yearly_totals?.current_year && (
               <div className="bg-white rounded-lg shadow p-6 mt-8">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Kişi Başı Analiz</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-blue-600 mb-2">
                       {analyticsData.yearly_totals.per_person?.electricity?.toFixed(1) || '0.0'}
@@ -2947,6 +2947,13 @@ const ConsumptionAnalytics = () => {
                     </div>
                     <div className="text-sm text-gray-600">m³/kişi/gece</div>
                     <div className="text-xs text-gray-500 mt-1">Doğalgaz</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-600 mb-2">
+                      {analyticsData.yearly_totals.per_person?.coal?.toFixed(1) || '0.0'}
+                    </div>
+                    <div className="text-sm text-gray-600">kg/kişi/gece</div>
+                    <div className="text-xs text-gray-500 mt-1">Kömür</div>
                   </div>
                 </div>
               </div>
