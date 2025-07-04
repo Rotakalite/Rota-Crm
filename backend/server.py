@@ -213,6 +213,11 @@ async def global_options_handler(full_path: str):
 # Security
 security = HTTPBearer()
 
+# Rate Limiter for 2FA
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 # JWKS client - simple version without cache_ttl
 import functools
 import time
