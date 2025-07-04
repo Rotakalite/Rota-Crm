@@ -2833,6 +2833,13 @@ const ConsumptionAnalytics = () => {
                           borderColor: 'rgb(249, 115, 22)',
                           backgroundColor: 'rgba(249, 115, 22, 0.1)',
                           tension: 0.4,
+                        },
+                        {
+                          label: 'Kömür (kg)',
+                          data: analyticsData.monthly_comparison?.map(m => m.current_year?.coal || 0) || [],
+                          borderColor: 'rgb(75, 85, 99)',
+                          backgroundColor: 'rgba(75, 85, 99, 0.1)',
+                          tension: 0.4,
                         }
                       ]
                     }}
