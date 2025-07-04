@@ -2870,7 +2870,7 @@ const ConsumptionAnalytics = () => {
                 <div className="h-80">
                   <Bar
                     data={{
-                      labels: ['Elektrik', 'Su', 'Doğalgaz', 'Konaklama'],
+                      labels: ['Elektrik', 'Su', 'Doğalgaz', 'Kömür', 'Konaklama'],
                       datasets: [
                         {
                           label: `${selectedYear}`,
@@ -2878,6 +2878,7 @@ const ConsumptionAnalytics = () => {
                             analyticsData.yearly_totals?.current_year?.electricity || 0,
                             analyticsData.yearly_totals?.current_year?.water || 0,
                             analyticsData.yearly_totals?.current_year?.natural_gas || 0,
+                            analyticsData.yearly_totals?.current_year?.coal || 0,
                             analyticsData.yearly_totals?.current_year?.accommodation_count || 0
                           ],
                           backgroundColor: 'rgba(59, 130, 246, 0.8)',
@@ -2890,6 +2891,7 @@ const ConsumptionAnalytics = () => {
                             analyticsData.yearly_totals.previous_year.electricity || 0,
                             analyticsData.yearly_totals.previous_year.water || 0,
                             analyticsData.yearly_totals.previous_year.natural_gas || 0,
+                            analyticsData.yearly_totals.previous_year.coal || 0,
                             analyticsData.yearly_totals.previous_year.accommodation_count || 0
                           ],
                           backgroundColor: 'rgba(34, 197, 94, 0.8)',
