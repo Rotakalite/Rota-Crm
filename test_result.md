@@ -215,6 +215,9 @@ backend:
         -working: true
         -agent: "testing"
         -comment: "Tested the /api/consumptions/analytics endpoint with both admin and client users. The endpoint correctly returns monthly comparison data with current and previous year values. Tested with different years (2024, 2025) and verified the response structure contains all required fields: year, monthly_comparison, yearly_totals, and yearly_per_person. Each month in monthly_comparison contains the correct structure with month, month_name, current_year, previous_year, and per-person calculations."
+        -working: true
+        -agent: "testing"
+        -comment: "Performed additional testing of the per-person calculations in the consumption analytics endpoint. Created comprehensive tests that verify the calculation logic (consumption / accommodation_count) is correct. The tests confirm that the backend correctly calculates per-person values for electricity, water, natural_gas, and coal when accommodation_count > 0, and returns zeros when accommodation_count = 0. The monthly_comparison data structure includes the 'per_person' field as expected. All tests passed successfully, confirming that the per-person calculations are working correctly."
 
   - task: "Multi-Client Comparison Endpoint"
     implemented: true
