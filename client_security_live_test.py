@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://9f48b84c-034b-45a8-ad5e-21ebcb0ee2a7.preview.emergentagent.com"
+BACKEND_URL = "https://616edfad-2f75-4e2d-b9f7-ddbd6ff57760.preview.emergentagent.com"
 
 # Test JWT tokens for different users
 # These are sample tokens for testing - in a real scenario, you would generate these from Clerk

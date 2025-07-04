@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL
-BACKEND_URL = "https://9f48b84c-034b-45a8-ad5e-21ebcb0ee2a7.preview.emergentagent.com"
+BACKEND_URL = "https://616edfad-2f75-4e2d-b9f7-ddbd6ff57760.preview.emergentagent.com"
 
 def test_backend_code():
     """Test the backend code directly by examining the get_clients function"""

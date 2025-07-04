@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL
-BACKEND_URL = "https://d416542e-378b-422c-aa16-44ab4c991507.preview.emergentagent.com/api"
+BACKEND_URL = "https://616edfad-2f75-4e2d-b9f7-ddbd6ff57760.preview.emergentagent.com/api"
 
 def check_database_directly():
     """Check MongoDB database directly for waste management records"""
