@@ -43,7 +43,7 @@ class TestWasteManagementEndpoints(unittest.TestCase):
         
         # Test data for waste management
         self.test_waste_data = {
-            "year": 2024,
+            "year": 2025,
             "month": 6,
             "organic_waste": 50.5,
             "plastic_waste": 25.0,
@@ -53,7 +53,7 @@ class TestWasteManagementEndpoints(unittest.TestCase):
             "electronic_waste": 5.0,
             "oil_waste": 5.0,
             "mixed_waste": 20.0,
-            "client_id": "test_client_id"  # Only used for admin
+            "client_id": "8bfd3a85-2483-4b63-9e80-e53747c3db7e"  # Client ID from the test requirements
         }
     
     def test_create_waste_record(self):
