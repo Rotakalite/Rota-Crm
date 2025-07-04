@@ -2752,14 +2752,14 @@ async def get_consumption_analytics(
         
         # Calculate per-person consumption
         if month_data["current_year"]["accommodation_count"] > 0:
-            month_data["current_year_per_person"] = {
+            month_data["per_person"] = {
                 "electricity": month_data["current_year"]["electricity"] / month_data["current_year"]["accommodation_count"],
                 "water": month_data["current_year"]["water"] / month_data["current_year"]["accommodation_count"],
                 "natural_gas": month_data["current_year"]["natural_gas"] / month_data["current_year"]["accommodation_count"],
                 "coal": month_data["current_year"]["coal"] / month_data["current_year"]["accommodation_count"]
             }
         else:
-            month_data["current_year_per_person"] = {"electricity": 0, "water": 0, "natural_gas": 0, "coal": 0}
+            month_data["per_person"] = {"electricity": 0, "water": 0, "natural_gas": 0, "coal": 0}
         
         if month_data["previous_year"]["accommodation_count"] > 0:
             month_data["previous_year_per_person"] = {
