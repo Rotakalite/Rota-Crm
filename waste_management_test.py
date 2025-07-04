@@ -409,7 +409,7 @@ class TestWasteManagementEndpoints(unittest.TestCase):
         
         # Test with year parameter
         try:
-            params = {"year": 2024}
+            params = {"year": 2025}
             response = requests.get(url, headers=self.headers_admin, params=params)
             logger.info(f"Admin response with year parameter status code: {response.status_code}")
             
@@ -430,7 +430,7 @@ class TestWasteManagementEndpoints(unittest.TestCase):
                 monthly_data = data["monthly_data"]
                 if len(monthly_data) > 0:
                     for month_data in monthly_data:
-                        self.assertEqual(month_data["year"], 2024)
+                        self.assertEqual(month_data["year"], 2025)
                 
                 logger.info("✅ GET /api/waste-management/analytics with year parameter passed")
             elif response.status_code in [401, 403]:
