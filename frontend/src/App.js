@@ -1935,7 +1935,7 @@ const WasteManagement = () => {
   }, [authToken, userRole]);
 
   useEffect(() => {
-    if (authToken && (userRole !== 'admin' || selectedClient)) {
+    if (authToken && (userRole === 'client' || (userRole === 'admin' && selectedClient))) {
       fetchWasteRecords();
       fetchAnalytics();
     }
