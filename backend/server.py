@@ -500,6 +500,24 @@ class WasteManagementInput(BaseModel):
     mixed_waste: float = 0.0
     client_id: Optional[str] = None  # Optional for admin users
 
+# 2FA Models
+class TwoFACodeRequest(BaseModel):
+    email: EmailStr
+
+class TwoFAVerifyRequest(BaseModel):
+    email: EmailStr
+    code: str
+
+class TwoFACode(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    email: str
+    code: str
+    user_id: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    expires_at: datetime
+    attempts: int = 0
+    verified: bool = False
+
 
 # Authentication Functions
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
