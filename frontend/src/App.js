@@ -1269,6 +1269,218 @@ const CarbonFootprint = () => {
             </div>
           )}
 
+          {/* Pasta Grafik - Emisyon Kaynakları Dağılımı */}
+          {carbonData.total_emission_sources && (
+            <div className="bg-white p-6 rounded-xl shadow-lg">
+              <h3 className="text-xl font-bold mb-6 flex items-center">
+                🍰 Emisyon Kaynakları Dağılımı
+              </h3>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Pasta Grafik */}
+                <div className="flex justify-center items-center">
+                  <div className="w-80 h-80">
+                    <Pie
+                      data={{
+                        labels: [
+                          '⚡ Elektrik',
+                          '🔥 Doğalgaz', 
+                          '💧 Su',
+                          '⚫ Kömür',
+                          '⛽ Dizel',
+                          '🚗 Benzin',
+                          '🏔️ LPG',
+                          '🛢️ Fuel Oil',
+                          '❄️ F-Gaslar',
+                          '🧯 Yangın Söndürücü'
+                        ].filter((_, index) => {
+                          const values = [
+                            carbonData.total_emission_sources.electricity || 0,
+                            carbonData.total_emission_sources.natural_gas || 0,
+                            carbonData.total_emission_sources.water || 0,
+                            carbonData.total_emission_sources.coal || 0,
+                            carbonData.total_emission_sources.diesel || 0,
+                            carbonData.total_emission_sources.gasoline || 0,
+                            carbonData.total_emission_sources.lpg || 0,
+                            carbonData.total_emission_sources.fuel_oil || 0,
+                            (carbonData.total_emission_sources.r134a_gas || 0) + 
+                            (carbonData.total_emission_sources.r600a_gas || 0) + 
+                            (carbonData.total_emission_sources.r410a_gas || 0) + 
+                            (carbonData.total_emission_sources.r32_gas || 0),
+                            (carbonData.total_emission_sources.co2_fire || 0) + 
+                            (carbonData.total_emission_sources.fm200_fire || 0)
+                          ];
+                          return values[index] > 0;
+                        }),
+                        datasets: [{
+                          data: [
+                            carbonData.total_emission_sources.electricity || 0,
+                            carbonData.total_emission_sources.natural_gas || 0,
+                            carbonData.total_emission_sources.water || 0,
+                            carbonData.total_emission_sources.coal || 0,
+                            carbonData.total_emission_sources.diesel || 0,
+                            carbonData.total_emission_sources.gasoline || 0,
+                            carbonData.total_emission_sources.lpg || 0,
+                            carbonData.total_emission_sources.fuel_oil || 0,
+                            (carbonData.total_emission_sources.r134a_gas || 0) + 
+                            (carbonData.total_emission_sources.r600a_gas || 0) + 
+                            (carbonData.total_emission_sources.r410a_gas || 0) + 
+                            (carbonData.total_emission_sources.r32_gas || 0),
+                            (carbonData.total_emission_sources.co2_fire || 0) + 
+                            (carbonData.total_emission_sources.fm200_fire || 0)
+                          ].filter(value => value > 0),
+                          backgroundColor: [
+                            '#FCD34D', // Elektrik - Sarı
+                            '#FB923C', // Doğalgaz - Turuncu
+                            '#60A5FA', // Su - Mavi
+                            '#6B7280', // Kömür - Gri
+                            '#34D399', // Dizel - Yeşil
+                            '#F87171', // Benzin - Kırmızı
+                            '#A78BFA', // LPG - Mor
+                            '#F59E0B', // Fuel Oil - Amber
+                            '#06B6D4', // F-Gaslar - Cyan
+                            '#EF4444'  // Yangın Söndürücü - Red
+                          ].slice(0, [
+                            carbonData.total_emission_sources.electricity || 0,
+                            carbonData.total_emission_sources.natural_gas || 0,
+                            carbonData.total_emission_sources.water || 0,
+                            carbonData.total_emission_sources.coal || 0,
+                            carbonData.total_emission_sources.diesel || 0,
+                            carbonData.total_emission_sources.gasoline || 0,
+                            carbonData.total_emission_sources.lpg || 0,
+                            carbonData.total_emission_sources.fuel_oil || 0,
+                            (carbonData.total_emission_sources.r134a_gas || 0) + 
+                            (carbonData.total_emission_sources.r600a_gas || 0) + 
+                            (carbonData.total_emission_sources.r410a_gas || 0) + 
+                            (carbonData.total_emission_sources.r32_gas || 0),
+                            (carbonData.total_emission_sources.co2_fire || 0) + 
+                            (carbonData.total_emission_sources.fm200_fire || 0)
+                          ].filter(value => value > 0).length),
+                          borderWidth: 3,
+                          borderColor: '#ffffff',
+                          hoverBorderWidth: 5,
+                          hoverBorderColor: '#1F2937'
+                        }]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: 'bottom',
+                            labels: {
+                              padding: 20,
+                              font: {
+                                size: 12,
+                                weight: 'bold'
+                              },
+                              color: '#374151'
+                            }
+                          },
+                          tooltip: {
+                            backgroundColor: '#1F2937',
+                            titleColor: '#F9FAFB',
+                            bodyColor: '#F9FAFB',
+                            borderColor: '#6B7280',
+                            borderWidth: 1,
+                            callbacks: {
+                              label: function(context) {
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${context.label}: ${value.toFixed(2)} kg CO2 (${percentage}%)`;
+                              }
+                            }
+                          }
+                        },
+                        animation: {
+                          animateRotate: true,
+                          animateScale: true,
+                          duration: 2000
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* İstatistikler */}
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border border-blue-200">
+                    <h4 className="font-bold text-gray-800 mb-4 flex items-center">
+                      📊 Emisyon İstatistikleri
+                    </h4>
+                    
+                    <div className="space-y-3">
+                      {/* En Yüksek Emisyon */}
+                      {(() => {
+                        const sources = {
+                          'Elektrik': carbonData.total_emission_sources.electricity || 0,
+                          'Doğalgaz': carbonData.total_emission_sources.natural_gas || 0,
+                          'Su': carbonData.total_emission_sources.water || 0,
+                          'Kömür': carbonData.total_emission_sources.coal || 0,
+                          'Dizel': carbonData.total_emission_sources.diesel || 0,
+                          'Benzin': carbonData.total_emission_sources.gasoline || 0,
+                          'LPG': carbonData.total_emission_sources.lpg || 0,
+                          'Fuel Oil': carbonData.total_emission_sources.fuel_oil || 0
+                        };
+                        const maxSource = Object.entries(sources).reduce((a, b) => sources[a[0]] > sources[b[0]] ? a : b);
+                        const total = Object.values(sources).reduce((a, b) => a + b, 0);
+                        const percentage = total > 0 ? ((maxSource[1] / total) * 100).toFixed(1) : 0;
+                        
+                        return (
+                          <div className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
+                            <span className="text-gray-700 font-medium">🏆 En Yüksek Emisyon:</span>
+                            <div className="text-right">
+                              <div className="font-bold text-red-600">{maxSource[0]}</div>
+                              <div className="text-sm text-gray-500">{maxSource[1].toFixed(2)} kg CO2 ({percentage}%)</div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* Toplam Kaynak Sayısı */}
+                      <div className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
+                        <span className="text-gray-700 font-medium">🔢 Aktif Kaynak Sayısı:</span>
+                        <div className="text-right">
+                          <div className="font-bold text-blue-600">
+                            {Object.values(carbonData.total_emission_sources).filter(v => v > 0).length}
+                          </div>
+                          <div className="text-sm text-gray-500">farklı emisyon kaynağı</div>
+                        </div>
+                      </div>
+
+                      {/* Ortalama Emisyon */}
+                      <div className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
+                        <span className="text-gray-700 font-medium">📈 Ortalama Emisyon:</span>
+                        <div className="text-right">
+                          <div className="font-bold text-green-600">
+                            {(() => {
+                              const values = Object.values(carbonData.total_emission_sources).filter(v => v > 0);
+                              const avg = values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+                              return avg.toFixed(2);
+                            })()}
+                          </div>
+                          <div className="text-sm text-gray-500">kg CO2/kaynak</div>
+                        </div>
+                      </div>
+
+                      {/* DEFRA Uyumluluk */}
+                      <div className="bg-green-100 p-3 rounded-lg border border-green-300">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-green-600 text-lg">✅</span>
+                          <span className="text-green-800 font-semibold text-sm">DEFRA 2024 Standartları</span>
+                        </div>
+                        <p className="text-green-700 text-xs mt-1">
+                          Tüm hesaplamalar UK DEFRA emisyon faktörleri ile yapılmıştır
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
         </>
       )}
     </div>
