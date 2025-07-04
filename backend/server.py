@@ -3616,7 +3616,7 @@ async def create_waste_record(
     """Create a new waste management record"""
     try:
         # Determine client_id based on user role
-        if current_user.role == "admin":
+        if current_user.role == UserRole.ADMIN:
             if not waste_data.client_id:
                 raise HTTPException(status_code=400, detail="Client ID required for admin users")
             client_id = waste_data.client_id
