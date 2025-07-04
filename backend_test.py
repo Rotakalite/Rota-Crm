@@ -763,30 +763,25 @@ class TestWasteManagementEndpoints(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        # Get backend URL from frontend .env file
-        with open('/app/frontend/.env', 'r') as f:
-            env_content = f.read()
-            for line in env_content.splitlines():
-                if line.startswith('REACT_APP_BACKEND_URL='):
-                    backend_url = line.split('=', 1)[1].strip()
-                    break
-        
-        self.api_url = backend_url
-        if not self.api_url.endswith('/api'):
-            self.api_url = f"{self.api_url}/api"
-        
+        self.api_url = "https://rota-crm-production.up.railway.app/api"
         logger.info(f"Using API URL: {self.api_url}")
         
         # Headers for different user types
         self.headers_admin = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
         self.headers_kaya = {"Authorization": f"Bearer {KAYA_CLIENT_TOKEN}"}
+        self.headers_cano = {"Authorization": f"Bearer {CANO_CLIENT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         self.headers_no_auth = {}
         
         # Test data for waste management
+        current_month = datetime.now().month
+        current_year = datetime.now().year
+        test_month = (current_month % 12) + 1  # Ensure it's 1-12
+        test_year = 2025  # Use 2025 as specified in the test requirements
+        
         self.test_waste_data = {
-            "year": 2024,
-            "month": 6,
+            "year": test_year,
+            "month": test_month,
             "organic_waste": 50.5,
             "plastic_waste": 25.0,
             "glass_waste": 15.5,
@@ -795,7 +790,7 @@ class TestWasteManagementEndpoints(unittest.TestCase):
             "electronic_waste": 5.0,
             "oil_waste": 5.0,
             "mixed_waste": 20.0,
-            "client_id": "test_client_id"  # Only used for admin
+            "client_id": "8bfd3a85-2483-4b63-9e80-e53747c3db7e"  # Client ID from the test requirements
         }
     
     def test_create_waste_record(self):
