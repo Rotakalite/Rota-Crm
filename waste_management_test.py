@@ -13,8 +13,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Test data
-TEST_YEAR_CURRENT = 2024
-TEST_YEAR_PREVIOUS = 2025
+TEST_YEAR_CURRENT = 2025
+TEST_YEAR_PREVIOUS = 2024
 
 # Backend URL
 API_URL = "https://rota-crm-production.up.railway.app/api"
