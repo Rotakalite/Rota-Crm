@@ -3694,7 +3694,7 @@ async def get_waste_records(
         # Build query based on user role
         query = {}
         
-        if current_user.role == "admin":
+        if current_user.role == UserRole.ADMIN:
             if client_id:
                 query["client_id"] = client_id
         else:
