@@ -20,7 +20,7 @@ HEADERS_KAYA = {"Authorization": f"Bearer {KAYA_CLIENT_TOKEN}"}
 
 # Test data for waste management
 test_waste_data = {
-    "year": 2024,
+    "year": 2025,
     "month": 6,
     "organic_waste": 50.5,
     "plastic_waste": 25.0,
@@ -30,7 +30,7 @@ test_waste_data = {
     "electronic_waste": 5.0,
     "oil_waste": 5.0,
     "mixed_waste": 20.0,
-    "client_id": "test_client_id"
+    "client_id": "4d7d0100-bdb4-44a0-ac4e-125d3b77a2bb"  # Client ID from the test requirements
 }
 
 def test_create_waste_record():
