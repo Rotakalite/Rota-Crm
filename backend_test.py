@@ -763,7 +763,19 @@ class TestWasteManagementEndpoints(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://d416542e-378b-422c-aa16-44ab4c991507.preview.emergentagent.com/api"
+        # Get backend URL from frontend .env file
+        with open('/app/frontend/.env', 'r') as f:
+            env_content = f.read()
+            for line in env_content.splitlines():
+                if line.startswith('REACT_APP_BACKEND_URL='):
+                    backend_url = line.split('=', 1)[1].strip()
+                    break
+        
+        self.api_url = backend_url
+        if not self.api_url.endswith('/api'):
+            self.api_url = f"{self.api_url}/api"
+        
+        logger.info(f"Using API URL: {self.api_url}")
         
         # Headers for different user types
         self.headers_admin = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
