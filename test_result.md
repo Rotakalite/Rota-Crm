@@ -494,6 +494,7 @@ test_plan:
     - "DEFRA Fuel Types Expansion"
     - "DEFRA Carbon Calculation System"
     - "DEFRA F-Gas Carbon Calculation"
+    - "Waste Management Backend APIs"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
