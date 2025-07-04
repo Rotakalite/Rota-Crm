@@ -31,6 +31,18 @@ class TestEmailService(unittest.TestCase):
         """Test that email_service has send_email method"""
         self.assertTrue(hasattr(email_service, "send_email"), "email_service should have send_email method")
         self.assertTrue(callable(getattr(email_service, "send_email")), "send_email should be callable")
+        
+        # Check method signature
+        import inspect
+        signature = inspect.signature(email_service.send_email)
+        parameters = list(signature.parameters.keys())
+        
+        logger.info(f"send_email method parameters: {parameters}")
+        
+        # Check required parameters
+        self.assertIn("to_email", parameters, "send_email should have to_email parameter")
+        self.assertIn("subject", parameters, "send_email should have subject parameter")
+        self.assertIn("html_content", parameters, "send_email should have html_content parameter")
 
 if __name__ == "__main__":
     unittest.main()
