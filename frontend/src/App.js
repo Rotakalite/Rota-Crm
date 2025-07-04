@@ -2704,300 +2704,377 @@ const ConsumptionAnalytics = () => {
           </div>
         ) : (
           <>
-            {/* Yearly Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
-                <h3 className="text-lg font-bold mb-2">⚡ Elektrik</h3>
-                <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.electricity?.toLocaleString() || 0}</p>
-                <p className="text-blue-100">kWh</p>
-                {analyticsData.yearly_totals?.previous_year?.electricity && (
-                  <p className="text-sm mt-2">
-                    Geçen yıl: {analyticsData.yearly_totals.previous_year.electricity.toLocaleString()}
-                  </p>
-                )}
-              </div>
+            {/* Overview Tab */}
+            {activeTab === 'overview' && (
+              <>
+                {/* Yearly Summary Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
+                    <h3 className="text-lg font-bold mb-2">⚡ Elektrik</h3>
+                    <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.electricity?.toLocaleString() || 0}</p>
+                    <p className="text-blue-100">kWh</p>
+                    {analyticsData.yearly_totals?.previous_year?.electricity && (
+                      <p className="text-sm mt-2">
+                        Geçen yıl: {analyticsData.yearly_totals.previous_year.electricity.toLocaleString()}
+                      </p>
+                    )}
+                  </div>
 
-              <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
-                <h3 className="text-lg font-bold mb-2">💧 Su</h3>
-                <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.water?.toLocaleString() || 0}</p>
-                <p className="text-green-100">m³</p>
-                {analyticsData.yearly_totals?.previous_year?.water && (
-                  <p className="text-sm mt-2">
-                    Geçen yıl: {analyticsData.yearly_totals.previous_year.water.toLocaleString()}
-                  </p>
-                )}
-              </div>
+                  <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
+                    <h3 className="text-lg font-bold mb-2">💧 Su</h3>
+                    <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.water?.toLocaleString() || 0}</p>
+                    <p className="text-green-100">m³</p>
+                    {analyticsData.yearly_totals?.previous_year?.water && (
+                      <p className="text-sm mt-2">
+                        Geçen yıl: {analyticsData.yearly_totals.previous_year.water.toLocaleString()}
+                      </p>
+                    )}
+                  </div>
 
-              <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg">
-                <h3 className="text-lg font-bold mb-2">🔥 Doğalgaz</h3>
-                <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.natural_gas?.toLocaleString() || 0}</p>
-                <p className="text-orange-100">m³</p>
-                {analyticsData.yearly_totals?.previous_year?.natural_gas && (
-                  <p className="text-sm mt-2">
-                    Geçen yıl: {analyticsData.yearly_totals.previous_year.natural_gas.toLocaleString()}
-                  </p>
-                )}
-              </div>
+                  <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg">
+                    <h3 className="text-lg font-bold mb-2">🔥 Doğalgaz</h3>
+                    <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.natural_gas?.toLocaleString() || 0}</p>
+                    <p className="text-orange-100">m³</p>
+                    {analyticsData.yearly_totals?.previous_year?.natural_gas && (
+                      <p className="text-sm mt-2">
+                        Geçen yıl: {analyticsData.yearly_totals.previous_year.natural_gas.toLocaleString()}
+                      </p>
+                    )}
+                  </div>
 
-              <div className="bg-gradient-to-br from-gray-600 to-gray-700 p-6 rounded-xl text-white shadow-lg">
-                <h3 className="text-lg font-bold mb-2">🏔️ Kömür</h3>
-                <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.coal?.toLocaleString() || 0}</p>
-                <p className="text-gray-100">kg</p>
-                {analyticsData.yearly_totals?.previous_year?.coal && (
-                  <p className="text-sm mt-2">
-                    Geçen yıl: {analyticsData.yearly_totals.previous_year.coal.toLocaleString()}
-                  </p>
-                )}
-              </div>
+                  <div className="bg-gradient-to-br from-gray-600 to-gray-700 p-6 rounded-xl text-white shadow-lg">
+                    <h3 className="text-lg font-bold mb-2">🏔️ Kömür</h3>
+                    <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.coal?.toLocaleString() || 0}</p>
+                    <p className="text-gray-100">kg</p>
+                    {analyticsData.yearly_totals?.previous_year?.coal && (
+                      <p className="text-sm mt-2">
+                        Geçen yıl: {analyticsData.yearly_totals.previous_year.coal.toLocaleString()}
+                      </p>
+                    )}
+                  </div>
 
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
-                <h3 className="text-lg font-bold mb-2">🏨 Konaklama</h3>
-                <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.accommodation_count?.toLocaleString() || 0}</p>
-                <p className="text-purple-100">geceleme</p>
-                {analyticsData.yearly_totals?.previous_year?.accommodation_count && (
-                  <p className="text-sm mt-2">
-                    Geçen yıl: {analyticsData.yearly_totals.previous_year.accommodation_count.toLocaleString()}
-                  </p>
-                )}
-              </div>
-            </div>
+                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
+                    <h3 className="text-lg font-bold mb-2">🏨 Konaklama</h3>
+                    <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.accommodation_count?.toLocaleString() || 0}</p>
+                    <p className="text-purple-100">geceleme</p>
+                    {analyticsData.yearly_totals?.previous_year?.accommodation_count && (
+                      <p className="text-sm mt-2">
+                        Geçen yıl: {analyticsData.yearly_totals.previous_year.accommodation_count.toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
 
-            {/* Monthly Comparison Table */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">Aylık Karşılaştırma</h2>
-              </div>
-              
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Ay
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Elektrik (kWh)
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Su (m³)
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Doğalgaz (m³)
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Kömür (kg)
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Konaklama
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Elektrik/Kişi
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Su/Kişi
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Doğalgaz/Kişi
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Kömür/Kişi
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {analyticsData.monthly_comparison?.map((month) => (
-                      <tr key={month.month} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                {/* Monthly Comparison Table */}
+                <div className="bg-white rounded-lg shadow overflow-hidden">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-900">Aylık Karşılaştırma</h2>
+                  </div>
+                  
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Ay
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Elektrik (kWh)
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Su (m³)
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Doğalgaz (m³)
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Kömür (kg)
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Konaklama
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Elektrik/Kişi
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Su/Kişi
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Doğalgaz/Kişi
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Kömür/Kişi
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {analyticsData.monthly_comparison?.map((month) => (
+                          <tr key={month.month} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                              {month.month_name} {selectedYear}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {month.current_year?.electricity?.toLocaleString() || 0}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {month.current_year?.water?.toLocaleString() || 0}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {month.current_year?.natural_gas?.toLocaleString() || 0}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {month.current_year?.coal?.toLocaleString() || 0}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {month.current_year?.accommodation_count?.toLocaleString() || 0}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                              {month.per_person?.electricity?.toFixed(2) || '0.00'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                              {month.per_person?.water?.toFixed(2) || '0.00'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                              {month.per_person?.natural_gas?.toFixed(2) || '0.00'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                              {month.per_person?.coal?.toFixed(2) || '0.00'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Charts Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                  {/* Monthly Consumption Chart */}
+                  <div className="bg-white rounded-lg shadow p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Aylık Tüketim Trendi</h3>
+                    <div className="h-80">
+                      <Line
+                        data={{
+                          labels: analyticsData.monthly_comparison?.map(m => m.month_name) || [],
+                          datasets: [
+                            {
+                              label: 'Elektrik (kWh)',
+                              data: analyticsData.monthly_comparison?.map(m => m.current_year?.electricity || 0) || [],
+                              borderColor: 'rgb(59, 130, 246)',
+                              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                              tension: 0.4,
+                            },
+                            {
+                              label: 'Su (m³)',
+                              data: analyticsData.monthly_comparison?.map(m => m.current_year?.water || 0) || [],
+                              borderColor: 'rgb(34, 197, 94)',
+                              backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                              tension: 0.4,
+                            },
+                            {
+                              label: 'Doğalgaz (m³)',
+                              data: analyticsData.monthly_comparison?.map(m => m.current_year?.natural_gas || 0) || [],
+                              borderColor: 'rgb(249, 115, 22)',
+                              backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                              tension: 0.4,
+                            },
+                            {
+                              label: 'Kömür (kg)',
+                              data: analyticsData.monthly_comparison?.map(m => m.current_year?.coal || 0) || [],
+                              borderColor: 'rgb(75, 85, 99)',
+                              backgroundColor: 'rgba(75, 85, 99, 0.1)',
+                              tension: 0.4,
+                            }
+                          ]
+                        }}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              position: 'top',
+                            },
+                            title: {
+                              display: false,
+                            },
+                          },
+                          scales: {
+                            y: {
+                              beginAtZero: true,
+                            },
+                          },
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Yearly Comparison Chart */}
+                  <div className="bg-white rounded-lg shadow p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Yıllık Karşılaştırma</h3>
+                    <div className="h-80">
+                      <Bar
+                        data={{
+                          labels: ['Elektrik', 'Su', 'Doğalgaz', 'Kömür', 'Konaklama'],
+                          datasets: [
+                            {
+                              label: `${selectedYear}`,
+                              data: [
+                                analyticsData.yearly_totals?.current_year?.electricity || 0,
+                                analyticsData.yearly_totals?.current_year?.water || 0,
+                                analyticsData.yearly_totals?.current_year?.natural_gas || 0,
+                                analyticsData.yearly_totals?.current_year?.coal || 0,
+                                analyticsData.yearly_totals?.current_year?.accommodation_count || 0
+                              ],
+                              backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                              borderColor: 'rgb(59, 130, 246)',
+                              borderWidth: 1,
+                            },
+                            ...(analyticsData.yearly_totals?.previous_year ? [{
+                              label: `${selectedYear - 1}`,
+                              data: [
+                                analyticsData.yearly_totals.previous_year.electricity || 0,
+                                analyticsData.yearly_totals.previous_year.water || 0,
+                                analyticsData.yearly_totals.previous_year.natural_gas || 0,
+                                analyticsData.yearly_totals.previous_year.coal || 0,
+                                analyticsData.yearly_totals.previous_year.accommodation_count || 0
+                              ],
+                              backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                              borderColor: 'rgb(34, 197, 94)',
+                              borderWidth: 1,
+                            }] : [])
+                          ]
+                        }}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              position: 'top',
+                            },
+                            title: {
+                              display: false,
+                            },
+                          },
+                          scales: {
+                            y: {
+                              beginAtZero: true,
+                            },
+                          },
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Per Person Tab */}
+            {activeTab === 'per-person' && (
+              <>
+                {/* Monthly Per Person Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {analyticsData.monthly_comparison?.map((month) => (
+                    <div key={month.month} className="bg-white rounded-lg shadow p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900">
                           {month.month_name} {selectedYear}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {month.current_year?.electricity?.toLocaleString() || 0}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {month.current_year?.water?.toLocaleString() || 0}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {month.current_year?.natural_gas?.toLocaleString() || 0}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {month.current_year?.coal?.toLocaleString() || 0}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {month.current_year?.accommodation_count?.toLocaleString() || 0}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                          {month.per_person?.electricity?.toFixed(2) || '0.00'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                          {month.per_person?.water?.toFixed(2) || '0.00'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                          {month.per_person?.natural_gas?.toFixed(2) || '0.00'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                          {month.per_person?.coal?.toFixed(2) || '0.00'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                        </h3>
+                        <span className="text-2xl">📊</span>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">⚡ Elektrik</span>
+                          <div className="text-right">
+                            <div className="font-bold text-blue-600">
+                              {month.per_person?.electricity?.toFixed(2) || '0.00'}
+                            </div>
+                            <div className="text-xs text-gray-500">kWh/kişi/gece</div>
+                          </div>
+                        </div>
 
-            {/* Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-              {/* Monthly Consumption Chart */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Aylık Tüketim Trendi</h3>
-                <div className="h-80">
-                  <Line
-                    data={{
-                      labels: analyticsData.monthly_comparison?.map(m => m.month_name) || [],
-                      datasets: [
-                        {
-                          label: 'Elektrik (kWh)',
-                          data: analyticsData.monthly_comparison?.map(m => m.current_year?.electricity || 0) || [],
-                          borderColor: 'rgb(59, 130, 246)',
-                          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                          tension: 0.4,
-                        },
-                        {
-                          label: 'Su (m³)',
-                          data: analyticsData.monthly_comparison?.map(m => m.current_year?.water || 0) || [],
-                          borderColor: 'rgb(34, 197, 94)',
-                          backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                          tension: 0.4,
-                        },
-                        {
-                          label: 'Doğalgaz (m³)',
-                          data: analyticsData.monthly_comparison?.map(m => m.current_year?.natural_gas || 0) || [],
-                          borderColor: 'rgb(249, 115, 22)',
-                          backgroundColor: 'rgba(249, 115, 22, 0.1)',
-                          tension: 0.4,
-                        },
-                        {
-                          label: 'Kömür (kg)',
-                          data: analyticsData.monthly_comparison?.map(m => m.current_year?.coal || 0) || [],
-                          borderColor: 'rgb(75, 85, 99)',
-                          backgroundColor: 'rgba(75, 85, 99, 0.1)',
-                          tension: 0.4,
-                        }
-                      ]
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                        legend: {
-                          position: 'top',
-                        },
-                        title: {
-                          display: false,
-                        },
-                      },
-                      scales: {
-                        y: {
-                          beginAtZero: true,
-                        },
-                      },
-                    }}
-                  />
-                </div>
-              </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">💧 Su</span>
+                          <div className="text-right">
+                            <div className="font-bold text-green-600">
+                              {month.per_person?.water?.toFixed(2) || '0.00'}
+                            </div>
+                            <div className="text-xs text-gray-500">m³/kişi/gece</div>
+                          </div>
+                        </div>
 
-              {/* Yearly Comparison Chart */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Yıllık Karşılaştırma</h3>
-                <div className="h-80">
-                  <Bar
-                    data={{
-                      labels: ['Elektrik', 'Su', 'Doğalgaz', 'Kömür', 'Konaklama'],
-                      datasets: [
-                        {
-                          label: `${selectedYear}`,
-                          data: [
-                            analyticsData.yearly_totals?.current_year?.electricity || 0,
-                            analyticsData.yearly_totals?.current_year?.water || 0,
-                            analyticsData.yearly_totals?.current_year?.natural_gas || 0,
-                            analyticsData.yearly_totals?.current_year?.coal || 0,
-                            analyticsData.yearly_totals?.current_year?.accommodation_count || 0
-                          ],
-                          backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                          borderColor: 'rgb(59, 130, 246)',
-                          borderWidth: 1,
-                        },
-                        ...(analyticsData.yearly_totals?.previous_year ? [{
-                          label: `${selectedYear - 1}`,
-                          data: [
-                            analyticsData.yearly_totals.previous_year.electricity || 0,
-                            analyticsData.yearly_totals.previous_year.water || 0,
-                            analyticsData.yearly_totals.previous_year.natural_gas || 0,
-                            analyticsData.yearly_totals.previous_year.coal || 0,
-                            analyticsData.yearly_totals.previous_year.accommodation_count || 0
-                          ],
-                          backgroundColor: 'rgba(34, 197, 94, 0.8)',
-                          borderColor: 'rgb(34, 197, 94)',
-                          borderWidth: 1,
-                        }] : [])
-                      ]
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                        legend: {
-                          position: 'top',
-                        },
-                        title: {
-                          display: false,
-                        },
-                      },
-                      scales: {
-                        y: {
-                          beginAtZero: true,
-                        },
-                      },
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">🔥 Doğalgaz</span>
+                          <div className="text-right">
+                            <div className="font-bold text-orange-600">
+                              {month.per_person?.natural_gas?.toFixed(2) || '0.00'}
+                            </div>
+                            <div className="text-xs text-gray-500">m³/kişi/gece</div>
+                          </div>
+                        </div>
 
-            {/* Per Person Analysis */}
-            {analyticsData.yearly_totals?.current_year && (
-              <div className="bg-white rounded-lg shadow p-6 mt-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Kişi Başı Analiz</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-600 mb-2">
-                      {analyticsData.yearly_totals.per_person?.electricity?.toFixed(1) || '0.0'}
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">🏔️ Kömür</span>
+                          <div className="text-right">
+                            <div className="font-bold text-gray-600">
+                              {month.per_person?.coal?.toFixed(2) || '0.00'}
+                            </div>
+                            <div className="text-xs text-gray-500">kg/kişi/gece</div>
+                          </div>
+                        </div>
+
+                        <div className="border-t pt-3 mt-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-gray-700">🏨 Toplam Konaklama</span>
+                            <div className="font-bold text-purple-600">
+                              {month.current_year?.accommodation_count?.toLocaleString() || 0}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600">kWh/kişi/gece</div>
-                    <div className="text-xs text-gray-500 mt-1">Elektrik</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-green-600 mb-2">
-                      {analyticsData.yearly_totals.per_person?.water?.toFixed(1) || '0.0'}
-                    </div>
-                    <div className="text-sm text-gray-600">m³/kişi/gece</div>
-                    <div className="text-xs text-gray-500 mt-1">Su</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-orange-600 mb-2">
-                      {analyticsData.yearly_totals.per_person?.natural_gas?.toFixed(1) || '0.0'}
-                    </div>
-                    <div className="text-sm text-gray-600">m³/kişi/gece</div>
-                    <div className="text-xs text-gray-500 mt-1">Doğalgaz</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-gray-600 mb-2">
-                      {analyticsData.yearly_totals.per_person?.coal?.toFixed(1) || '0.0'}
-                    </div>
-                    <div className="text-sm text-gray-600">kg/kişi/gece</div>
-                    <div className="text-xs text-gray-500 mt-1">Kömür</div>
-                  </div>
+                  ))}
                 </div>
-              </div>
+
+                {/* Yearly Average Per Person Summary */}
+                {analyticsData.yearly_totals?.per_person && (
+                  <div className="bg-white rounded-lg shadow p-6 mt-8">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      {selectedYear} Yıl Ortalaması - Kişi Başı
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-blue-600 mb-2">
+                          {analyticsData.yearly_totals.per_person?.electricity?.toFixed(1) || '0.0'}
+                        </div>
+                        <div className="text-sm text-gray-600">kWh/kişi/gece</div>
+                        <div className="text-xs text-gray-500 mt-1">Elektrik</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-green-600 mb-2">
+                          {analyticsData.yearly_totals.per_person?.water?.toFixed(1) || '0.0'}
+                        </div>
+                        <div className="text-sm text-gray-600">m³/kişi/gece</div>
+                        <div className="text-xs text-gray-500 mt-1">Su</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-orange-600 mb-2">
+                          {analyticsData.yearly_totals.per_person?.natural_gas?.toFixed(1) || '0.0'}
+                        </div>
+                        <div className="text-sm text-gray-600">m³/kişi/gece</div>
+                        <div className="text-xs text-gray-500 mt-1">Doğalgaz</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-gray-600 mb-2">
+                          {analyticsData.yearly_totals.per_person?.coal?.toFixed(1) || '0.0'}
+                        </div>
+                        <div className="text-sm text-gray-600">kg/kişi/gece</div>
+                        <div className="text-xs text-gray-500 mt-1">Kömür</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
