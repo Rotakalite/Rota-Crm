@@ -345,6 +345,21 @@ backend:
         -agent: "testing"
         -comment: "Tested the DEFRA Carbon calculation system thoroughly. Verified that all emission factors match the official DEFRA 2024 values: electricity (0.19338 kg CO2/kWh), water (0.344 kg CO2/m³), natural gas (0.18316 kg CO2/kWh), coal (2240 kg CO2/tonne), diesel (2.51 kg CO2/litre), gasoline (2.16 kg CO2/litre), LPG (1.51 kg CO2/litre), and fuel oil (2.54 kg CO2/litre). The carbon calculation function correctly processes all fuel types and produces accurate CO2 emissions results. The POST /api/consumptions endpoint automatically calculates carbon footprint fields (total_co2_emissions, total_co2_tonnes, per_person_co2, carbon_benchmark) when creating new consumption records. The GET /api/analytics/carbon-footprint endpoint works correctly, providing detailed carbon analytics with monthly breakdowns and yearly totals. The benchmarking system correctly categorizes performance as Excellent/Good/Average/Poor based on industry standards. All tests passed successfully."
 
+  - task: "Waste Management Backend APIs"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented waste management module with endpoints for creating waste records, retrieving waste data, and waste analytics."
+        -working: true
+        -agent: "testing"
+        -comment: "Tested the waste management endpoints (POST /api/waste-management, GET /api/waste-management, GET /api/waste-management/analytics). All endpoints have proper authentication handling, returning 401 Unauthorized for invalid tokens and 403 Forbidden when no token is provided. The POST endpoint correctly creates waste records with all required fields and calculates derived values like total_waste, recycling_rate, waste_cost, recycling_income, and net_cost. The GET endpoint returns waste records with proper filtering by client_id and year. The analytics endpoint provides comprehensive waste statistics including yearly_totals, monthly_data, waste_breakdown, and recycling_performance. All waste management endpoints are working as expected and meet the requirements specified in the review request."
+
 frontend:
   - task: "Fix Duplicate getFileIcon Function Declarations"
     implemented: true
