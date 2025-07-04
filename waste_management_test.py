@@ -17,7 +17,7 @@ TEST_YEAR_CURRENT = 2024
 TEST_YEAR_PREVIOUS = 2025
 
 # Backend URL
-API_URL = "https://616edfad-2f75-4e2d-b9f7-ddbd6ff57760.preview.emergentagent.com/api"
+API_URL = "https://rota-crm-production.up.railway.app/api"
 
 # Test JWT token - this is a sample token for testing
 # In a real scenario, you would generate this from Clerk
