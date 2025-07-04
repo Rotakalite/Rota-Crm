@@ -19,9 +19,30 @@ def check_database_directly():
     try:
         import pymongo
         
+        # Connect to MongoDB using URI from .env file
+        with open('/app/backend/.env', 'r') as f:
+            env_content = f.read()
+            for line in env_content.splitlines():
+                if line.startswith('MONGO_URL='):
+                    mongo_url = line.split('=', 1)[1].strip().strip('"')
+                    break
+                    
+        logger.info(f"Using MongoDB URL: {mongo_url}")
+        
         # Connect to MongoDB
-        client = pymongo.MongoClient("mongodb://localhost:27017/")
-        db = client["sustainable_tourism_crm"]
+        client = pymongo.MongoClient(mongo_url)
+        db_name = "sustainable_tourism_crm"  # Default DB name
+        
+        # Check if DB_NAME is specified in .env
+        with open('/app/backend/.env', 'r') as f:
+            env_content = f.read()
+            for line in env_content.splitlines():
+                if line.startswith('DB_NAME='):
+                    db_name = line.split('=', 1)[1].strip().strip('"')
+                    break
+                    
+        logger.info(f"Using database name: {db_name}")
+        db = client[db_name]
         
         # Check waste_management collection
         waste_records = list(db.waste_management.find())
