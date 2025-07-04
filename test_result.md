@@ -729,6 +729,8 @@ test_plan:
 agent_communication:
     -agent: "testing"
     -message: "I've tested the 2FA backend endpoints and found that the issue was in the email_service implementation. The send_2fa_code endpoint was trying to use email_service.send_email() method, but this method didn't exist in the EmailService class. I've added the missing send_email method to the EmailService class with proper parameters (to_email, subject, html_content) and implementation. The 2FA endpoints should now work correctly when called with proper authentication. The 500 error that was occurring when trying to send 2FA codes should now be resolved."
+    -agent: "testing"
+    -message: "I've investigated the issue where the frontend shows 'Henüz atık kaydı bulunmuyor' (No waste records found yet). I checked the database directly and found that waste records are being saved correctly in the MongoDB waste_management collection. I verified that the GET /api/waste-management endpoint is working correctly and returns the expected data when authenticated. The client_id filtering is also working properly, with admin users seeing all records and client users only seeing their own records. The issue appears to be with the frontend not properly fetching or displaying the data, not with the backend API or database."
 
 backend:
   - task: "Fix Authentication Errors for Document Endpoints"
