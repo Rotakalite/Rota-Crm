@@ -37,6 +37,43 @@ const getFileIcon = (filePath) => {
 const Dashboard = ({ onNavigate }) => {
   const { user } = useUser();
   const { authToken, userRole, dbUser } = useAuth();
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const API = getApiUrl();
+
+  // Fetch dashboard data
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/stats`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setDashboardData(response.data);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (authToken) {
+      fetchDashboardData();
+    }
+  }, [authToken]);
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="text-gray-600 mt-4">Dashboard yükleniyor...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -51,70 +88,98 @@ const Dashboard = ({ onNavigate }) => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Carbon Footprint Card */}
-          <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-               onClick={() => onNavigate('carbon')}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">🌍 Karbon Ayak İzi</h3>
-              <span className="text-2xl">→</span>
-            </div>
-            <p className="text-green-100">
-              DEFRA standardında karbon emisyon analizi ve raporlama
-            </p>
-          </div>
+        {/* Admin Dashboard */}
+        {userRole === 'admin' && dashboardData && (
+          <>
+            {/* Admin Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">🏨 Toplam Müşteri</h3>
+                    <p className="text-3xl font-bold">{dashboardData.total_clients || 0}</p>
+                  </div>
+                  <div className="text-4xl opacity-80">🏨</div>
+                </div>
+              </div>
 
-          {/* Guest Engagement Card */}
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-               onClick={() => onNavigate('guest-engagement')}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">🎯 Guest Engagement</h3>
-              <span className="text-2xl">→</span>
-            </div>
-            <p className="text-blue-100">
-              Misafir sürdürülebilirlik skorları ve eğitim
-            </p>
-          </div>
+              <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">📄 Toplam Doküman</h3>
+                    <p className="text-3xl font-bold">{dashboardData.total_documents || 0}</p>
+                  </div>
+                  <div className="text-4xl opacity-80">📄</div>
+                </div>
+              </div>
 
-          {/* Consumption Management Card */}
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-               onClick={() => onNavigate('consumption')}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">⚡ Tüketim Takibi</h3>
-              <span className="text-2xl">→</span>
-            </div>
-            <p className="text-purple-100">
-              Enerji, su ve yakıt tüketim verilerini yönetin
-            </p>
-          </div>
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">🎓 Toplam Eğitim</h3>
+                    <p className="text-3xl font-bold">{dashboardData.total_trainings || 0}</p>
+                  </div>
+                  <div className="text-4xl opacity-80">🎓</div>
+                </div>
+              </div>
 
-          {/* Waste Management Card */}
-          <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-               onClick={() => onNavigate('waste-management')}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">🗑️ Atık Yönetimi</h3>
-              <span className="text-2xl">→</span>
+              <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">📊 Aktif Proje</h3>
+                    <p className="text-3xl font-bold">{dashboardData.stage_distribution ? Object.values(dashboardData.stage_distribution).reduce((a, b) => a + b, 0) : 0}</p>
+                  </div>
+                  <div className="text-4xl opacity-80">📊</div>
+                </div>
+              </div>
             </div>
-            <p className="text-amber-100">
-              Atık takibi, geri dönüşüm analizi ve maliyet hesaplama
-            </p>
-          </div>
 
-          {userRole === 'admin' && (
-            <>
-              {/* Client Management Card */}
-              <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+            {/* Quick Action Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
                    onClick={() => onNavigate('clients')}>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">🏨 Müşteri Yönetimi</h3>
                   <span className="text-2xl">→</span>
                 </div>
-                <p className="text-orange-100">
+                <p className="text-indigo-100">
                   Müşteri bilgilerini yönetin ve analiz edin
                 </p>
               </div>
 
-              {/* Document Management Card */}
+              <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                   onClick={() => onNavigate('carbon')}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">🌍 Karbon Ayak İzi</h3>
+                  <span className="text-2xl">→</span>
+                </div>
+                <p className="text-green-100">
+                  DEFRA standardında karbon emisyon analizi
+                </p>
+              </div>
+
+              <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                   onClick={() => onNavigate('waste-management')}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">🗑️ Atık Yönetimi</h3>
+                  <span className="text-2xl">→</span>
+                </div>
+                <p className="text-amber-100">
+                  Atık takibi ve geri dönüşüm analizi
+                </p>
+              </div>
+
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                   onClick={() => onNavigate('guest-engagement')}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">🎯 Guest Engagement</h3>
+                  <span className="text-2xl">→</span>
+                </div>
+                <p className="text-blue-100">
+                  Misafir sürdürülebilirlik skorları
+                </p>
+              </div>
+
               <div className="bg-gradient-to-br from-red-500 to-red-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
                    onClick={() => onNavigate('documents')}>
                 <div className="flex items-center justify-between mb-4">
@@ -126,40 +191,156 @@ const Dashboard = ({ onNavigate }) => {
                 </p>
               </div>
 
-              {/* Training Management Card */}
-              <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+              <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
                    onClick={() => onNavigate('trainings')}>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">🎓 Eğitim Yönetimi</h3>
                   <span className="text-2xl">→</span>
                 </div>
-                <p className="text-indigo-100">
-                  Eğitim programlarını planlayın ve yönetin
+                <p className="text-cyan-100">
+                  Eğitim programlarını planlayın
                 </p>
               </div>
-            </>
-          )}
-        </div>
+            </div>
+          </>
+        )}
 
-        {/* Quick Stats */}
+        {/* Client Dashboard */}
+        {userRole === 'client' && dashboardData && (
+          <>
+            {/* Client Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">📄 Dokümanlarım</h3>
+                    <p className="text-3xl font-bold">{dashboardData.total_documents || 0}</p>
+                  </div>
+                  <div className="text-4xl opacity-80">📄</div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">🎓 Eğitimlerim</h3>
+                    <p className="text-3xl font-bold">{dashboardData.total_trainings || 0}</p>
+                  </div>
+                  <div className="text-4xl opacity-80">🎓</div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">📊 TR1 Kriterleri</h3>
+                    <p className="text-3xl font-bold">{dashboardData.document_type_distribution?.TR1_CRITERIA || 0}</p>
+                  </div>
+                  <div className="text-4xl opacity-80">📊</div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">🌍 Karbon Raporu</h3>
+                    <p className="text-3xl font-bold">{dashboardData.document_type_distribution?.CARBON_REPORT || 0}</p>
+                  </div>
+                  <div className="text-4xl opacity-80">🌍</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Client Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                   onClick={() => onNavigate('documents')}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">📄 Belgelerim</h3>
+                  <span className="text-2xl">→</span>
+                </div>
+                <p className="text-blue-100">
+                  Dokümanlarınızı görüntüleyin ve indirin
+                </p>
+              </div>
+
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                   onClick={() => onNavigate('consumption')}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">⚡ Tüketim Takibi</h3>
+                  <span className="text-2xl">→</span>
+                </div>
+                <p className="text-purple-100">
+                  Enerji ve su tüketim verileriniz
+                </p>
+              </div>
+
+              <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                   onClick={() => onNavigate('carbon')}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">🌍 Karbon Ayak İzi</h3>
+                  <span className="text-2xl">→</span>
+                </div>
+                <p className="text-green-100">
+                  Karbon emisyon analizi ve raporları
+                </p>
+              </div>
+
+              <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                   onClick={() => onNavigate('waste-management')}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">🗑️ Atık Yönetimi</h3>
+                  <span className="text-2xl">→</span>
+                </div>
+                <p className="text-amber-100">
+                  Atık takibi ve geri dönüşüm verileri
+                </p>
+              </div>
+
+              <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                   onClick={() => onNavigate('guest-engagement')}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">🎯 Guest Engagement</h3>
+                  <span className="text-2xl">→</span>
+                </div>
+                <p className="text-cyan-100">
+                  Misafir sürdürülebilirlik programı
+                </p>
+              </div>
+
+              <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                   onClick={() => onNavigate('trainings')}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">🎓 Eğitimlerim</h3>
+                  <span className="text-2xl">→</span>
+                </div>
+                <p className="text-indigo-100">
+                  Eğitim programları ve sertifikalar
+                </p>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* System Status */}
         <div className="mt-8 bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">📊 Hızlı İstatistikler</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">📊 Sistem Durumu</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">100%</div>
               <div className="text-sm text-gray-600">Sistem Durumu</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">24/7</div>
-              <div className="text-sm text-gray-600">Destek</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">DEFRA</div>
+              <div className="text-2xl font-bold text-blue-600">DEFRA</div>
               <div className="text-sm text-gray-600">Standart</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">2025</div>
+              <div className="text-2xl font-bold text-purple-600">2025</div>
               <div className="text-sm text-gray-600">Güncel</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-orange-600">24/7</div>
+              <div className="text-sm text-gray-600">Destek</div>
             </div>
           </div>
         </div>
