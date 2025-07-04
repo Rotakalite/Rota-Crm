@@ -6866,6 +6866,8 @@ const MainApp = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedClient, setSelectedClient] = useState(null);
   const [showClientSetup, setShowClientSetup] = useState(false);
+  const [show2FA, setShow2FA] = useState(true); // 2FA state - başlangıçta aktif
+  const [twoFACompleted, setTwoFACompleted] = useState(false);
   const { userRole, isLoaded, dbUser, refreshUser } = useAuth();
 
   // Check if client user needs to complete setup
