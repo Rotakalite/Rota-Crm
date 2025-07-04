@@ -2676,7 +2676,7 @@ const ConsumptionAnalytics = () => {
         ) : (
           <>
             {/* Yearly Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
               <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
                 <h3 className="text-lg font-bold mb-2">⚡ Elektrik</h3>
                 <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.electricity?.toLocaleString() || 0}</p>
@@ -2706,6 +2706,17 @@ const ConsumptionAnalytics = () => {
                 {analyticsData.yearly_totals?.previous_year?.natural_gas && (
                   <p className="text-sm mt-2">
                     Geçen yıl: {analyticsData.yearly_totals.previous_year.natural_gas.toLocaleString()}
+                  </p>
+                )}
+              </div>
+
+              <div className="bg-gradient-to-br from-gray-600 to-gray-700 p-6 rounded-xl text-white shadow-lg">
+                <h3 className="text-lg font-bold mb-2">🏔️ Kömür</h3>
+                <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.coal?.toLocaleString() || 0}</p>
+                <p className="text-gray-100">kg</p>
+                {analyticsData.yearly_totals?.previous_year?.coal && (
+                  <p className="text-sm mt-2">
+                    Geçen yıl: {analyticsData.yearly_totals.previous_year.coal.toLocaleString()}
                   </p>
                 )}
               </div>
