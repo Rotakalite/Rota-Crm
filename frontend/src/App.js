@@ -5620,6 +5620,8 @@ const MainApp = () => {
         return <CarbonFootprint />;
       case 'guest-engagement':
         return <GuestEngagement />;
+      case 'waste-management':
+        return <WasteManagement />;
       case 'project':
         return <ProjectManagement client={selectedClient} onNavigate={handleNavigate} />;
       case 'documents':
