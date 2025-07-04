@@ -261,7 +261,28 @@ def main():
     logger.info(f"Get waste records: {'PASSED' if get_result else 'FAILED'}")
     logger.info(f"Get waste analytics: {'PASSED' if analytics_result else 'FAILED'}")
     
-    if create_result and get_result and analytics_result:
+    # Test specific client_id
+    logger.info("\n=== Testing Specific Client ID ===")
+    logger.info(f"Client ID: 4d7d0100-bdb4-44a0-ac4e-125d3b77a2bb")
+    logger.info(f"Year: 2025")
+    
+    # Test OPTIONS request for CORS preflight
+    logger.info("\n=== Testing CORS Preflight Request ===")
+    url = f"{BACKEND_URL}/waste-management"
+    response = requests.options(url)
+    logger.info(f"OPTIONS response status code: {response.status_code}")
+    logger.info(f"OPTIONS response headers: {dict(response.headers)}")
+    
+    cors_success = (
+        response.status_code == 200 and
+        'Access-Control-Allow-Origin' in response.headers and
+        'Access-Control-Allow-Methods' in response.headers and
+        'Access-Control-Allow-Headers' in response.headers
+    )
+    
+    logger.info(f"CORS preflight: {'PASSED' if cors_success else 'FAILED'}")
+    
+    if create_result and get_result and analytics_result and cors_success:
         logger.info("All tests PASSED")
         return 0
     else:
