@@ -186,12 +186,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Fix CORS Policy Error and Backend Configuration"
-    - "Fix Backend Database Connection"
-    - "Remove Duplicate Waste Management Endpoints"
+    - "Fix 2FA Backend Endpoints"
   stuck_tasks: []
   test_all: false
-  test_priority: "critical_first"
+  test_priority: "high_first"
 
 agent_communication:
     -agent: "main"
