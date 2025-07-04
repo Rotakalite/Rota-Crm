@@ -3608,7 +3608,7 @@ async def get_guest_by_room(room_number: str, client_id: str):
     return {"guest_id": guest["id"], "is_new": False}
 
 # Waste Management Endpoints
-@api_router.post("/waste-records")
+@api_router.post("/atik-data")
 async def create_waste_record(
     waste_data: WasteManagementInput,
     current_user: User = Depends(get_current_user)
