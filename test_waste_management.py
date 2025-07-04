@@ -149,8 +149,36 @@ def test_get_waste_analytics():
     url = f"{BACKEND_URL}/waste-management/analytics"
     
     try:
-        # Test with admin user
-        logger.info("Testing with admin user...")
+        # Test with admin user and specific client_id and year
+        logger.info("Testing with admin user for specific client_id and year...")
+        params = {
+            "year": 2025,
+            "client_id": "4d7d0100-bdb4-44a0-ac4e-125d3b77a2bb"
+        }
+        response = requests.get(url, headers=HEADERS_ADMIN, params=params)
+        logger.info(f"Admin response status code: {response.status_code}")
+        
+        # Check CORS headers
+        logger.info(f"CORS headers: {response.headers.get('Access-Control-Allow-Origin', 'Not present')}")
+        cors_headers_present = 'Access-Control-Allow-Origin' in response.headers
+        
+        if response.status_code == 200:
+            data = response.json()
+            logger.info(f"Response data keys: {data.keys()}")
+            
+            # Check if there are any records
+            if data.get("yearly_totals") and data.get("monthly_data"):
+                logger.info(f"Yearly totals: {json.dumps(data['yearly_totals'], indent=2)}")
+                logger.info(f"Monthly data count: {len(data['monthly_data'])}")
+            else:
+                logger.info("No waste analytics data found for specific client_id and year")
+        else:
+            logger.info(f"Admin response body: {response.text}")
+        
+        admin_success = response.status_code == 200
+        
+        # Test with admin user (all records)
+        logger.info("Testing with admin user (all records)...")
         response = requests.get(url, headers=HEADERS_ADMIN)
         logger.info(f"Admin response status code: {response.status_code}")
         
@@ -167,7 +195,7 @@ def test_get_waste_analytics():
         else:
             logger.info(f"Admin response body: {response.text}")
         
-        admin_success = response.status_code == 200
+        admin_all_success = response.status_code == 200
         
         # Test with client user
         logger.info("Testing with client user...")
@@ -189,7 +217,7 @@ def test_get_waste_analytics():
         
         client_success = response.status_code == 200
         
-        return admin_success and client_success
+        return admin_success and admin_all_success and client_success and cors_headers_present
     except Exception as e:
         logger.error(f"Error testing GET /api/waste-management/analytics: {str(e)}")
         return False
