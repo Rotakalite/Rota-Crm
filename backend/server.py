@@ -3,15 +3,16 @@ import uuid
 import logging
 import shutil
 import re
+import secrets
 from datetime import datetime, timedelta
 from typing import List, Optional
-from fastapi import FastAPI, APIRouter, HTTPException, status, Depends, UploadFile, File, Form
+from fastapi import FastAPI, APIRouter, HTTPException, status, Depends, UploadFile, File, Form, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from fastapi.middleware import Middleware
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from motor.motor_asyncio import AsyncIOMotorClient
 from pathlib import Path
 from dotenv import load_dotenv
@@ -22,6 +23,9 @@ import jwt
 from jwt import PyJWKClient
 import httpx
 import requests
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 # Email service import
 try:
