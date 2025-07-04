@@ -2545,6 +2545,241 @@ const GuestSelfAssessment = () => {
     </div>
   );
 };
+
+// Consumption Analytics Component
+const ConsumptionAnalytics = () => {
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [selectedYear, setSelectedYear] = useState(2025);
+  const [loading, setLoading] = useState(false);
+
+  const { authToken, userRole, dbUser } = useAuth();
+  const API = getApiUrl();
+
+  // Fetch clients for admin users
+  const fetchClients = async () => {
+    if (userRole !== 'admin') return;
+    
+    try {
+      const response = await axios.get(`${API}/clients`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setClients(response.data || []);
+      if (response.data?.length > 0) {
+        setSelectedClient(response.data[0].id);
+      }
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+    }
+  };
+
+  // Fetch analytics data
+  const fetchAnalyticsData = async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (selectedYear) params.append('year', selectedYear);
+      if (userRole === 'admin' && selectedClient) params.append('client_id', selectedClient);
+
+      const response = await axios.get(`${API}/consumptions/analytics?${params}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setAnalyticsData(response.data);
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+      setAnalyticsData(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (authToken) {
+      fetchClients();
+    }
+  }, [authToken, userRole]);
+
+  useEffect(() => {
+    if (authToken && (userRole !== 'admin' || selectedClient)) {
+      fetchAnalyticsData();
+    }
+  }, [authToken, selectedClient, selectedYear]);
+
+  const getClientName = (clientId) => {
+    const client = clients.find(c => c.id === clientId);
+    return client ? client.hotel_name : 'Bilinmeyen Müşteri';
+  };
+
+  return (
+    <div className="p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">📈 Tüketim Analizi</h1>
+          <p className="text-gray-600">
+            Detaylı tüketim analizi ve trend görüntüleme
+          </p>
+        </div>
+
+        {/* Controls */}
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="flex gap-4 items-center">
+            {/* Client Selection for Admin */}
+            {userRole === 'admin' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Müşteri Seçin
+                </label>
+                <select
+                  value={selectedClient}
+                  onChange={(e) => setSelectedClient(e.target.value)}
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Müşteri Seçin</option>
+                  {clients.map(client => (
+                    <option key={client.id} value={client.id}>
+                      {client.hotel_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Year Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Yıl
+              </label>
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+              >
+                <option value={2025}>2025</option>
+                <option value={2024}>2024</option>
+                <option value={2023}>2023</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Analytics Content */}
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="text-gray-600 mt-4">Analiz verileri yükleniyor...</p>
+          </div>
+        ) : !analyticsData ? (
+          <div className="bg-white rounded-lg shadow p-8 text-center">
+            <p className="text-gray-500">Analiz verileri bulunamadı.</p>
+          </div>
+        ) : (
+          <>
+            {/* Yearly Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
+                <h3 className="text-lg font-bold mb-2">⚡ Elektrik</h3>
+                <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.electricity?.toLocaleString() || 0}</p>
+                <p className="text-blue-100">kWh</p>
+                {analyticsData.yearly_totals?.previous_year?.electricity && (
+                  <p className="text-sm mt-2">
+                    Geçen yıl: {analyticsData.yearly_totals.previous_year.electricity.toLocaleString()}
+                  </p>
+                )}
+              </div>
+
+              <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
+                <h3 className="text-lg font-bold mb-2">💧 Su</h3>
+                <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.water?.toLocaleString() || 0}</p>
+                <p className="text-green-100">m³</p>
+                {analyticsData.yearly_totals?.previous_year?.water && (
+                  <p className="text-sm mt-2">
+                    Geçen yıl: {analyticsData.yearly_totals.previous_year.water.toLocaleString()}
+                  </p>
+                )}
+              </div>
+
+              <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg">
+                <h3 className="text-lg font-bold mb-2">🔥 Doğalgaz</h3>
+                <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.natural_gas?.toLocaleString() || 0}</p>
+                <p className="text-orange-100">m³</p>
+                {analyticsData.yearly_totals?.previous_year?.natural_gas && (
+                  <p className="text-sm mt-2">
+                    Geçen yıl: {analyticsData.yearly_totals.previous_year.natural_gas.toLocaleString()}
+                  </p>
+                )}
+              </div>
+
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
+                <h3 className="text-lg font-bold mb-2">🏨 Konaklama</h3>
+                <p className="text-3xl font-bold">{analyticsData.yearly_totals?.current_year?.accommodation_count?.toLocaleString() || 0}</p>
+                <p className="text-purple-100">geceleme</p>
+                {analyticsData.yearly_totals?.previous_year?.accommodation_count && (
+                  <p className="text-sm mt-2">
+                    Geçen yıl: {analyticsData.yearly_totals.previous_year.accommodation_count.toLocaleString()}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Monthly Comparison Table */}
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Aylık Karşılaştırma</h2>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Ay
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Elektrik (kWh)
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Su (m³)
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Doğalgaz (m³)
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Konaklama
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {analyticsData.monthly_comparison?.map((month) => (
+                      <tr key={month.month} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {month.month_name} {selectedYear}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {month.current_year?.electricity?.toLocaleString() || 0}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {month.current_year?.water?.toLocaleString() || 0}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {month.current_year?.natural_gas?.toLocaleString() || 0}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {month.current_year?.accommodation_count?.toLocaleString() || 0}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const ClientDocuments = () => {
   const [documents, setDocuments] = useState([]);
   const [folders, setFolders] = useState([]);
