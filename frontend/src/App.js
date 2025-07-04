@@ -2765,85 +2765,217 @@ const ConsumptionAnalytics = () => {
                   </div>
                 </div>
 
-                {/* Monthly Comparison Table */}
-                <div className="bg-white rounded-lg shadow overflow-hidden">
-                  <div className="px-6 py-4 border-b border-gray-200">
-                    <h2 className="text-lg font-semibold text-gray-900">Aylık Karşılaştırma</h2>
+                {/* Monthly Comparison Table - Elite Design */}
+                <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+                  {/* Header with Gradient */}
+                  <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h2 className="text-2xl font-bold text-white flex items-center">
+                          📊 Aylık Karşılaştırma Analizi
+                        </h2>
+                        <p className="text-blue-100 mt-1">Detaylı tüketim ve kişi başı performans verileri</p>
+                      </div>
+                      <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
+                        <span className="text-white font-medium">{selectedYear}</span>
+                      </div>
+                    </div>
                   </div>
                   
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Ay
+                  <div className="overflow-x-auto bg-white">
+                    <table className="min-w-full">
+                      {/* Elite Header */}
+                      <thead>
+                        <tr className="bg-gradient-to-r from-gray-900 to-gray-800">
+                          <th className="px-6 py-4 text-left">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-white font-semibold">📅</span>
+                              <span className="text-white font-semibold text-sm uppercase tracking-wider">Ay</span>
+                            </div>
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Elektrik (kWh)
+                          <th className="px-6 py-4 text-center">
+                            <div className="flex flex-col items-center">
+                              <span className="text-blue-300 text-lg">⚡</span>
+                              <span className="text-white font-semibold text-xs">Elektrik</span>
+                              <span className="text-gray-300 text-xs">(kWh)</span>
+                            </div>
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Su (m³)
+                          <th className="px-6 py-4 text-center">
+                            <div className="flex flex-col items-center">
+                              <span className="text-blue-300 text-lg">💧</span>
+                              <span className="text-white font-semibold text-xs">Su</span>
+                              <span className="text-gray-300 text-xs">(m³)</span>
+                            </div>
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Doğalgaz (m³)
+                          <th className="px-6 py-4 text-center">
+                            <div className="flex flex-col items-center">
+                              <span className="text-orange-300 text-lg">🔥</span>
+                              <span className="text-white font-semibold text-xs">Doğalgaz</span>
+                              <span className="text-gray-300 text-xs">(m³)</span>
+                            </div>
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Kömür (kg)
+                          <th className="px-6 py-4 text-center">
+                            <div className="flex flex-col items-center">
+                              <span className="text-gray-300 text-lg">🏔️</span>
+                              <span className="text-white font-semibold text-xs">Kömür</span>
+                              <span className="text-gray-300 text-xs">(kg)</span>
+                            </div>
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Konaklama
+                          <th className="px-6 py-4 text-center">
+                            <div className="flex flex-col items-center">
+                              <span className="text-purple-300 text-lg">🏨</span>
+                              <span className="text-white font-semibold text-xs">Konaklama</span>
+                              <span className="text-gray-300 text-xs">(geceleme)</span>
+                            </div>
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Elektrik/Kişi
+                          <th className="px-6 py-4 text-center border-l border-gray-600">
+                            <div className="flex flex-col items-center">
+                              <span className="text-yellow-300 text-lg">👤⚡</span>
+                              <span className="text-yellow-200 font-semibold text-xs">Elektrik/Kişi</span>
+                              <span className="text-gray-300 text-xs">(kWh)</span>
+                            </div>
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Su/Kişi
+                          <th className="px-6 py-4 text-center">
+                            <div className="flex flex-col items-center">
+                              <span className="text-yellow-300 text-lg">👤💧</span>
+                              <span className="text-yellow-200 font-semibold text-xs">Su/Kişi</span>
+                              <span className="text-gray-300 text-xs">(m³)</span>
+                            </div>
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Doğalgaz/Kişi
+                          <th className="px-6 py-4 text-center">
+                            <div className="flex flex-col items-center">
+                              <span className="text-yellow-300 text-lg">👤🔥</span>
+                              <span className="text-yellow-200 font-semibold text-xs">Doğalgaz/Kişi</span>
+                              <span className="text-gray-300 text-xs">(m³)</span>
+                            </div>
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Kömür/Kişi
+                          <th className="px-6 py-4 text-center">
+                            <div className="flex flex-col items-center">
+                              <span className="text-yellow-300 text-lg">👤🏔️</span>
+                              <span className="text-yellow-200 font-semibold text-xs">Kömür/Kişi</span>
+                              <span className="text-gray-300 text-xs">(kg)</span>
+                            </div>
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {analyticsData.monthly_comparison?.map((month) => (
-                          <tr key={month.month} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                              {month.month_name} {selectedYear}
+                      
+                      {/* Elite Body */}
+                      <tbody className="divide-y divide-gray-100">
+                        {analyticsData.monthly_comparison?.map((month, index) => (
+                          <tr 
+                            key={month.month} 
+                            className={`${
+                              index % 2 === 0 
+                                ? 'bg-gradient-to-r from-white to-gray-50' 
+                                : 'bg-gradient-to-r from-blue-50/30 to-purple-50/30'
+                            } hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 transition-all duration-300 hover:shadow-lg`}
+                          >
+                            {/* Month Column */}
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center space-x-3">
+                                <div className="bg-gradient-to-r from-blue-500 to-purple-500 w-3 h-3 rounded-full"></div>
+                                <div>
+                                  <div className="text-sm font-bold text-gray-900">{month.month_name}</div>
+                                  <div className="text-xs text-gray-500">{selectedYear}</div>
+                                </div>
+                              </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {month.current_year?.electricity?.toLocaleString() || 0}
+                            
+                            {/* Consumption Columns */}
+                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                              <div className="bg-blue-50 rounded-lg px-3 py-2 border border-blue-200">
+                                <div className="text-lg font-bold text-blue-700">
+                                  {month.current_year?.electricity?.toLocaleString() || 0}
+                                </div>
+                              </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {month.current_year?.water?.toLocaleString() || 0}
+                            
+                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                              <div className="bg-cyan-50 rounded-lg px-3 py-2 border border-cyan-200">
+                                <div className="text-lg font-bold text-cyan-700">
+                                  {month.current_year?.water?.toLocaleString() || 0}
+                                </div>
+                              </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {month.current_year?.natural_gas?.toLocaleString() || 0}
+                            
+                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                              <div className="bg-orange-50 rounded-lg px-3 py-2 border border-orange-200">
+                                <div className="text-lg font-bold text-orange-700">
+                                  {month.current_year?.natural_gas?.toLocaleString() || 0}
+                                </div>
+                              </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {month.current_year?.coal?.toLocaleString() || 0}
+                            
+                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                              <div className="bg-gray-50 rounded-lg px-3 py-2 border border-gray-200">
+                                <div className="text-lg font-bold text-gray-700">
+                                  {month.current_year?.coal?.toLocaleString() || 0}
+                                </div>
+                              </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {month.current_year?.accommodation_count?.toLocaleString() || 0}
+                            
+                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                              <div className="bg-purple-50 rounded-lg px-3 py-2 border border-purple-200">
+                                <div className="text-lg font-bold text-purple-700">
+                                  {month.current_year?.accommodation_count?.toLocaleString() || 0}
+                                </div>
+                              </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                              {month.per_person?.electricity?.toFixed(2) || '0.00'}
+                            
+                            {/* Per Person Columns with Special Styling */}
+                            <td className="px-6 py-4 whitespace-nowrap text-center border-l border-yellow-200 bg-gradient-to-r from-yellow-50 to-amber-50">
+                              <div className="bg-gradient-to-r from-yellow-100 to-amber-100 rounded-lg px-3 py-2 border border-yellow-300 shadow-sm">
+                                <div className="text-lg font-bold text-yellow-800">
+                                  {month.per_person?.electricity?.toFixed(2) || '0.00'}
+                                </div>
+                                <div className="text-xs text-yellow-600 font-medium">kWh/kişi</div>
+                              </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                              {month.per_person?.water?.toFixed(2) || '0.00'}
+                            
+                            <td className="px-6 py-4 whitespace-nowrap text-center bg-gradient-to-r from-yellow-50 to-amber-50">
+                              <div className="bg-gradient-to-r from-cyan-100 to-blue-100 rounded-lg px-3 py-2 border border-cyan-300 shadow-sm">
+                                <div className="text-lg font-bold text-cyan-800">
+                                  {month.per_person?.water?.toFixed(2) || '0.00'}
+                                </div>
+                                <div className="text-xs text-cyan-600 font-medium">m³/kişi</div>
+                              </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                              {month.per_person?.natural_gas?.toFixed(2) || '0.00'}
+                            
+                            <td className="px-6 py-4 whitespace-nowrap text-center bg-gradient-to-r from-yellow-50 to-amber-50">
+                              <div className="bg-gradient-to-r from-orange-100 to-red-100 rounded-lg px-3 py-2 border border-orange-300 shadow-sm">
+                                <div className="text-lg font-bold text-orange-800">
+                                  {month.per_person?.natural_gas?.toFixed(2) || '0.00'}
+                                </div>
+                                <div className="text-xs text-orange-600 font-medium">m³/kişi</div>
+                              </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                              {month.per_person?.coal?.toFixed(2) || '0.00'}
+                            
+                            <td className="px-6 py-4 whitespace-nowrap text-center bg-gradient-to-r from-yellow-50 to-amber-50">
+                              <div className="bg-gradient-to-r from-gray-100 to-slate-100 rounded-lg px-3 py-2 border border-gray-300 shadow-sm">
+                                <div className="text-lg font-bold text-gray-800">
+                                  {month.per_person?.coal?.toFixed(2) || '0.00'}
+                                </div>
+                                <div className="text-xs text-gray-600 font-medium">kg/kişi</div>
+                              </div>
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
+                  </div>
+                  
+                  {/* Elite Footer */}
+                  <div className="bg-gradient-to-r from-gray-100 to-gray-200 px-8 py-4 border-t border-gray-200">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center space-x-4">
+                        <span className="text-gray-600">📈 Toplam {analyticsData.monthly_comparison?.length || 0} ay verisi</span>
+                        <span className="text-gray-400">•</span>
+                        <span className="text-gray-600">👤 Kişi başı hesaplamalar dahil</span>
+                      </div>
+                      <div className="text-gray-500">
+                        Son güncelleme: {new Date().toLocaleDateString('tr-TR')}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
