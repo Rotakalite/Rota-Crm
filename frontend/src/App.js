@@ -1417,6 +1417,463 @@ const GuestEngagement = () => {
   );
 };
 
+// Waste Management Component
+const WasteManagement = () => {
+  const [wasteRecords, setWasteRecords] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [selectedYear, setSelectedYear] = useState(2025);
+  const [showAddRecord, setShowAddRecord] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [newRecord, setNewRecord] = useState({
+    year: 2025,
+    month: new Date().getMonth() + 1,
+    organic_waste: 0,
+    plastic_waste: 0,
+    glass_waste: 0,
+    paper_waste: 0,
+    metal_waste: 0,
+    electronic_waste: 0,
+    oil_waste: 0,
+    mixed_waste: 0
+  });
+
+  const { authToken, userRole, dbUser } = useAuth();
+  const API = getApiUrl();
+
+  // Fetch clients for admin users
+  const fetchClients = async () => {
+    if (userRole !== 'admin') return;
+    
+    try {
+      const response = await axios.get(`${API}/clients`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setClients(response.data || []);
+      if (response.data?.length > 0) {
+        setSelectedClient(response.data[0].id);
+      }
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+    }
+  };
+
+  // Fetch waste records
+  const fetchWasteRecords = async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (selectedYear) params.append('year', selectedYear);
+      if (userRole === 'admin' && selectedClient) params.append('client_id', selectedClient);
+
+      const response = await axios.get(`${API}/waste-management?${params}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setWasteRecords(response.data || []);
+    } catch (error) {
+      console.error('Error fetching waste records:', error);
+      setWasteRecords([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch analytics
+  const fetchAnalytics = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (selectedYear) params.append('year', selectedYear);
+      if (userRole === 'admin' && selectedClient) params.append('client_id', selectedClient);
+
+      const response = await axios.get(`${API}/waste-management/analytics?${params}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setAnalytics(response.data);
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+      setAnalytics(null);
+    }
+  };
+
+  // Submit new waste record
+  const handleSubmitRecord = async () => {
+    try {
+      setLoading(true);
+      const recordData = { ...newRecord };
+      if (userRole === 'admin' && selectedClient) {
+        recordData.client_id = selectedClient;
+      }
+
+      await axios.post(`${API}/waste-management`, recordData, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      alert('Atık kaydı başarıyla eklendi!');
+      setShowAddRecord(false);
+      setNewRecord({
+        year: 2025,
+        month: new Date().getMonth() + 1,
+        organic_waste: 0,
+        plastic_waste: 0,
+        glass_waste: 0,
+        paper_waste: 0,
+        metal_waste: 0,
+        electronic_waste: 0,
+        oil_waste: 0,
+        mixed_waste: 0
+      });
+      fetchWasteRecords();
+      fetchAnalytics();
+    } catch (error) {
+      console.error('Error creating waste record:', error);
+      alert('Hata: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (authToken) {
+      fetchClients();
+    }
+  }, [authToken, userRole]);
+
+  useEffect(() => {
+    if (authToken && (userRole !== 'admin' || selectedClient)) {
+      fetchWasteRecords();
+      fetchAnalytics();
+    }
+  }, [authToken, selectedClient, selectedYear]);
+
+  const getClientName = (clientId) => {
+    const client = clients.find(c => c.id === clientId);
+    return client ? client.hotel_name : 'Bilinmeyen Müşteri';
+  };
+
+  return (
+    <div className="p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">🗑️ Atık Yönetimi</h1>
+          <p className="text-gray-600">
+            Atık takibi, geri dönüşüm analizi ve maliyet hesaplama sistemi
+          </p>
+        </div>
+
+        {/* Controls */}
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="flex flex-wrap gap-4 items-center justify-between">
+            <div className="flex gap-4 items-center">
+              {/* Client Selection for Admin */}
+              {userRole === 'admin' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Müşteri Seçin
+                  </label>
+                  <select
+                    value={selectedClient}
+                    onChange={(e) => setSelectedClient(e.target.value)}
+                    className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Müşteri Seçin</option>
+                    {clients.map(client => (
+                      <option key={client.id} value={client.id}>
+                        {client.hotel_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Year Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Yıl
+                </label>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value={2025}>2025</option>
+                  <option value={2024}>2024</option>
+                  <option value={2023}>2023</option>
+                </select>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowAddRecord(true)}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+            >
+              ➕ Yeni Atık Kaydı
+            </button>
+          </div>
+        </div>
+
+        {/* Analytics Cards */}
+        {analytics && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-2">♻️ Geri Dönüşüm Oranı</h3>
+              <p className="text-3xl font-bold">{analytics.recycling_performance?.current_rate?.toFixed(1) || 0}%</p>
+              <p className="text-green-100">
+                Hedef: {analytics.recycling_performance?.target_rate || 60}%
+              </p>
+            </div>
+
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-2">📊 Toplam Atık</h3>
+              <p className="text-3xl font-bold">{analytics.yearly_totals?.total_waste?.toFixed(1) || 0}</p>
+              <p className="text-blue-100">kg/yıl</p>
+            </div>
+
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-2">💰 Net Maliyet</h3>
+              <p className="text-3xl font-bold">{analytics.yearly_totals?.total_cost?.toFixed(0) || 0}</p>
+              <p className="text-purple-100">TL/yıl</p>
+            </div>
+
+            <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-6 rounded-xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-2">🛢️ Yağ Atığı</h3>
+              <p className="text-3xl font-bold">{analytics.yearly_totals?.oil_waste?.toFixed(1) || 0}</p>
+              <p className="text-amber-100">litre/yıl</p>
+            </div>
+          </div>
+        )}
+
+        {/* Waste Records Table */}
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">Atık Kayıtları</h2>
+          </div>
+          
+          {loading ? (
+            <div className="p-8 text-center text-gray-500">Yükleniyor...</div>
+          ) : wasteRecords.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              Henüz atık kaydı bulunmuyor. İlk kaydınızı ekleyin.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tarih
+                    </th>
+                    {userRole === 'admin' && (
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Müşteri
+                      </th>
+                    )}
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Organik (kg)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Plastik (kg)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Cam (kg)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Yağ (L)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Geri Dönüşüm %
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Net Maliyet
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {wasteRecords.map((record) => (
+                    <tr key={record.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.month}/{record.year}
+                      </td>
+                      {userRole === 'admin' && (
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {getClientName(record.client_id)}
+                        </td>
+                      )}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.organic_waste || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.plastic_waste || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.glass_waste || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.oil_waste || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <span className={`font-medium ${
+                          record.recycling_rate >= 60 ? 'text-green-600' : 
+                          record.recycling_rate >= 40 ? 'text-yellow-600' : 'text-red-600'
+                        }`}>
+                          {record.recycling_rate?.toFixed(1) || 0}%
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        ₺{record.net_cost?.toFixed(0) || 0}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Add Record Modal */}
+      {showAddRecord && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Yeni Atık Kaydı Ekle</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Yıl</label>
+                  <input
+                    type="number"
+                    value={newRecord.year}
+                    onChange={(e) => setNewRecord({...newRecord, year: parseInt(e.target.value)})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Ay</label>
+                  <select
+                    value={newRecord.month}
+                    onChange={(e) => setNewRecord({...newRecord, month: parseInt(e.target.value)})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  >
+                    {Array.from({length: 12}, (_, i) => (
+                      <option key={i+1} value={i+1}>{i+1}. Ay</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">🥬 Organik Atık (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newRecord.organic_waste}
+                    onChange={(e) => setNewRecord({...newRecord, organic_waste: parseFloat(e.target.value) || 0})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">♻️ Plastik (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newRecord.plastic_waste}
+                    onChange={(e) => setNewRecord({...newRecord, plastic_waste: parseFloat(e.target.value) || 0})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">🍾 Cam (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newRecord.glass_waste}
+                    onChange={(e) => setNewRecord({...newRecord, glass_waste: parseFloat(e.target.value) || 0})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">📄 Kağıt/Karton (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newRecord.paper_waste}
+                    onChange={(e) => setNewRecord({...newRecord, paper_waste: parseFloat(e.target.value) || 0})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">🔩 Metal (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newRecord.metal_waste}
+                    onChange={(e) => setNewRecord({...newRecord, metal_waste: parseFloat(e.target.value) || 0})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">⚡ Elektronik Atık (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newRecord.electronic_waste}
+                    onChange={(e) => setNewRecord({...newRecord, electronic_waste: parseFloat(e.target.value) || 0})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">🛢️ Yağ Atığı (litre)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newRecord.oil_waste}
+                    onChange={(e) => setNewRecord({...newRecord, oil_waste: parseFloat(e.target.value) || 0})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">🗑️ Karışık Atık (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newRecord.mixed_waste}
+                    onChange={(e) => setNewRecord({...newRecord, mixed_waste: parseFloat(e.target.value) || 0})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  onClick={handleSubmitRecord}
+                  disabled={loading}
+                  className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
+                >
+                  {loading ? 'Kaydediliyor...' : 'Kaydet'}
+                </button>
+                <button
+                  onClick={() => setShowAddRecord(false)}
+                  className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600"
+                >
+                  İptal
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Guest Self-Assessment Component
 const GuestSelfAssessment = () => {
   const [guestData, setGuestData] = useState(null);
