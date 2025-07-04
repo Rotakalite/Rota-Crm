@@ -29,6 +29,24 @@ class EmailService:
         self.jinja_env = Environment(loader=FileSystemLoader(str(template_dir)))
         logging.info(f"📧 Email service initialized with template dir: {template_dir}")
     
+    async def send_email(self, to_email: str, subject: str, html_content: str):
+        """Send email with HTML content"""
+        try:
+            message = MessageSchema(
+                subject=subject,
+                recipients=[to_email],
+                body=html_content,
+                subtype="html"
+            )
+            
+            await self.fastmail.send_message(message)
+            logging.info(f"📧 Email sent to {to_email} with subject: {subject}")
+            return True
+            
+        except Exception as e:
+            logging.error(f"❌ Error sending email: {str(e)}")
+            raise
+    
     async def send_document_upload_notification(
         self, 
         recipient_email: EmailStr, 
