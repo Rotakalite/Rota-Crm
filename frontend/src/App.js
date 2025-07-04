@@ -6861,6 +6861,247 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
   );
 };
 
+// 2FA Component
+const TwoFactorAuth = ({ onVerificationComplete }) => {
+  const [step, setStep] = useState('send'); // 'send' or 'verify'
+  const [email, setEmail] = useState('');
+  const [code, setCode] = useState(['', '', '', '', '', '']);
+  const [loading, setLoading] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const [message, setMessage] = useState('');
+  const [attempts, setAttempts] = useState(0);
+  
+  const { user } = useUser();
+  const { authToken } = useAuth();
+  const API = getApiUrl();
+
+  // Initialize with user's email
+  useEffect(() => {
+    if (user?.emailAddresses?.[0]?.emailAddress) {
+      setEmail(user.emailAddresses[0].emailAddress);
+    }
+  }, [user]);
+
+  // Countdown timer
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
+
+  // Send 2FA code
+  const sendCode = async () => {
+    try {
+      setLoading(true);
+      setMessage('');
+      
+      const response = await axios.post(`${API}/auth/2fa/send-code`, 
+        { email },
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
+      
+      setStep('verify');
+      setCountdown(60); // 60 second cooldown
+      setMessage('✅ Doğrulama kodu email adresinize gönderildi!');
+    } catch (error) {
+      console.error('Send code error:', error);
+      setMessage('❌ ' + (error.response?.data?.detail || 'Kod gönderilirken hata oluştu'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Verify 2FA code
+  const verifyCode = async () => {
+    try {
+      setLoading(true);
+      setMessage('');
+      
+      const codeString = code.join('');
+      if (codeString.length !== 6) {
+        setMessage('❌ Lütfen 6 haneli kodu eksiksiz giriniz');
+        return;
+      }
+
+      const response = await axios.post(`${API}/auth/2fa/verify-code`, 
+        { email, code: codeString },
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
+      
+      setMessage('✅ Doğrulama başarılı! Yönlendiriliyorsunuz...');
+      setTimeout(() => {
+        onVerificationComplete();
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Verify code error:', error);
+      const errorMsg = error.response?.data?.detail || 'Kod doğrulanırken hata oluştu';
+      setMessage('❌ ' + errorMsg);
+      setAttempts(prev => prev + 1);
+      
+      // Clear code inputs on error
+      setCode(['', '', '', '', '', '']);
+      
+      // If too many attempts, go back to send step
+      if (attempts >= 2) {
+        setStep('send');
+        setAttempts(0);
+        setMessage('❌ Çok fazla yanlış deneme. Yeni kod talep ediniz.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle code input
+  const handleCodeChange = (index, value) => {
+    if (value.length > 1) return; // Only single digit
+    
+    const newCode = [...code];
+    newCode[index] = value;
+    setCode(newCode);
+    
+    // Auto-focus next input
+    if (value && index < 5) {
+      const nextInput = document.getElementById(`code-${index + 1}`);
+      if (nextInput) nextInput.focus();
+    }
+  };
+
+  // Handle paste
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const paste = e.clipboardData.getData('text');
+    if (paste.length === 6 && /^\d{6}$/.test(paste)) {
+      const newCode = paste.split('');
+      setCode(newCode);
+      // Auto verify if complete
+      setTimeout(() => verifyCode(), 100);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-white text-2xl">🔐</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">İki Faktörlü Doğrulama</h1>
+          <p className="text-gray-600">Hesabınızın güvenliği için doğrulama gereklidir</p>
+        </div>
+
+        {/* Send Code Step */}
+        {step === 'send' && (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email Adresiniz
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="ornek@email.com"
+                disabled={loading}
+              />
+            </div>
+            
+            <button
+              onClick={sendCode}
+              disabled={loading || !email || countdown > 0}
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              {loading ? 'Gönderiliyor...' : countdown > 0 ? `Tekrar gönderin (${countdown}s)` : 'Doğrulama Kodu Gönder'}
+            </button>
+          </div>
+        )}
+
+        {/* Verify Code Step */}
+        {step === 'verify' && (
+          <div className="space-y-6">
+            <div className="text-center">
+              <p className="text-sm text-gray-600 mb-4">
+                <strong>{email}</strong> adresine 6 haneli kod gönderildi
+              </p>
+              
+              {/* Code Input */}
+              <div className="flex justify-center space-x-2 mb-6">
+                {code.map((digit, index) => (
+                  <input
+                    key={index}
+                    id={`code-${index}`}
+                    type="text"
+                    value={digit}
+                    onChange={(e) => handleCodeChange(index, e.target.value)}
+                    onPaste={handlePaste}
+                    className="w-12 h-12 text-center text-xl font-bold border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    maxLength={1}
+                    disabled={loading}
+                  />
+                ))}
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <button
+                onClick={verifyCode}
+                disabled={loading || code.join('').length !== 6}
+                className="w-full bg-gradient-to-r from-green-600 to-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:from-green-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                {loading ? 'Doğrulanıyor...' : 'Doğrula'}
+              </button>
+              
+              <button
+                onClick={() => {
+                  if (countdown === 0) {
+                    sendCode();
+                  }
+                }}
+                disabled={countdown > 0 || loading}
+                className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                {countdown > 0 ? `Tekrar gönder (${countdown}s)` : 'Kodu Tekrar Gönder'}
+              </button>
+              
+              <button
+                onClick={() => setStep('send')}
+                className="w-full text-blue-600 py-2 px-4 rounded-lg font-medium hover:bg-blue-50 transition-all"
+              >
+                ← Email Adresini Değiştir
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Message */}
+        {message && (
+          <div className={`mt-4 p-3 rounded-lg text-sm ${
+            message.startsWith('✅') 
+              ? 'bg-green-50 text-green-700 border border-green-200' 
+              : 'bg-red-50 text-red-700 border border-red-200'
+          }`}>
+            {message}
+          </div>
+        )}
+
+        {/* Security Note */}
+        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-start space-x-2">
+            <span className="text-yellow-600 text-sm">🛡️</span>
+            <p className="text-yellow-800 text-xs">
+              <strong>Güvenlik:</strong> Bu kodu kimseyle paylaşmayın. Kod 5 dakika boyunca geçerlidir.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Main App Component
 const MainApp = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
