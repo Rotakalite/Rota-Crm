@@ -3683,7 +3683,7 @@ async def create_waste_record(
         logging.error(f"Error creating waste record: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/waste-records")
+@api_router.get("/atik-data")
 async def get_waste_records(
     year: Optional[int] = None,
     client_id: Optional[str] = None,
