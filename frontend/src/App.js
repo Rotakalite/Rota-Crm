@@ -1901,7 +1901,7 @@ const WasteManagement = () => {
         recordData.client_id = selectedClient;
       }
 
-      await axios.post(`${API}/consumptions/waste-data`, recordData, {
+      await axios.post(`${API}/environment/analytics`, recordData, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
 
