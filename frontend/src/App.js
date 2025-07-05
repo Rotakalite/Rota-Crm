@@ -2193,49 +2193,48 @@ const WasteManagement = () => {
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Müşteri
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Tarih
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Organik (kg)
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Plastik (kg)
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Plastik (kg)
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Kağıt (kg)
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Cam (kg)
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Metal (kg)
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Elektronik (kg)
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Karışık (kg)
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Yağ (L)
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Geri Dönüşüm (%)
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Kişi Başı (kg)
-                    </th>
-                  </tr>
-                </thead>
+                <thead className="bg-gradient-to-r from-green-50 to-green-100">
+                    <tr>
+                      {userRole === 'admin' && (
+                        <th className="px-6 py-4 text-left text-xs font-bold text-green-800 uppercase tracking-wider">
+                          🏨 Müşteri
+                        </th>
+                      )}
+                      <th className="px-6 py-4 text-left text-xs font-bold text-green-800 uppercase tracking-wider">
+                        📅 Tarih
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-green-800 uppercase tracking-wider">
+                        🥬 Organik (kg)
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-green-800 uppercase tracking-wider">
+                        ♻️ Plastik (kg)
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-green-800 uppercase tracking-wider">
+                        📄 Kağıt (kg)
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-green-800 uppercase tracking-wider">
+                        🍾 Cam (kg)
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-green-800 uppercase tracking-wider">
+                        🔩 Metal (kg)
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-green-800 uppercase tracking-wider">
+                        ⚡ Elektronik (kg)
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-green-800 uppercase tracking-wider">
+                        🗑️ Karışık (kg)
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-amber-700 uppercase tracking-wider">
+                        🛢️ Yağ (Litre)
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-green-800 uppercase tracking-wider">
+                        📈 Geri Dönüşüm (%)
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-green-800 uppercase tracking-wider">
+                        👤 Kişi Başı (kg)
+                      </th>
+                    </tr>
+                  </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {wasteRecords.length > 0 ? wasteRecords.map((record, index) => (
                     <tr key={index} className="hover:bg-gray-50">
