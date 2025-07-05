@@ -1882,22 +1882,7 @@ const WasteManagement = () => {
       setLoading(false);
     }
   };
-    try {
-      const params = new URLSearchParams();
-      if (selectedYear) params.append('year', selectedYear);
-      if (userRole === 'admin' && selectedClient) params.append('client_id', selectedClient);
 
-      const response = await axios.get(`${API}/consumptions/waste/analytics?${params}`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
-      setAnalytics(response.data);
-    } catch (error) {
-      console.error('Error fetching analytics:', error);
-      setAnalytics(null);
-    }
-  };
-
-  // Submit new waste record
   // Submit new record
   const handleSubmitRecord = async () => {
     try {
