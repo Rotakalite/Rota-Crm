@@ -1164,7 +1164,7 @@ class TestSupplierManagementEndpoints(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = RAILWAY_API_URL
+        self.api_url = "http://localhost:8001/api"  # Use local URL instead of Railway URL
         
         # Headers for different user types
         self.headers_admin = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
