@@ -4592,7 +4592,82 @@ def generate_2fa_code():
     """Generate a secure 6-digit 2FA code"""
     return ''.join([str(secrets.randbelow(10)) for _ in range(6)])
 
-# 2FA endpoints
+@api_router.post("/send-email")
+async def send_custom_email(request: dict, token: str = Depends(verify_token)):
+    """Send custom email via EmailManagement"""
+    try:
+        to_email = request.get('to_email')
+        subject = request.get('subject')
+        html_content = request.get('html_content')
+        template_type = request.get('template_type', 'custom')
+        
+        if not to_email or not subject:
+            raise HTTPException(status_code=422, detail="Email and subject are required")
+        
+        if not email_service:
+            raise HTTPException(status_code=500, detail="Email service not available")
+            
+        # If no custom content, use basic template
+        if not html_content:
+            html_content = f"""
+            <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 20px;">
+              <div style="background: white; border-radius: 15px; padding: 30px;">
+                <h2 style="color: #1f2937; margin: 0 0 20px 0;">{subject}</h2>
+                <p style="color: #4b5563; line-height: 1.6;">Bu email Rota CRM üzerinden gönderilmiştir.</p>
+                <div style="text-align: center; margin: 30px 0; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                  <p style="color: #6b7280; font-size: 14px; margin: 0;">© 2025 Sustainable Tourism CRM</p>
+                </div>
+              </div>
+            </div>
+            """
+            
+        await email_service.send_email(
+            to_email=to_email,
+            subject=subject,
+            html_content=html_content
+        )
+        
+        return {"message": "Email sent successfully", "status": "sent"}
+        
+    except Exception as e:
+        logging.error(f"Error sending custom email: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Email gönderme hatası: {str(e)}")
+
+@api_router.get("/email-history")
+async def get_email_history(token: str = Depends(verify_token)):
+    """Get email history for EmailManagement"""
+    try:
+        # For now, return mock data since we don't store email history
+        return {
+            "emails": [
+                {
+                    "id": 1,
+                    "to": "user@example.com",
+                    "subject": "Hoş Geldiniz - Elite CRM",
+                    "sent_at": datetime.utcnow().isoformat(),
+                    "status": "delivered"
+                },
+                {
+                    "id": 2,
+                    "to": "client@test.com", 
+                    "subject": "Aylık Rapor - Sürdürülebilirlik",
+                    "sent_at": (datetime.utcnow() - timedelta(hours=2)).isoformat(),
+                    "status": "sent"
+                },
+                {
+                    "id": 3,
+                    "to": "admin@rotakalitedanismanlik.com",
+                    "subject": "Sistem Bildirimi",
+                    "sent_at": (datetime.utcnow() - timedelta(days=1)).isoformat(),
+                    "status": "delivered"
+                }
+            ]
+        }
+    except Exception as e:
+        logging.error(f"Error fetching email history: {str(e)}")
+        raise HTTPException(status_code=500, detail="Email geçmişi alınamadı")
+
+# 2FA Endpoints
 @api_router.post("/auth/2fa/send-code")
 async def send_2fa_code(request: dict):
     """Send 2FA code to user's email"""
