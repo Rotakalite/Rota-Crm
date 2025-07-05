@@ -579,6 +579,9 @@ backend:
         -working: true
         -agent: "testing"
         -comment: "Fixed the 2FA backend endpoints by adding the missing send_email method to the EmailService class. The method now properly handles sending emails with HTML content. The 2FA endpoints (/api/auth/2fa/send-code, /api/auth/2fa/verify-code, /api/auth/2fa/status) are now properly implemented and should work correctly when called with proper authentication. The 500 error that was occurring when trying to send 2FA codes should now be resolved."
+        -working: true
+        -agent: "main"
+        -comment: "FIXED 422 ERROR: Updated 2FA send-code endpoint from query parameter to JSON body format. Frontend was sending JSON body but backend expected query parameter causing 422 'Unprocessable Entity' error. Changed backend to accept request body with email field. Tested successfully - endpoint now returns 'Verification code sent successfully'. Email service configured with Gmail credentials."
 
 frontend:
   - task: "Fix Duplicate getFileIcon Function Declarations"
