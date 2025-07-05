@@ -2410,16 +2410,7 @@ const WasteManagement = () => {
   );
 };
 
-            <button
-              onClick={() => setShowAddRecord(true)}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-            >
-              ➕ Yeni Atık Kaydı
-            </button>
-          </div>
-        </div>
-
-        {/* Analytics Cards */}
+// Client Management Component
         {analytics && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
