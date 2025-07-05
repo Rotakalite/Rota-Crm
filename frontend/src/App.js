@@ -1962,8 +1962,9 @@ const WasteManagement = () => {
   }, [authToken, selectedClient, selectedYear]);
 
   const getClientName = (clientId) => {
-    const client = clients.find(c => c.id === clientId);
-    return client ? client.hotel_name : 'Bilinmeyen Müşteri';
+    console.log('🔍 Client lookup:', { clientId, availableClients: clients });
+    const client = clients.find(c => c.id === clientId || c.client_id === clientId);
+    return client ? client.hotel_name : `Bilinmeyen (${clientId})`;
   };
 
   return (
