@@ -1898,6 +1898,7 @@ const WasteManagement = () => {
   };
 
   // Submit new waste record
+  // Submit new record
   const handleSubmitRecord = async () => {
     try {
       setLoading(true);
@@ -1912,6 +1913,9 @@ const WasteManagement = () => {
 
       alert('Atık kaydı başarıyla eklendi!');
       setShowAddRecord(false);
+      fetchWasteRecords();
+      
+      // Reset form
       setNewRecord({
         year: 2025,
         month: new Date().getMonth() + 1,
@@ -1922,18 +1926,25 @@ const WasteManagement = () => {
         metal_waste: 0,
         electronic_waste: 0,
         oil_waste: 0,
-        mixed_waste: 0
+        mixed_waste: 0,
+        accommodation_count: 1
       });
-      fetchWasteRecords();
-      fetchAnalytics();
     } catch (error) {
-      console.error('Error creating waste record:', error);
-      alert('Hata: ' + (error.response?.data?.detail || error.message));
+      console.error('Error submitting waste record:', error);
+      alert('Atık kaydı eklenirken hata oluştu: ' + (error.response?.data?.detail || error.message));
     } finally {
       setLoading(false);
     }
   };
 
+  // Get client name
+  const getClientName = (clientId) => {
+    console.log('🔍 Client lookup:', { clientId, availableClients: clients });
+    const client = clients.find(c => c.id === clientId || c.client_id === clientId);
+    return client ? client.hotel_name : `Bilinmeyen (${clientId})`;
+  };
+
+  // useEffect hooks
   useEffect(() => {
     if (authToken) {
       fetchClients();
@@ -1941,13 +1952,10 @@ const WasteManagement = () => {
   }, [authToken, userRole]);
 
   useEffect(() => {
-    if (authToken && (userRole === 'client' || (userRole === 'admin' && selectedClient))) {
+    if (authToken) {
       fetchWasteRecords();
-      fetchAnalytics();
     }
   }, [authToken, selectedClient, selectedYear]);
-
-  const getClientName = (clientId) => {
     console.log('🔍 Client lookup:', { clientId, availableClients: clients });
     const client = clients.find(c => c.id === clientId || c.client_id === clientId);
     return client ? client.hotel_name : `Bilinmeyen (${clientId})`;
