@@ -1862,7 +1862,7 @@ const WasteManagement = () => {
       if (selectedYear) params.append('year', selectedYear);
       if (userRole === 'admin' && selectedClient) params.append('client_id', selectedClient);
 
-      const response = await axios.get(`${API}/atik-data?${params}`, {
+      const response = await axios.get(`${API}/placeholder-endpoint`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setWasteRecords(response.data || []);
