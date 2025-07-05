@@ -7573,26 +7573,6 @@ const SupplierManagement = () => {
       const response = await axios.get(`${API}/suppliers`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      
-      setSuppliers(response.data || []);
-    } catch (error) {
-      console.error('Error fetching suppliers:', error);
-      // Test data for demo
-      setSuppliers([
-        {
-          id: '1',
-          company_name: 'Green Foods Ltd.',
-          contact_person: 'Ahmet Özkan',
-          email: 'ahmet@greenfoods.com',
-          phone: '+90 532 123 4567',
-          address: 'Antalya, Türkiye',
-          category: 'Gıda & İçecek',
-          sustainability_score: 85,
-          certifications: ['Organik Sertifika', 'Fair Trade'],
-          local_supplier: true,
-          website: 'www.greenfoods.com',
-          description: 'Organik gıda tedarikçisi'
-        },
         {
           id: '2',
           company_name: 'Eco Clean Solutions',
