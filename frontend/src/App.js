@@ -1814,28 +1814,10 @@ const GuestEngagement = () => {
 
 // Waste Management Component
 const WasteManagement = () => {
-  const [wasteRecords, setWasteRecords] = useState([]);
-  const [analytics, setAnalytics] = useState(null);
-  const [clients, setClients] = useState([]);
-  const [selectedClient, setSelectedClient] = useState('');
-  const [selectedYear, setSelectedYear] = useState(2025);
-  const [showAddRecord, setShowAddRecord] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [newRecord, setNewRecord] = useState({
-    year: 2025,
-    month: new Date().getMonth() + 1,
-    organic_waste: 0,
-    plastic_waste: 0,
-    glass_waste: 0,
-    paper_waste: 0,
-    metal_waste: 0,
-    electronic_waste: 0,
-    oil_waste: 0,
-    mixed_waste: 0,
-    accommodation_count: 1
-  });
-
+  const [analytics, setAnalytics] = useState({});
+  const [wasteRecords, setWasteRecords] = useState([]);
+  const [showAddRecord, setShowAddRecord] = useState(false);
   const { authToken, userRole } = useAuth();
   const API = getApiUrl();
 
