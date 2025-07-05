@@ -7780,7 +7780,7 @@ const EmailManagement = () => {
     );
   }
 
-  // Fetch documents
+  // Fetch documents with error handling
   const fetchDocuments = async () => {
     try {
       setLoading(true);
@@ -7790,7 +7790,7 @@ const EmailManagement = () => {
       setDocuments(response.data.documents || []);
     } catch (error) {
       console.error('Error fetching documents:', error);
-      // Mock data for demo
+      // Don't crash - use mock data
       setDocuments([
         {
           id: 1,
@@ -7822,7 +7822,7 @@ const EmailManagement = () => {
     }
   };
 
-  // Fetch trainings
+  // Fetch trainings with error handling
   const fetchTrainings = async () => {
     try {
       const response = await axios.get(`${API}/trainings`, {
@@ -7831,7 +7831,7 @@ const EmailManagement = () => {
       setTrainings(response.data.trainings || []);
     } catch (error) {
       console.error('Error fetching trainings:', error);
-      // Mock data for demo
+      // Don't crash - use mock data
       setTrainings([
         {
           id: 1,
@@ -7861,7 +7861,7 @@ const EmailManagement = () => {
     }
   };
 
-  // Fetch clients  
+  // Fetch clients with error handling
   const fetchClients = async () => {
     try {
       const response = await axios.get(`${API}/clients`, {
@@ -7870,7 +7870,7 @@ const EmailManagement = () => {
       setClients(response.data.clients || []);
     } catch (error) {
       console.error('Error fetching clients:', error);
-      // Mock data
+      // Don't crash - use mock data
       setClients([
         { id: 1, name: 'Hotel Paradise', email: 'info@hotelparadise.com' },
         { id: 2, name: 'Green Resort', email: 'contact@greenresort.com' },
