@@ -1821,6 +1821,9 @@ const WasteManagement = () => {
   const [selectedYear, setSelectedYear] = useState(2025);
   const [showAddRecord, setShowAddRecord] = useState(false);
   const [loading, setLoading] = useState(false);
+  // Analytics data states
+  const [wasteBreakdown, setWasteBreakdown] = useState({});
+  const [yearlyTotals, setYearlyTotals] = useState({});
   const [newRecord, setNewRecord] = useState({
     year: 2025,
     month: new Date().getMonth() + 1,
