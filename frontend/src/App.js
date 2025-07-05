@@ -7551,38 +7551,35 @@ const TwoFactorAuth = ({ onVerificationComplete }) => {
   );
 };
 
-import SupplierManagement from './components/SupplierManagement';
-
-  // Fetch suppliers
-  useEffect(() => {
-    fetchSuppliers();
-  }, []);
-
-  const fetchSuppliers = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`${API}/suppliers`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
-        {
-          id: '2',
-          company_name: 'Eco Clean Solutions',
-          contact_person: 'Fatma Kaya',
-          email: 'info@ecoclean.com',
-          phone: '+90 542 987 6543',
-          address: 'İstanbul, Türkiye',
-          category: 'Temizlik & Hijyen',
-          sustainability_score: 72,
-          certifications: ['EU Ecolabel', 'Green Seal'],
-          local_supplier: true,
-          website: 'www.ecoclean.com',
-          description: 'Çevre dostu temizlik ürünleri'
-        }
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  };
+// Supplier Management Component
+const SupplierManagement = () => {
+  const { authToken, userRole } = useAuth();
+  const [suppliers, setSuppliers] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [certifications, setCertifications] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editingSupplier, setEditingSupplier] = useState(null);
+  const [activeTab, setActiveTab] = useState('list');
+  const [newSupplier, setNewSupplier] = useState({
+    company_name: '',
+    contact_person: '',
+    email: '',
+    phone: '',
+    address: '',
+    category: '',
+    sustainability_score: 50,
+    certifications: [],
+    local_supplier: false,
+    website: '',
+    description: ''
+  });
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterMinScore, setFilterMinScore] = useState('');
+  const [filterMaxScore, setFilterMaxScore] = useState('');
+  const [filterLocalOnly, setFilterLocalOnly] = useState(false);
+  const API = getApiUrl();
 
   // Fetch categories
   const fetchCategories = async () => {
