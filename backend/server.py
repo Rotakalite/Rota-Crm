@@ -4587,185 +4587,111 @@ async def send_bulk_document_notification(
         logging.error(f"❌ Bulk document notification error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Email gönderme hatası: {str(e)}")
 
-# 2FA Endpoints
+# Helper functions for 2FA
+def generate_2fa_code():
+    """Generate a secure 6-digit 2FA code"""
+    return ''.join([str(secrets.randbelow(10)) for _ in range(6)])
+
+# 2FA endpoints
 @api_router.post("/auth/2fa/send-code")
-@limiter.limit("3/minute")
-async def send_2fa_code(
-    request: Request,
-    code_request: TwoFACodeRequest,
-    current_user: User = Depends(get_current_user)
-):
-    """Send 2FA verification code to user's email"""
+async def send_2fa_code(user_email: str):
+    """Send 2FA code to user's email"""
     try:
-        # Generate secure 6-digit code
-        verification_code = ''.join([str(secrets.randbelow(10)) for _ in range(6)])
+        verification_code = generate_2fa_code()
         
-        # Create 2FA record with 5-minute expiry
-        tfa_record = {
-            "id": str(uuid.uuid4()),
-            "email": code_request.email,
-            "code": verification_code,
-            "user_id": current_user.clerk_user_id,
-            "created_at": datetime.utcnow(),
-            "expires_at": datetime.utcnow() + timedelta(minutes=5),
-            "attempts": 0,
-            "verified": False
-        }
-        
-        # Store in MongoDB with TTL
-        await db.tfa_codes.create_index("expires_at", expireAfterSeconds=0)
-        await db.tfa_codes.insert_one(tfa_record)
+        # Store the code with expiration (5 minutes)
+        expiration = datetime.utcnow() + timedelta(minutes=5)
+        await db.verification_codes.update_one(
+            {"email": user_email},
+            {
+                "$set": {
+                    "code": verification_code,
+                    "expires_at": expiration,
+                    "created_at": datetime.utcnow()
+                }
+            },
+            upsert=True
+        )
         
         # Send email
         if not email_service:
             raise HTTPException(status_code=500, detail="Email service not available")
-        
+            
         try:
-            # Send 2FA code email
             await email_service.send_email(
-                to_email=code_request.email,
-                subject="🔐 Giriş Doğrulama Kodu - ROTA CRM",
+                to_email=user_email,
+                subject="Rota CRM - Güvenlik Kodu",
                 html_content=f"""
-                <html>
-                <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
-                        <h1 style="color: white; margin: 0; font-size: 24px;">🔐 Güvenlik Doğrulama</h1>
-                        <p style="color: #e0e7ff; margin: 10px 0 0 0;">ROTA CRM - İki Faktörlü Doğrulama</p>
-                    </div>
-                    
-                    <div style="background: #f8fafc; padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
-                        <h2 style="color: #1e293b; margin-bottom: 20px;">Doğrulama Kodunuz</h2>
-                        <div style="background: white; border: 3px solid #667eea; border-radius: 10px; padding: 20px; margin: 20px 0; font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #667eea;">
-                            {verification_code}
-                        </div>
-                        <p style="color: #64748b; margin: 20px 0; font-size: 14px;">
-                            ⏰ Bu kod <strong>5 dakika</strong> boyunca geçerlidir.
-                        </p>
-                    </div>
-                    
-                    <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-                        <p style="color: #92400e; margin: 0; font-size: 14px;">
-                            🛡️ <strong>Güvenlik Uyarısı:</strong> Bu kodu kimseyle paylaşmayın. ROTA CRM çalışanları asla bu kodu sizden istemez.
-                        </p>
-                    </div>
-                    
-                    <div style="text-align: center; color: #64748b; font-size: 12px; margin-top: 30px;">
-                        <p>Bu email otomatik olarak ROTA CRM sistemi tarafından gönderilmiştir.</p>
-                        <p>Eğer bu girişi siz yapmadıysanız, lütfen derhal sistem yöneticinize bildiriniz.</p>
-                    </div>
-                </body>
-                </html>
+                <h2>Güvenlik Kodunuz</h2>
+                <p>Rota CRM giriş için güvenlik kodunuz: <strong>{verification_code}</strong></p>
+                <p>Bu kod 5 dakika boyunca geçerlidir.</p>
+                <p>Bu kodu kimseyle paylaşmayın.</p>
                 """
             )
+            return {"message": "Verification code sent successfully"}
             
-            logging.info(f"✅ 2FA code sent to {code_request.email}")
-            return {
-                "message": "Doğrulama kodu email adresinize gönderildi", 
-                "email": code_request.email,
-                "expires_in": 300  # 5 minutes
-            }
-            
-        except Exception as email_error:
-            logging.error(f"❌ Failed to send 2FA email: {str(email_error)}")
-            # Clean up the database record if email fails
-            await db.tfa_codes.delete_one({"id": tfa_record["id"]})
-            raise HTTPException(status_code=500, detail=f"Email gönderilirken hata oluştu: {str(email_error)}")
+        except Exception as e:
+            logging.error(f"Error sending 2FA code email: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"2FA kod gönderme hatası: {str(e)}")
         
-    except HTTPException:
-        raise
     except Exception as e:
-        logging.error(f"❌ 2FA code generation error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Doğrulama kodu oluşturulurken hata oluştu")
+        logging.error(f"Error sending 2FA code: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"2FA kod gönderme hatası: {str(e)}")
 
 @api_router.post("/auth/2fa/verify-code")
-@limiter.limit("5/minute")
-async def verify_2fa_code(
-    request: Request,
-    verify_request: TwoFAVerifyRequest,
-    current_user: User = Depends(get_current_user)
-):
-    """Verify 2FA code and complete authentication"""
+async def verify_2fa_code(user_email: str, code: str):
+    """Verify 2FA code"""
     try:
-        # Find the 2FA record
-        tfa_record = await db.tfa_codes.find_one({
-            "email": verify_request.email,
-            "user_id": current_user.clerk_user_id,
-            "verified": False,
-            "expires_at": {"$gt": datetime.utcnow()}
-        })
+        # Get stored code
+        stored = await db.verification_codes.find_one({"email": user_email})
         
-        if not tfa_record:
-            raise HTTPException(
-                status_code=400, 
-                detail="Geçersiz veya süresi dolmuş doğrulama kodu"
-            )
-        
-        # Check attempt limit
-        if tfa_record["attempts"] >= 3:
-            await db.tfa_codes.delete_one({"id": tfa_record["id"]})
-            raise HTTPException(
-                status_code=429, 
-                detail="Çok fazla yanlış deneme. Yeni kod talep ediniz."
-            )
-        
-        # Verify code
-        if verify_request.code != tfa_record["code"]:
-            # Increment attempts
-            await db.tfa_codes.update_one(
-                {"id": tfa_record["id"]},
-                {"$inc": {"attempts": 1}}
-            )
+        if not stored:
+            raise HTTPException(status_code=400, detail="Verification code not found")
             
-            remaining_attempts = 3 - (tfa_record["attempts"] + 1)
-            raise HTTPException(
-                status_code=400, 
-                detail=f"Yanlış doğrulama kodu. Kalan deneme hakkı: {remaining_attempts}"
-            )
+        # Check expiration
+        if datetime.utcnow() > stored["expires_at"]:
+            # Clean up expired code
+            await db.verification_codes.delete_one({"email": user_email})
+            raise HTTPException(status_code=400, detail="Verification code expired")
+            
+        # Verify code
+        if stored["code"] != code:
+            raise HTTPException(status_code=400, detail="Invalid verification code")
+            
+        # Clean up used code
+        await db.verification_codes.delete_one({"email": user_email})
         
-        # Mark as verified and clean up
-        await db.tfa_codes.update_one(
-            {"id": tfa_record["id"]},
-            {"$set": {"verified": True}}
-        )
-        
-        # Delete the used code
-        await db.tfa_codes.delete_one({"id": tfa_record["id"]})
-        
-        logging.info(f"✅ 2FA verification successful for user: {current_user.clerk_user_id}")
-        
-        return {
-            "message": "Doğrulama başarılı! Giriş tamamlandı.",
-            "verified": True,
-            "user_id": current_user.clerk_user_id
-        }
+        return {"message": "Code verified successfully", "verified": True}
         
     except HTTPException:
         raise
     except Exception as e:
-        logging.error(f"❌ 2FA verification error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Doğrulama işlemi sırasında hata oluştu")
+        logging.error(f"Error verifying 2FA code: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"2FA kod doğrulama hatası: {str(e)}")
 
 @api_router.get("/auth/2fa/status")
-async def get_2fa_status(current_user: User = Depends(get_current_user)):
-    """Get 2FA status for current user"""
+async def get_2fa_status(user_email: str):
+    """Get 2FA status for user"""
     try:
-        # Check if user has pending 2FA codes
-        pending_codes = await db.tfa_codes.count_documents({
-            "user_id": current_user.clerk_user_id,
-            "verified": False,
-            "expires_at": {"$gt": datetime.utcnow()}
-        })
+        stored = await db.verification_codes.find_one({"email": user_email})
         
+        if not stored:
+            return {"has_pending_code": False}
+            
+        # Check if code is still valid
+        if datetime.utcnow() > stored["expires_at"]:
+            # Clean up expired code
+            await db.verification_codes.delete_one({"email": user_email})
+            return {"has_pending_code": False}
+            
         return {
-            "user_id": current_user.clerk_user_id,
-            "email": current_user.email,
-            "has_pending_codes": pending_codes > 0,
-            "pending_count": pending_codes
+            "has_pending_code": True,
+            "expires_at": stored["expires_at"].isoformat()
         }
         
     except Exception as e:
-        logging.error(f"❌ 2FA status error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Durum bilgisi alınırken hata oluştu")
+        logging.error(f"Error getting 2FA status: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"2FA durum hatası: {str(e)}")
 
 # Include the API router in the app
 @api_router.post("/email/bulk-document-notification")
