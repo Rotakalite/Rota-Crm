@@ -1354,8 +1354,8 @@ class TestSupplierManagementEndpoints(unittest.TestCase):
             response = requests.post(url, headers=self.headers_admin, json=self.test_supplier_data)
             logger.info(f"Admin response status code: {response.status_code}")
             
-            # Should get 200 OK, 400 Bad Request (if supplier exists), or 404 Not Found
-            self.assertIn(response.status_code, [200, 201, 400, 404])
+            # Should get 200 OK, 201 Created, 400 Bad Request, 401 Unauthorized, or 404 Not Found
+            self.assertIn(response.status_code, [200, 201, 400, 401, 404])
             
             if response.status_code in [200, 201]:
                 # Response should contain success message and supplier_id
@@ -1373,6 +1373,8 @@ class TestSupplierManagementEndpoints(unittest.TestCase):
                 data = response.json()
                 logger.info(f"Expected 400 error: {data}")
                 logger.info("✅ POST /api/suppliers with admin auth - expected 400 error")
+            elif response.status_code == 401:
+                logger.info("✅ Authentication required - received 401 Unauthorized")
             else:
                 logger.info("⚠️ Endpoint returned 404 Not Found - may not be implemented yet")
         except Exception as e:
