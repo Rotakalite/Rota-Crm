@@ -2076,30 +2076,50 @@ const WasteManagement = () => {
             {/* Tab Content */}
             {activeTab === 'overview' && (
               <div className="space-y-6">
-                {/* Summary Cards */}
+                {/* Elite Analytics Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
-                    <h3 className="text-lg font-bold mb-2">♻️ Geri Dönüşüm Oranı</h3>
-                    <p className="text-3xl font-bold">{analytics.yearly_totals?.avg_recycling_rate?.toFixed(1) || 0}%</p>
-                    <p className="text-green-100">Hedef: 60%</p>
+                  <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-bold">♻️ Geri Dönüşüm Oranı</h3>
+                      <div className="bg-white bg-opacity-20 rounded-full p-2">
+                        <span className="text-2xl">📈</span>
+                      </div>
+                    </div>
+                    <p className="text-3xl font-bold mb-1">{analytics.yearly_totals?.avg_recycling_rate?.toFixed(1) || 0}%</p>
+                    <p className="text-green-100 text-sm">Hedef: 60%</p>
                   </div>
 
-                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
-                    <h3 className="text-lg font-bold mb-2">📊 Toplam Atık</h3>
-                    <p className="text-3xl font-bold">{analytics.yearly_totals?.total_waste?.toFixed(0) || 0}</p>
-                    <p className="text-blue-100">kg/yıl</p>
+                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-bold">📊 Toplam Atık</h3>
+                      <div className="bg-white bg-opacity-20 rounded-full p-2">
+                        <span className="text-2xl">⚖️</span>
+                      </div>
+                    </div>
+                    <p className="text-3xl font-bold mb-1">{analytics.yearly_totals?.total_waste?.toFixed(0) || 0}</p>
+                    <p className="text-blue-100 text-sm">kg/yıl</p>
                   </div>
 
-                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
-                    <h3 className="text-lg font-bold mb-2">👤 Kişi Başı Atık</h3>
-                    <p className="text-3xl font-bold">{analytics.yearly_totals?.avg_per_person_waste?.toFixed(1) || 0}</p>
-                    <p className="text-purple-100">kg/kişi</p>
+                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-bold">👤 Kişi Başı Atık</h3>
+                      <div className="bg-white bg-opacity-20 rounded-full p-2">
+                        <span className="text-2xl">👥</span>
+                      </div>
+                    </div>
+                    <p className="text-3xl font-bold mb-1">{analytics.yearly_totals?.avg_per_person_waste?.toFixed(1) || 0}</p>
+                    <p className="text-purple-100 text-sm">kg/kişi</p>
                   </div>
 
-                  <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-6 rounded-xl text-white shadow-lg">
-                    <h3 className="text-lg font-bold mb-2">🛢️ Yağ Atığı</h3>
-                    <p className="text-3xl font-bold">{analytics.yearly_totals?.oil_waste?.toFixed(1) || 0}</p>
-                    <p className="text-amber-100">litre/yıl</p>
+                  <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-6 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-bold">🛢️ Yağ Atığı</h3>
+                      <div className="bg-white bg-opacity-20 rounded-full p-2">
+                        <span className="text-2xl">💧</span>
+                      </div>
+                    </div>
+                    <p className="text-3xl font-bold mb-1">{analytics.yearly_totals?.oil_waste?.toFixed(1) || 0}</p>
+                    <p className="text-amber-100 text-sm">litre/yıl</p>
                   </div>
                 </div>
               </div>
