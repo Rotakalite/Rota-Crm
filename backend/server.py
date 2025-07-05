@@ -3711,7 +3711,7 @@ async def get_waste_records_via_consumptions(
         if year:
             query["year"] = year
 
-        records = await db.environment_data.find(query).sort("year", -1).sort("month", -1).to_list(length=None)
+        records = await db.waste_management.find(query).sort("year", -1).sort("month", -1).to_list(length=None)
         return records
 
     except Exception as e:
