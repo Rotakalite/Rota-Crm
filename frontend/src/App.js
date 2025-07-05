@@ -2237,46 +2237,48 @@ const WasteManagement = () => {
                   </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {wasteRecords.length > 0 ? wasteRecords.map((record, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {getClientName(record.client_id)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <tr key={index} className="hover:bg-green-50 transition-colors duration-200">
+                      {userRole === 'admin' && (
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {getClientName(record.client_id)}
+                        </td>
+                      )}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {record.month || new Date().getMonth() + 1}/{record.year || 2025}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-green-700 font-medium">
                         {record.organic_waste || 0}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-700 font-medium">
                         {record.plastic_waste || 0}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-700 font-medium">
                         {record.paper_waste || 0}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-purple-700 font-medium">
                         {record.glass_waste || 0}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">
                         {record.metal_waste || 0}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-700 font-medium">
                         {record.electronic_waste || 0}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-red-700 font-medium">
                         {record.mixed_waste || 0}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {record.oil_waste || 0}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-amber-700 font-bold">
+                        {record.oil_waste || 0} L
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <span className={`font-medium ${
-                          record.recycling_rate >= 60 ? 'text-green-600' : 
-                          record.recycling_rate >= 40 ? 'text-yellow-600' : 'text-red-600'
+                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                          record.recycling_rate >= 60 ? 'bg-green-100 text-green-800' : 
+                          record.recycling_rate >= 40 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
                         }`}>
                           {record.recycling_rate?.toFixed(1) || 0}%
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                         {record.per_person_waste?.toFixed(1) || 0} kg
                       </td>
                     </tr>
