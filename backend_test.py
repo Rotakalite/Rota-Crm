@@ -1164,7 +1164,7 @@ class TestSupplierManagementEndpoints(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "http://localhost:8001/api"  # Use local URL instead of Railway URL
+        self.api_url = "https://88048cb4-404f-4377-8f8a-190c9867ad6a.preview.emergentagent.com/api"  # Use the correct backend URL
         
         # Headers for different user types
         self.headers_admin = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
