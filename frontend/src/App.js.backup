@@ -490,7 +490,7 @@ const discoverBackendURL = async () => {
     // Current session's backend URL (stored in localStorage)
     localStorage.getItem('ROTA_BACKEND_URL'),
     // Latest known working URL pattern
-    'https://49bb8af5-7a60-4e2b-86e9-bfb706f9a616.preview.emergentagent.com',
+    'https://be473f49-c085-4355-8cf7-95fc4e8bf06a.preview.emergentagent.com',
     // Development
     'http://localhost:8001'
   ].filter(Boolean);
