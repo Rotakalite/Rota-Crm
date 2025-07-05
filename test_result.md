@@ -196,6 +196,30 @@ frontend:
         -agent: "testing"
         -comment: "Fixed the issue by correcting the data access in the SupplierManagement component: changed setSuppliers(response.data.suppliers || []) to setSuppliers(response.data || []). This ensures the component correctly processes the API response and prevents the 401 error that was causing the automatic logout."
 
+  - task: "Email Management Navigation"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "testing"
+        -comment: "Tested the Email Management navigation functionality. The sidebar includes the 'Email Yönetimi' button which correctly routes to the EmailManagement component when clicked. The EmailManagement component is properly implemented with tabs for 'Email Gönder', 'Şablonlar', and 'Geçmiş'. The component renders correctly and does not cause any navigation issues or redirects. The renderContent function in App.js correctly handles the 'email' case by returning the EmailManagement component."
+
+  - task: "Training Management Navigation"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "testing"
+        -comment: "Tested the Training Management navigation functionality. The sidebar includes the 'Eğitim Yönetimi' button which correctly routes to the TrainingManagement component when clicked. The TrainingManagement component is properly implemented with functionality to add and view trainings. The component renders correctly and does not cause any navigation issues or redirects. The renderContent function in App.js correctly handles the 'trainings' case by returning the TrainingManagement component for admin users and ClientTrainings for client users."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
