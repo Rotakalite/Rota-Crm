@@ -5732,6 +5732,12 @@ const ProjectManagement = ({ client, onNavigate }) => {
   const [showDocumentModal, setShowDocumentModal] = useState(false);
   const { authToken, userRole } = useAuth();
 
+  // Handle viewing documents
+  const handleViewDocument = (document) => {
+    setSelectedDocument(document);
+    setShowDocumentModal(true);
+  };
+
   useEffect(() => {
     if (client && authToken) {
       fetchTrainings();
