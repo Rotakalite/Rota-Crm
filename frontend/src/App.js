@@ -7263,6 +7263,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'analytics', name: 'Tüketim Analizi', icon: '📈' },
     { id: 'carbon', name: 'Karbon Ayak İzi', icon: '🌍' },
     { id: 'waste-management', name: 'Atık Yönetimi', icon: '🗑️' },
+    { id: 'suppliers', name: 'Tedarikçi Yönetimi', icon: '🏢' },
     { id: 'guest-engagement', name: 'Guest Engagement', icon: '🎯' },
     { id: 'documents', name: 'Belge Yönetimi', icon: '📋' },
     { id: 'trainings', name: 'Eğitim Yönetimi', icon: '🎓' },
@@ -7276,6 +7277,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'analytics', name: 'Tüketim Analizi', icon: '📈' },
     { id: 'carbon', name: 'Karbon Ayak İzi', icon: '🌍' },
     { id: 'waste-management', name: 'Atık Yönetimi', icon: '🗑️' },
+    { id: 'suppliers', name: 'Tedarikçilerim', icon: '🏢' },
     { id: 'guest-engagement', name: 'Guest Engagement', icon: '🎯' },
     { id: 'documents', name: 'Belgelerim', icon: '📋' },
     { id: 'trainings', name: 'Eğitimlerim', icon: '🎓' }
