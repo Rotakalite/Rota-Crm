@@ -1942,13 +1942,55 @@ const WasteManagement = () => {
   }, [authToken, selectedClient, selectedYear]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">🗑️ Atık Yönetimi</h1>
-          <p className="text-gray-600">Atık takibi, geri dönüşüm analizi ve sürdürülebilirlik sistemi</p>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-indigo-50">
+      {/* Elite Header */}
+      <div className="bg-gradient-to-r from-green-600 via-green-700 to-emerald-800 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-4xl font-bold text-white mb-2">🗑️ Elite Atık Yönetimi</h1>
+              <p className="text-green-100 text-lg">Sürdürülebilir atık takibi ve analiz sistemi</p>
+            </div>
+            <button
+              onClick={() => setShowAddRecord(true)}
+              className="bg-white text-green-700 px-6 py-3 rounded-xl hover:bg-green-50 transition-all duration-300 shadow-lg font-semibold flex items-center gap-2"
+            >
+              <span className="text-xl">+</span> Yeni Kayıt
+            </button>
+          </div>
         </div>
+      </div>
+
+      {/* Elite Tab Navigation */}
+      <div className="bg-white shadow-lg border-b">
+        <div className="max-w-7xl mx-auto">
+          <nav className="flex space-x-8 px-6">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                activeTab === 'overview'
+                  ? 'border-green-500 text-green-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              📊 Genel Atık Özeti
+            </button>
+            <button
+              onClick={() => setActiveTab('monthly')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                activeTab === 'monthly'
+                  ? 'border-green-500 text-green-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              📈 Aylık Analiz
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto p-6 space-y-8">
+        {/* Admin Controls */}
 
         {/* Controls */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
