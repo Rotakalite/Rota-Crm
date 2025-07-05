@@ -22,7 +22,7 @@ class TestHierarchicalFolderSystem(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://616edfad-2f75-4e2d-b9f7-ddbd6ff57760.preview.emergentagent.com/api"
+        self.api_url = "https://e3dfcda8-02ff-44f4-a821-9a451b200605.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         
