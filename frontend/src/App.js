@@ -1862,11 +1862,10 @@ const WasteManagement = () => {
       if (selectedYear) params.append('year', selectedYear);
       if (userRole === 'admin' && selectedClient) params.append('client_id', selectedClient);
 
-      const response = await axios.get(`${API}/environment/analytics?${params}`, {
+      const response = await axios.get(`${API}/consumptions/waste?${params}`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      // Analytics endpoint now returns both records and analytics
-      setWasteRecords(response.data?.records || []);
+      setWasteRecords(response.data || []);
     } catch (error) {
       console.error('Error fetching waste records:', error);
       setWasteRecords([]);
