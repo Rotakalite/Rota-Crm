@@ -1875,9 +1875,9 @@ const WasteManagement = () => {
       // Convert analytics data to records format for display
       const analyticsData = response.data;
       
-      // Create monthly cards from analytics data
-      const monthlyCards = analyticsData.monthly_data || [];
-      setWasteRecords(monthlyCards);
+      // Set monthly data for monthly tab
+      const monthlyData = analyticsData.monthly_data || [];
+      setWasteRecords(monthlyData);
       
       // Set waste breakdown for pie chart
       setWasteBreakdown(analyticsData.waste_breakdown || {});
