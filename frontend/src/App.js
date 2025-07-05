@@ -7554,22 +7554,6 @@ const TwoFactorAuth = ({ onVerificationComplete }) => {
 // Supplier Management Component - Temporarily Removed for Debugging
 // Will be added back in incremental steps
 
-  // Fetch suppliers
-  const fetchSuppliers = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`${API}/suppliers`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
-      setSuppliers(response.data.suppliers || []);
-    } catch (error) {
-      console.error('Error fetching suppliers:', error);
-      setSuppliers([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Fetch categories
   const fetchCategories = async () => {
     try {
