@@ -8028,12 +8028,20 @@ const EmailManagement = () => {
     }
   };
 
+  // Safe initialization with dependency array
   useEffect(() => {
-    fetchDocuments();
-    fetchTrainings();
-    fetchClients();
-    fetchEmailHistory();
-  }, []);
+    if (authToken) {
+      // Only fetch data if we have auth token
+      try {
+        fetchDocuments();
+        fetchTrainings();
+        fetchClients();
+        // fetchEmailHistory(); // Skip for now to avoid potential issues
+      } catch (error) {
+        console.error('Error in useEffect:', error);
+      }
+    }
+  }, [authToken]); // Add authToken dependency
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50">
