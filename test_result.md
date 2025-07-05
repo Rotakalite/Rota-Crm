@@ -183,8 +183,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Waste Management Backend APIs"
-    - "Waste Management Module Enhancement"
+    - "Fix SupplierManagement Component JSX Compilation Errors"
     - "Supplier Management Backend APIs"
   stuck_tasks: []
   test_all: false
