@@ -1942,13 +1942,6 @@ const WasteManagement = () => {
     }
   }, [authToken, selectedClient, selectedYear]);
 
-  // Get client name
-  const getClientName = (clientId) => {
-    console.log('🔍 Client lookup:', { clientId, availableClients: clients });
-    const client = clients.find(c => c.id === clientId || c.client_id === clientId);
-    return client ? client.hotel_name : `Bilinmeyen (${clientId})`;
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto">
