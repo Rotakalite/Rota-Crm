@@ -464,6 +464,42 @@ class DocumentCreate(BaseModel):
     file_path: str
     file_size: Optional[int] = None
 
+# Waste Management Models (Based on Consumption Structure)
+class WasteManagement(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    client_id: str
+    year: int
+    month: int  # 1-12
+    organic_waste: float = 0.0  # kg
+    plastic_waste: float = 0.0  # kg
+    glass_waste: float = 0.0    # kg
+    paper_waste: float = 0.0    # kg
+    metal_waste: float = 0.0    # kg
+    electronic_waste: float = 0.0  # kg
+    oil_waste: float = 0.0      # litre
+    mixed_waste: float = 0.0    # kg
+    # Calculated fields (like consumption carbon calculations)
+    total_waste: float = 0.0    # kg (calculated)
+    recycling_rate: float = 0.0 # % (calculated)
+    waste_cost: float = 0.0     # TL (calculated)
+    recycling_income: float = 0.0  # TL (calculated)
+    net_cost: float = 0.0       # TL (calculated)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class WasteManagementInput(BaseModel):
+    year: int
+    month: int
+    organic_waste: float = 0.0
+    plastic_waste: float = 0.0
+    glass_waste: float = 0.0
+    paper_waste: float = 0.0
+    metal_waste: float = 0.0
+    electronic_waste: float = 0.0
+    oil_waste: float = 0.0
+    mixed_waste: float = 0.0
+    client_id: Optional[str] = None  # For admin users
+
 # Environment Management Models  
 class EnvironmentData(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
