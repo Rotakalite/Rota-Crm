@@ -7573,10 +7573,6 @@ const SupplierManagement = () => {
       const response = await axios.get(`${API}/suppliers`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-
-      const response = await axios.get(`${API}/suppliers?${params}`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
       
       setSuppliers(response.data || []);
     } catch (error) {
