@@ -2182,7 +2182,7 @@ const WasteManagement = () => {
           </>
         )}
 
-        {/* Mevcut tablo - sadece overview tabında gösterilecek */}
+        {/* Elite Detaylı Tablo - sadece overview tabında */}
         {activeTab === 'overview' && !loading && (
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200">
