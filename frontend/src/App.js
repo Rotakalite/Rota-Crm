@@ -7551,16 +7551,7 @@ const TwoFactorAuth = ({ onVerificationComplete }) => {
   );
 };
 
-// ====================================
-// SUPPLIER MANAGEMENT COMPONENT
-// ====================================
-
-const SupplierManagement = () => {
-  const [loading, setLoading] = useState(false);
-  const [suppliers, setSuppliers] = useState([]);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const { authToken, userRole } = useAuth();
-  const API = getApiUrl();
+import SupplierManagement from './components/SupplierManagement';
 
   // Fetch suppliers
   useEffect(() => {
