@@ -3759,6 +3759,54 @@ async def get_environment_records(
         logging.error(f"Error fetching environment records: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.post("/environment/analytics")
+async def post_waste_data_via_analytics(
+    env_data: EnvironmentInput,
+    current_user: User = Depends(get_current_user)
+):
+    """Create waste record via analytics endpoint (POST)"""
+    try:
+        client_id = env_data.client_id if current_user.role == UserRole.ADMIN else current_user.client_id
+        if not client_id:
+            raise HTTPException(status_code=400, detail="Client ID required")
+
+        # Calculate totals
+        recyclable = env_data.plastic_waste + env_data.glass_waste + env_data.paper_waste + env_data.metal_waste
+        total = env_data.organic_waste + recyclable + env_data.electronic_waste + env_data.mixed_waste
+        recycling_rate = (recyclable / total * 100) if total > 0 else 0
+        waste_cost = total * 2.5 + env_data.oil_waste * 15.0
+        recycling_income = recyclable * 0.8
+        net_cost = waste_cost - recycling_income
+
+        record = {
+            "id": str(uuid.uuid4()),
+            "client_id": client_id,
+            "year": env_data.year,
+            "month": env_data.month,
+            "organic_waste": env_data.organic_waste,
+            "plastic_waste": env_data.plastic_waste,
+            "glass_waste": env_data.glass_waste,
+            "paper_waste": env_data.paper_waste,
+            "metal_waste": env_data.metal_waste,
+            "electronic_waste": env_data.electronic_waste,
+            "oil_waste": env_data.oil_waste,
+            "mixed_waste": env_data.mixed_waste,
+            "total_waste": total,
+            "recycling_rate": round(recycling_rate, 2),
+            "waste_cost": round(waste_cost, 2),
+            "recycling_income": round(recycling_income, 2),
+            "net_cost": round(net_cost, 2),
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+
+        await db.environment_data.insert_one(record)
+        return {"message": "Waste record created successfully", "id": record["id"]}
+
+    except Exception as e:
+        logging.error(f"Error creating waste record: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/environment/analytics")
 async def get_environment_analytics(
     year: Optional[int] = None,
