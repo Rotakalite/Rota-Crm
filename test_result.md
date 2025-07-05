@@ -116,6 +116,9 @@ backend:
         -working: true
         -agent: "main"
         -comment: "Backend endpoints for Waste Management at /api/consumptions/waste are working correctly. Database connection fixed, endpoints returning proper data."
+        -working: true
+        -agent: "testing"
+        -comment: "Tested the waste consumption endpoints (POST /api/consumptions/waste, GET /api/consumptions/waste, GET /api/consumptions/waste/analytics). All endpoints have proper authentication handling, returning 401 Unauthorized for invalid tokens and 403 Forbidden when no token is provided. The POST endpoint correctly creates waste records with all required fields including accommodation_count. The GET endpoint returns waste records with proper filtering by client_id and year. The analytics endpoint provides comprehensive waste statistics including yearly_totals, monthly_data, waste_breakdown, and recycling_performance. The per-person waste calculation is correctly implemented using the accommodation_count field. All waste consumption endpoints are working as expected and meet the requirements specified in the review request."
 
 frontend:
   - task: "Fix Frontend JSX Syntax Errors - Adjacent JSX Elements"
