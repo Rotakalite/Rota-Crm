@@ -1821,6 +1821,7 @@ const WasteManagement = () => {
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState('');
   const [selectedYear, setSelectedYear] = useState(2025);
+  const [activeTab, setActiveTab] = useState('overview');
   const [newRecord, setNewRecord] = useState({
     year: 2025,
     month: 1,
