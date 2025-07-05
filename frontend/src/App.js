@@ -8128,7 +8128,6 @@ const EmailManagement = () => {
   );
 };
 
-  return (
     <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
       <SignedIn>
         <MainApp />
