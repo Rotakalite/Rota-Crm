@@ -2055,29 +2055,118 @@ const WasteManagement = () => {
           <>
             {/* Tab Content */}
             {activeTab === 'overview' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Müşteri Seçin
-                  </label>
-                  <select
-                    value={selectedClient}
-                    onChange={(e) => setSelectedClient(e.target.value)}
-                    className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Müşteri Seçin</option>
-                    {clients.map(client => (
-                      <option key={client.id} value={client.id}>
-                        {client.hotel_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
+              <div className="space-y-6">
+                {/* Summary Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
+                    <h3 className="text-lg font-bold mb-2">♻️ Geri Dönüşüm Oranı</h3>
+                    <p className="text-3xl font-bold">{analytics.yearly_totals?.avg_recycling_rate?.toFixed(1) || 0}%</p>
+                    <p className="text-green-100">Hedef: 60%</p>
+                  </div>
 
-              {/* Year Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Yıl
+                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
+                    <h3 className="text-lg font-bold mb-2">📊 Toplam Atık</h3>
+                    <p className="text-3xl font-bold">{analytics.yearly_totals?.total_waste?.toFixed(0) || 0}</p>
+                    <p className="text-blue-100">kg/yıl</p>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
+                    <h3 className="text-lg font-bold mb-2">👤 Kişi Başı Atık</h3>
+                    <p className="text-3xl font-bold">{analytics.yearly_totals?.avg_per_person_waste?.toFixed(1) || 0}</p>
+                    <p className="text-purple-100">kg/kişi</p>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-6 rounded-xl text-white shadow-lg">
+                    <h3 className="text-lg font-bold mb-2">🛢️ Yağ Atığı</h3>
+                    <p className="text-3xl font-bold">{analytics.yearly_totals?.oil_waste?.toFixed(1) || 0}</p>
+                    <p className="text-amber-100">litre/yıl</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'monthly' && (
+              <div className="space-y-6">
+                {/* Monthly Analysis */}
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">📅 Aylık Atık Karşılaştırması</h3>
+                  
+                  {wasteRecords.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full table-auto">
+                        <thead>
+                          <tr className="bg-gray-50">
+                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Ay</th>
+                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Toplam Atık (kg)</th>
+                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Kişi Başı (kg)</th>
+                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Geri Dönüşüm (%)</th>
+                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Konaklama</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {wasteRecords.map((record, index) => (
+                            <tr key={index} className="hover:bg-gray-50">
+                              <td className="px-4 py-3 text-sm text-gray-900 font-medium">
+                                {record.month || record.year}/{record.month || new Date().getMonth() + 1}
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-900">
+                                {record.total_waste?.toFixed(1) || 0}
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-900">
+                                {record.per_person_waste?.toFixed(1) || 0}
+                              </td>
+                              <td className="px-4 py-3 text-sm">
+                                <span className={`font-medium ${
+                                  record.recycling_rate >= 60 ? 'text-green-600' : 
+                                  record.recycling_rate >= 40 ? 'text-yellow-600' : 'text-red-600'
+                                }`}>
+                                  {record.recycling_rate?.toFixed(1) || 0}%
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-900">
+                                {record.accommodation_count || 0} kişi
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">Henüz aylık atık verisi bulunmuyor.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Mevcut tablo - sadece overview tabında gösterilecek */}
+        {activeTab === 'overview' && !loading && (
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">📊 Detaylı Atık Kayıtları</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Müşteri
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tarih
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Organik (kg)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Plastik (kg)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Kağıt (kg)
+                    </th>
                 </label>
                 <select
                   value={selectedYear}
