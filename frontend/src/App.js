@@ -7574,7 +7574,7 @@ const SupplierManagement = () => {
       const response = await axios.get(`${API}/suppliers`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      setSuppliers(response.data.suppliers || []);
+      setSuppliers(response.data || []);
     } catch (error) {
       console.error('Error fetching suppliers:', error);
       if (error.response?.status === 401) {
