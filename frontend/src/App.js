@@ -7750,66 +7750,251 @@ const MainApp = () => {
   );
 };
 
-// Elite Email Management Component
+// Elite Email Management Component - Document & Training Integration
 const EmailManagement = () => {
-  const { authToken } = useAuth();
-  const [activeTab, setActiveTab] = useState('send');
+  const { authToken, userRole } = useAuth();
+  const [activeTab, setActiveTab] = useState('documents');
   const [loading, setLoading] = useState(false);
+  const [documents, setDocuments] = useState([]);
+  const [trainings, setTrainings] = useState([]);
+  const [selectedItems, setSelectedItems] = useState([]);
   const [emailData, setEmailData] = useState({
-    to: '',
+    recipients: '',
     subject: '',
     message: '',
-    template: 'custom'
+    includeAttachments: true
   });
+  const [clients, setClients] = useState([]);
   const [emailHistory, setEmailHistory] = useState([]);
-  const [templates, setTemplates] = useState([
-    {
-      id: 'welcome',
-      name: 'Hoş Geldiniz Email',
-      subject: 'Sustainable Tourism CRM\'e Hoş Geldiniz! 🌟',
-      preview: 'Yeni kullanıcılar için hoş geldiniz mesajı'
-    },
-    {
-      id: 'notification',
-      name: 'Bildirim Email',
-      subject: 'Önemli Bildirim 📢',
-      preview: 'Sistem bildirimleri için template'
-    },
-    {
-      id: 'report',
-      name: 'Rapor Email',
-      subject: 'Aylık Rapor 📊',
-      preview: 'Rapor gönderimi için template'
-    },
-    {
-      id: 'custom',
-      name: 'Özel Mesaj',
-      subject: '',
-      preview: 'Tamamen özelleştirilebilir email'
-    }
-  ]);
   const API = getApiUrl();
 
-  // Send email function
-  const sendEmail = async () => {
-    if (!emailData.to || !emailData.subject || !emailData.message) {
-      alert('Lütfen tüm alanları doldurun!');
+  // Fetch documents
+  const fetchDocuments = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/documents`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setDocuments(response.data.documents || []);
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+      // Mock data for demo
+      setDocuments([
+        {
+          id: 1,
+          title: 'Sürdürülebilirlik Rehberi',
+          type: 'PDF',
+          category: 'Training Material',
+          upload_date: new Date().toISOString(),
+          file_size: '2.5 MB'
+        },
+        {
+          id: 2,
+          title: 'Çevre Politikası',
+          type: 'PDF',
+          category: 'Policy Document',
+          upload_date: new Date().toISOString(),
+          file_size: '1.2 MB'
+        },
+        {
+          id: 3,
+          title: 'Atık Yönetimi Kılavuzu',
+          type: 'PDF',
+          category: 'Manual',
+          upload_date: new Date().toISOString(),
+          file_size: '3.1 MB'
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch trainings
+  const fetchTrainings = async () => {
+    try {
+      const response = await axios.get(`${API}/trainings`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setTrainings(response.data.trainings || []);
+    } catch (error) {
+      console.error('Error fetching trainings:', error);
+      // Mock data for demo
+      setTrainings([
+        {
+          id: 1,
+          title: 'Sürdürülebilir Turizm Eğitimi',
+          description: 'Temel sürdürülebilirlik prensipleri',
+          duration: '2 saat',
+          level: 'Başlangıç',
+          category: 'Environment'
+        },
+        {
+          id: 2,
+          title: 'Enerji Tasarrufu Eğitimi',
+          description: 'Enerji verimliliği teknikleri',
+          duration: '1.5 saat',
+          level: 'Orta',
+          category: 'Energy'
+        },
+        {
+          id: 3,
+          title: 'Atık Azaltma Workshop',
+          description: 'Zero waste prensipleri',
+          duration: '3 saat',
+          level: 'İleri',
+          category: 'Waste Management'
+        }
+      ]);
+    }
+  };
+
+  // Fetch clients  
+  const fetchClients = async () => {
+    try {
+      const response = await axios.get(`${API}/clients`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setClients(response.data.clients || []);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      // Mock data
+      setClients([
+        { id: 1, name: 'Hotel Paradise', email: 'info@hotelparadise.com' },
+        { id: 2, name: 'Green Resort', email: 'contact@greenresort.com' },
+        { id: 3, name: 'Eco Lodge', email: 'hello@ecolodge.com' }
+      ]);
+    }
+  };
+
+  // Handle item selection
+  const handleItemSelection = (itemId, itemType) => {
+    const itemKey = `${itemType}_${itemId}`;
+    setSelectedItems(prev => {
+      if (prev.includes(itemKey)) {
+        return prev.filter(id => id !== itemKey);
+      } else {
+        return [...prev, itemKey];
+      }
+    });
+  };
+
+  // Select all items
+  const handleSelectAll = (itemType) => {
+    const items = itemType === 'document' ? documents : trainings;
+    const allItemKeys = items.map(item => `${itemType}_${item.id}`);
+    
+    // Check if all items are already selected
+    const allSelected = allItemKeys.every(key => selectedItems.includes(key));
+    
+    if (allSelected) {
+      // Deselect all
+      setSelectedItems(prev => prev.filter(key => !key.startsWith(itemType)));
+    } else {
+      // Select all
+      setSelectedItems(prev => {
+        const filtered = prev.filter(key => !key.startsWith(itemType));
+        return [...filtered, ...allItemKeys];
+      });
+    }
+  };
+
+  // Send email with selected items
+  const sendEmailWithItems = async () => {
+    if (!emailData.recipients || !emailData.subject || selectedItems.length === 0) {
+      alert('Lütfen alıcı, konu ve en az bir doküman/eğitim seçin!');
       return;
     }
 
     try {
       setLoading(true);
-      const response = await axios.post(`${API}/send-email`, {
-        to_email: emailData.to,
-        subject: emailData.subject,
-        html_content: emailData.message,
-        template_type: emailData.template
-      }, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
 
-      alert('Email başarıyla gönderildi! ✅');
-      setEmailData({ to: '', subject: '', message: '', template: 'custom' });
+      // Prepare selected items data
+      const selectedDocuments = documents.filter(doc => 
+        selectedItems.includes(`document_${doc.id}`)
+      );
+      const selectedTrainings = trainings.filter(training => 
+        selectedItems.includes(`training_${training.id}`)
+      );
+
+      // Generate email content
+      let emailContent = `
+        <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 20px;">
+          <div style="background: white; border-radius: 15px; padding: 30px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h2 style="color: #1f2937; margin: 0;">${emailData.subject}</h2>
+              <p style="color: #6b7280; margin: 10px 0 0 0;">Sustainable Tourism CRM</p>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+              <p style="color: #4b5563; line-height: 1.6;">${emailData.message}</p>
+            </div>
+      `;
+
+      if (selectedDocuments.length > 0) {
+        emailContent += `
+          <div style="margin: 30px 0;">
+            <h3 style="color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">📄 Dokümanlar</h3>
+            <ul style="list-style: none; padding: 0;">
+        `;
+        selectedDocuments.forEach(doc => {
+          emailContent += `
+            <li style="background: #f8fafc; margin: 10px 0; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+              <strong style="color: #1f2937;">${doc.title}</strong><br>
+              <span style="color: #6b7280; font-size: 14px;">Tip: ${doc.type} | Kategori: ${doc.category} | Boyut: ${doc.file_size}</span>
+            </li>
+          `;
+        });
+        emailContent += `</ul></div>`;
+      }
+
+      if (selectedTrainings.length > 0) {
+        emailContent += `
+          <div style="margin: 30px 0;">
+            <h3 style="color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">🎓 Eğitimler</h3>
+            <ul style="list-style: none; padding: 0;">
+        `;
+        selectedTrainings.forEach(training => {
+          emailContent += `
+            <li style="background: #f0fdf4; margin: 10px 0; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981;">
+              <strong style="color: #1f2937;">${training.title}</strong><br>
+              <span style="color: #6b7280; font-size: 14px;">${training.description}</span><br>
+              <span style="color: #059669; font-size: 12px;">Süre: ${training.duration} | Seviye: ${training.level} | Kategori: ${training.category}</span>
+            </li>
+          `;
+        });
+        emailContent += `</ul></div>`;
+      }
+
+      emailContent += `
+            <div style="text-align: center; margin: 30px 0; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+              <p style="color: #6b7280; font-size: 14px; margin: 0;">© 2025 Sustainable Tourism CRM</p>
+              <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">Bu email otomatik olarak oluşturulmuştur.</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Send to multiple recipients
+      const recipients = emailData.recipients.split(',').map(email => email.trim());
+      
+      for (const recipient of recipients) {
+        await axios.post(`${API}/send-email`, {
+          to_email: recipient,
+          subject: emailData.subject,
+          html_content: emailContent,
+          attachments: emailData.includeAttachments ? [...selectedDocuments, ...selectedTrainings] : []
+        }, {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+      }
+
+      alert(`Email başarıyla ${recipients.length} alıcıya gönderildi! ✅`);
+      
+      // Reset form
+      setEmailData({ recipients: '', subject: '', message: '', includeAttachments: true });
+      setSelectedItems([]);
+      
       fetchEmailHistory();
     } catch (error) {
       console.error('Email sending error:', error);
@@ -7828,103 +8013,13 @@ const EmailManagement = () => {
       setEmailHistory(response.data.emails || []);
     } catch (error) {
       console.error('Error fetching email history:', error);
-      // Mock data for demo
-      setEmailHistory([
-        {
-          id: 1,
-          to: 'user@example.com',
-          subject: 'Hoş Geldiniz!',
-          sent_at: new Date().toISOString(),
-          status: 'sent'
-        },
-        {
-          id: 2,
-          to: 'client@test.com',
-          subject: 'Aylık Rapor',
-          sent_at: new Date().toISOString(),
-          status: 'delivered'
-        }
-      ]);
     }
   };
 
-  // Handle template selection
-  const selectTemplate = (template) => {
-    setEmailData({
-      ...emailData,
-      template: template.id,
-      subject: template.subject || emailData.subject,
-      message: getTemplateContent(template.id)
-    });
-  };
-
-  // Get template content
-  const getTemplateContent = (templateId) => {
-    const templates = {
-      welcome: `
-        <div style="max-width: 600px; margin: 0 auto; font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 0; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
-          <div style="background: white; margin: 20px; border-radius: 15px; overflow: hidden;">
-            <div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 40px 30px; text-align: center;">
-              <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">🌟 Hoş Geldiniz!</h1>
-              <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">Sustainable Tourism CRM</p>
-            </div>
-            <div style="padding: 40px 30px;">
-              <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 24px;">Merhaba! 👋</h2>
-              <p style="color: #4b5563; line-height: 1.6; margin: 0 0 20px 0; font-size: 16px;">
-                Sustainable Tourism CRM platformumuza hoş geldiniz! Artık sürdürülebilir turizm operasyonlarınızı kolayca yönetebilirsiniz.
-              </p>
-              <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin: 20px 0;">
-                <h3 style="color: #1f2937; margin: 0 0 15px 0; font-size: 18px;">✨ Neler Yapabilirsiniz:</h3>
-                <ul style="color: #4b5563; margin: 0; padding-left: 20px;">
-                  <li style="margin-bottom: 8px;">🏢 Tedarikçi yönetimi</li>
-                  <li style="margin-bottom: 8px;">📊 Karbon ayak izi takibi</li>
-                  <li style="margin-bottom: 8px;">♻️ Atık yönetimi</li>
-                  <li style="margin-bottom: 8px;">👥 Misafir etkileşimi</li>
-                </ul>
-              </div>
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="#" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; display: inline-block; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);">
-                  🚀 Hemen Başlayın
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      `,
-      notification: `
-        <div style="max-width: 600px; margin: 0 auto; font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 20px; border-radius: 20px;">
-          <div style="background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 15px 30px rgba(0,0,0,0.1);">
-            <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); padding: 30px; text-align: center;">
-              <h1 style="color: white; margin: 0; font-size: 26px;">📢 Önemli Bildirim</h1>
-            </div>
-            <div style="padding: 30px;">
-              <p style="color: #2d3748; font-size: 16px; line-height: 1.6;">
-                Size özel bir bildirimiz var! Lütfen aşağıdaki detayları inceleyin.
-              </p>
-            </div>
-          </div>
-        </div>
-      `,
-      report: `
-        <div style="max-width: 600px; margin: 0 auto; font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 20px;">
-          <div style="background: white; border-radius: 15px; overflow: hidden;">
-            <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 30px; text-align: center;">
-              <h1 style="color: white; margin: 0; font-size: 26px;">📊 Aylık Rapor</h1>
-            </div>
-            <div style="padding: 30px;">
-              <p style="color: #2d3748; font-size: 16px; line-height: 1.6;">
-                Bu ay ki performans raporunuz hazır! Detayları inceleyebilirsiniz.
-              </p>
-            </div>
-          </div>
-        </div>
-      `,
-      custom: ''
-    };
-    return templates[templateId] || '';
-  };
-
   useEffect(() => {
+    fetchDocuments();
+    fetchTrainings();
+    fetchClients();
     fetchEmailHistory();
   }, []);
 
@@ -7933,8 +8028,8 @@ const EmailManagement = () => {
       {/* Elite Header */}
       <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white p-6 shadow-xl">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold mb-2">📧 Elite Email Yönetimi</h1>
-          <p className="text-purple-100 text-lg">Profesyonel email kampanyalarınızı yönetin</p>
+          <h1 className="text-4xl font-bold mb-2">📧 Doküman & Eğitim Email Sistemi</h1>
+          <p className="text-purple-100 text-lg">Müşterilerinize doküman ve eğitimleri gönderin</p>
         </div>
       </div>
 
@@ -7943,10 +8038,10 @@ const EmailManagement = () => {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex space-x-1">
             {[
-              { key: 'send', label: 'Email Gönder', icon: '📤', gradient: 'from-purple-500 to-purple-600' },
-              { key: 'templates', label: 'Şablonlar', icon: '🎨', gradient: 'from-blue-500 to-blue-600' },
-              { key: 'history', label: 'Geçmiş', icon: '📋', gradient: 'from-cyan-500 to-cyan-600' },
-              { key: 'settings', label: 'Ayarlar', icon: '⚙️', gradient: 'from-gray-500 to-gray-600' }
+              { key: 'documents', label: 'Dokümanlar', icon: '📄', gradient: 'from-blue-500 to-blue-600' },
+              { key: 'trainings', label: 'Eğitimler', icon: '🎓', gradient: 'from-green-500 to-green-600' },
+              { key: 'compose', label: 'Email Oluştur', icon: '✉️', gradient: 'from-purple-500 to-purple-600' },
+              { key: 'history', label: 'Geçmiş', icon: '📋', gradient: 'from-gray-500 to-gray-600' }
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -7970,111 +8065,51 @@ const EmailManagement = () => {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto p-8">
-        {/* Send Email Tab */}
-        {activeTab === 'send' && (
-          <div className="space-y-8">
-            <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                <span className="text-3xl mr-3">✉️</span>
-                Yeni Email Oluştur
+        {/* Documents Tab */}
+        {activeTab === 'documents' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                <span className="text-3xl mr-3">📄</span>
+                Doküman Seçimi
               </h2>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Form */}
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Alıcı Email</label>
-                    <input
-                      type="email"
-                      value={emailData.to}
-                      onChange={(e) => setEmailData({...emailData, to: e.target.value})}
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-                      placeholder="ornek@email.com"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Konu</label>
-                    <input
-                      type="text"
-                      value={emailData.subject}
-                      onChange={(e) => setEmailData({...emailData, subject: e.target.value})}
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-                      placeholder="Email konusu"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Mesaj</label>
-                    <textarea
-                      value={emailData.message}
-                      onChange={(e) => setEmailData({...emailData, message: e.target.value})}
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 h-40 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-                      placeholder="Email içeriğinizi yazın..."
-                    />
-                  </div>
-                  
-                  <button
-                    onClick={sendEmail}
-                    disabled={loading}
-                    className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg disabled:opacity-50 flex items-center justify-center space-x-2"
-                  >
-                    {loading ? (
-                      <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                        <span>Gönderiliyor...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>🚀</span>
-                        <span>Email Gönder</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-                
-                {/* Preview */}
-                <div>
-                  <h3 className="text-lg font-bold text-gray-800 mb-4">📱 Önizleme</h3>
-                  <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 h-96 overflow-y-auto">
-                    {emailData.message ? (
-                      <div dangerouslySetInnerHTML={{ __html: emailData.message }} />
-                    ) : (
-                      <p className="text-gray-500 italic">Email içeriği burda görünecek...</p>
-                    )}
-                  </div>
-                </div>
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-600">
+                  {documents.filter(doc => selectedItems.includes(`document_${doc.id}`)).length} / {documents.length} seçildi
+                </span>
+                <button
+                  onClick={() => handleSelectAll('document')}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all"
+                >
+                  {documents.every(doc => selectedItems.includes(`document_${doc.id}`)) ? 'Tümünü Kaldır' : 'Tümünü Seç'}
+                </button>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Templates Tab */}
-        {activeTab === 'templates' && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-              <span className="text-3xl mr-3">🎨</span>
-              Email Şablonları
-            </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {templates.map((template) => (
-                <div key={template.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 group">
+              {documents.map((doc) => (
+                <div 
+                  key={doc.id} 
+                  className={`bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border-2 cursor-pointer ${
+                    selectedItems.includes(`document_${doc.id}`) ? 'border-blue-500 bg-blue-50' : 'border-gray-100'
+                  }`}
+                  onClick={() => handleItemSelection(doc.id, 'document')}
+                >
                   <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-purple-600 transition-colors">
-                      {template.name}
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-4">{template.preview}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                        {template.id === 'custom' ? 'Özel' : 'Hazır Şablon'}
-                      </span>
-                      <button
-                        onClick={() => selectTemplate(template)}
-                        className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all text-sm font-medium"
-                      >
-                        Kullan
-                      </button>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-bold text-gray-800">{doc.title}</h3>
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.includes(`document_${doc.id}`)}
+                        onChange={() => handleItemSelection(doc.id, 'document')}
+                        className="w-5 h-5 text-blue-600 rounded"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600"><strong>Tip:</strong> {doc.type}</p>
+                      <p className="text-sm text-gray-600"><strong>Kategori:</strong> {doc.category}</p>
+                      <p className="text-sm text-gray-600"><strong>Boyut:</strong> {doc.file_size}</p>
+                      <p className="text-sm text-gray-500"><strong>Tarih:</strong> {new Date(doc.upload_date).toLocaleDateString('tr-TR')}</p>
                     </div>
                   </div>
                 </div>
@@ -8083,66 +8118,193 @@ const EmailManagement = () => {
           </div>
         )}
 
-        {/* History Tab */}
-        {activeTab === 'history' && (
+        {/* Trainings Tab */}
+        {activeTab === 'trainings' && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-              <span className="text-3xl mr-3">📋</span>
-              Email Geçmişi
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                <span className="text-3xl mr-3">🎓</span>
+                Eğitim Seçimi
+              </h2>
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-600">
+                  {trainings.filter(training => selectedItems.includes(`training_${training.id}`)).length} / {trainings.length} seçildi
+                </span>
+                <button
+                  onClick={() => handleSelectAll('training')}
+                  className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all"
+                >
+                  {trainings.every(training => selectedItems.includes(`training_${training.id}`)) ? 'Tümünü Kaldır' : 'Tümünü Seç'}
+                </button>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {trainings.map((training) => (
+                <div 
+                  key={training.id} 
+                  className={`bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border-2 cursor-pointer ${
+                    selectedItems.includes(`training_${training.id}`) ? 'border-green-500 bg-green-50' : 'border-gray-100'
+                  }`}
+                  onClick={() => handleItemSelection(training.id, 'training')}
+                >
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-bold text-gray-800">{training.title}</h3>
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.includes(`training_${training.id}`)}
+                        onChange={() => handleItemSelection(training.id, 'training')}
+                        className="w-5 h-5 text-green-600 rounded"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">{training.description}</p>
+                      <p className="text-sm text-gray-600"><strong>Süre:</strong> {training.duration}</p>
+                      <p className="text-sm text-gray-600"><strong>Seviye:</strong> {training.level}</p>
+                      <p className="text-sm text-gray-600"><strong>Kategori:</strong> {training.category}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Compose Email Tab */}
+        {activeTab === 'compose' && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+              <span className="text-3xl mr-3">✉️</span>
+              Email Oluştur ve Gönder
             </h2>
             
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-                    <tr>
-                      <th className="px-6 py-4 text-left font-semibold">Alıcı</th>
-                      <th className="px-6 py-4 text-left font-semibold">Konu</th>
-                      <th className="px-6 py-4 text-left font-semibold">Tarih</th>
-                      <th className="px-6 py-4 text-left font-semibold">Durum</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {emailHistory.map((email) => (
-                      <tr key={email.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-2xl">👤</span>
-                            <span className="font-medium text-gray-800">{email.to}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-gray-600">{email.subject}</td>
-                        <td className="px-6 py-4 text-gray-500 text-sm">
-                          {new Date(email.sent_at).toLocaleDateString('tr-TR')}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            email.status === 'sent' ? 'bg-green-100 text-green-800' :
-                            email.status === 'delivered' ? 'bg-blue-100 text-blue-800' :
-                            'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {email.status === 'sent' ? '✅ Gönderildi' :
-                             email.status === 'delivered' ? '📨 Teslim Edildi' :
-                             '⏳ Beklemede'}
-                          </span>
-                        </td>
-                      </tr>
+            {/* Selected Items Summary */}
+            {selectedItems.length > 0 && (
+              <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <h3 className="text-lg font-bold text-gray-800 mb-4">Seçilen İçerikler ({selectedItems.length})</h3>
+                <div className="space-y-2">
+                  {selectedItems.map((itemKey) => {
+                    const [type, id] = itemKey.split('_');
+                    const item = type === 'document' 
+                      ? documents.find(d => d.id === parseInt(id))
+                      : trainings.find(t => t.id === parseInt(id));
+                    
+                    return (
+                      <div key={itemKey} className={`flex items-center justify-between p-3 rounded-lg ${
+                        type === 'document' ? 'bg-blue-50 border border-blue-200' : 'bg-green-50 border border-green-200'
+                      }`}>
+                        <span className="font-medium">
+                          {type === 'document' ? '📄' : '🎓'} {item?.title}
+                        </span>
+                        <button
+                          onClick={() => setSelectedItems(prev => prev.filter(i => i !== itemKey))}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          ❌
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Email Form */}
+            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Alıcılar (virgülle ayırın)</label>
+                  <textarea
+                    value={emailData.recipients}
+                    onChange={(e) => setEmailData({...emailData, recipients: e.target.value})}
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                    rows="3"
+                    placeholder="client1@example.com, client2@example.com"
+                  />
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {clients.map((client) => (
+                      <button
+                        key={client.id}
+                        onClick={() => {
+                          const currentEmails = emailData.recipients.split(',').map(e => e.trim()).filter(e => e);
+                          if (!currentEmails.includes(client.email)) {
+                            const newEmails = [...currentEmails, client.email];
+                            setEmailData({...emailData, recipients: newEmails.join(', ')});
+                          }
+                        }}
+                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm transition-all"
+                      >
+                        + {client.name}
+                      </button>
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Konu</label>
+                  <input
+                    type="text"
+                    value={emailData.subject}
+                    onChange={(e) => setEmailData({...emailData, subject: e.target.value})}
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                    placeholder="Email konusu"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Mesaj</label>
+                  <textarea
+                    value={emailData.message}
+                    onChange={(e) => setEmailData({...emailData, message: e.target.value})}
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 h-32 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                    placeholder="Email mesajınızı yazın..."
+                  />
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="includeAttachments"
+                    checked={emailData.includeAttachments}
+                    onChange={(e) => setEmailData({...emailData, includeAttachments: e.target.checked})}
+                    className="w-4 h-4 text-purple-600 rounded"
+                  />
+                  <label htmlFor="includeAttachments" className="text-sm font-medium text-gray-700">
+                    Dosyaları ek olarak ekle
+                  </label>
+                </div>
+                
+                <button
+                  onClick={sendEmailWithItems}
+                  disabled={loading || selectedItems.length === 0}
+                  className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg disabled:opacity-50 flex items-center justify-center space-x-2"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                      <span>Gönderiliyor...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>🚀</span>
+                      <span>Email Gönder ({selectedItems.length} içerik)</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Settings Tab */}
-        {activeTab === 'settings' && (
-          <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+        {/* History Tab */}
+        {activeTab === 'history' && (
+          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-              <span className="text-3xl mr-3">⚙️</span>
-              Email Ayarları
+              <span className="text-3xl mr-3">📋</span>
+              Email Geçmişi
             </h2>
-            <p className="text-gray-600">Email ayarları yakında eklenecek...</p>
+            <p className="text-gray-600">Email geçmiş kayıtları yakında eklenecek...</p>
           </div>
         )}
       </div>
