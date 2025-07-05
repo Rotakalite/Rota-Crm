@@ -120,6 +120,18 @@ backend:
         -agent: "testing"
         -comment: "Tested the waste consumption endpoints (POST /api/consumptions/waste, GET /api/consumptions/waste, GET /api/consumptions/waste/analytics). All endpoints have proper authentication handling, returning 401 Unauthorized for invalid tokens and 403 Forbidden when no token is provided. The POST endpoint correctly creates waste records with all required fields including accommodation_count. The GET endpoint returns waste records with proper filtering by client_id and year. The analytics endpoint provides comprehensive waste statistics including yearly_totals, monthly_data, waste_breakdown, and recycling_performance. The per-person waste calculation is correctly implemented using the accommodation_count field. All waste consumption endpoints are working as expected and meet the requirements specified in the review request."
 
+  - task: "Supplier Management Backend APIs"
+    implemented: false
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "testing"
+        -comment: "Attempted to test the supplier management endpoints (GET /api/suppliers/categories/list, GET /api/suppliers/certifications/list, POST /api/suppliers, GET /api/suppliers, GET /api/suppliers/analytics/dashboard) but all endpoints returned 404 Not Found errors. The endpoints are defined in the server.py file but are not accessible in the current environment. This suggests that the supplier management module is defined in the code but not properly registered or deployed. The order of endpoint definitions might be causing issues, as the /suppliers/{supplier_id} endpoint is defined before the /suppliers/categories/list and /suppliers/certifications/list endpoints, which could cause FastAPI to interpret 'categories' and 'certifications' as supplier IDs."
+
 frontend:
   - task: "Fix Frontend JSX Syntax Errors - Adjacent JSX Elements"
     implemented: true
