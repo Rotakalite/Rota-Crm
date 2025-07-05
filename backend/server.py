@@ -5257,3 +5257,183 @@ logger = logging.getLogger(__name__)
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+# Document & Training Email Management Endpoints
+@api_router.get("/documents")
+async def get_documents(token: str = Depends(verify_token)):
+    """Get documents for email management"""
+    try:
+        # Mock data for now - can be replaced with actual document management
+        documents = [
+            {
+                "id": 1,
+                "title": "Sürdürülebilirlik Rehberi 2025",
+                "type": "PDF",
+                "category": "Training Material",
+                "upload_date": datetime.utcnow().isoformat(),
+                "file_size": "2.5 MB",
+                "file_path": "/docs/sustainability_guide.pdf"
+            },
+            {
+                "id": 2,
+                "title": "Çevre Politikası Dokümanı",
+                "type": "PDF", 
+                "category": "Policy Document",
+                "upload_date": (datetime.utcnow() - timedelta(days=5)).isoformat(),
+                "file_size": "1.2 MB",
+                "file_path": "/docs/environment_policy.pdf"
+            },
+            {
+                "id": 3,
+                "title": "Atık Yönetimi Kılavuzu",
+                "type": "PDF",
+                "category": "Manual",
+                "upload_date": (datetime.utcnow() - timedelta(days=10)).isoformat(),
+                "file_size": "3.1 MB",
+                "file_path": "/docs/waste_management_guide.pdf"
+            },
+            {
+                "id": 4,
+                "title": "Enerji Tasarrufu Stratejileri",
+                "type": "PDF",
+                "category": "Guide",
+                "upload_date": (datetime.utcnow() - timedelta(days=15)).isoformat(),
+                "file_size": "1.8 MB",
+                "file_path": "/docs/energy_saving.pdf"
+            },
+            {
+                "id": 5,
+                "title": "Yeşil Otel Sertifikasyon Rehberi",
+                "type": "PDF",
+                "category": "Certification",
+                "upload_date": (datetime.utcnow() - timedelta(days=20)).isoformat(),
+                "file_size": "2.9 MB", 
+                "file_path": "/docs/green_hotel_certification.pdf"
+            }
+        ]
+        
+        return {"documents": documents}
+    except Exception as e:
+        logging.error(f"Error fetching documents: {str(e)}")
+        raise HTTPException(status_code=500, detail="Dokümanlar alınamadı")
+
+@api_router.get("/trainings")
+async def get_trainings(token: str = Depends(verify_token)):
+    """Get trainings for email management"""
+    try:
+        # Mock data for now - can be replaced with actual training management
+        trainings = [
+            {
+                "id": 1,
+                "title": "Sürdürülebilir Turizm Eğitimi",
+                "description": "Temel sürdürülebilirlik prensipleri ve uygulamaları",
+                "duration": "2 saat",
+                "level": "Başlangıç",
+                "category": "Environment",
+                "content_type": "Video + PDF",
+                "created_date": datetime.utcnow().isoformat()
+            },
+            {
+                "id": 2,
+                "title": "Enerji Tasarrufu ve Verimlilik Eğitimi",
+                "description": "Otel operasyonlarında enerji verimliliği teknikleri",
+                "duration": "1.5 saat",
+                "level": "Orta",
+                "category": "Energy",
+                "content_type": "Interactive Course",
+                "created_date": (datetime.utcnow() - timedelta(days=7)).isoformat()
+            },
+            {
+                "id": 3,
+                "title": "Atık Azaltma ve Geri Dönüşüm Workshop",
+                "description": "Zero waste prensipleri ve pratik uygulamalar",
+                "duration": "3 saat",
+                "level": "İleri",
+                "category": "Waste Management",
+                "content_type": "Workshop + Hands-on",
+                "created_date": (datetime.utcnow() - timedelta(days=14)).isoformat()
+            },
+            {
+                "id": 4,
+                "title": "Su Tasarrufu ve Yönetimi",
+                "description": "Su kaynaklarının etkin kullanımı ve korunması",
+                "duration": "1 saat",
+                "level": "Başlangıç",
+                "category": "Water Management",
+                "content_type": "E-learning",
+                "created_date": (datetime.utcnow() - timedelta(days=21)).isoformat()
+            },
+            {
+                "id": 5,
+                "title": "Yerel Toplum Entegrasyonu",
+                "description": "Yerel kültür ve ekonomi ile işbirliği stratejileri",
+                "duration": "2.5 saat",
+                "level": "Orta",
+                "category": "Social Sustainability",
+                "content_type": "Case Studies + Discussion",
+                "created_date": (datetime.utcnow() - timedelta(days=28)).isoformat()
+            },
+            {
+                "id": 6,
+                "title": "Karbon Ayak İzi Hesaplama ve Azaltma",
+                "description": "CO2 emisyon hesaplama ve azaltma yöntemleri",
+                "duration": "2 saat",
+                "level": "İleri",
+                "category": "Carbon Management",
+                "content_type": "Calculator Tool + Training",
+                "created_date": (datetime.utcnow() - timedelta(days=35)).isoformat()
+            }
+        ]
+        
+        return {"trainings": trainings}
+    except Exception as e:
+        logging.error(f"Error fetching trainings: {str(e)}")
+        raise HTTPException(status_code=500, detail="Eğitimler alınamadı")
+
+@api_router.get("/clients")
+async def get_clients_for_email(token: str = Depends(verify_token)):
+    """Get clients for email management"""
+    try:
+        # Get clients from database or return mock data
+        clients = [
+            {
+                "id": 1,
+                "name": "Paradise Resort & Spa",
+                "email": "info@paradiseresort.com",
+                "contact_person": "Ahmet Yılmaz",
+                "category": "5 Star Resort"
+            },
+            {
+                "id": 2,
+                "name": "Green Valley Hotel",
+                "email": "contact@greenvalley.com",
+                "contact_person": "Elif Özkan",
+                "category": "Boutique Hotel"
+            },
+            {
+                "id": 3,
+                "name": "Eco Lodge Antalya",
+                "email": "hello@ecolodge-antalya.com",
+                "contact_person": "Mehmet Aydın",
+                "category": "Eco Lodge"
+            },
+            {
+                "id": 4,
+                "name": "Seaside Resort",
+                "email": "reservations@seasideresort.com",
+                "contact_person": "Zeynep Kaya",
+                "category": "Beach Resort"
+            },
+            {
+                "id": 5,
+                "name": "Mountain View Hotel",
+                "email": "info@mountainview.com",
+                "contact_person": "Can Demir",
+                "category": "Mountain Hotel"
+            }
+        ]
+        
+        return {"clients": clients}
+    except Exception as e:
+        logging.error(f"Error fetching clients: {str(e)}")
+        raise HTTPException(status_code=500, detail="Müşteriler alınamadı")
