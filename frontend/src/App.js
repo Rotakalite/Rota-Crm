@@ -7599,18 +7599,8 @@ const SupplierManagement = () => {
 
                 />
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">İletişim Kişisi</label>
-                <input
-                  type="text"
-                  value={newSupplier.contact_person}
-                  onChange={(e) => setNewSupplier({...newSupplier, contact_person: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  placeholder="İletişim kişisi"
-                />
 
-  // Fetch certifications
+  // Fetch categories
   const fetchCertifications = async () => {
     try {
       const response = await axios.get(`${API}/suppliers/certifications/list`);
