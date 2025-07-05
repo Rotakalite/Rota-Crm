@@ -7554,6 +7554,80 @@ const TwoFactorAuth = ({ onVerificationComplete }) => {
 // Supplier Management Component - Temporarily Removed for Debugging
 // Will be added back in incremental steps
 
+// Simple Supplier Management Component (Step 1 - Basic Structure)
+const SupplierManagement = () => {
+  const { authToken } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [suppliers, setSuppliers] = useState([]);
+  const API = getApiUrl();
+
+  // Basic fetch suppliers function
+  const fetchSuppliers = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/suppliers`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setSuppliers(response.data.suppliers || []);
+    } catch (error) {
+      console.error('Error fetching suppliers:', error);
+      setSuppliers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSuppliers();
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-purple-700 text-white p-6 shadow-xl">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-bold mb-2">🏢 Tedarikçi Yönetimi</h1>
+          <p className="text-blue-100 text-lg">Sürdürülebilir tedarikçi ağınızı yönetin</p>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Tedarikçi Listesi</h2>
+          
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            </div>
+          ) : suppliers.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {suppliers.map((supplier) => (
+                <div key={supplier.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-all">
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">{supplier.company_name}</h3>
+                  <p className="text-sm text-gray-600"><strong>İletişim:</strong> {supplier.contact_person}</p>
+                  <p className="text-sm text-gray-600"><strong>Email:</strong> {supplier.email}</p>
+                  <p className="text-sm text-gray-600"><strong>Kategori:</strong> {supplier.category}</p>
+                  {supplier.local_supplier && (
+                    <span className="inline-block bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium mt-2">
+                      🏠 Yerel Tedarikçi
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">Henüz tedarikçi bulunamadı.</p>
+              <p className="text-gray-400 text-sm mt-2">Tedarikçi eklemek için backend API'lerini kullanabilirsiniz.</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
   // Fetch categories
   const fetchCategories = async () => {
     try {
