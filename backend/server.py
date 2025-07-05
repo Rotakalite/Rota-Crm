@@ -4643,9 +4643,15 @@ async def send_2fa_code(request: dict):
         raise HTTPException(status_code=500, detail=f"2FA kod gönderme hatası: {str(e)}")
 
 @api_router.post("/auth/2fa/verify-code")
-async def verify_2fa_code(user_email: str, code: str):
+async def verify_2fa_code(request: dict):
     """Verify 2FA code"""
     try:
+        user_email = request.get('email')
+        code = request.get('code')
+        
+        if not user_email or not code:
+            raise HTTPException(status_code=422, detail="Email and code are required")
+        
         # Get stored code
         stored = await db.verification_codes.find_one({"email": user_email})
         
