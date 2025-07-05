@@ -3795,6 +3795,209 @@ async def get_environment_records(
         logging.error(f"Error fetching environment records: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# Waste Management Endpoints (Based on Consumption Structure)
+@api_router.post("/consumptions/waste")
+async def create_waste_record(
+    waste_data: WasteManagementInput,
+    current_user: User = Depends(get_current_user)
+):
+    """Create monthly waste record (same logic as consumption)"""
+    
+    logging.info(f"🗑️ POST /consumptions/waste called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
+    
+    # Check permissions - same as consumption logic
+    if current_user.role == UserRole.ADMIN:
+        if waste_data.client_id:
+            client_id = waste_data.client_id
+        else:
+            client_id = current_user.client_id
+            if not client_id:
+                raise HTTPException(status_code=400, detail="Admin must specify client_id")
+    else:
+        if not current_user.client_id:
+            raise HTTPException(status_code=400, detail="Client not assigned to user")
+        client_id = current_user.client_id
+
+    # Check if record already exists for this month/year (same as consumption)
+    existing = await db.waste_management.find_one({
+        "client_id": client_id,
+        "year": waste_data.year,
+        "month": waste_data.month
+    })
+    
+    if existing:
+        raise HTTPException(status_code=400, detail="Waste record already exists for this month")
+
+    # Calculate totals (like consumption calculations)
+    recyclable_waste = (
+        waste_data.plastic_waste + waste_data.glass_waste + 
+        waste_data.paper_waste + waste_data.metal_waste
+    )
+    total_waste = (
+        waste_data.organic_waste + recyclable_waste + 
+        waste_data.electronic_waste + waste_data.mixed_waste
+    )
+    recycling_rate = (recyclable_waste / total_waste * 100) if total_waste > 0 else 0
+
+    # Cost calculations
+    waste_cost = total_waste * 2.5 + waste_data.oil_waste * 15.0
+    recycling_income = recyclable_waste * 0.8
+    net_cost = waste_cost - recycling_income
+
+    waste_dict = {
+        "id": str(uuid.uuid4()),
+        "client_id": client_id,
+        "year": waste_data.year,
+        "month": waste_data.month,
+        "organic_waste": waste_data.organic_waste,
+        "plastic_waste": waste_data.plastic_waste,
+        "glass_waste": waste_data.glass_waste,
+        "paper_waste": waste_data.paper_waste,
+        "metal_waste": waste_data.metal_waste,
+        "electronic_waste": waste_data.electronic_waste,
+        "oil_waste": waste_data.oil_waste,
+        "mixed_waste": waste_data.mixed_waste,
+        "total_waste": total_waste,
+        "recycling_rate": round(recycling_rate, 2),
+        "waste_cost": round(waste_cost, 2),
+        "recycling_income": round(recycling_income, 2),
+        "net_cost": round(net_cost, 2),
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
+    }
+
+    await db.waste_management.insert_one(waste_dict)
+    
+    logging.info(f"✅ Waste record created successfully for client: {client_id}, month: {waste_data.month}/{waste_data.year}")
+    return {"message": "Waste record created successfully", "id": waste_dict["id"]}
+
+@api_router.get("/consumptions/waste")
+async def get_waste_records(
+    year: Optional[int] = None,
+    client_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get waste records (same logic as consumption)"""
+    
+    logging.info(f"🗑️ GET /consumptions/waste called by user: {current_user.role} - client_id param: {client_id}")
+    
+    # Get client_id based on user role (same as consumption)
+    if current_user.role == UserRole.ADMIN:
+        if client_id:
+            target_client_id = client_id
+        else:
+            target_client_id = current_user.client_id
+    else:
+        if not current_user.client_id:
+            raise HTTPException(status_code=400, detail="Client not assigned to user")
+        target_client_id = current_user.client_id
+    
+    logging.info(f"🗑️ Fetching waste records for client_id: {target_client_id}")
+    
+    # Build filter (same as consumption)
+    filter_query = {}
+    if target_client_id:
+        filter_query["client_id"] = target_client_id
+    if year:
+        filter_query["year"] = year
+
+    # Get records (same as consumption)
+    records = await db.waste_management.find(filter_query).sort("year", -1).sort("month", -1).to_list(length=None)
+    
+    logging.info(f"📊 Found {len(records)} waste records")
+    return records
+
+@api_router.get("/consumptions/waste/analytics")
+async def get_waste_analytics(
+    year: Optional[int] = None,
+    client_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get waste analytics (same structure as consumption analytics)"""
+    
+    logging.info(f"📊 GET /consumptions/waste/analytics called by user: {current_user.role}")
+    
+    # Get client_id based on user role (same as consumption)
+    if current_user.role == UserRole.ADMIN:
+        if client_id:
+            target_client_id = client_id
+        else:
+            target_client_id = current_user.client_id
+    else:
+        if not current_user.client_id:
+            raise HTTPException(status_code=400, detail="Client not assigned to user")
+        target_client_id = current_user.client_id
+
+    # Build filter
+    filter_query = {}
+    if target_client_id:
+        filter_query["client_id"] = target_client_id
+    if year:
+        filter_query["year"] = year
+
+    records = await db.waste_management.find(filter_query).sort("year", 1).sort("month", 1).to_list(length=None)
+    
+    if not records:
+        return {
+            "yearly_totals": {},
+            "monthly_data": [],
+            "waste_breakdown": {},
+            "recycling_performance": {}
+        }
+
+    # Analytics calculations (like consumption analytics)
+    latest_record = records[-1] if records else {}
+    yearly_totals = {
+        "total_waste": sum(r.get("total_waste", 0) for r in records),
+        "recyclable_waste": sum(
+            r.get("plastic_waste", 0) + r.get("glass_waste", 0) + 
+            r.get("paper_waste", 0) + r.get("metal_waste", 0) for r in records
+        ),
+        "organic_waste": sum(r.get("organic_waste", 0) for r in records),
+        "oil_waste": sum(r.get("oil_waste", 0) for r in records),
+        "total_cost": sum(r.get("net_cost", 0) for r in records),
+        "avg_recycling_rate": sum(r.get("recycling_rate", 0) for r in records) / len(records) if records else 0
+    }
+
+    # Monthly breakdown
+    monthly_data = []
+    for record in records:
+        monthly_data.append({
+            "month": record.get("month"),
+            "year": record.get("year"),
+            "total_waste": record.get("total_waste", 0),
+            "recycling_rate": record.get("recycling_rate", 0),
+            "net_cost": record.get("net_cost", 0)
+        })
+
+    # Waste type breakdown (latest month)
+    waste_breakdown = {
+        "organic": latest_record.get("organic_waste", 0),
+        "plastic": latest_record.get("plastic_waste", 0),
+        "glass": latest_record.get("glass_waste", 0),
+        "paper": latest_record.get("paper_waste", 0),
+        "metal": latest_record.get("metal_waste", 0),
+        "electronic": latest_record.get("electronic_waste", 0),
+        "oil": latest_record.get("oil_waste", 0),
+        "mixed": latest_record.get("mixed_waste", 0)
+    }
+
+    # Recycling performance
+    recycling_performance = {
+        "current_rate": latest_record.get("recycling_rate", 0),
+        "target_rate": 60.0,  # Target 60% recycling rate
+        "performance": "Excellent" if latest_record.get("recycling_rate", 0) >= 60 else 
+                      "Good" if latest_record.get("recycling_rate", 0) >= 40 else
+                      "Needs Improvement"
+    }
+
+    return {
+        "yearly_totals": yearly_totals,
+        "monthly_data": monthly_data,
+        "waste_breakdown": waste_breakdown,
+        "recycling_performance": recycling_performance
+    }
+
 @api_router.post("/environment/analytics")
 async def post_waste_data_via_analytics(
     env_data: EnvironmentInput,
