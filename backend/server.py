@@ -478,12 +478,11 @@ class WasteManagement(BaseModel):
     electronic_waste: float = 0.0  # kg
     oil_waste: float = 0.0      # litre
     mixed_waste: float = 0.0    # kg
-    # Calculated fields (like consumption carbon calculations)
+    accommodation_count: int = 1  # For per-person calculations
+    # Calculated fields (simplified - removed cost calculations)
     total_waste: float = 0.0    # kg (calculated)
     recycling_rate: float = 0.0 # % (calculated)
-    waste_cost: float = 0.0     # TL (calculated)
-    recycling_income: float = 0.0  # TL (calculated)
-    net_cost: float = 0.0       # TL (calculated)
+    per_person_waste: float = 0.0  # kg per person (calculated)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
