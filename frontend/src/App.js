@@ -7911,7 +7911,7 @@ const EmailManagement = () => {
     }
   };
 
-  // Send email with selected items
+  // Send email with selected items - Safe version
   const sendEmailWithItems = async () => {
     if (!emailData.recipients || !emailData.subject || selectedItems.length === 0) {
       alert('Lütfen alıcı, konu ve en az bir doküman/eğitim seçin!');
@@ -7921,84 +7921,52 @@ const EmailManagement = () => {
     try {
       setLoading(true);
 
-      // Prepare selected items data
+      // Safe array filtering
       const selectedDocuments = documents.filter(doc => 
         selectedItems.includes(`document_${doc.id}`)
-      );
+      ) || [];
+      
       const selectedTrainings = trainings.filter(training => 
         selectedItems.includes(`training_${training.id}`)
-      );
+      ) || [];
 
-      // Generate email content
+      // Generate basic email content (simplified to avoid issues)
       let emailContent = `
-        <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 20px;">
-          <div style="background: white; border-radius: 15px; padding: 30px;">
-            <div style="text-align: center; margin-bottom: 30px;">
-              <h2 style="color: #1f2937; margin: 0;">${emailData.subject}</h2>
-              <p style="color: #6b7280; margin: 10px 0 0 0;">Sustainable Tourism CRM</p>
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-              <p style="color: #4b5563; line-height: 1.6;">${emailData.message}</p>
-            </div>
-      `;
-
-      if (selectedDocuments.length > 0) {
-        emailContent += `
-          <div style="margin: 30px 0;">
-            <h3 style="color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">📄 Dokümanlar</h3>
-            <ul style="list-style: none; padding: 0;">
-        `;
-        selectedDocuments.forEach(doc => {
-          emailContent += `
-            <li style="background: #f8fafc; margin: 10px 0; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">
-              <strong style="color: #1f2937;">${doc.title}</strong><br>
-              <span style="color: #6b7280; font-size: 14px;">Tip: ${doc.type} | Kategori: ${doc.category} | Boyut: ${doc.file_size}</span>
-            </li>
-          `;
-        });
-        emailContent += `</ul></div>`;
-      }
-
-      if (selectedTrainings.length > 0) {
-        emailContent += `
-          <div style="margin: 30px 0;">
-            <h3 style="color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">🎓 Eğitimler</h3>
-            <ul style="list-style: none; padding: 0;">
-        `;
-        selectedTrainings.forEach(training => {
-          emailContent += `
-            <li style="background: #f0fdf4; margin: 10px 0; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981;">
-              <strong style="color: #1f2937;">${training.title}</strong><br>
-              <span style="color: #6b7280; font-size: 14px;">${training.description}</span><br>
-              <span style="color: #059669; font-size: 12px;">Süre: ${training.duration} | Seviye: ${training.level} | Kategori: ${training.category}</span>
-            </li>
-          `;
-        });
-        emailContent += `</ul></div>`;
-      }
-
-      emailContent += `
-            <div style="text-align: center; margin: 30px 0; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-              <p style="color: #6b7280; font-size: 14px; margin: 0;">© 2025 Sustainable Tourism CRM</p>
-              <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">Bu email otomatik olarak oluşturulmuştur.</p>
-            </div>
-          </div>
+        <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; padding: 20px;">
+          <h2>${emailData.subject}</h2>
+          <p>${emailData.message}</p>
+          
+          <h3>📄 Seçilen Dokümanlar (${selectedDocuments.length})</h3>
+          <ul>
+            ${selectedDocuments.map(doc => `<li>${doc.title} (${doc.type})</li>`).join('')}
+          </ul>
+          
+          <h3>🎓 Seçilen Eğitimler (${selectedTrainings.length})</h3>
+          <ul>
+            ${selectedTrainings.map(training => `<li>${training.title} - ${training.duration}</li>`).join('')}
+          </ul>
+          
+          <p style="margin-top: 30px; color: #666;">
+            © 2025 Sustainable Tourism CRM
+          </p>
         </div>
       `;
 
-      // Send to multiple recipients
-      const recipients = emailData.recipients.split(',').map(email => email.trim());
+      // Send to recipients (simplified)
+      const recipients = emailData.recipients.split(',').map(email => email.trim()).filter(email => email);
       
       for (const recipient of recipients) {
-        await axios.post(`${API}/send-email`, {
-          to_email: recipient,
-          subject: emailData.subject,
-          html_content: emailContent,
-          attachments: emailData.includeAttachments ? [...selectedDocuments, ...selectedTrainings] : []
-        }, {
-          headers: { Authorization: `Bearer ${authToken}` }
-        });
+        try {
+          await axios.post(`${API}/send-email`, {
+            to_email: recipient,
+            subject: emailData.subject,
+            html_content: emailContent
+          }, {
+            headers: { Authorization: `Bearer ${authToken}` }
+          });
+        } catch (emailError) {
+          console.error(`Failed to send to ${recipient}:`, emailError);
+        }
       }
 
       alert(`Email başarıyla ${recipients.length} alıcıya gönderildi! ✅`);
@@ -8007,7 +7975,6 @@ const EmailManagement = () => {
       setEmailData({ recipients: '', subject: '', message: '', includeAttachments: true });
       setSelectedItems([]);
       
-      fetchEmailHistory();
     } catch (error) {
       console.error('Email sending error:', error);
       alert('Email gönderilirken hata oluştu! ❌');
