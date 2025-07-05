@@ -1969,21 +1969,92 @@ const WasteManagement = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto">
+        {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">🗑️ Atık Yönetimi</h1>
-          <p className="text-gray-600">
-            Atık takibi, geri dönüşüm analizi ve maliyet hesaplama sistemi
-          </p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">🗑️ Atık Yönetimi</h1>
+          <p className="text-gray-600">Atık takibi, geri dönüşüm analizi ve sürdürülebilirlik sistemi</p>
         </div>
 
         {/* Controls */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <div className="flex flex-wrap gap-4 items-center justify-between">
-            <div className="flex gap-4 items-center">
-              {/* Client Selection for Admin */}
-              {userRole === 'admin' && (
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+          <div className="flex flex-wrap items-center gap-4">
+            {userRole === 'admin' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Müşteri Seçin</label>
+                <select
+                  value={selectedClient}
+                  onChange={(e) => setSelectedClient(e.target.value)}
+                  className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                >
+                  {clients.map((client) => (
+                    <option key={client.id} value={client.id}>{client.hotel_name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Yıl</label>
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+              >
+                {[2025, 2024, 2023].map((year) => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+            </div>
+            <div className="ml-auto">
+              <button
+                onClick={() => setShowAddRecord(true)}
+                className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 font-medium shadow-lg"
+              >
+                + Yeni Atık Kaydı
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="bg-white rounded-xl shadow-lg mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="flex space-x-8 px-6">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                  activeTab === 'overview'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                📊 Genel Atık Özeti
+              </button>
+              <button
+                onClick={() => setActiveTab('monthly')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                  activeTab === 'monthly'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                📅 Aylık Atık Analizi
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        {/* Loading State */}
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p className="mt-4 text-gray-600 text-lg">Veriler yükleniyor...</p>
+          </div>
+        ) : (
+          <>
+            {/* Tab Content */}
+            {activeTab === 'overview' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Müşteri Seçin
