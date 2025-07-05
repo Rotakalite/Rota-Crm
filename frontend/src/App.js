@@ -8130,6 +8130,7 @@ const EmailManagement = () => {
 
 function App() {
   return (
+    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
       <SignedIn>
         <MainApp />
       </SignedIn>
