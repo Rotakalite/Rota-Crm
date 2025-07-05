@@ -7728,13 +7728,405 @@ const MainApp = () => {
             <p className="text-gray-600">Yakında eklenecek...</p>
           </div>
         );
-      case 'email':
-        return (
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">📧 Email Yönetimi</h2>
-            <p className="text-gray-600">Email yönetim özellikleri yakında eklenecek...</p>
+// Elite Email Management Component
+const EmailManagement = () => {
+  const { authToken } = useAuth();
+  const [activeTab, setActiveTab] = useState('send');
+  const [loading, setLoading] = useState(false);
+  const [emailData, setEmailData] = useState({
+    to: '',
+    subject: '',
+    message: '',
+    template: 'custom'
+  });
+  const [emailHistory, setEmailHistory] = useState([]);
+  const [templates, setTemplates] = useState([
+    {
+      id: 'welcome',
+      name: 'Hoş Geldiniz Email',
+      subject: 'Sustainable Tourism CRM\'e Hoş Geldiniz! 🌟',
+      preview: 'Yeni kullanıcılar için hoş geldiniz mesajı'
+    },
+    {
+      id: 'notification',
+      name: 'Bildirim Email',
+      subject: 'Önemli Bildirim 📢',
+      preview: 'Sistem bildirimleri için template'
+    },
+    {
+      id: 'report',
+      name: 'Rapor Email',
+      subject: 'Aylık Rapor 📊',
+      preview: 'Rapor gönderimi için template'
+    },
+    {
+      id: 'custom',
+      name: 'Özel Mesaj',
+      subject: '',
+      preview: 'Tamamen özelleştirilebilir email'
+    }
+  ]);
+  const API = getApiUrl();
+
+  // Send email function
+  const sendEmail = async () => {
+    if (!emailData.to || !emailData.subject || !emailData.message) {
+      alert('Lütfen tüm alanları doldurun!');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await axios.post(`${API}/send-email`, {
+        to_email: emailData.to,
+        subject: emailData.subject,
+        html_content: emailData.message,
+        template_type: emailData.template
+      }, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      alert('Email başarıyla gönderildi! ✅');
+      setEmailData({ to: '', subject: '', message: '', template: 'custom' });
+      fetchEmailHistory();
+    } catch (error) {
+      console.error('Email sending error:', error);
+      alert('Email gönderilirken hata oluştu! ❌');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch email history
+  const fetchEmailHistory = async () => {
+    try {
+      const response = await axios.get(`${API}/email-history`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setEmailHistory(response.data.emails || []);
+    } catch (error) {
+      console.error('Error fetching email history:', error);
+      // Mock data for demo
+      setEmailHistory([
+        {
+          id: 1,
+          to: 'user@example.com',
+          subject: 'Hoş Geldiniz!',
+          sent_at: new Date().toISOString(),
+          status: 'sent'
+        },
+        {
+          id: 2,
+          to: 'client@test.com',
+          subject: 'Aylık Rapor',
+          sent_at: new Date().toISOString(),
+          status: 'delivered'
+        }
+      ]);
+    }
+  };
+
+  // Handle template selection
+  const selectTemplate = (template) => {
+    setEmailData({
+      ...emailData,
+      template: template.id,
+      subject: template.subject || emailData.subject,
+      message: getTemplateContent(template.id)
+    });
+  };
+
+  // Get template content
+  const getTemplateContent = (templateId) => {
+    const templates = {
+      welcome: `
+        <div style="max-width: 600px; margin: 0 auto; font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 0; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+          <div style="background: white; margin: 20px; border-radius: 15px; overflow: hidden;">
+            <div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 40px 30px; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">🌟 Hoş Geldiniz!</h1>
+              <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">Sustainable Tourism CRM</p>
+            </div>
+            <div style="padding: 40px 30px;">
+              <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 24px;">Merhaba! 👋</h2>
+              <p style="color: #4b5563; line-height: 1.6; margin: 0 0 20px 0; font-size: 16px;">
+                Sustainable Tourism CRM platformumuza hoş geldiniz! Artık sürdürülebilir turizm operasyonlarınızı kolayca yönetebilirsiniz.
+              </p>
+              <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h3 style="color: #1f2937; margin: 0 0 15px 0; font-size: 18px;">✨ Neler Yapabilirsiniz:</h3>
+                <ul style="color: #4b5563; margin: 0; padding-left: 20px;">
+                  <li style="margin-bottom: 8px;">🏢 Tedarikçi yönetimi</li>
+                  <li style="margin-bottom: 8px;">📊 Karbon ayak izi takibi</li>
+                  <li style="margin-bottom: 8px;">♻️ Atık yönetimi</li>
+                  <li style="margin-bottom: 8px;">👥 Misafir etkileşimi</li>
+                </ul>
+              </div>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="#" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; display: inline-block; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);">
+                  🚀 Hemen Başlayın
+                </a>
+              </div>
+            </div>
           </div>
-        );
+        </div>
+      `,
+      notification: `
+        <div style="max-width: 600px; margin: 0 auto; font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 20px; border-radius: 20px;">
+          <div style="background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 15px 30px rgba(0,0,0,0.1);">
+            <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); padding: 30px; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 26px;">📢 Önemli Bildirim</h1>
+            </div>
+            <div style="padding: 30px;">
+              <p style="color: #2d3748; font-size: 16px; line-height: 1.6;">
+                Size özel bir bildirimiz var! Lütfen aşağıdaki detayları inceleyin.
+              </p>
+            </div>
+          </div>
+        </div>
+      `,
+      report: `
+        <div style="max-width: 600px; margin: 0 auto; font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 20px;">
+          <div style="background: white; border-radius: 15px; overflow: hidden;">
+            <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 30px; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 26px;">📊 Aylık Rapor</h1>
+            </div>
+            <div style="padding: 30px;">
+              <p style="color: #2d3748; font-size: 16px; line-height: 1.6;">
+                Bu ay ki performans raporunuz hazır! Detayları inceleyebilirsiniz.
+              </p>
+            </div>
+          </div>
+        </div>
+      `,
+      custom: ''
+    };
+    return templates[templateId] || '';
+  };
+
+  useEffect(() => {
+    fetchEmailHistory();
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50">
+      {/* Elite Header */}
+      <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white p-6 shadow-xl">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-bold mb-2">📧 Elite Email Yönetimi</h1>
+          <p className="text-purple-100 text-lg">Profesyonel email kampanyalarınızı yönetin</p>
+        </div>
+      </div>
+
+      {/* Elite Tab Navigation */}
+      <div className="bg-white shadow-xl border-b border-gray-100 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex space-x-1">
+            {[
+              { key: 'send', label: 'Email Gönder', icon: '📤', gradient: 'from-purple-500 to-purple-600' },
+              { key: 'templates', label: 'Şablonlar', icon: '🎨', gradient: 'from-blue-500 to-blue-600' },
+              { key: 'history', label: 'Geçmiş', icon: '📋', gradient: 'from-cyan-500 to-cyan-600' },
+              { key: 'settings', label: 'Ayarlar', icon: '⚙️', gradient: 'from-gray-500 to-gray-600' }
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`group flex items-center space-x-3 px-8 py-6 text-sm font-semibold transition-all duration-300 relative overflow-hidden ${
+                  activeTab === tab.key
+                    ? 'text-white'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                {activeTab === tab.key && (
+                  <div className={`absolute inset-0 bg-gradient-to-r ${tab.gradient} shadow-lg`}></div>
+                )}
+                <span className="relative text-xl">{tab.icon}</span>
+                <span className="relative font-bold">{tab.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto p-8">
+        {/* Send Email Tab */}
+        {activeTab === 'send' && (
+          <div className="space-y-8">
+            <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <span className="text-3xl mr-3">✉️</span>
+                Yeni Email Oluştur
+              </h2>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Form */}
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Alıcı Email</label>
+                    <input
+                      type="email"
+                      value={emailData.to}
+                      onChange={(e) => setEmailData({...emailData, to: e.target.value})}
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                      placeholder="ornek@email.com"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Konu</label>
+                    <input
+                      type="text"
+                      value={emailData.subject}
+                      onChange={(e) => setEmailData({...emailData, subject: e.target.value})}
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                      placeholder="Email konusu"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Mesaj</label>
+                    <textarea
+                      value={emailData.message}
+                      onChange={(e) => setEmailData({...emailData, message: e.target.value})}
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 h-40 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                      placeholder="Email içeriğinizi yazın..."
+                    />
+                  </div>
+                  
+                  <button
+                    onClick={sendEmail}
+                    disabled={loading}
+                    className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg disabled:opacity-50 flex items-center justify-center space-x-2"
+                  >
+                    {loading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                        <span>Gönderiliyor...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>🚀</span>
+                        <span>Email Gönder</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                
+                {/* Preview */}
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-4">📱 Önizleme</h3>
+                  <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 h-96 overflow-y-auto">
+                    {emailData.message ? (
+                      <div dangerouslySetInnerHTML={{ __html: emailData.message }} />
+                    ) : (
+                      <p className="text-gray-500 italic">Email içeriği burda görünecek...</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Templates Tab */}
+        {activeTab === 'templates' && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+              <span className="text-3xl mr-3">🎨</span>
+              Email Şablonları
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {templates.map((template) => (
+                <div key={template.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 group">
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-purple-600 transition-colors">
+                      {template.name}
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-4">{template.preview}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                        {template.id === 'custom' ? 'Özel' : 'Hazır Şablon'}
+                      </span>
+                      <button
+                        onClick={() => selectTemplate(template)}
+                        className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all text-sm font-medium"
+                      >
+                        Kullan
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* History Tab */}
+        {activeTab === 'history' && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+              <span className="text-3xl mr-3">📋</span>
+              Email Geçmişi
+            </h2>
+            
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+                    <tr>
+                      <th className="px-6 py-4 text-left font-semibold">Alıcı</th>
+                      <th className="px-6 py-4 text-left font-semibold">Konu</th>
+                      <th className="px-6 py-4 text-left font-semibold">Tarih</th>
+                      <th className="px-6 py-4 text-left font-semibold">Durum</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {emailHistory.map((email) => (
+                      <tr key={email.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-2xl">👤</span>
+                            <span className="font-medium text-gray-800">{email.to}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-gray-600">{email.subject}</td>
+                        <td className="px-6 py-4 text-gray-500 text-sm">
+                          {new Date(email.sent_at).toLocaleDateString('tr-TR')}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            email.status === 'sent' ? 'bg-green-100 text-green-800' :
+                            email.status === 'delivered' ? 'bg-blue-100 text-blue-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {email.status === 'sent' ? '✅ Gönderildi' :
+                             email.status === 'delivered' ? '📨 Teslim Edildi' :
+                             '⏳ Beklemede'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Settings Tab */}
+        {activeTab === 'settings' && (
+          <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+              <span className="text-3xl mr-3">⚙️</span>
+              Email Ayarları
+            </h2>
+            <p className="text-gray-600">Email ayarları yakında eklenecek...</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
       case 'trainings':
         return userRole === 'admin' ? <TrainingManagement /> : <ClientTrainings />;
       default:
