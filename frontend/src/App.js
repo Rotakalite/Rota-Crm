@@ -2165,19 +2165,243 @@ const WasteManagement = () => {
                       Plastik (kg)
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Kağıt (kg)
                     </th>
-                </label>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Cam (kg)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Metal (kg)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Elektronik (kg)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Karışık (kg)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Yağ (L)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Geri Dönüşüm (%)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Kişi Başı (kg)
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {wasteRecords.length > 0 ? wasteRecords.map((record, index) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {getClientName(record.client_id)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.month || new Date().getMonth() + 1}/{record.year || 2025}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.organic_waste || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.plastic_waste || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.paper_waste || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.glass_waste || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.metal_waste || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.electronic_waste || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.mixed_waste || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.oil_waste || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <span className={`font-medium ${
+                          record.recycling_rate >= 60 ? 'text-green-600' : 
+                          record.recycling_rate >= 40 ? 'text-yellow-600' : 'text-red-600'
+                        }`}>
+                          {record.recycling_rate?.toFixed(1) || 0}%
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.per_person_waste?.toFixed(1) || 0} kg
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan="12" className="px-6 py-4 text-center text-gray-500">
+                        Henüz atık kaydı bulunmuyor
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Add Record Modal */}
+      {showAddRecord && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">🗑️ Yeni Atık Kaydı Ekle</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">📅 Yıl</label>
                 <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  value={newRecord.year}
+                  onChange={(e) => setNewRecord({...newRecord, year: parseInt(e.target.value)})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                 >
                   <option value={2025}>2025</option>
                   <option value={2024}>2024</option>
                   <option value={2023}>2023</option>
                 </select>
               </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">📅 Ay</label>
+                <select
+                  value={newRecord.month}
+                  onChange={(e) => setNewRecord({...newRecord, month: parseInt(e.target.value)})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                >
+                  {Array.from({length: 12}, (_, i) => i + 1).map(month => (
+                    <option key={month} value={month}>{month}. Ay</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">👥 Konaklama Sayısı</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={newRecord.accommodation_count}
+                  onChange={(e) => setNewRecord({...newRecord, accommodation_count: parseInt(e.target.value) || 1})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">🌱 Organik Atık (kg)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={newRecord.organic_waste}
+                  onChange={(e) => setNewRecord({...newRecord, organic_waste: parseFloat(e.target.value) || 0})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">🧴 Plastik Atık (kg)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={newRecord.plastic_waste}
+                  onChange={(e) => setNewRecord({...newRecord, plastic_waste: parseFloat(e.target.value) || 0})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">📄 Kağıt Atık (kg)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={newRecord.paper_waste}
+                  onChange={(e) => setNewRecord({...newRecord, paper_waste: parseFloat(e.target.value) || 0})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">🪟 Cam Atık (kg)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={newRecord.glass_waste}
+                  onChange={(e) => setNewRecord({...newRecord, glass_waste: parseFloat(e.target.value) || 0})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">🔗 Metal Atık (kg)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={newRecord.metal_waste}
+                  onChange={(e) => setNewRecord({...newRecord, metal_waste: parseFloat(e.target.value) || 0})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">⚡ Elektronik Atık (kg)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={newRecord.electronic_waste}
+                  onChange={(e) => setNewRecord({...newRecord, electronic_waste: parseFloat(e.target.value) || 0})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">🛢️ Yağ Atığı (litre)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={newRecord.oil_waste}
+                  onChange={(e) => setNewRecord({...newRecord, oil_waste: parseFloat(e.target.value) || 0})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">🗑️ Karışık Atık (kg)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={newRecord.mixed_waste}
+                  onChange={(e) => setNewRecord({...newRecord, mixed_waste: parseFloat(e.target.value) || 0})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={handleSubmitRecord}
+                disabled={loading}
+                className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg hover:from-green-600 hover:to-green-700 disabled:opacity-50 font-medium"
+              >
+                {loading ? 'Kaydediliyor...' : 'Kaydet'}
+              </button>
+              <button
+                onClick={() => setShowAddRecord(false)}
+                className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 font-medium"
+              >
+                İptal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
             </div>
 
             <button
