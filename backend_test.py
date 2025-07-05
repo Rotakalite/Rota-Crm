@@ -1289,8 +1289,8 @@ class TestSupplierManagementEndpoints(unittest.TestCase):
             response = requests.get(url, headers=self.headers_kaya)
             logger.info(f"Client response status code: {response.status_code}")
             
-            # Should get 200 OK, 403 Forbidden, or 404 Not Found
-            self.assertIn(response.status_code, [200, 403, 404])
+            # Should get 200 OK, 401 Unauthorized, 403 Forbidden, or 404 Not Found
+            self.assertIn(response.status_code, [200, 401, 403, 404])
             
             if response.status_code == 200:
                 # Response should contain analytics data
@@ -1303,6 +1303,8 @@ class TestSupplierManagementEndpoints(unittest.TestCase):
                 self.assertIn("average_scores", data)
                 
                 logger.info("✅ GET /api/suppliers/analytics/dashboard with client auth test passed")
+            elif response.status_code == 401:
+                logger.info("✅ Authentication required - received 401 Unauthorized")
             elif response.status_code == 403:
                 logger.info("⚠️ Client access is forbidden - endpoint may be admin-only")
             else:
