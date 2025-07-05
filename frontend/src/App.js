@@ -7628,15 +7628,43 @@ const SupplierManagement = () => {
   );
 };
 
-      // Mark setup as completed in localStorage
+// Main App Component
+const MainApp = () => {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [showClientSetup, setShowClientSetup] = useState(false);
+  const [show2FA, setShow2FA] = useState(true);
+  const [twoFACompleted, setTwoFACompleted] = useState(false);
+  const { userRole, isLoaded, dbUser, refreshUser } = useAuth();
+
+  // Check if client user needs to complete setup
+  useEffect(() => {
+    if (isLoaded && userRole === 'client') {
+      const setupCompleted = localStorage.getItem(`client_setup_${userRole}_completed`);
+      
+      if (!setupCompleted && (!dbUser?.client_id || dbUser?.client_id === '')) {
+        setShowClientSetup(true);
+      } else {
+        setShowClientSetup(false);
+        if (setupCompleted && !dbUser?.client_id) {
+          refreshUser();
+        }
+      }
+    }
+  }, [isLoaded, userRole, dbUser]);
+
+  const handleNavigate = (section, client = null) => {
+    setActiveTab(section);
+    if (client) {
+      setSelectedClient(client);
+    }
+  };
+
+  const handleSetupComplete = async (clientId) => {
+    try {
       localStorage.setItem(`client_setup_${userRole}_completed`, 'true');
-      
-      // Refresh user data to get latest client_id
       await refreshUser();
-      
-      // Hide setup form
       setShowClientSetup(false);
-      
       console.log('✅ Client setup completed and marked as done');
     } catch (error) {
       console.error('Setup completion error:', error);
@@ -7644,10 +7672,72 @@ const SupplierManagement = () => {
   };
 
   const handleSetupSkip = () => {
-    // Mark as completed even if skipped
     localStorage.setItem(`client_setup_${userRole}_completed`, 'true');
     setShowClientSetup(false);
   };
+
+  // Show 2FA for all users initially
+  if (show2FA && !twoFACompleted) {
+    return <TwoFactorAuth onVerificationComplete={() => setTwoFACompleted(true)} />;
+  }
+
+  // Show client setup form for new client users
+  if (showClientSetup && userRole === 'client') {
+    return <ClientSetupForm onComplete={handleSetupComplete} onSkip={handleSetupSkip} />;
+  }
+
+  const renderContent = () => {
+    switch(activeTab) {
+      case 'dashboard':
+        return <Dashboard onNavigate={handleNavigate} />;
+      case 'clients':
+        return <ClientManagement onNavigate={handleNavigate} />;
+      case 'consumption':
+        return <ConsumptionManagement onNavigate={handleNavigate} />;
+      case 'analytics':
+        return <ConsumptionAnalytics />;
+      case 'carbon':
+        return <CarbonFootprint />;
+      case 'guest-engagement':
+        return <GuestEngagement />;
+      case 'waste-management':
+        return <WasteManagement />;
+      case 'suppliers':
+        return <SupplierManagement />;
+      case 'project':
+        return <ProjectManagement client={selectedClient} onNavigate={handleNavigate} />;
+      case 'documents':
+        return userRole === 'admin' ? <DocumentManagement /> : <ClientDocuments />;
+      case 'client-documents':
+        return <ClientDocuments />;
+      case 'reports':
+        return (
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Raporlar</h2>
+            <p className="text-gray-600">Yakında eklenecek...</p>
+          </div>
+        );
+      case 'email':
+        return <EmailManagement />;
+      case 'trainings':
+        return userRole === 'admin' ? <TrainingManagement /> : <ClientTrainings />;
+      default:
+        return <Dashboard onNavigate={handleNavigate} />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <div className="flex">
+        <Sidebar activeTab={activeTab} onNavigate={handleNavigate} userRole={userRole} />
+        <div className="flex-1 p-6">
+          {renderContent()}
+        </div>
+      </div>
+    </div>
+  );
+};
 
   if (!isLoaded) {
     return (
