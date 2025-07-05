@@ -7574,23 +7574,18 @@ const SupplierManagement = () => {
     }
   };
 
-  // Fetch categories
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get(`${API}/suppliers/categories/list`);
-      setCategories(response.data.categories || []);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      setCategories([
-        'Gıda & İçecek',
-        'Temizlik & Hijyen',
-        'Enerji & Yakıt',
-        'Tekstil & Çamaşırhane',
-        'Teknoloji & Ekipman',
-        'Mobilya & Dekorasyon'
-      ]);
-    }
-  };
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">İletişim Kişisi</label>
+                <input
+                  type="text"
+                  value={newSupplier.contact_person}
+                  onChange={(e) => setNewSupplier({...newSupplier, contact_person: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  placeholder="İletişim kişisi"
+                />
 
   // Fetch certifications
   const fetchCertifications = async () => {
