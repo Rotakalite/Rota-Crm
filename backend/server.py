@@ -498,6 +498,7 @@ class WasteManagementInput(BaseModel):
     electronic_waste: float = 0.0
     oil_waste: float = 0.0
     mixed_waste: float = 0.0
+    accommodation_count: int = 1  # For per-person calculations
     client_id: Optional[str] = None  # For admin users
 
 # Environment Management Models  
