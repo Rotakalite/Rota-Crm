@@ -7884,9 +7884,15 @@ const SupplierManagement = () => {
             </button>
           </div>
         </div>
+      )}
 
-      if (filterMaxScore) params.append('max_score', filterMaxScore);
-      if (filterLocalOnly) params.append('local_only', 'true');
+      {/* Add/Edit Supplier Modal */}
+      {showAddForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">
+              {editingSupplier ? 'Tedarikçi Düzenle' : 'Yeni Tedarikçi Ekle'}
+            </h2>
 
       const response = await axios.get(`${API}/suppliers?${params}`, {
         headers: { Authorization: `Bearer ${authToken}` }
