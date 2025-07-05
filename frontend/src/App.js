@@ -7562,21 +7562,17 @@ const SupplierManagement = () => {
   const { authToken, userRole } = useAuth();
   const API = getApiUrl();
 
-  // Fetch all data on component mount
+  // Fetch suppliers
   useEffect(() => {
     fetchSuppliers();
-    fetchCategories();
-    fetchCertifications();
-    fetchAnalytics();
   }, []);
 
-  // Fetch suppliers with filters
   const fetchSuppliers = async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams();
-      if (filterCategory) params.append('category', filterCategory);
-      if (filterMinScore) params.append('min_score', filterMinScore);
+      const response = await axios.get(`${API}/suppliers`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
       if (filterMaxScore) params.append('max_score', filterMaxScore);
       if (filterLocalOnly) params.append('local_only', 'true');
 
