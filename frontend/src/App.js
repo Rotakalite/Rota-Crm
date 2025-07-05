@@ -1818,6 +1818,8 @@ const WasteManagement = () => {
   const [analytics, setAnalytics] = useState({});
   const [wasteRecords, setWasteRecords] = useState([]);
   const [showAddRecord, setShowAddRecord] = useState(false);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState('');
   const { authToken, userRole } = useAuth();
   const API = getApiUrl();
 
