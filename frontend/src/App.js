@@ -1900,7 +1900,7 @@ const WasteManagement = () => {
         recordData.client_id = selectedClient;
       }
 
-      await axios.post(`${API}/placeholder-endpoint`, recordData, {
+      await axios.post(`${API}/environment`, recordData, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
 
