@@ -7651,6 +7651,8 @@ const MainApp = () => {
         return <GuestEngagement />;
       case 'waste-management':
         return <WasteManagement />;
+      case 'suppliers':
+        return <SupplierManagement />;
       case 'project':
         return <ProjectManagement client={selectedClient} onNavigate={handleNavigate} />;
       case 'documents':
