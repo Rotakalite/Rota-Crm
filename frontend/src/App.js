@@ -7906,7 +7906,7 @@ const EmailManagement = () => {
           id: 1,
           to: 'client@example.com',
           subject: 'Sürdürülebilirlik Eğitimi',
-          sent_at: new Date().toISOString(),
+          sent_at: '2024-12-20T11:00:00.000Z',
           status: 'delivered'
         }
       ]);
