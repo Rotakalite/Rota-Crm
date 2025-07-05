@@ -2184,9 +2184,12 @@ const WasteManagement = () => {
 
         {/* Elite Detaylı Tablo - sadece overview tabında */}
         {activeTab === 'overview' && !loading && (
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">📊 Detaylı Atık Kayıtları</h3>
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+            <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                📊 Elite Atık Kayıtları
+                <span className="text-sm font-normal text-gray-600">({wasteRecords.length} kayıt)</span>
+              </h3>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
