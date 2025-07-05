@@ -3606,6 +3606,82 @@ async def get_guest_by_room(room_number: str, client_id: str):
     
     return {"guest_id": guest["id"], "is_new": False}
 
+@api_router.post("/consumptions/waste-data")
+async def create_waste_record_via_consumptions(
+    env_data: EnvironmentInput,
+    current_user: User = Depends(get_current_user)
+):
+    """Create waste record via consumptions endpoint"""
+    try:
+        client_id = env_data.client_id if current_user.role == UserRole.ADMIN else current_user.client_id
+        if not client_id:
+            raise HTTPException(status_code=400, detail="Client ID required")
+
+        # Calculate totals
+        recyclable = env_data.plastic_waste + env_data.glass_waste + env_data.paper_waste + env_data.metal_waste
+        total = env_data.organic_waste + recyclable + env_data.electronic_waste + env_data.mixed_waste
+        recycling_rate = (recyclable / total * 100) if total > 0 else 0
+        waste_cost = total * 2.5 + env_data.oil_waste * 15.0
+        recycling_income = recyclable * 0.8
+        net_cost = waste_cost - recycling_income
+
+        record = {
+            "id": str(uuid.uuid4()),
+            "client_id": client_id,
+            "year": env_data.year,
+            "month": env_data.month,
+            "organic_waste": env_data.organic_waste,
+            "plastic_waste": env_data.plastic_waste,
+            "glass_waste": env_data.glass_waste,
+            "paper_waste": env_data.paper_waste,
+            "metal_waste": env_data.metal_waste,
+            "electronic_waste": env_data.electronic_waste,
+            "oil_waste": env_data.oil_waste,
+            "mixed_waste": env_data.mixed_waste,
+            "total_waste": total,
+            "recycling_rate": round(recycling_rate, 2),
+            "waste_cost": round(waste_cost, 2),
+            "recycling_income": round(recycling_income, 2),
+            "net_cost": round(net_cost, 2),
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+
+        await db.environment_data.insert_one(record)
+        return {"message": "Waste record created successfully", "id": record["id"]}
+
+    except Exception as e:
+        logging.error(f"Error creating waste record: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/consumptions/waste-data")
+async def get_waste_records_via_consumptions(
+    year: Optional[int] = None,
+    client_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get waste records via consumptions endpoint"""
+    try:
+        query = {}
+        
+        if current_user.role == UserRole.ADMIN:
+            if client_id:
+                query["client_id"] = client_id
+        else:
+            if not current_user.client_id:
+                raise HTTPException(status_code=403, detail="Client not linked")
+            query["client_id"] = current_user.client_id
+
+        if year:
+            query["year"] = year
+
+        records = await db.environment_data.find(query).sort("year", -1).sort("month", -1).to_list(length=None)
+        return records
+
+    except Exception as e:
+        logging.error(f"Error fetching waste records: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Environment Management - Clean Implementation
 @api_router.post("/environment")
 async def create_environment_record(
