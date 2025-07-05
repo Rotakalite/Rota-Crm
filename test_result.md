@@ -173,6 +173,7 @@ test_plan:
   current_focus:
     - "Waste Management Backend APIs"
     - "Waste Management Module Enhancement"
+    - "Supplier Management Backend APIs"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
