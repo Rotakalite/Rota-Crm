@@ -2512,37 +2512,6 @@ const WasteManagement = () => {
   );
 };
 
-// Client Management Component
-        {analytics && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
-              <h3 className="text-lg font-bold mb-2">♻️ Geri Dönüşüm Oranı</h3>
-              <p className="text-3xl font-bold">{analytics.recycling_performance?.current_rate?.toFixed(1) || 0}%</p>
-              <p className="text-green-100">
-                Hedef: {analytics.recycling_performance?.target_rate || 60}%
-              </p>
-            </div>
-
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
-              <h3 className="text-lg font-bold mb-2">📊 Toplam Atık</h3>
-              <p className="text-3xl font-bold">{analytics.yearly_totals?.total_waste?.toFixed(1) || 0}</p>
-              <p className="text-blue-100">kg/yıl</p>
-            </div>
-
-            <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
-              <h3 className="text-lg font-bold mb-2">👤 Kişi Başı Atık</h3>
-              <p className="text-3xl font-bold">{analytics.yearly_totals?.avg_per_person_waste?.toFixed(1) || 0}</p>
-              <p className="text-purple-100">kg/kişi</p>
-            </div>
-
-            <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-6 rounded-xl text-white shadow-lg">
-              <h3 className="text-lg font-bold mb-2">🛢️ Yağ Atığı</h3>
-              <p className="text-3xl font-bold">{analytics.yearly_totals?.oil_waste?.toFixed(1) || 0}</p>
-              <p className="text-amber-100">litre/yıl</p>
-            </div>
-          </div>
-        )}
-
         {/* Waste Records Table */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
