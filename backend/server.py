@@ -3606,6 +3606,168 @@ async def get_guest_by_room(room_number: str, client_id: str):
     
     return {"guest_id": guest["id"], "is_new": False}
 
+# Environment Management - Clean Implementation
+@api_router.post("/environment")
+async def create_environment_record(
+    env_data: EnvironmentInput,
+    current_user: User = Depends(get_current_user)
+):
+    """Create environment record"""
+    try:
+        client_id = env_data.client_id if current_user.role == UserRole.ADMIN else current_user.client_id
+        if not client_id:
+            raise HTTPException(status_code=400, detail="Client ID required")
+
+        # Calculate totals
+        recyclable = env_data.plastic_waste + env_data.glass_waste + env_data.paper_waste + env_data.metal_waste
+        total = env_data.organic_waste + recyclable + env_data.electronic_waste + env_data.mixed_waste
+        recycling_rate = (recyclable / total * 100) if total > 0 else 0
+        waste_cost = total * 2.5 + env_data.oil_waste * 15.0
+        recycling_income = recyclable * 0.8
+        net_cost = waste_cost - recycling_income
+
+        record = {
+            "id": str(uuid.uuid4()),
+            "client_id": client_id,
+            "year": env_data.year,
+            "month": env_data.month,
+            "organic_waste": env_data.organic_waste,
+            "plastic_waste": env_data.plastic_waste,
+            "glass_waste": env_data.glass_waste,
+            "paper_waste": env_data.paper_waste,
+            "metal_waste": env_data.metal_waste,
+            "electronic_waste": env_data.electronic_waste,
+            "oil_waste": env_data.oil_waste,
+            "mixed_waste": env_data.mixed_waste,
+            "total_waste": total,
+            "recycling_rate": round(recycling_rate, 2),
+            "waste_cost": round(waste_cost, 2),
+            "recycling_income": round(recycling_income, 2),
+            "net_cost": round(net_cost, 2),
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+
+        await db.environment_data.insert_one(record)
+        return {"message": "Record created successfully", "id": record["id"]}
+
+    except Exception as e:
+        logging.error(f"Error creating environment record: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/environment")
+async def get_environment_records(
+    year: Optional[int] = None,
+    client_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get environment records"""
+    try:
+        query = {}
+        
+        if current_user.role == UserRole.ADMIN:
+            if client_id:
+                query["client_id"] = client_id
+        else:
+            if not current_user.client_id:
+                raise HTTPException(status_code=403, detail="Client not linked")
+            query["client_id"] = current_user.client_id
+
+        if year:
+            query["year"] = year
+
+        records = await db.environment_data.find(query).sort("year", -1).sort("month", -1).to_list(length=None)
+        return records
+
+    except Exception as e:
+        logging.error(f"Error fetching environment records: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/environment/analytics")
+async def get_environment_analytics(
+    year: Optional[int] = None,
+    client_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get environment analytics"""
+    try:
+        query = {}
+        
+        if current_user.role == UserRole.ADMIN:
+            if client_id:
+                query["client_id"] = client_id
+        else:
+            if not current_user.client_id:
+                raise HTTPException(status_code=403, detail="Client not linked")
+            query["client_id"] = current_user.client_id
+
+        if year:
+            query["year"] = year
+
+        records = await db.environment_data.find(query).sort("year", 1).sort("month", 1).to_list(length=None)
+        
+        if not records:
+            return {
+                "yearly_totals": {},
+                "monthly_data": [],
+                "waste_breakdown": {},
+                "recycling_performance": {}
+            }
+
+        # Analytics calculations
+        latest = records[-1] if records else {}
+        yearly_totals = {
+            "total_waste": sum(r.get("total_waste", 0) for r in records),
+            "recyclable_waste": sum(
+                r.get("plastic_waste", 0) + r.get("glass_waste", 0) + 
+                r.get("paper_waste", 0) + r.get("metal_waste", 0) for r in records
+            ),
+            "organic_waste": sum(r.get("organic_waste", 0) for r in records),
+            "oil_waste": sum(r.get("oil_waste", 0) for r in records),
+            "total_cost": sum(r.get("net_cost", 0) for r in records),
+            "avg_recycling_rate": sum(r.get("recycling_rate", 0) for r in records) / len(records) if records else 0
+        }
+
+        monthly_data = []
+        for record in records:
+            monthly_data.append({
+                "month": record.get("month"),
+                "year": record.get("year"),
+                "total_waste": record.get("total_waste", 0),
+                "recycling_rate": record.get("recycling_rate", 0),
+                "net_cost": record.get("net_cost", 0)
+            })
+
+        waste_breakdown = {
+            "organic": latest.get("organic_waste", 0),
+            "plastic": latest.get("plastic_waste", 0),
+            "glass": latest.get("glass_waste", 0),
+            "paper": latest.get("paper_waste", 0),
+            "metal": latest.get("metal_waste", 0),
+            "electronic": latest.get("electronic_waste", 0),
+            "oil": latest.get("oil_waste", 0),
+            "mixed": latest.get("mixed_waste", 0)
+        }
+
+        recycling_performance = {
+            "current_rate": latest.get("recycling_rate", 0),
+            "target_rate": 60.0,
+            "performance": "Excellent" if latest.get("recycling_rate", 0) >= 60 else 
+                          "Good" if latest.get("recycling_rate", 0) >= 40 else
+                          "Needs Improvement"
+        }
+
+        return {
+            "yearly_totals": yearly_totals,
+            "monthly_data": monthly_data,
+            "waste_breakdown": waste_breakdown,
+            "recycling_performance": recycling_performance
+        }
+
+    except Exception as e:
+        logging.error(f"Error fetching environment analytics: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Multi-Client Comparison Analytics
 @api_router.get("/analytics/multi-client-comparison")
 async def get_multi_client_comparison(
