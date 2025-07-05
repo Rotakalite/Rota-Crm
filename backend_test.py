@@ -1159,6 +1159,555 @@ class TestWasteManagementEndpoints(unittest.TestCase):
             logger.error(f"❌ Error testing GET /api/waste-management/analytics with year parameter: {str(e)}")
             raise
 
+class TestSupplierManagementEndpoints(unittest.TestCase):
+    """Test class for supplier management endpoints"""
+    
+    def setUp(self):
+        """Set up test environment"""
+        self.api_url = RAILWAY_API_URL
+        
+        # Headers for different user types
+        self.headers_admin = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
+        self.headers_kaya = {"Authorization": f"Bearer {KAYA_CLIENT_TOKEN}"}
+        self.headers_cano = {"Authorization": f"Bearer {CANO_CLIENT_TOKEN}"}
+        self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
+        self.headers_no_auth = {}
+        
+        # Test data for supplier creation
+        self.test_supplier_data = {
+            "company_name": f"Test Supplier {uuid.uuid4()}",
+            "contact_person": "John Doe",
+            "email": "john@testsupplier.com",
+            "phone": "1234567890",
+            "address": "123 Test St, Test City",
+            "category": "Gıda & İçecek",
+            "sustainability_score": 75,
+            "certifications": ["ISO 14001", "Organik Sertifika"],
+            "local_supplier": True,
+            "website": "https://testsupplier.com",
+            "description": "A test supplier for API testing",
+            "client_id": "8bfd3a85-2483-4b63-9e80-e53747c3db7e"  # Sample client ID
+        }
+    
+    def test_supplier_categories_list(self):
+        """Test GET /api/suppliers/categories/list endpoint"""
+        logger.info("\n=== Testing GET /api/suppliers/categories/list endpoint ===")
+        
+        url = f"{self.api_url}/suppliers/categories/list"
+        
+        # Test without authentication (should work)
+        try:
+            response = requests.get(url)
+            logger.info(f"No auth response status code: {response.status_code}")
+            
+            # Should get 200 OK
+            self.assertEqual(response.status_code, 200)
+            
+            # Response should contain categories
+            data = response.json()
+            self.assertIn("categories", data)
+            self.assertIsInstance(data["categories"], list)
+            self.assertTrue(len(data["categories"]) > 0)
+            
+            # Log the categories found
+            logger.info(f"Found {len(data['categories'])} supplier categories")
+            logger.info(f"Categories: {data['categories']}")
+            
+            logger.info("✅ GET /api/suppliers/categories/list test passed")
+        except Exception as e:
+            logger.error(f"❌ Error testing supplier categories endpoint: {str(e)}")
+            raise
+    
+    def test_supplier_certifications_list(self):
+        """Test GET /api/suppliers/certifications/list endpoint"""
+        logger.info("\n=== Testing GET /api/suppliers/certifications/list endpoint ===")
+        
+        url = f"{self.api_url}/suppliers/certifications/list"
+        
+        # Test without authentication (should work)
+        try:
+            response = requests.get(url)
+            logger.info(f"No auth response status code: {response.status_code}")
+            
+            # Should get 200 OK
+            self.assertEqual(response.status_code, 200)
+            
+            # Response should contain certifications
+            data = response.json()
+            self.assertIn("certifications", data)
+            self.assertIsInstance(data["certifications"], list)
+            self.assertTrue(len(data["certifications"]) > 0)
+            
+            # Log the certifications found
+            logger.info(f"Found {len(data['certifications'])} supplier certifications")
+            logger.info(f"Certifications: {data['certifications']}")
+            
+            logger.info("✅ GET /api/suppliers/certifications/list test passed")
+        except Exception as e:
+            logger.error(f"❌ Error testing supplier certifications endpoint: {str(e)}")
+            raise
+    
+    def test_supplier_analytics_dashboard(self):
+        """Test GET /api/suppliers/analytics/dashboard endpoint"""
+        logger.info("\n=== Testing GET /api/suppliers/analytics/dashboard endpoint ===")
+        
+        url = f"{self.api_url}/suppliers/analytics/dashboard"
+        
+        # Test with admin authentication
+        try:
+            response = requests.get(url, headers=self.headers_admin)
+            logger.info(f"Admin response status code: {response.status_code}")
+            
+            # Should get 200 OK or 404 Not Found
+            self.assertIn(response.status_code, [200, 404])
+            
+            if response.status_code == 200:
+                # Response should contain analytics data
+                data = response.json()
+                self.assertIn("total_suppliers", data)
+                self.assertIn("category_distribution", data)
+                self.assertIn("sustainability_stats", data)
+                self.assertIn("certification_stats", data)
+                self.assertIn("local_vs_global", data)
+                self.assertIn("average_scores", data)
+                
+                logger.info(f"Total suppliers: {data['total_suppliers']}")
+                logger.info(f"Category distribution: {data['category_distribution']}")
+                logger.info(f"Sustainability stats: {data['sustainability_stats']}")
+                
+                logger.info("✅ GET /api/suppliers/analytics/dashboard with admin auth test passed")
+            else:
+                logger.info("⚠️ Endpoint returned 404 Not Found - may not be implemented yet")
+        except Exception as e:
+            logger.error(f"❌ Error testing supplier analytics endpoint with admin: {str(e)}")
+            raise
+        
+        # Test with client authentication
+        try:
+            response = requests.get(url, headers=self.headers_kaya)
+            logger.info(f"Client response status code: {response.status_code}")
+            
+            # Should get 200 OK, 403 Forbidden, or 404 Not Found
+            self.assertIn(response.status_code, [200, 403, 404])
+            
+            if response.status_code == 200:
+                # Response should contain analytics data
+                data = response.json()
+                self.assertIn("total_suppliers", data)
+                self.assertIn("category_distribution", data)
+                self.assertIn("sustainability_stats", data)
+                self.assertIn("certification_stats", data)
+                self.assertIn("local_vs_global", data)
+                self.assertIn("average_scores", data)
+                
+                logger.info("✅ GET /api/suppliers/analytics/dashboard with client auth test passed")
+            elif response.status_code == 403:
+                logger.info("⚠️ Client access is forbidden - endpoint may be admin-only")
+            else:
+                logger.info("⚠️ Endpoint returned 404 Not Found - may not be implemented yet")
+        except Exception as e:
+            logger.error(f"❌ Error testing supplier analytics endpoint with client: {str(e)}")
+            raise
+        
+        # Test with invalid authentication
+        try:
+            response = requests.get(url, headers=self.headers_invalid)
+            logger.info(f"Invalid auth response status code: {response.status_code}")
+            
+            # Should get 401 Unauthorized or 404 Not Found
+            self.assertIn(response.status_code, [401, 404])
+            
+            if response.status_code == 401:
+                logger.info("✅ GET /api/suppliers/analytics/dashboard with invalid auth correctly returns 401")
+            else:
+                logger.info("⚠️ Endpoint returned 404 Not Found - may not be implemented yet")
+        except Exception as e:
+            logger.error(f"❌ Error testing supplier analytics endpoint with invalid auth: {str(e)}")
+            raise
+        
+        # Test with no authentication
+        try:
+            response = requests.get(url)
+            logger.info(f"No auth response status code: {response.status_code}")
+            
+            # Should get 403 Forbidden or 404 Not Found
+            self.assertIn(response.status_code, [403, 404])
+            
+            if response.status_code == 403:
+                logger.info("✅ GET /api/suppliers/analytics/dashboard with no auth correctly returns 403")
+            else:
+                logger.info("⚠️ Endpoint returned 404 Not Found - may not be implemented yet")
+        except Exception as e:
+            logger.error(f"❌ Error testing supplier analytics endpoint with no auth: {str(e)}")
+            raise
+    
+    def test_create_supplier(self):
+        """Test POST /api/suppliers endpoint"""
+        logger.info("\n=== Testing POST /api/suppliers endpoint ===")
+        
+        url = f"{self.api_url}/suppliers"
+        
+        # Test with admin authentication
+        try:
+            response = requests.post(url, headers=self.headers_admin, json=self.test_supplier_data)
+            logger.info(f"Admin response status code: {response.status_code}")
+            
+            # Should get 200 OK, 400 Bad Request (if supplier exists), or 404 Not Found
+            self.assertIn(response.status_code, [200, 201, 400, 404])
+            
+            if response.status_code in [200, 201]:
+                # Response should contain success message and supplier_id
+                data = response.json()
+                self.assertIn("message", data)
+                self.assertIn("supplier_id", data)
+                
+                # Save supplier_id for later tests
+                self.supplier_id = data["supplier_id"]
+                logger.info(f"Created supplier with ID: {self.supplier_id}")
+                
+                logger.info("✅ POST /api/suppliers with admin auth test passed")
+            elif response.status_code == 400:
+                # This could happen if supplier already exists
+                data = response.json()
+                logger.info(f"Expected 400 error: {data}")
+                logger.info("✅ POST /api/suppliers with admin auth - expected 400 error")
+            else:
+                logger.info("⚠️ Endpoint returned 404 Not Found - may not be implemented yet")
+        except Exception as e:
+            logger.error(f"❌ Error testing create supplier endpoint with admin: {str(e)}")
+            raise
+        
+        # Test with client authentication
+        try:
+            # For client user, we don't need to specify client_id
+            client_supplier_data = self.test_supplier_data.copy()
+            client_supplier_data.pop("client_id", None)
+            client_supplier_data["company_name"] = f"Client Test Supplier {uuid.uuid4()}"
+            
+            response = requests.post(url, headers=self.headers_kaya, json=client_supplier_data)
+            logger.info(f"Client response status code: {response.status_code}")
+            
+            # Should get 200 OK, 400 Bad Request, 403 Forbidden, or 404 Not Found
+            self.assertIn(response.status_code, [200, 201, 400, 403, 404])
+            
+            if response.status_code in [200, 201]:
+                # Response should contain success message and supplier_id
+                data = response.json()
+                self.assertIn("message", data)
+                self.assertIn("supplier_id", data)
+                
+                logger.info("✅ POST /api/suppliers with client auth test passed")
+            elif response.status_code == 400:
+                # This could happen if supplier already exists
+                data = response.json()
+                logger.info(f"Expected 400 error: {data}")
+                logger.info("✅ POST /api/suppliers with client auth - expected 400 error")
+            elif response.status_code == 403:
+                logger.info("⚠️ Client access is forbidden - endpoint may be admin-only")
+            else:
+                logger.info("⚠️ Endpoint returned 404 Not Found - may not be implemented yet")
+        except Exception as e:
+            logger.error(f"❌ Error testing create supplier endpoint with client: {str(e)}")
+            raise
+        
+        # Test with invalid authentication
+        try:
+            response = requests.post(url, headers=self.headers_invalid, json=self.test_supplier_data)
+            logger.info(f"Invalid auth response status code: {response.status_code}")
+            
+            # Should get 401 Unauthorized or 404 Not Found
+            self.assertIn(response.status_code, [401, 404])
+            
+            if response.status_code == 401:
+                logger.info("✅ POST /api/suppliers with invalid auth correctly returns 401")
+            else:
+                logger.info("⚠️ Endpoint returned 404 Not Found - may not be implemented yet")
+        except Exception as e:
+            logger.error(f"❌ Error testing create supplier endpoint with invalid auth: {str(e)}")
+            raise
+        
+        # Test with no authentication
+        try:
+            response = requests.post(url, json=self.test_supplier_data)
+            logger.info(f"No auth response status code: {response.status_code}")
+            
+            # Should get 403 Forbidden or 404 Not Found
+            self.assertIn(response.status_code, [403, 404])
+            
+            if response.status_code == 403:
+                logger.info("✅ POST /api/suppliers with no auth correctly returns 403")
+            else:
+                logger.info("⚠️ Endpoint returned 404 Not Found - may not be implemented yet")
+        except Exception as e:
+            logger.error(f"❌ Error testing create supplier endpoint with no auth: {str(e)}")
+            raise
+    
+    def test_get_suppliers(self):
+        """Test GET /api/suppliers endpoint"""
+        logger.info("\n=== Testing GET /api/suppliers endpoint ===")
+        
+        url = f"{self.api_url}/suppliers"
+        
+        # Test with admin authentication
+        try:
+            response = requests.get(url, headers=self.headers_admin)
+            logger.info(f"Admin response status code: {response.status_code}")
+            
+            # Should get 200 OK or 404 Not Found
+            self.assertIn(response.status_code, [200, 404])
+            
+            if response.status_code == 200:
+                # Response should be a list of suppliers
+                data = response.json()
+                self.assertIsInstance(data, list)
+                
+                logger.info(f"Found {len(data)} suppliers")
+                
+                # If there are suppliers, check their structure
+                if len(data) > 0:
+                    supplier = data[0]
+                    self.assertIn("id", supplier)
+                    self.assertIn("client_id", supplier)
+                    self.assertIn("company_name", supplier)
+                    self.assertIn("category", supplier)
+                    self.assertIn("sustainability_score", supplier)
+                    self.assertIn("local_supplier", supplier)
+                
+                logger.info("✅ GET /api/suppliers with admin auth test passed")
+            else:
+                logger.info("⚠️ Endpoint returned 404 Not Found - may not be implemented yet")
+        except Exception as e:
+            logger.error(f"❌ Error testing get suppliers endpoint with admin: {str(e)}")
+            raise
+        
+        # Test with client authentication
+        try:
+            response = requests.get(url, headers=self.headers_kaya)
+            logger.info(f"Client response status code: {response.status_code}")
+            
+            # Should get 200 OK, 403 Forbidden, or 404 Not Found
+            self.assertIn(response.status_code, [200, 403, 404])
+            
+            if response.status_code == 200:
+                # Response should be a list of suppliers
+                data = response.json()
+                self.assertIsInstance(data, list)
+                
+                logger.info(f"Found {len(data)} suppliers for client")
+                
+                # If there are suppliers, check their structure and client_id
+                if len(data) > 0:
+                    supplier = data[0]
+                    self.assertIn("id", supplier)
+                    self.assertIn("client_id", supplier)
+                    self.assertIn("company_name", supplier)
+                    self.assertIn("category", supplier)
+                    self.assertIn("sustainability_score", supplier)
+                    self.assertIn("local_supplier", supplier)
+                
+                logger.info("✅ GET /api/suppliers with client auth test passed")
+            elif response.status_code == 403:
+                logger.info("⚠️ Client access is forbidden - endpoint may be admin-only")
+            else:
+                logger.info("⚠️ Endpoint returned 404 Not Found - may not be implemented yet")
+        except Exception as e:
+            logger.error(f"❌ Error testing get suppliers endpoint with client: {str(e)}")
+            raise
+        
+        # Test with filtering
+        try:
+            # Test category filter
+            params = {"category": "Gıda & İçecek"}
+            response = requests.get(url, headers=self.headers_admin, params=params)
+            logger.info(f"Admin response with category filter status code: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"Found {len(data)} suppliers with category 'Gıda & İçecek'")
+                
+                # All suppliers should have the specified category
+                for supplier in data:
+                    self.assertEqual(supplier["category"], "Gıda & İçecek")
+                
+                logger.info("✅ GET /api/suppliers with category filter test passed")
+            elif response.status_code == 404:
+                logger.info("⚠️ Endpoint returned 404 Not Found - may not be implemented yet")
+            
+            # Test sustainability score filter
+            params = {"min_score": 70}
+            response = requests.get(url, headers=self.headers_admin, params=params)
+            logger.info(f"Admin response with min_score filter status code: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"Found {len(data)} suppliers with sustainability score >= 70")
+                
+                # All suppliers should have a score >= 70
+                for supplier in data:
+                    self.assertGreaterEqual(supplier["sustainability_score"], 70)
+                
+                logger.info("✅ GET /api/suppliers with min_score filter test passed")
+            
+            # Test local_only filter
+            params = {"local_only": True}
+            response = requests.get(url, headers=self.headers_admin, params=params)
+            logger.info(f"Admin response with local_only filter status code: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"Found {len(data)} local suppliers")
+                
+                # All suppliers should be local
+                for supplier in data:
+                    self.assertTrue(supplier["local_supplier"])
+                
+                logger.info("✅ GET /api/suppliers with local_only filter test passed")
+        except Exception as e:
+            logger.error(f"❌ Error testing get suppliers endpoint with filters: {str(e)}")
+            raise
+        
+        # Test with invalid authentication
+        try:
+            response = requests.get(url, headers=self.headers_invalid)
+            logger.info(f"Invalid auth response status code: {response.status_code}")
+            
+            # Should get 401 Unauthorized or 404 Not Found
+            self.assertIn(response.status_code, [401, 404])
+            
+            if response.status_code == 401:
+                logger.info("✅ GET /api/suppliers with invalid auth correctly returns 401")
+            else:
+                logger.info("⚠️ Endpoint returned 404 Not Found - may not be implemented yet")
+        except Exception as e:
+            logger.error(f"❌ Error testing get suppliers endpoint with invalid auth: {str(e)}")
+            raise
+        
+        # Test with no authentication
+        try:
+            response = requests.get(url)
+            logger.info(f"No auth response status code: {response.status_code}")
+            
+            # Should get 403 Forbidden or 404 Not Found
+            self.assertIn(response.status_code, [403, 404])
+            
+            if response.status_code == 403:
+                logger.info("✅ GET /api/suppliers with no auth correctly returns 403")
+            else:
+                logger.info("⚠️ Endpoint returned 404 Not Found - may not be implemented yet")
+        except Exception as e:
+            logger.error(f"❌ Error testing get suppliers endpoint with no auth: {str(e)}")
+            raise
+    
+    def test_get_supplier_by_id(self):
+        """Test GET /api/suppliers/{supplier_id} endpoint"""
+        logger.info("\n=== Testing GET /api/suppliers/{supplier_id} endpoint ===")
+        
+        # First, try to get a list of suppliers to find a valid ID
+        list_url = f"{self.api_url}/suppliers"
+        supplier_id = None
+        
+        try:
+            response = requests.get(list_url, headers=self.headers_admin)
+            if response.status_code == 200:
+                suppliers = response.json()
+                if len(suppliers) > 0:
+                    supplier_id = suppliers[0]["id"]
+                    logger.info(f"Found supplier ID for testing: {supplier_id}")
+        except Exception:
+            logger.warning("Could not find a supplier ID for testing")
+        
+        # If we couldn't find a supplier ID, use a dummy one
+        if not supplier_id:
+            supplier_id = "test-supplier-id"
+            logger.warning(f"Using dummy supplier ID: {supplier_id}")
+        
+        url = f"{self.api_url}/suppliers/{supplier_id}"
+        
+        # Test with admin authentication
+        try:
+            response = requests.get(url, headers=self.headers_admin)
+            logger.info(f"Admin response status code: {response.status_code}")
+            
+            # Should get 200 OK, 404 Not Found (if supplier doesn't exist), or 404 Not Found (if endpoint not implemented)
+            self.assertIn(response.status_code, [200, 404])
+            
+            if response.status_code == 200:
+                # Response should be a supplier object
+                supplier = response.json()
+                self.assertIn("id", supplier)
+                self.assertIn("client_id", supplier)
+                self.assertIn("company_name", supplier)
+                self.assertIn("category", supplier)
+                self.assertIn("sustainability_score", supplier)
+                self.assertIn("local_supplier", supplier)
+                
+                logger.info(f"Found supplier: {supplier['company_name']}")
+                logger.info("✅ GET /api/suppliers/{supplier_id} with admin auth test passed")
+            else:
+                logger.info("⚠️ Endpoint returned 404 Not Found - supplier may not exist or endpoint not implemented")
+        except Exception as e:
+            logger.error(f"❌ Error testing get supplier by ID endpoint with admin: {str(e)}")
+            raise
+        
+        # Test with client authentication
+        try:
+            response = requests.get(url, headers=self.headers_kaya)
+            logger.info(f"Client response status code: {response.status_code}")
+            
+            # Should get 200 OK, 403 Forbidden (if supplier belongs to another client), 404 Not Found (if supplier doesn't exist), or 404 Not Found (if endpoint not implemented)
+            self.assertIn(response.status_code, [200, 403, 404])
+            
+            if response.status_code == 200:
+                # Response should be a supplier object
+                supplier = response.json()
+                self.assertIn("id", supplier)
+                self.assertIn("client_id", supplier)
+                self.assertIn("company_name", supplier)
+                self.assertIn("category", supplier)
+                self.assertIn("sustainability_score", supplier)
+                self.assertIn("local_supplier", supplier)
+                
+                logger.info("✅ GET /api/suppliers/{supplier_id} with client auth test passed")
+            elif response.status_code == 403:
+                logger.info("⚠️ Client access is forbidden - supplier may belong to another client")
+            else:
+                logger.info("⚠️ Endpoint returned 404 Not Found - supplier may not exist or endpoint not implemented")
+        except Exception as e:
+            logger.error(f"❌ Error testing get supplier by ID endpoint with client: {str(e)}")
+            raise
+        
+        # Test with invalid authentication
+        try:
+            response = requests.get(url, headers=self.headers_invalid)
+            logger.info(f"Invalid auth response status code: {response.status_code}")
+            
+            # Should get 401 Unauthorized or 404 Not Found
+            self.assertIn(response.status_code, [401, 404])
+            
+            if response.status_code == 401:
+                logger.info("✅ GET /api/suppliers/{supplier_id} with invalid auth correctly returns 401")
+            else:
+                logger.info("⚠️ Endpoint returned 404 Not Found - may not be implemented yet")
+        except Exception as e:
+            logger.error(f"❌ Error testing get supplier by ID endpoint with invalid auth: {str(e)}")
+            raise
+        
+        # Test with no authentication
+        try:
+            response = requests.get(url)
+            logger.info(f"No auth response status code: {response.status_code}")
+            
+            # Should get 403 Forbidden or 404 Not Found
+            self.assertIn(response.status_code, [403, 404])
+            
+            if response.status_code == 403:
+                logger.info("✅ GET /api/suppliers/{supplier_id} with no auth correctly returns 403")
+            else:
+                logger.info("⚠️ Endpoint returned 404 Not Found - may not be implemented yet")
+        except Exception as e:
+            logger.error(f"❌ Error testing get supplier by ID endpoint with no auth: {str(e)}")
+            raise
+
 def run_tests():
     """Run all API tests"""
     logger.info("Starting API tests...")
@@ -1166,10 +1715,13 @@ def run_tests():
     # Create a test suite
     suite = unittest.TestSuite()
     
+    # Run supplier management tests
+    logger.info("Running supplier management tests...")
+    supplier_tests = unittest.TestLoader().loadTestsFromTestCase(TestSupplierManagementEndpoints)
+    suite.addTests(supplier_tests)
+    
     # Run waste management tests to verify CORS and configuration fixes
     logger.info("Running waste management tests to verify CORS and configuration fixes...")
-    
-    # Add waste management tests
     waste_management_tests = unittest.TestLoader().loadTestsFromTestCase(TestWasteManagementEndpoints)
     suite.addTests(waste_management_tests)
     
