@@ -7780,110 +7780,18 @@ const EmailManagement = () => {
     );
   }
 
-  // Fetch documents with error handling
-  const fetchDocuments = useCallback(async () => {
-    if (!authToken) return;
-    
-    try {
-      setLoading(true);
-      const response = await axios.get(`${API}/documents`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
-      setDocuments(response.data.documents || []);
-    } catch (error) {
-      console.error('Error fetching documents:', error);
-      // Don't crash - use mock data
-      setDocuments([
-        {
-          id: 1,
-          title: 'Sürdürülebilirlik Rehberi',
-          type: 'PDF',
-          category: 'Training Material',
-          upload_date: new Date().toISOString(),
-          file_size: '2.5 MB'
-        },
-        {
-          id: 2,
-          title: 'Çevre Politikası',
-          type: 'PDF',
-          category: 'Policy Document',
-          upload_date: new Date().toISOString(),
-          file_size: '1.2 MB'
-        },
-        {
-          id: 3,
-          title: 'Atık Yönetimi Kılavuzu',
-          type: 'PDF',
-          category: 'Manual',
-          upload_date: new Date().toISOString(),
-          file_size: '3.1 MB'
-        }
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  }, [authToken, API]);
+  // Simplified fetch functions (not used in useEffect to avoid loops)
+  const fetchDocuments = async () => {
+    // Removed to prevent useEffect issues
+  };
 
-  // Fetch trainings with error handling
-  const fetchTrainings = useCallback(async () => {
-    if (!authToken) return;
-    
-    try {
-      const response = await axios.get(`${API}/trainings`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
-      setTrainings(response.data.trainings || []);
-    } catch (error) {
-      console.error('Error fetching trainings:', error);
-      // Don't crash - use mock data
-      setTrainings([
-        {
-          id: 1,
-          title: 'Sürdürülebilir Turizm Eğitimi',
-          description: 'Temel sürdürülebilirlik prensipleri',
-          duration: '2 saat',
-          level: 'Başlangıç',
-          category: 'Environment'
-        },
-        {
-          id: 2,
-          title: 'Enerji Tasarrufu Eğitimi',
-          description: 'Enerji verimliliği teknikleri',
-          duration: '1.5 saat',
-          level: 'Orta',
-          category: 'Energy'
-        },
-        {
-          id: 3,
-          title: 'Atık Azaltma Workshop',
-          description: 'Zero waste prensipleri',
-          duration: '3 saat',
-          level: 'İleri',
-          category: 'Waste Management'
-        }
-      ]);
-    }
-  }, [authToken, API]);
+  const fetchTrainings = async () => {
+    // Removed to prevent useEffect issues  
+  };
 
-  // Fetch clients with error handling
-  const fetchClients = useCallback(async () => {
-    if (!authToken) return;
-    
-    try {
-      const response = await axios.get(`${API}/clients`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
-      setClients(response.data.clients || []);
-    } catch (error) {
-      console.error('Error fetching clients:', error);
-      // Don't crash - use mock data
-      setClients([
-        { id: 1, name: 'Hotel Paradise', email: 'info@hotelparadise.com' },
-        { id: 2, name: 'Green Resort', email: 'contact@greenresort.com' },
-        { id: 3, name: 'Eco Lodge', email: 'hello@ecolodge.com' }
-      ]);
-    }
-  }, [authToken, API]);
+  const fetchClients = async () => {
+    // Removed to prevent useEffect issues
+  };
 
   // Handle item selection
   const handleItemSelection = (itemId, itemType) => {
