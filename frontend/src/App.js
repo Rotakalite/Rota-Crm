@@ -2284,8 +2284,10 @@ const WasteManagement = () => {
                     </tr>
                   )) : (
                     <tr>
-                      <td colSpan="12" className="px-6 py-4 text-center text-gray-500">
-                        Henüz atık kaydı bulunmuyor
+                      <td colSpan="12" className="px-6 py-12 text-center">
+                        <div className="text-6xl mb-4">🗑️</div>
+                        <p className="text-xl text-gray-600 mb-2">Henüz atık kaydı bulunmuyor</p>
+                        <p className="text-gray-500">İlk atık kaydınızı eklemek için "Yeni Kayıt" butonunu kullanın</p>
                       </td>
                     </tr>
                   )}
