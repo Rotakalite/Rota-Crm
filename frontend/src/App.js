@@ -7558,30 +7558,7 @@ const TwoFactorAuth = ({ onVerificationComplete }) => {
 const SupplierManagement = () => {
   const [loading, setLoading] = useState(false);
   const [suppliers, setSuppliers] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [certifications, setCertifications] = useState([]);
-  const [analytics, setAnalytics] = useState({});
-  const [activeTab, setActiveTab] = useState('overview');
   const [showAddForm, setShowAddForm] = useState(false);
-  const [editingSupplier, setEditingSupplier] = useState(null);
-  const [filterCategory, setFilterCategory] = useState('');
-  const [filterMinScore, setFilterMinScore] = useState('');
-  const [filterMaxScore, setFilterMaxScore] = useState('');
-  const [filterLocalOnly, setFilterLocalOnly] = useState(false);
-  const [newSupplier, setNewSupplier] = useState({
-    company_name: '',
-    contact_person: '',
-    email: '',
-    phone: '',
-    address: '',
-    category: '',
-    sustainability_score: 50,
-    certifications: [],
-    local_supplier: false,
-    website: '',
-    description: ''
-  });
-
   const { authToken, userRole } = useAuth();
   const API = getApiUrl();
 
