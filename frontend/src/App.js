@@ -1872,11 +1872,14 @@ const WasteManagement = () => {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
+      console.log('🗑️ Analytics Response:', response.data);
+      
       // Convert analytics data to records format for display
       const analyticsData = response.data;
       
       // Set monthly data for monthly tab
       const monthlyData = analyticsData.monthly_data || [];
+      console.log('📅 Monthly Data:', monthlyData);
       setWasteRecords(monthlyData);
       
       // Set waste breakdown for pie chart
