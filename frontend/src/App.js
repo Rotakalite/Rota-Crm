@@ -2133,6 +2133,15 @@ const WasteManagement = () => {
                         {record.glass_waste || 0}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.metal_waste || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.electronic_waste || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {record.mixed_waste || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {record.oil_waste || 0}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
