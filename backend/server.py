@@ -3828,7 +3828,7 @@ async def create_waste_record(
     if existing:
         raise HTTPException(status_code=400, detail="Waste record already exists for this month")
 
-    # Calculate totals (like consumption calculations)
+    # Calculate totals (simplified - removed cost calculations)
     recyclable_waste = (
         waste_data.plastic_waste + waste_data.glass_waste + 
         waste_data.paper_waste + waste_data.metal_waste
@@ -3838,11 +3838,7 @@ async def create_waste_record(
         waste_data.electronic_waste + waste_data.mixed_waste
     )
     recycling_rate = (recyclable_waste / total_waste * 100) if total_waste > 0 else 0
-
-    # Cost calculations
-    waste_cost = total_waste * 2.5 + waste_data.oil_waste * 15.0
-    recycling_income = recyclable_waste * 0.8
-    net_cost = waste_cost - recycling_income
+    per_person_waste = (total_waste / waste_data.accommodation_count) if waste_data.accommodation_count > 0 else 0
 
     waste_dict = {
         "id": str(uuid.uuid4()),
@@ -3857,11 +3853,10 @@ async def create_waste_record(
         "electronic_waste": waste_data.electronic_waste,
         "oil_waste": waste_data.oil_waste,
         "mixed_waste": waste_data.mixed_waste,
+        "accommodation_count": waste_data.accommodation_count,
         "total_waste": total_waste,
         "recycling_rate": round(recycling_rate, 2),
-        "waste_cost": round(waste_cost, 2),
-        "recycling_income": round(recycling_income, 2),
-        "net_cost": round(net_cost, 2),
+        "per_person_waste": round(per_person_waste, 2),
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow()
     }
