@@ -7912,7 +7912,14 @@ const SupplierManagement = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-    try {
+                <label className="block text-sm font-medium text-gray-700 mb-2">Şirket Adı</label>
+                <input
+                  type="text"
+                  value={newSupplier.company_name}
+                  onChange={(e) => setNewSupplier({...newSupplier, company_name: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  placeholder="Şirket adı"
+                />
       const response = await axios.get(`${API}/suppliers/categories/list`);
       setCategories(response.data.categories || []);
     } catch (error) {
