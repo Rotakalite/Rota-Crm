@@ -8,16 +8,10 @@ import { getApiUrl } from './utils';
 // ====================================
 
 const SupplierManagement = () => {
-  const [loading, setLoading] = useState(false);
+  const { authToken } = useAuth();
   const [suppliers, setSuppliers] = useState([]);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const { authToken, userRole } = useAuth();
+  const [loading, setLoading] = useState(false);
   const API = getApiUrl();
-
-  // Fetch suppliers
-  useEffect(() => {
-    fetchSuppliers();
-  }, []);
 
   const fetchSuppliers = async () => {
     try {
@@ -25,7 +19,7 @@ const SupplierManagement = () => {
       const response = await axios.get(`${API}/suppliers`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      setSuppliers(response.data || []);
+      setSuppliers(response.data.suppliers || []);
     } catch (error) {
       console.error('Error fetching suppliers:', error);
       setSuppliers([]);
@@ -33,6 +27,10 @@ const SupplierManagement = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchSuppliers();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
