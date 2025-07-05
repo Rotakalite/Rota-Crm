@@ -1854,7 +1854,7 @@ const WasteManagement = () => {
     }
   };
 
-  // Fetch waste records
+  // Fetch waste records from analytics (since analytics endpoint works)
   const fetchWasteRecords = async () => {
     try {
       setLoading(true);
@@ -1862,13 +1862,29 @@ const WasteManagement = () => {
       if (selectedYear) params.append('year', selectedYear);
       if (userRole === 'admin' && selectedClient) params.append('client_id', selectedClient);
 
-      const response = await axios.get(`${API}/consumptions/waste?${params}`, {
+      // Use analytics endpoint since it works and has all the data we need
+      const response = await axios.get(`${API}/consumptions/waste/analytics?${params}`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      setWasteRecords(response.data || []);
+      
+      // Convert analytics data to records format for display
+      const analyticsData = response.data;
+      
+      // Create monthly cards from analytics data
+      const monthlyCards = analyticsData.monthly_data || [];
+      setWasteRecords(monthlyCards);
+      
+      // Set waste breakdown for pie chart
+      setWasteBreakdown(analyticsData.waste_breakdown || {});
+      
+      // Set totals for summary cards
+      setYearlyTotals(analyticsData.yearly_totals || {});
+      
     } catch (error) {
       console.error('Error fetching waste records:', error);
       setWasteRecords([]);
+      setWasteBreakdown({});
+      setYearlyTotals({});
     } finally {
       setLoading(false);
     }
