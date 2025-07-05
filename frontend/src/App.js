@@ -2135,7 +2135,7 @@ const WasteManagement = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        ₺{record.net_cost?.toFixed(0) || 0}
+                        {record.per_person_waste?.toFixed(1) || 0} kg
                       </td>
                     </tr>
                   ))}
