@@ -4594,9 +4594,13 @@ def generate_2fa_code():
 
 # 2FA endpoints
 @api_router.post("/auth/2fa/send-code")
-async def send_2fa_code(user_email: str):
+async def send_2fa_code(request: dict):
     """Send 2FA code to user's email"""
     try:
+        user_email = request.get('email')
+        if not user_email:
+            raise HTTPException(status_code=422, detail="Email is required")
+            
         verification_code = generate_2fa_code()
         
         # Store the code with expiration (5 minutes)
