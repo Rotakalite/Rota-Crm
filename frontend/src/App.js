@@ -7542,8 +7542,6 @@ const TwoFactorAuth = ({ onVerificationComplete }) => {
         <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
           <div className="flex items-start space-x-2">
             <span className="text-yellow-600 text-sm">🛡️</span>
-            <p className="text-yellow-800 text-xs">
-              <strong>Güvenlik:</strong> Bu kodu kimseyle paylaşmayın. Kod 5 dakika boyunca geçerlidir.
             </p>
           </div>
         </div>
@@ -7551,6 +7549,405 @@ const TwoFactorAuth = ({ onVerificationComplete }) => {
     </div>
   );
 };
+
+// ====================================
+// SUPPLIER MANAGEMENT COMPONENT
+// ====================================
+
+const SupplierManagement = () => {
+  const [loading, setLoading] = useState(false);
+  const [suppliers, setSuppliers] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [certifications, setCertifications] = useState([]);
+  const [analytics, setAnalytics] = useState({});
+  const [activeTab, setActiveTab] = useState('overview');
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editingSupplier, setEditingSupplier] = useState(null);
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterMinScore, setFilterMinScore] = useState('');
+  const [filterMaxScore, setFilterMaxScore] = useState('');
+  const [filterLocalOnly, setFilterLocalOnly] = useState(false);
+  const [newSupplier, setNewSupplier] = useState({
+    company_name: '',
+    contact_person: '',
+    email: '',
+    phone: '',
+    address: '',
+    category: '',
+    sustainability_score: 50,
+    certifications: [],
+    local_supplier: false,
+    website: '',
+    description: ''
+  });
+
+  const { authToken, userRole } = useAuth();
+  const API = getApiUrl();
+
+  // Fetch all data on component mount
+  useEffect(() => {
+    fetchSuppliers();
+    fetchCategories();
+    fetchCertifications();
+    fetchAnalytics();
+  }, []);
+
+  // Fetch suppliers with filters
+  const fetchSuppliers = async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (filterCategory) params.append('category', filterCategory);
+      if (filterMinScore) params.append('min_score', filterMinScore);
+      if (filterMaxScore) params.append('max_score', filterMaxScore);
+      if (filterLocalOnly) params.append('local_only', 'true');
+
+      const response = await axios.get(`${API}/suppliers?${params}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      setSuppliers(response.data || []);
+    } catch (error) {
+      console.error('Error fetching suppliers:', error);
+      // Test data for demo
+      setSuppliers([
+        {
+          id: '1',
+          company_name: 'Green Foods Ltd.',
+          contact_person: 'Ahmet Özkan',
+          email: 'ahmet@greenfoods.com',
+          phone: '+90 532 123 4567',
+          address: 'Antalya, Türkiye',
+          category: 'Gıda & İçecek',
+          sustainability_score: 85,
+          certifications: ['Organik Sertifika', 'Fair Trade'],
+          local_supplier: true,
+          website: 'www.greenfoods.com',
+          description: 'Organik gıda tedarikçisi'
+        },
+        {
+          id: '2',
+          company_name: 'Eco Clean Solutions',
+          contact_person: 'Fatma Kaya',
+          email: 'info@ecoclean.com',
+          phone: '+90 542 987 6543',
+          address: 'İstanbul, Türkiye',
+          category: 'Temizlik & Hijyen',
+          sustainability_score: 72,
+          certifications: ['EU Ecolabel', 'Green Seal'],
+          local_supplier: true,
+          website: 'www.ecoclean.com',
+          description: 'Çevre dostu temizlik ürünleri'
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch categories
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${API}/suppliers/categories/list`);
+      setCategories(response.data.categories || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      setCategories([
+        'Gıda & İçecek',
+        'Temizlik & Hijyen',
+        'Enerji & Yakıt',
+        'Tekstil & Çamaşırhane',
+        'Teknoloji & Ekipman',
+        'Mobilya & Dekorasyon'
+      ]);
+    }
+  };
+
+  // Fetch certifications
+  const fetchCertifications = async () => {
+    try {
+      const response = await axios.get(`${API}/suppliers/certifications/list`);
+      setCertifications(response.data.certifications || []);
+    } catch (error) {
+      console.error('Error fetching certifications:', error);
+      setCertifications([
+        'ISO 14001',
+        'Organik Sertifika',
+        'Fair Trade',
+        'Carbon Neutral',
+        'EU Ecolabel',
+        'Green Seal',
+        'Yerel Üretici'
+      ]);
+    }
+  };
+
+  // Fetch analytics
+  const fetchAnalytics = async () => {
+    try {
+      const response = await axios.get(`${API}/suppliers/analytics/dashboard`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setAnalytics(response.data);
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+      // Test analytics data
+      setAnalytics({
+        total_suppliers: 2,
+        category_distribution: {
+          'Gıda & İçecek': 1,
+          'Temizlik & Hijyen': 1
+        },
+        sustainability_stats: {
+          average_score: 78.5,
+          score_distribution: {
+            '81-100': 1,
+            '61-80': 1,
+            '41-60': 0,
+            '21-40': 0,
+            '0-20': 0
+          }
+        },
+        certification_stats: {
+          'Organik Sertifika': 1,
+          'Fair Trade': 1,
+          'EU Ecolabel': 1,
+          'Green Seal': 1
+        },
+        local_vs_global: {
+          local: 2,
+          global: 0
+        }
+      });
+    }
+  };
+
+  // Submit new supplier
+  const handleSubmitSupplier = async () => {
+    try {
+      setLoading(true);
+      
+      if (editingSupplier) {
+        // Update existing supplier
+        await axios.put(`${API}/suppliers/${editingSupplier.id}`, newSupplier, {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        alert('Tedarikçi başarıyla güncellendi!');
+      } else {
+        // Create new supplier
+        await axios.post(`${API}/suppliers`, newSupplier, {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        alert('Tedarikçi başarıyla eklendi!');
+      }
+      
+      setShowAddForm(false);
+      setEditingSupplier(null);
+      setNewSupplier({
+        company_name: '',
+        contact_person: '',
+        email: '',
+        phone: '',
+        address: '',
+        category: '',
+        sustainability_score: 50,
+        certifications: [],
+        local_supplier: false,
+        website: '',
+        description: ''
+      });
+      fetchSuppliers();
+      fetchAnalytics();
+    } catch (error) {
+      console.error('Error saving supplier:', error);
+      alert('Hata: ' + (error.response?.data?.detail || 'Tedarikçi kaydedilemedi'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Edit supplier
+  const handleEditSupplier = (supplier) => {
+    setNewSupplier({
+      company_name: supplier.company_name,
+      contact_person: supplier.contact_person,
+      email: supplier.email,
+      phone: supplier.phone,
+      address: supplier.address,
+      category: supplier.category,
+      sustainability_score: supplier.sustainability_score,
+      certifications: supplier.certifications || [],
+      local_supplier: supplier.local_supplier,
+      website: supplier.website || '',
+      description: supplier.description || ''
+    });
+    setEditingSupplier(supplier);
+    setShowAddForm(true);
+  };
+
+  // Delete supplier
+  const handleDeleteSupplier = async (supplierId) => {
+    if (!confirm('Bu tedarikçiyi silmek istediğinizden emin misiniz?')) return;
+    
+    try {
+      await axios.delete(`${API}/suppliers/${supplierId}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      alert('Tedarikçi başarıyla silindi!');
+      fetchSuppliers();
+      fetchAnalytics();
+    } catch (error) {
+      console.error('Error deleting supplier:', error);
+      alert('Hata: Tedarikçi silinemedi');
+    }
+  };
+
+  // Handle certification selection
+  const toggleCertification = (cert) => {
+    const current = newSupplier.certifications || [];
+    if (current.includes(cert)) {
+      setNewSupplier({
+        ...newSupplier,
+        certifications: current.filter(c => c !== cert)
+      });
+    } else {
+      setNewSupplier({
+        ...newSupplier,
+        certifications: [...current, cert]
+      });
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Elite Header */}
+      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-4xl font-bold text-white mb-2">🏢 Elite Tedarikçi Yönetimi</h1>
+              <p className="text-blue-100 text-lg">Sürdürülebilir tedarik zinciri yönetimi</p>
+            </div>
+            <button
+              onClick={() => {
+                setEditingSupplier(null);
+                setNewSupplier({
+                  company_name: '',
+                  contact_person: '',
+                  email: '',
+                  phone: '',
+                  address: '',
+                  category: '',
+                  sustainability_score: 50,
+                  certifications: [],
+                  local_supplier: false,
+                  website: '',
+                  description: ''
+                });
+                setShowAddForm(true);
+              }}
+              className="bg-white text-blue-700 px-6 py-3 rounded-xl hover:bg-blue-50 transition-all duration-300 shadow-lg font-semibold flex items-center gap-2"
+            >
+              <span className="text-xl">+</span> Yeni Tedarikçi
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Elite Tab Navigation */}
+      <div className="bg-white shadow-lg border-b">
+        <div className="max-w-7xl mx-auto">
+          <nav className="flex space-x-8 px-6">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                activeTab === 'overview'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              📋 Tedarikçi Listesi
+            </button>
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                activeTab === 'analytics'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              📊 Analytics & Raporlar
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto p-6 space-y-8">
+        {/* Filters */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+          <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+            🔍 Filtreler
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Kategori</label>
+              <select
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              >
+                <option value="">Tüm Kategoriler</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Min. Sürdürülebilirlik Skoru</label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={filterMinScore}
+                onChange={(e) => setFilterMinScore(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                placeholder="0"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Max. Sürdürülebilirlik Skoru</label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={filterMaxScore}
+                onChange={(e) => setFilterMaxScore(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                placeholder="100"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="localOnly"
+                checked={filterLocalOnly}
+                onChange={(e) => setFilterLocalOnly(e.target.checked)}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label htmlFor="localOnly" className="text-sm font-medium text-gray-700">
+                Sadece Yerel Tedarikçiler
+              </label>
+            </div>
+          </div>
+          <div className="mt-4">
+            <button
+              onClick={fetchSuppliers}
+              className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 font-medium shadow-lg"
+            >
+              🔄 Filtreleri Uygula
+            </button>
+          </div>
+        </div>
 
 // Main App Component
 const MainApp = () => {
