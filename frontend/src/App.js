@@ -7893,51 +7893,8 @@ const SupplierManagement = () => {
             <h2 className="text-2xl font-bold text-gray-800 mb-6">
               {editingSupplier ? 'Tedarikçi Düzenle' : 'Yeni Tedarikçi Ekle'}
             </h2>
-
-      const response = await axios.get(`${API}/suppliers?${params}`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
-      
-      setSuppliers(response.data || []);
-    } catch (error) {
-      console.error('Error fetching suppliers:', error);
-      // Test data for demo
-      setSuppliers([
-        {
-          id: '1',
-          company_name: 'Green Foods Ltd.',
-          contact_person: 'Ahmet Özkan',
-          email: 'ahmet@greenfoods.com',
-          phone: '+90 532 123 4567',
-          address: 'Antalya, Türkiye',
-          category: 'Gıda & İçecek',
-          sustainability_score: 85,
-          certifications: ['Organik Sertifika', 'Fair Trade'],
-          local_supplier: true,
-          website: 'www.greenfoods.com',
-          description: 'Organik gıda tedarikçisi'
-        },
-        {
-          id: '2',
-          company_name: 'Eco Clean Solutions',
-          contact_person: 'Fatma Kaya',
-          email: 'info@ecoclean.com',
-          phone: '+90 542 987 6543',
-          address: 'İstanbul, Türkiye',
-          category: 'Temizlik & Hijyen',
-          sustainability_score: 72,
-          certifications: ['EU Ecolabel', 'Green Seal'],
-          local_supplier: true,
-          website: 'www.ecoclean.com',
-          description: 'Çevre dostu temizlik ürünleri'
-        }
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fetch categories
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
   const fetchCategories = async () => {
     try {
       const response = await axios.get(`${API}/suppliers/categories/list`);
