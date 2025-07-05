@@ -7781,7 +7781,9 @@ const EmailManagement = () => {
   }
 
   // Fetch documents with error handling
-  const fetchDocuments = async () => {
+  const fetchDocuments = useCallback(async () => {
+    if (!authToken) return;
+    
     try {
       setLoading(true);
       const response = await axios.get(`${API}/documents`, {
@@ -7820,10 +7822,12 @@ const EmailManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [authToken, API]);
 
   // Fetch trainings with error handling
-  const fetchTrainings = async () => {
+  const fetchTrainings = useCallback(async () => {
+    if (!authToken) return;
+    
     try {
       const response = await axios.get(`${API}/trainings`, {
         headers: { Authorization: `Bearer ${authToken}` }
@@ -7859,10 +7863,12 @@ const EmailManagement = () => {
         }
       ]);
     }
-  };
+  }, [authToken, API]);
 
   // Fetch clients with error handling
-  const fetchClients = async () => {
+  const fetchClients = useCallback(async () => {
+    if (!authToken) return;
+    
     try {
       const response = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
@@ -7877,7 +7883,7 @@ const EmailManagement = () => {
         { id: 3, name: 'Eco Lodge', email: 'hello@ecolodge.com' }
       ]);
     }
-  };
+  }, [authToken, API]);
 
   // Handle item selection
   const handleItemSelection = (itemId, itemType) => {
