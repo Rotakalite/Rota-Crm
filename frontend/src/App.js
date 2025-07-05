@@ -7728,6 +7728,24 @@ const MainApp = () => {
             <p className="text-gray-600">Yakında eklenecek...</p>
           </div>
         );
+      default:
+        return <Dashboard onNavigate={handleNavigate} />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <div className="flex">
+        <Sidebar activeTab={activeTab} onNavigate={handleNavigate} userRole={userRole} />
+        <div className="flex-1 p-6">
+          {renderContent()}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Elite Email Management Component
 const EmailManagement = () => {
   const { authToken } = useAuth();
