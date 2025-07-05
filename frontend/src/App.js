@@ -7729,7 +7729,12 @@ const MainApp = () => {
           </div>
         );
       case 'email':
-        return <EmailManagement />;
+        return (
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">📧 Email Yönetimi</h2>
+            <p className="text-gray-600">Email yönetim özellikleri yakında eklenecek...</p>
+          </div>
+        );
       case 'trainings':
         return userRole === 'admin' ? <TrainingManagement /> : <ClientTrainings />;
       default:
