@@ -7750,7 +7750,7 @@ const MainApp = () => {
   );
 };
 
-// Elite Email Management Component - Document & Training Integration
+// Elite Email Management Component - Document & Training Integration  
 const EmailManagement = () => {
   const { authToken, userRole } = useAuth();
   const [activeTab, setActiveTab] = useState('documents');
@@ -7767,6 +7767,18 @@ const EmailManagement = () => {
   const [clients, setClients] = useState([]);
   const [emailHistory, setEmailHistory] = useState([]);
   const API = getApiUrl();
+
+  // Safety check for auth
+  if (!authToken) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">🔐 Authentication Required</h2>
+          <p className="text-gray-600">Please log in to access Email Management</p>
+        </div>
+      </div>
+    );
+  }
 
   // Fetch documents
   const fetchDocuments = async () => {
