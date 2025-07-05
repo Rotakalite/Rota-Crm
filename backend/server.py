@@ -3882,6 +3882,7 @@ async def get_environment_analytics(
         }
 
         return {
+            "records": records,  # Raw records for listing
             "yearly_totals": yearly_totals,
             "monthly_data": monthly_data,
             "waste_breakdown": waste_breakdown,
