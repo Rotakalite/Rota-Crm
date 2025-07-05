@@ -716,38 +716,6 @@ const useAuth = () => {
   return { user, authToken, userRole, dbUser, isLoaded, refreshUser };
 };
 
-// Fetch suppliers
-const fetchSuppliers = async () => {
-  try {
-    setLoading(true);
-    const response = await axios.get(`${API}/suppliers`, {
-      headers: { Authorization: `Bearer ${authToken}` }
-    });
-    setSuppliers(response.data.suppliers || []);
-  } catch (error) {
-    console.error('Error fetching suppliers:', error);
-    setSuppliers([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
-  // Fetch suppliers
-  const fetchSuppliers = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`${API}/suppliers`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
-      setSuppliers(response.data.suppliers || []);
-    } catch (error) {
-      console.error('Error fetching suppliers:', error);
-      setSuppliers([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
 // Header Component
 const Header = () => {
   const { user } = useUser();
