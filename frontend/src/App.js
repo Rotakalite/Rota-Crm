@@ -2299,28 +2299,42 @@ const WasteManagement = () => {
                           </thead>
                           <tbody className="divide-y divide-gray-200">
                             {wasteRecords.map((record, index) => {
-                              const recyclable = (record.plastic_waste || 0) + (record.glass_waste || 0) + (record.paper_waste || 0) + (record.metal_waste || 0);
+                              // Backend'den gelen recycling_rate ve total_waste'i kullan
+                              const total = record.total_waste || 0;
+                              const recyclingRate = record.recycling_rate || 0;
+                              // Geri dönüştürülebilir miktarı recycling_rate'ten hesapla
+                              const recyclableFromRate = total > 0 ? (recyclingRate * total / 100) : 0;
+                              
+                              // Manuel hesaplama (kontrol için)
+                              const recyclableManual = (record.plastic_waste || 0) + (record.glass_waste || 0) + (record.paper_waste || 0) + (record.metal_waste || 0);
+                              
+                              // Hangisini kullanacağımıza karar ver - backend verisi varsa onu kullan
+                              const recyclableAmount = recyclableFromRate > 0 ? recyclableFromRate : recyclableManual;
+                              
                               return (
                                 <tr key={index} className="hover:bg-green-50 transition-colors">
                                   <td className="px-4 py-3 text-sm text-gray-900 font-medium">
                                     {record.month || 1}/{record.year || 2025}
                                   </td>
                                   <td className="px-4 py-3 text-sm text-gray-900 font-medium">
-                                    {record.total_waste?.toFixed(1) || 0}
+                                    {total.toFixed(1)}
                                   </td>
-                                  <td className="px-4 py-3 text-sm text-blue-700 font-medium">
-                                    {recyclable.toFixed(1)}
+                                  <td className="px-4 py-3 text-sm text-blue-700 font-medium" title={`Manuel: ${recyclableManual.toFixed(1)} kg, Oran'dan: ${recyclableFromRate.toFixed(1)} kg`}>
+                                    {recyclableAmount.toFixed(1)}
+                                    {Math.abs(recyclableFromRate - recyclableManual) > 0.1 && (
+                                      <span className="ml-1 text-xs text-orange-600">⚠️</span>
+                                    )}
                                   </td>
                                   <td className="px-4 py-3 text-sm">
                                     <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                                      record.recycling_rate >= 60 ? 'bg-green-100 text-green-800' : 
-                                      record.recycling_rate >= 40 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+                                      recyclingRate >= 60 ? 'bg-green-100 text-green-800' : 
+                                      recyclingRate >= 40 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
                                     }`}>
-                                      {record.recycling_rate?.toFixed(1) || 0}%
+                                      {recyclingRate.toFixed(1)}%
                                     </span>
                                   </td>
                                   <td className="px-4 py-3 text-sm text-purple-700 font-medium">
-                                    {record.per_person_waste?.toFixed(1) || 0}
+                                    {(record.per_person_waste || 0).toFixed(1)}
                                   </td>
                                   <td className="px-4 py-3 text-sm text-gray-600">
                                     {record.accommodation_count || 0} kişi
