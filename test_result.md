@@ -151,6 +151,18 @@ frontend:
         -agent: "main"
         -comment: "RESOLVED: Removed all orphaned JSX code blocks between component boundaries. Fixed missing state variables (clients, selectedClient, selectedYear, activeTab, newRecord) in WasteManagement component. Added missing handleViewDocument function to ProjectManagement component. Frontend now builds successfully with yarn build."
 
+  - task: "Fix SupplierManagement Component JSX Compilation Errors"
+    implemented: false
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 1
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "CRITICAL ISSUE IDENTIFIED: SupplierManagement component has severe structural problems. Line 7554 has misplaced import statement 'import SupplierManagement from './components/SupplierManagement';' that is inside component code. Starting from line 7556, there are orphaned supplier-related functions (fetchSuppliers, fetchCategories, fetchCertifications, etc.) that are not wrapped in any component. The renderContent function at line 8345 references <SupplierManagement /> but this component doesn't exist properly. This is causing compilation failures. Need to completely rewrite the SupplierManagement component."
+
   - task: "Waste Management Elite UI Enhancement"
     implemented: true
     working: true
