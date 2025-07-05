@@ -3940,7 +3940,7 @@ async def get_waste_analytics(
             "recycling_performance": {}
         }
 
-    # Analytics calculations (like consumption analytics)
+    # Analytics calculations (simplified - removed cost calculations)
     latest_record = records[-1] if records else {}
     yearly_totals = {
         "total_waste": sum(r.get("total_waste", 0) for r in records),
@@ -3950,11 +3950,12 @@ async def get_waste_analytics(
         ),
         "organic_waste": sum(r.get("organic_waste", 0) for r in records),
         "oil_waste": sum(r.get("oil_waste", 0) for r in records),
-        "total_cost": sum(r.get("net_cost", 0) for r in records),
-        "avg_recycling_rate": sum(r.get("recycling_rate", 0) for r in records) / len(records) if records else 0
+        "avg_recycling_rate": sum(r.get("recycling_rate", 0) for r in records) / len(records) if records else 0,
+        "avg_per_person_waste": sum(r.get("per_person_waste", 0) for r in records) / len(records) if records else 0,
+        "total_accommodation": sum(r.get("accommodation_count", 0) for r in records)
     }
 
-    # Monthly breakdown
+    # Monthly breakdown (simplified)
     monthly_data = []
     for record in records:
         monthly_data.append({
@@ -3962,7 +3963,8 @@ async def get_waste_analytics(
             "year": record.get("year"),
             "total_waste": record.get("total_waste", 0),
             "recycling_rate": record.get("recycling_rate", 0),
-            "net_cost": record.get("net_cost", 0)
+            "per_person_waste": record.get("per_person_waste", 0),
+            "accommodation_count": record.get("accommodation_count", 0)
         })
 
     # Waste type breakdown (latest month)
