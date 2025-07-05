@@ -1881,7 +1881,7 @@ const WasteManagement = () => {
       if (selectedYear) params.append('year', selectedYear);
       if (userRole === 'admin' && selectedClient) params.append('client_id', selectedClient);
 
-      const response = await axios.get(`${API}/environment/analytics?${params}`, {
+      const response = await axios.get(`${API}/consumptions/waste/analytics?${params}`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setAnalytics(response.data);
