@@ -7573,8 +7573,6 @@ const SupplierManagement = () => {
       const response = await axios.get(`${API}/suppliers`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      if (filterMaxScore) params.append('max_score', filterMaxScore);
-      if (filterLocalOnly) params.append('local_only', 'true');
 
       const response = await axios.get(`${API}/suppliers?${params}`, {
         headers: { Authorization: `Bearer ${authToken}` }
