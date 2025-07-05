@@ -2045,9 +2045,9 @@ const WasteManagement = () => {
             </div>
 
             <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
-              <h3 className="text-lg font-bold mb-2">💰 Net Maliyet</h3>
-              <p className="text-3xl font-bold">{analytics.yearly_totals?.total_cost?.toFixed(0) || 0}</p>
-              <p className="text-purple-100">TL/yıl</p>
+              <h3 className="text-lg font-bold mb-2">👤 Kişi Başı Atık</h3>
+              <p className="text-3xl font-bold">{analytics.yearly_totals?.avg_per_person_waste?.toFixed(1) || 0}</p>
+              <p className="text-purple-100">kg/kişi</p>
             </div>
 
             <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-6 rounded-xl text-white shadow-lg">
