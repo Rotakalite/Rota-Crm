@@ -1834,7 +1834,8 @@ const WasteManagement = () => {
     metal_waste: 0,
     electronic_waste: 0,
     oil_waste: 0,
-    mixed_waste: 0
+    mixed_waste: 0,
+    accommodation_count: 1
   });
 
   const { authToken, userRole, dbUser } = useAuth();
