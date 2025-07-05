@@ -1992,41 +1992,46 @@ const WasteManagement = () => {
       <div className="max-w-7xl mx-auto p-6 space-y-8">
         {/* Admin Controls */}
 
-        {/* Controls */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        {/* Elite Admin Controls */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+          <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+            ⚙️ Kontrol Paneli
+          </h3>
           <div className="flex flex-wrap items-center gap-4">
             {userRole === 'admin' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Müşteri Seçin</label>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">🏨 Müşteri Seçimi</label>
                 <select
                   value={selectedClient}
                   onChange={(e) => setSelectedClient(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                  className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
                 >
+                  <option value="">Tüm Müşteriler</option>
                   {clients.map((client) => (
                     <option key={client.id} value={client.id}>{client.hotel_name}</option>
                   ))}
                 </select>
               </div>
             )}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Yıl</label>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">📅 Yıl Seçimi</label>
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
               >
                 {[2025, 2024, 2023].map((year) => (
                   <option key={year} value={year}>{year}</option>
                 ))}
               </select>
             </div>
-            <div className="ml-auto">
+            <div className="ml-auto space-y-2">
+              <label className="block text-sm font-medium text-gray-700 invisible">.</label>
               <button
                 onClick={() => setShowAddRecord(true)}
-                className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 font-medium shadow-lg"
+                className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 font-medium shadow-lg flex items-center gap-2"
               >
-                + Yeni Atık Kaydı
+                <span className="text-xl">+</span> Yeni Atık Kaydı
               </button>
             </div>
           </div>
