@@ -2126,57 +2126,205 @@ const WasteManagement = () => {
             )}
 
             {activeTab === 'monthly' && (
-              <div className="space-y-6">
-                {/* Monthly Analysis */}
-                <div className="bg-white rounded-xl shadow-lg p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">📅 Aylık Atık Karşılaştırması</h3>
-                  
-                  {wasteRecords.length > 0 ? (
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full table-auto">
-                        <thead>
-                          <tr className="bg-gray-50">
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Ay</th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Toplam Atık (kg)</th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Kişi Başı (kg)</th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Geri Dönüşüm (%)</th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Konaklama</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                          {wasteRecords.map((record, index) => (
-                            <tr key={index} className="hover:bg-gray-50">
-                              <td className="px-4 py-3 text-sm text-gray-900 font-medium">
-                                {record.month || record.year}/{record.month || new Date().getMonth() + 1}
-                              </td>
-                              <td className="px-4 py-3 text-sm text-gray-900">
-                                {record.total_waste?.toFixed(1) || 0}
-                              </td>
-                              <td className="px-4 py-3 text-sm text-gray-900">
-                                {record.per_person_waste?.toFixed(1) || 0}
-                              </td>
-                              <td className="px-4 py-3 text-sm">
-                                <span className={`font-medium ${
-                                  record.recycling_rate >= 60 ? 'text-green-600' : 
-                                  record.recycling_rate >= 40 ? 'text-yellow-600' : 'text-red-600'
-                                }`}>
-                                  {record.recycling_rate?.toFixed(1) || 0}%
-                                </span>
-                              </td>
-                              <td className="px-4 py-3 text-sm text-gray-900">
-                                {record.accommodation_count || 0} kişi
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+              <div className="space-y-8">
+                {/* Elite Charts Grid */}
+                {wasteRecords.length > 0 ? (
+                  <>
+                    {/* Charts Row */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      {/* Monthly Waste Trend Chart */}
+                      <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+                        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                          📈 Aylık Atık Trendi
+                        </h3>
+                        <div className="h-80">
+                          <Line 
+                            data={{
+                              labels: wasteRecords.map(record => `${record.month || 1}/${record.year || 2025}`),
+                              datasets: [
+                                {
+                                  label: 'Toplam Atık (kg)',
+                                  data: wasteRecords.map(record => record.total_waste || 0),
+                                  borderColor: 'rgb(34, 197, 94)',
+                                  backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                                  borderWidth: 3,
+                                  fill: true,
+                                  tension: 0.4,
+                                },
+                                {
+                                  label: 'Kişi Başı Atık (kg)',
+                                  data: wasteRecords.map(record => record.per_person_waste || 0),
+                                  borderColor: 'rgb(168, 85, 247)',
+                                  backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                                  borderWidth: 3,
+                                  fill: true,
+                                  tension: 0.4,
+                                }
+                              ]
+                            }}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              plugins: {
+                                legend: {
+                                  position: 'top',
+                                  labels: {
+                                    usePointStyle: true,
+                                    padding: 20,
+                                  }
+                                },
+                              },
+                              scales: {
+                                y: {
+                                  beginAtZero: true,
+                                  grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)',
+                                  }
+                                },
+                                x: {
+                                  grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)',
+                                  }
+                                }
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Waste Types Distribution Chart */}
+                      <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+                        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                          🗂️ Atık Türleri Dağılımı
+                        </h3>
+                        <div className="h-80">
+                          <Pie 
+                            data={{
+                              labels: ['Organik', 'Plastik', 'Kağıt', 'Cam', 'Metal', 'Elektronik', 'Karışık', 'Yağ'],
+                              datasets: [{
+                                data: [
+                                  wasteRecords.reduce((sum, record) => sum + (record.organic_waste || 0), 0),
+                                  wasteRecords.reduce((sum, record) => sum + (record.plastic_waste || 0), 0),
+                                  wasteRecords.reduce((sum, record) => sum + (record.paper_waste || 0), 0),
+                                  wasteRecords.reduce((sum, record) => sum + (record.glass_waste || 0), 0),
+                                  wasteRecords.reduce((sum, record) => sum + (record.metal_waste || 0), 0),
+                                  wasteRecords.reduce((sum, record) => sum + (record.electronic_waste || 0), 0),
+                                  wasteRecords.reduce((sum, record) => sum + (record.mixed_waste || 0), 0),
+                                  wasteRecords.reduce((sum, record) => sum + (record.oil_waste || 0), 0),
+                                ],
+                                backgroundColor: [
+                                  '#10b981', // green
+                                  '#3b82f6', // blue  
+                                  '#f59e0b', // yellow
+                                  '#a855f7', // purple
+                                  '#6b7280', // gray
+                                  '#4f46e5', // indigo
+                                  '#ef4444', // red
+                                  '#f97316', // orange
+                                ],
+                                borderWidth: 2,
+                                borderColor: '#ffffff',
+                              }]
+                            }}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              plugins: {
+                                legend: {
+                                  position: 'right',
+                                  labels: {
+                                    usePointStyle: true,
+                                    padding: 15,
+                                  }
+                                },
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <p className="text-gray-500">Henüz aylık atık verisi bulunmuyor.</p>
+
+                    {/* Recycling Performance Chart */}
+                    <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        ♻️ Geri Dönüşüm Performansı
+                      </h3>
+                      <div className="h-80">
+                        <Bar 
+                          data={{
+                            labels: wasteRecords.map(record => `${record.month || 1}/${record.year || 2025}`),
+                            datasets: [
+                              {
+                                label: 'Geri Dönüşüm Oranı (%)',
+                                data: wasteRecords.map(record => record.recycling_rate || 0),
+                                backgroundColor: wasteRecords.map(record => {
+                                  const rate = record.recycling_rate || 0;
+                                  return rate >= 60 ? 'rgba(34, 197, 94, 0.8)' : 
+                                         rate >= 40 ? 'rgba(251, 191, 36, 0.8)' : 'rgba(239, 68, 68, 0.8)';
+                                }),
+                                borderColor: wasteRecords.map(record => {
+                                  const rate = record.recycling_rate || 0;
+                                  return rate >= 60 ? 'rgb(34, 197, 94)' : 
+                                         rate >= 40 ? 'rgb(251, 191, 36)' : 'rgb(239, 68, 68)';
+                                }),
+                                borderWidth: 2,
+                              },
+                              {
+                                label: 'Hedef (%)',
+                                data: new Array(wasteRecords.length).fill(60),
+                                type: 'line',
+                                borderColor: 'rgb(59, 130, 246)',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                borderWidth: 3,
+                                borderDash: [5, 5],
+                                pointRadius: 0,
+                              }
+                            ]
+                          }}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: {
+                                position: 'top',
+                                labels: {
+                                  usePointStyle: true,
+                                  padding: 20,
+                                }
+                              },
+                            },
+                            scales: {
+                              y: {
+                                beginAtZero: true,
+                                max: 100,
+                                grid: {
+                                  color: 'rgba(0, 0, 0, 0.1)',
+                                }
+                              },
+                              x: {
+                                grid: {
+                                  color: 'rgba(0, 0, 0, 0.1)',
+                                }
+                              }
+                            }
+                          }}
+                        />
+                      </div>
                     </div>
-                  )}
-                </div>
+                  </>
+                ) : (
+                  <div className="text-center py-16">
+                    <div className="text-8xl mb-6">📊</div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Henüz Grafik Verisi Yok</h3>
+                    <p className="text-gray-600 mb-6">Aylık grafikler için atık kayıtları eklemelisiniz</p>
+                    <button
+                      onClick={() => setShowAddRecord(true)}
+                      className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg font-medium"
+                    >
+                      İlk Kaydı Oluştur
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </>
