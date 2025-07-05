@@ -26,7 +26,7 @@ class TestTrainingEndpoints(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://e3dfcda8-02ff-44f4-a821-9a451b200605.preview.emergentagent.com/api"
+        self.api_url = "https://88048cb4-404f-4377-8f8a-190c9867ad6a.preview.emergentagent.com/api"
         
         # Sample training data for testing
         self.training_data = {
