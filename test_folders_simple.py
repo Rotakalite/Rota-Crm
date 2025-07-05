@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://88048cb4-404f-4377-8f8a-190c9867ad6a.preview.emergentagent.com"
+BACKEND_URL = "https://49bb8af5-7a60-4e2b-86e9-bfb706f9a616.preview.emergentagent.com"
 API_URL = f"{BACKEND_URL}/api"
 
 def test_folders_endpoint():

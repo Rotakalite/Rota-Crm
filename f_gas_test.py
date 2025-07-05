@@ -16,7 +16,7 @@ TEST_YEAR = 2024
 TEST_MONTH = 6  # June
 
 # Backend URL
-BACKEND_URL = "https://88048cb4-404f-4377-8f8a-190c9867ad6a.preview.emergentagent.com/api"
+BACKEND_URL = "https://49bb8af5-7a60-4e2b-86e9-bfb706f9a616.preview.emergentagent.com/api"
 
 # Test JWT token - this is a sample token for testing
 ADMIN_TOKEN = "eyJhbGciOiJSUzI1NiIsImtpZCI6Imluc18yUHFUQU9lQVNUUTlqaHRQcVpwSGlDRnVvIiwidHlwIjoiSldUIn0.eyJhenAiOiJodHRwczovL3JvdGEtY3JtLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJleHAiOjE3MTk5MzYxNjAsImlhdCI6MTcxOTkzMjU2MCwiaXNzIjoiaHR0cHM6Ly9hZGFwdGluZy1lZnQtNi5jbGVyay5hY2NvdW50cy5kZXYiLCJuYmYiOjE3MTk5MzI1NTAsInN1YiI6InVzZXJfQURNSU4iLCJlbWFpbCI6ImFkbWluQHJvdGFrYWxpdGVkYW5pc21hbmxpay5jb20iLCJuYW1lIjoiQWRtaW4gVXNlciJ9.signature"
