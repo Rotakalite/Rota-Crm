@@ -7925,7 +7925,7 @@ const EmailManagement = () => {
         title: 'Sürdürülebilirlik Rehberi',
         type: 'PDF',
         category: 'Training Material',
-        upload_date: new Date().toISOString(),
+        upload_date: '2024-12-20T10:30:00.000Z',
         file_size: '2.5 MB'
       },
       {
@@ -7933,7 +7933,7 @@ const EmailManagement = () => {
         title: 'Çevre Politikası',
         type: 'PDF',
         category: 'Policy Document',
-        upload_date: new Date().toISOString(),
+        upload_date: '2024-12-19T14:15:00.000Z',
         file_size: '1.2 MB'
       },
       {
@@ -7941,7 +7941,7 @@ const EmailManagement = () => {
         title: 'Atık Yönetimi Kılavuzu',
         type: 'PDF',
         category: 'Manual',
-        upload_date: new Date().toISOString(),
+        upload_date: '2024-12-18T09:45:00.000Z',
         file_size: '3.1 MB'
       }
     ]);
