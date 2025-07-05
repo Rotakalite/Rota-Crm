@@ -7728,6 +7728,10 @@ const MainApp = () => {
             <p className="text-gray-600">Yakında eklenecek...</p>
           </div>
         );
+      case 'email':
+        return <EmailManagement />;
+      case 'trainings':
+        return userRole === 'admin' ? <TrainingManagement /> : <ClientTrainings />;
       default:
         return <Dashboard onNavigate={handleNavigate} />;
     }
