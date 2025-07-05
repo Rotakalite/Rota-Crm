@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Fix Frontend JSX Compilation Errors - Waste Management Module"
+user_problem_statement: "Rota-CRM frontend application'ında tedarikçi modülü problemi test edilmesi gerekiyor. Kullanıcı tedarikçi modülüne bastığında otomatik logout oluyor."
 
 backend:
   - task: "Waste Management Backend APIs" 
