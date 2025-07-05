@@ -8356,12 +8356,7 @@ const MainApp = () => {
       case 'waste-management':
         return <WasteManagement />;
       case 'suppliers':
-        return (
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">🏢 Tedarikçi Yönetimi</h2>
-            <p className="text-gray-600">Geçici olarak bakım modunda... Yakında geri gelecek!</p>
-          </div>
-        );
+        return <SupplierManagement />;
       case 'project':
         return <ProjectManagement client={selectedClient} onNavigate={handleNavigate} />;
       case 'documents':
