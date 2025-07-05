@@ -163,7 +163,7 @@ frontend:
     file: "/app/frontend/src/App.js"
     stuck_count: 2
     priority: "critical"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: false
         -agent: "main"
