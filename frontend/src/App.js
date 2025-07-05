@@ -8127,7 +8127,8 @@ const EmailManagement = () => {
     </div>
   );
 };
-      case 'trainings':
+      case 'email':
+        return <EmailManagement />;
         return userRole === 'admin' ? <TrainingManagement /> : <ClientTrainings />;
       default:
         return <Dashboard onNavigate={handleNavigate} />;
