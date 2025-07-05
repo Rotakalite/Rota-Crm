@@ -2192,123 +2192,144 @@ const WasteManagement = () => {
                         </div>
                       </div>
 
-                      {/* Waste Types Distribution Chart */}
+                      {/* Waste Types Distribution Chart - Sadece sıfır olmayan değerler */}
                       <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
                         <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                           🗂️ Atık Türleri Dağılımı
+                          <span className="text-sm font-normal text-gray-600">(Sadece mevcut türler)</span>
                         </h3>
                         <div className="h-80">
-                          <Pie 
-                            data={{
-                              labels: ['Organik', 'Plastik', 'Kağıt', 'Cam', 'Metal', 'Elektronik', 'Karışık', 'Yağ'],
-                              datasets: [{
-                                data: [
-                                  wasteRecords.reduce((sum, record) => sum + (record.organic_waste || 0), 0),
-                                  wasteRecords.reduce((sum, record) => sum + (record.plastic_waste || 0), 0),
-                                  wasteRecords.reduce((sum, record) => sum + (record.paper_waste || 0), 0),
-                                  wasteRecords.reduce((sum, record) => sum + (record.glass_waste || 0), 0),
-                                  wasteRecords.reduce((sum, record) => sum + (record.metal_waste || 0), 0),
-                                  wasteRecords.reduce((sum, record) => sum + (record.electronic_waste || 0), 0),
-                                  wasteRecords.reduce((sum, record) => sum + (record.mixed_waste || 0), 0),
-                                  wasteRecords.reduce((sum, record) => sum + (record.oil_waste || 0), 0),
-                                ],
-                                backgroundColor: [
-                                  '#10b981', // green
-                                  '#3b82f6', // blue  
-                                  '#f59e0b', // yellow
-                                  '#a855f7', // purple
-                                  '#6b7280', // gray
-                                  '#4f46e5', // indigo
-                                  '#ef4444', // red
-                                  '#f97316', // orange
-                                ],
-                                borderWidth: 2,
-                                borderColor: '#ffffff',
-                              }]
-                            }}
-                            options={{
-                              responsive: true,
-                              maintainAspectRatio: false,
-                              plugins: {
-                                legend: {
-                                  position: 'right',
-                                  labels: {
-                                    usePointStyle: true,
-                                    padding: 15,
+                          {(() => {
+                            // Calculate totals for each waste type
+                            const wasteTypes = [
+                              { name: 'Organik', value: wasteRecords.reduce((sum, record) => sum + (record.organic_waste || 0), 0), color: '#10b981' },
+                              { name: 'Plastik', value: wasteRecords.reduce((sum, record) => sum + (record.plastic_waste || 0), 0), color: '#3b82f6' },
+                              { name: 'Kağıt', value: wasteRecords.reduce((sum, record) => sum + (record.paper_waste || 0), 0), color: '#f59e0b' },
+                              { name: 'Cam', value: wasteRecords.reduce((sum, record) => sum + (record.glass_waste || 0), 0), color: '#a855f7' },
+                              { name: 'Metal', value: wasteRecords.reduce((sum, record) => sum + (record.metal_waste || 0), 0), color: '#6b7280' },
+                              { name: 'Elektronik', value: wasteRecords.reduce((sum, record) => sum + (record.electronic_waste || 0), 0), color: '#4f46e5' },
+                              { name: 'Karışık', value: wasteRecords.reduce((sum, record) => sum + (record.mixed_waste || 0), 0), color: '#ef4444' },
+                              { name: 'Yağ', value: wasteRecords.reduce((sum, record) => sum + (record.oil_waste || 0), 0), color: '#f97316' },
+                            ].filter(type => type.value > 0); // Sadece sıfırdan büyük değerler
+
+                            return wasteTypes.length > 0 ? (
+                              <Pie 
+                                data={{
+                                  labels: wasteTypes.map(type => `${type.name} (${type.value.toFixed(1)} kg)`),
+                                  datasets: [{
+                                    data: wasteTypes.map(type => type.value),
+                                    backgroundColor: wasteTypes.map(type => type.color),
+                                    borderWidth: 2,
+                                    borderColor: '#ffffff',
+                                  }]
+                                }}
+                                options={{
+                                  responsive: true,
+                                  maintainAspectRatio: false,
+                                  plugins: {
+                                    legend: {
+                                      position: 'right',
+                                      labels: {
+                                        usePointStyle: true,
+                                        padding: 15,
+                                        font: {
+                                          size: 11
+                                        }
+                                      }
+                                    },
+                                    tooltip: {
+                                      callbacks: {
+                                        label: function(context) {
+                                          const total = wasteTypes.reduce((sum, type) => sum + type.value, 0);
+                                          const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                          return `${context.label}: ${percentage}% (${context.parsed.toFixed(1)} kg)`;
+                                        }
+                                      }
+                                    }
                                   }
-                                },
-                              }
-                            }}
-                          />
+                                }}
+                              />
+                            ) : (
+                              <div className="flex items-center justify-center h-full text-gray-500">
+                                <div className="text-center">
+                                  <div className="text-4xl mb-2">📊</div>
+                                  <p>Henüz atık verisi yok</p>
+                                </div>
+                              </div>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>
 
-                    {/* Recycling Performance Chart */}
-                    <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-                      <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                        ♻️ Geri Dönüşüm Performansı
+                    {/* Geri Dönüşüm Açıklaması */}
+                    <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 border border-green-200">
+                      <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                        ℹ️ Geri Dönüşüm Oranı Nasıl Hesaplanıyor?
                       </h3>
-                      <div className="h-80">
-                        <Bar 
-                          data={{
-                            labels: wasteRecords.map(record => `${record.month || 1}/${record.year || 2025}`),
-                            datasets: [
-                              {
-                                label: 'Geri Dönüşüm Oranı (%)',
-                                data: wasteRecords.map(record => record.recycling_rate || 0),
-                                backgroundColor: wasteRecords.map(record => {
-                                  const rate = record.recycling_rate || 0;
-                                  return rate >= 60 ? 'rgba(34, 197, 94, 0.8)' : 
-                                         rate >= 40 ? 'rgba(251, 191, 36, 0.8)' : 'rgba(239, 68, 68, 0.8)';
-                                }),
-                                borderColor: wasteRecords.map(record => {
-                                  const rate = record.recycling_rate || 0;
-                                  return rate >= 60 ? 'rgb(34, 197, 94)' : 
-                                         rate >= 40 ? 'rgb(251, 191, 36)' : 'rgb(239, 68, 68)';
-                                }),
-                                borderWidth: 2,
-                              },
-                              {
-                                label: 'Hedef (%)',
-                                data: new Array(wasteRecords.length).fill(60),
-                                type: 'line',
-                                borderColor: 'rgb(59, 130, 246)',
-                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                borderWidth: 3,
-                                borderDash: [5, 5],
-                                pointRadius: 0,
-                              }
-                            ]
-                          }}
-                          options={{
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                              legend: {
-                                position: 'top',
-                                labels: {
-                                  usePointStyle: true,
-                                  padding: 20,
-                                }
-                              },
-                            },
-                            scales: {
-                              y: {
-                                beginAtZero: true,
-                                max: 100,
-                                grid: {
-                                  color: 'rgba(0, 0, 0, 0.1)',
-                                }
-                              },
-                              x: {
-                                grid: {
-                                  color: 'rgba(0, 0, 0, 0.1)',
-                                }
-                              }
-                            }
-                          }}
-                        />
+                      <div className="text-sm text-gray-700 space-y-2">
+                        <p><strong>📝 Formül:</strong> (Geri Dönüştürülebilir Atık ÷ Toplam Atık) × 100</p>
+                        <p><strong>♻️ Geri Dönüştürülebilir:</strong> Plastik + Cam + Kağıt + Metal</p>
+                        <p><strong>🗑️ Geri Dönüştürülemez:</strong> Organik + Elektronik + Karışık + Yağ</p>
+                        <div className="mt-3 p-3 bg-white rounded-lg border">
+                          <p><strong>🎯 Hedef Değerler:</strong></p>
+                          <div className="flex gap-4 mt-2 text-xs">
+                            <span className="px-2 py-1 bg-green-100 text-green-800 rounded">60%+ Mükemmel</span>
+                            <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded">40-59% İyi</span>
+                            <span className="px-2 py-1 bg-red-100 text-red-800 rounded">40%- Geliştirilmeli</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Aylık Detay Tablosu */}
+                    <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">📅 Aylık Detaylar</h3>
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full table-auto">
+                          <thead className="bg-gradient-to-r from-green-50 to-green-100">
+                            <tr>
+                              <th className="px-4 py-3 text-left text-sm font-bold text-green-800">📅 Ay/Yıl</th>
+                              <th className="px-4 py-3 text-left text-sm font-bold text-green-800">⚖️ Toplam (kg)</th>
+                              <th className="px-4 py-3 text-left text-sm font-bold text-green-800">♻️ Geri Dönüştürülebilir (kg)</th>
+                              <th className="px-4 py-3 text-left text-sm font-bold text-green-800">📈 Geri Dönüşüm %</th>
+                              <th className="px-4 py-3 text-left text-sm font-bold text-green-800">👤 Kişi Başı (kg)</th>
+                              <th className="px-4 py-3 text-left text-sm font-bold text-green-800">👥 Konaklama</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-200">
+                            {wasteRecords.map((record, index) => {
+                              const recyclable = (record.plastic_waste || 0) + (record.glass_waste || 0) + (record.paper_waste || 0) + (record.metal_waste || 0);
+                              return (
+                                <tr key={index} className="hover:bg-green-50 transition-colors">
+                                  <td className="px-4 py-3 text-sm text-gray-900 font-medium">
+                                    {record.month || 1}/{record.year || 2025}
+                                  </td>
+                                  <td className="px-4 py-3 text-sm text-gray-900 font-medium">
+                                    {record.total_waste?.toFixed(1) || 0}
+                                  </td>
+                                  <td className="px-4 py-3 text-sm text-blue-700 font-medium">
+                                    {recyclable.toFixed(1)}
+                                  </td>
+                                  <td className="px-4 py-3 text-sm">
+                                    <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                                      record.recycling_rate >= 60 ? 'bg-green-100 text-green-800' : 
+                                      record.recycling_rate >= 40 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+                                    }`}>
+                                      {record.recycling_rate?.toFixed(1) || 0}%
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-3 text-sm text-purple-700 font-medium">
+                                    {record.per_person_waste?.toFixed(1) || 0}
+                                  </td>
+                                  <td className="px-4 py-3 text-sm text-gray-600">
+                                    {record.accommodation_count || 0} kişi
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   </>
