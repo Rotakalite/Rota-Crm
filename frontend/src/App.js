@@ -7551,35 +7551,8 @@ const TwoFactorAuth = ({ onVerificationComplete }) => {
   );
 };
 
-// Supplier Management Component
-const SupplierManagement = () => {
-  const { authToken } = useAuth();
-  const [suppliers, setSuppliers] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [certifications, setCertifications] = useState([]);
-  const [analytics, setAnalytics] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [editingSupplier, setEditingSupplier] = useState(null);
-  const [activeTab, setActiveTab] = useState('list');
-  const [newSupplier, setNewSupplier] = useState({
-    company_name: '',
-    contact_person: '',
-    email: '',
-    phone: '',
-    address: '',
-    category: '',
-    sustainability_score: 50,
-    certifications: [],
-    local_supplier: false,
-    website: '',
-    description: ''
-  });
-  const [filterCategory, setFilterCategory] = useState('');
-  const [filterMinScore, setFilterMinScore] = useState('');
-  const [filterMaxScore, setFilterMaxScore] = useState('');
-  const [filterLocalOnly, setFilterLocalOnly] = useState(false);
-  const API = getApiUrl();
+// Supplier Management Component - Temporarily Removed for Debugging
+// Will be added back in incremental steps
 
   // Fetch suppliers
   const fetchSuppliers = async () => {
