@@ -8299,6 +8299,12 @@ const SupplierManagement = () => {
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+// Main App Component
 const MainApp = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedClient, setSelectedClient] = useState(null);
