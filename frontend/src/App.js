@@ -1820,6 +1820,7 @@ const WasteManagement = () => {
   const [showAddRecord, setShowAddRecord] = useState(false);
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState('');
+  const [selectedYear, setSelectedYear] = useState(2025);
   const { authToken, userRole } = useAuth();
   const API = getApiUrl();
 
