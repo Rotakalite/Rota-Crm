@@ -7563,6 +7563,12 @@ const SupplierManagement = () => {
 
   // Basic fetch suppliers function
   const fetchSuppliers = async () => {
+    if (!authToken) {
+      console.log('No auth token, skipping supplier fetch');
+      setLoading(false);
+      return;
+    }
+    
     try {
       setLoading(true);
       const response = await axios.get(`${API}/suppliers`, {
@@ -7571,6 +7577,9 @@ const SupplierManagement = () => {
       setSuppliers(response.data.suppliers || []);
     } catch (error) {
       console.error('Error fetching suppliers:', error);
+      if (error.response?.status === 401) {
+        console.log('Authentication failed, user might need to re-login');
+      }
       setSuppliers([]);
     } finally {
       setLoading(false);
