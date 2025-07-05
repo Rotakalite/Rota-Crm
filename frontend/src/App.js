@@ -7628,42 +7628,7 @@ const SupplierManagement = () => {
   );
 };
 
-  // Fetch categories
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get(`${API}/suppliers/categories/list`);
-      setCategories(response.data.categories || []);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      setCategories([
-        'Gıda & İçecek',
-        'Temizlik & Hijyen',
-        'Enerji & Yakıt',
-        'Tekstil & Çamaşırhane',
-        'Teknoloji & Ekipman',
-        'Mobilya & Dekorasyon'
-      ]);
-    }
-  };
-
-  // Fetch certifications
-  const fetchCertifications = async () => {
-    try {
-      const response = await axios.get(`${API}/suppliers/certifications/list`);
-      setCertifications(response.data.certifications || []);
-    } catch (error) {
-      console.error('Error fetching certifications:', error);
-      setCertifications([
-        'ISO 14001',
-        'Organik Sertifika',
-        'Fair Trade',
-        'Carbon Neutral',
-        'EU Ecolabel',
-        'Green Seal',
-        'Yerel Üretici'
-      ]);
-    }
-  };
+// Main App Component
 
   // Fetch analytics
   const fetchAnalytics = async () => {
