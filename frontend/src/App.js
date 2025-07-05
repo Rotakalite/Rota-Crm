@@ -2402,7 +2402,8 @@ const WasteManagement = () => {
         </div>
       )}
     </div>
-            </div>
+  );
+};
 
             <button
               onClick={() => setShowAddRecord(true)}
