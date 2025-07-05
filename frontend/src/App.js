@@ -2228,11 +2228,160 @@ const WasteManagement = () => {
 
       {/* Add Record Modal */}
       {showAddRecord && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">🗑️ Yeni Atık Kaydı Ekle</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Yeni Atık Kaydı Ekle</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">📅 Yıl</label>
+                  <select
+                    value={newRecord.year}
+                    onChange={(e) => setNewRecord({...newRecord, year: parseInt(e.target.value)})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value={2025}>2025</option>
+                    <option value={2024}>2024</option>
+                    <option value={2023}>2023</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">📅 Ay</label>
+                  <select
+                    value={newRecord.month}
+                    onChange={(e) => setNewRecord({...newRecord, month: parseInt(e.target.value)})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  >
+                    {Array.from({length: 12}, (_, i) => i + 1).map(month => (
+                      <option key={month} value={month}>{month}. Ay</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">👥 Konaklama Sayısı</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={newRecord.accommodation_count}
+                    onChange={(e) => setNewRecord({...newRecord, accommodation_count: parseInt(e.target.value) || 1})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">🌱 Organik Atık (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newRecord.organic_waste}
+                    onChange={(e) => setNewRecord({...newRecord, organic_waste: parseFloat(e.target.value) || 0})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">🧴 Plastik Atık (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newRecord.plastic_waste}
+                    onChange={(e) => setNewRecord({...newRecord, plastic_waste: parseFloat(e.target.value) || 0})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">📄 Kağıt Atık (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newRecord.paper_waste}
+                    onChange={(e) => setNewRecord({...newRecord, paper_waste: parseFloat(e.target.value) || 0})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">🪟 Cam Atık (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newRecord.glass_waste}
+                    onChange={(e) => setNewRecord({...newRecord, glass_waste: parseFloat(e.target.value) || 0})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">🔗 Metal Atık (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newRecord.metal_waste}
+                    onChange={(e) => setNewRecord({...newRecord, metal_waste: parseFloat(e.target.value) || 0})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">⚡ Elektronik Atık (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newRecord.electronic_waste}
+                    onChange={(e) => setNewRecord({...newRecord, electronic_waste: parseFloat(e.target.value) || 0})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">🛢️ Yağ Atığı (litre)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newRecord.oil_waste}
+                    onChange={(e) => setNewRecord({...newRecord, oil_waste: parseFloat(e.target.value) || 0})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">🗑️ Karışık Atık (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newRecord.mixed_waste}
+                    onChange={(e) => setNewRecord({...newRecord, mixed_waste: parseFloat(e.target.value) || 0})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  onClick={handleSubmitRecord}
+                  disabled={loading}
+                  className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg hover:from-green-600 hover:to-green-700 disabled:opacity-50 font-medium"
+                >
+                  {loading ? 'Kaydediliyor...' : 'Kaydet'}
+                </button>
+                <button
+                  onClick={() => setShowAddRecord(false)}
+                  className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 font-medium"
+                >
+                  İptal
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">📅 Yıl</label>
                 <select
