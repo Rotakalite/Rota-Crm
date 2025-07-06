@@ -2766,6 +2766,27 @@ const ClientManagement = ({ onNavigate }) => {
     }
   };
 
+  // Delete client
+  const handleDeleteClient = async (clientId, clientName) => {
+    const confirmDelete = window.confirm(
+      `"${clientName}" müşterisini silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz ve müşteriye ait tüm veriler silinecektir.`
+    );
+    
+    if (!confirmDelete) return;
+    
+    try {
+      await axios.delete(`${API}/clients/${clientId}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      alert('Müşteri başarıyla silindi!');
+      fetchClients();
+    } catch (error) {
+      console.error('Error deleting client:', error);
+      alert('Hata: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
   useEffect(() => {
     if (authToken && userRole === 'admin') {
       fetchClients();
