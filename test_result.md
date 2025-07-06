@@ -431,7 +431,7 @@ metadata:
 
 agent_communication:
     -agent: "main"
-    -message: "User reported CORS error preventing Waste Management module from working. Troubleshoot agent identified root cause as configuration mismatch between frontend and backend URLs plus database connection issues. Fixed by updating both frontend and backend .env files, removing duplicate endpoints, and restarting services. Need to test if Waste Management endpoints are now working correctly."
+    -message: "CONTINUING FROM PREVIOUS WORK: Document download endpoint was recently implemented to fix 500 Internal Server Error when users try to download files. The endpoint /api/documents/{id}/download was added directly to the main FastAPI app with proper authentication, file retrieval, and streaming response. Need to test this endpoint to verify it works correctly before proceeding with other enhancements."
 
 backend:
   - task: "Fix Authentication Errors for Document Endpoints"
