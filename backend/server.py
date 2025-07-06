@@ -51,19 +51,17 @@ except ImportError as e:
     logging.warning(f"⚠️ DEFRA Carbon module import failed: {e}")
     calculate_carbon_emissions = None
 
-# Import MongoDB GridFS service (DISABLED - PROBLEMATIC)
-# try:
-#     import sys
-#     import os
-#     sys.path.append(os.path.dirname(__file__))
-#     from services.mongo_gridfs import mongo_gridfs
-#     logging.info("✅ MongoDB GridFS service imported successfully")
-# except Exception as e:
-#     logging.error(f"❌ Failed to import MongoDB GridFS service: {e}")
-#     mongo_gridfs = None
-
-# Disable GridFS for now
-mongo_gridfs = None
+# Import MongoDB GridFS service (ENABLED)
+try:
+    import sys
+    import os
+    sys.path.append(os.path.dirname(__file__))
+    from services.mongo_gridfs import MongoGridFS
+    mongo_gridfs = MongoGridFS()
+    logging.info("✅ MongoDB GridFS service imported successfully")
+except Exception as e:
+    logging.error(f"❌ Failed to import MongoDB GridFS service: {e}")
+    mongo_gridfs = None
 
 # Import Supabase service (backup)
 try:
