@@ -8227,7 +8227,7 @@ const EmailManagement = () => {
             <ul style="list-style: none; padding: 0; margin: 15px 0;">
               ${clientTrainings.map(training => `
                 <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                  <div style="font-weight: 500; margin-bottom: 5px;">${training.title}</div>
+                  <div style="font-weight: 500; margin-bottom: 5px;">${training.title || training.name}</div>
                   <div style="color: #666; font-size: 14px;">${training.description} • ${training.duration}</div>
                 </li>
               `).join('')}
