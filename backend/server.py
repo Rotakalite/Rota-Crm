@@ -812,6 +812,39 @@ async def download_document_direct(
         if current_user.role == UserRole.CLIENT and current_user.client_id != document.get("client_id"):
             raise HTTPException(status_code=403, detail="Access denied")
         
+        # Get file from GridFS
+        import gridfs
+        fs = gridfs.GridFS(db)
+        
+        # Get GridFS file ID
+        gridfs_id = document.get("gridfs_id")
+        if not gridfs_id:
+            raise HTTPException(status_code=404, detail="File not found in storage")
+        
+        try:
+            # Convert string ID to ObjectId
+            from bson import ObjectId
+            file_id = ObjectId(gridfs_id)
+            
+            # Get file from GridFS
+            grid_file = fs.get(file_id)
+            file_content = grid_file.read()
+            
+            from fastapi.responses import Response
+            
+            return Response(
+                content=file_content,
+                media_type=document.get('content_type', 'application/octet-stream'),
+                headers={
+                    "Content-Disposition": f"attachment; filename=\"{document.get('original_filename', 'document.pdf')}\"",
+                    "Content-Length": str(len(file_content))
+                }
+            )
+            
+        except Exception as e:
+            logging.error(f"❌ Error retrieving file from GridFS: {e}")
+            raise HTTPException(status_code=500, detail="Error retrieving file from storage")
+        
         # For now, return document metadata since we don't store actual file content
         # In a real implementation, you would retrieve the file from storage (GCS, S3, etc.)
         
