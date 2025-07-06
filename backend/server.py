@@ -878,9 +878,9 @@ async def send_email_direct(request: dict, current_user: User = Depends(get_curr
 async def create_consumption_direct(consumption_data: dict, current_user: User = Depends(get_current_user)):
     """Create consumption - DIRECT ON MAIN APP"""
     try:
-        # Get MongoDB connection
+        # Get MongoDB connection - ONLY ROTACRM
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["sustainable_tourism_crm"]
+        db = mongo_client["rotacrm"]
         
         # Add metadata
         consumption_data["id"] = str(uuid.uuid4())
