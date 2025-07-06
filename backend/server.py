@@ -5495,7 +5495,7 @@ async def get_clients_for_email_test():
 
 # Real Data Endpoints for Email Management
 @api_router.get("/email-management/documents-real")
-async def get_real_documents_for_email(token: str = Depends(verify_token)):
+async def get_real_documents_for_email(current_user: User = Depends(get_current_user)):
     """Get real documents from database for email management"""
     try:
         # Get all documents from database
