@@ -149,6 +149,9 @@ backend:
         -working: false
         -agent: "testing"
         -comment: "Tested the new real data endpoints for Email Management: /api/email-management/documents-real, /api/email-management/trainings-real, and /api/email-management/clients-real. All three endpoints are returning 404 Not Found errors. The endpoints are properly defined in the server.py file at lines 5443, 5481, and 5521 respectively, and the API router is correctly registered with app.include_router(api_router, prefix='/api') at line 5239. However, the endpoints are not accessible. This could be due to a deployment issue or a problem with the FastAPI router configuration. The backend logs show that requests to these endpoints are being received but returning 404 Not Found. Further investigation is needed to determine why these endpoints are not accessible despite being properly defined in the code."
+        -working: false
+        -agent: "testing"
+        -comment: "Conducted additional testing of the email management endpoints and MongoDB database. Confirmed that the MongoDB database contains real data for clients, documents, and trainings. The email management endpoints are defined in the server.py file but are returning 404 Not Found errors. The API router is properly registered, and other endpoints like /api/health, /api/suppliers/categories/list, and /api/guest-engagement/eco-tips are working correctly. The issue appears to be that the email management endpoints are not being properly registered or are being overridden by other routes. Restarting the backend service did not resolve the issue. The MongoDB database contains 1 client, 1 document, and 1 training record that should be accessible through these endpoints."
 
 frontend:
   - task: "Fix Frontend JSX Syntax Errors - Adjacent JSX Elements"
