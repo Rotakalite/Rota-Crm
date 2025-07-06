@@ -752,6 +752,9 @@ async def get_documents_direct(current_user: User = Depends(get_current_user)):
             if "_id" in doc:
                 del doc["_id"]
             
+            # DEBUG: Log folder_id info
+            logging.info(f"🔍 Document: {doc.get('name', 'Unknown')} - Folder ID: {doc.get('folder_id', 'NULL')} - Folder Path: {doc.get('folder_path', 'NULL')}")
+            
             formatted_doc = {
                 "id": doc.get("id", ""),
                 "title": doc.get("name", doc.get("document_name", "Unknown Document")),
@@ -760,7 +763,9 @@ async def get_documents_direct(current_user: User = Depends(get_current_user)):
                 "upload_date": doc.get("created_at", "2024-12-20T10:30:00.000Z"),
                 "file_size": doc.get("file_size", "N/A"),
                 "client_id": doc.get("client_id", "general"),
-                "client_name": doc.get("client_name", "General")
+                "client_name": doc.get("client_name", "General"),
+                "folder_id": doc.get("folder_id", ""),  # IMPORTANT: Add folder_id to response
+                "folder_path": doc.get("folder_path", "")  # IMPORTANT: Add folder_path to response
             }
             formatted_documents.append(formatted_doc)
         
