@@ -7902,8 +7902,8 @@ const EmailManagement = () => {
   const fetchClients = async () => {
     if (!authToken) return;
     try {
-      // Use direct endpoint
-      const response = await axios.get(`${API}/api/clients`, {
+      // Use direct endpoint without /api prefix
+      const response = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
