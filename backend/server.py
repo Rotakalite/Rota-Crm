@@ -738,23 +738,16 @@ async def api_health_check_direct():
 async def get_documents_direct(current_user: User = Depends(get_current_user)):
     """Get documents for email management - DIRECT ON MAIN APP"""
     try:
-        # Get MongoDB connections
+        # Get MongoDB connections - ONLY ROTACRM
         mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
         
-        # Try sustainable_tourism_crm database first
-        db = mongo_client["sustainable_tourism_crm"]
+        # Get documents from rotacrm
         documents = list(db.documents.find({}))
-        
-        # Try rotacrm database as well
-        rotacrm_db = mongo_client["rotacrm"]
-        rotacrm_documents = list(rotacrm_db.documents.find({}))
-        
-        # Combine documents
-        all_documents = documents + rotacrm_documents
         
         # Format documents for frontend
         formatted_documents = []
-        for doc in all_documents:
+        for doc in documents:
             if "_id" in doc:
                 del doc["_id"]
             
