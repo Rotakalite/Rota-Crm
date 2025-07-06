@@ -5429,7 +5429,8 @@ async def get_clients_for_email(token: str = Depends(verify_token)):
                 "name": "Green Valley Hotel",
                 "email": "contact@greenvalley.com",
                 "contact_person": "Elif Özkan",
-                "category": "Boutique Hotel"
+                "category": "Boutique Hotel",
+                "client_id": "green-valley"
             },
             {
                 "id": 3,
