@@ -6862,6 +6862,7 @@ const TrainingManagement = () => {
     participant_count: '',
     trainer: '',
     training_date: '',
+    training_time: '09:00',  // Add training time field
     description: ''
   });
   const [loading, setLoading] = useState(false);
