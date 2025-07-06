@@ -773,23 +773,16 @@ async def get_documents_direct(current_user: User = Depends(get_current_user)):
 async def get_trainings_direct(current_user: User = Depends(get_current_user)):
     """Get trainings for email management - DIRECT ON MAIN APP"""
     try:
-        # Get MongoDB connections
+        # Get MongoDB connections - ONLY ROTACRM
         mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
         
-        # Try sustainable_tourism_crm database first
-        db = mongo_client["sustainable_tourism_crm"]
+        # Get trainings from rotacrm
         trainings = list(db.trainings.find({}))
-        
-        # Try rotacrm database as well
-        rotacrm_db = mongo_client["rotacrm"]
-        rotacrm_trainings = list(rotacrm_db.trainings.find({}))
-        
-        # Combine trainings
-        all_trainings = trainings + rotacrm_trainings
         
         # Format trainings for frontend
         formatted_trainings = []
-        for training in all_trainings:
+        for training in trainings:
             if "_id" in training:
                 del training["_id"]
             
