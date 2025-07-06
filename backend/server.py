@@ -5416,48 +5416,55 @@ async def get_trainings(current_user: User = Depends(get_current_user)):
         logging.error(f"Error fetching trainings: {str(e)}")
         raise HTTPException(status_code=500, detail="Eğitimler alınamadı")
 
-@api_router.get("/clients")
-async def get_clients_for_email(current_user: User = Depends(get_current_user)):
-    """Get clients for email management - CLIENT sees only themselves, ADMIN sees all"""
+# TEST ENDPOINT - Remove authentication for debugging
+@api_router.get("/email-test/clients")
+async def get_clients_for_email_test():
+    """TEMPORARY: Get all clients for email management - NO AUTH for testing"""
     try:
-        logging.info(f"📧 Email Management - GET /clients called by: {current_user.role} - {current_user.name}")
+        logging.info(f"📧 TEST - GET /email-test/clients called without auth")
         
-        if current_user.role == UserRole.CLIENT:
-            # CLIENT users only see themselves as the "client" for email purposes
-            formatted_clients = [{
-                "id": current_user.client_id or "self",
-                "name": current_user.hotel_name or current_user.name or "My Hotel",
-                "email": current_user.email,
-                "contact_person": current_user.name,
-                "category": "My Account",
-                "client_id": current_user.client_id or "self"
-            }]
-            logging.info(f"✅ CLIENT user - returning own info as client: {formatted_clients[0]['name']}")
-            return {"clients": formatted_clients}
+        # Get all clients from database
+        clients_from_db = await db.clients.find().to_list(length=None)
         
-        elif current_user.role == UserRole.ADMIN:
-            # ADMIN users see all clients from database
-            clients_from_db = await db.clients.find().to_list(length=None)
+        # Format clients for frontend
+        formatted_clients = []
+        for client in clients_from_db:
+            if "_id" in client:
+                del client["_id"]
             
-            # Format clients for frontend
-            formatted_clients = []
-            for client in clients_from_db:
-                if "_id" in client:
-                    del client["_id"]
+            formatted_client = {
+                "id": client.get("id", str(client.get("_id", ""))),
+                "name": client.get("hotel_name", client.get("name", "Unknown Client")),
+                "email": client.get("email", ""),
+                "contact_person": client.get("contact_person", ""),
+                "category": client.get("current_stage", "General"),
+                "client_id": client.get("id", str(client.get("_id", "")))  # For mapping
+            }
+            formatted_clients.append(formatted_client)
+        
+        # Also try to get from users collection in case clients are stored there
+        try:
+            users_from_db = await db.users.find({"role": "CLIENT"}).to_list(length=None)
+            for user in users_from_db:
+                if "_id" in user:
+                    del user["_id"]
                 
                 formatted_client = {
-                    "id": client.get("id", str(client.get("_id", ""))),
-                    "name": client.get("hotel_name", client.get("name", "Unknown Client")),
-                    "email": client.get("email", ""),
-                    "contact_person": client.get("contact_person", ""),
-                    "category": client.get("current_stage", "General"),
-                    "client_id": client.get("id", str(client.get("_id", "")))  # For mapping
+                    "id": user.get("client_id", str(user.get("_id", ""))),
+                    "name": user.get("hotel_name", user.get("name", "Unknown Client")),
+                    "email": user.get("email", ""),
+                    "contact_person": user.get("name", ""),
+                    "category": "Client User",
+                    "client_id": user.get("client_id", str(user.get("_id", "")))
                 }
                 formatted_clients.append(formatted_client)
-            
-            # If no real clients found, return sample data
-            if not formatted_clients:
-                clients = [
+            logging.info(f"Also found {len(users_from_db)} client users")
+        except Exception as e:
+            logging.info(f"No users collection or error: {e}")
+        
+        # If no real clients found, return sample data
+        if not formatted_clients:
+            clients = [
                 {
                     "id": 1,
                     "name": "Paradise Resort & Spa",
@@ -5474,15 +5481,15 @@ async def get_clients_for_email(current_user: User = Depends(get_current_user)):
                     "category": "Boutique Hotel",
                     "client_id": "green-valley"
                 }
-                ]
-                logging.info(f"No real clients found, returning {len(clients)} sample clients")
-                return {"clients": clients}
-            
-            logging.info(f"✅ ADMIN user - returning {len(formatted_clients)} real clients")
-            return {"clients": formatted_clients}
-        else:
-            logging.warning(f"⚠️ Unknown user role: {current_user.role}")
-            return {"clients": []}
+            ]
+            logging.info(f"No real clients found, returning {len(clients)} sample clients")
+            return {"clients": clients}
+        
+        logging.info(f"✅ TEST - returning {len(formatted_clients)} clients from database")
+        return {"clients": formatted_clients}
+    except Exception as e:
+        logging.error(f"Error fetching clients for test: {str(e)}")
+        return {"clients": [{"error": str(e)}]}
     except Exception as e:
         logging.error(f"Error fetching clients: {str(e)}")
         raise HTTPException(status_code=500, detail="Müşteriler alınamadı")
