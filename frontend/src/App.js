@@ -8410,6 +8410,11 @@ const EmailManagement = () => {
                       <p className="text-sm text-gray-600"><strong>Süre:</strong> {training.duration}</p>
                       <p className="text-sm text-gray-600"><strong>Seviye:</strong> {training.level}</p>
                       <p className="text-sm text-gray-600"><strong>Kategori:</strong> {training.category}</p>
+                      {training.client_name && (
+                        <p className="text-sm text-green-600 font-semibold">
+                          <strong>🎯 Müşteri:</strong> {training.client_name}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
