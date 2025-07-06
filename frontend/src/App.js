@@ -7773,14 +7773,35 @@ const EmailManagement = () => {
     if (!authToken) return;
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/api/documents`, {
+      
+      // Try real data first
+      const response = await axios.get(`${API}/api/email-management/documents-real`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
-      console.log('Documents fetched:', response.data);
-      setDocuments(response.data || []);
+      console.log('Real documents fetched:', response.data);
+      
+      if (response.data.documents && response.data.documents.length > 0) {
+        setDocuments(response.data.documents);
+        console.log(`✅ Loaded ${response.data.documents.length} real documents`);
+      } else {
+        // Fallback to mock data if no real documents
+        console.log('No real documents found, using mock data');
+        setDocuments([
+          {
+            id: 1,
+            title: 'Sürdürülebilirlik Rehberi',
+            type: 'PDF',
+            category: 'Training Material',
+            upload_date: '2024-12-20T10:30:00.000Z',
+            file_size: '2.5 MB',
+            client_id: 'general',
+            client_name: 'Genel Doküman'
+          }
+        ]);
+      }
     } catch (error) {
-      console.error('Error fetching documents:', error);
+      console.error('Error fetching real documents:', error);
       // Fallback to mock data if API fails
       setDocuments([
         {
@@ -7789,7 +7810,9 @@ const EmailManagement = () => {
           type: 'PDF',
           category: 'Training Material',
           upload_date: '2024-12-20T10:30:00.000Z',
-          file_size: '2.5 MB'
+          file_size: '2.5 MB',
+          client_id: 'general',
+          client_name: 'Genel Doküman'
         }
       ]);
     } finally {
@@ -7801,14 +7824,35 @@ const EmailManagement = () => {
     if (!authToken) return;
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/api/trainings`, {
+      
+      // Try real data first
+      const response = await axios.get(`${API}/api/email-management/trainings-real`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
-      console.log('Trainings fetched:', response.data);
-      setTrainings(response.data || []);
+      console.log('Real trainings fetched:', response.data);
+      
+      if (response.data.trainings && response.data.trainings.length > 0) {
+        setTrainings(response.data.trainings);
+        console.log(`✅ Loaded ${response.data.trainings.length} real trainings`);
+      } else {
+        // Fallback to mock data if no real trainings
+        console.log('No real trainings found, using mock data');
+        setTrainings([
+          {
+            id: 1,
+            title: 'Sürdürülebilir Turizm Eğitimi',
+            description: 'Temel sürdürülebilirlik prensipleri',
+            duration: '2 saat',
+            level: 'Başlangıç',
+            category: 'Environment',
+            client_id: 'general',
+            client_name: 'Genel Eğitim'
+          }
+        ]);
+      }
     } catch (error) {
-      console.error('Error fetching trainings:', error);
+      console.error('Error fetching real trainings:', error);
       // Fallback to mock data if API fails
       setTrainings([
         {
@@ -7817,7 +7861,9 @@ const EmailManagement = () => {
           description: 'Temel sürdürülebilirlik prensipleri',
           duration: '2 saat',
           level: 'Başlangıç',
-          category: 'Environment'
+          category: 'Environment',
+          client_id: 'general',
+          client_name: 'Genel Eğitim'
         }
       ]);
     } finally {
@@ -7828,19 +7874,28 @@ const EmailManagement = () => {
   const fetchClients = async () => {
     if (!authToken) return;
     try {
-      const response = await axios.get(`${API}/api/clients`, {
+      // Try real data first
+      const response = await axios.get(`${API}/api/email-management/clients-real`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
-      console.log('Clients fetched:', response.data);
-      setClients(response.data || []);
+      console.log('Real clients fetched:', response.data);
+      
+      if (response.data.clients && response.data.clients.length > 0) {
+        setClients(response.data.clients);
+        console.log(`✅ Loaded ${response.data.clients.length} real clients`);
+      } else {
+        // Fallback to mock data if no real clients
+        console.log('No real clients found, using mock data');
+        setClients([
+          { id: 1, name: 'Hotel Paradise', email: 'info@hotelparadise.com', client_id: 'hotel-paradise' }
+        ]);
+      }
     } catch (error) {
-      console.error('Error fetching clients:', error);
+      console.error('Error fetching real clients:', error);
       // Fallback to mock data if API fails
       setClients([
-        { id: 1, name: 'Hotel Paradise', email: 'info@hotelparadise.com' },
-        { id: 2, name: 'Green Resort', email: 'contact@greenresort.com' },
-        { id: 3, name: 'Eco Lodge', email: 'hello@ecolodge.com' }
+        { id: 1, name: 'Hotel Paradise', email: 'info@hotelparadise.com', client_id: 'hotel-paradise' }
       ]);
     }
   };
