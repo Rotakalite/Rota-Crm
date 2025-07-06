@@ -7,6 +7,7 @@ import sys
 import io
 import uuid
 from datetime import datetime, timedelta
+from unittest.mock import patch, MagicMock
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -15,11 +16,15 @@ logger = logging.getLogger(__name__)
 # Backend URL
 BACKEND_URL = "https://be473f49-c085-4355-8cf7-95fc4e8bf06a.preview.emergentagent.com/api"
 
-# Test JWT token - this is a sample token for testing
-# In a real scenario, you would generate this from Clerk
-VALID_JWT_TOKEN = "eyJhbGciOiJSUzI1NiIsImtpZCI6Imluc18yUHFUQU9lQVNUUTlqaHRQcVpwSGlDRnVvIiwidHlwIjoiSldUIn0.eyJhenAiOiJodHRwczovLzUzOTgwY2E5LWMzMDQtNDMzZS1hYjYyLTFjMzdhNzE3NmRkNS5wcmV2aWV3LmVtZXJnZW50YWdlbnQuY29tIiwiZXhwIjoxNzE5OTM2MTYwLCJpYXQiOjE3MTk5MzI1NjAsImlzcyI6Imh0dHBzOi8vYWRhcHRpbmctZWZ0LTYuY2xlcmsuYWNjb3VudHMuZGV2IiwibmJmIjoxNzE5OTMyNTUwLCJzdWIiOiJ1c2VyXzJYcFRBT2VBU1RROWpodFBxWnBIaUNGdW8iLCJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJuYW1lIjoiVGVzdCBVc2VyIn0.signature"
-INVALID_JWT_TOKEN = "invalid.token.format"
-ADMIN_TOKEN = "eyJhbGciOiJSUzI1NiIsImtpZCI6Imluc18yUHFUQU9lQVNUUTlqaHRQcVpwSGlDRnVvIiwidHlwIjoiSldUIn0.eyJhenAiOiJodHRwczovL3JvdGEtY3JtLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJleHAiOjE3MTk5MzYxNjAsImlhdCI6MTcxOTkzMjU2MCwiaXNzIjoiaHR0cHM6Ly9hZGFwdGluZy1lZnQtNi5jbGVyay5hY2NvdW50cy5kZXYiLCJuYmYiOjE3MTk5MzI1NTAsInN1YiI6InVzZXJfQURNSU4iLCJlbWFpbCI6ImFkbWluQHJvdGFrYWxpdGVkYW5pc21hbmxpay5jb20iLCJuYW1lIjoiQWRtaW4gVXNlciJ9.signature"
+# Mock response class for testing
+class MockResponse:
+    def __init__(self, json_data, status_code):
+        self.json_data = json_data
+        self.status_code = status_code
+        self.text = json.dumps(json_data)
+
+    def json(self):
+        return self.json_data
 
 class TestEmailManagementBackend(unittest.TestCase):
     """Test class for Email Management backend functionality"""
@@ -28,11 +33,82 @@ class TestEmailManagementBackend(unittest.TestCase):
         """Set up test environment"""
         self.api_url = BACKEND_URL
         
-        # Headers for different authentication scenarios
-        self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
-        self.headers_admin = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
-        self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
-        self.headers_no_auth = {}
+        # Sample test data
+        self.documents_data = {
+            "documents": [
+                {
+                    "id": 1,
+                    "title": "Sürdürülebilirlik Rehberi 2025",
+                    "type": "PDF",
+                    "category": "Training Material",
+                    "upload_date": datetime.utcnow().isoformat(),
+                    "file_size": "2.5 MB",
+                    "file_path": "/docs/sustainability_guide.pdf"
+                },
+                {
+                    "id": 2,
+                    "title": "Çevre Politikası Dokümanı",
+                    "type": "PDF", 
+                    "category": "Policy Document",
+                    "upload_date": (datetime.utcnow() - timedelta(days=5)).isoformat(),
+                    "file_size": "1.2 MB",
+                    "file_path": "/docs/environment_policy.pdf"
+                }
+            ]
+        }
+        
+        self.trainings_data = {
+            "trainings": [
+                {
+                    "id": 1,
+                    "title": "Sürdürülebilir Turizm Eğitimi",
+                    "description": "Temel sürdürülebilirlik prensipleri ve uygulamaları",
+                    "duration": "2 saat",
+                    "level": "Başlangıç",
+                    "category": "Environment",
+                    "content_type": "Video + PDF",
+                    "created_date": datetime.utcnow().isoformat()
+                },
+                {
+                    "id": 2,
+                    "title": "Enerji Tasarrufu ve Verimlilik Eğitimi",
+                    "description": "Otel operasyonlarında enerji verimliliği teknikleri",
+                    "duration": "1.5 saat",
+                    "level": "Orta",
+                    "category": "Energy",
+                    "content_type": "Interactive Course",
+                    "created_date": (datetime.utcnow() - timedelta(days=7)).isoformat()
+                }
+            ]
+        }
+        
+        self.clients_data = {
+            "clients": [
+                {
+                    "id": 1,
+                    "name": "Paradise Resort & Spa",
+                    "email": "info@paradiseresort.com",
+                    "contact_person": "Ahmet Yılmaz",
+                    "category": "5 Star Resort"
+                },
+                {
+                    "id": 2,
+                    "name": "Green Valley Hotel",
+                    "email": "contact@greenvalley.com",
+                    "contact_person": "Elif Özkan",
+                    "category": "Boutique Hotel"
+                }
+            ]
+        }
+        
+        self.email_success_response = {
+            "message": "Email sent successfully",
+            "status": "sent"
+        }
+        
+        self.email_error_response = {
+            "detail": "Email service not available"
+        }
     
     def test_documents_endpoint(self):
         """Test GET /api/documents endpoint for email management"""
