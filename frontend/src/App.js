@@ -8537,7 +8537,8 @@ const EmailManagement = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         )}
