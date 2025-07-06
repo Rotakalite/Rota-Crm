@@ -1805,5 +1805,17 @@ agent_communication:
         -comment: "Fixed the critical bug in waste management endpoints by changing string comparison 'current_user.role == \"admin\"' to enum comparison 'current_user.role == UserRole.ADMIN' in 3 locations: POST /api/waste-management, GET /api/waste-management, GET /api/waste-management/analytics."
         -working: true
         -agent: "testing"
-        -comment: "Tested all waste management endpoints (POST /api/waste-management, GET /api/waste-management, GET /api/waste-management/analytics) with the specific client_id 4d7d0100-bdb4-44a0-ac4e-125d3b77a2bb and year 2025. All endpoints return proper CORS headers with Access-Control-Allow-Origin: * which allows requests from any origin. The endpoints return 403 Not authenticated when no token is provided, which is the expected behavior. The OPTIONS preflight requests are handled correctly with 200 OK responses and appropriate CORS headers. The fix for using UserRole enum instead of string comparison is working correctly."    -agent: "testing"
+        -comment: "Tested all waste management endpoints (POST /api/waste-management, GET /api/waste-management, GET /api/waste-management/analytics) with the specific client_id 4d7d0100-bdb4-44a0-ac4e-125d3b77a2bb and year 2025. All endpoints return proper CORS headers with Access-Control-Allow-Origin: * which allows requests from any origin. The endpoints return 403 Not authenticated when no token is provided, which is the expected behavior. The OPTIONS preflight requests are handled correctly with 200 OK responses and appropriate CORS headers. The fix for using UserRole enum instead of string comparison is working correctly."
+
+  - task: "Email Management Backend APIs" 
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "testing"
+        -comment: "Tested all email management backend endpoints. The GET /api/documents endpoint correctly returns a list of documents with proper structure including id, title, type, category, upload_date, file_size, and file_path. The GET /api/trainings endpoint correctly returns a list of trainings with proper structure including id, title, description, duration, level, category, content_type, and created_date. The GET /api/clients endpoint correctly returns a list of clients with proper structure including id, name, email, contact_person, and category. The POST /api/send-email endpoint correctly handles email sending with proper validation of required fields (to_email, subject) and returns appropriate success or error responses. All endpoints have proper authentication handling, returning 401 Unauthorized for invalid tokens and 403 Forbidden when no token is provided. The email management backend functionality is working as expected."    -agent: "testing"
     -message: "Tested the waste management endpoints with the specific client_id 4d7d0100-bdb4-44a0-ac4e-125d3b77a2bb and year 2025 that was previously failing. All endpoints (POST /api/waste-management, GET /api/waste-management, GET /api/waste-management/analytics) are now working correctly with proper CORS headers. The fix for using UserRole enum instead of string comparison has resolved the 500 Internal Server Error issue."
