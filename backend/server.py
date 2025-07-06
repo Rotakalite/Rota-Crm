@@ -883,6 +883,58 @@ async def send_email_direct(request: dict, current_user: User = Depends(get_curr
         print(f"Error in direct send-email endpoint: {e}")
         raise HTTPException(status_code=500, detail=f"Email sending failed: {str(e)}")
 
+# CRITICAL CONSUMPTION ENDPOINTS - DIRECT TO MAIN APP
+@app.post("/consumptions")
+async def create_consumption_direct(consumption_data: dict, current_user: User = Depends(get_current_user)):
+    """Create consumption - DIRECT ON MAIN APP"""
+    try:
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["sustainable_tourism_crm"]
+        
+        # Add metadata
+        consumption_data["id"] = str(uuid.uuid4())
+        consumption_data["created_at"] = datetime.utcnow()
+        consumption_data["updated_at"] = datetime.utcnow()
+        
+        # Insert consumption
+        result = db.consumptions.insert_one(consumption_data)
+        
+        return {"message": "Consumption created successfully", "consumption_id": consumption_data["id"]}
+        
+    except Exception as e:
+        print(f"Error in direct create consumption: {e}")
+        raise HTTPException(status_code=500, detail=f"Consumption creation failed: {str(e)}")
+
+@app.get("/consumptions")
+async def get_consumptions_direct(year: Optional[int] = None, client_id: Optional[str] = None, current_user: User = Depends(get_current_user)):
+    """Get consumptions - DIRECT ON MAIN APP"""
+    try:
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["sustainable_tourism_crm"]
+        
+        # Build query
+        query = {}
+        if year:
+            query["year"] = year
+        if client_id:
+            query["client_id"] = client_id
+            
+        # Get consumptions
+        consumptions = list(db.consumptions.find(query))
+        
+        # Format for frontend
+        for consumption in consumptions:
+            if "_id" in consumption:
+                del consumption["_id"]
+        
+        return consumptions
+        
+    except Exception as e:
+        print(f"Error in direct get consumptions: {e}")
+        return []
+
 # Test endpoint directly on api_router
 @api_router.get("/test")
 async def test_endpoint():
