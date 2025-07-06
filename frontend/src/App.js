@@ -8475,12 +8475,21 @@ const EmailManagement = () => {
                 <span className="text-sm text-gray-600">
                   {trainings.filter(training => selectedItems.includes(`training_${training.id}`)).length} / {trainings.length} seçildi
                 </span>
-                <button
-                  onClick={() => handleSelectAll('training')}
-                  className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all"
-                >
-                  {trainings.every(training => selectedItems.includes(`training_${training.id}`)) ? 'Tümünü Kaldır' : 'Tümünü Seç'}
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setSelectedItems(prev => prev.filter(item => !item.startsWith('training_')))}
+                    className="bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 transition-all text-sm"
+                    disabled={selectedItems.filter(item => item.startsWith('training_')).length === 0}
+                  >
+                    ❌ Seçimi Temizle
+                  </button>
+                  <button
+                    onClick={() => handleSelectAll('training')}
+                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all"
+                  >
+                    {trainings.every(training => selectedItems.includes(`training_${training.id}`)) ? '⬜ Tümünü Kaldır' : '☑️ Tümünü Seç'}
+                  </button>
+                </div>
                 {selectedItems.filter(item => item.startsWith('training_')).length > 0 && (
                   <button
                     onClick={quickSendToAllClients}
