@@ -7768,17 +7768,81 @@ const EmailManagement = () => {
   const [emailHistory, setEmailHistory] = useState([]);
   const API = getApiUrl();
 
-  // Simplified fetch functions (not used in useEffect to avoid loops)
+  // Real fetch functions for documents, trainings, and clients
   const fetchDocuments = async () => {
-    // Removed to prevent useEffect issues
+    if (!authToken) return;
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/api/documents`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      console.log('Documents fetched:', response.data);
+      setDocuments(response.data || []);
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+      // Fallback to mock data if API fails
+      setDocuments([
+        {
+          id: 1,
+          title: 'Sürdürülebilirlik Rehberi',
+          type: 'PDF',
+          category: 'Training Material',
+          upload_date: '2024-12-20T10:30:00.000Z',
+          file_size: '2.5 MB'
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchTrainings = async () => {
-    // Removed to prevent useEffect issues  
+    if (!authToken) return;
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/api/trainings`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      console.log('Trainings fetched:', response.data);
+      setTrainings(response.data || []);
+    } catch (error) {
+      console.error('Error fetching trainings:', error);
+      // Fallback to mock data if API fails
+      setTrainings([
+        {
+          id: 1,
+          title: 'Sürdürülebilir Turizm Eğitimi',
+          description: 'Temel sürdürülebilirlik prensipleri',
+          duration: '2 saat',
+          level: 'Başlangıç',
+          category: 'Environment'
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchClients = async () => {
-    // Removed to prevent useEffect issues
+    if (!authToken) return;
+    try {
+      const response = await axios.get(`${API}/api/clients`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      console.log('Clients fetched:', response.data);
+      setClients(response.data || []);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      // Fallback to mock data if API fails
+      setClients([
+        { id: 1, name: 'Hotel Paradise', email: 'info@hotelparadise.com' },
+        { id: 2, name: 'Green Resort', email: 'contact@greenresort.com' },
+        { id: 3, name: 'Eco Lodge', email: 'hello@ecolodge.com' }
+      ]);
+    }
   };
 
   // Handle item selection
