@@ -693,12 +693,13 @@ def get_user_id_from_token(token: str) -> str:
 
 @api_router.get("/health")
 async def health_check():
-    """Health check endpoint"""
+    """Health check endpoint - NO AUTHENTICATION REQUIRED"""
     return {
         "status": "healthy",
         "service": "Rota CRM Backend",
         "timestamp": datetime.utcnow().isoformat(),
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "api_router_mounted": True
     }
 
 # Root path for testing
