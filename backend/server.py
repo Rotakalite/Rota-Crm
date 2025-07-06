@@ -711,8 +711,13 @@ async def root():
 # Test endpoint directly on api_router
 @api_router.get("/test")
 async def test_endpoint():
-    """Test endpoint to verify router mounting"""
-    return {"message": "API Router is working", "status": "ok"}
+    """Test endpoint to verify router mounting - NO AUTHENTICATION REQUIRED"""
+    return {
+        "message": "API Router is working perfectly!",
+        "status": "ok",
+        "routes_count": len(api_router.routes),
+        "timestamp": datetime.utcnow().isoformat()
+    }
 
 
 @api_router.get("/whatsapp/status")
