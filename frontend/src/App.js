@@ -8238,22 +8238,76 @@ const EmailManagement = () => {
 
   // Initialize and load real data
   useEffect(() => {
-    // Safely load data when component mounts - ALWAYS TRY LOADING
+    // Safely load data when component mounts
     const loadData = async () => {
-      console.log('🔄 Loading data (test mode)...');
-      
-      // Always try to load data
-      await Promise.all([
-        fetchDocuments(),
-        fetchTrainings(), 
-        fetchClients()
-      ]);
-      
-      console.log('✅ Test data loading completed');
+      if (authToken) {
+        console.log('🔄 Loading real data...');
+        
+        // Load all data concurrently
+        await Promise.all([
+          fetchDocuments(),
+          fetchTrainings(), 
+          fetchClients()
+        ]);
+        
+        console.log('✅ All data loaded successfully');
+      } else {
+        console.log('⚠️ No auth token, using fallback data');
+        // Set fallback data if no auth token
+        setDocuments([
+          {
+            id: 1,
+            title: 'Sürdürülebilirlik Rehberi',
+            type: 'PDF',
+            category: 'Training Material',
+            upload_date: '2024-12-20T10:30:00.000Z',
+            file_size: '2.5 MB',
+            client_id: 'hotel-paradise',
+            client_name: 'Hotel Paradise'
+          },
+          {
+            id: 2,
+            title: 'Genel Çevre Politikası',
+            type: 'PDF',
+            category: 'Policy',
+            upload_date: '2024-12-19T14:15:00.000Z',
+            file_size: '1.2 MB',
+            client_id: 'general',
+            client_name: 'Tüm Müşteriler'
+          }
+        ]);
+        
+        setTrainings([
+          {
+            id: 1,
+            title: 'Sürdürülebilir Turizm Eğitimi',
+            description: 'Temel sürdürülebilirlik prensipleri',
+            duration: '2 saat',
+            level: 'Başlangıç',
+            category: 'Environment',
+            client_id: 'green-resort',
+            client_name: 'Green Resort'
+          },
+          {
+            id: 2,
+            title: 'Genel Enerji Tasarrufu Eğitimi',
+            description: 'Enerji verimliliği teknikleri',
+            duration: '1.5 saat',
+            level: 'Orta',
+            category: 'Energy',
+            client_id: 'general',
+            client_name: 'Tüm Müşteriler'
+          }
+        ]);
+        
+        setClients([
+          { id: 1, name: 'Hotel Paradise', email: 'info@hotelparadise.com', client_id: 'hotel-paradise' }
+        ]);
+      }
     };
 
     loadData();
-  }, []); // Remove authToken dependency for testing
+  }, [authToken]); // Only re-run when authToken changes
 
 
   return (
