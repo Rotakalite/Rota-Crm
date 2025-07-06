@@ -5309,94 +5309,109 @@ async def shutdown_db_client():
 
 # Document & Training Email Management Endpoints
 @api_router.get("/trainings")
-async def get_trainings(token: str = Depends(verify_token)):
-    """Get trainings for email management from real database"""
+async def get_trainings(current_user: User = Depends(get_current_user)):
+    """Get trainings for email management - CLIENT sees own trainings, ADMIN sees all"""
     try:
-        # Get real trainings from database
-        trainings_from_db = await db.trainings.find().to_list(length=None)
+        logging.info(f"📧 Email Management - GET /trainings called by: {current_user.role} - {current_user.name}")
         
-        # Format trainings for frontend with client info
-        formatted_trainings = []
-        for training in trainings_from_db:
-            if "_id" in training:
-                del training["_id"]
+        if current_user.role == UserRole.CLIENT:
+            # CLIENT users only see their own trainings
+            client_id = current_user.client_id
+            if not client_id:
+                logging.warning(f"⚠️ CLIENT user {current_user.name} has no client_id")
+                return {"trainings": []}
             
-            # Get client info
-            client = await db.clients.find_one({"id": training.get("client_id", "")})
-            client_name = client.get("hotel_name", "Unknown Client") if client else "Unknown Client"
+            trainings_from_db = await db.trainings.find({"client_id": client_id}).to_list(length=None)
             
-            formatted_training = {
-                "id": training.get("id", str(training.get("_id", ""))),
-                "title": training.get("name", training.get("title", "Untitled Training")),
-                "description": training.get("subject", "No description available"),
-                "duration": f"{training.get('duration', 2)} saat",
-                "level": "Orta",  # Default level
-                "category": training.get("category", "General"),
-                "client_id": training.get("client_id", ""),
-                "client_name": client_name,
-                "trainer": training.get("trainer", ""),
-                "training_date": training.get("training_date", ""),
-                "status": training.get("status", "planned")
-            }
-            formatted_trainings.append(formatted_training)
-        
-        # If no real trainings found, return sample data with client info
-        if not formatted_trainings:
-            trainings = [
-                {
-                    "id": 1,
-                    "title": "Sürdürülebilir Turizm Eğitimi",
-                    "description": "Temel sürdürülebilirlik prensipleri ve uygulamaları",
-                    "duration": "2 saat",
-                    "level": "Başlangıç",
-                    "category": "Environment",
-                    "content_type": "Video + PDF",
-                    "created_date": datetime.utcnow().isoformat(),
-                    "client_id": "paradise-resort",
-                    "client_name": "Paradise Resort & Spa"
-                },
-                {
-                    "id": 2,
-                    "title": "Enerji Tasarrufu ve Verimlilik Eğitimi",
-                    "description": "Otel operasyonlarında enerji verimliliği teknikleri",
-                    "duration": "1.5 saat",
-                    "level": "Orta",
-                    "category": "Energy",
-                    "content_type": "Interactive Course",
-                    "created_date": (datetime.utcnow() - timedelta(days=7)).isoformat(),
-                    "client_id": "green-valley",
-                    "client_name": "Green Valley Hotel"
-                },
-                {
-                    "id": 3,
-                    "title": "Atık Azaltma ve Geri Dönüşüm Workshop",
-                    "description": "Zero waste prensipleri ve pratik uygulamalar",
-                    "duration": "3 saat",
-                    "level": "İleri",
-                    "category": "Waste Management",
-                    "content_type": "Workshop",
-                    "created_date": (datetime.utcnow() - timedelta(days=14)).isoformat(),
-                    "client_id": "eco-lodge",
-                    "client_name": "Eco Lodge Antalya"
-                },
-                {
-                    "id": 4,
-                    "title": "Genel Sürdürülebilirlik Farkındalık Eğitimi",
-                    "description": "Tüm çalışanlar için temel sürdürülebilirlik eğitimi",
-                    "duration": "1 saat",
-                    "level": "Başlangıç",
-                    "category": "General",
-                    "content_type": "Online Course",
-                    "created_date": (datetime.utcnow() - timedelta(days=21)).isoformat(),
-                    "client_id": "general",
-                    "client_name": "Tüm Müşteriler"
+            # Format trainings for frontend with client info
+            formatted_trainings = []
+            for training in trainings_from_db:
+                if "_id" in training:
+                    del training["_id"]
+                
+                formatted_training = {
+                    "id": training.get("id", str(training.get("_id", ""))),
+                    "title": training.get("name", training.get("title", "Untitled Training")),
+                    "description": training.get("subject", "No description available"),
+                    "duration": f"{training.get('duration', 2)} saat",
+                    "level": "Orta",  # Default level
+                    "category": training.get("category", "General"),
+                    "client_id": training.get("client_id", ""),
+                    "client_name": current_user.hotel_name or current_user.name or "My Hotel",
+                    "trainer": training.get("trainer", ""),
+                    "training_date": training.get("training_date", ""),
+                    "status": training.get("status", "planned")
                 }
-            ]
-            logging.info(f"No real trainings found, returning {len(trainings)} sample trainings")
-            return {"trainings": trainings}
-        
-        logging.info(f"Found {len(formatted_trainings)} real trainings for email management")
-        return {"trainings": formatted_trainings}
+                formatted_trainings.append(formatted_training)
+            
+            logging.info(f"✅ CLIENT user - returning {len(formatted_trainings)} own trainings")
+            return {"trainings": formatted_trainings}
+            
+        elif current_user.role == UserRole.ADMIN:
+            # ADMIN users see all trainings from database
+            trainings_from_db = await db.trainings.find().to_list(length=None)
+            
+            # Format trainings for frontend with client info
+            formatted_trainings = []
+            for training in trainings_from_db:
+                if "_id" in training:
+                    del training["_id"]
+                
+                # Get client info
+                client = await db.clients.find_one({"id": training.get("client_id", "")})
+                client_name = client.get("hotel_name", "Unknown Client") if client else "Unknown Client"
+                
+                formatted_training = {
+                    "id": training.get("id", str(training.get("_id", ""))),
+                    "title": training.get("name", training.get("title", "Untitled Training")),
+                    "description": training.get("subject", "No description available"),
+                    "duration": f"{training.get('duration', 2)} saat",
+                    "level": "Orta",  # Default level
+                    "category": training.get("category", "General"),
+                    "client_id": training.get("client_id", ""),
+                    "client_name": client_name,
+                    "trainer": training.get("trainer", ""),
+                    "training_date": training.get("training_date", ""),
+                    "status": training.get("status", "planned")
+                }
+                formatted_trainings.append(formatted_training)
+            
+            # If no real trainings found, return sample data with client info
+            if not formatted_trainings:
+                trainings = [
+                    {
+                        "id": 1,
+                        "title": "Sürdürülebilir Turizm Eğitimi",
+                        "description": "Temel sürdürülebilirlik prensipleri ve uygulamaları",
+                        "duration": "2 saat",
+                        "level": "Başlangıç",
+                        "category": "Environment",
+                        "content_type": "Video + PDF",
+                        "created_date": datetime.utcnow().isoformat(),
+                        "client_id": "paradise-resort",
+                        "client_name": "Paradise Resort & Spa"
+                    },
+                    {
+                        "id": 2,
+                        "title": "Enerji Tasarrufu ve Verimlilik Eğitimi",
+                        "description": "Otel operasyonlarında enerji verimliliği teknikleri",
+                        "duration": "1.5 saat",
+                        "level": "Orta",
+                        "category": "Energy",
+                        "content_type": "Interactive Course",
+                        "created_date": (datetime.utcnow() - timedelta(days=7)).isoformat(),
+                        "client_id": "green-valley",
+                        "client_name": "Green Valley Hotel"
+                    }
+                ]
+                logging.info(f"No real trainings found, returning {len(trainings)} sample trainings")
+                return {"trainings": trainings}
+            
+            logging.info(f"✅ ADMIN user - returning {len(formatted_trainings)} real trainings")
+            return {"trainings": formatted_trainings}
+        else:
+            logging.warning(f"⚠️ Unknown user role: {current_user.role}")
+            return {"trainings": []}
     except Exception as e:
         logging.error(f"Error fetching trainings: {str(e)}")
         raise HTTPException(status_code=500, detail="Eğitimler alınamadı")
