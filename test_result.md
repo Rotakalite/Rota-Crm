@@ -250,7 +250,8 @@ metadata:
 test_plan:
   current_focus:
     - "Email Management Real Data Endpoints"
-  stuck_tasks: []
+  stuck_tasks:
+    - "Email Management Real Data Endpoints"
   test_all: false
   test_priority: "high_first"
 
