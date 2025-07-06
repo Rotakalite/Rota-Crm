@@ -701,6 +701,12 @@ async def health_check():
         "version": "1.0.0"
     }
 
+# Root path for testing
+@app.get("/")
+async def root():
+    """Root endpoint for testing"""
+    return {"message": "Rota CRM Backend is running", "status": "ok"}
+
 
 @api_router.get("/whatsapp/status")
 async def get_whatsapp_status(current_user: User = Depends(get_admin_user)):
