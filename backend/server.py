@@ -708,6 +708,18 @@ async def root():
     """Root endpoint for testing"""
     return {"message": "Rota CRM Backend is running", "status": "ok"}
 
+# Health endpoint also on main app for testing
+@app.get("/health")  
+async def health_check_main():
+    """Main app health check - NO AUTH"""
+    return {
+        "status": "healthy",
+        "service": "Rota CRM Backend",
+        "timestamp": datetime.utcnow().isoformat(),
+        "version": "1.0.0",
+        "main_app": True
+    }
+
 # Test endpoint directly on api_router
 @api_router.get("/test")
 async def test_endpoint():
