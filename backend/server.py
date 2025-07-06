@@ -5421,7 +5421,8 @@ async def get_clients_for_email(token: str = Depends(verify_token)):
                 "name": "Paradise Resort & Spa",
                 "email": "info@paradiseresort.com",
                 "contact_person": "Ahmet Yılmaz",
-                "category": "5 Star Resort"
+                "category": "5 Star Resort",
+                "client_id": "paradise-resort"
             },
             {
                 "id": 2,
