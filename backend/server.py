@@ -1538,88 +1538,103 @@ async def create_document(
     return document
 
 @api_router.get("/documents")
-async def get_documents(token: str = Depends(verify_token)):
-    """Get all documents for email management from real database"""
+async def get_documents(current_user: User = Depends(get_current_user)):
+    """Get documents for email management - CLIENT sees own docs, ADMIN sees all"""
     try:
-        # Get real documents from database
-        documents_from_db = await db.documents.find().to_list(length=None)
+        logging.info(f"📧 Email Management - GET /documents called by: {current_user.role} - {current_user.name}")
         
-        # Format documents for frontend with client info
-        formatted_documents = []
-        for doc in documents_from_db:
-            if "_id" in doc:
-                del doc["_id"]
+        if current_user.role == UserRole.CLIENT:
+            # CLIENT users only see their own documents
+            client_id = current_user.client_id
+            if not client_id:
+                logging.warning(f"⚠️ CLIENT user {current_user.name} has no client_id")
+                return {"documents": []}
             
-            # Get client info
-            client = await db.clients.find_one({"id": doc.get("client_id", "")})
-            client_name = client.get("hotel_name", "Unknown Client") if client else "Unknown Client"
+            documents_from_db = await db.documents.find({"client_id": client_id}).to_list(length=None)
             
-            formatted_doc = {
-                "id": doc.get("id", str(doc.get("_id", ""))),
-                "title": doc.get("name", doc.get("title", "Untitled Document")),
-                "type": "PDF",  # Default type
-                "category": doc.get("document_type", "General"),
-                "upload_date": doc.get("upload_date", datetime.utcnow().isoformat()),
-                "file_size": doc.get("file_size", "N/A"),
-                "file_path": doc.get("file_path", ""),
-                "client_id": doc.get("client_id", ""),
-                "client_name": client_name
-            }
-            formatted_documents.append(formatted_doc)
-        
-        # If no real documents found, return sample data with client info
-        if not formatted_documents:
-            documents = [
-                {
-                    "id": 1,
-                    "title": "Sürdürülebilirlik Rehberi 2025",
-                    "type": "PDF",
-                    "category": "Training Material",
-                    "upload_date": datetime.utcnow().isoformat(),
-                    "file_size": "2.5 MB",
-                    "file_path": "/docs/sustainability_guide.pdf",
-                    "client_id": "paradise-resort",
-                    "client_name": "Paradise Resort & Spa"
-                },
-                {
-                    "id": 2,
-                    "title": "Çevre Politikası Dokümanı",
-                    "type": "PDF", 
-                    "category": "Policy Document",
-                    "upload_date": (datetime.utcnow() - timedelta(days=5)).isoformat(),
-                    "file_size": "1.2 MB",
-                    "file_path": "/docs/environment_policy.pdf",
-                    "client_id": "green-valley",
-                    "client_name": "Green Valley Hotel"
-                },
-                {
-                    "id": 3,
-                    "title": "Atık Yönetimi Kılavuzu",
-                    "type": "PDF",
-                    "category": "Manual",
-                    "upload_date": (datetime.utcnow() - timedelta(days=10)).isoformat(),
-                    "file_size": "3.1 MB",
-                    "file_path": "/docs/waste_management.pdf",
-                    "client_id": "eco-lodge",
-                    "client_name": "Eco Lodge Antalya"
-                },
-                {
-                    "id": 4,
-                    "title": "Genel Sürdürülebilirlik Politikası",
-                    "type": "PDF",
-                    "category": "General Policy",
-                    "upload_date": (datetime.utcnow() - timedelta(days=15)).isoformat(),
-                    "file_size": "1.8 MB",
-                    "file_path": "/docs/general_sustainability.pdf",
-                    "client_id": "general",
-                    "client_name": "Tüm Müşteriler"
+            # Format documents for frontend with client info
+            formatted_documents = []
+            for doc in documents_from_db:
+                if "_id" in doc:
+                    del doc["_id"]
+                
+                formatted_doc = {
+                    "id": doc.get("id", str(doc.get("_id", ""))),
+                    "title": doc.get("name", doc.get("title", "Untitled Document")),
+                    "type": "PDF",  # Default type
+                    "category": doc.get("document_type", "General"),
+                    "upload_date": doc.get("upload_date", datetime.utcnow().isoformat()),
+                    "file_size": doc.get("file_size", "N/A"),
+                    "file_path": doc.get("file_path", ""),
+                    "client_id": doc.get("client_id", ""),
+                    "client_name": current_user.hotel_name or current_user.name or "My Hotel"
                 }
-            ]
-            logging.info(f"No real documents found, returning {len(documents)} sample documents")
-            return {"documents": documents}
-        
-        logging.info(f"Found {len(formatted_documents)} real documents for email management")
-        return {"documents": formatted_documents}
+                formatted_documents.append(formatted_doc)
+            
+            logging.info(f"✅ CLIENT user - returning {len(formatted_documents)} own documents")
+            return {"documents": formatted_documents}
+            
+        elif current_user.role == UserRole.ADMIN:
+            # ADMIN users see all documents from database
+            documents_from_db = await db.documents.find().to_list(length=None)
+            
+            # Format documents for frontend with client info
+            formatted_documents = []
+            for doc in documents_from_db:
+                if "_id" in doc:
+                    del doc["_id"]
+                
+                # Get client info
+                client = await db.clients.find_one({"id": doc.get("client_id", "")})
+                client_name = client.get("hotel_name", "Unknown Client") if client else "Unknown Client"
+                
+                formatted_doc = {
+                    "id": doc.get("id", str(doc.get("_id", ""))),
+                    "title": doc.get("name", doc.get("title", "Untitled Document")),
+                    "type": "PDF",  # Default type
+                    "category": doc.get("document_type", "General"),
+                    "upload_date": doc.get("upload_date", datetime.utcnow().isoformat()),
+                    "file_size": doc.get("file_size", "N/A"),
+                    "file_path": doc.get("file_path", ""),
+                    "client_id": doc.get("client_id", ""),
+                    "client_name": client_name
+                }
+                formatted_documents.append(formatted_doc)
+            
+            # If no real documents found, return sample data with client info
+            if not formatted_documents:
+                documents = [
+                    {
+                        "id": 1,
+                        "title": "Sürdürülebilirlik Rehberi 2025",
+                        "type": "PDF",
+                        "category": "Training Material",
+                        "upload_date": datetime.utcnow().isoformat(),
+                        "file_size": "2.5 MB",
+                        "file_path": "/docs/sustainability_guide.pdf",
+                        "client_id": "paradise-resort",
+                        "client_name": "Paradise Resort & Spa"
+                    },
+                    {
+                        "id": 2,
+                        "title": "Çevre Politikası Dokümanı",
+                        "type": "PDF", 
+                        "category": "Policy Document",
+                        "upload_date": (datetime.utcnow() - timedelta(days=5)).isoformat(),
+                        "file_size": "1.2 MB",
+                        "file_path": "/docs/environment_policy.pdf",
+                        "client_id": "green-valley",
+                        "client_name": "Green Valley Hotel"
+                    }
+                ]
+                logging.info(f"No real documents found, returning {len(documents)} sample documents")
+                return {"documents": documents}
+            
+            logging.info(f"✅ ADMIN user - returning {len(formatted_documents)} real documents")
+            return {"documents": formatted_documents}
+        else:
+            logging.warning(f"⚠️ Unknown user role: {current_user.role}")
+            return {"documents": []}
     except Exception as e:
         logging.error(f"Error getting documents: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
