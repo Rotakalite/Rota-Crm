@@ -8650,7 +8650,7 @@ const EmailManagement = () => {
                 >
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-4">
-                      <h3 className="text-lg font-bold text-gray-800 flex-1 pr-3">{training.title}</h3>
+                      <h3 className="text-lg font-bold text-gray-800 flex-1 pr-3">{training.title || training.name}</h3>
                       <div className="flex items-center space-x-2">
                         <label className="flex items-center cursor-pointer">
                           <input
