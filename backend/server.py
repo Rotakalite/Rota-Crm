@@ -5259,35 +5259,6 @@ async def shutdown_db_client():
     client.close()
 
 # Document & Training Email Management Endpoints
-@api_router.get("/documents")
-async def get_documents(token: str = Depends(verify_token)):
-    """Get all documents for email management - Admin sees all"""
-    try:
-        # Mock data for now - can be replaced with actual document management
-        documents = [
-            {
-                "id": 1,
-                "title": "Sürdürülebilirlik Rehberi 2025",
-                "type": "PDF",
-                "category": "Training Material",
-                "upload_date": datetime.utcnow().isoformat(),
-                "file_size": "2.5 MB",
-                "file_path": "/docs/sustainability_guide.pdf"
-            },
-            {
-                "id": 2,
-                "title": "Çevre Politikası Dokümanı",
-                "type": "PDF", 
-                "category": "Policy Document",
-                "upload_date": (datetime.utcnow() - timedelta(days=5)).isoformat(),
-                "file_size": "1.2 MB",
-                "file_path": "/docs/environment_policy.pdf"
-            },
-            {
-                "id": 3,
-                "title": "Atık Yönetimi Kılavuzu",
-                "type": "PDF",
-                "category": "Manual",
                 "upload_date": (datetime.utcnow() - timedelta(days=10)).isoformat(),
                 "file_size": "3.1 MB",
                 "file_path": "/docs/waste_management_guide.pdf"
