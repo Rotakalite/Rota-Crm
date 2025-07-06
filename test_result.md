@@ -138,6 +138,18 @@ backend:
         -agent: "testing"
         -comment: "Conducted comprehensive testing of all supplier management endpoints. Verified that the public endpoints (GET /api/suppliers/categories/list and GET /api/suppliers/certifications/list) work correctly without authentication, returning the expected data structures. The categories endpoint returns 13 supplier categories including 'Gıda & İçecek', 'Temizlik & Hijyen', etc. The certifications endpoint returns 15 certifications including 'ISO 14001', 'Organik Sertifika', etc. All authenticated endpoints (POST /api/suppliers, GET /api/suppliers, GET /api/suppliers/{supplier_id}, PUT /api/suppliers/{supplier_id}, DELETE /api/suppliers/{supplier_id}, GET /api/suppliers/analytics/dashboard) correctly enforce authentication, returning 401 Unauthorized for invalid tokens and 403 Forbidden when no token is provided. The supplier management module is properly implemented and working as expected."
 
+  - task: "Email Management Real Data Endpoints"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "testing"
+        -comment: "Tested the new real data endpoints for Email Management: /api/email-management/documents-real, /api/email-management/trainings-real, and /api/email-management/clients-real. All three endpoints are returning 404 Not Found errors. The endpoints are properly defined in the server.py file at lines 5443, 5481, and 5521 respectively, and the API router is correctly registered with app.include_router(api_router, prefix='/api') at line 5239. However, the endpoints are not accessible. This could be due to a deployment issue or a problem with the FastAPI router configuration. The backend logs show that requests to these endpoints are being received but returning 404 Not Found. Further investigation is needed to determine why these endpoints are not accessible despite being properly defined in the code."
+
 frontend:
   - task: "Fix Frontend JSX Syntax Errors - Adjacent JSX Elements"
     implemented: true
