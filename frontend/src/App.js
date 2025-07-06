@@ -987,6 +987,7 @@ const CarbonFootprint = () => {
                       </td>
                     </tr>
                   ))
+                )
                 )}
                 </tbody>
               </table>
