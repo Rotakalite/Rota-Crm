@@ -4347,7 +4347,35 @@ const ClientDocuments = () => {
   );
 };
 
-const DocumentManagement = () => {
+  // Safe date formatting function
+  const formatDocumentDate = (dateValue) => {
+    if (!dateValue) return 'Tarih bilinmiyor';
+    
+    try {
+      // Handle different date formats
+      let date;
+      if (typeof dateValue === 'string') {
+        // Parse ISO string or other string formats
+        date = new Date(dateValue);
+      } else if (dateValue instanceof Date) {
+        date = dateValue;
+      } else {
+        return 'Geçersiz tarih';
+      }
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return 'Geçersiz tarih';
+      }
+      
+      return date.toLocaleDateString('tr-TR');
+    } catch (error) {
+      console.error('Error formatting date:', error, dateValue);
+      return 'Tarih hatası';
+    }
+  };
+
+  const DocumentManagement = () => {
   const [documents, setDocuments] = useState([]);
   const [folders, setFolders] = useState([]);
   const [clients, setClients] = useState([]);
