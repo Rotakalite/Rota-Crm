@@ -5261,7 +5261,7 @@ async def shutdown_db_client():
 # Document & Training Email Management Endpoints
 @api_router.get("/documents")
 async def get_documents(token: str = Depends(verify_token)):
-    """Get documents for email management"""
+    """Get all documents for email management - Admin sees all"""
     try:
         # Mock data for now - can be replaced with actual document management
         documents = [
