@@ -158,6 +158,9 @@ backend:
         -working: false
         -agent: "testing"
         -comment: "Email Management endpoints are properly defined in the server.py file but return 404 Not Found when accessed. MongoDB database contains 1 client (Test Client with ID 7a992a86-e2f4-4ed5-99f7-bab4966b7306), 1 document, and 1 training record. The document and training are associated with this client. The endpoints should be returning data but are not accessible, suggesting an issue with the API router registration or endpoint implementation. The endpoints are defined after the API router is registered at line 5288, which is likely the cause of the 404 errors."
+        -working: false
+        -agent: "testing"
+        -comment: "Conducted a comprehensive database investigation to find the 5 clients (DENEME OTEL, TEST OTEL, SES123, Can, ALP OTEL) but they were not found in the database. There is only 1 client in the database: 'Test Client' / 'Test Hotel' with ID 7a992a86-e2f4-4ed5-99f7-bab4966b7306. This client has 1 document and 1 training associated with it. There are 9 users with role 'client', but only 1 is linked to the client (client@test.com). The email management endpoints are defined AFTER the API router registration in server.py, which is why they return 404 Not Found. The API router is registered at line 5288 with app.include_router(api_router, prefix='/api'), but the email management endpoints are defined at lines 5499, 5537, and 5577. Endpoints defined after the router registration are not included in the API. To fix the email management endpoints, either: 1) Move the email management endpoint definitions before the API router registration line, 2) Move the API router registration line after all endpoint definitions, or 3) Create a separate router for email management endpoints and register it after defining them."
 
 frontend:
   - task: "Fix Frontend JSX Syntax Errors - Adjacent JSX Elements"
