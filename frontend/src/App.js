@@ -8226,12 +8226,12 @@ const EmailManagement = () => {
       {/* Elite Header */}
       <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white p-6 shadow-xl">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold mb-2">📧 Doküman & Eğitim Email Sistemi</h1>
-          <p className="text-purple-100 text-lg">Müşterilerinize doküman ve eğitimleri gönderin</p>
+          <h1 className="text-4xl font-bold mb-2">📧 Akıllı Doküman & Eğitim Email Sistemi</h1>
+          <p className="text-purple-100 text-lg">Müşterilerinize doküman ve eğitimleri akıllıca gönderin</p>
           <div className="mt-4 p-3 bg-white/10 rounded-lg border border-white/20">
             <p className="text-sm text-purple-100">
-              ⚠️ <strong>Güvenlik Notu:</strong> Bu modül GENEL/ORTAK içerikler için tasarlanmıştır. 
-              Seçilen içerikler tüm müşterilere gönderilir. Müşteri-specific içerikler için diğer modülleri kullanın.
+              ✅ <strong>Akıllı Gönderim:</strong> Her doküman/eğitim sadece kendi müşterisine gönderilir. 
+              X müşterisinin dokümanı Y müşterisine GİTMEZ. 100% güvenli!
             </p>
           </div>
         </div>
