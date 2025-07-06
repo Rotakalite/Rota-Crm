@@ -8291,6 +8291,25 @@ const EmailManagement = () => {
                 >
                   {trainings.every(training => selectedItems.includes(`training_${training.id}`)) ? 'Tümünü Kaldır' : 'Tümünü Seç'}
                 </button>
+                {selectedItems.filter(item => item.startsWith('training_')).length > 0 && (
+                  <button
+                    onClick={quickSendToAllClients}
+                    disabled={loading}
+                    className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-2 rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all flex items-center space-x-2 disabled:opacity-50"
+                  >
+                    {loading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                        <span>Gönderiliyor...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>🚀</span>
+                        <span>Hızlı Gönder</span>
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
             
