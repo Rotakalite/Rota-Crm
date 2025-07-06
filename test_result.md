@@ -142,7 +142,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -155,6 +155,9 @@ backend:
         -working: false
         -agent: "testing"
         -comment: "Performed comprehensive testing of the Email Management real data endpoints. Created a dedicated test script to test the endpoints with proper authentication. All three endpoints (/api/email-management/clients-real, /api/email-management/documents-real, and /api/email-management/trainings-real) are returning 404 Not Found errors. The server logs confirm that the requests are reaching the server but the endpoints are not found. Other API endpoints like /api/health, /api/suppliers/categories/list, and /api/guest-engagement/eco-tips are working correctly, which indicates that the API router is properly registered. The issue is likely due to a problem with how these specific endpoints are defined or registered. The endpoints are defined in the server.py file at lines 5459, 5497, and 5537, but they are not being properly registered with the FastAPI router. This could be due to a syntax error, a conditional registration that's not being triggered, or the endpoints being defined after the router is registered."
+        -working: false
+        -agent: "testing"
+        -comment: "Conducted additional testing to verify if the regular endpoints (/api/clients, /api/documents, /api/trainings) work for CLIENT users. Created a test script that tests both the regular endpoints and the email management endpoints. The regular endpoints correctly require authentication (returning 403 Forbidden when no token is provided). However, the email management endpoints (/api/email-management/clients-real, /api/email-management/documents-real, /api/email-management/trainings-real) are still returning 404 Not Found errors. This confirms that the issue is with the endpoint registration in the FastAPI router, not with the authentication or authorization logic. The endpoints are defined in the server.py file but are not being properly registered with the API router."
 
 frontend:
   - task: "Fix Frontend JSX Syntax Errors - Adjacent JSX Elements"
