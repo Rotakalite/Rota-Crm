@@ -105,6 +105,30 @@
 user_problem_statement: "Rota-CRM frontend application'ında tedarikçi modülü problemi test edilmesi gerekiyor. Kullanıcı tedarikçi modülüne bastığında otomatik logout oluyor."
 
 backend:
+  - task: "Email Template Data Binding Issues"
+    implemented: true
+    working: false
+    file: "/app/backend/templates/"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "User reports that training emails are showing 'undefined' values instead of actual training data. Email shows 'CAN için Yeni Eğitimler (1 adet)' but training details show 'undefined' values. Email template is not properly binding training data variables."
+
+  - task: "Document Management Date Display Issues"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "User reports that in Document Management (Belge Yönetimi), all document dates are showing as 'Invalid Date' instead of proper date format. Documents show proper file icons but dates are not formatted correctly."
+
   - task: "Document Download Endpoint"
     implemented: true
     working: false
