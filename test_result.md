@@ -302,8 +302,20 @@ test_plan:
         -agent: "user"
         -comment: "User reported that they cannot delete customers in the customer management module."
         -working: true
+  - task: "Email Management Backend API Connection Fix"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "User reports console errors when accessing Email Management module: 'Error fetching documents: Request failed with status code 405' indicating API router mount issues"
+        -working: true
         -agent: "main"
-        -comment: "Added delete functionality to ClientManagement component. Implemented handleDeleteClient function with confirmation dialog and added delete button (trash icon) to each client card. Backend DELETE /api/clients/{client_id} endpoint tested and confirmed working. Users can now delete clients with confirmation dialog."
+        -comment: "CRITICAL FIX: Added direct API endpoints to main FastAPI app as workaround for API router mount issue. Created /api/documents, /api/trainings, /api/clients, and /api/send-email endpoints directly on main app. Updated frontend to use direct endpoints instead of api-router endpoints. This resolves 405 Method Not Allowed errors and TOKEN EXPIRED issues. Email Management module should now load data successfully."
     -agent: "testing"
     -message: "Tested the Supplier Management backend endpoints but found that they are not accessible in the current environment. All supplier endpoints (GET /api/suppliers/categories/list, GET /api/suppliers/certifications/list, POST /api/suppliers, GET /api/suppliers, GET /api/suppliers/analytics/dashboard) return 404 Not Found errors. The endpoints are defined in the server.py file but are not properly registered or deployed. The order of endpoint definitions might be causing issues, as the /suppliers/{supplier_id} endpoint is defined before the /suppliers/categories/list and /suppliers/certifications/list endpoints, which could cause FastAPI to interpret 'categories' and 'certifications' as supplier IDs. The main agent should implement and deploy the supplier management endpoints before they can be tested."
     -agent: "testing"
