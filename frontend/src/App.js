@@ -7902,12 +7902,12 @@ const EmailManagement = () => {
   const fetchClients = async () => {
     if (!authToken) return;
     try {
-      // Try the updated endpoint that searches both databases
-      const response = await axios.get(`${API}/api/email-management/clients-real`, {
+      // Use direct endpoint
+      const response = await axios.get(`${API}/api/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
-      console.log('Clients fetched from both databases:', response.data);
+      console.log('Clients fetched from direct endpoint:', response.data);
       
       if (response.data && Array.isArray(response.data) && response.data.length > 0) {
         setClients(response.data);
