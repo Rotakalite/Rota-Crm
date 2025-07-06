@@ -469,10 +469,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Document Download Endpoint"
-    - "Email Template Data Binding Issues"
-    - "Document Management Date Display Issues"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
