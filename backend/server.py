@@ -720,6 +720,18 @@ async def health_check_main():
         "main_app": True
     }
 
+# ALSO ADD API HEALTH TO MAIN APP - WORKAROUND
+@app.get("/api/health")
+async def api_health_check_direct():
+    """Direct API health check on main app - NO AUTH"""
+    return {
+        "status": "healthy",
+        "service": "Rota CRM Backend", 
+        "timestamp": datetime.utcnow().isoformat(),
+        "version": "1.0.0",
+        "api_direct": True
+    }
+
 # Test endpoint directly on api_router
 @api_router.get("/test")
 async def test_endpoint():
