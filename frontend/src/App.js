@@ -8153,7 +8153,7 @@ const EmailManagement = () => {
     `;
 
     // Send email to specific client only
-    await axios.post(`${API}/api/send-email`, {
+    await axios.post(`${API}/send-email`, {
       to_email: client.email,
       subject: subject,
       html_content: emailContent
