@@ -5437,7 +5437,8 @@ async def get_clients_for_email(token: str = Depends(verify_token)):
                 "name": "Eco Lodge Antalya",
                 "email": "hello@ecolodge-antalya.com",
                 "contact_person": "Mehmet Aydın",
-                "category": "Eco Lodge"
+                "category": "Eco Lodge",
+                "client_id": "eco-lodge"
             },
             {
                 "id": 4,
