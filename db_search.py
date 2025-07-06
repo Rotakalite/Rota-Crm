@@ -38,7 +38,7 @@ for client in all_clients:
 
 # Check if there are other databases in the same connection
 print('\nChecking for other databases in the same connection...')
-databases = client.list_database_names()
+databases = mongo_client.list_database_names()
 print(f'Databases: {databases}')
 
 # Check for any other collections that might store client data
