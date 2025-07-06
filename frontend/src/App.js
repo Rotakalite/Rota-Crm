@@ -7889,7 +7889,6 @@ const EmailManagement = () => {
       return;
     }
 
-    // SECURITY WARNING: Check if selected items are client-specific
     const selectedDocuments = documents.filter(doc => 
       selectedItems.includes(`document_${doc.id}`)
     ) || [];
@@ -7898,17 +7897,12 @@ const EmailManagement = () => {
       selectedItems.includes(`training_${training.id}`)
     ) || [];
 
-    // Check if documents/trainings have client_id (client-specific content)
-    const hasClientSpecificDocs = selectedDocuments.some(doc => doc.client_id);
-    const hasClientSpecificTrainings = selectedTrainings.some(training => training.client_id);
-
-    if (hasClientSpecificDocs || hasClientSpecificTrainings) {
-      alert('⚠️ GÜVENLIK UYARISI: Seçtiğiniz içerikler müşteri-specific. Bu özellik şu anda güvenlik nedenleriyle devre dışı.\n\nLütfen sadece genel (public) dokümanları seçin veya compose sekmesinden manuel email gönderin.');
-      return;
-    }
-
+    // Show clear warning about public content
     const confirmSend = window.confirm(
-      `Seçilen ${selectedItems.length} GENEL içeriği ${clients.length} müşteriye göndermek istediğinizden emin misiniz?\n\n⚠️ Bu içerikler tüm müşteriler tarafından görülecek.`
+      `⚠️ UYARI: Seçilen ${selectedItems.length} içerik TÜM ${clients.length} müşteriye gönderilecek.\n\n` +
+      `Bu Email Management modülü GENEL/ORTAK içerikler için tasarlanmıştır.\n` +
+      `Müşteri-specific içerikler için ayrı modülleri kullanın.\n\n` +
+      `Devam etmek istediğinizden emin misiniz?`
     );
 
     if (!confirmSend) return;
@@ -7924,7 +7918,7 @@ const EmailManagement = () => {
         subject = `Yeni Genel Eğitimler (${selectedTrainings.length} adet)`;
       }
 
-      // Generate professional email content - ONLY PUBLIC CONTENT
+      // Generate professional email content - PUBLIC CONTENT
       let emailContent = `
         <div style="max-width: 600px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px; overflow: hidden;">
           <div style="padding: 30px; text-align: center; background: rgba(255,255,255,0.1);">
@@ -7939,9 +7933,9 @@ const EmailManagement = () => {
               Size yeni genel dokümanlar ve eğitim materyalleri paylaşıyoruz. Bu içerikler tüm ortaklarımız için hazırlanmış olup, sürdürülebilir turizm standartlarınızı geliştirmenize yardımcı olacaktır.
             </p>
             
-            <div style="margin: 20px 0; padding: 15px; background: #fef3cd; border-left: 4px solid #ffc107; border-radius: 8px;">
-              <p style="margin: 0; color: #856404; font-weight: 500;">
-                ℹ️ Bu içerikler genel erişime açık materyallerdir ve tüm ortaklarımızla paylaşılmaktadır.
+            <div style="margin: 20px 0; padding: 15px; background: #d1ecf1; border-left: 4px solid #0c5460; border-radius: 8px;">
+              <p style="margin: 0; color: #0c5460; font-weight: 500;">
+                ℹ️ Bu içerikler genel dokümanlar olup tüm ortaklarımızla paylaşılmaktadır.
               </p>
             </div>
       `;
@@ -7950,7 +7944,7 @@ const EmailManagement = () => {
         emailContent += `
             <div style="margin: 30px 0; padding: 20px; background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 8px;">
               <h3 style="color: #667eea; margin-top: 0; display: flex; align-items: center;">
-                📄 Genel Dokümanlar (${selectedDocuments.length})
+                📄 Dokümanlar (${selectedDocuments.length})
               </h3>
               <ul style="list-style: none; padding: 0; margin: 15px 0;">
                 ${selectedDocuments.map(doc => `
@@ -7968,7 +7962,7 @@ const EmailManagement = () => {
         emailContent += `
             <div style="margin: 30px 0; padding: 20px; background: #f0fdf4; border-left: 4px solid #22c55e; border-radius: 8px;">
               <h3 style="color: #22c55e; margin-top: 0; display: flex; align-items: center;">
-                🎓 Genel Eğitimler (${selectedTrainings.length})
+                🎓 Eğitimler (${selectedTrainings.length})
               </h3>
               <ul style="list-style: none; padding: 0; margin: 15px 0;">
                 ${selectedTrainings.map(training => `
@@ -7985,7 +7979,7 @@ const EmailManagement = () => {
       emailContent += `
             <div style="margin: 40px 0; padding: 20px; background: #fffbeb; border-radius: 8px; text-align: center;">
               <p style="margin: 0; color: #92400e; font-weight: 500;">
-                💡 Bu genel içerikleri inceleyerek sürdürülebilir turizm uygulamalarınızı geliştirin!
+                💡 Bu içerikleri inceleyerek sürdürülebilir turizm uygulamalarınızı geliştirin!
               </p>
             </div>
             
@@ -7999,7 +7993,7 @@ const EmailManagement = () => {
         </div>
       `;
 
-      // Send to all clients - ONLY PUBLIC CONTENT
+      // Send to all clients
       let successCount = 0;
       let failureCount = 0;
 
@@ -8013,7 +8007,7 @@ const EmailManagement = () => {
             headers: { Authorization: `Bearer ${authToken}` }
           });
           successCount++;
-          console.log(`✅ Public content email sent to ${client.name} (${client.email})`);
+          console.log(`✅ Email sent to ${client.name} (${client.email})`);
         } catch (emailError) {
           failureCount++;
           console.error(`❌ Failed to send to ${client.name} (${client.email}):`, emailError);
@@ -8021,7 +8015,7 @@ const EmailManagement = () => {
       }
 
       // Show results
-      alert(`🎉 Genel içerik email gönderimi tamamlandı!\n✅ Başarılı: ${successCount}\n❌ Hatalı: ${failureCount}`);
+      alert(`🎉 Email gönderimi tamamlandı!\n✅ Başarılı: ${successCount}\n❌ Hatalı: ${failureCount}`);
       
       // Clear selection after successful send
       setSelectedItems([]);
