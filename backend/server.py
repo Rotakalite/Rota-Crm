@@ -910,6 +910,21 @@ async def upload_document_direct(
         logging.error(f"❌ Direct upload error: {e}")
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
+# ALSO ADD API UPLOAD ENDPOINT FOR FRONTEND /api CALLS
+@app.post("/api/upload-document")
+async def upload_document_api_direct(
+    file: UploadFile = File(...),
+    client_id: str = Form(...),
+    folder_id: str = Form(...),
+    document_name: str = Form(...),
+    document_type: str = Form(...),
+    stage: str = Form(...),
+    current_user: User = Depends(get_current_user)
+):
+    """Upload document via /api endpoint - DIRECT ON MAIN APP"""
+    # Delegate to main upload function
+    return await upload_document_direct(file, client_id, folder_id, document_name, document_type, stage, current_user)
+
 # STATS ENDPOINT - DIRECT TO MAIN APP
 @app.get("/stats")
 async def get_statistics_direct(current_user: User = Depends(get_current_user)):
