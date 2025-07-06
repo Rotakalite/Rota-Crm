@@ -8642,6 +8642,17 @@ const EmailManagement = () => {
                       <p className="text-sm text-gray-600"><strong>Süre:</strong> {training.duration}</p>
                       <p className="text-sm text-gray-600"><strong>Seviye:</strong> {training.level}</p>
                       <p className="text-sm text-gray-600"><strong>Kategori:</strong> {training.category}</p>
+                      {training.training_date && (
+                        <p className="text-sm text-gray-500">
+                          <strong>📅 Tarih:</strong> {new Date(training.training_date).toLocaleDateString('tr-TR')}
+                          {training.training_time && <span className="ml-2"><strong>🕐 Saat:</strong> {training.training_time}</span>}
+                        </p>
+                      )}
+                      {training.trainer && (
+                        <p className="text-sm text-purple-600">
+                          <strong>👨‍🏫 Eğitmen:</strong> {training.trainer}
+                        </p>
+                      )}
                       {training.client_name && (
                         <p className="text-sm text-green-600 font-semibold">
                           <strong>🎯 Müşteri:</strong> {training.client_name}
