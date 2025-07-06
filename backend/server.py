@@ -975,6 +975,102 @@ async def get_statistics_direct(current_user: User = Depends(get_current_user)):
         logging.error(f"❌ Direct stats error: {e}")
         raise HTTPException(status_code=500, detail=f"Stats failed: {str(e)}")
 
+# CLIENT REGISTRATION ENDPOINTS - DIRECT TO MAIN APP
+@app.post("/clients")
+async def create_client_direct(
+    client_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Create client - DIRECT ON MAIN APP"""
+    try:
+        logging.info(f"🏨 Direct client creation: {current_user.name} - Role: {current_user.role}")
+        
+        # Get MongoDB connection - ONLY ROTACRM
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # Admin can create any client, client users can only create for themselves
+        if current_user.role == UserRole.CLIENT and current_user.client_id:
+            # If client user already has a client record, return the existing one
+            existing_client = await asyncio.to_thread(db.clients.find_one, {"id": current_user.client_id})
+            if existing_client:
+                if "_id" in existing_client:
+                    del existing_client["_id"]
+                return existing_client
+            else:
+                # If client_id exists but no client record, remove client_id and continue
+                await asyncio.to_thread(
+                    db.users.update_one,
+                    {"clerk_user_id": current_user.clerk_user_id},
+                    {"$unset": {"client_id": ""}, "$set": {"updated_at": datetime.utcnow()}}
+                )
+        
+        # Create new client
+        client_id = str(uuid.uuid4())
+        client_data["id"] = client_id
+        client_data["created_at"] = datetime.utcnow()
+        client_data["updated_at"] = datetime.utcnow()
+        
+        await asyncio.to_thread(db.clients.insert_one, client_data)
+        
+        # TODO: Create root folder for the new client (if needed)
+        
+        # If client user is creating their own record, update their user record
+        if current_user.role == UserRole.CLIENT:
+            await asyncio.to_thread(
+                db.users.update_one,
+                {"clerk_user_id": current_user.clerk_user_id},
+                {"$set": {"client_id": client_id, "updated_at": datetime.utcnow()}}
+            )
+        
+        logging.info(f"✅ Client created in ROTACRM: {client_id}")
+        return client_data
+        
+    except Exception as e:
+        logging.error(f"❌ Direct client creation error: {e}")
+        raise HTTPException(status_code=500, detail=f"Client creation failed: {str(e)}")
+
+@app.get("/auth/me")
+async def get_current_user_info_direct(current_user: User = Depends(get_current_user)):
+    """Get current user info - DIRECT ON MAIN APP"""
+    return current_user
+
+@app.put("/auth/me")
+async def update_current_user_direct(
+    user_update: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Update current user - DIRECT ON MAIN APP"""
+    try:
+        logging.info(f"👤 Direct user update: {current_user.name}")
+        
+        # Get MongoDB connection - ONLY ROTACRM
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        update_data = {k: v for k, v in user_update.items() if v is not None}
+        update_data["updated_at"] = datetime.utcnow()
+        
+        result = await asyncio.to_thread(
+            db.users.update_one,
+            {"clerk_user_id": current_user.clerk_user_id},
+            {"$set": update_data}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        updated_user = await asyncio.to_thread(db.users.find_one, {"clerk_user_id": current_user.clerk_user_id})
+        if "_id" in updated_user:
+            del updated_user["_id"]
+            
+        logging.info(f"✅ User updated in ROTACRM: {current_user.clerk_user_id}")
+        return updated_user
+        
+    except Exception as e:
+        logging.error(f"❌ Direct user update error: {e}")
+        raise HTTPException(status_code=500, detail=f"User update failed: {str(e)}")
+
 # EMAIL SENDING ENDPOINT - DIRECT TO MAIN APP
 @app.post("/send-email")
 async def send_email_direct(request: dict, current_user: User = Depends(get_current_user)):
