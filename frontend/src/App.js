@@ -7853,12 +7853,12 @@ const EmailManagement = () => {
     try {
       setLoading(true);
       
-      // Try the updated endpoint that searches both databases
-      const response = await axios.get(`${API}/api/email-management/trainings-real`, {
+      // Use direct endpoint
+      const response = await axios.get(`${API}/api/trainings`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
-      console.log('Trainings fetched from both databases:', response.data);
+      console.log('Trainings fetched from direct endpoint:', response.data);
       
       if (response.data && Array.isArray(response.data) && response.data.length > 0) {
         setTrainings(response.data);
