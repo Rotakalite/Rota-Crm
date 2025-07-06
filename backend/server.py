@@ -5259,35 +5259,6 @@ async def shutdown_db_client():
     client.close()
 
 # Document & Training Email Management Endpoints
-                "upload_date": (datetime.utcnow() - timedelta(days=10)).isoformat(),
-                "file_size": "3.1 MB",
-                "file_path": "/docs/waste_management_guide.pdf"
-            },
-            {
-                "id": 4,
-                "title": "Enerji Tasarrufu Stratejileri",
-                "type": "PDF",
-                "category": "Guide",
-                "upload_date": (datetime.utcnow() - timedelta(days=15)).isoformat(),
-                "file_size": "1.8 MB",
-                "file_path": "/docs/energy_saving.pdf"
-            },
-            {
-                "id": 5,
-                "title": "Yeşil Otel Sertifikasyon Rehberi",
-                "type": "PDF",
-                "category": "Certification",
-                "upload_date": (datetime.utcnow() - timedelta(days=20)).isoformat(),
-                "file_size": "2.9 MB", 
-                "file_path": "/docs/green_hotel_certification.pdf"
-            }
-        ]
-        
-        return {"documents": documents}
-    except Exception as e:
-        logging.error(f"Error fetching documents: {str(e)}")
-        raise HTTPException(status_code=500, detail="Dokümanlar alınamadı")
-
 @api_router.get("/trainings")
 async def get_trainings(token: str = Depends(verify_token)):
     """Get trainings for email management"""
