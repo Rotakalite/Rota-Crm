@@ -819,23 +819,16 @@ async def get_trainings_direct(current_user: User = Depends(get_current_user)):
 async def get_clients_direct(current_user: User = Depends(get_current_user)):
     """Get clients for email management - DIRECT ON MAIN APP"""
     try:
-        # Get MongoDB connections
+        # Get MongoDB connections - ONLY ROTACRM
         mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
         
-        # Try sustainable_tourism_crm database first
-        db = mongo_client["sustainable_tourism_crm"]
+        # Get clients from rotacrm
         clients = list(db.clients.find({}))
-        
-        # Try rotacrm database as well
-        rotacrm_db = mongo_client["rotacrm"]
-        rotacrm_clients = list(rotacrm_db.clients.find({}))
-        
-        # Combine clients
-        all_clients = clients + rotacrm_clients
         
         # Format clients for frontend
         formatted_clients = []
-        for client in all_clients:
+        for client in clients:
             if "_id" in client:
                 del client["_id"]
             
