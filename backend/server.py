@@ -5620,21 +5620,21 @@ async def get_real_clients_for_email(current_user: User = Depends(get_current_us
 # ==========================================
 # API ROUTER REGISTRATION - MUST BE AT END
 # ==========================================
-print("🔄 Starting API router registration...")
-print(f"📊 API router has {len(api_router.routes)} routes defined")
+print("🔄 Starting API router registration...", flush=True)
+print(f"📊 API router has {len(api_router.routes)} routes defined", flush=True)
 
 try:
     app.include_router(api_router, prefix="/api")
-    print("✅ API Router successfully mounted with /api prefix")
-    print(f"📋 Total app routes after mounting: {len(app.routes)}")
+    print("✅ API Router successfully mounted with /api prefix", flush=True)
+    print(f"📋 Total app routes after mounting: {len(app.routes)}", flush=True)
     
     # Print some example routes for debugging
-    for route in app.routes[:5]:
-        print(f"  🛣️ Route: {route}")
+    for i, route in enumerate(app.routes[:5]):
+        print(f"  🛣️ Route {i}: {route}", flush=True)
         
 except Exception as e:
-    print(f"❌ Error mounting API router: {e}")
+    print(f"❌ Error mounting API router: {e}", flush=True)
     import traceback
     traceback.print_exc()
 
-print("🚀 Server.py import completed!")
+print("🚀 Server.py import completed!", flush=True)
