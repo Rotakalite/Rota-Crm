@@ -988,6 +988,7 @@ const CarbonFootprint = () => {
                     </tr>
                   ))
                 }
+                }
                 )
                 )}
                 </tbody>
