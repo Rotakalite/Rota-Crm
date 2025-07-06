@@ -131,6 +131,9 @@ backend:
         -working: false
         -agent: "user"
         -comment: "User reports that in Document Management (Belge Yönetimi), all document dates are showing as 'Invalid Date' instead of proper date format. Documents show proper file icons but dates are not formatted correctly."
+        -working: true
+        -agent: "testing"
+        -comment: "Tested the document date formatting functionality. The backend now correctly formats document dates and the frontend properly displays them. Direct database tests confirmed that document dates are stored as valid datetime objects in the database and are properly formatted when retrieved. The safe date formatting function has been implemented to handle various date formats and prevent 'Invalid Date' errors. Tests verified that document dates are displayed in a consistent format (YYYY-MM-DD HH:MM:SS) and never show as 'Invalid Date'. The fix ensures proper date handling throughout the application."
 
   - task: "Document Download Endpoint"
     implemented: true
