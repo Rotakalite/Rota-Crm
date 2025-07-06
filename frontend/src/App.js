@@ -2850,10 +2850,17 @@ const ClientManagement = ({ onNavigate }) => {
                     </h3>
                     <p className="text-sm text-gray-600">{client.name}</p>
                   </div>
-                  <div className="flex-shrink-0">
+                  <div className="flex items-center space-x-2">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       Aktif
                     </span>
+                    <button
+                      onClick={() => handleDeleteClient(client.id, client.hotel_name)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded-full transition-colors"
+                      title="Müşteriyi Sil"
+                    >
+                      🗑️
+                    </button>
                   </div>
                 </div>
 
