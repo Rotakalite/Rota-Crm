@@ -8175,6 +8175,12 @@ const EmailManagement = () => {
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl font-bold mb-2">📧 Doküman & Eğitim Email Sistemi</h1>
           <p className="text-purple-100 text-lg">Müşterilerinize doküman ve eğitimleri gönderin</p>
+          <div className="mt-4 p-3 bg-white/10 rounded-lg border border-white/20">
+            <p className="text-sm text-purple-100">
+              ⚠️ <strong>Güvenlik Notu:</strong> Bu modül GENEL/ORTAK içerikler için tasarlanmıştır. 
+              Seçilen içerikler tüm müşterilere gönderilir. Müşteri-specific içerikler için diğer modülleri kullanın.
+            </p>
+          </div>
         </div>
       </div>
 
