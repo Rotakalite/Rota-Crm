@@ -5442,21 +5442,18 @@ async def get_clients_for_email(token: str = Depends(verify_token)):
             },
             {
                 "id": 4,
-                "name": "Seaside Resort",
-                "email": "reservations@seasideresort.com",
-                "contact_person": "Zeynep Kaya",
-                "category": "Beach Resort"
-            },
-            {
-                "id": 5,
-                "name": "Mountain View Hotel",
+                "name": "Mountain View Resort",
                 "email": "info@mountainview.com",
-                "contact_person": "Can Demir",
-                "category": "Mountain Hotel"
+                "contact_person": "Zeynep Kaya",
+                "category": "Mountain Resort",
+                "client_id": "mountain-view"
             }
-        ]
+            ]
+            logging.info(f"No real clients found, returning {len(clients)} sample clients")
+            return {"clients": clients}
         
-        return {"clients": clients}
+        logging.info(f"Found {len(formatted_clients)} real clients for email management")
+        return {"clients": formatted_clients}
     except Exception as e:
         logging.error(f"Error fetching clients: {str(e)}")
         raise HTTPException(status_code=500, detail="Müşteriler alınamadı")
