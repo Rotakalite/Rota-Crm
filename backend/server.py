@@ -5392,12 +5392,32 @@ async def get_trainings(token: str = Depends(verify_token)):
 
 @api_router.get("/clients")
 async def get_clients_for_email(token: str = Depends(verify_token)):
-    """Get clients for email management"""
+    """Get clients for email management from real database"""
     try:
-        # Get clients from database or return mock data
-        clients = [
-            {
-                "id": 1,
+        # Get real clients from database
+        clients_from_db = await db.clients.find().to_list(length=None)
+        
+        # Format clients for frontend
+        formatted_clients = []
+        for client in clients_from_db:
+            if "_id" in client:
+                del client["_id"]
+            
+            formatted_client = {
+                "id": client.get("id", str(client.get("_id", ""))),
+                "name": client.get("hotel_name", client.get("name", "Unknown Client")),
+                "email": client.get("email", ""),
+                "contact_person": client.get("contact_person", ""),
+                "category": client.get("current_stage", "General"),
+                "client_id": client.get("id", str(client.get("_id", "")))  # For mapping
+            }
+            formatted_clients.append(formatted_client)
+        
+        # If no real clients found, return sample data
+        if not formatted_clients:
+            clients = [
+                {
+                    "id": 1,
                 "name": "Paradise Resort & Spa",
                 "email": "info@paradiseresort.com",
                 "contact_person": "Ahmet Yılmaz",
