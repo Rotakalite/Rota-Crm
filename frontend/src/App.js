@@ -46,9 +46,11 @@ const Dashboard = ({ onNavigate }) => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
+      console.log('📊 Dashboard: Fetching stats from', `${API}/stats`);
       const response = await axios.get(`${API}/stats`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
+      console.log('📊 Dashboard: Stats response:', response.data);
       setDashboardData(response.data);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
