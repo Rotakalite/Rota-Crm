@@ -755,12 +755,19 @@ async def get_documents_direct(current_user: User = Depends(get_current_user)):
             # DEBUG: Log folder_id info
             logging.info(f"🔍 Document: {doc.get('name', 'Unknown')} - Folder ID: {doc.get('folder_id', 'NULL')} - Folder Path: {doc.get('folder_path', 'NULL')}")
             
+            # Handle datetime serialization for upload_date
+            upload_date = doc.get("created_at")
+            if upload_date and hasattr(upload_date, 'isoformat'):
+                upload_date = upload_date.isoformat()
+            elif not upload_date:
+                upload_date = "2024-12-20T10:30:00.000Z"
+            
             formatted_doc = {
                 "id": doc.get("id", ""),
                 "title": doc.get("name", doc.get("document_name", "Unknown Document")),
                 "type": doc.get("document_type", "PDF"),
                 "category": doc.get("stage", "General"),
-                "upload_date": doc.get("created_at", "2024-12-20T10:30:00.000Z"),
+                "upload_date": upload_date,  # Fixed datetime format
                 "file_size": doc.get("file_size", "N/A"),
                 "client_id": doc.get("client_id", "general"),
                 "client_name": doc.get("client_name", "General"),
