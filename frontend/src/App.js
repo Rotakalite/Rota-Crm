@@ -7877,7 +7877,7 @@ const EmailManagement = () => {
     }
   };
 
-  // Quick send email to all clients with selected items - SECURE VERSION
+  // Smart send email to respective clients - CLIENT-SPECIFIC ROUTING
   const quickSendToAllClients = async () => {
     if (selectedItems.length === 0) {
       alert('Lütfen en az bir doküman veya eğitim seçin!');
@@ -7897,11 +7897,32 @@ const EmailManagement = () => {
       selectedItems.includes(`training_${training.id}`)
     ) || [];
 
-    // Show clear warning about public content
+    // Group content by client_id
+    const contentByClient = {};
+    
+    // Group documents by their client_id
+    selectedDocuments.forEach(doc => {
+      const clientId = doc.client_id || 'general';
+      if (!contentByClient[clientId]) {
+        contentByClient[clientId] = { documents: [], trainings: [] };
+      }
+      contentByClient[clientId].documents.push(doc);
+    });
+    
+    // Group trainings by their client_id
+    selectedTrainings.forEach(training => {
+      const clientId = training.client_id || 'general';
+      if (!contentByClient[clientId]) {
+        contentByClient[clientId] = { documents: [], trainings: [] };
+      }
+      contentByClient[clientId].trainings.push(training);
+    });
+
+    const affectedClients = Object.keys(contentByClient).length;
     const confirmSend = window.confirm(
-      `⚠️ UYARI: Seçilen ${selectedItems.length} içerik TÜM ${clients.length} müşteriye gönderilecek.\n\n` +
-      `Bu Email Management modülü GENEL/ORTAK içerikler için tasarlanmıştır.\n` +
-      `Müşteri-specific içerikler için ayrı modülleri kullanın.\n\n` +
+      `✅ AKILLI GÖNDERİM: Her doküman/eğitim sadece kendi müşterisine gönderilecek.\n\n` +
+      `📋 Seçilen ${selectedItems.length} içerik\n` +
+      `👥 ${affectedClients} farklı müşteriye özel gönderim\n\n` +
       `Devam etmek istediğinizden emin misiniz?`
     );
 
@@ -7909,123 +7930,155 @@ const EmailManagement = () => {
 
     try {
       setLoading(true);
+      let totalSuccessCount = 0;
+      let totalFailureCount = 0;
 
-      // Auto-generate subject and content based on selection
-      let subject = 'Yeni Genel Dokümanlar ve Eğitimler';
-      if (selectedDocuments.length > 0 && selectedTrainings.length === 0) {
-        subject = `Yeni Genel Dokümanlar (${selectedDocuments.length} adet)`;
-      } else if (selectedTrainings.length > 0 && selectedDocuments.length === 0) {
-        subject = `Yeni Genel Eğitimler (${selectedTrainings.length} adet)`;
-      }
-
-      // Generate professional email content - PUBLIC CONTENT
-      let emailContent = `
-        <div style="max-width: 600px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px; overflow: hidden;">
-          <div style="padding: 30px; text-align: center; background: rgba(255,255,255,0.1);">
-            <h1 style="margin: 0; font-size: 28px; font-weight: 300;">🌱 Sustainable Tourism CRM</h1>
-            <p style="margin: 10px 0 0 0; opacity: 0.9;">Sürdürülebilir Turizm Yönetim Sistemi</p>
-          </div>
-          
-          <div style="padding: 40px; background: white; color: #333;">
-            <h2 style="color: #667eea; margin-top: 0; font-size: 24px;">${subject}</h2>
-            <p style="font-size: 16px; line-height: 1.6; color: #666;">
-              Merhaba,<br><br>
-              Size yeni genel dokümanlar ve eğitim materyalleri paylaşıyoruz. Bu içerikler tüm ortaklarımız için hazırlanmış olup, sürdürülebilir turizm standartlarınızı geliştirmenize yardımcı olacaktır.
-            </p>
-            
-            <div style="margin: 20px 0; padding: 15px; background: #d1ecf1; border-left: 4px solid #0c5460; border-radius: 8px;">
-              <p style="margin: 0; color: #0c5460; font-weight: 500;">
-                ℹ️ Bu içerikler genel dokümanlar olup tüm ortaklarımızla paylaşılmaktadır.
-              </p>
-            </div>
-      `;
-
-      if (selectedDocuments.length > 0) {
-        emailContent += `
-            <div style="margin: 30px 0; padding: 20px; background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 8px;">
-              <h3 style="color: #667eea; margin-top: 0; display: flex; align-items: center;">
-                📄 Dokümanlar (${selectedDocuments.length})
-              </h3>
-              <ul style="list-style: none; padding: 0; margin: 15px 0;">
-                ${selectedDocuments.map(doc => `
-                  <li style="padding: 10px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-weight: 500;">${doc.title}</span>
-                    <span style="color: #666; font-size: 14px;">${doc.type} • ${doc.file_size || 'N/A'}</span>
-                  </li>
-                `).join('')}
-              </ul>
-            </div>
-        `;
-      }
-
-      if (selectedTrainings.length > 0) {
-        emailContent += `
-            <div style="margin: 30px 0; padding: 20px; background: #f0fdf4; border-left: 4px solid #22c55e; border-radius: 8px;">
-              <h3 style="color: #22c55e; margin-top: 0; display: flex; align-items: center;">
-                🎓 Eğitimler (${selectedTrainings.length})
-              </h3>
-              <ul style="list-style: none; padding: 0; margin: 15px 0;">
-                ${selectedTrainings.map(training => `
-                  <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                    <div style="font-weight: 500; margin-bottom: 5px;">${training.title}</div>
-                    <div style="color: #666; font-size: 14px;">${training.description} • ${training.duration}</div>
-                  </li>
-                `).join('')}
-              </ul>
-            </div>
-        `;
-      }
-
-      emailContent += `
-            <div style="margin: 40px 0; padding: 20px; background: #fffbeb; border-radius: 8px; text-align: center;">
-              <p style="margin: 0; color: #92400e; font-weight: 500;">
-                💡 Bu içerikleri inceleyerek sürdürülebilir turizm uygulamalarınızı geliştirin!
-              </p>
-            </div>
-            
-            <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
-              <p style="margin: 0; color: #666; font-size: 14px;">
-                Bu email Sustainable Tourism CRM sistemi tarafından otomatik olarak gönderilmiştir.<br>
-                © 2025 Sustainable Tourism CRM - Tüm hakları saklıdır.
-              </p>
-            </div>
-          </div>
-        </div>
-      `;
-
-      // Send to all clients
-      let successCount = 0;
-      let failureCount = 0;
-
-      for (const client of clients) {
+      // Send emails for each client separately
+      for (const [clientId, content] of Object.entries(contentByClient)) {
         try {
-          await axios.post(`${API}/api/send-email`, {
-            to_email: client.email,
-            subject: subject,
-            html_content: emailContent
-          }, {
-            headers: { Authorization: `Bearer ${authToken}` }
-          });
-          successCount++;
-          console.log(`✅ Email sent to ${client.name} (${client.email})`);
-        } catch (emailError) {
-          failureCount++;
-          console.error(`❌ Failed to send to ${client.name} (${client.email}):`, emailError);
+          // Find the client info
+          let targetClient = null;
+          
+          if (clientId === 'general') {
+            // For general content, send to all clients
+            for (const client of clients) {
+              await sendEmailToClient(client, content, clientId, 'Genel');
+              totalSuccessCount++;
+            }
+            continue;
+          } else {
+            // Find specific client
+            targetClient = clients.find(c => c.id === clientId || c.client_id === clientId);
+            
+            if (!targetClient) {
+              console.warn(`⚠️ Client not found for clientId: ${clientId}`);
+              totalFailureCount++;
+              continue;
+            }
+          }
+
+          if (targetClient) {
+            await sendEmailToClient(targetClient, content, clientId, targetClient.name);
+            totalSuccessCount++;
+          }
+
+        } catch (error) {
+          console.error(`❌ Error sending to client ${clientId}:`, error);
+          totalFailureCount++;
         }
       }
 
       // Show results
-      alert(`🎉 Email gönderimi tamamlandı!\n✅ Başarılı: ${successCount}\n❌ Hatalı: ${failureCount}`);
+      alert(`🎉 Akıllı email gönderimi tamamlandı!\n✅ Başarılı: ${totalSuccessCount}\n❌ Hatalı: ${totalFailureCount}\n\n📝 Her müşteri sadece kendi içeriklerini aldı.`);
       
       // Clear selection after successful send
       setSelectedItems([]);
       
     } catch (error) {
-      console.error('Quick send error:', error);
+      console.error('Smart send error:', error);
       alert('❌ Email gönderilirken hata oluştu!');
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper function to send email to a specific client
+  const sendEmailToClient = async (client, content, clientId, clientName) => {
+    const { documents: clientDocs, trainings: clientTrainings } = content;
+    
+    // Generate client-specific subject
+    let subject = `${clientName} için Yeni İçerikler`;
+    if (clientDocs.length > 0 && clientTrainings.length === 0) {
+      subject = `${clientName} için Yeni Dokümanlar (${clientDocs.length} adet)`;
+    } else if (clientTrainings.length > 0 && clientDocs.length === 0) {
+      subject = `${clientName} için Yeni Eğitimler (${clientTrainings.length} adet)`;
+    }
+
+    // Generate client-specific email content
+    let emailContent = `
+      <div style="max-width: 600px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px; overflow: hidden;">
+        <div style="padding: 30px; text-align: center; background: rgba(255,255,255,0.1);">
+          <h1 style="margin: 0; font-size: 28px; font-weight: 300;">🌱 Sustainable Tourism CRM</h1>
+          <p style="margin: 10px 0 0 0; opacity: 0.9;">Sürdürülebilir Turizm Yönetim Sistemi</p>
+        </div>
+        
+        <div style="padding: 40px; background: white; color: #333;">
+          <h2 style="color: #667eea; margin-top: 0; font-size: 24px;">${subject}</h2>
+          <p style="font-size: 16px; line-height: 1.6; color: #666;">
+            Merhaba ${client.name} ekibi,<br><br>
+            Size özel olarak hazırlanmış yeni içerikler paylaşıyoruz. Bu materyaller işletmenizin sürdürülebilir turizm standartlarını geliştirmenize yardımcı olacaktır.
+          </p>
+          
+          <div style="margin: 20px 0; padding: 15px; background: #e7f3ff; border-left: 4px solid #2196f3; border-radius: 8px;">
+            <p style="margin: 0; color: #1565c0; font-weight: 500;">
+              ✨ Bu içerikler ${clientName} için özel olarak seçilmiştir.
+            </p>
+          </div>
+    `;
+
+    if (clientDocs.length > 0) {
+      emailContent += `
+          <div style="margin: 30px 0; padding: 20px; background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 8px;">
+            <h3 style="color: #667eea; margin-top: 0; display: flex; align-items: center;">
+              📄 Sizin İçin Seçilen Dokümanlar (${clientDocs.length})
+            </h3>
+            <ul style="list-style: none; padding: 0; margin: 15px 0;">
+              ${clientDocs.map(doc => `
+                <li style="padding: 10px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-weight: 500;">${doc.title}</span>
+                  <span style="color: #666; font-size: 14px;">${doc.type} • ${doc.file_size || 'N/A'}</span>
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+      `;
+    }
+
+    if (clientTrainings.length > 0) {
+      emailContent += `
+          <div style="margin: 30px 0; padding: 20px; background: #f0fdf4; border-left: 4px solid #22c55e; border-radius: 8px;">
+            <h3 style="color: #22c55e; margin-top: 0; display: flex; align-items: center;">
+              🎓 Sizin İçin Seçilen Eğitimler (${clientTrainings.length})
+            </h3>
+            <ul style="list-style: none; padding: 0; margin: 15px 0;">
+              ${clientTrainings.map(training => `
+                <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                  <div style="font-weight: 500; margin-bottom: 5px;">${training.title}</div>
+                  <div style="color: #666; font-size: 14px;">${training.description} • ${training.duration}</div>
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+      `;
+    }
+
+    emailContent += `
+          <div style="margin: 40px 0; padding: 20px; background: #fffbeb; border-radius: 8px; text-align: center;">
+            <p style="margin: 0; color: #92400e; font-weight: 500;">
+              💡 Bu içerikler işletmenizin ihtiyaçlarına özel olarak seçilmiştir!
+            </p>
+          </div>
+          
+          <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
+            <p style="margin: 0; color: #666; font-size: 14px;">
+              Bu email ${clientName} için özel olarak hazırlanmış ve sadece size gönderilmiştir.<br>
+              © 2025 Sustainable Tourism CRM - Tüm hakları saklıdır.
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Send email to specific client only
+    await axios.post(`${API}/api/send-email`, {
+      to_email: client.email,
+      subject: subject,
+      html_content: emailContent
+    }, {
+      headers: { Authorization: `Bearer ${authToken}` }
+    });
+
+    console.log(`✅ Client-specific email sent to ${clientName} (${client.email})`);
   };
 
   // Send email with selected items - Safe version
