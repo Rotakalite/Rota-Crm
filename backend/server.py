@@ -789,6 +789,70 @@ async def get_documents_api_direct(current_user: User = Depends(get_current_user
     # Delegate to main documents function
     return await get_documents_direct(current_user)
 
+# DOCUMENT DOWNLOAD ENDPOINTS - DIRECT TO MAIN APP
+@app.get("/documents/{document_id}/download")
+async def download_document_direct(
+    document_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Download document - DIRECT ON MAIN APP"""
+    try:
+        logging.info(f"📥 Direct download request: {current_user.name} - Document: {document_id}")
+        
+        # Get MongoDB connection - ONLY ROTACRM
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # Find document
+        document = await asyncio.to_thread(db.documents.find_one, {"id": document_id})
+        if not document:
+            raise HTTPException(status_code=404, detail="Document not found")
+        
+        # Check if user has access to this document
+        if current_user.role == UserRole.CLIENT and current_user.client_id != document.get("client_id"):
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        # For now, return document metadata since we don't store actual file content
+        # In a real implementation, you would retrieve the file from storage (GCS, S3, etc.)
+        
+        from fastapi.responses import Response
+        
+        # Create a dummy PDF content for demonstration
+        pdf_content = f"""
+Document: {document.get('name', 'Unknown')}
+Client: {document.get('client_name', 'Unknown')}
+Upload Date: {document.get('created_at', 'Unknown')}
+File Size: {document.get('file_size', 'Unknown')} bytes
+
+This is a placeholder document content.
+In production, this would be the actual file content from storage.
+"""
+        
+        return Response(
+            content=pdf_content.encode('utf-8'),
+            media_type='application/pdf',
+            headers={
+                "Content-Disposition": f"attachment; filename={document.get('filename', 'document.pdf')}",
+                "Content-Length": str(len(pdf_content.encode('utf-8')))
+            }
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ Direct download error: {e}")
+        raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
+
+# ALSO ADD API DOWNLOAD ENDPOINT FOR FRONTEND /api CALLS
+@app.get("/api/documents/{document_id}/download")
+async def download_document_api_direct(
+    document_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Download document via /api endpoint - DIRECT ON MAIN APP"""
+    # Delegate to main download function
+    return await download_document_direct(document_id, current_user)
+
 @app.get("/trainings")  
 async def get_trainings_direct(current_user: User = Depends(get_current_user)):
     """Get trainings for email management - DIRECT ON MAIN APP"""
