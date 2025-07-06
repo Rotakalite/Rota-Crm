@@ -900,9 +900,9 @@ async def create_consumption_direct(consumption_data: dict, current_user: User =
 async def get_consumptions_direct(year: Optional[int] = None, client_id: Optional[str] = None, current_user: User = Depends(get_current_user)):
     """Get consumptions - DIRECT ON MAIN APP"""
     try:
-        # Get MongoDB connection
+        # Get MongoDB connection - ONLY ROTACRM
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["sustainable_tourism_crm"]
+        db = mongo_client["rotacrm"]
         
         # Build query
         query = {}
