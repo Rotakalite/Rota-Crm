@@ -5097,5 +5097,19 @@ if __name__ == "__main__":
     # Run critical API endpoints tests
     run_critical_api_endpoints_tests()
     
+    # Run client management tests
+    from client_management_test import TestClientManagementEndpoints
+    
+    # Create a test suite for client management
+    client_suite = unittest.TestSuite()
+    client_suite.addTest(TestClientManagementEndpoints("test_1_client_creation"))
+    client_suite.addTest(TestClientManagementEndpoints("test_2_client_listing"))
+    client_suite.addTest(TestClientManagementEndpoints("test_3_client_deletion"))
+    client_suite.addTest(TestClientManagementEndpoints("test_4_client_deletion_invalid_id"))
+    
+    # Run the client management tests
+    print("\n=== Running Client Management Tests ===")
+    unittest.TextTestRunner().run(client_suite)
+    
     # Run other tests as needed
     # run_level3_subfolder_tests()
