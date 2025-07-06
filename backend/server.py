@@ -5620,4 +5620,10 @@ async def get_real_clients_for_email(current_user: User = Depends(get_current_us
 # ==========================================
 # API ROUTER REGISTRATION - MUST BE AT END
 # ==========================================
-app.include_router(api_router, prefix="/api")
+try:
+    app.include_router(api_router, prefix="/api")
+    print("✅ API Router successfully mounted with /api prefix")
+except Exception as e:
+    print(f"❌ Error mounting API router: {e}")
+    import traceback
+    traceback.print_exc()
