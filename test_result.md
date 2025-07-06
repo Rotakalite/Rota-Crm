@@ -417,12 +417,17 @@ metadata:
   test_sequence: 1
   run_ui: false
 
-test_plan:
-  current_focus:
-    - "Document Download Endpoint"
-  stuck_tasks: []
-  test_all: false
-  test_priority: "high_first"
+  - task: "Document Download Endpoint"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "Users experiencing 500 Internal Server Error when trying to download documents. The endpoint /api/documents/{id}/download was missing completely from server.py. Added new GET endpoint directly to main FastAPI app to handle document downloads with proper authentication, file retrieval, and streaming response with appropriate headers."
 
 agent_communication:
     -agent: "main"
