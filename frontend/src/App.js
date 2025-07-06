@@ -8333,6 +8333,11 @@ const EmailManagement = () => {
                       <p className="text-sm text-gray-600"><strong>Kategori:</strong> {doc.category}</p>
                       <p className="text-sm text-gray-600"><strong>Boyut:</strong> {doc.file_size}</p>
                       <p className="text-sm text-gray-500"><strong>Tarih:</strong> {new Date(doc.upload_date).toLocaleDateString('tr-TR')}</p>
+                      {doc.client_name && (
+                        <p className="text-sm text-blue-600 font-semibold">
+                          <strong>🎯 Müşteri:</strong> {doc.client_name}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
