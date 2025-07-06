@@ -240,8 +240,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Supplier Management Backend APIs"
-    - "Basic Supplier Management Frontend Implementation" 
+    - "Email Management Real Data Endpoints"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -259,6 +258,8 @@ agent_communication:
     -message: "🎉 MAJOR SUCCESS! TÜM SORUNLAR TAMAMEN ÇÖZÜLDÜ! 1) Frontend deployment 'return outside function' hatası → ÇÖZÜLDÜ (628 satır orphaned kod temizlendi), 2) Vercel build %100 başarılı olacak, 3) Tüm 2FA endpoints 422 hataları → ÇÖZÜLDÜ (hem send-code hem verify-code JSON body format'ına güncellendi), 4) Email servisi Gmail ile perfect çalışıyor, 5) 2FA full flow test edildi: send → verify → status ✅, 6) Frontend perfect loading, login sayfası çalışır, 7) Supplier Management temiz implement edildi. DEPLOYMENT + 2FA + FRONTEND = TAMAMEN ÇALIŞIR! 🚀💪✨"
     -agent: "testing"
     -message: "Identified and fixed a critical issue in the SupplierManagement component that was causing automatic logout when users clicked on the Supplier Management link in the sidebar. The issue was in the data handling: the component was trying to access response.data.suppliers but the backend API returns the suppliers array directly. This caused a 401 error which triggered the axios interceptor to reload the page, effectively logging the user out. Fixed by changing setSuppliers(response.data.suppliers || []) to setSuppliers(response.data || []). The Supplier Management module now loads correctly without causing logout."
+    -agent: "testing"
+    -message: "Tested the new real data endpoints for Email Management: /api/email-management/documents-real, /api/email-management/trainings-real, and /api/email-management/clients-real. All three endpoints are returning 404 Not Found errors. The endpoints are properly defined in the server.py file at lines 5443, 5481, and 5521 respectively, and the API router is correctly registered with app.include_router(api_router, prefix='/api') at line 5239. However, the endpoints are not accessible. This could be due to a deployment issue or a problem with the FastAPI router configuration. The backend logs show that requests to these endpoints are being received but returning 404 Not Found. Further investigation is needed to determine why these endpoints are not accessible despite being properly defined in the code."
 
 backend:
   - task: "Fix CORS Policy Error and Backend Configuration"
