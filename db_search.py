@@ -2,8 +2,8 @@ from pymongo import MongoClient
 import json
 
 # Connect to MongoDB
-client = MongoClient('mongodb://mongo:LbwPeZMoFflpreeQGSoEnUATtNpFRXRG@turntable.proxy.rlwy.net:14941')
-db = client['sustainable_tourism_crm']
+mongo_client = MongoClient('mongodb://mongo:LbwPeZMoFflpreeQGSoEnUATtNpFRXRG@turntable.proxy.rlwy.net:14941')
+db = mongo_client['sustainable_tourism_crm']
 
 print('Collections in database:', db.list_collection_names())
 
