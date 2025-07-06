@@ -734,12 +734,12 @@ async def api_health_check_direct():
         "api_direct": True
     }
 
-# CRITICAL EMAIL MANAGEMENT ENDPOINTS - DIRECT TO MAIN APP
+# DOCUMENT MANAGEMENT ENDPOINTS - DIRECT TO MAIN APP
 @app.get("/documents")
 async def get_documents_direct(current_user: User = Depends(get_current_user)):
     """Get documents for email management - DIRECT ON MAIN APP"""
     try:
-        # Get MongoDB connections - ONLY ROTACRM
+        # Get MongoDB connection - ONLY ROTACRM
         mongo_client = MongoClient(mongo_url)
         db = mongo_client["rotacrm"]
         
@@ -769,6 +769,13 @@ async def get_documents_direct(current_user: User = Depends(get_current_user)):
     except Exception as e:
         print(f"Error in direct documents endpoint: {e}")
         return []
+
+# ALSO ADD API DOCUMENTS ENDPOINT FOR DOCUMENT MANAGEMENT
+@app.get("/api/documents")
+async def get_documents_api_direct(current_user: User = Depends(get_current_user)):
+    """Get documents for document management - DIRECT ON MAIN APP"""
+    # Delegate to main documents function
+    return await get_documents_direct(current_user)
 
 @app.get("/trainings")  
 async def get_trainings_direct(current_user: User = Depends(get_current_user)):
