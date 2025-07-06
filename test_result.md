@@ -107,11 +107,11 @@ user_problem_statement: "Rota-CRM frontend application'ında tedarikçi modülü
 backend:
   - task: "Document Download Endpoint"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         -working: false
         -agent: "main"
@@ -119,6 +119,9 @@ backend:
         -working: true
         -agent: "testing"
         -comment: "Tested the document download endpoint (/api/documents/{id}/download) thoroughly. The endpoint is properly implemented and working as expected. It correctly requires authentication, returning 403 Forbidden when no token is provided and 401 Unauthorized for invalid tokens. The endpoint properly retrieves document metadata from MongoDB and checks user access permissions, returning 403 Access Denied if a client user tries to access a document that doesn't belong to them. For valid requests, it returns the document content with proper headers (Content-Type: application/pdf, Content-Disposition: attachment). The endpoint also correctly handles error cases, returning 404 Not Found for non-existent documents. MongoDB database contains 6 documents that can be accessed through this endpoint."
+        -working: false
+        -agent: "user"
+        -comment: "User tested document download and received placeholder TXT content instead of actual PDF file. The downloaded file shows: 'Document: POLİTİKALAR - SYS.01 SÜRDÜRÜLEBİLİR YÖNETİM SİSTEMİ POLİTİKASI.pdf, Client: Unknown, Upload Date: 2025-07-06 21:54:30.861000, File Size: 621685 bytes, This is a placeholder document content. In production, this would be the actual file content from storage.' The endpoint is returning placeholder content instead of actual file data from storage."
 
   - task: "Client Management Endpoints"
     implemented: true
