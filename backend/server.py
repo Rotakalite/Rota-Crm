@@ -5437,3 +5437,114 @@ async def get_clients_for_email(token: str = Depends(verify_token)):
     except Exception as e:
         logging.error(f"Error fetching clients: {str(e)}")
         raise HTTPException(status_code=500, detail="Müşteriler alınamadı")
+
+
+# Real Data Endpoints for Email Management
+@api_router.get("/email-management/documents-real")
+async def get_real_documents_for_email(token: str = Depends(verify_token)):
+    """Get real documents from database for email management"""
+    try:
+        # Get all documents from database
+        documents = await db.documents.find().to_list(length=None)
+        
+        # Format documents for frontend with client info
+        formatted_documents = []
+        for doc in documents:
+            if "_id" in doc:
+                del doc["_id"]
+            
+            # Get client info
+            client = await db.clients.find_one({"id": doc.get("client_id", "")})
+            client_name = client.get("hotel_name", "Unknown Client") if client else "Unknown Client"
+            
+            formatted_doc = {
+                "id": doc.get("id", ""),
+                "title": doc.get("name", doc.get("title", "Untitled Document")),
+                "type": "PDF",  # Default type
+                "category": doc.get("document_type", "General"),
+                "upload_date": doc.get("upload_date", datetime.utcnow().isoformat()),
+                "file_size": doc.get("file_size", "N/A"),
+                "file_path": doc.get("file_path", ""),
+                "client_id": doc.get("client_id", ""),
+                "client_name": client_name
+            }
+            formatted_documents.append(formatted_doc)
+        
+        logging.info(f"Found {len(formatted_documents)} real documents for email management")
+        return {"documents": formatted_documents}
+        
+    except Exception as e:
+        logging.error(f"Error fetching real documents: {str(e)}")
+        # Return empty list on error
+        return {"documents": []}
+
+@api_router.get("/email-management/trainings-real")
+async def get_real_trainings_for_email(token: str = Depends(verify_token)):
+    """Get real trainings from database for email management"""
+    try:
+        # Get all trainings from database
+        trainings = await db.trainings.find().to_list(length=None)
+        
+        # Format trainings for frontend with client info
+        formatted_trainings = []
+        for training in trainings:
+            if "_id" in training:
+                del training["_id"]
+            
+            # Get client info
+            client = await db.clients.find_one({"id": training.get("client_id", "")})
+            client_name = client.get("hotel_name", "Unknown Client") if client else "Unknown Client"
+            
+            formatted_training = {
+                "id": training.get("id", ""),
+                "title": training.get("name", training.get("title", "Untitled Training")),
+                "description": training.get("subject", "No description available"),
+                "duration": f"{training.get('duration', 2)} saat",
+                "level": "Orta",  # Default level
+                "category": training.get("category", "General"),
+                "client_id": training.get("client_id", ""),
+                "client_name": client_name,
+                "trainer": training.get("trainer", ""),
+                "training_date": training.get("training_date", ""),
+                "status": training.get("status", "planned")
+            }
+            formatted_trainings.append(formatted_training)
+        
+        logging.info(f"Found {len(formatted_trainings)} real trainings for email management")
+        return {"trainings": formatted_trainings}
+        
+    except Exception as e:
+        logging.error(f"Error fetching real trainings: {str(e)}")
+        # Return empty list on error
+        return {"trainings": []}
+
+@api_router.get("/email-management/clients-real")
+async def get_real_clients_for_email(token: str = Depends(verify_token)):
+    """Get real clients from database for email management"""
+    try:
+        # Get all clients from database
+        clients = await db.clients.find().to_list(length=None)
+        
+        # Format clients for frontend
+        formatted_clients = []
+        for client in clients:
+            if "_id" in client:
+                del client["_id"]
+            
+            formatted_client = {
+                "id": client.get("id", ""),
+                "name": client.get("hotel_name", client.get("name", "Unknown Client")),
+                "email": client.get("email", ""),
+                "contact_person": client.get("contact_person", ""),
+                "category": client.get("current_stage", "General"),
+                "client_id": client.get("id", "")  # For mapping
+            }
+            formatted_clients.append(formatted_client)
+        
+        logging.info(f"Found {len(formatted_clients)} real clients for email management")
+        return {"clients": formatted_clients}
+        
+    except Exception as e:
+        logging.error(f"Error fetching real clients: {str(e)}")
+        # Return empty list on error
+        return {"clients": []}
