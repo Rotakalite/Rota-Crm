@@ -856,6 +856,33 @@ async def get_clients_direct(current_user: User = Depends(get_current_user)):
         print(f"Error in direct clients endpoint: {e}")
         return []
 
+# EMAIL SENDING ENDPOINT - DIRECT TO MAIN APP
+@app.post("/api/send-email")
+async def send_email_direct(request: dict, current_user: User = Depends(get_current_user)):
+    """Send email - DIRECT ON MAIN APP"""
+    try:
+        from services.email_service import EmailService
+        email_service = EmailService()
+        
+        to_email = request.get("to_email")
+        subject = request.get("subject")
+        html_content = request.get("html_content")
+        
+        if not to_email or not subject or not html_content:
+            raise HTTPException(status_code=400, detail="Missing required fields")
+        
+        # Send email
+        success = email_service.send_email(to_email, subject, html_content)
+        
+        if success:
+            return {"message": "Email sent successfully", "success": True}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to send email")
+            
+    except Exception as e:
+        print(f"Error in direct send-email endpoint: {e}")
+        raise HTTPException(status_code=500, detail=f"Email sending failed: {str(e)}")
+
 # Test endpoint directly on api_router
 @api_router.get("/test")
 async def test_endpoint():
