@@ -6,8 +6,10 @@ import os
 import sys
 import io
 import uuid
+import asyncio
 from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
+from motor.motor_asyncio import AsyncIOMotorClient
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -19,6 +21,10 @@ TEST_YEAR_PREVIOUS = 2025
 
 # Railway backend URL
 RAILWAY_API_URL = "https://rota-crm-production.up.railway.app/api"
+
+# MongoDB connection
+MONGO_URL = "mongodb://mongo:LbwPeZMoFflpreeQGSoEnUATtNpFRXRG@turntable.proxy.rlwy.net:14941"
+DB_NAME = "sustainable_tourism_crm"
 
 # Test JWT token - this is a sample token for testing
 # In a real scenario, you would generate this from Clerk
