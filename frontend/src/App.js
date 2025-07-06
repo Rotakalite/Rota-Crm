@@ -7802,12 +7802,12 @@ const EmailManagement = () => {
     try {
       setLoading(true);
       
-      // Try the updated endpoint that searches both databases
-      const response = await axios.get(`${API}/api/email-management/documents-real`, {
+      // Use direct endpoint
+      const response = await axios.get(`${API}/api/documents`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
-      console.log('Documents fetched from both databases:', response.data);
+      console.log('Documents fetched from direct endpoint:', response.data);
       
       if (response.data && Array.isArray(response.data) && response.data.length > 0) {
         setDocuments(response.data);
