@@ -8336,11 +8336,19 @@ const EmailManagement = () => {
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl font-bold mb-2">📧 Akıllı Doküman & Eğitim Email Sistemi</h1>
           <p className="text-purple-100 text-lg">Müşterilerinize doküman ve eğitimleri akıllıca gönderin</p>
-          <div className="mt-4 p-3 bg-white/10 rounded-lg border border-white/20">
-            <p className="text-sm text-purple-100">
-              ✅ <strong>Akıllı Gönderim:</strong> Her doküman/eğitim sadece kendi müşterisine gönderilir. 
-              X müşterisinin dokümanı Y müşterisine GİTMEZ. 100% güvenli!
-            </p>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-3 bg-white/10 rounded-lg border border-white/20">
+              <p className="text-sm text-purple-100">
+                ✅ <strong>Akıllı Gönderim:</strong> Her doküman/eğitim sadece kendi müşterisine gönderilir. 
+                X müşterisinin dokümanı Y müşterisine GİTMEZ. 100% güvenli!
+              </p>
+            </div>
+            <div className="p-3 bg-white/10 rounded-lg border border-white/20">
+              <p className="text-sm text-purple-100">
+                🎯 <strong>Esnek Seçim:</strong> İstediğiniz doküman/eğitimleri tek tek seçebilir veya 
+                "Tümünü Seç" ile toplu seçim yapabilirsiniz!
+              </p>
+            </div>
           </div>
         </div>
       </div>
