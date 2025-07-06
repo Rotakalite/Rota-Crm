@@ -7102,6 +7102,19 @@ const TrainingManagement = () => {
                   required
                 />
               </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Saat *
+                </label>
+                <input
+                  type="time"
+                  value={formData.training_time}
+                  onChange={(e) => setFormData({ ...formData, training_time: e.target.value })}
+                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
             </div>
             
             <div>
