@@ -7802,8 +7802,8 @@ const EmailManagement = () => {
     try {
       setLoading(true);
       
-      // Use direct endpoint
-      const response = await axios.get(`${API}/api/documents`, {
+      // Use direct endpoint without /api prefix
+      const response = await axios.get(`${API}/documents`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
