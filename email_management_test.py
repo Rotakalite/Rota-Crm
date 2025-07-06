@@ -590,7 +590,7 @@ class TestClientEmailManagementEndpoints(unittest.TestCase):
         # Test /api/clients endpoint
         try:
             url = f"{self.api_url}/clients"
-            response = requests.get(url, headers=self.headers)
+            response = requests.get(url, headers=self.headers_kaya)
             logger.info(f"/api/clients response status code: {response.status_code}")
             
             if response.status_code == 200:
@@ -608,15 +608,15 @@ class TestClientEmailManagementEndpoints(unittest.TestCase):
         # Test /api/documents endpoint
         try:
             url = f"{self.api_url}/documents"
-            response = requests.get(url, headers=self.headers)
+            response = requests.get(url, headers=self.headers_kaya)
             logger.info(f"/api/documents response status code: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
-                if isinstance(data, list):
-                    logger.info(f"Found {len(data)} documents in regular endpoint")
+                if isinstance(data, dict) and "documents" in data:
+                    logger.info(f"Found {len(data['documents'])} documents in regular endpoint")
                 else:
-                    logger.info(f"Regular /api/documents endpoint returned non-list data")
+                    logger.info(f"Regular /api/documents endpoint returned unexpected data format")
                 logger.info("✅ Regular /api/documents endpoint is working")
             else:
                 logger.info(f"Regular /api/documents endpoint returned {response.status_code}")
@@ -626,7 +626,7 @@ class TestClientEmailManagementEndpoints(unittest.TestCase):
         # Test /api/trainings endpoint
         try:
             url = f"{self.api_url}/trainings"
-            response = requests.get(url, headers=self.headers)
+            response = requests.get(url, headers=self.headers_kaya)
             logger.info(f"/api/trainings response status code: {response.status_code}")
             
             if response.status_code == 200:
@@ -634,7 +634,7 @@ class TestClientEmailManagementEndpoints(unittest.TestCase):
                 if isinstance(data, list):
                     logger.info(f"Found {len(data)} trainings in regular endpoint")
                 else:
-                    logger.info(f"Regular /api/trainings endpoint returned non-list data")
+                    logger.info(f"Regular /api/trainings endpoint returned unexpected data format")
                 logger.info("✅ Regular /api/trainings endpoint is working")
             else:
                 logger.info(f"Regular /api/trainings endpoint returned {response.status_code}")
