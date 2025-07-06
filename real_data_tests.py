@@ -1,0 +1,191 @@
+import unittest
+import json
+import logging
+import requests
+import os
+import sys
+import io
+import uuid
+from datetime import datetime, timedelta
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# Railway backend URL
+BACKEND_API_URL = "https://be473f49-c085-4355-8cf7-95fc4e8bf06a.preview.emergentagent.com/api"
+
+# Admin JWT token for testing
+ADMIN_TOKEN = "eyJhbGciOiJSUzI1NiIsImtpZCI6Imluc18yUHFUQU9lQVNUUTlqaHRQcVpwSGlDRnVvIiwidHlwIjoiSldUIn0.eyJhenAiOiJodHRwczovL3JvdGEtY3JtLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJleHAiOjE3MTk5MzYxNjAsImlhdCI6MTcxOTkzMjU2MCwiaXNzIjoiaHR0cHM6Ly9hZGFwdGluZy1lZnQtNi5jbGVyay5hY2NvdW50cy5kZXYiLCJuYmYiOjE3MTk5MzI1NTAsInN1YiI6InVzZXJfQURNSU4iLCJlbWFpbCI6ImFkbWluQHJvdGFrYWxpdGVkYW5pc21hbmxpay5jb20iLCJuYW1lIjoiQWRtaW4gVXNlciJ9.signature"
+
+class TestRealDataEndpoints(unittest.TestCase):
+    """Test class to check real data in the system"""
+    
+    def setUp(self):
+        """Set up test environment"""
+        self.api_url = BACKEND_API_URL
+        
+        # Headers for admin authentication
+        self.headers_admin = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
+    
+    def test_real_clients_data(self):
+        """Test /api/clients endpoint to see existing registered clients"""
+        logger.info("\n=== Testing /api/clients endpoint for real data ===")
+        
+        url = f"{self.api_url}/clients"
+        
+        try:
+            response = requests.get(url, headers=self.headers_admin)
+            logger.info(f"Response status code: {response.status_code}")
+            
+            # Should get 200 OK
+            self.assertEqual(response.status_code, 200)
+            
+            # Response should be a list of clients
+            data = response.json()
+            self.assertIsInstance(data, list)
+            
+            # Log the number of clients and their details
+            logger.info(f"Found {len(data)} real clients in the system")
+            
+            for i, client in enumerate(data):
+                logger.info(f"Client {i+1}:")
+                logger.info(f"  ID: {client.get('id')}")
+                logger.info(f"  Name: {client.get('name')}")
+                logger.info(f"  Hotel Name: {client.get('hotel_name')}")
+                logger.info(f"  Contact Person: {client.get('contact_person')}")
+                logger.info(f"  Email: {client.get('email')}")
+                logger.info(f"  Current Stage: {client.get('current_stage')}")
+            
+            logger.info("✅ Real clients data test passed")
+        except Exception as e:
+            logger.error(f"❌ Error testing real clients data: {str(e)}")
+            raise
+    
+    def test_real_documents_data(self):
+        """Test /api/documents endpoint to see existing documents with client_id assignments"""
+        logger.info("\n=== Testing /api/documents endpoint for real data ===")
+        
+        url = f"{self.api_url}/documents"
+        
+        try:
+            response = requests.get(url, headers=self.headers_admin)
+            logger.info(f"Response status code: {response.status_code}")
+            
+            # Should get 200 OK
+            self.assertEqual(response.status_code, 200)
+            
+            # Response should be a list of documents
+            data = response.json()
+            self.assertIsInstance(data, list)
+            
+            # Log the number of documents and their details
+            logger.info(f"Found {len(data)} real documents in the system")
+            
+            # Group documents by client_id
+            documents_by_client = {}
+            for doc in data:
+                client_id = doc.get('client_id')
+                if client_id not in documents_by_client:
+                    documents_by_client[client_id] = []
+                documents_by_client[client_id].append(doc)
+            
+            # Log document distribution by client
+            logger.info(f"Documents are distributed across {len(documents_by_client)} clients")
+            
+            for client_id, docs in documents_by_client.items():
+                logger.info(f"Client ID: {client_id} has {len(docs)} documents")
+                
+                # Log details of first few documents for each client
+                for i, doc in enumerate(docs[:3]):  # Show only first 3 docs per client
+                    logger.info(f"  Document {i+1}:")
+                    logger.info(f"    ID: {doc.get('id')}")
+                    logger.info(f"    Name: {doc.get('name')}")
+                    logger.info(f"    Type: {doc.get('document_type')}")
+                    logger.info(f"    Stage: {doc.get('stage')}")
+                    logger.info(f"    File Path: {doc.get('file_path')}")
+                    logger.info(f"    Original Filename: {doc.get('original_filename')}")
+                
+                if len(docs) > 3:
+                    logger.info(f"    ... and {len(docs) - 3} more documents")
+            
+            logger.info("✅ Real documents data test passed")
+        except Exception as e:
+            logger.error(f"❌ Error testing real documents data: {str(e)}")
+            raise
+    
+    def test_real_trainings_data(self):
+        """Test /api/trainings endpoint to see existing trainings with client_id assignments"""
+        logger.info("\n=== Testing /api/trainings endpoint for real data ===")
+        
+        url = f"{self.api_url}/trainings"
+        
+        try:
+            response = requests.get(url, headers=self.headers_admin)
+            logger.info(f"Response status code: {response.status_code}")
+            
+            # Should get 200 OK
+            self.assertEqual(response.status_code, 200)
+            
+            # Response should be a list of trainings
+            data = response.json()
+            self.assertIsInstance(data, list)
+            
+            # Log the number of trainings and their details
+            logger.info(f"Found {len(data)} real trainings in the system")
+            
+            # Group trainings by client_id
+            trainings_by_client = {}
+            for training in data:
+                client_id = training.get('client_id')
+                if client_id not in trainings_by_client:
+                    trainings_by_client[client_id] = []
+                trainings_by_client[client_id].append(training)
+            
+            # Log training distribution by client
+            logger.info(f"Trainings are distributed across {len(trainings_by_client)} clients")
+            
+            for client_id, trainings in trainings_by_client.items():
+                logger.info(f"Client ID: {client_id} has {len(trainings)} trainings")
+                
+                # Log details of first few trainings for each client
+                for i, training in enumerate(trainings[:3]):  # Show only first 3 trainings per client
+                    logger.info(f"  Training {i+1}:")
+                    logger.info(f"    ID: {training.get('id')}")
+                    logger.info(f"    Name: {training.get('name')}")
+                    logger.info(f"    Subject: {training.get('subject')}")
+                    logger.info(f"    Trainer: {training.get('trainer')}")
+                    logger.info(f"    Participant Count: {training.get('participant_count')}")
+                    logger.info(f"    Status: {training.get('status')}")
+                    
+                    # Format training date if available
+                    training_date = training.get('training_date')
+                    if training_date:
+                        logger.info(f"    Training Date: {training_date}")
+                
+                if len(trainings) > 3:
+                    logger.info(f"    ... and {len(trainings) - 3} more trainings")
+            
+            logger.info("✅ Real trainings data test passed")
+        except Exception as e:
+            logger.error(f"❌ Error testing real trainings data: {str(e)}")
+            raise
+
+def run_real_data_tests():
+    """Run tests to check real data in the system"""
+    logger.info("\n=== Running Real Data Tests ===")
+    
+    # Create a test suite
+    suite = unittest.TestSuite()
+    
+    # Add real data tests
+    suite.addTest(TestRealDataEndpoints("test_real_clients_data"))
+    suite.addTest(TestRealDataEndpoints("test_real_documents_data"))
+    suite.addTest(TestRealDataEndpoints("test_real_trainings_data"))
+    
+    # Run the tests
+    runner = unittest.TextTestRunner()
+    runner.run(suite)
+
+if __name__ == "__main__":
+    run_real_data_tests()
