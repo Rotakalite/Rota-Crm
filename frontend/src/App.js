@@ -7774,17 +7774,14 @@ const EmailManagement = () => {
     try {
       setLoading(true);
       
-      // Try the working endpoint
-      const response = await axios.get(`${API}/api/documents`, {
+      // Try the updated endpoint that searches both databases
+      const response = await axios.get(`${API}/api/email-management/documents-real`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
-      console.log('Documents fetched:', response.data);
+      console.log('Documents fetched from both databases:', response.data);
       
-      if (response.data.documents && response.data.documents.length > 0) {
-        setDocuments(response.data.documents);
-        console.log(`✅ Loaded ${response.data.documents.length} documents`);
-      } else if (response.data && Array.isArray(response.data)) {
+      if (response.data && Array.isArray(response.data) && response.data.length > 0) {
         setDocuments(response.data);
         console.log(`✅ Loaded ${response.data.length} documents`);
       } else {
@@ -7828,17 +7825,14 @@ const EmailManagement = () => {
     try {
       setLoading(true);
       
-      // Try the working endpoint
-      const response = await axios.get(`${API}/api/trainings`, {
+      // Try the updated endpoint that searches both databases
+      const response = await axios.get(`${API}/api/email-management/trainings-real`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
-      console.log('Trainings fetched:', response.data);
+      console.log('Trainings fetched from both databases:', response.data);
       
-      if (response.data.trainings && response.data.trainings.length > 0) {
-        setTrainings(response.data.trainings);
-        console.log(`✅ Loaded ${response.data.trainings.length} trainings`);
-      } else if (response.data && Array.isArray(response.data)) {
+      if (response.data && Array.isArray(response.data) && response.data.length > 0) {
         setTrainings(response.data);
         console.log(`✅ Loaded ${response.data.length} trainings`);
       } else {
@@ -7880,17 +7874,14 @@ const EmailManagement = () => {
   const fetchClients = async () => {
     if (!authToken) return;
     try {
-      // Try the working endpoint
-      const response = await axios.get(`${API}/api/clients`, {
+      // Try the updated endpoint that searches both databases
+      const response = await axios.get(`${API}/api/email-management/clients-real`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
-      console.log('Clients fetched:', response.data);
+      console.log('Clients fetched from both databases:', response.data);
       
-      if (response.data.clients && response.data.clients.length > 0) {
-        setClients(response.data.clients);
-        console.log(`✅ Loaded ${response.data.clients.length} clients`);
-      } else if (response.data && Array.isArray(response.data)) {
+      if (response.data && Array.isArray(response.data) && response.data.length > 0) {
         setClients(response.data);
         console.log(`✅ Loaded ${response.data.length} clients`);
       } else {
