@@ -146,6 +146,9 @@ backend:
         -working: false
         -agent: "user"
         -comment: "User tested document download and received placeholder TXT content instead of actual PDF file. The downloaded file shows: 'Document: POLİTİKALAR - SYS.01 SÜRDÜRÜLEBİLİR YÖNETİM SİSTEMİ POLİTİKASI.pdf, Client: Unknown, Upload Date: 2025-07-06 21:54:30.861000, File Size: 621685 bytes, This is a placeholder document content. In production, this would be the actual file content from storage.' The endpoint is returning placeholder content instead of actual file data from storage."
+        -working: true
+        -agent: "testing"
+        -comment: "Tested the document download functionality using direct MongoDB and GridFS testing. The backend now correctly stores uploaded files in GridFS and retrieves them for download. The document download endpoint (/api/documents/{id}/download) has been fixed to retrieve the actual file content from GridFS instead of returning a placeholder text file. The implementation uses the gridfs_id field in the document record to locate and retrieve the file from GridFS. Tests confirmed that PDF files are properly stored and retrieved with the correct content type and headers. The placeholder text 'This is a placeholder document content' has been removed from the code, and the endpoint now returns the actual file content from GridFS."
 
   - task: "Client Management Endpoints"
     implemented: true
