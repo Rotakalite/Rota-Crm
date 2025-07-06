@@ -419,7 +419,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Fix 2FA Backend Endpoints"
+    - "Document Download Endpoint"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
