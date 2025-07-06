@@ -59,7 +59,7 @@ class TestDocumentDownloadEndpoint(unittest.TestCase):
         logger.info("\n=== Testing document download endpoint without authentication ===")
         
         # Get a real document ID from the database
-        if self.db:
+        if self.db_connected:
             document = self.db.documents.find_one({})
             if document:
                 document_id = document.get("id")
@@ -77,8 +77,19 @@ class TestDocumentDownloadEndpoint(unittest.TestCase):
                 logger.info("✅ Document download without auth correctly returns 403 Forbidden")
             else:
                 logger.warning("⚠️ No documents found in database, skipping test")
+                # Use a dummy document ID for testing
+                document_id = "dummy-document-id"
+                url = f"{self.api_url}/documents/{document_id}/download"
+                response = requests.get(url, headers=self.headers_no_auth)
+                logger.info(f"No auth response status code: {response.status_code}")
+                self.assertEqual(response.status_code, 403)
         else:
-            logger.warning("⚠️ MongoDB connection failed, skipping test")
+            logger.warning("⚠️ MongoDB connection failed, using dummy document ID")
+            document_id = "dummy-document-id"
+            url = f"{self.api_url}/documents/{document_id}/download"
+            response = requests.get(url, headers=self.headers_no_auth)
+            logger.info(f"No auth response status code: {response.status_code}")
+            self.assertEqual(response.status_code, 403)
     
     def test_document_download_invalid_auth(self):
         """Test document download endpoint with invalid authentication"""
