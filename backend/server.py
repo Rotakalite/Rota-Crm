@@ -847,6 +847,69 @@ async def get_clients_direct(current_user: User = Depends(get_current_user)):
         print(f"Error in direct clients endpoint: {e}")
         return []
 
+# DOCUMENT UPLOAD ENDPOINT - DIRECT TO MAIN APP
+@app.post("/upload-document")
+async def upload_document_direct(
+    file: UploadFile = File(...),
+    client_id: str = Form(...),
+    folder_id: str = Form(...),
+    document_name: str = Form(...),
+    document_type: str = Form(...),
+    stage: str = Form(...),
+    current_user: User = Depends(get_current_user)
+):
+    """Upload document - DIRECT ON MAIN APP"""
+    try:
+        logging.info(f"📤 Direct upload: {current_user.name} - Client: {client_id} - Folder: {folder_id} - File: {file.filename}")
+        
+        # Get MongoDB connection - ROTACRM
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # Verify client exists
+        client = await asyncio.to_thread(db.clients.find_one, {"id": client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+            
+        # Verify folder exists
+        folder = await asyncio.to_thread(db.folders.find_one, {"id": folder_id})
+        if not folder:
+            raise HTTPException(status_code=404, detail="Folder not found")
+        
+        # Create document metadata
+        document_id = str(uuid.uuid4())
+        
+        # Save file content to GridFS (or simple storage)
+        file_content = await file.read()
+        
+        document_data = {
+            "id": document_id,
+            "client_id": client_id,
+            "name": document_name,
+            "document_name": document_name,
+            "document_type": document_type,
+            "stage": stage,
+            "filename": file.filename,
+            "content_type": file.content_type,
+            "file_size": len(file_content),
+            "original_filename": file.filename,
+            "uploaded_by": current_user.clerk_user_id,
+            "created_at": datetime.utcnow(),
+            "folder_id": folder_id,
+            "folder_path": folder["folder_path"],
+            "folder_level": folder["level"]
+        }
+        
+        # Insert document to rotacrm
+        await asyncio.to_thread(db.documents.insert_one, document_data)
+        logging.info(f"✅ Document saved to ROTACRM: {document_id}")
+        
+        return {"message": "Document uploaded successfully", "document_id": document_id}
+        
+    except Exception as e:
+        logging.error(f"❌ Direct upload error: {e}")
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
 # EMAIL SENDING ENDPOINT - DIRECT TO MAIN APP
 @app.post("/send-email")
 async def send_email_direct(request: dict, current_user: User = Depends(get_current_user)):
