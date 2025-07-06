@@ -142,7 +142,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -152,6 +152,9 @@ backend:
         -working: false
         -agent: "testing"
         -comment: "Conducted additional testing of the email management endpoints and MongoDB database. Confirmed that the MongoDB database contains real data for clients, documents, and trainings. The email management endpoints are defined in the server.py file but are returning 404 Not Found errors. The API router is properly registered, and other endpoints like /api/health, /api/suppliers/categories/list, and /api/guest-engagement/eco-tips are working correctly. The issue appears to be that the email management endpoints are not being properly registered or are being overridden by other routes. Restarting the backend service did not resolve the issue. The MongoDB database contains 1 client, 1 document, and 1 training record that should be accessible through these endpoints."
+        -working: false
+        -agent: "testing"
+        -comment: "Performed comprehensive testing of the Email Management real data endpoints. Created a dedicated test script to test the endpoints with proper authentication. All three endpoints (/api/email-management/clients-real, /api/email-management/documents-real, and /api/email-management/trainings-real) are returning 404 Not Found errors. The server logs confirm that the requests are reaching the server but the endpoints are not found. Other API endpoints like /api/health, /api/suppliers/categories/list, and /api/guest-engagement/eco-tips are working correctly, which indicates that the API router is properly registered. The issue is likely due to a problem with how these specific endpoints are defined or registered. The endpoints are defined in the server.py file at lines 5459, 5497, and 5537, but they are not being properly registered with the FastAPI router. This could be due to a syntax error, a conditional registration that's not being triggered, or the endpoints being defined after the router is registered."
 
 frontend:
   - task: "Fix Frontend JSX Syntax Errors - Adjacent JSX Elements"
