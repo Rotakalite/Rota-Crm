@@ -7774,19 +7774,22 @@ const EmailManagement = () => {
     try {
       setLoading(true);
       
-      // Try real data first
-      const response = await axios.get(`${API}/api/email-management/documents-real`, {
+      // Try the working endpoint
+      const response = await axios.get(`${API}/api/documents`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
-      console.log('Real documents fetched:', response.data);
+      console.log('Documents fetched:', response.data);
       
       if (response.data.documents && response.data.documents.length > 0) {
         setDocuments(response.data.documents);
-        console.log(`✅ Loaded ${response.data.documents.length} real documents`);
+        console.log(`✅ Loaded ${response.data.documents.length} documents`);
+      } else if (response.data && Array.isArray(response.data)) {
+        setDocuments(response.data);
+        console.log(`✅ Loaded ${response.data.length} documents`);
       } else {
-        // Fallback to mock data if no real documents
-        console.log('No real documents found, using mock data');
+        // Fallback to mock data if no documents
+        console.log('No documents found, using mock data');
         setDocuments([
           {
             id: 1,
@@ -7801,7 +7804,7 @@ const EmailManagement = () => {
         ]);
       }
     } catch (error) {
-      console.error('Error fetching real documents:', error);
+      console.error('Error fetching documents:', error);
       // Fallback to mock data if API fails
       setDocuments([
         {
@@ -7825,19 +7828,22 @@ const EmailManagement = () => {
     try {
       setLoading(true);
       
-      // Try real data first
-      const response = await axios.get(`${API}/api/email-management/trainings-real`, {
+      // Try the working endpoint
+      const response = await axios.get(`${API}/api/trainings`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
-      console.log('Real trainings fetched:', response.data);
+      console.log('Trainings fetched:', response.data);
       
       if (response.data.trainings && response.data.trainings.length > 0) {
         setTrainings(response.data.trainings);
-        console.log(`✅ Loaded ${response.data.trainings.length} real trainings`);
+        console.log(`✅ Loaded ${response.data.trainings.length} trainings`);
+      } else if (response.data && Array.isArray(response.data)) {
+        setTrainings(response.data);
+        console.log(`✅ Loaded ${response.data.length} trainings`);
       } else {
-        // Fallback to mock data if no real trainings
-        console.log('No real trainings found, using mock data');
+        // Fallback to mock data if no trainings
+        console.log('No trainings found, using mock data');
         setTrainings([
           {
             id: 1,
@@ -7852,7 +7858,7 @@ const EmailManagement = () => {
         ]);
       }
     } catch (error) {
-      console.error('Error fetching real trainings:', error);
+      console.error('Error fetching trainings:', error);
       // Fallback to mock data if API fails
       setTrainings([
         {
@@ -7874,25 +7880,28 @@ const EmailManagement = () => {
   const fetchClients = async () => {
     if (!authToken) return;
     try {
-      // Try real data first
-      const response = await axios.get(`${API}/api/email-management/clients-real`, {
+      // Try the working endpoint
+      const response = await axios.get(`${API}/api/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
-      console.log('Real clients fetched:', response.data);
+      console.log('Clients fetched:', response.data);
       
       if (response.data.clients && response.data.clients.length > 0) {
         setClients(response.data.clients);
-        console.log(`✅ Loaded ${response.data.clients.length} real clients`);
+        console.log(`✅ Loaded ${response.data.clients.length} clients`);
+      } else if (response.data && Array.isArray(response.data)) {
+        setClients(response.data);
+        console.log(`✅ Loaded ${response.data.length} clients`);
       } else {
-        // Fallback to mock data if no real clients
-        console.log('No real clients found, using mock data');
+        // Fallback to mock data if no clients
+        console.log('No clients found, using mock data');
         setClients([
           { id: 1, name: 'Hotel Paradise', email: 'info@hotelparadise.com', client_id: 'hotel-paradise' }
         ]);
       }
     } catch (error) {
-      console.error('Error fetching real clients:', error);
+      console.error('Error fetching clients:', error);
       // Fallback to mock data if API fails
       setClients([
         { id: 1, name: 'Hotel Paradise', email: 'info@hotelparadise.com', client_id: 'hotel-paradise' }
