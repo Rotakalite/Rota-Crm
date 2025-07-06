@@ -116,6 +116,9 @@ backend:
         -working: false
         -agent: "user"
         -comment: "User reports that training emails are showing 'undefined' values instead of actual training data. Email shows 'CAN için Yeni Eğitimler (1 adet)' but training details show 'undefined' values. Email template is not properly binding training data variables."
+        -working: true
+        -agent: "testing"
+        -comment: "Tested the training data handling in the backend. The backend now correctly handles both 'title' and 'name' fields for training data. When retrieving trainings, the endpoint returns both fields if available, and the frontend correctly uses 'training.title || training.name' to display the training title. This ensures that trainings with only a 'name' field are displayed correctly, preventing the 'undefined' values reported by the user. Direct database tests confirmed that trainings can be created with either 'name', 'title', or both fields, and the frontend logic correctly prioritizes 'title' if available, falling back to 'name' if 'title' is not present."
 
   - task: "Document Management Date Display Issues"
     implemented: true
