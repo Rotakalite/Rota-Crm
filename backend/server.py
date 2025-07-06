@@ -707,6 +707,12 @@ async def root():
     """Root endpoint for testing"""
     return {"message": "Rota CRM Backend is running", "status": "ok"}
 
+# Test endpoint directly on api_router
+@api_router.get("/test")
+async def test_endpoint():
+    """Test endpoint to verify router mounting"""
+    return {"message": "API Router is working", "status": "ok"}
+
 
 @api_router.get("/whatsapp/status")
 async def get_whatsapp_status(current_user: User = Depends(get_admin_user)):
