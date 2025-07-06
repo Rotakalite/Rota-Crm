@@ -47,10 +47,12 @@ class TestDocumentDownloadEndpoint(unittest.TestCase):
             self.mongo_client = MongoClient(MONGO_URL)
             self.db = self.mongo_client[DB_NAME]
             logger.info(f"✅ Connected to MongoDB: {DB_NAME}")
+            self.db_connected = True
         except Exception as e:
             logger.error(f"❌ Failed to connect to MongoDB: {e}")
             self.mongo_client = None
             self.db = None
+            self.db_connected = False
     
     def test_document_download_no_auth(self):
         """Test document download endpoint without authentication"""
