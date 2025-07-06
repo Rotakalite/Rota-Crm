@@ -7842,20 +7842,9 @@ const EmailManagement = () => {
         setTrainings(response.data);
         console.log(`✅ Loaded ${response.data.length} trainings`);
       } else {
-        // Fallback to mock data if no trainings
-        console.log('No trainings found, using mock data');
-        setTrainings([
-          {
-            id: 1,
-            title: 'Sürdürülebilir Turizm Eğitimi',
-            description: 'Temel sürdürülebilirlik prensipleri',
-            duration: '2 saat',
-            level: 'Başlangıç',
-            category: 'Environment',
-            client_id: 'general',
-            client_name: 'Genel Eğitim'
-          }
-        ]);
+        // No trainings found - show empty state
+        console.log('No trainings found in database');
+        setTrainings([]);
       }
     } catch (error) {
       console.error('Error fetching trainings:', error);
