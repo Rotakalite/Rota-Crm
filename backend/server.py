@@ -5599,15 +5599,22 @@ async def get_real_clients_for_email(current_user: User = Depends(get_current_us
         # Get all clients from database
         clients = await db.clients.find().to_list(length=None)
         
+        # Also check rotacrm database
+        rotacrm_db = client["rotacrm"]
+        rotacrm_clients = await rotacrm_db.clients.find().to_list(length=None)
+        
+        # Combine clients from both databases
+        all_clients = clients + rotacrm_clients
+        
         # Format clients for frontend
         formatted_clients = []
-        for client in clients:
+        for client in all_clients:
             if "_id" in client:
                 del client["_id"]
             
             formatted_client = {
                 "id": client.get("id", ""),
-                "name": client.get("hotel_name", client.get("name", "Unknown Client")),
+                "name": client.get("hotel_name", client.get("client_name", client.get("name", "Unknown Client"))),
                 "email": client.get("email", ""),
                 "contact_person": client.get("contact_person", ""),
                 "category": client.get("current_stage", "General"),
@@ -5616,12 +5623,12 @@ async def get_real_clients_for_email(current_user: User = Depends(get_current_us
             formatted_clients.append(formatted_client)
         
         logging.info(f"Found {len(formatted_clients)} real clients for email management")
-        return {"clients": formatted_clients}
+        return formatted_clients
         
     except Exception as e:
         logging.error(f"Error fetching real clients: {str(e)}")
         # Return empty list on error
-        return {"clients": []}
+        return []
 
 # ==========================================
 # API ROUTER REGISTRATION - MUST BE AT END
