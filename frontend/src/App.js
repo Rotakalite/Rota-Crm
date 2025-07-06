@@ -7848,19 +7848,8 @@ const EmailManagement = () => {
       }
     } catch (error) {
       console.error('Error fetching trainings:', error);
-      // Fallback to mock data if API fails
-      setTrainings([
-        {
-          id: 1,
-          title: 'Sürdürülebilir Turizm Eğitimi',
-          description: 'Temel sürdürülebilirlik prensipleri',
-          duration: '2 saat',
-          level: 'Başlangıç',
-          category: 'Environment',
-          client_id: 'general',
-          client_name: 'Genel Eğitim'
-        }
-      ]);
+      // Show empty state if API fails
+      setTrainings([]);
     } finally {
       setLoading(false);
     }
