@@ -5602,3 +5602,8 @@ async def get_real_clients_for_email(token: str = Depends(verify_token)):
         logging.error(f"Error fetching real clients: {str(e)}")
         # Return empty list on error
         return {"clients": []}
+
+# ==========================================
+# API ROUTER REGISTRATION - MUST BE AT END
+# ==========================================
+app.include_router(api_router, prefix="/api")
