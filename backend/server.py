@@ -5295,73 +5295,93 @@ async def shutdown_db_client():
 # Document & Training Email Management Endpoints
 @api_router.get("/trainings")
 async def get_trainings(token: str = Depends(verify_token)):
-    """Get trainings for email management"""
+    """Get trainings for email management from real database"""
     try:
-        # Mock data for now - can be replaced with actual training management
-        trainings = [
-            {
-                "id": 1,
-                "title": "Sürdürülebilir Turizm Eğitimi",
-                "description": "Temel sürdürülebilirlik prensipleri ve uygulamaları",
-                "duration": "2 saat",
-                "level": "Başlangıç",
-                "category": "Environment",
-                "content_type": "Video + PDF",
-                "created_date": datetime.utcnow().isoformat()
-            },
-            {
-                "id": 2,
-                "title": "Enerji Tasarrufu ve Verimlilik Eğitimi",
-                "description": "Otel operasyonlarında enerji verimliliği teknikleri",
-                "duration": "1.5 saat",
-                "level": "Orta",
-                "category": "Energy",
-                "content_type": "Interactive Course",
-                "created_date": (datetime.utcnow() - timedelta(days=7)).isoformat()
-            },
-            {
-                "id": 3,
-                "title": "Atık Azaltma ve Geri Dönüşüm Workshop",
-                "description": "Zero waste prensipleri ve pratik uygulamalar",
-                "duration": "3 saat",
-                "level": "İleri",
-                "category": "Waste Management",
-                "content_type": "Workshop + Hands-on",
-                "created_date": (datetime.utcnow() - timedelta(days=14)).isoformat()
-            },
-            {
-                "id": 4,
-                "title": "Su Tasarrufu ve Yönetimi",
-                "description": "Su kaynaklarının etkin kullanımı ve korunması",
-                "duration": "1 saat",
-                "level": "Başlangıç",
-                "category": "Water Management",
-                "content_type": "E-learning",
-                "created_date": (datetime.utcnow() - timedelta(days=21)).isoformat()
-            },
-            {
-                "id": 5,
-                "title": "Yerel Toplum Entegrasyonu",
-                "description": "Yerel kültür ve ekonomi ile işbirliği stratejileri",
-                "duration": "2.5 saat",
-                "level": "Orta",
-                "category": "Social Sustainability",
-                "content_type": "Case Studies + Discussion",
-                "created_date": (datetime.utcnow() - timedelta(days=28)).isoformat()
-            },
-            {
-                "id": 6,
-                "title": "Karbon Ayak İzi Hesaplama ve Azaltma",
-                "description": "CO2 emisyon hesaplama ve azaltma yöntemleri",
-                "duration": "2 saat",
-                "level": "İleri",
-                "category": "Carbon Management",
-                "content_type": "Calculator Tool + Training",
-                "created_date": (datetime.utcnow() - timedelta(days=35)).isoformat()
-            }
-        ]
+        # Get real trainings from database
+        trainings_from_db = await db.trainings.find().to_list(length=None)
         
-        return {"trainings": trainings}
+        # Format trainings for frontend with client info
+        formatted_trainings = []
+        for training in trainings_from_db:
+            if "_id" in training:
+                del training["_id"]
+            
+            # Get client info
+            client = await db.clients.find_one({"id": training.get("client_id", "")})
+            client_name = client.get("hotel_name", "Unknown Client") if client else "Unknown Client"
+            
+            formatted_training = {
+                "id": training.get("id", str(training.get("_id", ""))),
+                "title": training.get("name", training.get("title", "Untitled Training")),
+                "description": training.get("subject", "No description available"),
+                "duration": f"{training.get('duration', 2)} saat",
+                "level": "Orta",  # Default level
+                "category": training.get("category", "General"),
+                "client_id": training.get("client_id", ""),
+                "client_name": client_name,
+                "trainer": training.get("trainer", ""),
+                "training_date": training.get("training_date", ""),
+                "status": training.get("status", "planned")
+            }
+            formatted_trainings.append(formatted_training)
+        
+        # If no real trainings found, return sample data with client info
+        if not formatted_trainings:
+            trainings = [
+                {
+                    "id": 1,
+                    "title": "Sürdürülebilir Turizm Eğitimi",
+                    "description": "Temel sürdürülebilirlik prensipleri ve uygulamaları",
+                    "duration": "2 saat",
+                    "level": "Başlangıç",
+                    "category": "Environment",
+                    "content_type": "Video + PDF",
+                    "created_date": datetime.utcnow().isoformat(),
+                    "client_id": "paradise-resort",
+                    "client_name": "Paradise Resort & Spa"
+                },
+                {
+                    "id": 2,
+                    "title": "Enerji Tasarrufu ve Verimlilik Eğitimi",
+                    "description": "Otel operasyonlarında enerji verimliliği teknikleri",
+                    "duration": "1.5 saat",
+                    "level": "Orta",
+                    "category": "Energy",
+                    "content_type": "Interactive Course",
+                    "created_date": (datetime.utcnow() - timedelta(days=7)).isoformat(),
+                    "client_id": "green-valley",
+                    "client_name": "Green Valley Hotel"
+                },
+                {
+                    "id": 3,
+                    "title": "Atık Azaltma ve Geri Dönüşüm Workshop",
+                    "description": "Zero waste prensipleri ve pratik uygulamalar",
+                    "duration": "3 saat",
+                    "level": "İleri",
+                    "category": "Waste Management",
+                    "content_type": "Workshop",
+                    "created_date": (datetime.utcnow() - timedelta(days=14)).isoformat(),
+                    "client_id": "eco-lodge",
+                    "client_name": "Eco Lodge Antalya"
+                },
+                {
+                    "id": 4,
+                    "title": "Genel Sürdürülebilirlik Farkındalık Eğitimi",
+                    "description": "Tüm çalışanlar için temel sürdürülebilirlik eğitimi",
+                    "duration": "1 saat",
+                    "level": "Başlangıç",
+                    "category": "General",
+                    "content_type": "Online Course",
+                    "created_date": (datetime.utcnow() - timedelta(days=21)).isoformat(),
+                    "client_id": "general",
+                    "client_name": "Tüm Müşteriler"
+                }
+            ]
+            logging.info(f"No real trainings found, returning {len(trainings)} sample trainings")
+            return {"trainings": trainings}
+        
+        logging.info(f"Found {len(formatted_trainings)} real trainings for email management")
+        return {"trainings": formatted_trainings}
     except Exception as e:
         logging.error(f"Error fetching trainings: {str(e)}")
         raise HTTPException(status_code=500, detail="Eğitimler alınamadı")
