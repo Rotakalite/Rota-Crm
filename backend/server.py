@@ -843,31 +843,6 @@ async def download_document_direct(
             logging.error(f"❌ Error retrieving file from GridFS: {e}")
             raise HTTPException(status_code=500, detail="Error retrieving file from storage")
         
-        # For now, return document metadata since we don't store actual file content
-        # In a real implementation, you would retrieve the file from storage (GCS, S3, etc.)
-        
-        from fastapi.responses import Response
-        
-        # Create a dummy PDF content for demonstration
-        pdf_content = f"""
-Document: {document.get('name', 'Unknown')}
-Client: {document.get('client_name', 'Unknown')}
-Upload Date: {document.get('created_at', 'Unknown')}
-File Size: {document.get('file_size', 'Unknown')} bytes
-
-This is a placeholder document content.
-In production, this would be the actual file content from storage.
-"""
-        
-        return Response(
-            content=pdf_content.encode('utf-8'),
-            media_type='application/pdf',
-            headers={
-                "Content-Disposition": f"attachment; filename={document.get('filename', 'document.pdf')}",
-                "Content-Length": str(len(pdf_content.encode('utf-8')))
-            }
-        )
-        
     except HTTPException:
         raise
     except Exception as e:
