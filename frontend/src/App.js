@@ -7878,21 +7878,18 @@ const EmailManagement = () => {
   };
 
   const fetchClients = async () => {
-    if (!authToken) return;
     try {
-      // Try the working endpoint
-      const response = await axios.get(`${API}/api/clients`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
+      // Try TEST endpoint without authentication first
+      const response = await axios.get(`${API}/api/email-test/clients`);
       
-      console.log('Clients fetched:', response.data);
+      console.log('🧪 TEST Clients fetched:', response.data);
       
       if (response.data.clients && response.data.clients.length > 0) {
         setClients(response.data.clients);
-        console.log(`✅ Loaded ${response.data.clients.length} clients`);
+        console.log(`✅ TEST - Loaded ${response.data.clients.length} clients`);
       } else if (response.data && Array.isArray(response.data)) {
         setClients(response.data);
-        console.log(`✅ Loaded ${response.data.length} clients`);
+        console.log(`✅ TEST - Loaded ${response.data.length} clients`);
       } else {
         // Fallback to mock data if no clients
         console.log('No clients found, using mock data');
@@ -7901,7 +7898,7 @@ const EmailManagement = () => {
         ]);
       }
     } catch (error) {
-      console.error('Error fetching clients:', error);
+      console.error('Error fetching TEST clients:', error);
       // Fallback to mock data if API fails
       setClients([
         { id: 1, name: 'Hotel Paradise', email: 'info@hotelparadise.com', client_id: 'hotel-paradise' }
