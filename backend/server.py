@@ -5573,7 +5573,7 @@ async def get_real_trainings_for_email(token: str = Depends(verify_token)):
         return {"trainings": []}
 
 @api_router.get("/email-management/clients-real")
-async def get_real_clients_for_email(token: str = Depends(verify_token)):
+async def get_real_clients_for_email(current_user: User = Depends(get_current_user)):
     """Get real clients from database for email management"""
     try:
         # Get all clients from database
