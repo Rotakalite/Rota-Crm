@@ -8372,8 +8372,8 @@ const EmailManagement = () => {
                       </>
                     ) : (
                       <>
-                        <span>🚀</span>
-                        <span>Hızlı Gönder</span>
+                        <span>🎯</span>
+                        <span>Akıllı Gönder</span>
                       </>
                     )}
                   </button>
