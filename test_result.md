@@ -107,15 +107,18 @@ user_problem_statement: "Rota-CRM frontend application'ında tedarikçi modülü
 backend:
   - task: "Document Download Endpoint"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: false
         -agent: "main"
         -comment: "Users experiencing 500 Internal Server Error when trying to download documents. The endpoint /api/documents/{id}/download was missing completely from server.py. Added new GET endpoint directly to main FastAPI app to handle document downloads with proper authentication, file retrieval, and streaming response with appropriate headers."
+        -working: true
+        -agent: "testing"
+        -comment: "Tested the document download endpoint (/api/documents/{id}/download) thoroughly. The endpoint is properly implemented and working as expected. It correctly requires authentication, returning 403 Forbidden when no token is provided and 401 Unauthorized for invalid tokens. The endpoint properly retrieves document metadata from MongoDB and checks user access permissions, returning 403 Access Denied if a client user tries to access a document that doesn't belong to them. For valid requests, it returns the document content with proper headers (Content-Type: application/pdf, Content-Disposition: attachment). The endpoint also correctly handles error cases, returning 404 Not Found for non-existent documents. MongoDB database contains 6 documents that can be accessed through this endpoint."
 
   - task: "Client Management Endpoints"
     implemented: true
