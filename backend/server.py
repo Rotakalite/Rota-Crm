@@ -5501,15 +5501,25 @@ async def get_real_documents_for_email(current_user: User = Depends(get_current_
         # Get all documents from database
         documents = await db.documents.find().to_list(length=None)
         
+        # Also check rotacrm database
+        rotacrm_db = client["rotacrm"]
+        rotacrm_documents = await rotacrm_db.documents.find().to_list(length=None)
+        
+        # Combine documents from both databases
+        all_documents = documents + rotacrm_documents
+        
         # Format documents for frontend with client info
         formatted_documents = []
-        for doc in documents:
+        for doc in all_documents:
             if "_id" in doc:
                 del doc["_id"]
             
-            # Get client info
+            # Get client info from both databases
             client = await db.clients.find_one({"id": doc.get("client_id", "")})
-            client_name = client.get("hotel_name", "Unknown Client") if client else "Unknown Client"
+            if not client:
+                client = await rotacrm_db.clients.find_one({"id": doc.get("client_id", "")})
+            
+            client_name = client.get("hotel_name", client.get("client_name", "Unknown Client")) if client else "Unknown Client"
             
             formatted_doc = {
                 "id": doc.get("id", ""),
@@ -5525,12 +5535,12 @@ async def get_real_documents_for_email(current_user: User = Depends(get_current_
             formatted_documents.append(formatted_doc)
         
         logging.info(f"Found {len(formatted_documents)} real documents for email management")
-        return {"documents": formatted_documents}
+        return formatted_documents
         
     except Exception as e:
         logging.error(f"Error fetching real documents: {str(e)}")
         # Return empty list on error
-        return {"documents": []}
+        return []
 
 @api_router.get("/email-management/trainings-real")
 async def get_real_trainings_for_email(current_user: User = Depends(get_current_user)):
