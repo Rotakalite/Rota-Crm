@@ -5387,69 +5387,72 @@ async def get_trainings(token: str = Depends(verify_token)):
         raise HTTPException(status_code=500, detail="Eğitimler alınamadı")
 
 @api_router.get("/clients")
-async def get_clients_for_email(token: str = Depends(verify_token)):
-    """Get clients for email management from real database"""
+async def get_clients_for_email(current_user: User = Depends(get_current_user)):
+    """Get clients for email management - CLIENT sees only themselves, ADMIN sees all"""
     try:
-        # Get real clients from database
-        clients_from_db = await db.clients.find().to_list(length=None)
+        logging.info(f"📧 Email Management - GET /clients called by: {current_user.role} - {current_user.name}")
         
-        # Format clients for frontend
-        formatted_clients = []
-        for client in clients_from_db:
-            if "_id" in client:
-                del client["_id"]
+        if current_user.role == UserRole.CLIENT:
+            # CLIENT users only see themselves as the "client" for email purposes
+            formatted_clients = [{
+                "id": current_user.client_id or "self",
+                "name": current_user.hotel_name or current_user.name or "My Hotel",
+                "email": current_user.email,
+                "contact_person": current_user.name,
+                "category": "My Account",
+                "client_id": current_user.client_id or "self"
+            }]
+            logging.info(f"✅ CLIENT user - returning own info as client: {formatted_clients[0]['name']}")
+            return {"clients": formatted_clients}
+        
+        elif current_user.role == UserRole.ADMIN:
+            # ADMIN users see all clients from database
+            clients_from_db = await db.clients.find().to_list(length=None)
             
-            formatted_client = {
-                "id": client.get("id", str(client.get("_id", ""))),
-                "name": client.get("hotel_name", client.get("name", "Unknown Client")),
-                "email": client.get("email", ""),
-                "contact_person": client.get("contact_person", ""),
-                "category": client.get("current_stage", "General"),
-                "client_id": client.get("id", str(client.get("_id", "")))  # For mapping
-            }
-            formatted_clients.append(formatted_client)
-        
-        # If no real clients found, return sample data
-        if not formatted_clients:
-            clients = [
+            # Format clients for frontend
+            formatted_clients = []
+            for client in clients_from_db:
+                if "_id" in client:
+                    del client["_id"]
+                
+                formatted_client = {
+                    "id": client.get("id", str(client.get("_id", ""))),
+                    "name": client.get("hotel_name", client.get("name", "Unknown Client")),
+                    "email": client.get("email", ""),
+                    "contact_person": client.get("contact_person", ""),
+                    "category": client.get("current_stage", "General"),
+                    "client_id": client.get("id", str(client.get("_id", "")))  # For mapping
+                }
+                formatted_clients.append(formatted_client)
+            
+            # If no real clients found, return sample data
+            if not formatted_clients:
+                clients = [
                 {
                     "id": 1,
-                "name": "Paradise Resort & Spa",
-                "email": "info@paradiseresort.com",
-                "contact_person": "Ahmet Yılmaz",
-                "category": "5 Star Resort",
-                "client_id": "paradise-resort"
-            },
-            {
-                "id": 2,
-                "name": "Green Valley Hotel",
-                "email": "contact@greenvalley.com",
-                "contact_person": "Elif Özkan",
-                "category": "Boutique Hotel",
-                "client_id": "green-valley"
-            },
-            {
-                "id": 3,
-                "name": "Eco Lodge Antalya",
-                "email": "hello@ecolodge-antalya.com",
-                "contact_person": "Mehmet Aydın",
-                "category": "Eco Lodge",
-                "client_id": "eco-lodge"
-            },
-            {
-                "id": 4,
-                "name": "Mountain View Resort",
-                "email": "info@mountainview.com",
-                "contact_person": "Zeynep Kaya",
-                "category": "Mountain Resort",
-                "client_id": "mountain-view"
-            }
-            ]
-            logging.info(f"No real clients found, returning {len(clients)} sample clients")
-            return {"clients": clients}
-        
-        logging.info(f"Found {len(formatted_clients)} real clients for email management")
-        return {"clients": formatted_clients}
+                    "name": "Paradise Resort & Spa",
+                    "email": "info@paradiseresort.com",
+                    "contact_person": "Ahmet Yılmaz",
+                    "category": "5 Star Resort",
+                    "client_id": "paradise-resort"
+                },
+                {
+                    "id": 2,
+                    "name": "Green Valley Hotel",
+                    "email": "contact@greenvalley.com",
+                    "contact_person": "Elif Özkan",
+                    "category": "Boutique Hotel",
+                    "client_id": "green-valley"
+                }
+                ]
+                logging.info(f"No real clients found, returning {len(clients)} sample clients")
+                return {"clients": clients}
+            
+            logging.info(f"✅ ADMIN user - returning {len(formatted_clients)} real clients")
+            return {"clients": formatted_clients}
+        else:
+            logging.warning(f"⚠️ Unknown user role: {current_user.role}")
+            return {"clients": []}
     except Exception as e:
         logging.error(f"Error fetching clients: {str(e)}")
         raise HTTPException(status_code=500, detail="Müşteriler alınamadı")
