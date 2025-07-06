@@ -8251,23 +8251,7 @@ const EmailManagement = () => {
 
     loadData();
   }, []); // Remove authToken dependency for testing
-            description: 'Enerji verimliliği teknikleri',
-            duration: '1.5 saat',
-            level: 'Orta',
-            category: 'Energy',
-            client_id: 'general',
-            client_name: 'Tüm Müşteriler'
-          }
-        ]);
-        
-        setClients([
-          { id: 1, name: 'Hotel Paradise', email: 'info@hotelparadise.com' }
-        ]);
-      }
-    };
 
-    loadData();
-  }, [authToken]); // Only re-run when authToken changes
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50">
