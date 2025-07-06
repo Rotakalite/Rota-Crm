@@ -8529,14 +8529,21 @@ const EmailManagement = () => {
                   onClick={() => handleItemSelection(training.id, 'training')}
                 >
                   <div className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-bold text-gray-800">{training.title}</h3>
-                      <input
-                        type="checkbox"
-                        checked={selectedItems.includes(`training_${training.id}`)}
-                        onChange={() => handleItemSelection(training.id, 'training')}
-                        className="w-5 h-5 text-green-600 rounded"
-                      />
+                    <div className="flex items-start justify-between mb-4">
+                      <h3 className="text-lg font-bold text-gray-800 flex-1 pr-3">{training.title}</h3>
+                      <div className="flex items-center space-x-2">
+                        <label className="flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={selectedItems.includes(`training_${training.id}`)}
+                            onChange={() => handleItemSelection(training.id, 'training')}
+                            className="w-6 h-6 text-green-600 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-green-500"
+                          />
+                          <span className="ml-2 text-sm text-gray-600 font-medium">
+                            {selectedItems.includes(`training_${training.id}`) ? 'Seçildi' : 'Seç'}
+                          </span>
+                        </label>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <p className="text-sm text-gray-600">{training.description}</p>
