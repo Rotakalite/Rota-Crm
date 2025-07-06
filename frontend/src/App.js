@@ -8197,7 +8197,19 @@ const EmailManagement = () => {
             type: 'PDF',
             category: 'Training Material',
             upload_date: '2024-12-20T10:30:00.000Z',
-            file_size: '2.5 MB'
+            file_size: '2.5 MB',
+            client_id: 'hotel-paradise',
+            client_name: 'Hotel Paradise'
+          },
+          {
+            id: 2,
+            title: 'Genel Çevre Politikası',
+            type: 'PDF',
+            category: 'Policy',
+            upload_date: '2024-12-19T14:15:00.000Z',
+            file_size: '1.2 MB',
+            client_id: 'general',
+            client_name: 'Tüm Müşteriler'
           }
         ]);
         
@@ -8208,7 +8220,19 @@ const EmailManagement = () => {
             description: 'Temel sürdürülebilirlik prensipleri',
             duration: '2 saat',
             level: 'Başlangıç',
-            category: 'Environment'
+            category: 'Environment',
+            client_id: 'green-resort',
+            client_name: 'Green Resort'
+          },
+          {
+            id: 2,
+            title: 'Genel Enerji Tasarrufu Eğitimi',
+            description: 'Enerji verimliliği teknikleri',
+            duration: '1.5 saat',
+            level: 'Orta',
+            category: 'Energy',
+            client_id: 'general',
+            client_name: 'Tüm Müşteriler'
           }
         ]);
         
