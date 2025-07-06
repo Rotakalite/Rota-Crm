@@ -4294,7 +4294,7 @@ const ClientDocuments = () => {
                           <div className="flex items-center text-sm text-gray-500 space-x-4">
                             <span>📋 {document.document_type}</span>
                             <span>🎯 {document.stage}</span>
-                            <span>📅 {new Date(document.created_at).toLocaleDateString('tr-TR')}</span>
+                            <span>📅 {formatDocumentDate(document.created_at)}</span>
                           </div>
                         </div>
                       </div>
