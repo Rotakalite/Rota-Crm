@@ -812,11 +812,14 @@ async def get_trainings_direct(current_user: User = Depends(get_current_user)):
                 training_date = training_date.isoformat()
             elif not training_date:
                 training_date = "2024-12-20T10:30:00.000Z"
+                
+            # Handle time serialization
+            training_time = training.get("training_time", "09:00")
             
             formatted_training = {
                 "id": training.get("id", ""),
-                "title": training.get("name", training.get("training_name", "Unknown Training")),
-                "description": training.get("description", training.get("subject", "No description")),
+                "title": training.get("name", training.get("training_name", training.get("title", "Unknown Training"))),
+                "description": training.get("description", training.get("subject", training.get("details", "No description"))),
                 "duration": training.get("duration", "N/A"),
                 "level": training.get("level", "Başlangıç"),
                 "category": training.get("category", training.get("subject", "General")),
@@ -825,6 +828,7 @@ async def get_trainings_direct(current_user: User = Depends(get_current_user)):
                 "trainer": training.get("trainer", "Unknown"),
                 "participant_count": training.get("participant_count", 0),
                 "training_date": training_date,
+                "training_time": training_time,  # Add training time
                 "status": training.get("status", "planned")
             }
             formatted_trainings.append(formatted_training)
