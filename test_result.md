@@ -275,9 +275,35 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
-agent_communication:
-    -agent: "main"
-    -message: "ELITE WASTE MANAGEMENT DESIGN COMPLETED! 🎉 Successfully implemented comprehensive elite UI improvements: 1) Gradient header with modern styling, 2) Advanced tab navigation system, 3) Elite analytics cards with animations and hover effects, 4) Professional color-coded data table, 5) Chart.js integration with Line/Pie/Bar charts for comprehensive data visualization, 6) Fixed oil waste display to show actual liters, 7) Responsive design with modern shadows and gradients. All JSX errors resolved, frontend builds successfully. Backend APIs confirmed working. Ready for user testing!"
+  - task: "Email Management Individual and Bulk Selection UI"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "User reported that in email management module, they can only do bulk selection but want to be able to select either individually or in bulk."
+        -working: true
+        -agent: "main"
+        -comment: "Enhanced email management UI to better support both individual and bulk selection. Added larger checkboxes with clear labels, 'Clear Selection' buttons, improved visual feedback, and instructional text in header. Individual selection via large checkboxes with 'Seç/Seçildi' labels, bulk selection via 'Tümünü Seç/Kaldır' buttons, and clear selection via 'Seçimi Temizle' buttons."
+
+  - task: "Customer Management Delete Functionality"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "User reported that they cannot delete customers in the customer management module."
+        -working: true
+        -agent: "main"
+        -comment: "Added delete functionality to ClientManagement component. Implemented handleDeleteClient function with confirmation dialog and added delete button (trash icon) to each client card. Backend DELETE /api/clients/{client_id} endpoint tested and confirmed working. Users can now delete clients with confirmation dialog."
     -agent: "testing"
     -message: "Tested the Supplier Management backend endpoints but found that they are not accessible in the current environment. All supplier endpoints (GET /api/suppliers/categories/list, GET /api/suppliers/certifications/list, POST /api/suppliers, GET /api/suppliers, GET /api/suppliers/analytics/dashboard) return 404 Not Found errors. The endpoints are defined in the server.py file but are not properly registered or deployed. The order of endpoint definitions might be causing issues, as the /suppliers/{supplier_id} endpoint is defined before the /suppliers/categories/list and /suppliers/certifications/list endpoints, which could cause FastAPI to interpret 'categories' and 'certifications' as supplier IDs. The main agent should implement and deploy the supplier management endpoints before they can be tested."
     -agent: "testing"
