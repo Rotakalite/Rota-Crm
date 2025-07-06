@@ -734,7 +734,7 @@ async def api_health_check_direct():
     }
 
 # CRITICAL EMAIL MANAGEMENT ENDPOINTS - DIRECT TO MAIN APP
-@app.get("/api/documents")
+@app.get("/documents")
 async def get_documents_direct(current_user: User = Depends(get_current_user)):
     """Get documents for email management - DIRECT ON MAIN APP"""
     try:
@@ -776,7 +776,7 @@ async def get_documents_direct(current_user: User = Depends(get_current_user)):
         print(f"Error in direct documents endpoint: {e}")
         return []
 
-@app.get("/api/trainings")  
+@app.get("/trainings")  
 async def get_trainings_direct(current_user: User = Depends(get_current_user)):
     """Get trainings for email management - DIRECT ON MAIN APP"""
     try:
@@ -818,7 +818,7 @@ async def get_trainings_direct(current_user: User = Depends(get_current_user)):
         print(f"Error in direct trainings endpoint: {e}")
         return []
 
-@app.get("/api/clients")
+@app.get("/clients")
 async def get_clients_direct(current_user: User = Depends(get_current_user)):
     """Get clients for email management - DIRECT ON MAIN APP"""
     try:
@@ -857,7 +857,7 @@ async def get_clients_direct(current_user: User = Depends(get_current_user)):
         return []
 
 # EMAIL SENDING ENDPOINT - DIRECT TO MAIN APP
-@app.post("/api/send-email")
+@app.post("/send-email")
 async def send_email_direct(request: dict, current_user: User = Depends(get_current_user)):
     """Send email - DIRECT ON MAIN APP"""
     try:
