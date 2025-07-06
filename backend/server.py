@@ -910,6 +910,71 @@ async def upload_document_direct(
         logging.error(f"❌ Direct upload error: {e}")
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
+# STATS ENDPOINT - DIRECT TO MAIN APP
+@app.get("/stats")
+async def get_statistics_direct(current_user: User = Depends(get_current_user)):
+    """Get statistics - DIRECT ON MAIN APP"""
+    try:
+        # Get MongoDB connection - ONLY ROTACRM
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        if current_user.role == UserRole.ADMIN:
+            # Admin sees all statistics from ROTACRM
+            total_clients = await asyncio.to_thread(db.clients.count_documents, {})
+            stage_1_clients = await asyncio.to_thread(db.clients.count_documents, {"current_stage": "I.Aşama"})
+            stage_2_clients = await asyncio.to_thread(db.clients.count_documents, {"current_stage": "II.Aşama"})
+            stage_3_clients = await asyncio.to_thread(db.clients.count_documents, {"current_stage": "III.Aşama"})
+            total_documents = await asyncio.to_thread(db.documents.count_documents, {})
+            total_trainings = await asyncio.to_thread(db.trainings.count_documents, {})
+            
+            logging.info(f"📊 ROTACRM Stats: {total_documents} docs, {total_trainings} trainings, {total_clients} clients")
+            
+            return {
+                "total_clients": total_clients,
+                "stage_distribution": {
+                    "stage_1": stage_1_clients,
+                    "stage_2": stage_2_clients,
+                    "stage_3": stage_3_clients
+                },
+                "total_documents": total_documents,
+                "total_trainings": total_trainings
+            }
+        else:
+            # Client sees only their own statistics
+            if not current_user.client_id:
+                return {
+                    "total_clients": 0,
+                    "stage_distribution": {"stage_1": 0, "stage_2": 0, "stage_3": 0},
+                    "total_documents": 0,
+                    "total_trainings": 0,
+                    "document_type_distribution": {
+                        "TR1_CRITERIA": 0,
+                        "STAGE_1_DOC": 0,
+                        "CARBON_REPORT": 0
+                    }
+                }
+            
+            # Client specific stats from ROTACRM
+            client_documents = await asyncio.to_thread(db.documents.count_documents, {"client_id": current_user.client_id})
+            client_trainings = await asyncio.to_thread(db.trainings.count_documents, {"client_id": current_user.client_id})
+            
+            return {
+                "total_clients": 1,
+                "stage_distribution": {"stage_1": 1, "stage_2": 0, "stage_3": 0},
+                "total_documents": client_documents,
+                "total_trainings": client_trainings,
+                "document_type_distribution": {
+                    "TR1_CRITERIA": client_documents,
+                    "STAGE_1_DOC": 0,
+                    "CARBON_REPORT": 0
+                }
+            }
+            
+    except Exception as e:
+        logging.error(f"❌ Direct stats error: {e}")
+        raise HTTPException(status_code=500, detail=f"Stats failed: {str(e)}")
+
 # EMAIL SENDING ENDPOINT - DIRECT TO MAIN APP
 @app.post("/send-email")
 async def send_email_direct(request: dict, current_user: User = Depends(get_current_user)):
