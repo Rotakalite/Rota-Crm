@@ -6952,6 +6952,7 @@ const TrainingManagement = () => {
         participant_count: '',
         trainer: '',
         training_date: '',
+        training_time: '09:00',  // Reset training time
         description: ''
       });
       setShowAddForm(false);
