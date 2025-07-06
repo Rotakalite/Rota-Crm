@@ -6451,7 +6451,7 @@ const ProjectManagement = ({ client, onNavigate }) => {
                 <div key={training.id} className="border-l-4 border-blue-400 pl-3 py-2 bg-white rounded">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h4 className="font-semibold text-sm">{training.title}</h4>
+                      <h4 className="font-semibold text-sm">{training.title || training.name}</h4>
                       <p className="text-xs text-gray-600">{training.description}</p>
                       <p className="text-xs text-gray-500">
                         {new Date(training.training_date).toLocaleDateString('tr-TR')} - {training.participants} kişi
