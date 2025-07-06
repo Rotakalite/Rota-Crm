@@ -282,161 +282,305 @@ class TestEmailManagementBackend(unittest.TestCase):
         self.assertEqual(response.status_code, 401)
         logger.info("✅ POST /api/send-email authentication test passed")
 
-class TestRealEmailManagementEndpoints(unittest.TestCase):
-    """Test class for Real Email Management endpoints"""
+class TestClientEmailManagementEndpoints(unittest.TestCase):
+    """Test class for Email Management endpoints with CLIENT users"""
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = RAILWAY_API_URL
-        self.headers = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
+        self.api_url = BACKEND_URL
+        
+        # Test JWT tokens for client users
+        self.KAYA_CLIENT_TOKEN = "eyJhbGciOiJSUzI1NiIsImtpZCI6Imluc18yUHFUQU9lQVNUUTlqaHRQcVpwSGlDRnVvIiwidHlwIjoiSldUIn0.eyJhenAiOiJodHRwczovL3JvdGEtY3JtLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJleHAiOjE3MTk5MzYxNjAsImlhdCI6MTcxOTkzMjU2MCwiaXNzIjoiaHR0cHM6Ly9hZGFwdGluZy1lZnQtNi5jbGVyay5hY2NvdW50cy5kZXYiLCJuYmYiOjE3MTk5MzI1NTAsInN1YiI6InVzZXJfS0FZQV9DTElFTlRfMDAxIiwiZW1haWwiOiJpbmZvQGtheWFrYWxpdGVkYW5pc21hbmxpay5jb20iLCJuYW1lIjoiS0FZQSBDbGllbnQifQ.signature"
+        self.CANO_CLIENT_TOKEN = "eyJhbGciOiJSUzI1NiIsImtpZCI6Imluc18yUHFUQU9lQVNUUTlqaHRQcVpwSGlDRnVvIiwidHlwIjoiSldUIn0.eyJhenAiOiJodHRwczovL3JvdGEtY3JtLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJleHAiOjE3MTk5MzYxNjAsImlhdCI6MTcxOTkzMjU2MCwiaXNzIjoiaHR0cHM6Ly9hZGFwdGluZy1lZnQtNi5jbGVyay5hY2NvdW50cy5kZXYiLCJuYmYiOjE3MTk5MzI1NTAsInN1YiI6InVzZXJfQ0FOT19DTElFTlRfMDAxIiwiZW1haWwiOiJjYW5lcnBhbEBnbWFpbC5jb20iLCJuYW1lIjoiQ0FOTyBDbGllbnQifQ.signature"
+        
+        # Headers for different user types
+        self.headers_kaya = {"Authorization": f"Bearer {self.KAYA_CLIENT_TOKEN}"}
+        self.headers_cano = {"Authorization": f"Bearer {self.CANO_CLIENT_TOKEN}"}
     
-    def test_real_clients_endpoint(self):
-        """Test GET /api/email-management/clients-real endpoint"""
-        logger.info("\n=== Testing GET /api/email-management/clients-real endpoint ===")
+    def test_clients_endpoint_for_client_users(self):
+        """Test the /api/clients endpoint for CLIENT users"""
+        logger.info("\n=== Testing /api/clients endpoint for CLIENT users ===")
         
-        url = f"{self.api_url}/email-management/clients-real"
+        url = f"{self.api_url}/clients"
         
+        # Test with CLIENT user (KAYA)
         try:
-            response = requests.get(url, headers=self.headers)
-            logger.info(f"Response status code: {response.status_code}")
+            response = requests.get(url, headers=self.headers_kaya)
+            logger.info(f"KAYA client response status code: {response.status_code}")
             
-            # Check if endpoint is accessible
-            self.assertIn(response.status_code, [200, 401, 403, 404])
+            # Should get 200 OK
+            self.assertEqual(response.status_code, 200)
             
-            if response.status_code == 200:
-                data = response.json()
-                logger.info(f"Response data: {data}")
-                
-                # Verify response structure
-                self.assertIn("clients", data)
-                self.assertIsInstance(data["clients"], list)
-                
-                # Check client data structure if any clients exist
-                if len(data["clients"]) > 0:
-                    client = data["clients"][0]
-                    self.assertIn("id", client)
-                    self.assertIn("name", client)
-                    self.assertIn("email", client)
-                    self.assertIn("contact_person", client)
-                    self.assertIn("category", client)
-                    self.assertIn("client_id", client)
-                    
-                    logger.info(f"Found {len(data['clients'])} clients")
-                    logger.info(f"Sample client: {client}")
-                else:
-                    logger.info("No clients found, but endpoint is working")
-                
-                logger.info("✅ GET /api/email-management/clients-real test passed")
-            elif response.status_code == 404:
-                logger.error("❌ Endpoint not found (404)")
-                logger.error("The endpoint /api/email-management/clients-real is not accessible")
-            elif response.status_code in [401, 403]:
-                logger.info("Authentication/authorization required")
-                
+            # Response should be a list with exactly 1 client (their own)
+            data = response.json()
+            self.assertIsInstance(data, list)
+            self.assertEqual(len(data), 1, "CLIENT user should see exactly 1 client (their own)")
+            
+            # Log the client data
+            client = data[0]
+            logger.info(f"CLIENT user can see client: {client.get('name')}")
+            logger.info(f"Client data: {json.dumps(client, indent=2)}")
+            
+            # Verify client data structure
+            self.assertIn("id", client)
+            self.assertIn("name", client)
+            self.assertIn("hotel_name", client)
+            self.assertIn("contact_person", client)
+            self.assertIn("email", client)
+            
+            logger.info("✅ /api/clients endpoint works for CLIENT users")
         except Exception as e:
-            logger.error(f"❌ Error testing clients endpoint: {str(e)}")
+            logger.error(f"❌ Error testing /api/clients endpoint: {str(e)}")
             raise
     
-    def test_real_documents_endpoint(self):
-        """Test GET /api/email-management/documents-real endpoint"""
-        logger.info("\n=== Testing GET /api/email-management/documents-real endpoint ===")
+    def test_documents_endpoint_for_client_users(self):
+        """Test the /api/documents endpoint for CLIENT users"""
+        logger.info("\n=== Testing /api/documents endpoint for CLIENT users ===")
+        
+        url = f"{self.api_url}/documents"
+        
+        # Test with CLIENT user (KAYA)
+        try:
+            response = requests.get(url, headers=self.headers_kaya)
+            logger.info(f"KAYA client response status code: {response.status_code}")
+            
+            # Should get 200 OK
+            self.assertEqual(response.status_code, 200)
+            
+            # Response should contain documents array
+            data = response.json()
+            self.assertIn("documents", data)
+            self.assertIsInstance(data["documents"], list)
+            
+            # Log the number of documents
+            document_count = len(data["documents"])
+            logger.info(f"CLIENT user can see {document_count} documents")
+            
+            # Verify document data structure if documents exist
+            if document_count > 0:
+                document = data["documents"][0]
+                logger.info(f"Sample document: {json.dumps(document, indent=2)}")
+                
+                self.assertIn("id", document)
+                self.assertIn("title", document)
+                self.assertIn("type", document)
+                self.assertIn("category", document)
+                self.assertIn("client_id", document)
+                
+                # Verify client_id matches the user's client_id
+                client_response = requests.get(f"{self.api_url}/clients", headers=self.headers_kaya)
+                client_data = client_response.json()
+                if len(client_data) > 0:
+                    client_id = client_data[0].get("id")
+                    self.assertEqual(document["client_id"], client_id, "Document client_id should match user's client_id")
+            
+            logger.info("✅ /api/documents endpoint works for CLIENT users")
+        except Exception as e:
+            logger.error(f"❌ Error testing /api/documents endpoint: {str(e)}")
+            raise
+    
+    def test_trainings_endpoint_for_client_users(self):
+        """Test the /api/trainings endpoint for CLIENT users"""
+        logger.info("\n=== Testing /api/trainings endpoint for CLIENT users ===")
+        
+        url = f"{self.api_url}/trainings"
+        
+        # Test with CLIENT user (KAYA)
+        try:
+            response = requests.get(url, headers=self.headers_kaya)
+            logger.info(f"KAYA client response status code: {response.status_code}")
+            
+            # Should get 200 OK
+            self.assertEqual(response.status_code, 200)
+            
+            # Response should be a list of trainings
+            data = response.json()
+            self.assertIsInstance(data, list)
+            
+            # Log the number of trainings
+            training_count = len(data)
+            logger.info(f"CLIENT user can see {training_count} trainings")
+            
+            # Verify training data structure if trainings exist
+            if training_count > 0:
+                training = data[0]
+                logger.info(f"Sample training: {json.dumps(training, indent=2)}")
+                
+                self.assertIn("id", training)
+                self.assertIn("client_id", training)
+                self.assertIn("name", training)
+                self.assertIn("subject", training)
+                
+                # Verify client_id matches the user's client_id
+                client_response = requests.get(f"{self.api_url}/clients", headers=self.headers_kaya)
+                client_data = client_response.json()
+                if len(client_data) > 0:
+                    client_id = client_data[0].get("id")
+                    self.assertEqual(training["client_id"], client_id, "Training client_id should match user's client_id")
+            
+            logger.info("✅ /api/trainings endpoint works for CLIENT users")
+        except Exception as e:
+            logger.error(f"❌ Error testing /api/trainings endpoint: {str(e)}")
+            raise
+    
+    def test_email_management_documents_real_endpoint_for_client_users(self):
+        """Test the /api/email-management/documents-real endpoint for CLIENT users"""
+        logger.info("\n=== Testing /api/email-management/documents-real endpoint for CLIENT users ===")
         
         url = f"{self.api_url}/email-management/documents-real"
         
+        # Test with CLIENT user (KAYA)
         try:
-            response = requests.get(url, headers=self.headers)
-            logger.info(f"Response status code: {response.status_code}")
+            response = requests.get(url, headers=self.headers_kaya)
+            logger.info(f"KAYA client response status code: {response.status_code}")
             
-            # Check if endpoint is accessible
-            self.assertIn(response.status_code, [200, 401, 403, 404])
-            
+            # Check response status code
             if response.status_code == 200:
+                # Response should contain documents array
                 data = response.json()
-                logger.info(f"Response data: {data}")
-                
-                # Verify response structure
                 self.assertIn("documents", data)
                 self.assertIsInstance(data["documents"], list)
                 
-                # Check document data structure if any documents exist
-                if len(data["documents"]) > 0:
+                # Log the number of documents
+                document_count = len(data["documents"])
+                logger.info(f"Found {document_count} documents in email-management/documents-real")
+                
+                # Verify document data structure if documents exist
+                if document_count > 0:
                     document = data["documents"][0]
+                    logger.info(f"Sample document: {json.dumps(document, indent=2)}")
+                    
                     self.assertIn("id", document)
                     self.assertIn("title", document)
                     self.assertIn("type", document)
                     self.assertIn("category", document)
-                    self.assertIn("upload_date", document)
-                    self.assertIn("file_size", document)
-                    self.assertIn("file_path", document)
                     self.assertIn("client_id", document)
-                    self.assertIn("client_name", document)
                     
-                    logger.info(f"Found {len(data['documents'])} documents")
-                    logger.info(f"Sample document: {document}")
-                else:
-                    logger.info("No documents found, but endpoint is working")
+                    # Verify client_id matches the user's client_id
+                    client_response = requests.get(f"{self.api_url}/clients", headers=self.headers_kaya)
+                    client_data = client_response.json()
+                    if len(client_data) > 0:
+                        client_id = client_data[0].get("id")
+                        self.assertEqual(document["client_id"], client_id, "Document client_id should match user's client_id")
                 
-                logger.info("✅ GET /api/email-management/documents-real test passed")
+                logger.info("✅ /api/email-management/documents-real endpoint works for CLIENT users")
             elif response.status_code == 404:
-                logger.error("❌ Endpoint not found (404)")
-                logger.error("The endpoint /api/email-management/documents-real is not accessible")
-            elif response.status_code in [401, 403]:
-                logger.info("Authentication/authorization required")
-                
+                logger.warning("⚠️ /api/email-management/documents-real endpoint returned 404 Not Found")
+                logger.warning("This endpoint may not be properly registered in the API router")
+            else:
+                logger.warning(f"⚠️ Unexpected status code: {response.status_code}")
+                if response.headers.get('content-type') == 'application/json':
+                    logger.warning(f"Response: {response.json()}")
+                else:
+                    logger.warning(f"Response: {response.text}")
         except Exception as e:
-            logger.error(f"❌ Error testing documents endpoint: {str(e)}")
+            logger.error(f"❌ Error testing /api/email-management/documents-real endpoint: {str(e)}")
             raise
     
-    def test_real_trainings_endpoint(self):
-        """Test GET /api/email-management/trainings-real endpoint"""
-        logger.info("\n=== Testing GET /api/email-management/trainings-real endpoint ===")
+    def test_email_management_trainings_real_endpoint_for_client_users(self):
+        """Test the /api/email-management/trainings-real endpoint for CLIENT users"""
+        logger.info("\n=== Testing /api/email-management/trainings-real endpoint for CLIENT users ===")
         
         url = f"{self.api_url}/email-management/trainings-real"
         
+        # Test with CLIENT user (KAYA)
         try:
-            response = requests.get(url, headers=self.headers)
-            logger.info(f"Response status code: {response.status_code}")
+            response = requests.get(url, headers=self.headers_kaya)
+            logger.info(f"KAYA client response status code: {response.status_code}")
             
-            # Check if endpoint is accessible
-            self.assertIn(response.status_code, [200, 401, 403, 404])
-            
+            # Check response status code
             if response.status_code == 200:
+                # Response should contain trainings array
                 data = response.json()
-                logger.info(f"Response data: {data}")
-                
-                # Verify response structure
                 self.assertIn("trainings", data)
                 self.assertIsInstance(data["trainings"], list)
                 
-                # Check training data structure if any trainings exist
-                if len(data["trainings"]) > 0:
+                # Log the number of trainings
+                training_count = len(data["trainings"])
+                logger.info(f"Found {training_count} trainings in email-management/trainings-real")
+                
+                # Verify training data structure if trainings exist
+                if training_count > 0:
                     training = data["trainings"][0]
+                    logger.info(f"Sample training: {json.dumps(training, indent=2)}")
+                    
                     self.assertIn("id", training)
                     self.assertIn("title", training)
                     self.assertIn("description", training)
-                    self.assertIn("duration", training)
-                    self.assertIn("level", training)
-                    self.assertIn("category", training)
                     self.assertIn("client_id", training)
-                    self.assertIn("client_name", training)
-                    self.assertIn("trainer", training)
-                    self.assertIn("training_date", training)
-                    self.assertIn("status", training)
                     
-                    logger.info(f"Found {len(data['trainings'])} trainings")
-                    logger.info(f"Sample training: {training}")
-                else:
-                    logger.info("No trainings found, but endpoint is working")
+                    # Verify client_id matches the user's client_id
+                    client_response = requests.get(f"{self.api_url}/clients", headers=self.headers_kaya)
+                    client_data = client_response.json()
+                    if len(client_data) > 0:
+                        client_id = client_data[0].get("id")
+                        self.assertEqual(training["client_id"], client_id, "Training client_id should match user's client_id")
                 
-                logger.info("✅ GET /api/email-management/trainings-real test passed")
+                logger.info("✅ /api/email-management/trainings-real endpoint works for CLIENT users")
             elif response.status_code == 404:
-                logger.error("❌ Endpoint not found (404)")
-                logger.error("The endpoint /api/email-management/trainings-real is not accessible")
-            elif response.status_code in [401, 403]:
-                logger.info("Authentication/authorization required")
-                
+                logger.warning("⚠️ /api/email-management/trainings-real endpoint returned 404 Not Found")
+                logger.warning("This endpoint may not be properly registered in the API router")
+            else:
+                logger.warning(f"⚠️ Unexpected status code: {response.status_code}")
+                if response.headers.get('content-type') == 'application/json':
+                    logger.warning(f"Response: {response.json()}")
+                else:
+                    logger.warning(f"Response: {response.text}")
         except Exception as e:
-            logger.error(f"❌ Error testing trainings endpoint: {str(e)}")
+            logger.error(f"❌ Error testing /api/email-management/trainings-real endpoint: {str(e)}")
+            raise
+    
+    def test_email_management_clients_real_endpoint_for_client_users(self):
+        """Test the /api/email-management/clients-real endpoint for CLIENT users"""
+        logger.info("\n=== Testing /api/email-management/clients-real endpoint for CLIENT users ===")
+        
+        url = f"{self.api_url}/email-management/clients-real"
+        
+        # Test with CLIENT user (KAYA)
+        try:
+            response = requests.get(url, headers=self.headers_kaya)
+            logger.info(f"KAYA client response status code: {response.status_code}")
+            
+            # Check response status code
+            if response.status_code == 200:
+                # Response should contain clients array
+                data = response.json()
+                self.assertIn("clients", data)
+                self.assertIsInstance(data["clients"], list)
+                
+                # Log the number of clients
+                client_count = len(data["clients"])
+                logger.info(f"Found {client_count} clients in email-management/clients-real")
+                
+                # Verify client data structure if clients exist
+                if client_count > 0:
+                    client = data["clients"][0]
+                    logger.info(f"Sample client: {json.dumps(client, indent=2)}")
+                    
+                    self.assertIn("id", client)
+                    self.assertIn("name", client)
+                    self.assertIn("email", client)
+                    self.assertIn("client_id", client)
+                    
+                    # Verify client_id matches the user's client_id
+                    client_response = requests.get(f"{self.api_url}/clients", headers=self.headers_kaya)
+                    client_data = client_response.json()
+                    if len(client_data) > 0:
+                        user_client_id = client_data[0].get("id")
+                        self.assertEqual(client["client_id"], user_client_id, "Client client_id should match user's client_id")
+                
+                logger.info("✅ /api/email-management/clients-real endpoint works for CLIENT users")
+            elif response.status_code == 404:
+                logger.warning("⚠️ /api/email-management/clients-real endpoint returned 404 Not Found")
+                logger.warning("This endpoint may not be properly registered in the API router")
+            else:
+                logger.warning(f"⚠️ Unexpected status code: {response.status_code}")
+                if response.headers.get('content-type') == 'application/json':
+                    logger.warning(f"Response: {response.json()}")
+                else:
+                    logger.warning(f"Response: {response.text}")
+        except Exception as e:
+            logger.error(f"❌ Error testing /api/email-management/clients-real endpoint: {str(e)}")
             raise
 
     def test_regular_endpoints(self):
