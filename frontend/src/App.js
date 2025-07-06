@@ -8297,7 +8297,7 @@ const EmailManagement = () => {
           
           <h3>🎓 Seçilen Eğitimler (${selectedTrainings.length})</h3>
           <ul>
-            ${selectedTrainings.map(training => `<li>${training.title} - ${training.duration}</li>`).join('')}
+            ${selectedTrainings.map(training => `<li>${training.title || training.name} - ${training.duration}</li>`).join('')}
           </ul>
           
           <p style="margin-top: 30px; color: #666;">
