@@ -96,7 +96,7 @@ class TestDocumentDownloadEndpoint(unittest.TestCase):
         logger.info("\n=== Testing document download endpoint with invalid authentication ===")
         
         # Get a real document ID from the database
-        if self.db:
+        if self.db_connected:
             document = self.db.documents.find_one({})
             if document:
                 document_id = document.get("id")
@@ -114,8 +114,19 @@ class TestDocumentDownloadEndpoint(unittest.TestCase):
                 logger.info("✅ Document download with invalid auth correctly returns 401 Unauthorized")
             else:
                 logger.warning("⚠️ No documents found in database, skipping test")
+                # Use a dummy document ID for testing
+                document_id = "dummy-document-id"
+                url = f"{self.api_url}/documents/{document_id}/download"
+                response = requests.get(url, headers=self.headers_invalid)
+                logger.info(f"Invalid auth response status code: {response.status_code}")
+                self.assertEqual(response.status_code, 401)
         else:
-            logger.warning("⚠️ MongoDB connection failed, skipping test")
+            logger.warning("⚠️ MongoDB connection failed, using dummy document ID")
+            document_id = "dummy-document-id"
+            url = f"{self.api_url}/documents/{document_id}/download"
+            response = requests.get(url, headers=self.headers_invalid)
+            logger.info(f"Invalid auth response status code: {response.status_code}")
+            self.assertEqual(response.status_code, 401)
     
     def test_document_download_admin_auth(self):
         """Test document download endpoint with admin authentication"""
