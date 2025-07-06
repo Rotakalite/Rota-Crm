@@ -966,8 +966,27 @@ async def upload_document_direct(
         # Create document metadata
         document_id = str(uuid.uuid4())
         
-        # Save file content to GridFS (or simple storage)
+        # Save file content to GridFS
         file_content = await file.read()
+        
+        # Initialize GridFS
+        import gridfs
+        fs = gridfs.GridFS(db)
+        
+        # Store file in GridFS
+        file_id = fs.put(
+            file_content,
+            filename=file.filename,
+            content_type=file.content_type,
+            metadata={
+                "document_id": document_id,
+                "client_id": client_id,
+                "uploaded_by": current_user.clerk_user_id,
+                "document_name": document_name,
+                "document_type": document_type,
+                "stage": stage
+            }
+        )
         
         document_data = {
             "id": document_id,
@@ -984,7 +1003,8 @@ async def upload_document_direct(
             "created_at": datetime.utcnow(),
             "folder_id": folder_id,
             "folder_path": folder["folder_path"],
-            "folder_level": folder["level"]
+            "folder_level": folder["level"],
+            "gridfs_id": str(file_id)  # Store GridFS file ID
         }
         
         # Insert document to rotacrm
