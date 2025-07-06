@@ -5285,8 +5285,6 @@ async def delete_supplier(
         logger.error(f"Error deleting supplier: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-app.include_router(api_router, prefix="/api")
-
 # Mount static files (React build) - KALICI ÇÖZÜM!
 # Bu CORS problemini tamamen ortadan kaldırır çünkü frontend ve backend aynı domain'de
 frontend_build_path = "/app/frontend/build"
