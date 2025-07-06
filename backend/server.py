@@ -5549,15 +5549,25 @@ async def get_real_trainings_for_email(current_user: User = Depends(get_current_
         # Get all trainings from database
         trainings = await db.trainings.find().to_list(length=None)
         
+        # Also check rotacrm database
+        rotacrm_db = client["rotacrm"]
+        rotacrm_trainings = await rotacrm_db.trainings.find().to_list(length=None)
+        
+        # Combine trainings from both databases
+        all_trainings = trainings + rotacrm_trainings
+        
         # Format trainings for frontend with client info
         formatted_trainings = []
-        for training in trainings:
+        for training in all_trainings:
             if "_id" in training:
                 del training["_id"]
             
-            # Get client info
+            # Get client info from both databases
             client = await db.clients.find_one({"id": training.get("client_id", "")})
-            client_name = client.get("hotel_name", "Unknown Client") if client else "Unknown Client"
+            if not client:
+                client = await rotacrm_db.clients.find_one({"id": training.get("client_id", "")})
+            
+            client_name = client.get("hotel_name", client.get("client_name", "Unknown Client")) if client else "Unknown Client"
             
             formatted_training = {
                 "id": training.get("id", ""),
@@ -5575,12 +5585,12 @@ async def get_real_trainings_for_email(current_user: User = Depends(get_current_
             formatted_trainings.append(formatted_training)
         
         logging.info(f"Found {len(formatted_trainings)} real trainings for email management")
-        return {"trainings": formatted_trainings}
+        return formatted_trainings
         
     except Exception as e:
         logging.error(f"Error fetching real trainings: {str(e)}")
         # Return empty list on error
-        return {"trainings": []}
+        return []
 
 @api_router.get("/email-management/clients-real")
 async def get_real_clients_for_email(current_user: User = Depends(get_current_user)):
