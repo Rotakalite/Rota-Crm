@@ -733,6 +733,129 @@ async def api_health_check_direct():
         "api_direct": True
     }
 
+# CRITICAL EMAIL MANAGEMENT ENDPOINTS - DIRECT TO MAIN APP
+@app.get("/api/documents")
+async def get_documents_direct(current_user: User = Depends(get_current_user)):
+    """Get documents for email management - DIRECT ON MAIN APP"""
+    try:
+        # Get MongoDB connections
+        mongo_client = MongoClient(mongo_url)
+        
+        # Try sustainable_tourism_crm database first
+        db = mongo_client["sustainable_tourism_crm"]
+        documents = list(db.documents.find({}))
+        
+        # Try rotacrm database as well
+        rotacrm_db = mongo_client["rotacrm"]
+        rotacrm_documents = list(rotacrm_db.documents.find({}))
+        
+        # Combine documents
+        all_documents = documents + rotacrm_documents
+        
+        # Format documents for frontend
+        formatted_documents = []
+        for doc in all_documents:
+            if "_id" in doc:
+                del doc["_id"]
+            
+            formatted_doc = {
+                "id": doc.get("id", ""),
+                "title": doc.get("name", doc.get("document_name", "Unknown Document")),
+                "type": doc.get("document_type", "PDF"),
+                "category": doc.get("stage", "General"),
+                "upload_date": doc.get("created_at", "2024-12-20T10:30:00.000Z"),
+                "file_size": doc.get("file_size", "N/A"),
+                "client_id": doc.get("client_id", "general"),
+                "client_name": doc.get("client_name", "General")
+            }
+            formatted_documents.append(formatted_doc)
+        
+        return formatted_documents
+        
+    except Exception as e:
+        print(f"Error in direct documents endpoint: {e}")
+        return []
+
+@app.get("/api/trainings")  
+async def get_trainings_direct(current_user: User = Depends(get_current_user)):
+    """Get trainings for email management - DIRECT ON MAIN APP"""
+    try:
+        # Get MongoDB connections
+        mongo_client = MongoClient(mongo_url)
+        
+        # Try sustainable_tourism_crm database first
+        db = mongo_client["sustainable_tourism_crm"]
+        trainings = list(db.trainings.find({}))
+        
+        # Try rotacrm database as well
+        rotacrm_db = mongo_client["rotacrm"]
+        rotacrm_trainings = list(rotacrm_db.trainings.find({}))
+        
+        # Combine trainings
+        all_trainings = trainings + rotacrm_trainings
+        
+        # Format trainings for frontend
+        formatted_trainings = []
+        for training in all_trainings:
+            if "_id" in training:
+                del training["_id"]
+            
+            formatted_training = {
+                "id": training.get("id", ""),
+                "title": training.get("name", training.get("training_name", "Unknown Training")),
+                "description": training.get("description", training.get("subject", "")),
+                "duration": training.get("duration", "N/A"),
+                "level": training.get("level", "Başlangıç"),
+                "category": training.get("category", "General"),
+                "client_id": training.get("client_id", "general"),
+                "client_name": training.get("client_name", "General")
+            }
+            formatted_trainings.append(formatted_training)
+        
+        return formatted_trainings
+        
+    except Exception as e:
+        print(f"Error in direct trainings endpoint: {e}")
+        return []
+
+@app.get("/api/clients")
+async def get_clients_direct(current_user: User = Depends(get_current_user)):
+    """Get clients for email management - DIRECT ON MAIN APP"""
+    try:
+        # Get MongoDB connections
+        mongo_client = MongoClient(mongo_url)
+        
+        # Try sustainable_tourism_crm database first
+        db = mongo_client["sustainable_tourism_crm"]
+        clients = list(db.clients.find({}))
+        
+        # Try rotacrm database as well
+        rotacrm_db = mongo_client["rotacrm"]
+        rotacrm_clients = list(rotacrm_db.clients.find({}))
+        
+        # Combine clients
+        all_clients = clients + rotacrm_clients
+        
+        # Format clients for frontend
+        formatted_clients = []
+        for client in all_clients:
+            if "_id" in client:
+                del client["_id"]
+            
+            formatted_client = {
+                "id": client.get("id", ""),
+                "name": client.get("hotel_name", client.get("name", "Unknown Client")),
+                "email": client.get("email", ""),
+                "client_id": client.get("id", "")
+            }
+            formatted_clients.append(formatted_client)
+        
+        return formatted_clients
+        
+    except Exception as e:
+        print(f"Error in direct clients endpoint: {e}")
+        return []
+
 # Test endpoint directly on api_router
 @api_router.get("/test")
 async def test_endpoint():
