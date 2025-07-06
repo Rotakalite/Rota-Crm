@@ -8389,12 +8389,21 @@ const EmailManagement = () => {
                 <span className="text-sm text-gray-600">
                   {documents.filter(doc => selectedItems.includes(`document_${doc.id}`)).length} / {documents.length} seçildi
                 </span>
-                <button
-                  onClick={() => handleSelectAll('document')}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all"
-                >
-                  {documents.every(doc => selectedItems.includes(`document_${doc.id}`)) ? 'Tümünü Kaldır' : 'Tümünü Seç'}
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setSelectedItems(prev => prev.filter(item => !item.startsWith('document_')))}
+                    className="bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 transition-all text-sm"
+                    disabled={selectedItems.filter(item => item.startsWith('document_')).length === 0}
+                  >
+                    ❌ Seçimi Temizle
+                  </button>
+                  <button
+                    onClick={() => handleSelectAll('document')}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all"
+                  >
+                    {documents.every(doc => selectedItems.includes(`document_${doc.id}`)) ? '⬜ Tümünü Kaldır' : '☑️ Tümünü Seç'}
+                  </button>
+                </div>
                 {selectedItems.filter(item => item.startsWith('document_')).length > 0 && (
                   <button
                     onClick={quickSendToAllClients}
