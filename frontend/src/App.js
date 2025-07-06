@@ -7819,19 +7819,8 @@ const EmailManagement = () => {
       }
     } catch (error) {
       console.error('Error fetching documents:', error);
-      // Fallback to mock data if API fails
-      setDocuments([
-        {
-          id: 1,
-          title: 'Sürdürülebilirlik Rehberi',
-          type: 'PDF',
-          category: 'Training Material',
-          upload_date: '2024-12-20T10:30:00.000Z',
-          file_size: '2.5 MB',
-          client_id: 'general',
-          client_name: 'Genel Doküman'
-        }
-      ]);
+      // Show empty state if API fails
+      setDocuments([]);
     } finally {
       setLoading(false);
     }
