@@ -24,8 +24,6 @@ const YeniBelgeYonetimi = () => {
   // Load initial data
   useEffect(() => {
     loadClients();
-    loadFolders();
-    loadDocuments();
   }, []);
 
   const loadClients = async () => {
@@ -37,42 +35,110 @@ const YeniBelgeYonetimi = () => {
     }
   };
 
-  const loadFolders = async (clientId = null) => {
+  const loadFolders = async (clientId) => {
     try {
-      let url = `${API}/api/folders`;
-      if (clientId) {
-        url = `${API}/api/folders/by-client/${clientId}`;
-      }
-      const response = await axios.get(url);
-      setFolders(response.data || []);
+      const response = await axios.get(`${API}/api/folders`);
+      const allFolders = response.data || [];
+      
+      // Client'a ait klasörleri filtrele
+      const clientFolders = allFolders.filter(folder => folder.client_id === clientId);
+      setFolders(clientFolders);
+      
+      // Her klasör için doküman sayısını hesapla
+      await calculateDocumentCounts(clientFolders);
     } catch (error) {
       console.error('❌ Folder load error:', error);
     }
   };
 
-  // Client seçildiğinde klasörleri filtrele
-  const handleClientChange = (event) => {
-    const newClientId = event.target.value;
-    setSelectedClient(newClientId);
-    
-    // Client seçildiğinde o client'a ait klasörleri yükle
-    if (newClientId) {
-      loadFolders(newClientId);
-    } else {
-      loadFolders(); // Tüm klasörleri yükle
-    }
-    
-    // Folder seçimini sıfırla
-    setSelectedFolder('');
-  };
-
-  const loadDocuments = async () => {
+  const calculateDocumentCounts = async (foldersList) => {
     try {
       const response = await axios.get(`${API}/api/belge/list`);
-      setDocuments(response.data?.documents || []);
+      const allDocuments = response.data?.documents || [];
+      
+      const counts = {};
+      
+      // Her klasör için doküman sayısını hesapla (alt klasörler dahil)
+      foldersList.forEach(folder => {
+        const count = countDocumentsInFolder(folder.id, foldersList, allDocuments);
+        counts[folder.id] = count;
+      });
+      
+      setFolderDocumentCounts(counts);
+    } catch (error) {
+      console.error('❌ Document count calculation error:', error);
+    }
+  };
+
+  const countDocumentsInFolder = (folderId, foldersList, documentsList) => {
+    // Bu klasördeki dokümanları say
+    let count = documentsList.filter(doc => doc.folder_id === folderId).length;
+    
+    // Alt klasörlerdeki dokümanları da say
+    const subFolders = foldersList.filter(folder => folder.parent_folder_id === folderId);
+    subFolders.forEach(subFolder => {
+      count += countDocumentsInFolder(subFolder.id, foldersList, documentsList);
+    });
+    
+    return count;
+  };
+
+  const loadDocuments = async (folderId) => {
+    try {
+      const response = await axios.get(`${API}/api/belge/list`);
+      const allDocuments = response.data?.documents || [];
+      
+      // Seçili klasör ve alt klasörlerindeki dokümanları filtrele
+      const folderDocuments = allDocuments.filter(doc => {
+        // Direkt bu klasördeki dokümanlar
+        if (doc.folder_id === folderId) return true;
+        
+        // Alt klasörlerdeki dokümanlar
+        const folder = folders.find(f => f.id === doc.folder_id);
+        if (folder && isSubFolderOf(folder, folderId)) return true;
+        
+        return false;
+      });
+      
+      setDocuments(folderDocuments);
     } catch (error) {
       console.error('❌ Document load error:', error);
     }
+  };
+
+  const isSubFolderOf = (folder, parentFolderId) => {
+    if (!folder || !folder.parent_folder_id) return false;
+    if (folder.parent_folder_id === parentFolderId) return true;
+    
+    // Recursive check for deeper levels
+    const parentFolder = folders.find(f => f.id === folder.parent_folder_id);
+    return isSubFolderOf(parentFolder, parentFolderId);
+  };
+
+  // UI Flow Handlers
+  const handleClientSelect = async (client) => {
+    setSelectedClient(client);
+    setCurrentView('folder-tree');
+    await loadFolders(client.id);
+  };
+
+  const handleFolderSelect = async (folder) => {
+    setSelectedFolder(folder);
+    setCurrentView('documents');
+    await loadDocuments(folder.id);
+  };
+
+  const handleBackToClients = () => {
+    setCurrentView('client-selection');
+    setSelectedClient(null);
+    setFolders([]);
+    setFolderDocumentCounts({});
+  };
+
+  const handleBackToFolders = () => {
+    setCurrentView('folder-tree');
+    setSelectedFolder(null);
+    setDocuments([]);
   };
 
   const handleFileSelect = (event) => {
