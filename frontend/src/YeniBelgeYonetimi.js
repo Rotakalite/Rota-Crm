@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const YeniBelgeYonetimi = () => {
+  // UI Flow States
+  const [currentView, setCurrentView] = useState('client-selection'); // 'client-selection', 'folder-tree', 'documents'
   const [clients, setClients] = useState([]);
   const [folders, setFolders] = useState([]);
   const [documents, setDocuments] = useState([]);
-  const [selectedClient, setSelectedClient] = useState('');
-  const [selectedFolder, setSelectedFolder] = useState('');
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedFolder, setSelectedFolder] = useState(null);
+  const [folderDocumentCounts, setFolderDocumentCounts] = useState({});
   
   // Form states
   const [documentName, setDocumentName] = useState('');
