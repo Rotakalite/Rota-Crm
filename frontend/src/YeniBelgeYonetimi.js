@@ -217,7 +217,7 @@ const YeniBelgeYonetimi = () => {
               <label className="block text-sm font-medium mb-2">Müşteri Seçin *</label>
               <select 
                 value={selectedClient} 
-                onChange={(e) => setSelectedClient(e.target.value)}
+                onChange={handleClientChange}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 required
               >
