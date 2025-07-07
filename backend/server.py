@@ -887,7 +887,7 @@ async def download_belge_main_app(document_id: str):
 
 @app.delete("/api/belge/delete/{document_id}")
 async def delete_belge_main_app(document_id: str):
-    """🗑️ BELGE SİLME - MAIN APP"""
+    """🗑️ BELGE SİLME - MAIN APP - GERÇEK SİLME"""
     try:
         logging.info(f"🗑️ BELGE DELETE MAIN APP: {document_id}")
         
@@ -895,21 +895,29 @@ async def delete_belge_main_app(document_id: str):
         mongo_client = MongoClient(mongo_url)
         db = mongo_client["rotacrm"]
         
-        # Find and delete document
+        # Find document
         document = await asyncio.to_thread(db.documents.find_one, {"id": document_id})
         if not document:
             raise HTTPException(status_code=404, detail="Belge bulunamadı")
         
-        # Mark as deleted
-        await asyncio.to_thread(
-            db.documents.update_one,
-            {"id": document_id},
-            {"$set": {"status": "deleted", "deleted_at": datetime.utcnow()}}
+        # 1. DELETE FILE FROM DISK FIRST
+        file_path = document.get("file_path")
+        if file_path and os.path.exists(file_path):
+            os.remove(file_path)
+            logging.info(f"✅ File removed from disk: {file_path}")
+        
+        # 2. DELETE DOCUMENT FROM DATABASE (REAL DELETE)
+        delete_result = await asyncio.to_thread(
+            db.documents.delete_one,
+            {"id": document_id}
         )
         
-        logging.info(f"✅ Document deleted: {document_id}")
+        if delete_result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Doküman silinemedi")
         
-        return {"success": True, "message": "Belge silindi"}
+        logging.info(f"✅ Document PERMANENTLY deleted: {document_id}")
+        
+        return {"success": True, "message": "Belge kalıcı olarak silindi"}
         
     except Exception as e:
         logging.error(f"❌ BELGE DELETE ERROR: {str(e)}")
