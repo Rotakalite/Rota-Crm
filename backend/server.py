@@ -662,6 +662,17 @@ async def get_current_user(payload: dict = Depends(verify_token)):
         user = new_user
         logging.info(f"✅ NEW USER CREATED: {user['id']} - {user['name']} ({user['email']})")
     else:
+        # Eski user kayıtlarında 'id' field'ı olmayabilir, kontrol edelim
+        if 'id' not in user:
+            # Eski kayıt için UUID oluştur ve güncelle
+            user_id = str(uuid.uuid4())
+            await db.users.update_one(
+                {"clerk_user_id": clerk_user_id},
+                {"$set": {"id": user_id}}
+            )
+            user['id'] = user_id
+            logging.info(f"🔧 UPDATED OLD USER RECORD with ID: {user_id}")
+            
         logging.info(f"✅ USER FOUND: {user['id']} - {user['name']} ({user['email']}) - Role: {user['role']}")
     
     # Convert to User object
