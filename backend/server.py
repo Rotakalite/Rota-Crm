@@ -944,6 +944,76 @@ async def get_clients_main_app():
         logging.error(f"❌ CLIENTS LIST ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Clients liste hatası: {str(e)}")
 
+@app.post("/api/folders/create-d-level3-structure")
+async def create_d_level3_structure():
+    """D1, D2, D3 klasörleri için level 3 yapısını oluştur"""
+    try:
+        logging.info("🏗️ Creating Level 3 structure for D1, D2, D3 folders")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # Level 3 structure for D folders from photos
+        d_level3_structure = {
+            "D1": ["D11", "D12", "D13", "D14"],
+            "D2": ["D21", "D22", "D23", "D24", "D25", "D26"], 
+            "D3": ["D31", "D32", "D33", "D34", "D35", "D36"]
+        }
+        
+        # Get all D1, D2, D3 folders (level 2)
+        d_folders = await asyncio.to_thread(
+            lambda: list(db.folders.find({
+                "level": 2,
+                "name": {"$in": ["D1", "D2", "D3"]}
+            }))
+        )
+        
+        created_count = 0
+        
+        for d_folder in d_folders:
+            folder_name = d_folder["name"]  # D1, D2, or D3
+            client_id = d_folder["client_id"]
+            
+            if folder_name in d_level3_structure:
+                level3_subfolders = d_level3_structure[folder_name]
+                
+                for subfolder_name in level3_subfolders:
+                    level3_id = f"level3_{d_folder['id']}_{subfolder_name}"
+                    level3_path = f"{d_folder['folder_path']}/{subfolder_name}"
+                    
+                    # Check if already exists
+                    existing = await asyncio.to_thread(
+                        db.folders.find_one, {"id": level3_id}
+                    )
+                    
+                    if not existing:
+                        level3_data = {
+                            "id": level3_id,
+                            "client_id": client_id,
+                            "name": subfolder_name,
+                            "parent_folder_id": d_folder["id"],
+                            "folder_path": level3_path,
+                            "level": 3,
+                            "created_at": datetime.utcnow()
+                        }
+                        
+                        await asyncio.to_thread(db.folders.insert_one, level3_data)
+                        created_count += 1
+        
+        logging.info(f"✅ Created {created_count} D-level3 folders")
+        
+        return {
+            "success": True,
+            "message": f"Successfully created {created_count} Level 3 folders for D1, D2, D3",
+            "structure": d_level3_structure,
+            "folders_processed": len(d_folders)
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ D-LEVEL3 CREATION ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"D-Level3 creation error: {str(e)}")
+
 @app.post("/api/folders/recreate-correct-structure")
 async def recreate_correct_folder_structure():
     """Mevcut level 2,3 klasörleri sil ve doğru yapıyı oluştur"""
