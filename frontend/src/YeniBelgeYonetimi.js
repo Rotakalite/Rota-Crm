@@ -34,13 +34,33 @@ const YeniBelgeYonetimi = () => {
     }
   };
 
-  const loadFolders = async () => {
+  const loadFolders = async (clientId = null) => {
     try {
-      const response = await axios.get(`${API}/api/folders`);
+      let url = `${API}/api/folders`;
+      if (clientId) {
+        url = `${API}/api/folders/by-client/${clientId}`;
+      }
+      const response = await axios.get(url);
       setFolders(response.data || []);
     } catch (error) {
       console.error('❌ Folder load error:', error);
     }
+  };
+
+  // Client seçildiğinde klasörleri filtrele
+  const handleClientChange = (event) => {
+    const newClientId = event.target.value;
+    setClientId(newClientId);
+    
+    // Client seçildiğinde o client'a ait klasörleri yükle
+    if (newClientId) {
+      loadFolders(newClientId);
+    } else {
+      loadFolders(); // Tüm klasörleri yükle
+    }
+    
+    // Folder seçimini sıfırla
+    setFolderId('');
   };
 
   const loadDocuments = async () => {
