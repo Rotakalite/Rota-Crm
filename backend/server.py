@@ -7247,7 +7247,7 @@ async def register_user_main_fixed(user_data: dict):
                         {"$set": {"client_id": matching_client["id"], "updated_at": datetime.utcnow()}}
                     )
                     existing_user["client_id"] = matching_client["id"]
-                    logging.info(f"🔗 Existing client user linked to client: {matching_client['client_name']} (ID: {matching_client['id']})")
+                    logging.info(f"🔗 Existing client user linked to client: {matching_client['name']} (ID: {matching_client['id']})")
                 else:
                     logging.warning(f"⚠️ Existing client user but no matching client found for email: {email}")
             
