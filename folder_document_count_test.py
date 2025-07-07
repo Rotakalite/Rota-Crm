@@ -21,7 +21,7 @@ class TestFolderDocumentCount(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = os.environ.get('REACT_APP_BACKEND_URL', 'https://fa8c9f7b-7d18-4995-aa12-a264e654b749.preview.emergentagent.com')
+        self.api_url = os.environ.get('REACT_APP_BACKEND_URL', 'https://0dc7b952-d0c9-46f9-bd11-940dcc3828ba.preview.emergentagent.com')
         self.api_url = f"{self.api_url}/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         
