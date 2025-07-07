@@ -1884,10 +1884,16 @@ async def get_statistics_direct(current_user: User = Depends(get_current_user)):
             stage_1_clients = await asyncio.to_thread(db.clients.count_documents, {"current_stage": "I.Aşama"})
             stage_2_clients = await asyncio.to_thread(db.clients.count_documents, {"current_stage": "II.Aşama"})
             stage_3_clients = await asyncio.to_thread(db.clients.count_documents, {"current_stage": "III.Aşama"})
-            total_documents = await asyncio.to_thread(db.documents.count_documents, {})
+            
+            # COUNT ONLY ACTIVE DOCUMENTS (NOT DELETED ONES)
+            total_documents = await asyncio.to_thread(
+                db.documents.count_documents, 
+                {"status": {"$ne": "deleted"}}  # Exclude deleted documents
+            )
+            
             total_trainings = await asyncio.to_thread(db.trainings.count_documents, {})
             
-            logging.info(f"📊 ROTACRM Stats: {total_documents} docs, {total_trainings} trainings, {total_clients} clients")
+            logging.info(f"📊 ROTACRM Stats: {total_documents} active docs, {total_trainings} trainings, {total_clients} clients")
             
             return {
                 "total_clients": total_clients,
