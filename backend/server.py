@@ -944,6 +944,76 @@ async def get_clients_main_app():
         logging.error(f"❌ CLIENTS LIST ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Clients liste hatası: {str(e)}")
 
+@app.post("/api/clients/create-test-clients")
+async def create_test_clients():
+    """Create test clients for today"""
+    try:
+        logging.info("🏨 Creating test clients for today")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        today = datetime.utcnow()
+        test_clients = [
+            {
+                "id": f"GUNCEL_CLIENT_{today.strftime('%Y%m%d')}_001",
+                "client_id": f"GUNCEL_CLIENT_{today.strftime('%Y%m%d')}_001",
+                "client_name": "Güncel Test Otel",
+                "hotel_name": "Güncel Test Otel", 
+                "contact_person": "test@guncelotel.com",
+                "email": "info@guncelotel.com",
+                "current_stage": "I.Aşama",
+                "created_at": today,
+                "updated_at": today
+            },
+            {
+                "id": f"YENI_CLIENT_{today.strftime('%Y%m%d')}_002",
+                "client_id": f"YENI_CLIENT_{today.strftime('%Y%m%d')}_002", 
+                "client_name": "Yeni Kalite Otel",
+                "hotel_name": "Yeni Kalite Otel",
+                "contact_person": "info@yenikalitotel.com",
+                "email": "contact@yenikalitotel.com", 
+                "current_stage": "II.Aşama",
+                "created_at": today,
+                "updated_at": today
+            },
+            {
+                "id": f"MODERN_CLIENT_{today.strftime('%Y%m%d')}_003",
+                "client_id": f"MODERN_CLIENT_{today.strftime('%Y%m%d')}_003",
+                "client_name": "Modern Boutique Otel",
+                "hotel_name": "Modern Boutique Otel",
+                "contact_person": "rezervasyon@modernboutique.com",
+                "email": "info@modernboutique.com",
+                "current_stage": "I.Aşama", 
+                "created_at": today,
+                "updated_at": today
+            }
+        ]
+        
+        created_count = 0
+        for client_data in test_clients:
+            # Check if client already exists
+            existing = await asyncio.to_thread(
+                db.clients.find_one, {"id": client_data["id"]}
+            )
+            
+            if not existing:
+                await asyncio.to_thread(db.clients.insert_one, client_data)
+                created_count += 1
+        
+        logging.info(f"✅ Created {created_count} new test clients")
+        
+        return {
+            "success": True,
+            "message": f"Successfully created {created_count} test clients for {today.strftime('%Y-%m-%d')}",
+            "date": today.isoformat()
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ CLIENT CREATION ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Client creation error: {str(e)}")
+
 @app.post("/api/folders/create-missing-levels")
 async def create_missing_folder_levels():
     """Create missing level 2 and level 3 folders for all clients"""
