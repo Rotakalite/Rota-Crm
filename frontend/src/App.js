@@ -4063,7 +4063,7 @@ const ClientDocuments = () => {
     try {
       console.log('📥 Starting download for:', docData.name);
       
-      const downloadUrl = `${API}/documents/${docData.id}/download`;
+      const downloadUrl = `${API}/simple-download/${docData.id}`;
       
       const response = await axios.get(downloadUrl, {
         headers: { 'Authorization': `Bearer ${authToken}` },
