@@ -98,39 +98,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# RAILWAY CORS CONFIGURATION - TÜM VERCEL URL'LERİ İÇİN
+# RAILWAY CORS CONFIGURATION - KALICI ÇÖZÜM: TÜM ORIGIN'LERE İZİN VER
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://portal.rotakalitedanismanlik.com",  # PRODUCTION DOMAIN
-        "https://rota-a43ap7zfm-rotas-projects-62181e6e.vercel.app",  # Eski Vercel URL
-        "https://rota-9asd83vl1-rotas-projects-62181e6e.vercel.app",  # Yeni Vercel URL
-        "https://rota-236qgwffr-rotas-projects-62181e6e.vercel.app",  # USER REPORTED URL - FIX FOR CORS ERROR
-        "https://0dc7b952-d0c9-46f9-bd11-940dcc3828ba.preview.emergentagent.com",  # Current reported URL
-        "http://localhost:3000",  # Development
-        "http://localhost:3001",  # Development
-        "*"  # Hepsine izin ver (geliştirme için)
-    ],
-    allow_credentials=True,  # Vercel için True
+    allow_origins=["*"],  # TÜM ORIGIN'LERE İZİN VER - RAILWAY/VERCEL DEĞİŞKEN URL PROBLEMİ İÇİN
+    allow_credentials=False,  # "*" kullanırken credentials false olmalı
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
-    allow_headers=[
-        "Accept", 
-        "Accept-Language", 
-        "Content-Language", 
-        "Content-Type", 
-        "Authorization", 
-        "X-Requested-With", 
-        "Origin", 
-        "Access-Control-Request-Method", 
-        "Access-Control-Request-Headers",
-        "Cache-Control",  # Bu eksikti!
-        "Pragma",
-        "Expires",
-        "X-CSRF-Token",
-        "*"  # Tüm header'lara izin ver
-    ],
-    expose_headers=["*"],
-    max_age=86400  # 24 saat cache
+    allow_headers=["*"],  # TÜM HEADER'LARA İZİN VER
 )
 
 # Set maximum request size to 500MB
