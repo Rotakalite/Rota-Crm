@@ -3777,37 +3777,6 @@ async def get_eco_tips():
             "description": "Çöplerinizi ayrıştırarak geri dönüşüm kutularına atın.",
             "points": 15
         },
-        {
-            "id": 4,
-            "category": "towel",
-            "icon": "🏨",
-            "title": "Havlu Tasarrufu",
-            "description": "Havlularınızı gereksiz yere değiştirmeyin.",
-            "points": 10
-        },
-        {
-            "id": 5,
-            "category": "local",
-            "icon": "🌿",
-            "title": "Yerel Ürünler",
-            "description": "Restoranlarımızda yerel ve organik ürünleri tercih edin.",
-            "points": 20
-        },
-        {
-            "id": 6,
-            "category": "transport",
-            "icon": "🚶",
-            "title": "Yürüyerek Keşfet",
-            "description": "Yakın mesafeleri araç kullanmadan yürüyerek keşfedin.",
-            "points": 15
-        }
-    ]
-    
-    return {"eco_tips": eco_tips}
-                "title": "Geri Dönüşüm",
-                "description": "Çöplerinizi ayrıştırarak geri dönüşüm kutularına atın.",
-                "points": 15
-            },
             {
                 "id": 4,
                 "category": "towel",
