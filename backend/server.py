@@ -6350,3 +6350,4 @@ async def delete_belge(document_id: str):
 # API ROUTER REGISTRATION - MUST BE AT END
 # ==========================================
 app.include_router(api_router, prefix="/api")
+app.include_router(api_router, prefix="/api")
