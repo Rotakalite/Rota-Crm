@@ -1925,7 +1925,7 @@ async def get_statistics_direct(current_user: User = Depends(get_current_user)):
                 db.documents.count_documents, 
                 {
                     "client_id": current_user.client_id,
-                    "status": {"$ne": "deleted"}  # Exclude deleted documents
+                    "$or": [{"status": "active"}, {"status": {"$exists": False}}]  # Active or no status field
                 }
             )
             client_trainings = await asyncio.to_thread(db.trainings.count_documents, {"client_id": current_user.client_id})
