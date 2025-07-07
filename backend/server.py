@@ -6103,7 +6103,7 @@ async def simple_download_endpoint(doc_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 # ==========================================
-# YENİ BELGE YÖNETİMİ SİSTEMİ - ENTEGRASyON
+# YENİ BELGE YÖNETİMİ SİSTEMİ - MAIN APP'TE
 # ==========================================
 
 from fastapi.responses import FileResponse
@@ -6124,8 +6124,8 @@ def get_safe_filename(filename: str) -> str:
     safe_filename = "".join(c if c in safe_chars else "_" for c in filename)
     return safe_filename[:100]
 
-@api_router.post("/belge/upload")
-async def upload_belge(
+@app.post("/api/belge/upload")
+async def upload_belge_main(
     file: UploadFile = File(...),
     client_id: str = Form(...),
     folder_id: str = Form(...),
