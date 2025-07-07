@@ -944,6 +944,107 @@ async def get_clients_main_app():
         logging.error(f"❌ CLIENTS LIST ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Clients liste hatası: {str(e)}")
 
+@app.post("/api/folders/create-missing-levels")
+async def create_missing_folder_levels():
+    """Create missing level 2 and level 3 folders for all clients"""
+    try:
+        logging.info("🏗️ Creating missing folder levels")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # Get all clients
+        clients = await asyncio.to_thread(lambda: list(db.clients.find({})))
+        
+        created_count = 0
+        
+        for client in clients:
+            client_id = client.get("id") or client.get("client_id")
+            client_name = client.get("client_name", "Unknown Client")
+            
+            # Get level 1 folders for this client (A, B, C, D columns)
+            level1_folders = await asyncio.to_thread(
+                lambda: list(db.folders.find({"client_id": client_id, "level": 1}))
+            )
+            
+            for level1_folder in level1_folders:
+                folder_id = level1_folder["id"]
+                folder_name = level1_folder["name"]
+                
+                # Create level 2 folders (sub-categories)
+                level2_categories = [
+                    "Politikalar",
+                    "Prosedürler", 
+                    "Talimatlar",
+                    "Formlar",
+                    "Kayıtlar"
+                ]
+                
+                for category in level2_categories:
+                    level2_id = f"level2_{folder_id}_{category.lower()}"
+                    level2_name = category
+                    level2_path = f"{level1_folder['folder_path']}/{category}"
+                    
+                    # Check if already exists
+                    existing = await asyncio.to_thread(
+                        db.folders.find_one, {"id": level2_id}
+                    )
+                    
+                    if not existing:
+                        level2_data = {
+                            "id": level2_id,
+                            "client_id": client_id,
+                            "name": level2_name,
+                            "parent_folder_id": folder_id,
+                            "folder_path": level2_path,
+                            "level": 2,
+                            "created_at": datetime.utcnow()
+                        }
+                        
+                        await asyncio.to_thread(db.folders.insert_one, level2_data)
+                        created_count += 1
+                        
+                        # Create level 3 folders (document types)
+                        level3_types = [
+                            "TR1 Kriterleri",
+                            "I. Aşama Belgesi",
+                            "II. Aşama Belgesi", 
+                            "III. Aşama Belgesi",
+                            "Karbon Raporu",
+                            "Sürdürülebilirlik Raporu"
+                        ]
+                        
+                        for doc_type in level3_types:
+                            level3_id = f"level3_{level2_id}_{doc_type.lower().replace(' ', '_')}"
+                            level3_name = doc_type
+                            level3_path = f"{level2_path}/{doc_type}"
+                            
+                            level3_data = {
+                                "id": level3_id,
+                                "client_id": client_id,
+                                "name": level3_name,
+                                "parent_folder_id": level2_id,
+                                "folder_path": level3_path,
+                                "level": 3,
+                                "created_at": datetime.utcnow()
+                            }
+                            
+                            await asyncio.to_thread(db.folders.insert_one, level3_data)
+                            created_count += 1
+        
+        logging.info(f"✅ Created {created_count} new folders")
+        
+        return {
+            "success": True,
+            "message": f"Successfully created {created_count} missing folder levels",
+            "clients_processed": len(clients)
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ FOLDER CREATION ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Folder creation error: {str(e)}")
+
 @app.get("/api/folders")
 async def get_folders_main_app():
     """📋 FOLDERS LİSTESİ - MAIN APP"""
