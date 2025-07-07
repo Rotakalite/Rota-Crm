@@ -3804,62 +3804,6 @@ async def get_eco_tips():
     ]
     
     return {"eco_tips": eco_tips}
-
-@api_router.get("/guest-engagement/leaderboard")
-async def get_sustainability_leaderboard(
-    client_id: Optional[str] = None,
-    current_user: User = Depends(get_current_user)
-):
-    """Get sustainability leaderboard"""
-    
-    if current_user.role == UserRole.ADMIN:
-        if client_id:
-            filter_query = {"client_id": client_id}
-        else:
-            filter_query = {}
-    else:
-        filter_query = {"client_id": current_user.client_id}
-    
-    # Get top guests by sustainability score
-    pipeline = [
-        {"$match": filter_query},
-        {"$sort": {"sustainability_score": -1}},
-        {"$limit": 10}
-    ]
-    
-    top_guests = await db.guest_engagement.aggregate(pipeline).to_list(length=10)
-    return {"leaderboard": top_guests}
-
-@api_router.get("/guest-engagement/self-assessment/{guest_id}")
-async def get_guest_self_assessment(guest_id: str):
-    """Get guest's own assessment form"""
-    guest = await db.guest_engagement.find_one({"id": guest_id})
-    if not guest:
-        raise HTTPException(status_code=404, detail="Guest not found")
-    
-    return {
-        "guest": guest,
-        "eco_tips": [
-            {
-                "id": 1,
-                "category": "energy",
-                "icon": "💡",
-                "title": "Enerji Tasarrufu",
-                "description": "Odadan çıkarken klimayı ve ışıkları kapatmayı unutmayın.",
-                "points": 10
-            },
-            {
-                "id": 2,
-                "category": "water",
-                "icon": "💧",
-                "title": "Su Tasarrufu",
-                "description": "Dişlerinizi fırçalarken veya ellerinizi yıkarken suyu kapatın.",
-                "points": 10
-            },
-            {
-                "id": 3,
-                "category": "waste",
-                "icon": "♻️",
                 "title": "Geri Dönüşüm",
                 "description": "Çöplerinizi ayrıştırarak geri dönüşüm kutularına atın.",
                 "points": 15
