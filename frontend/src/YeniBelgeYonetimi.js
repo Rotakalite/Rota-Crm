@@ -50,7 +50,7 @@ const YeniBelgeYonetimi = () => {
   // Client seçildiğinde klasörleri filtrele
   const handleClientChange = (event) => {
     const newClientId = event.target.value;
-    setClientId(newClientId);
+    setSelectedClient(newClientId);
     
     // Client seçildiğinde o client'a ait klasörleri yükle
     if (newClientId) {
@@ -60,7 +60,7 @@ const YeniBelgeYonetimi = () => {
     }
     
     // Folder seçimini sıfırla
-    setFolderId('');
+    setSelectedFolder('');
   };
 
   const loadDocuments = async () => {
