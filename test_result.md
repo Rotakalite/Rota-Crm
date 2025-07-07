@@ -105,6 +105,18 @@
 user_problem_statement: "Rota-CRM frontend application'ında tedarikçi modülü problemi test edilmesi gerekiyor. Kullanıcı tedarikçi modülüne bastığında otomatik logout oluyor."
 
 backend:
+  - task: "New Belge Yönetimi System Backend APIs"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "New document management system implemented with direct disk storage at /app/documents/. Includes endpoints: POST /api/belge/upload, GET /api/belge/download/{id}, GET /api/belge/list, DELETE /api/belge/delete/{id}. Replaces problematic GridFS system with zero-error tolerance design. Uses persistent storage and proper file handling for Turkish characters."
+
   - task: "Email Template Data Binding Issues"
     implemented: true
     working: true
