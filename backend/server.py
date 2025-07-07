@@ -3673,62 +3673,6 @@ async def get_guest_engagement(
     guests = await db.guest_engagement.find(filter_query).to_list(length=100)
     return guests
 
-@api_router.get("/guest-engagement/eco-tips")
-async def get_eco_tips():
-    """Get sustainability tips for guests"""
-    
-    eco_tips = [
-        {
-            "id": 1,
-            "category": "energy",
-            "icon": "💡",
-            "title": "Enerji Tasarrufu",
-            "description": "Odadan çıkarken klimayı ve ışıkları kapatmayı unutmayın.",
-            "points": 10
-        },
-        {
-            "id": 2,
-            "category": "water",
-            "icon": "💧",
-            "title": "Su Tasarrufu",
-            "description": "Dişlerinizi fırçalarken veya ellerinizi yıkarken suyu kapatın.",
-            "points": 10
-        },
-        {
-            "id": 3,
-            "category": "waste",
-            "icon": "♻️",
-            "title": "Geri Dönüşüm",
-            "description": "Çöplerinizi ayrıştırarak geri dönüşüm kutularına atın.",
-            "points": 15
-        },
-        {
-            "id": 4,
-            "category": "towel",
-            "icon": "🏨",
-            "title": "Havlu Tasarrufu",
-            "description": "Havlularınızı gereksiz yere değiştirmeyin.",
-            "points": 10
-        },
-        {
-            "id": 5,
-            "category": "local",
-            "icon": "🌿",
-            "title": "Yerel Ürünler",
-            "description": "Restoranlarımızda yerel ve organik ürünleri tercih edin.",
-            "points": 20
-        },
-        {
-            "id": 6,
-            "category": "transport",
-            "icon": "🚶",
-            "title": "Yürüyerek Keşfet",
-            "description": "Yakın mesafeleri araç kullanmadan yürüyerek keşfedin.",
-            "points": 15
-        }
-    ]
-    
-    return {"eco_tips": eco_tips}
 
 @api_router.get("/guest-engagement/leaderboard")
 async def get_sustainability_leaderboard(
