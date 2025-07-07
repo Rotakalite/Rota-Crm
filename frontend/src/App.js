@@ -205,6 +205,17 @@ const Dashboard = ({ onNavigate }) => {
                   Eğitim programlarını planlayın
                 </p>
               </div>
+
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                   onClick={() => onNavigate('yeni-belge')}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">🚀 Yeni Belge Yönetimi</h3>
+                  <span className="text-2xl">→</span>
+                </div>
+                <p className="text-purple-100">
+                  Sıfırdan tasarlanan güvenilir belge sistemi
+                </p>
+              </div>
             </div>
           </>
         )}
