@@ -6230,6 +6230,160 @@ async def upload_belge_main(
 
 # DEACTIVE - MOVED TO MAIN APP
 
+@app.get("/api/belge/download/{document_id}")
+async def download_belge_main(document_id: str):
+    """🚀 YENİ BELGE İNDİRME - ORİJİNAL FORMAT - MAIN APP"""
+    try:
+        logging.info(f"📥 BELGE DOWNLOAD MAIN: {document_id}")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # Find document
+        document = await asyncio.to_thread(db.documents.find_one, {"id": document_id})
+        if not document:
+            raise HTTPException(status_code=404, detail="Belge bulunamadı")
+        
+        file_path = document.get("file_path")
+        if not file_path or not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail="Dosya bulunamadı")
+        
+        original_filename = document.get("original_filename", document.get("filename", "document.pdf"))
+        
+        # Encode filename for Turkish characters (RFC 6266)
+        try:
+            encoded_filename = original_filename.encode('ascii')
+            disposition = f'attachment; filename="{original_filename}"'
+        except UnicodeEncodeError:
+            import urllib.parse
+            encoded_filename = urllib.parse.quote(original_filename, safe='')
+            disposition = f"attachment; filename*=UTF-8''{encoded_filename}"
+        
+        logging.info(f"✅ Returning file: {original_filename}")
+        
+        return FileResponse(
+            path=file_path,
+            filename=original_filename,
+            headers={
+                "Content-Disposition": disposition,
+                "Content-Type": "application/octet-stream"
+            }
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ BELGE DOWNLOAD ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"İndirme hatası: {str(e)}")
+
+@app.get("/api/belge/list")
+async def list_belge_main(client_id: str = None):
+    """📋 BELGE LİSTESİ - MAIN APP"""
+    try:
+        logging.info(f"📋 BELGE LIST MAIN: Client: {client_id}")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # Build query filter
+        filter_query = {"status": {"$ne": "deleted"}}
+        if client_id:
+            filter_query["client_id"] = client_id
+        
+        # Get documents
+        documents = await asyncio.to_thread(
+            lambda: list(db.documents.find(filter_query).sort("created_at", -1))
+        )
+        
+        # Format response
+        formatted_docs = []
+        for doc in documents:
+            if "_id" in doc:
+                del doc["_id"]
+            formatted_docs.append(doc)
+        
+        logging.info(f"✅ Found {len(formatted_docs)} documents")
+        
+        return {
+            "success": True,
+            "documents": formatted_docs,
+            "count": len(formatted_docs)
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ BELGE LIST ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Liste hatası: {str(e)}")
+
+@app.delete("/api/belge/delete/{document_id}")
+async def delete_belge_main(document_id: str):
+    """🗑️ BELGE SİLME - MAIN APP"""
+    try:
+        logging.info(f"🗑️ BELGE DELETE MAIN: {document_id}")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # Find document
+        document = await asyncio.to_thread(db.documents.find_one, {"id": document_id})
+        if not document:
+            raise HTTPException(status_code=404, detail="Belge bulunamadı")
+        
+        # Mark as deleted in database
+        await asyncio.to_thread(
+            db.documents.update_one,
+            {"id": document_id},
+            {"$set": {"status": "deleted", "deleted_at": datetime.utcnow()}}
+        )
+        
+        # Optionally remove file from disk
+        file_path = document.get("file_path")
+        if file_path and os.path.exists(file_path):
+            os.remove(file_path)
+            logging.info(f"✅ File removed: {file_path}")
+        
+        logging.info(f"✅ Document deleted: {document_id}")
+        
+        return {"success": True, "message": "Belge silindi"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ BELGE DELETE ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Silme hatası: {str(e)}")
+
+@app.get("/api/folders")
+async def get_folders_main():
+    """Get folders list - MAIN APP"""
+    try:
+        logging.info("📋 FOLDERS LIST MAIN")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # Get folders
+        folders = await asyncio.to_thread(
+            lambda: list(db.folders.find({}))
+        )
+        
+        # Format response
+        formatted_folders = []
+        for folder in folders:
+            if "_id" in folder:
+                del folder["_id"]
+            formatted_folders.append(folder)
+        
+        logging.info(f"✅ Found {len(formatted_folders)} folders")
+        
+        return formatted_folders
+        
+    except Exception as e:
+        logging.error(f"❌ FOLDERS LIST ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Folders liste hatası: {str(e)}")
+
 # ==========================================
 # API ROUTER REGISTRATION - MUST BE AT END
 # ==========================================
