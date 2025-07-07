@@ -7172,6 +7172,67 @@ async def get_folders_main():
         logging.error(f"❌ FOLDERS LIST ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Folders liste hatası: {str(e)}")
 
+@app.post("/api/clients/create-new")
+async def create_new_client_main(
+    client_name: str,
+    hotel_name: str = None,
+    contact_person: str = None,
+    email: str = None,
+    current_stage: str = "I.Aşama"
+):
+    """Create new client with automatic folder structure - MAIN APP"""
+    try:
+        logging.info(f"🏨 Creating new client: {client_name}")
+        
+        # Generate unique client ID
+        client_id = f"CLIENT_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # Create client data
+        client_data = {
+            "id": client_id,
+            "client_id": client_id,
+            "client_name": client_name,
+            "hotel_name": hotel_name or client_name,
+            "contact_person": contact_person or "",
+            "email": email or "",
+            "current_stage": current_stage,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        # Insert client
+        await asyncio.to_thread(db.clients.insert_one, client_data)
+        logging.info(f"✅ Client created: {client_name}")
+        
+        # AUTOMATIC FOLDER CREATION - 49 folders will be created automatically
+        await create_client_root_folder(client_id, client_name)
+        
+        # Count created folders
+        folders = await asyncio.to_thread(
+            lambda: list(db.folders.find({"client_id": client_id}))
+        )
+        
+        return {
+            "success": True,
+            "message": f"Client created successfully with automatic folder structure",
+            "client": {
+                "id": client_id,
+                "name": client_name,
+                "hotel_name": hotel_name or client_name,
+                "stage": current_stage
+            },
+            "folders_created": len(folders),
+            "auto_structure": "SUCCESS" if len(folders) == 49 else f"PARTIAL ({len(folders)}/49)"
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ CLIENT CREATION ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Client creation error: {str(e)}")
+
 @app.post("/api/test-auto-folder-creation")
 async def test_auto_folder_creation():
     """Test otomatik klasör oluşturma sistemini"""
