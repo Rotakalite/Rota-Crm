@@ -165,20 +165,6 @@ const YeniBelgeYonetimi = () => {
       await axios.delete(`${API}/api/belge/delete/${doc.id}`);
       console.log(`🗑️ Document deleted: ${doc.name}`);
       loadDocuments(); // Refresh list
-    } catch (error) {
-      console.error('❌ Delete error:', error);
-      alert(`Silme hatası: ${error.response?.data?.detail || error.message}`);
-    }
-  };
-
-  const deleteDocument = async (documentId) => {
-    if (!confirm('Bu belgeyi silmek istediğinizden emin misiniz?')) {
-      return;
-    }
-    
-    try {
-      await axios.delete(`${API}/api/belge/delete/${documentId}`);
-      await loadDocuments();
       alert('Belge silindi!');
     } catch (error) {
       console.error('❌ Delete error:', error);
