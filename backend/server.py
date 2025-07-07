@@ -7113,45 +7113,7 @@ async def list_belge_main(client_id: str = None):
         logging.error(f"❌ BELGE LIST ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Liste hatası: {str(e)}")
 
-@app.delete("/api/belge/delete/{document_id}")
-async def delete_belge_main(document_id: str):
-    """🗑️ BELGE SİLME - MAIN APP"""
-    try:
-        logging.info(f"🗑️ BELGE DELETE MAIN: {document_id}")
-        
-        # Get MongoDB connection
-        mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
-        
-        # Find document
-        document = await asyncio.to_thread(db.documents.find_one, {"id": document_id})
-        if not document:
-            raise HTTPException(status_code=404, detail="Belge bulunamadı")
-        
-        # Mark as deleted in database
-        await asyncio.to_thread(
-            db.documents.update_one,
-            {"id": document_id},
-            {"$set": {"status": "deleted", "deleted_at": datetime.utcnow()}}
-        )
-        
-        # Optionally remove file from disk
-        file_path = document.get("file_path")
-        if file_path and os.path.exists(file_path):
-            os.remove(file_path)
-            logging.info(f"✅ File removed: {file_path}")
-        
-        logging.info(f"✅ Document deleted: {document_id}")
-        
-        return {"success": True, "message": "Belge silindi"}
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logging.error(f"❌ BELGE DELETE ERROR: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Silme hatası: {str(e)}")
-
-@app.get("/api/test-main")
+@app.post("/api/test-auto-folder-creation")
 async def test_main_endpoint():
     """Test endpoint on main app"""
     return {"message": "Main app endpoint working!", "status": "ok"}
