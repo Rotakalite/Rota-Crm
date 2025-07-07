@@ -193,10 +193,10 @@ api_router = APIRouter()
 #         }
 #     )
 
-# Global OPTIONS handler for non-API routes
-@app.options("/{full_path:path}")
-async def global_options_handler(full_path: str):
-    """Handle CORS preflight requests for all routes"""
+# CORS OPTIONS handler - ONLY for specific paths, not catch-all
+@app.options("/")
+async def root_options():
+    """Handle CORS preflight for root"""
     return Response(
         status_code=200,
         headers={
