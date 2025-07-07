@@ -944,6 +944,127 @@ async def get_clients_main_app():
         logging.error(f"❌ CLIENTS LIST ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Clients liste hatası: {str(e)}")
 
+@app.post("/api/folders/create-for-new-clients")
+async def create_folders_for_new_clients():
+    """Create complete folder structure for clients who don't have folders"""
+    try:
+        logging.info("🏗️ Creating folders for new clients")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # Get all clients
+        clients = await asyncio.to_thread(lambda: list(db.clients.find({})))
+        
+        created_count = 0
+        
+        for client in clients:
+            client_id = client.get("id") or client.get("client_id")
+            client_name = client.get("client_name", "Unknown Client")
+            
+            # Check if client already has folders
+            existing_folders = await asyncio.to_thread(
+                lambda: list(db.folders.find({"client_id": client_id}))
+            )
+            
+            if existing_folders:
+                continue  # Skip if client already has folders
+            
+            # Create root folder (level 0)
+            root_id = f"root_{client_id}"
+            root_data = {
+                "id": root_id,
+                "client_id": client_id,
+                "name": f"{client_name} SYS",
+                "parent_folder_id": None,
+                "folder_path": f"{client_name} SYS",
+                "level": 0,
+                "created_at": datetime.utcnow()
+            }
+            
+            await asyncio.to_thread(db.folders.insert_one, root_data)
+            created_count += 1
+            
+            # Create level 1 folders (A, B, C, D columns)
+            columns = ["A SÜTUNU", "B SÜTUNU", "C SÜTUNU", "D SÜTUNU"]
+            
+            for column in columns:
+                level1_id = f"{column.lower().replace(' ', '_')}_{client_id}"
+                level1_data = {
+                    "id": level1_id,
+                    "client_id": client_id,
+                    "name": column,
+                    "parent_folder_id": root_id,
+                    "folder_path": f"{client_name} SYS/{column}",
+                    "level": 1,
+                    "created_at": datetime.utcnow()
+                }
+                
+                await asyncio.to_thread(db.folders.insert_one, level1_data)
+                created_count += 1
+                
+                # Create level 2 folders (categories)
+                level2_categories = [
+                    "Politikalar",
+                    "Prosedürler", 
+                    "Talimatlar",
+                    "Formlar",
+                    "Kayıtlar"
+                ]
+                
+                for category in level2_categories:
+                    level2_id = f"level2_{level1_id}_{category.lower()}"
+                    level2_data = {
+                        "id": level2_id,
+                        "client_id": client_id,
+                        "name": category,
+                        "parent_folder_id": level1_id,
+                        "folder_path": f"{client_name} SYS/{column}/{category}",
+                        "level": 2,
+                        "created_at": datetime.utcnow()
+                    }
+                    
+                    await asyncio.to_thread(db.folders.insert_one, level2_data)
+                    created_count += 1
+                    
+                    # Create level 3 folders (document types)
+                    level3_types = [
+                        "TR1 Kriterleri",
+                        "I. Aşama Belgesi",
+                        "II. Aşama Belgesi", 
+                        "III. Aşama Belgesi",
+                        "Karbon Raporu",
+                        "Sürdürülebilirlik Raporu"
+                    ]
+                    
+                    for doc_type in level3_types:
+                        level3_id = f"level3_{level2_id}_{doc_type.lower().replace(' ', '_').replace('.', '')}"
+                        level3_data = {
+                            "id": level3_id,
+                            "client_id": client_id,
+                            "name": doc_type,
+                            "parent_folder_id": level2_id,
+                            "folder_path": f"{client_name} SYS/{column}/{category}/{doc_type}",
+                            "level": 3,
+                            "created_at": datetime.utcnow()
+                        }
+                        
+                        await asyncio.to_thread(db.folders.insert_one, level3_data)
+                        created_count += 1
+        
+        logging.info(f"✅ Created {created_count} folders for new clients")
+        
+        return {
+            "success": True,
+            "message": f"Successfully created {created_count} folders for new clients",
+            "clients_processed": len(clients)
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ NEW CLIENT FOLDER CREATION ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"New client folder creation error: {str(e)}")
+
 @app.post("/api/clients/create-test-clients")
 async def create_test_clients():
     """Create test clients for today"""
