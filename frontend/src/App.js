@@ -7919,10 +7919,9 @@ const MainApp = () => {
         return <SupplierManagement />;
       case 'project':
         return <ProjectManagement client={selectedClient} onNavigate={handleNavigate} />;
-      case 'documents':
-        return userRole === 'admin' ? <DocumentManagement /> : <ClientDocuments />;
-      case 'client-documents':
-        return <ClientDocuments />;
+      case 'belge-yonetimi':
+      case 'yeni-belge':
+        return <YeniBelgeYonetimi />;
       case 'reports':
         return (
           <div className="bg-white p-6 rounded-lg shadow-md">
@@ -7932,8 +7931,6 @@ const MainApp = () => {
         );
       case 'email':
         return <EmailManagement />;
-      case 'yeni-belge':
-        return <YeniBelgeYonetimi />;
       case 'trainings':
         return userRole === 'admin' ? <TrainingManagement /> : <ClientTrainings />;
       default:
