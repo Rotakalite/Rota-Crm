@@ -6058,6 +6058,95 @@ async def get_real_clients_for_email(current_user: User = Depends(get_current_us
         return []
 
 # ==========================================
+# SIMPLE UPLOAD/DOWNLOAD - DIRECT ON APP
+# ==========================================
+
+@app.post("/api/simple-upload")
+async def simple_upload_direct(
+    file: UploadFile = File(...),
+    client_id: str = Form(...),
+    folder_id: str = Form(...),
+    document_name: str = Form(...),
+    document_type: str = Form(...),
+    stage: str = Form(...)
+):
+    """SIMPLE UPLOAD - NO AUTH"""
+    try:
+        import os
+        
+        os.makedirs("/tmp/uploads", exist_ok=True)
+        
+        doc_id = str(uuid.uuid4())
+        file_extension = file.filename.split('.')[-1] if '.' in file.filename else 'pdf'
+        saved_filename = f"{doc_id}.{file_extension}"
+        file_path = f"/tmp/uploads/{saved_filename}"
+        
+        content = await file.read()
+        with open(file_path, "wb") as f:
+            f.write(content)
+        
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        document_data = {
+            "id": doc_id,
+            "client_id": client_id,
+            "name": document_name,
+            "document_name": document_name,
+            "document_type": document_type,
+            "stage": stage,
+            "filename": file.filename,
+            "content_type": file.content_type,
+            "file_size": len(content),
+            "original_filename": file.filename,
+            "created_at": datetime.utcnow(),
+            "folder_id": folder_id,
+            "file_path": file_path,
+            "saved_filename": saved_filename
+        }
+        
+        await asyncio.to_thread(db.documents.insert_one, document_data)
+        logging.info(f"✅ SIMPLE UPLOAD SUCCESS: {doc_id}")
+        
+        return {"message": "Upload successful", "document_id": doc_id}
+        
+    except Exception as e:
+        logging.error(f"❌ SIMPLE UPLOAD ERROR: {e}")
+        return {"error": str(e)}
+
+@app.get("/api/simple-download/{doc_id}")
+async def simple_download_direct(doc_id: str):
+    """SIMPLE DOWNLOAD - NO AUTH"""
+    try:
+        import os
+        from fastapi.responses import FileResponse
+        
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        doc = await asyncio.to_thread(db.documents.find_one, {"id": doc_id})
+        if not doc:
+            raise HTTPException(status_code=404, detail="Document not found")
+        
+        file_path = doc.get("file_path")
+        if not file_path or not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail="File not found")
+        
+        logging.info(f"✅ SIMPLE DOWNLOAD: {doc_id}")
+        
+        return FileResponse(
+            path=file_path,
+            filename=doc.get("original_filename", "document.pdf"),
+            media_type=doc.get("content_type", "application/pdf")
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ SIMPLE DOWNLOAD ERROR: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ==========================================
 # SIMPLE UPLOAD/DOWNLOAD - NO GRIDFS  
 # ==========================================
 
