@@ -944,6 +944,81 @@ async def get_clients_main_app():
         logging.error(f"❌ CLIENTS LIST ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Clients liste hatası: {str(e)}")
 
+@app.post("/api/folders/fix-d-level3-structure")
+async def fix_d_level3_structure():
+    """D level 3 klasörlerini sil ve doğru formatta yeniden oluştur"""
+    try:
+        logging.info("🏗️ Fixing D Level 3 structure with correct format (D1.1, D1.2, etc.)")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # DELETE existing level 3 folders for D1, D2, D3
+        deleted_result = await asyncio.to_thread(
+            db.folders.delete_many, {
+                "level": 3,
+                "name": {"$regex": "^D[123]"}
+            }
+        )
+        logging.info(f"🗑️ Deleted {deleted_result.deleted_count} existing D-level3 folders")
+        
+        # CORRECT Level 3 structure for D folders (with dots)
+        d_level3_structure = {
+            "D1": ["D1.1", "D1.2", "D1.3", "D1.4"],
+            "D2": ["D2.1", "D2.2", "D2.3", "D2.4", "D2.5", "D2.6"], 
+            "D3": ["D3.1", "D3.2", "D3.3", "D3.4", "D3.5", "D3.6"]
+        }
+        
+        # Get all D1, D2, D3 folders (level 2)
+        d_folders = await asyncio.to_thread(
+            lambda: list(db.folders.find({
+                "level": 2,
+                "name": {"$in": ["D1", "D2", "D3"]}
+            }))
+        )
+        
+        created_count = 0
+        
+        for d_folder in d_folders:
+            folder_name = d_folder["name"]  # D1, D2, or D3
+            client_id = d_folder["client_id"]
+            
+            if folder_name in d_level3_structure:
+                level3_subfolders = d_level3_structure[folder_name]
+                
+                for subfolder_name in level3_subfolders:
+                    # Use safe ID (replace dots with underscores for ID)
+                    safe_name = subfolder_name.replace(".", "_")
+                    level3_id = f"level3_{d_folder['id']}_{safe_name}"
+                    level3_path = f"{d_folder['folder_path']}/{subfolder_name}"
+                    
+                    level3_data = {
+                        "id": level3_id,
+                        "client_id": client_id,
+                        "name": subfolder_name,  # Display name with dots
+                        "parent_folder_id": d_folder["id"],
+                        "folder_path": level3_path,
+                        "level": 3,
+                        "created_at": datetime.utcnow()
+                    }
+                    
+                    await asyncio.to_thread(db.folders.insert_one, level3_data)
+                    created_count += 1
+        
+        logging.info(f"✅ Created {created_count} corrected D-level3 folders")
+        
+        return {
+            "success": True,
+            "message": f"Successfully fixed D-Level3 structure. Deleted old and created {created_count} correct folders",
+            "structure": d_level3_structure,
+            "folders_processed": len(d_folders)
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ D-LEVEL3 FIX ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"D-Level3 fix error: {str(e)}")
+
 @app.post("/api/folders/create-d-level3-structure")
 async def create_d_level3_structure():
     """D1, D2, D3 klasörleri için level 3 yapısını oluştur"""
