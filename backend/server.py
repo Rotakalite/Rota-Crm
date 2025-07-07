@@ -7392,6 +7392,130 @@ async def create_new_client_main(
         logging.error(f"❌ CLIENT CREATION ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Client creation error: {str(e)}")
 
+@app.delete("/api/clients/{client_id}")
+async def delete_client_main(client_id: str):
+    """Delete client - MAIN APP - REAL DELETE"""
+    try:
+        logging.info(f"🏨 DELETE CLIENT MAIN: {client_id}")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # Check if client exists
+        client = await asyncio.to_thread(db.clients.find_one, {"id": client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Müşteri bulunamadı")
+        
+        client_name = client.get("client_name", "Unknown")
+        
+        # 1. DELETE ALL CLIENT'S DOCUMENTS AND FILES
+        client_documents = await asyncio.to_thread(
+            lambda: list(db.documents.find({"client_id": client_id}))
+        )
+        
+        files_deleted = 0
+        for doc in client_documents:
+            # Delete file from disk
+            file_path = doc.get("file_path")
+            if file_path and os.path.exists(file_path):
+                os.remove(file_path)
+                files_deleted += 1
+        
+        # Delete documents from database
+        docs_result = await asyncio.to_thread(
+            db.documents.delete_many, {"client_id": client_id}
+        )
+        
+        # 2. DELETE ALL CLIENT'S FOLDERS
+        folders_result = await asyncio.to_thread(
+            db.folders.delete_many, {"client_id": client_id}
+        )
+        
+        # 3. DELETE ALL CLIENT'S TRAININGS
+        trainings_result = await asyncio.to_thread(
+            db.trainings.delete_many, {"client_id": client_id}
+        )
+        
+        # 4. DELETE CLIENT'S USERS
+        users_result = await asyncio.to_thread(
+            db.users.delete_many, {"client_id": client_id}
+        )
+        
+        # 5. DELETE CLIENT ITSELF
+        client_result = await asyncio.to_thread(
+            db.clients.delete_one, {"id": client_id}
+        )
+        
+        if client_result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Müşteri silinemedi")
+        
+        # 6. DELETE CLIENT'S FOLDER FROM DISK
+        client_folder = f"/app/documents/{client_id}"
+        if os.path.exists(client_folder):
+            import shutil
+            shutil.rmtree(client_folder)
+        
+        logging.info(f"✅ Client COMPLETELY deleted: {client_name}")
+        logging.info(f"   - {docs_result.deleted_count} documents deleted")
+        logging.info(f"   - {folders_result.deleted_count} folders deleted") 
+        logging.info(f"   - {trainings_result.deleted_count} trainings deleted")
+        logging.info(f"   - {users_result.deleted_count} users deleted")
+        logging.info(f"   - {files_deleted} files deleted from disk")
+        
+        return {
+            "success": True,
+            "message": f"Müşteri ve tüm verileri kalıcı olarak silindi: {client_name}",
+            "deleted": {
+                "client": 1,
+                "documents": docs_result.deleted_count,
+                "folders": folders_result.deleted_count,
+                "trainings": trainings_result.deleted_count,
+                "users": users_result.deleted_count,
+                "files": files_deleted
+            }
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ CLIENT DELETE ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Müşteri silme hatası: {str(e)}")
+
+@app.delete("/api/trainings/{training_id}")
+async def delete_training_main(training_id: str):
+    """Delete training - MAIN APP - REAL DELETE"""
+    try:
+        logging.info(f"🎓 DELETE TRAINING MAIN: {training_id}")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # Check if training exists
+        training = await asyncio.to_thread(db.trainings.find_one, {"id": training_id})
+        if not training:
+            raise HTTPException(status_code=404, detail="Eğitim bulunamadı")
+        
+        training_name = training.get("name", "Unknown")
+        
+        # DELETE TRAINING COMPLETELY
+        result = await asyncio.to_thread(
+            db.trainings.delete_one, {"id": training_id}
+        )
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Eğitim silinemedi")
+        
+        logging.info(f"✅ Training PERMANENTLY deleted: {training_name}")
+        
+        return {
+            "success": True,
+            "message": f"Eğitim kalıcı olarak silindi: {training_name}"
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ TRAINING DELETE ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Eğitim silme hatası: {str(e)}")
+
 @app.post("/api/test-auto-folder-creation")
 async def test_auto_folder_creation():
     """Test otomatik klasör oluşturma sistemini"""
