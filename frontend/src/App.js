@@ -4478,6 +4478,18 @@ const ClientDocuments = () => {
   };
 
   const uploadSingleFile = async (file, metadata) => {
+    // Force auth refresh before upload
+    console.log('🔑 Refreshing auth token before upload...');
+    const user = await window.Clerk.user;
+    if (user) {
+      const freshToken = await user.getToken();
+      setAuthToken(freshToken);
+      console.log('✅ Auth token refreshed for upload');
+    } else {
+      console.error('❌ No user found for auth refresh');
+      throw new Error('Authentication required');
+    }
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('client_id', metadata.clientId);
