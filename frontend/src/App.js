@@ -4482,8 +4482,9 @@ const ClientDocuments = () => {
     console.log('🔑 Refreshing auth token before upload...');
     try {
       const user = window.Clerk?.user;
-      if (user) {
-        const freshToken = await user.getToken();
+      const session = window.Clerk?.session;
+      if (user && session) {
+        const freshToken = await session.getToken();
         console.log('✅ Auth token refreshed for upload');
         
         const formData = new FormData();
@@ -4512,7 +4513,7 @@ const ClientDocuments = () => {
         
         return response;
       } else {
-        console.error('❌ No user found for auth refresh');
+        console.error('❌ No user/session found for auth refresh');
         throw new Error('Authentication required');
       }
     } catch (error) {
