@@ -250,6 +250,18 @@ backend:
         -comment: "Fixed the Email Management endpoints by moving the API router registration to the end of the file after all endpoint definitions. The API router is now registered at line 5609 with app.include_router(api_router, prefix='/api'). Also fixed the endpoint authentication by changing the dependency from token: str = Depends(verify_token) to current_user: User = Depends(get_current_user). Tested the endpoints with the Railway API URL and they are now properly registered. The endpoints return 405 Method Not Allowed errors when accessed with GET requests, which is expected since they are defined as GET endpoints but the server is configured to require authentication. When accessed with proper authentication, the endpoints should return the expected data. The fix ensures that all API endpoints defined in the server.py file are properly registered with the FastAPI router."
 
 frontend:
+  - task: "New Belge Yönetimi System Frontend Integration"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/YeniBelgeYonetimi.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "New YeniBelgeYonetimi.js component created and integrated into App.js. Includes client/folder selection, single and bulk file upload with progress indicators. Uses new /api/belge/* endpoints. Added navigation card '🚀 Yeni Belge Yönetimi' to Dashboard and proper routing in App.js."
+
   - task: "Fix Frontend JSX Syntax Errors - Adjacent JSX Elements"
     implemented: true
     working: true
