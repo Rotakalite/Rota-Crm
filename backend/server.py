@@ -7172,6 +7172,71 @@ async def get_folders_main():
         logging.error(f"❌ FOLDERS LIST ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Folders liste hatası: {str(e)}")
 
+@app.post("/api/test-auto-folder-creation")
+async def test_auto_folder_creation():
+    """Test otomatik klasör oluşturma sistemini"""
+    try:
+        logging.info("🧪 Testing automatic folder creation system")
+        
+        # Create test client
+        test_client_id = f"AUTO_TEST_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+        test_client_name = f"Otomatik Test Müşteri {datetime.utcnow().strftime('%H:%M:%S')}"
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # Create client
+        client_data = {
+            "id": test_client_id,
+            "client_id": test_client_id,
+            "client_name": test_client_name,
+            "hotel_name": test_client_name,
+            "contact_person": "test@auto.com",
+            "email": "test@auto.com",
+            "current_stage": "I.Aşama",
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        await asyncio.to_thread(db.clients.insert_one, client_data)
+        logging.info(f"✅ Test client created: {test_client_name}")
+        
+        # Trigger automatic folder creation (bu fonksiyon zaten mevcut)
+        from server import create_client_root_folder
+        await create_client_root_folder(test_client_id, test_client_name)
+        
+        # Count created folders
+        folders = await asyncio.to_thread(
+            lambda: list(db.folders.find({"client_id": test_client_id}))
+        )
+        
+        folder_stats = {}
+        for folder in folders:
+            level = folder["level"]
+            if level not in folder_stats:
+                folder_stats[level] = 0
+            folder_stats[level] += 1
+        
+        total_folders = len(folders)
+        
+        return {
+            "success": True,
+            "message": f"Automatic folder creation test completed",
+            "test_client": {
+                "id": test_client_id,
+                "name": test_client_name
+            },
+            "folder_stats": folder_stats,
+            "total_folders": total_folders,
+            "expected_folders": 49,
+            "auto_creation": "SUCCESS" if total_folders == 49 else f"PARTIAL ({total_folders}/49)"
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ AUTO FOLDER TEST ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Auto folder test error: {str(e)}")
+
 # ==========================================
 # API ROUTER REGISTRATION - MUST BE AT END
 # ==========================================
