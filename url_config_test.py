@@ -34,7 +34,7 @@ class TestURLConfiguration(unittest.TestCase):
             "Origin": "https://rota-r4invvuue-rotas-projects-62181e6e.vercel.app"
         }
         self.emergent_origin_headers = {
-            "Origin": "https://08cc1cf3-6b53-4bd5-ac58-0e99474d7ded.preview.emergentagent.com"
+            "Origin": "https://9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com"
         }
         
     def test_health_endpoint(self):

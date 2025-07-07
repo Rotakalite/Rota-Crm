@@ -21,7 +21,7 @@ class TestLevel3FolderStructure(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://08cc1cf3-6b53-4bd5-ac58-0e99474d7ded.preview.emergentagent.com/api"
+        self.api_url = "https://9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         
