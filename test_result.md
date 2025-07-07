@@ -105,6 +105,21 @@
 user_problem_statement: "Rota-CRM frontend application'ında tedarikçi modülü problemi test edilmesi gerekiyor. Kullanıcı tedarikçi modülüne bastığında otomatik logout oluyor."
 
 backend:
+  - task: "Fix CORS Policy Error for Vercel Deployment"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "User reported CORS error: 'Access to XMLHttpRequest at https://rota-crm-production.up.railway.app/api/clients from origin https://rota-236qgwffr-rotas-projects-62181e6e.vercel.app has been blocked by CORS policy: No Access-Control-Allow-Origin header is present'. Also KeyError: 'id' in get_current_user function."
+        -working: true
+        -agent: "main"
+        -comment: "🔧 CORS & USER ID ISSUES FIXED! 1) Added specific Vercel URL 'https://rota-236qgwffr-rotas-projects-62181e6e.vercel.app' to CORS allow_origins list (troubleshoot agent identified FastAPI doesn't support wildcard *.vercel.app patterns). 2) Fixed KeyError: 'id' by adding protection for old user records - auto-generates UUID for users without 'id' field. Backend restarted successfully."
+
   - task: "Level 4 Folder Structure Implementation"
     implemented: true
     working: true
