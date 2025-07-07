@@ -7278,65 +7278,6 @@ async def register_user_main_fixed(user_data: dict):
         logging.error(f"❌ USER REGISTRATION ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Registration error: {str(e)}")
 
-@app.post("/api/auth/register")
-async def register_user_main(user_data: dict):
-    """User registration - MAIN APP"""
-    try:
-        logging.info(f"👤 User registration: {user_data.get('email')}")
-        
-        # Get MongoDB connection
-        mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
-        
-        clerk_user_id = user_data.get("clerk_user_id")
-        email = user_data.get("email")
-        role = user_data.get("role", "client")
-        
-        # Check if user already exists
-        existing_user = await asyncio.to_thread(
-            db.users.find_one, {"clerk_user_id": clerk_user_id}
-        )
-        
-        if existing_user:
-            logging.info(f"User already exists: {email}")
-            return existing_user
-        
-        # Create new user
-        user_document = {
-            "clerk_user_id": clerk_user_id,
-            "email": email,
-            "name": user_data.get("name", ""),
-            "role": role,
-            "client_id": None,  # Will be set when client creates their record
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow()
-        }
-        
-        # If registering as client, try to find matching client record
-        if role == "client":
-            matching_client = await asyncio.to_thread(
-                db.clients.find_one, {"email": email}
-            )
-            
-            if matching_client:
-                user_document["client_id"] = matching_client["id"]
-                logging.info(f"🔗 Client user linked to existing client: {matching_client['client_name']}")
-            else:
-                logging.warning(f"⚠️ Client user registered but no matching client found: {email}")
-        
-        await asyncio.to_thread(db.users.insert_one, user_document)
-        logging.info(f"✅ User registered successfully: {email}")
-        
-        # Remove MongoDB _id for response
-        if "_id" in user_document:
-            del user_document["_id"]
-        
-        return user_document
-        
-    except Exception as e:
-        logging.error(f"❌ USER REGISTRATION ERROR: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Registration error: {str(e)}")
-
 @app.post("/api/cleanup-all-data")
 async def cleanup_all_data():
     """Tüm eski client, folder, document verilerini temizle"""
