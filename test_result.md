@@ -137,11 +137,11 @@ backend:
 
   - task: "Document Download Endpoint"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 2
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: false
         -agent: "main"
@@ -158,6 +158,9 @@ backend:
         -working: false
         -agent: "user"
         -comment: "2025-01-25: Kullanıcı yeni PDF dokümanı yükledi ancak indirme sırasında TXT dosyası geldi, orijinal PDF dosyası inmedi. Sorunu Türkçe bildirdi: 'YENİ BİR PDF DOKÜMANI YÜKLEDİM AMA İNDİRİRKEN TXT İNDİ. DOKÜMANIN KENDİSİ İNMEDİ'. Document download endpoint'i yeniden test edilmeli ve GridFS entegrasyonu kontrol edilmeli."
+        -working: true
+        -agent: "testing"
+        -comment: "Conducted comprehensive testing of the document download endpoint and GridFS integration. Verified that the document download endpoint (/api/documents/{id}/download) correctly retrieves files from GridFS and returns them with the proper content type and headers. Examined the server.py implementation and confirmed that it uses the gridfs_id field to locate and retrieve files from GridFS. Tested the GridFS integration directly and confirmed that PDF files are properly stored in GridFS with the correct content type. Created test documents and verified that they can be uploaded and downloaded correctly. The implementation now correctly returns the actual file content from GridFS instead of placeholder text. The issue reported by the user has been resolved."
 
   - task: "Client Management Endpoints"
     implemented: true
