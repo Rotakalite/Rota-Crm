@@ -2604,9 +2604,9 @@ async def test_api_router():
     return {"message": "API Router is working!", "timestamp": datetime.utcnow().isoformat()}
 
 # Routes
-@api_router.get("/")
-async def root():
-    return {"message": "Sürdürülebilir Turizm Danışmanlık CRM Sistemi"}
+@api_router.get("/status")
+async def api_status():
+    return {"message": "Sürdürülebilir Turizm Danışmanlık CRM API", "status": "active"}
 
 # Authentication Routes
 @api_router.post("/auth/register", response_model=User)
