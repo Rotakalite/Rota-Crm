@@ -4480,36 +4480,32 @@ const ClientDocuments = () => {
   const uploadSingleFile = async (file, metadata) => {
     // Force auth refresh before upload
     console.log('🔑 Refreshing auth token before upload...');
-    const user = await window.Clerk.user;
-    if (user) {
-      const freshToken = await user.getToken();
-      setAuthToken(freshToken);
-      console.log('✅ Auth token refreshed for upload');
-    } else {
-      console.error('❌ No user found for auth refresh');
-      throw new Error('Authentication required');
-    }
+    try {
+      const user = window.Clerk?.user;
+      if (user) {
+        const freshToken = await user.getToken();
+        console.log('✅ Auth token refreshed for upload');
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('client_id', metadata.clientId);
+        formData.append('document_name', metadata.documentName);
+        formData.append('document_type', metadata.documentType);
+        formData.append('stage', metadata.stage);
+        formData.append('folder_id', metadata.folderId);  // Required folder selection
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('client_id', metadata.clientId);
-    formData.append('document_name', metadata.documentName);
-    formData.append('document_type', metadata.documentType);
-    formData.append('stage', metadata.stage);
-    formData.append('folder_id', metadata.folderId);  // Required folder selection
+        // Calculate timeout based on file size (minimum 30s, max 10 minutes)
+        const timeoutMs = Math.max(30000, Math.min(file.size / (1024 * 100), 600000)); // ~100KB/s minimum speed
+        
+        console.log(`⏱️ Upload timeout set to: ${(timeoutMs / 1000).toFixed(0)} seconds`);
 
-    // Calculate timeout based on file size (minimum 30s, max 10 minutes)
-    const timeoutMs = Math.max(30000, Math.min(file.size / (1024 * 100), 600000)); // ~100KB/s minimum speed
-    
-    console.log(`⏱️ Upload timeout set to: ${(timeoutMs / 1000).toFixed(0)} seconds`);
-
-    const response = await axios.post(`${API}/upload-document`, formData, {
-      headers: { 
-        'Authorization': `Bearer ${authToken}`
-      },
-      timeout: timeoutMs,
-      onUploadProgress: (progressEvent) => {
-        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        const response = await axios.post(`${API}/upload-document`, formData, {
+          headers: { 
+            'Authorization': `Bearer ${freshToken}`
+          },
+          timeout: timeoutMs,
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
         console.log(`📊 Upload progress: ${percentCompleted}% (${file.name})`);
       }
     });
