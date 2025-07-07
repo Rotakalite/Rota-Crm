@@ -357,6 +357,7 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Level 4 Folder Structure Implementation"
     - "New Belge Yönetimi System Backend APIs"
     - "New Belge Yönetimi System Frontend Integration"
   stuck_tasks: []
