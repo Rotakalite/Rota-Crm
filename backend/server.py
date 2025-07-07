@@ -1027,6 +1027,74 @@ async def fix_d_level3_structure():
         logging.error(f"❌ D-LEVEL3 FIX ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"D-Level3 fix error: {str(e)}")
 
+@app.post("/api/folders/create-level4-structure")
+async def create_level4_structure():
+    """Tüm Level 2 ve Level 3 klasörleri için Level 4 yapısını oluştur"""
+    try:
+        logging.info("🏗️ Creating Level 4 structure for all Level 2 & 3 folders")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # Level 4 klasörler - her Level 2 ve Level 3 için
+        level4_folders = [
+            "POLİTİKALAR",
+            "PROSEDÜRLER", 
+            "FORMLAR",
+            "LİSTELER",
+            "KAYITLAR"
+        ]
+        
+        # Get all Level 2 and Level 3 folders
+        parent_folders = await asyncio.to_thread(
+            lambda: list(db.folders.find({"level": {"$in": [2, 3]}}))
+        )
+        
+        created_count = 0
+        
+        for parent_folder in parent_folders:
+            client_id = parent_folder["client_id"]
+            parent_id = parent_folder["id"]
+            parent_name = parent_folder["name"]
+            parent_path = parent_folder["folder_path"]
+            
+            for folder_name in level4_folders:
+                level4_id = f"level4_{parent_id}_{folder_name.lower()}"
+                level4_path = f"{parent_path}/{folder_name}"
+                
+                # Check if already exists
+                existing = await asyncio.to_thread(
+                    db.folders.find_one, {"id": level4_id}
+                )
+                
+                if not existing:
+                    level4_data = {
+                        "id": level4_id,
+                        "client_id": client_id,
+                        "name": folder_name,
+                        "parent_folder_id": parent_id,
+                        "folder_path": level4_path,
+                        "level": 4,
+                        "created_at": datetime.utcnow()
+                    }
+                    
+                    await asyncio.to_thread(db.folders.insert_one, level4_data)
+                    created_count += 1
+        
+        logging.info(f"✅ Created {created_count} Level 4 folders")
+        
+        return {
+            "success": True,
+            "message": f"Successfully created {created_count} Level 4 folders",
+            "level4_structure": level4_folders,
+            "parent_folders_processed": len(parent_folders)
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ LEVEL4 CREATION ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Level4 creation error: {str(e)}")
+
 @app.post("/api/folders/create-d-level3-structure")
 async def create_d_level3_structure():
     """D1, D2, D3 klasörleri için level 3 yapısını oluştur"""
