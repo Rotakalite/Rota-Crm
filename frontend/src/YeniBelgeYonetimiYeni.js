@@ -19,7 +19,7 @@ const YeniBelgeYonetimiYeni = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   
-  const API = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+  const API = process.env.REACT_APP_BACKEND_URL || 'https://rota-crm-production.up.railway.app';
 
   // Load initial data
   useEffect(() => {
