@@ -7179,6 +7179,106 @@ async def get_folders_main():
         raise HTTPException(status_code=500, detail=f"Folders liste hatası: {str(e)}")
 
 @app.post("/api/auth/register")
+async def register_user_main_fixed(user_data: dict):
+    """User registration - MAIN APP - WORKING VERSION"""
+    try:
+        logging.info(f"👤 User registration MAIN: {user_data.get('email')}")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        clerk_user_id = user_data.get("clerk_user_id")
+        email = user_data.get("email", "")
+        role = user_data.get("role", "client")
+        name = user_data.get("name", "")
+        
+        if not clerk_user_id or not email:
+            raise HTTPException(status_code=400, detail="clerk_user_id and email required")
+        
+        # Check if user already exists
+        existing_user = await asyncio.to_thread(
+            db.users.find_one, {"clerk_user_id": clerk_user_id}
+        )
+        
+        if existing_user:
+            logging.info(f"🔄 Existing user: {email}")
+            
+            # SECURITY FIX: Check if existing client user needs client_id linking
+            if existing_user.get("role") == "client" and not existing_user.get("client_id"):
+                # Try to find matching client by email
+                matching_client = await asyncio.to_thread(
+                    db.clients.find_one, {"email": email}
+                )
+                
+                if matching_client:
+                    # Update existing user with client_id
+                    await asyncio.to_thread(
+                        db.users.update_one,
+                        {"clerk_user_id": clerk_user_id},
+                        {"$set": {"client_id": matching_client["id"], "updated_at": datetime.utcnow()}}
+                    )
+                    existing_user["client_id"] = matching_client["id"]
+                    logging.info(f"🔗 Existing client user linked to client: {matching_client['client_name']} (ID: {matching_client['id']})")
+                else:
+                    logging.warning(f"⚠️ Existing client user but no matching client found for email: {email}")
+            
+            # Remove MongoDB _id for response
+            if "_id" in existing_user:
+                del existing_user["_id"]
+            
+            return existing_user
+        
+        # Create new user
+        user_document = {
+            "clerk_user_id": clerk_user_id,
+            "email": email,
+            "name": name,
+            "role": role,
+            "client_id": None,  # Will be set when client creates their record
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        # SECURITY FIX: If registering as client, find matching client record by email
+        if role == "client":
+            matching_client = await asyncio.to_thread(
+                db.clients.find_one, {"email": email}
+            )
+            
+            if matching_client:
+                # Link this user to the existing client
+                user_document["client_id"] = matching_client["id"]
+                logging.info(f"🔗 New client user linked to existing client: {matching_client['client_name']} (ID: {matching_client['id']})")
+                
+                # TRIGGER AUTOMATIC FOLDER CREATION if client exists but no folders
+                folders_count = await asyncio.to_thread(
+                    db.folders.count_documents, {"client_id": matching_client["id"]}
+                )
+                
+                if folders_count == 0:
+                    logging.info(f"🏗️ Creating automatic folders for linked client: {matching_client['client_name']}")
+                    await create_client_root_folder(matching_client["id"], matching_client["client_name"])
+                    
+            else:
+                # No matching client found - client_id remains None for manual admin assignment
+                logging.warning(f"⚠️ New client user registered but no matching client found for email: {email}")
+        
+        # Insert user
+        await asyncio.to_thread(db.users.insert_one, user_document)
+        logging.info(f"✅ User registered successfully: {email}")
+        
+        # Remove MongoDB _id for response
+        if "_id" in user_document:
+            del user_document["_id"]
+        
+        return user_document
+        
+    except Exception as e:
+        logging.error(f"❌ USER REGISTRATION ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Registration error: {str(e)}")
+
+@app.post("/api/auth/register")
 async def register_user_main(user_data: dict):
     """User registration - MAIN APP"""
     try:
