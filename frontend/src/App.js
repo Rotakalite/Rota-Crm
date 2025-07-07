@@ -7921,6 +7921,8 @@ const MainApp = () => {
         );
       case 'email':
         return <EmailManagement />;
+      case 'yeni-belge':
+        return <YeniBelgeYonetimi />;
       case 'trainings':
         return userRole === 'admin' ? <TrainingManagement /> : <ClientTrainings />;
       default:
