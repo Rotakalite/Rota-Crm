@@ -18,7 +18,7 @@ TEST_YEAR_CURRENT = 2024
 TEST_YEAR_PREVIOUS = 2025
 
 # Backend URL
-BACKEND_URL = "https://9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com/api"
+BACKEND_URL = "https://fa8c9f7b-7d18-4995-aa12-a264e654b749.preview.emergentagent.com/api"
 
 # Test JWT token - this is a sample token for testing
 # In a real scenario, you would generate this from Clerk
