@@ -105,9 +105,8 @@ app.add_middleware(
         "https://portal.rotakalitedanismanlik.com",  # PRODUCTION DOMAIN
         "https://rota-a43ap7zfm-rotas-projects-62181e6e.vercel.app",  # Eski Vercel URL
         "https://rota-9asd83vl1-rotas-projects-62181e6e.vercel.app",  # Yeni Vercel URL
-        "https://*.vercel.app",  # Tüm Vercel domain'leri  
+        "https://rota-236qgwffr-rotas-projects-62181e6e.vercel.app",  # USER REPORTED URL - FIX FOR CORS ERROR
         "https://0dc7b952-d0c9-46f9-bd11-940dcc3828ba.preview.emergentagent.com",  # Current reported URL
-        "https://0dc7b952-d0c9-46f9-bd11-940dcc3828ba.preview.emergentagent.com",  # Current env URL
         "http://localhost:3000",  # Development
         "http://localhost:3001",  # Development
         "*"  # Hepsine izin ver (geliştirme için)
