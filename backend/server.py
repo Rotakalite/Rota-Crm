@@ -958,34 +958,49 @@ async def upload_document_direct(
     current_user: User = Depends(get_current_user)
 ):
     """Upload document - DIRECT ON MAIN APP"""
+    document_id = None
     try:
         logging.info(f"📤 Direct upload: {current_user.name} - Client: {client_id} - Folder: {folder_id} - File: {file.filename}")
         
         # Get MongoDB connection - ROTACRM
+        logging.info(f"🔗 Connecting to MongoDB...")
         mongo_client = MongoClient(mongo_url)
         db = mongo_client["rotacrm"]
+        logging.info(f"✅ MongoDB connected successfully")
         
         # Verify client exists
+        logging.info(f"👤 Checking client: {client_id}")
         client = await asyncio.to_thread(db.clients.find_one, {"id": client_id})
         if not client:
+            logging.error(f"❌ Client not found: {client_id}")
             raise HTTPException(status_code=404, detail="Client not found")
+        logging.info(f"✅ Client found: {client.get('name', 'Unknown')}")
             
         # Verify folder exists
+        logging.info(f"📁 Checking folder: {folder_id}")
         folder = await asyncio.to_thread(db.folders.find_one, {"id": folder_id})
         if not folder:
+            logging.error(f"❌ Folder not found: {folder_id}")
             raise HTTPException(status_code=404, detail="Folder not found")
+        logging.info(f"✅ Folder found: {folder.get('name', 'Unknown')}")
         
         # Create document metadata
         document_id = str(uuid.uuid4())
+        logging.info(f"🆔 Generated document ID: {document_id}")
         
         # Save file content to GridFS
+        logging.info(f"📥 Reading file content...")
         file_content = await file.read()
+        logging.info(f"✅ File content read: {len(file_content)} bytes")
         
         # Initialize GridFS
+        logging.info(f"🗄️ Initializing GridFS...")
         import gridfs
         fs = gridfs.GridFS(db)
+        logging.info(f"✅ GridFS initialized")
         
         # Store file in GridFS
+        logging.info(f"💾 Storing file in GridFS...")
         file_id = fs.put(
             file_content,
             filename=file.filename,
@@ -999,6 +1014,7 @@ async def upload_document_direct(
                 "stage": stage
             }
         )
+        logging.info(f"✅ File stored in GridFS: {file_id}")
         
         document_data = {
             "id": document_id,
@@ -1020,13 +1036,31 @@ async def upload_document_direct(
         }
         
         # Insert document to rotacrm
-        await asyncio.to_thread(db.documents.insert_one, document_data)
+        logging.info(f"📝 Inserting document record to MongoDB...")
+        result = await asyncio.to_thread(db.documents.insert_one, document_data)
+        logging.info(f"✅ Document record inserted: {result.inserted_id}")
+        
+        # Verify the insertion
+        logging.info(f"🔍 Verifying document insertion...")
+        verification = await asyncio.to_thread(db.documents.find_one, {"id": document_id})
+        if verification:
+            logging.info(f"✅ Document verified in database: {verification.get('name')}")
+        else:
+            logging.error(f"❌ Document verification failed!")
+            raise HTTPException(status_code=500, detail="Document verification failed")
+        
         logging.info(f"✅ Document saved to ROTACRM: {document_id}")
         
         return {"message": "Document uploaded successfully", "document_id": document_id}
         
+    except HTTPException:
+        raise
     except Exception as e:
         logging.error(f"❌ Direct upload error: {e}")
+        logging.error(f"❌ Error type: {type(e)}")
+        logging.error(f"❌ Error details: {str(e)}")
+        if document_id:
+            logging.error(f"❌ Failed document ID: {document_id}")
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
 # ALSO ADD API UPLOAD ENDPOINT FOR FRONTEND /api CALLS
