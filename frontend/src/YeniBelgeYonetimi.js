@@ -246,6 +246,44 @@ const YeniBelgeYonetimi = () => {
     }
   };
 
+  const handleFileSelect = (event) => {
+    const files = Array.from(event.target.files);
+    setSelectedFiles(files);
+  };
+
+  const downloadDocument = async (doc) => {
+    try {
+      console.log(`📥 Downloading document: ${doc.name}`);
+      
+      const response = await axios.get(`${API}/api/belge/download/${doc.id}`, {
+        responseType: 'blob',
+        timeout: 30000 // 30 seconds timeout
+      });
+      
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Use original filename or document name
+      const filename = doc.original_filename || `${doc.name}.pdf`;
+      link.setAttribute('download', filename);
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      
+      console.log(`✅ Download completed: ${filename}`);
+    } catch (error) {
+      console.error('❌ Download error:', error);
+      alert(`İndirme hatası: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
   const deleteDocument = async (documentId) => {
     if (!window.confirm('Bu belgeyi silmek istediğinizden emin misiniz?')) {
       return;
