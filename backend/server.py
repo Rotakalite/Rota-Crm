@@ -944,6 +944,111 @@ async def get_clients_main_app():
         logging.error(f"❌ CLIENTS LIST ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Clients liste hatası: {str(e)}")
 
+@app.post("/api/folders/recreate-correct-structure")
+async def recreate_correct_folder_structure():
+    """Mevcut level 2,3 klasörleri sil ve doğru yapıyı oluştur"""
+    try:
+        logging.info("🏗️ Recreating correct folder structure from photos")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # DELETE all existing level 2 and level 3 folders
+        deleted_level2 = await asyncio.to_thread(
+            db.folders.delete_many, {"level": {"$in": [2, 3]}}
+        )
+        logging.info(f"🗑️ Deleted {deleted_level2.deleted_count} existing level 2&3 folders")
+        
+        # Get all clients
+        clients = await asyncio.to_thread(lambda: list(db.clients.find({})))
+        
+        created_count = 0
+        
+        # Define correct folder structure from photos
+        folder_structure = {
+            "A SÜTUNU": ["A1", "A2", "A3", "A4", "A5", "A7.1", "A7.2", "A7.3", "A7.4", "A8", "A9", "A10"],
+            "B SÜTUNU": ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9"],
+            "C SÜTUNU": ["C1", "C2", "C3", "C4"],
+            "D SÜTUNU": ["D1", "D2", "D3"]
+        }
+        
+        for client in clients:
+            client_id = client.get("id") or client.get("client_id")
+            client_name = client.get("client_name", "Unknown Client")
+            
+            # Get level 1 folders for this client (A, B, C, D columns)
+            level1_folders = await asyncio.to_thread(
+                lambda: list(db.folders.find({"client_id": client_id, "level": 1}))
+            )
+            
+            for level1_folder in level1_folders:
+                folder_id = level1_folder["id"]
+                folder_name = level1_folder["name"]  # A SÜTUNU, B SÜTUNU, etc.
+                
+                # Get correct subfolders for this column
+                if folder_name in folder_structure:
+                    subfolders = folder_structure[folder_name]
+                    
+                    for subfolder_name in subfolders:
+                        level2_id = f"level2_{folder_id}_{subfolder_name.replace('.', '_')}"
+                        level2_path = f"{level1_folder['folder_path']}/{subfolder_name}"
+                        
+                        level2_data = {
+                            "id": level2_id,
+                            "client_id": client_id,
+                            "name": subfolder_name,
+                            "parent_folder_id": folder_id,
+                            "folder_path": level2_path,
+                            "level": 2,
+                            "created_at": datetime.utcnow()
+                        }
+                        
+                        await asyncio.to_thread(db.folders.insert_one, level2_data)
+                        created_count += 1
+        
+        logging.info(f"✅ Created {created_count} new correct folders")
+        
+        return {
+            "success": True,
+            "message": f"Successfully recreated folder structure. Deleted old folders and created {created_count} correct ones",
+            "clients_processed": len(clients),
+            "folder_structure": folder_structure
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ FOLDER RECREATION ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Folder recreation error: {str(e)}")
+
+@app.get("/api/folders/by-client/{client_id}")
+async def get_folders_by_client(client_id: str):
+    """Get folders for specific client only"""
+    try:
+        logging.info(f"📋 FOLDERS BY CLIENT: {client_id}")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # Get folders for specific client only
+        folders = await asyncio.to_thread(
+            lambda: list(db.folders.find({"client_id": client_id}).sort("level", 1))
+        )
+        
+        # Format response
+        formatted_folders = []
+        for folder in folders:
+            if "_id" in folder:
+                del folder["_id"]
+            formatted_folders.append(folder)
+        
+        logging.info(f"✅ Found {len(formatted_folders)} folders for client {client_id}")
+        return formatted_folders
+        
+    except Exception as e:
+        logging.error(f"❌ FOLDERS BY CLIENT ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Folders by client error: {str(e)}")
+
 @app.post("/api/folders/create-for-new-clients")
 async def create_folders_for_new_clients():
     """Create complete folder structure for clients who don't have folders"""
