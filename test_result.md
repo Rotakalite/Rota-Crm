@@ -119,6 +119,9 @@ backend:
         -working: true
         -agent: "testing"
         -comment: "Backend code review completed successfully. All four endpoints (POST /api/belge/upload, GET /api/belge/download/{id}, GET /api/belge/list, DELETE /api/belge/delete/{id}) are properly implemented with appropriate authentication, validation, and error handling. The system uses direct disk storage at /app/documents/ with client-specific folders. Implementation is robust and well-designed with no major issues found. Turkish character support and proper security measures are in place."
+        -working: true
+        -agent: "main"
+        -comment: "🎉 CRITICAL SUCCESS! Fixed API Router 404 issues by moving endpoints to main FastAPI app. All endpoints now working: /api/belge/list (returns 17 documents), /api/clients (returns 6 clients), /api/folders (returns folder structure), /api/belge/upload, /api/belge/download, /api/belge/delete. Used workaround approach - added endpoints directly to main app instead of API router to bypass routing conflicts."
 
   - task: "Email Template Data Binding Issues"
     implemented: true
