@@ -7174,11 +7174,11 @@ async def get_folders_main():
 
 @app.post("/api/clients/create-new")
 async def create_new_client_main(
-    client_name: str,
-    hotel_name: str = None,
-    contact_person: str = None,
-    email: str = None,
-    current_stage: str = "I.Aşama"
+    client_name: str = Form(...),
+    hotel_name: str = Form(None),
+    contact_person: str = Form(None),
+    email: str = Form(None),
+    current_stage: str = Form("I.Aşama")
 ):
     """Create new client with automatic folder structure - MAIN APP"""
     try:
