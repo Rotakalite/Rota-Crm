@@ -736,7 +736,7 @@ async def upload_belge_main_app(
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Basic validation
         if not client_id or not folder_id:
@@ -800,7 +800,7 @@ async def list_belge_main_app(client_id: str = None):
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Build query
         query = {"status": {"$ne": "deleted"}}
@@ -839,7 +839,7 @@ async def download_belge_main_app(document_id: str):
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Find document
         document = await asyncio.to_thread(db.documents.find_one, {"id": document_id})
@@ -877,7 +877,7 @@ async def delete_belge_main_app(document_id: str):
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Find document
         document = await asyncio.to_thread(db.documents.find_one, {"id": document_id})
@@ -915,7 +915,7 @@ async def get_clients_main_app():
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Get clients
         clients = await asyncio.to_thread(
@@ -944,7 +944,7 @@ async def fix_d_level3_structure():
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # DELETE existing level 3 folders for D1, D2, D3
         deleted_result = await asyncio.to_thread(
@@ -1019,7 +1019,7 @@ async def create_level4_structure():
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Level 4 klasörler - her Level 2 ve Level 3 için
         level4_folders = [
@@ -1087,7 +1087,7 @@ async def create_d_level3_structure():
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Level 3 structure for D folders from photos
         d_level3_structure = {
@@ -1157,7 +1157,7 @@ async def recreate_correct_folder_structure():
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # DELETE all existing level 2 and level 3 folders
         deleted_level2 = await asyncio.to_thread(
@@ -1233,7 +1233,7 @@ async def get_folders_by_client(client_id: str):
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Get folders for specific client only
         folders = await asyncio.to_thread(
@@ -1262,7 +1262,7 @@ async def create_folders_for_new_clients():
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Get all clients
         clients = await asyncio.to_thread(lambda: list(db.clients.find({})))
@@ -1383,7 +1383,7 @@ async def create_test_clients():
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         today = datetime.utcnow()
         test_clients = [
@@ -1453,7 +1453,7 @@ async def create_missing_folder_levels():
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Get all clients
         clients = await asyncio.to_thread(lambda: list(db.clients.find({})))
@@ -1554,7 +1554,7 @@ async def get_folders_main_app():
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Get folders
         folders = await asyncio.to_thread(
@@ -1582,7 +1582,7 @@ async def get_documents_direct(current_user: User = Depends(get_current_user)):
     try:
         # Get MongoDB connection - ONLY ROTACRM
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Get documents from rotacrm
         documents = list(db.documents.find({}))
@@ -1642,7 +1642,7 @@ async def download_document_direct(
         
         # Get MongoDB connection - ONLY ROTACRM
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Find document
         document = await asyncio.to_thread(db.documents.find_one, {"id": document_id})
@@ -1714,7 +1714,7 @@ async def get_trainings_direct(current_user: User = Depends(get_current_user)):
     try:
         # Get MongoDB connections - ONLY ROTACRM
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Get trainings from rotacrm
         trainings = list(db.trainings.find({}))
@@ -1764,7 +1764,7 @@ async def get_clients_direct(current_user: User = Depends(get_current_user)):
     try:
         # Get MongoDB connections - ONLY ROTACRM
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Get clients from rotacrm
         clients = list(db.clients.find({}))
@@ -1808,7 +1808,7 @@ async def upload_document_direct(
         # Get MongoDB connection - ROTACRM
         logging.info(f"🔗 Connecting to MongoDB...")
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         logging.info(f"✅ MongoDB connected successfully")
         
         # Verify client exists
@@ -1928,7 +1928,7 @@ async def get_statistics_direct(current_user: User = Depends(get_current_user)):
     try:
         # Get MongoDB connection - ONLY ROTACRM
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         if current_user.role == UserRole.ADMIN:
             # Admin sees all statistics from ROTACRM
@@ -2004,7 +2004,7 @@ async def create_client_direct(
         
         # Get MongoDB connection - ONLY ROTACRM
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Admin can create any client, client users can only create for themselves
         if current_user.role == UserRole.CLIENT and current_user.client_id:
@@ -2063,7 +2063,7 @@ async def update_current_user_direct(
         
         # Get MongoDB connection - ONLY ROTACRM
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         update_data = {k: v for k, v in user_update.items() if v is not None}
         update_data["updated_at"] = datetime.utcnow()
@@ -2122,7 +2122,7 @@ async def create_consumption_direct(consumption_data: dict, current_user: User =
     try:
         # Get MongoDB connection - ONLY ROTACRM
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Add metadata
         consumption_data["id"] = str(uuid.uuid4())
@@ -2144,7 +2144,7 @@ async def get_consumptions_direct(year: Optional[int] = None, client_id: Optiona
     try:
         # Get MongoDB connection - ONLY ROTACRM
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Build query
         query = {}
@@ -6799,7 +6799,7 @@ async def simple_upload_direct(
             f.write(content)
         
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         document_data = {
             "id": doc_id,
@@ -6835,7 +6835,7 @@ async def simple_download_direct(doc_id: str):
         from fastapi.responses import FileResponse
         
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         doc = await asyncio.to_thread(db.documents.find_one, {"id": doc_id})
         if not doc:
@@ -6892,7 +6892,7 @@ async def simple_upload_endpoint(
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Save document record to MongoDB
         document_data = {
@@ -6930,7 +6930,7 @@ async def simple_download_endpoint(doc_id: str):
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Find document in MongoDB
         doc = await asyncio.to_thread(db.documents.find_one, {"id": doc_id})
@@ -6995,7 +6995,7 @@ async def upload_belge_main(
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # 1. VALIDATE CLIENT
         client = await asyncio.to_thread(db.clients.find_one, {"id": client_id})
@@ -7093,7 +7093,7 @@ async def download_belge_main(document_id: str):
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Find document
         document = await asyncio.to_thread(db.documents.find_one, {"id": document_id})
@@ -7140,7 +7140,7 @@ async def list_belge_main(client_id: str = None):
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Build query filter
         filter_query = {"status": {"$ne": "deleted"}}
@@ -7184,7 +7184,7 @@ async def get_folders_main():
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Get folders
         folders = await asyncio.to_thread(
@@ -7214,7 +7214,7 @@ async def register_user_main_fixed(user_data: dict):
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         clerk_user_id = user_data.get("clerk_user_id")
         email = user_data.get("email", "")
@@ -7314,7 +7314,7 @@ async def cleanup_all_data():
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         cleanup_stats = {}
         
@@ -7400,7 +7400,7 @@ async def create_new_client_main(
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Create client data
         client_data = {
@@ -7452,7 +7452,7 @@ async def delete_client_main(client_id: str):
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Check if client exists
         client = await asyncio.to_thread(db.clients.find_one, {"id": client_id})
@@ -7540,7 +7540,7 @@ async def delete_training_main(training_id: str):
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Check if training exists
         training = await asyncio.to_thread(db.trainings.find_one, {"id": training_id})
@@ -7580,7 +7580,7 @@ async def test_auto_folder_creation():
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client["rotacrm"]
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
         # Create client
         client_data = {
