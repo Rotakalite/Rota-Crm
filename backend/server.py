@@ -1920,8 +1920,14 @@ async def get_statistics_direct(current_user: User = Depends(get_current_user)):
                     }
                 }
             
-            # Client specific stats from ROTACRM
-            client_documents = await asyncio.to_thread(db.documents.count_documents, {"client_id": current_user.client_id})
+            # Client specific stats from ROTACRM - ONLY ACTIVE DOCUMENTS
+            client_documents = await asyncio.to_thread(
+                db.documents.count_documents, 
+                {
+                    "client_id": current_user.client_id,
+                    "status": {"$ne": "deleted"}  # Exclude deleted documents
+                }
+            )
             client_trainings = await asyncio.to_thread(db.trainings.count_documents, {"client_id": current_user.client_id})
             
             return {
