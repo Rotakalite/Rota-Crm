@@ -155,6 +155,9 @@ backend:
         -working: true
         -agent: "testing"
         -comment: "Tested the document download functionality using direct MongoDB and GridFS testing. The backend now correctly stores uploaded files in GridFS and retrieves them for download. The document download endpoint (/api/documents/{id}/download) has been fixed to retrieve the actual file content from GridFS instead of returning a placeholder text file. The implementation uses the gridfs_id field in the document record to locate and retrieve the file from GridFS. Tests confirmed that PDF files are properly stored and retrieved with the correct content type and headers. The placeholder text 'This is a placeholder document content' has been removed from the code, and the endpoint now returns the actual file content from GridFS."
+        -working: false
+        -agent: "user"
+        -comment: "2025-01-25: Kullanıcı yeni PDF dokümanı yükledi ancak indirme sırasında TXT dosyası geldi, orijinal PDF dosyası inmedi. Sorunu Türkçe bildirdi: 'YENİ BİR PDF DOKÜMANI YÜKLEDİM AMA İNDİRİRKEN TXT İNDİ. DOKÜMANIN KENDİSİ İNMEDİ'. Document download endpoint'i yeniden test edilmeli ve GridFS entegrasyonu kontrol edilmeli."
 
   - task: "Client Management Endpoints"
     implemented: true
