@@ -7921,7 +7921,7 @@ const MainApp = () => {
         return <ProjectManagement client={selectedClient} onNavigate={handleNavigate} />;
       case 'belge-yonetimi':
       case 'yeni-belge':
-        return <YeniBelgeYonetimi />;
+        return <YeniBelgeYonetimiYeni />;
       case 'reports':
         return (
           <div className="bg-white p-6 rounded-lg shadow-md">
