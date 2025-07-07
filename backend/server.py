@@ -6354,6 +6354,11 @@ async def delete_belge_main(document_id: str):
         logging.error(f"❌ BELGE DELETE ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Silme hatası: {str(e)}")
 
+@app.get("/api/test-main")
+async def test_main_endpoint():
+    """Test endpoint on main app"""
+    return {"message": "Main app endpoint working!", "status": "ok"}
+
 @app.get("/api/folders")
 async def get_folders_main():
     """Get folders list - MAIN APP"""
