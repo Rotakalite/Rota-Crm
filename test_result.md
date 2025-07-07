@@ -324,8 +324,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Email Management Real Data Endpoints"
-  stuck_tasks: []
+    - "Document Download Endpoint"
+  stuck_tasks:
+    - "Document Download Endpoint"
   test_all: false
   test_priority: "high_first"
 
