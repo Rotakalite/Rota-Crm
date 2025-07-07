@@ -1917,13 +1917,10 @@ async def get_statistics_direct(current_user: User = Depends(get_current_user)):
                     }
                 }
             
-            # Client specific stats from ROTACRM - ONLY ACTIVE DOCUMENTS
+            # Client specific stats from ROTACRM - ALL DOCS FOR CLIENT
             client_documents = await asyncio.to_thread(
                 db.documents.count_documents, 
-                {
-                    "client_id": current_user.client_id,
-                    "$or": [{"status": "active"}, {"status": {"$exists": False}}]  # Active or no status field
-                }
+                {"client_id": current_user.client_id}
             )
             client_trainings = await asyncio.to_thread(db.trainings.count_documents, {"client_id": current_user.client_id})
             
