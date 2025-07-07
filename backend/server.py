@@ -6245,6 +6245,250 @@ async def simple_download_endpoint(doc_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 # ==========================================
+# YENİ BELGE YÖNETİMİ SİSTEMİ - ENTEGRASyON
+# ==========================================
+
+from fastapi.responses import FileResponse
+
+# KALICI STORAGE DIRECTORY
+DOCUMENTS_DIR = "/app/documents"
+os.makedirs(DOCUMENTS_DIR, exist_ok=True)
+
+def create_client_folder_structure(client_id: str):
+    """Create folder structure for a client"""
+    client_doc_dir = os.path.join(DOCUMENTS_DIR, client_id)
+    os.makedirs(client_doc_dir, exist_ok=True)
+    return client_doc_dir
+
+def get_safe_filename(filename: str) -> str:
+    """Get safe filename for storage"""
+    safe_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-"
+    safe_filename = "".join(c if c in safe_chars else "_" for c in filename)
+    return safe_filename[:100]
+
+@api_router.post("/belge/upload")
+async def upload_belge(
+    file: UploadFile = File(...),
+    client_id: str = Form(...),
+    folder_id: str = Form(...),
+    document_name: str = Form(...),
+    document_type: str = Form(...),
+    stage: str = Form(...),
+    description: str = Form(default="")
+):
+    """🚀 YENİ BELGE YÜKLEME - HATA PAYI SIFIR"""
+    try:
+        logging.info(f"📤 BELGE UPLOAD: {file.filename} -> Client: {client_id}")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # 1. VALIDATE CLIENT
+        client = await asyncio.to_thread(db.clients.find_one, {"id": client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Müşteri bulunamadı")
+        logging.info(f"✅ Client validated: {client.get('name')}")
+        
+        # 2. VALIDATE FOLDER
+        folder = await asyncio.to_thread(db.folders.find_one, {"id": folder_id})
+        if not folder:
+            raise HTTPException(status_code=404, detail="Klasör bulunamadı")
+        logging.info(f"✅ Folder validated: {folder.get('name')}")
+        
+        # 3. CREATE STORAGE STRUCTURE
+        client_dir = create_client_folder_structure(client_id)
+        folder_dir = os.path.join(client_dir, folder_id)
+        os.makedirs(folder_dir, exist_ok=True)
+        logging.info(f"✅ Storage structure created: {folder_dir}")
+        
+        # 4. GENERATE UNIQUE DOCUMENT ID AND FILENAME
+        document_id = str(uuid.uuid4())
+        file_extension = os.path.splitext(file.filename)[1] if file.filename else ".pdf"
+        safe_filename = get_safe_filename(file.filename or "document")
+        unique_filename = f"{document_id}_{safe_filename}"
+        file_path = os.path.join(folder_dir, unique_filename)
+        
+        logging.info(f"🆔 Document ID: {document_id}")
+        logging.info(f"💾 File path: {file_path}")
+        
+        # 5. SAVE FILE TO DISK (PERSISTENT)
+        file_content = await file.read()
+        with open(file_path, "wb") as f:
+            f.write(file_content)
+        
+        # Verify file was written
+        if not os.path.exists(file_path):
+            raise HTTPException(status_code=500, detail="Dosya kaydedilemedi")
+        
+        actual_size = os.path.getsize(file_path)
+        logging.info(f"✅ File saved: {actual_size} bytes")
+        
+        # 6. CREATE DOCUMENT RECORD IN MONGODB
+        document_data = {
+            "id": document_id,
+            "client_id": client_id,
+            "folder_id": folder_id,
+            "name": document_name,
+            "document_name": document_name,
+            "document_type": document_type,
+            "stage": stage,
+            "description": description,
+            "original_filename": file.filename,
+            "stored_filename": unique_filename,
+            "file_path": file_path,
+            "content_type": file.content_type,
+            "file_size": actual_size,
+            "uploaded_by": "user",
+            "created_at": datetime.utcnow(),
+            "folder_path": folder.get("folder_path", ""),
+            "folder_level": folder.get("level", 0),
+            "status": "active"
+        }
+        
+        result = await asyncio.to_thread(db.documents.insert_one, document_data)
+        logging.info(f"✅ MongoDB record created: {result.inserted_id}")
+        
+        # 7. VERIFY EVERYTHING
+        verification = await asyncio.to_thread(db.documents.find_one, {"id": document_id})
+        if not verification:
+            raise HTTPException(status_code=500, detail="Veritabanı kaydı doğrulanamadı")
+        
+        logging.info(f"🎉 UPLOAD SUCCESS: {document_id}")
+        
+        return {
+            "success": True,
+            "message": "Belge başarıyla yüklendi",
+            "document_id": document_id,
+            "filename": file.filename,
+            "size": actual_size
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ UPLOAD ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Upload hatası: {str(e)}")
+
+@api_router.get("/belge/download/{document_id}")
+async def download_belge(document_id: str):
+    """🚀 YENİ BELGE İNDİRME - ORİJİNAL FORMAT"""
+    try:
+        logging.info(f"📥 BELGE DOWNLOAD: {document_id}")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # 1. FIND DOCUMENT IN MONGODB
+        document = await asyncio.to_thread(db.documents.find_one, {"id": document_id, "status": "active"})
+        if not document:
+            raise HTTPException(status_code=404, detail="Belge bulunamadı")
+        
+        logging.info(f"✅ Document found: {document.get('name')}")
+        
+        # 2. CHECK FILE EXISTS ON DISK
+        file_path = document.get("file_path")
+        if not file_path or not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail="Dosya bulunamadı")
+        
+        logging.info(f"✅ File exists: {file_path}")
+        
+        # 3. RETURN FILE WITH ORIGINAL NAME
+        original_filename = document.get("original_filename", "document.pdf")
+        content_type = document.get("content_type", "application/octet-stream")
+        
+        # URL encode filename for Turkish characters
+        import urllib.parse
+        encoded_filename = urllib.parse.quote(original_filename, safe="")
+        
+        logging.info(f"🎉 DOWNLOAD SUCCESS: {original_filename}")
+        
+        return FileResponse(
+            path=file_path,
+            filename=original_filename,
+            media_type=content_type,
+            headers={
+                "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}",
+                "Cache-Control": "no-cache"
+            }
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ DOWNLOAD ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Download hatası: {str(e)}")
+
+@api_router.get("/belge/list")
+async def list_belge(client_id: str = None):
+    """📋 BELGE LİSTESİ"""
+    try:
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        query = {"status": "active"}
+        if client_id:
+            query["client_id"] = client_id
+        
+        documents = list(await asyncio.to_thread(lambda: list(db.documents.find(query).sort([("created_at", -1)]))))
+        
+        # Format for frontend
+        formatted_docs = []
+        for doc in documents:
+            formatted_docs.append({
+                "id": doc.get("id"),
+                "name": doc.get("name"),
+                "document_name": doc.get("document_name"),
+                "document_type": doc.get("document_type"),
+                "stage": doc.get("stage"),
+                "original_filename": doc.get("original_filename"),
+                "file_size": doc.get("file_size"),
+                "created_at": doc.get("created_at"),
+                "client_id": doc.get("client_id"),
+                "folder_id": doc.get("folder_id"),
+                "folder_path": doc.get("folder_path")
+            })
+        
+        return {"documents": formatted_docs}
+        
+    except Exception as e:
+        logging.error(f"❌ LIST ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Liste hatası: {str(e)}")
+
+@api_router.delete("/belge/delete/{document_id}")
+async def delete_belge(document_id: str):
+    """🗑️ BELGE SİLME"""
+    try:
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        # Find document
+        document = await asyncio.to_thread(db.documents.find_one, {"id": document_id})
+        if not document:
+            raise HTTPException(status_code=404, detail="Belge bulunamadı")
+        
+        # Mark as deleted in database
+        await asyncio.to_thread(
+            db.documents.update_one,
+            {"id": document_id},
+            {"$set": {"status": "deleted", "deleted_at": datetime.utcnow()}}
+        )
+        
+        # Optionally remove file from disk
+        file_path = document.get("file_path")
+        if file_path and os.path.exists(file_path):
+            os.remove(file_path)
+        
+        return {"success": True, "message": "Belge silindi"}
+        
+    except Exception as e:
+        logging.error(f"❌ DELETE ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Silme hatası: {str(e)}")
+
+# ==========================================
 # API ROUTER REGISTRATION - MUST BE AT END
 # ==========================================
 app.include_router(api_router, prefix="/api")
