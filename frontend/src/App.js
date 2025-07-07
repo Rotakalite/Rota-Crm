@@ -7467,7 +7467,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'waste-management', name: 'Atık Yönetimi', icon: '🗑️' },
     { id: 'suppliers', name: 'Tedarikçi Yönetimi', icon: '🏢' },
     { id: 'guest-engagement', name: 'Guest Engagement', icon: '🎯' },
-    { id: 'documents', name: 'Belge Yönetimi', icon: '📋' },
+    { id: 'yeni-belge', name: 'Belge Yönetimi', icon: '📋' },
     { id: 'trainings', name: 'Eğitim Yönetimi', icon: '🎓' },
     { id: 'email', name: 'Email Yönetimi', icon: '📧' },
     { id: 'reports', name: 'Raporlar', icon: '📊' },
@@ -7481,7 +7481,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'waste-management', name: 'Atık Yönetimi', icon: '🗑️' },
     { id: 'suppliers', name: 'Tedarikçilerim', icon: '🏢' },
     { id: 'guest-engagement', name: 'Guest Engagement', icon: '🎯' },
-    { id: 'documents', name: 'Belgelerim', icon: '📋' },
+    { id: 'yeni-belge', name: 'Belgelerim', icon: '📋' },
     { id: 'trainings', name: 'Eğitimlerim', icon: '🎓' }
   ];
 
