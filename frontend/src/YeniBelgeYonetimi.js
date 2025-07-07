@@ -246,16 +246,19 @@ const YeniBelgeYonetimi = () => {
     }
   };
 
-  const deleteDocument = async (doc) => {
-    if (!window.confirm(`"${doc.name}" belgesini silmek istediğinizden emin misiniz?`)) {
+  const deleteDocument = async (documentId) => {
+    if (!window.confirm('Bu belgeyi silmek istediğinizden emin misiniz?')) {
       return;
     }
-    
+
     try {
-      await axios.delete(`${API}/api/belge/delete/${doc.id}`);
-      console.log(`🗑️ Document deleted: ${doc.name}`);
-      loadDocuments(); // Refresh list
-      alert('Belge silindi!');
+      await axios.delete(`${API}/api/belge/delete/${documentId}`);
+      
+      // Reload documents and update counts
+      await loadDocuments(selectedFolder.id);
+      await calculateDocumentCounts(folders);
+      
+      alert('Belge başarıyla silindi!');
     } catch (error) {
       console.error('❌ Delete error:', error);
       alert(`Silme hatası: ${error.response?.data?.detail || error.message}`);
@@ -264,12 +267,55 @@ const YeniBelgeYonetimi = () => {
 
   const getClientName = (clientId) => {
     const client = clients.find(c => c.id === clientId);
-    return client ? client.name : 'Bilinmeyen Müşteri';
+    return client ? `${client.name} (${client.hotel_name})` : 'Bilinmeyen Müşteri';
   };
 
   const getFolderName = (folderId) => {
     const folder = folders.find(f => f.id === folderId);
     return folder ? folder.name : 'Bilinmeyen Klasör';
+  };
+
+  // Folder Tree Renderer
+  const renderFolderTree = (parentId = null, level = 0) => {
+    const foldersAtLevel = folders.filter(folder => folder.parent_folder_id === parentId);
+    
+    return foldersAtLevel.map(folder => (
+      <div key={folder.id} className={`${level > 0 ? 'ml-6' : ''} mb-2`}>
+        <div 
+          className={`flex items-center justify-between p-3 rounded-lg border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-all ${
+            level === 0 ? 'bg-blue-100' : 
+            level === 1 ? 'bg-green-100' :
+            level === 2 ? 'bg-yellow-100' :
+            level === 3 ? 'bg-purple-100' :
+            'bg-gray-100'
+          }`}
+          onClick={() => handleFolderSelect(folder)}
+        >
+          <div className="flex items-center space-x-3">
+            <span className="text-2xl">
+              {level === 0 ? '🏢' : 
+               level === 1 ? '📁' :
+               level === 2 ? '📂' :
+               level === 3 ? '📄' :
+               '📋'}
+            </span>
+            <div>
+              <h3 className="font-semibold text-gray-800">{folder.name}</h3>
+              <p className="text-sm text-gray-600">Level {folder.level}</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="bg-blue-600 text-white px-2 py-1 rounded-full text-sm font-medium">
+              {folderDocumentCounts[folder.id] || 0} belge
+            </span>
+            <span className="text-blue-600">→</span>
+          </div>
+        </div>
+        
+        {/* Render subfolders */}
+        {renderFolderTree(folder.id, level + 1)}
+      </div>
+    ));
   };
 
   return (
