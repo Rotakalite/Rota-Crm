@@ -4506,11 +4506,19 @@ const ClientDocuments = () => {
           timeout: timeoutMs,
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        console.log(`📊 Upload progress: ${percentCompleted}% (${file.name})`);
+            console.log(`📊 Upload progress: ${percentCompleted}% (${file.name})`);
+          }
+        });
+        
+        return response;
+      } else {
+        console.error('❌ No user found for auth refresh');
+        throw new Error('Authentication required');
       }
-    });
-    
-    return response;
+    } catch (error) {
+      console.error('❌ Upload auth error:', error);
+      throw error;
+    }
   };
 
   const handleUploadSubmit = async (e) => {
