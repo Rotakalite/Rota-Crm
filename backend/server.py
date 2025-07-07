@@ -830,11 +830,17 @@ async def download_document_direct(
             
             from fastapi.responses import Response
             
+            # Encode filename for Turkish characters
+            filename = document.get('original_filename', 'document.pdf')
+            # URL encode filename for Turkish characters
+            import urllib.parse
+            encoded_filename = urllib.parse.quote(filename, safe='')
+            
             return Response(
                 content=file_content,
                 media_type=document.get('content_type', 'application/octet-stream'),
                 headers={
-                    "Content-Disposition": f"attachment; filename=\"{document.get('original_filename', 'document.pdf')}\"",
+                    "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}",
                     "Content-Length": str(len(file_content))
                 }
             )
