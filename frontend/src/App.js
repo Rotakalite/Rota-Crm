@@ -4500,7 +4500,7 @@ const ClientDocuments = () => {
         
         console.log(`⏱️ Upload timeout set to: ${(timeoutMs / 1000).toFixed(0)} seconds`);
 
-        const response = await axios.post(`${API}/upload-document`, formData, {
+        const response = await axios.post(`${API}/simple-upload`, formData, {
           headers: { 
             'Authorization': `Bearer ${freshToken}`
           },
