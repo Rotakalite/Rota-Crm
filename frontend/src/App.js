@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
 import { ClerkProvider, SignedIn, SignedOut, RedirectToSignIn, useUser, useClerk } from '@clerk/clerk-react';
+import YeniBelgeYonetimi from './YeniBelgeYonetimi';
 import {
   Chart as ChartJS,
   CategoryScale,
