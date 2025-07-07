@@ -9,7 +9,7 @@ const mockAuthContext = {
 
 // Get API URL helper
 const getApiUrl = () => {
-  return process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+  return process.env.REACT_APP_BACKEND_URL || 'https://rota-crm-production.up.railway.app';
 };
 
 // Email Management Test Component
