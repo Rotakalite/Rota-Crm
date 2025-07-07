@@ -4634,7 +4634,7 @@ const ClientDocuments = () => {
       console.log('📥 Starting download for:', docData.name);
       
       // Directly download the file using the backend endpoint
-      const downloadUrl = `${API}/documents/${docData.id}/download`;
+      const downloadUrl = `${API}/simple-download/${docData.id}`;
       
       // Create a temporary link and trigger download
       const link = window.document.createElement('a');
