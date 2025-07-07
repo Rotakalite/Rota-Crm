@@ -2597,6 +2597,12 @@ async def update_existing_clients_with_subfolders():
         logging.error(f"❌ Failed to update existing clients: {str(e)}")
         return False
 
+# Test endpoint to verify API Router is working
+@api_router.get("/test-router")
+async def test_api_router():
+    """Simple test endpoint to verify API Router works"""
+    return {"message": "API Router is working!", "timestamp": datetime.utcnow().isoformat()}
+
 # Routes
 @api_router.get("/")
 async def root():
