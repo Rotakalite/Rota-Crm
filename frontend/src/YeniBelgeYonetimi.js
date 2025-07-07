@@ -126,11 +126,11 @@ const YeniBelgeYonetimi = () => {
     }
   };
 
-  const downloadDocument = async (document) => {
+  const downloadDocument = async (doc) => {
     try {
-      console.log(`📥 Downloading: ${document.name}`);
+      console.log(`📥 Downloading: ${doc.name}`);
       
-      const response = await axios.get(`${API}/api/belge/download/${document.id}`, {
+      const response = await axios.get(`${API}/api/belge/download/${doc.id}`, {
         responseType: 'blob'
       });
       
@@ -139,7 +139,7 @@ const YeniBelgeYonetimi = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = document.original_filename || document.name || 'document';
+      link.download = doc.original_filename || doc.name || 'document';
       link.style.display = 'none';
       
       document.body.appendChild(link);
@@ -148,11 +148,26 @@ const YeniBelgeYonetimi = () => {
       
       window.URL.revokeObjectURL(url);
       
-      console.log(`✅ Download completed: ${document.original_filename}`);
+      console.log(`✅ Download completed: ${doc.original_filename}`);
       
     } catch (error) {
       console.error('❌ Download error:', error);
       alert(`Download hatası: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
+  const deleteDocument = async (doc) => {
+    if (!window.confirm(`"${doc.name}" belgesini silmek istediğinizden emin misiniz?`)) {
+      return;
+    }
+    
+    try {
+      await axios.delete(`${API}/api/belge/delete/${doc.id}`);
+      console.log(`🗑️ Document deleted: ${doc.name}`);
+      loadDocuments(); // Refresh list
+    } catch (error) {
+      console.error('❌ Delete error:', error);
+      alert(`Silme hatası: ${error.response?.data?.detail || error.message}`);
     }
   };
 
