@@ -175,8 +175,8 @@ const YeniBelgeYonetimi = () => {
         const formData = new FormData();
         
         formData.append('file', file);
-        formData.append('client_id', selectedClient);
-        formData.append('folder_id', selectedFolder);
+        formData.append('client_id', selectedClient.id);
+        formData.append('folder_id', selectedFolder.id);
         formData.append('document_name', documentName + (selectedFiles.length > 1 ? ` (${i + 1})` : ''));
         formData.append('document_type', documentType);
         formData.append('stage', stage);
@@ -202,8 +202,9 @@ const YeniBelgeYonetimi = () => {
       setSelectedFiles([]);
       document.querySelector('input[type="file"]').value = '';
       
-      // Reload documents
-      await loadDocuments();
+      // Reload documents and update counts
+      await loadDocuments(selectedFolder.id);
+      await calculateDocumentCounts(folders);
       
       alert(`${selectedFiles.length} belge başarıyla yüklendi!`);
       
