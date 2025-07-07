@@ -6058,10 +6058,10 @@ async def get_real_clients_for_email(current_user: User = Depends(get_current_us
         return []
 
 # ==========================================
-# SIMPLE UPLOAD/DOWNLOAD - NO GRIDFS
+# SIMPLE UPLOAD/DOWNLOAD - NO GRIDFS  
 # ==========================================
 
-@app.post("/api/simple-upload")
+@api_router.post("/simple-upload")
 async def simple_upload_endpoint(
     file: UploadFile = File(...),
     client_id: str = Form(...),
@@ -6119,7 +6119,7 @@ async def simple_upload_endpoint(
         logging.error(f"❌ SIMPLE UPLOAD ERROR: {e}")
         return {"error": str(e)}
 
-@app.get("/api/simple-download/{doc_id}")
+@api_router.get("/simple-download/{doc_id}")
 async def simple_download_endpoint(doc_id: str):
     """SIMPLE DOWNLOAD - FROM TMP"""
     try:
