@@ -176,22 +176,22 @@ async def ultra_cors_middleware(request, call_next):
 # Create a router with the /api prefix
 api_router = APIRouter()
 
-# Additional OPTIONS handler for API routes
-@api_router.options("/{full_path:path}")
-async def api_options_handler(full_path: str):
-    """Handle CORS preflight requests for API routes"""
-    return Response(
-        status_code=200,
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH",
-            "Access-Control-Allow-Headers": "Accept, Accept-Language, Content-Language, Content-Type, Authorization, X-Requested-With, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Cache-Control, Pragma, Expires, X-CSRF-Token",
-            "Access-Control-Expose-Headers": "*",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Max-Age": "86400",
-            "Content-Length": "0"
-        }
-    )
+# Additional OPTIONS handler for API routes - DISABLED to prevent route conflicts
+# @api_router.options("/{full_path:path}")
+# async def api_options_handler(full_path: str):
+#     """Handle CORS preflight requests for API routes"""
+#     return Response(
+#         status_code=200,
+#         headers={
+#             "Access-Control-Allow-Origin": "*",
+#             "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH",
+#             "Access-Control-Allow-Headers": "Accept, Accept-Language, Content-Language, Content-Type, Authorization, X-Requested-With, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Cache-Control, Pragma, Expires, X-CSRF-Token",
+#             "Access-Control-Expose-Headers": "*",
+#             "Access-Control-Allow-Credentials": "true",
+#             "Access-Control-Max-Age": "86400",
+#             "Content-Length": "0"
+#         }
+#     )
 
 # Global OPTIONS handler for non-API routes
 @app.options("/{full_path:path}")
