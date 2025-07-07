@@ -7277,7 +7277,7 @@ async def register_user_main_fixed(user_data: dict):
             if matching_client:
                 # Link this user to the existing client
                 user_document["client_id"] = matching_client["id"]
-                logging.info(f"🔗 New client user linked to existing client: {matching_client['client_name']} (ID: {matching_client['id']})")
+                logging.info(f"🔗 New client user linked to existing client: {matching_client['name']} (ID: {matching_client['id']})")
                 
                 # TRIGGER AUTOMATIC FOLDER CREATION if client exists but no folders
                 folders_count = await asyncio.to_thread(
@@ -7285,8 +7285,8 @@ async def register_user_main_fixed(user_data: dict):
                 )
                 
                 if folders_count == 0:
-                    logging.info(f"🏗️ Creating automatic folders for linked client: {matching_client['client_name']}")
-                    await create_client_root_folder(matching_client["id"], matching_client["client_name"])
+                    logging.info(f"🏗️ Creating automatic folders for linked client: {matching_client['name']}")
+                    await create_client_root_folder(matching_client["id"], matching_client["name"])
                     
             else:
                 # No matching client found - client_id remains None for manual admin assignment
