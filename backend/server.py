@@ -7172,6 +7172,83 @@ async def get_folders_main():
         logging.error(f"❌ FOLDERS LIST ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Folders liste hatası: {str(e)}")
 
+@app.post("/api/cleanup-all-data")
+async def cleanup_all_data():
+    """Tüm eski client, folder, document verilerini temizle"""
+    try:
+        logging.info("🧹 Starting complete data cleanup...")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client["rotacrm"]
+        
+        cleanup_stats = {}
+        
+        # 1. DELETE all documents from database
+        documents_result = await asyncio.to_thread(db.documents.delete_many, {})
+        cleanup_stats["documents_deleted"] = documents_result.deleted_count
+        logging.info(f"🗑️ Deleted {documents_result.deleted_count} documents from database")
+        
+        # 2. DELETE all folders
+        folders_result = await asyncio.to_thread(db.folders.delete_many, {})
+        cleanup_stats["folders_deleted"] = folders_result.deleted_count
+        logging.info(f"🗑️ Deleted {folders_result.deleted_count} folders from database")
+        
+        # 3. DELETE all clients  
+        clients_result = await asyncio.to_thread(db.clients.delete_many, {})
+        cleanup_stats["clients_deleted"] = clients_result.deleted_count
+        logging.info(f"🗑️ Deleted {clients_result.deleted_count} clients from database")
+        
+        # 4. DELETE all files from storage
+        import shutil
+        documents_dir = "/app/documents"
+        files_deleted = 0
+        
+        if os.path.exists(documents_dir):
+            # Count files before deletion
+            for root, dirs, files in os.walk(documents_dir):
+                files_deleted += len(files)
+            
+            # Remove all contents but keep the directory
+            for item in os.listdir(documents_dir):
+                item_path = os.path.join(documents_dir, item)
+                if os.path.isdir(item_path):
+                    shutil.rmtree(item_path)
+                else:
+                    os.remove(item_path)
+            
+            logging.info(f"🗑️ Deleted {files_deleted} files from storage")
+        
+        cleanup_stats["files_deleted"] = files_deleted
+        
+        # 5. Verify cleanup
+        remaining_clients = await asyncio.to_thread(db.clients.count_documents, {})
+        remaining_folders = await asyncio.to_thread(db.folders.count_documents, {})
+        remaining_documents = await asyncio.to_thread(db.documents.count_documents, {})
+        
+        # Keep users and trainings intact
+        users_count = await asyncio.to_thread(db.users.count_documents, {})
+        trainings_count = await asyncio.to_thread(db.trainings.count_documents, {})
+        
+        return {
+            "success": True,
+            "message": "Complete data cleanup completed successfully",
+            "cleanup_stats": cleanup_stats,
+            "verification": {
+                "remaining_clients": remaining_clients,
+                "remaining_folders": remaining_folders, 
+                "remaining_documents": remaining_documents,
+                "preserved_users": users_count,
+                "preserved_trainings": trainings_count
+            },
+            "storage_cleaned": True,
+            "ready_for_new_data": True
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ CLEANUP ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Cleanup error: {str(e)}")
+
 @app.post("/api/clients/create-new")
 async def create_new_client_main(
     client_name: str = Form(...),
