@@ -35,6 +35,554 @@ const getFileIcon = (filePath) => {
   }
 };
 
+// Sustainability Targets Management Component
+const SustainabilityTargets = () => {
+  const { authToken, user, userRole, dbUser } = useAuth();
+  const { session } = useClerk();
+  const [loading, setLoading] = useState(true);
+  const [targets, setTargets] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [showProgressForm, setShowProgressForm] = useState(false);
+  const [selectedTarget, setSelectedTarget] = useState(null);
+  const [formData, setFormData] = useState({
+    target_name: '',
+    category: 'Çevresel',
+    target_type: '',
+    target_value: '',
+    unit: '%',
+    target_period: 'Yıllık',
+    deadline: '',
+    description: ''
+  });
+  const [progressData, setProgressData] = useState({
+    actual_value: '',
+    progress_date: new Date().toISOString().split('T')[0],
+    notes: ''
+  });
+  const API = getApiUrl();
+
+  // Predefined target types
+  const targetTypes = {
+    'Çevresel': [
+      'Karbon Ayak İzi Azaltma',
+      'Su Tüketimi Azaltma',
+      'Enerji Tasarrufu',
+      'Atık Azaltma',
+      'Geri Dönüşüm Oranı',
+      'Yerel Tedarikçi Oranı'
+    ],
+    'Sosyal': [
+      'Yerel İstihdam Oranı',
+      'Cinsiyet Dengesi',
+      'Personel Eğitim Saati',
+      'Toplum Projesi Desteği',
+      'İş Güvenliği Eğitimi'
+    ],
+    'Ekonomik': [
+      'Yerel Satın Alma Oranı',
+      'Sürdürülebilirlik Yatırımı',
+      'Enerji Maliyeti Azaltma',
+      'Atık Bertaraf Maliyeti Azaltma'
+    ]
+  };
+
+  const units = ['%', 'kg', 'litre', 'TL', 'saat', 'adet', 'gün'];
+  const periods = ['Aylık', 'Çeyreklik', 'Yıllık'];
+
+  // Fetch clients
+  const fetchClients = async () => {
+    if (!authToken) return;
+    try {
+      const response = await axios.get(`${API}/clients`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setClients(response.data || []);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      setClients([]);
+    }
+  };
+
+  // Fetch targets with fresh token
+  const fetchTargetsWithFreshToken = async (clientId) => {
+    if (!clientId) {
+      setTargets([]);
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      
+      let currentToken = authToken;
+      if (session) {
+        try {
+          const freshToken = await session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      const response = await axios.get(`${API}/sustainability-targets?client_id=${clientId}`, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+      setTargets(response.data || []);
+    } catch (error) {
+      console.error('Error fetching targets:', error);
+      setTargets([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Add new target
+  const addTarget = async () => {
+    if (!selectedClient) {
+      alert('Lütfen önce bir müşteri seçin!');
+      return;
+    }
+
+    try {
+      let currentToken = authToken;
+      if (session) {
+        try {
+          const freshToken = await session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      const targetData = {
+        ...formData,
+        target_value: parseFloat(formData.target_value),
+        deadline: new Date(formData.deadline).toISOString(),
+        client_id: selectedClient
+      };
+
+      const response = await axios.post(`${API}/sustainability-targets`, targetData, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+
+      await fetchTargetsWithFreshToken(selectedClient);
+      
+      setFormData({
+        target_name: '',
+        category: 'Çevresel',
+        target_type: '',
+        target_value: '',
+        unit: '%',
+        target_period: 'Yıllık',
+        deadline: '',
+        description: ''
+      });
+      setShowAddForm(false);
+      
+      alert('Hedef başarıyla eklendi!');
+    } catch (error) {
+      console.error('Error adding target:', error);
+      alert('Hedef eklenirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Add progress to target
+  const addProgress = async () => {
+    if (!selectedTarget) return;
+
+    try {
+      let currentToken = authToken;
+      if (session) {
+        try {
+          const freshToken = await session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      const progressPayload = {
+        target_id: selectedTarget.id,
+        actual_value: parseFloat(progressData.actual_value),
+        progress_date: new Date(progressData.progress_date).toISOString(),
+        notes: progressData.notes
+      };
+
+      const response = await axios.post(`${API}/sustainability-targets/progress`, progressPayload, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+
+      await fetchTargetsWithFreshToken(selectedClient);
+      
+      setProgressData({
+        actual_value: '',
+        progress_date: new Date().toISOString().split('T')[0],
+        notes: ''
+      });
+      setShowProgressForm(false);
+      setSelectedTarget(null);
+      
+      alert('Gerçekleşme verisi başarıyla eklendi!');
+    } catch (error) {
+      console.error('Error adding progress:', error);
+      alert('Gerçekleşme verisi eklenirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Calculate progress percentage
+  const calculateProgress = (target, actualValue) => {
+    if (!actualValue) return 0;
+    return Math.min((actualValue / target.target_value) * 100, 100);
+  };
+
+  useEffect(() => {
+    if (authToken) {
+      fetchClients();
+    }
+  }, [authToken]);
+
+  // Auto-select client for CLIENT role users
+  useEffect(() => {
+    if (userRole === 'client' && dbUser?.client_id && !selectedClient) {
+      setSelectedClient(dbUser.client_id);
+    }
+  }, [userRole, dbUser, selectedClient]);
+
+  useEffect(() => {
+    if (selectedClient) {
+      fetchTargetsWithFreshToken(selectedClient);
+    }
+  }, [selectedClient]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 text-white p-6 shadow-xl">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-bold mb-2">🎯 Sürdürülebilirlik Hedefleri</h1>
+          <p className="text-emerald-100 text-lg">Ölçülebilir hedef belirleme ve takip sistemi</p>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        
+        {/* Client Selection - Only for Admin */}
+        {userRole === 'admin' && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">1. Müşteri Seçimi</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Müşteri Seçin
+                </label>
+                <select
+                  value={selectedClient}
+                  onChange={(e) => setSelectedClient(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                >
+                  <option value="">-- Müşteri Seçin --</option>
+                  {Array.isArray(clients) && clients.map((client) => (
+                    <option key={client.id} value={client.id}>
+                      {client.name || client.hotel_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {selectedClient && (
+                <div className="flex items-end">
+                  <button
+                    onClick={() => setShowAddForm(!showAddForm)}
+                    className="px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+                  >
+                    {showAddForm ? '❌ İptal' : '➕ Hedef Ekle'}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Client Info - For Client Users */}
+        {userRole === 'client' && selectedClient && Array.isArray(clients) && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">🎯 Sürdürülebilirlik Hedeflerim</h2>
+            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+              <p className="text-emerald-800">
+                <strong>🏢 İşletme:</strong> {clients.find(c => c.id === selectedClient)?.name || clients.find(c => c.id === selectedClient)?.hotel_name}
+              </p>
+              <p className="text-emerald-600 text-sm mt-1">Sürdürülebilirlik hedeflerinizi takip edin.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Add Target Form - Admin Only */}
+        {userRole === 'admin' && showAddForm && selectedClient && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">2. Yeni Hedef Ekle</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Hedef Adı</label>
+                <input
+                  type="text"
+                  value={formData.target_name}
+                  onChange={(e) => setFormData({...formData, target_name: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  placeholder="Ör: 2025 Karbon Azaltma Hedefi"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({...formData, category: e.target.value, target_type: ''})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="Çevresel">Çevresel</option>
+                  <option value="Sosyal">Sosyal</option>
+                  <option value="Ekonomik">Ekonomik</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Hedef Tipi</label>
+                <select
+                  value={formData.target_type}
+                  onChange={(e) => setFormData({...formData, target_type: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="">-- Hedef Tipi Seçin --</option>
+                  {targetTypes[formData.category]?.map((type) => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Hedef Değer</label>
+                  <input
+                    type="number"
+                    value={formData.target_value}
+                    onChange={(e) => setFormData({...formData, target_value: e.target.value})}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    placeholder="50"
+                    step="0.1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Birim</label>
+                  <select
+                    value={formData.unit}
+                    onChange={(e) => setFormData({...formData, unit: e.target.value})}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  >
+                    {units.map((unit) => (
+                      <option key={unit} value={unit}>{unit}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Dönem</label>
+                <select
+                  value={formData.target_period}
+                  onChange={(e) => setFormData({...formData, target_period: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                >
+                  {periods.map((period) => (
+                    <option key={period} value={period}>{period}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Hedef Tarihi</label>
+                <input
+                  type="date"
+                  value={formData.deadline}
+                  onChange={(e) => setFormData({...formData, deadline: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Açıklama</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  rows="3"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  placeholder="Hedef hakkında detaylar..."
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-4">
+              <button
+                onClick={() => setShowAddForm(false)}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                İptal
+              </button>
+              <button
+                onClick={addTarget}
+                className="px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+              >
+                Hedef Ekle
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Progress Form Modal */}
+        {showProgressForm && selectedTarget && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Gerçekleşme Verisi Ekle</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Gerçekleşen Değer ({selectedTarget.unit})
+                  </label>
+                  <input
+                    type="number"
+                    value={progressData.actual_value}
+                    onChange={(e) => setProgressData({...progressData, actual_value: e.target.value})}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    placeholder="Gerçekleşen değeri girin"
+                    step="0.1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Tarih</label>
+                  <input
+                    type="date"
+                    value={progressData.progress_date}
+                    onChange={(e) => setProgressData({...progressData, progress_date: e.target.value})}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Notlar</label>
+                  <textarea
+                    value={progressData.notes}
+                    onChange={(e) => setProgressData({...progressData, notes: e.target.value})}
+                    rows="3"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    placeholder="Ek notlar..."
+                  />
+                </div>
+              </div>
+              <div className="mt-6 flex justify-end space-x-4">
+                <button
+                  onClick={() => {setShowProgressForm(false); setSelectedTarget(null);}}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  İptal
+                </button>
+                <button
+                  onClick={addProgress}
+                  className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+                >
+                  Kaydet
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Targets List */}
+        {selectedClient && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">
+              3. Hedef Listesi ve Takip
+              {Array.isArray(clients) && clients.find(c => c.id === selectedClient) && (
+                <span className="text-emerald-600 font-normal">
+                  - {clients.find(c => c.id === selectedClient)?.name || clients.find(c => c.id === selectedClient)?.hotel_name}
+                </span>
+              )}
+            </h2>
+            
+            {loading ? (
+              <div className="flex justify-center items-center h-32">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+              </div>
+            ) : Array.isArray(targets) && targets.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {targets.map((target) => (
+                  <div key={target.id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200 hover:shadow-md transition-all">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-800">{target.target_name}</h3>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          target.category === 'Çevresel' ? 'bg-green-100 text-green-800' :
+                          target.category === 'Sosyal' ? 'bg-blue-100 text-blue-800' :
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {target.category}
+                        </span>
+                      </div>
+                      {userRole === 'admin' && (
+                        <button
+                          onClick={() => {setSelectedTarget(target); setShowProgressForm(true);}}
+                          className="px-3 py-1 bg-emerald-600 text-white text-sm rounded hover:bg-emerald-700 transition-colors"
+                        >
+                          📊 Veri Ekle
+                        </button>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-3 text-sm text-gray-600">
+                      <p><strong>🎯 Tip:</strong> {target.target_type}</p>
+                      <p><strong>📈 Hedef:</strong> {target.target_value} {target.unit}</p>
+                      <p><strong>📅 Dönem:</strong> {target.target_period}</p>
+                      <p><strong>⏰ Hedef Tarihi:</strong> {new Date(target.deadline).toLocaleDateString('tr-TR')}</p>
+                      {target.description && (
+                        <p><strong>📝 Açıklama:</strong> {target.description}</p>
+                      )}
+                    </div>
+
+                    {/* Progress Bar - Placeholder for now */}
+                    <div className="mt-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-gray-700">İlerleme</span>
+                        <span className="text-sm text-emerald-600 font-bold">0%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-emerald-600 h-2 rounded-full" style={{width: '0%'}}></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">🎯</div>
+                <p className="text-gray-500 text-lg mb-2">Bu müşteri için henüz hedef bulunmuyor.</p>
+                <p className="text-gray-400 text-sm">Yukarıdaki butonu kullanarak hedef ekleyebilirsiniz.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* No Client Selected */}
+        {!selectedClient && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🎯</div>
+              <p className="text-gray-500 text-lg mb-2">Sürdürülebilirlik hedefleri için önce bir müşteri seçin.</p>
+              <p className="text-gray-400 text-sm">Yukarıdaki dropdown'dan müşteri seçerek başlayabilirsiniz.</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Personnel Management Component
 const PersonnelManagement = () => {
   const { authToken, user, userRole, dbUser } = useAuth();
