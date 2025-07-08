@@ -185,8 +185,8 @@ const YeniBelgeYonetimiYeni = ({ userRole, dbUser }) => {
         const file = selectedFiles[i];
         const formData = new FormData();
         
-        // Belge adı boşsa dosya adını kullan
-        const finalDocumentName = documentName.trim() || file.name.split('.')[0];
+        // Belge adı boşsa dosya adını kullan (EXTENSION OLMADAN)
+        const finalDocumentName = documentName.trim() || file.name.replace(/\.[^/.]+$/, '');
         const documentNameWithIndex = finalDocumentName + (selectedFiles.length > 1 ? ` (${i + 1})` : '');
         
         formData.append('file', file);
