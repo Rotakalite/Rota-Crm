@@ -8030,6 +8030,9 @@ const SupplierManagement = () => {
                     </div>
                     <div className="space-y-2 text-sm text-gray-600">
                       <p><strong>🏷️ Kategori:</strong> {supplier.category}</p>
+                      {supplier.certifications && supplier.certifications.length > 0 && (
+                        <p><strong>🏆 Sertifikalar:</strong> {supplier.certifications.join(', ')}</p>
+                      )}
                       {supplier.address && (
                         <p><strong>📍 Adres:</strong> {supplier.address}</p>
                       )}
