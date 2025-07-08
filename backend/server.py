@@ -103,6 +103,34 @@ app = FastAPI(
 async def test_endpoint():
     return {"status": "working", "message": "Basic endpoint is functional"}
 
+@app.post("/email-template-test")
+async def test_email_templates():
+    """Test email templates directly"""
+    if not email_service:
+        return {"error": "Email service not available"}
+    
+    try:
+        # Test document upload template
+        await email_service.send_document_upload_notification(
+            recipient_email="test@example.com",
+            document_name="Test Doküman",
+            upload_date="25.01.2025 14:30",
+            folder_path="Test Klasör / Alt Klasör",
+            client_name="Test Müşteri"
+        )
+        
+        return {
+            "success": True,
+            "message": "Email templates tested successfully!",
+            "templates_used": ["document_upload_tr.html"],
+            "email_sent_to": "test@example.com"
+        }
+    except Exception as e:
+        return {
+            "error": str(e),
+            "templates_status": "error during email send"
+        }
+
 # RAILWAY CORS CONFIGURATION - KALICI ÇÖZÜM: TÜM ORIGIN'LERE İZİN VER
 app.add_middleware(
     CORSMiddleware,
