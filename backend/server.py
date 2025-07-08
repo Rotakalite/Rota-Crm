@@ -6127,15 +6127,9 @@ async def get_2fa_status(user_email: str):
 # Supplier Models
 class SupplierInput(BaseModel):
     company_name: str
-    contact_person: str
-    email: str
-    phone: str
     address: str
-    category: str  # Food, Cleaning, Energy, Textile, Technology, etc.
-    sustainability_score: int = Field(default=75, ge=0, le=100)  # Default 75 score
-    certifications: List[str] = []  # ["Organic", "Fair Trade", "ISO 14001", etc.]
-    local_supplier: bool = False  # Is it a local supplier?
-    website: Optional[str] = None
+    category: str
+    local_supplier: bool = False
     description: Optional[str] = None
     client_id: Optional[str] = None  # For admin users
 
