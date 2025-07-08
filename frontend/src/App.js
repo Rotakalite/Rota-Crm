@@ -7807,7 +7807,8 @@ const SupplierManagement = () => {
       console.error('Error fetching categories:', error);
       setCategories([
         'Et', 'Süt', 'Balık', 'Yumurta', 'Sebze-Meyve',
-        'Gıda & İçecek', 'Temizlik & Hijyen', 'Tekstil', 'Teknoloji'
+        'Gıda & İçecek', 'Temizlik & Hijyen', 'Tekstil', 'Teknoloji',
+        'Bakım-Onarım', 'İSG Hizmeti', 'Yangın Hizmeti', 'Bilişim Hizmeti'
       ]);
     }
   };
