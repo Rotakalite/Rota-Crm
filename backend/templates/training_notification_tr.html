@@ -3,59 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eğitim Tamamlandı Bildirimi</title>
+    <title>Eğitim Tamamlandı</title>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background-color: #f4f4f4; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 20px; border-radius: 10px 10px 0 0; text-align: center; margin: -30px -30px 30px -30px; }
-        .logo { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
-        .tagline { font-size: 14px; opacity: 0.9; }
-        .content { background-color: #ffffff; padding: 0; }
-        .training-info { background-color: #f8f9fa; border-left: 4px solid #28a745; padding: 20px; margin: 20px 0; border-radius: 5px; }
-        .highlight { color: #28a745; font-weight: bold; }
-        .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; font-size: 12px; color: #666; }
-        .important { background-color: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 5px; margin: 15px 0; }
-        .certificate-box { background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%); padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; line-height: 1.6; }
+        .email-container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px 20px; text-align: center; color: white; }
+        .header h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+        .header p { font-size: 16px; opacity: 0.9; }
+        .content { padding: 30px; }
+        .greeting { font-size: 18px; color: #374151; margin-bottom: 20px; }
+        .training-card { background: #f0fdf4; border-left: 4px solid #10b981; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .training-item { display: flex; align-items: center; margin: 10px 0; }
+        .training-item .icon { width: 20px; margin-right: 12px; font-size: 16px; }
+        .training-item .label { font-weight: 600; color: #374151; min-width: 120px; }
+        .training-item .value { color: #059669; font-weight: 500; }
+        .success-box { background: #dcfce7; border: 1px solid #bbf7d0; padding: 16px; border-radius: 8px; margin: 20px 0; }
+        .success-box p { color: #166534; margin: 0; }
+        .certificate-info { background: #fef3c7; border: 1px solid #fde68a; padding: 16px; border-radius: 8px; margin: 20px 0; text-align: center; }
+        .certificate-info p { color: #92400e; margin: 0; font-weight: 500; }
+        .footer { background: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb; }
+        .contact-info { color: #6b7280; font-size: 14px; line-height: 1.5; }
+        .contact-info strong { color: #374151; }
+        .logo { font-size: 20px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="email-container">
         <div class="header">
-            <div class="logo">🎓 Rota Kalite Danışmanlık</div>
-            <div class="tagline">Eğitim & Geliştirme Merkezi</div>
+            <div class="logo">🎓 ROTA KALİTE DANIŞMANLIK</div>
+            <h1>Eğitim Başarıyla Tamamlandı</h1>
+            <p>Personel eğitimi başarıyla sonuçlandırılmıştır</p>
         </div>
+        
         <div class="content">
-            <h2 style="color: #333; margin-top: 0;">🏆 Eğitim Tamamlandı Bildirimi</h2>
-            
-            <p>Sayın <strong>{{ client_name }}</strong>,</p>
-            
-            <p>Personelleriniz için düzenlenen eğitim programı başarıyla tamamlanmıştır. Eğitim detayları aşağıdaki gibidir:</p>
-            
-            <div class="training-info">
-                <p style="margin: 8px 0;"><strong>📚 Eğitim Konusu:</strong> <span class="highlight">{{ training_name }}</span></p>
-                <p style="margin: 8px 0;"><strong>📅 Eğitim Tarihi:</strong> <span class="highlight">{{ training_date }}</span></p>
-                <p style="margin: 8px 0;"><strong>👨‍🏫 Eğitmen:</strong> <span class="highlight">{{ trainer }}</span></p>
-                <p style="margin: 8px 0;"><strong>👥 Katılımcı Sayısı:</strong> <span class="highlight">{{ participant_count }} kişi</span></p>
+            <div class="greeting">
+                Merhaba <strong>{{ client_name }}</strong>,
             </div>
             
-            <div class="important">
-                <p style="margin: 0;"><strong>🎯 Eğitim Sonucu:</strong> Katılımcılarınız belirlenen hedeflere ulaşmış ve eğitimi başarıyla tamamlamışlardır. Eğitim materyalleri ve sertifikalar hazırlanmaktadır.</p>
+            <p style="color: #6b7280; margin-bottom: 20px;">
+                Personelleriniz için düzenlenen eğitim programı başarıyla tamamlanmıştır. Eğitim detayları aşağıda yer almaktadır:
+            </p>
+            
+            <div class="training-card">
+                <div class="training-item">
+                    <span class="icon">📚</span>
+                    <span class="label">Eğitim Konusu:</span>
+                    <span class="value">{{ training_name }}</span>
+                </div>
+                <div class="training-item">
+                    <span class="icon">📅</span>
+                    <span class="label">Tarihi:</span>
+                    <span class="value">{{ training_date }}</span>
+                </div>
+                <div class="training-item">
+                    <span class="icon">👨‍🏫</span>
+                    <span class="label">Eğitmen:</span>
+                    <span class="value">{{ trainer }}</span>
+                </div>
+                <div class="training-item">
+                    <span class="icon">👥</span>
+                    <span class="label">Katılımcı:</span>
+                    <span class="value">{{ participant_count }} kişi</span>
+                </div>
             </div>
             
-            <div class="certificate-box">
-                <p style="margin: 0; color: #2d3436;"><strong>📜 Sertifikalar 3-5 iş günü içinde e-posta ile gönderilecektir.</strong></p>
+            <div class="success-box">
+                <p><strong>✅ Başarılı Sonuç:</strong> Tüm katılımcılar eğitimi başarıyla tamamlamış ve hedeflenen yetkinliklere ulaşmıştır.</p>
             </div>
             
-            <p>Eğitimle ilgili geri bildirimlerinizi ve değerlendirmelerinizi paylaşabilirsiniz. Gelecek eğitim planlarınız için bizimle iletişime geçebilirsiniz.</p>
+            <div class="certificate-info">
+                <p><strong>📜 Katılım sertifikaları 3-5 iş günü içinde hazırlanarak e-posta ile gönderilecektir.</strong></p>
+            </div>
             
-            <p style="margin-top: 30px;">Saygılarımızla,<br>
-            <strong>Rota Kalite Danışmanlık Eğitim Ekibi</strong><br>
-            📞 <span style="color: #28a745;">+90 (XXX) XXX XX XX</span><br>
-            📧 <span style="color: #28a745;">egitim@rotakalitedanismanlik.com</span></p>
+            <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">
+                Eğitim kalitesi ve içeriği hakkında geri bildirimlerinizi bekliyoruz. Gelecek eğitim planlarınız için bizimle iletişime geçebilirsiniz.
+            </p>
         </div>
+        
         <div class="footer">
-            <p>Bu otomatik bir bildirim mesajıdır, lütfen yanıtlamayınız.</p>
-            <p>© 2025 Rota Kalite Danışmanlık - Tüm hakları saklıdır.</p>
+            <div class="contact-info">
+                <strong>Rota Kalite Danışmanlık - Eğitim Birimi</strong><br>
+                📞 +90 (XXX) XXX XX XX<br>
+                📧 egitim@rotakalitedanismanlik.com<br>
+                <small style="color: #9ca3af; margin-top: 10px; display: block;">
+                    Bu bir otomatik bildirim mesajıdır. Lütfen yanıtlamayınız.
+                </small>
+            </div>
         </div>
     </div>
 </body>
