@@ -6330,6 +6330,162 @@ async def delete_sustainability_target(
         logger.error(f"Error deleting sustainability target: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+@api_router.put("/sustainability-targets/{target_id}")
+async def update_sustainability_target(
+    target_id: str,
+    target_data: SustainabilityTargetInput,
+    current_user: User = Depends(get_admin_user)  # Only admin can update
+):
+    """Update a sustainability target (Admin only)"""
+    try:
+        # Check if target exists
+        existing = await db.sustainability_targets.find_one({"id": target_id})
+        if not existing:
+            raise HTTPException(status_code=404, detail="Target not found")
+
+        # Validate client exists if provided
+        if target_data.client_id:
+            client = await db.clients.find_one({"id": target_data.client_id})
+            if not client:
+                raise HTTPException(status_code=404, detail="Client not found")
+
+        # Update target
+        update_data = {
+            "target_name": target_data.target_name,
+            "category": target_data.category,
+            "target_type": target_data.target_type,
+            "target_value": target_data.target_value,
+            "unit": target_data.unit,
+            "target_period": target_data.target_period,
+            "deadline": target_data.deadline,
+            "description": target_data.description,
+            "updated_at": datetime.utcnow()
+        }
+        
+        if target_data.client_id:
+            update_data["client_id"] = target_data.client_id
+
+        await db.sustainability_targets.update_one(
+            {"id": target_id},
+            {"$set": update_data}
+        )
+        
+        return {"message": "Sustainability target updated successfully"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating sustainability target: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@api_router.get("/sustainability-targets/{target_id}")
+async def get_sustainability_target(
+    target_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get a single sustainability target with progress data"""
+    try:
+        # Find target
+        target = await db.sustainability_targets.find_one({"id": target_id})
+        if not target:
+            raise HTTPException(status_code=404, detail="Target not found")
+            
+        # Check permissions
+        if current_user.role == UserRole.CLIENT and target["client_id"] != current_user.client_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+
+        # Get progress data
+        progress_list = await db.target_progress.find({"target_id": target_id}).sort("progress_date", -1).to_list(length=None)
+        
+        # Clean MongoDB ObjectIds
+        if "_id" in target:
+            del target["_id"]
+        
+        clean_progress = []
+        for progress in progress_list:
+            if "_id" in progress:
+                del progress["_id"]
+            clean_progress.append(progress)
+        
+        target["progress"] = clean_progress
+        
+        return target
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching sustainability target: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@api_router.get("/sustainability-targets/analytics/dashboard")
+async def get_sustainability_analytics(
+    client_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get sustainability targets analytics for dashboard"""
+    try:
+        # Build filter query
+        filter_query = {}
+        
+        # Role-based filtering
+        if current_user.role == UserRole.CLIENT:
+            filter_query["client_id"] = current_user.client_id
+        elif current_user.role == UserRole.ADMIN and client_id:
+            filter_query["client_id"] = client_id
+
+        # Get all targets
+        targets = await db.sustainability_targets.find(filter_query).to_list(length=None)
+        
+        # Calculate analytics
+        total_targets = len(targets)
+        
+        # Status counts
+        active_targets = len([t for t in targets if t.get("status", "active") == "active"])
+        completed_targets = len([t for t in targets if t.get("status", "active") == "completed"])
+        overdue_targets = len([t for t in targets if t.get("status", "active") == "overdue"])
+        
+        # Category distribution
+        category_distribution = {}
+        for target in targets:
+            category = target.get("category", "Unknown")
+            category_distribution[category] = category_distribution.get(category, 0) + 1
+        
+        # Target type distribution
+        target_type_distribution = {}
+        for target in targets:
+            target_type = target.get("target_type", "Unknown")
+            target_type_distribution[target_type] = target_type_distribution.get(target_type, 0) + 1
+        
+        # Progress calculation (simplified - based on latest progress entries)
+        progress_data = []
+        for target in targets:
+            progress_records = await db.target_progress.find({"target_id": target["id"]}).sort("progress_date", -1).to_list(length=1)
+            if progress_records:
+                latest_progress = progress_records[0]
+                progress_percentage = min((latest_progress["actual_value"] / target["target_value"]) * 100, 100)
+                progress_data.append({
+                    "target_id": target["id"],
+                    "target_name": target["target_name"],
+                    "progress_percentage": progress_percentage,
+                    "actual_value": latest_progress["actual_value"],
+                    "target_value": target["target_value"]
+                })
+        
+        return {
+            "total_targets": total_targets,
+            "active_targets": active_targets,
+            "completed_targets": completed_targets,
+            "overdue_targets": overdue_targets,
+            "category_distribution": category_distribution,
+            "target_type_distribution": target_type_distribution,
+            "progress_data": progress_data,
+            "average_progress": sum([p["progress_percentage"] for p in progress_data]) / len(progress_data) if progress_data else 0
+        }
+
+    except Exception as e:
+        logger.error(f"Error fetching sustainability analytics: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
 # ====================================
 # PERSONNEL MANAGEMENT MODELS & ENDPOINTS
 # ====================================
