@@ -185,10 +185,14 @@ const YeniBelgeYonetimiYeni = ({ userRole, dbUser }) => {
         const file = selectedFiles[i];
         const formData = new FormData();
         
+        // Belge adı boşsa dosya adını kullan
+        const finalDocumentName = documentName.trim() || file.name.split('.')[0];
+        const documentNameWithIndex = finalDocumentName + (selectedFiles.length > 1 ? ` (${i + 1})` : '');
+        
         formData.append('file', file);
         formData.append('client_id', selectedClient.id);
         formData.append('folder_id', selectedFolder.id);
-        formData.append('document_name', documentName + (selectedFiles.length > 1 ? ` (${i + 1})` : ''));
+        formData.append('document_name', documentNameWithIndex);
         formData.append('document_type', documentType);
         formData.append('stage', stage);
         formData.append('description', description);
