@@ -6143,6 +6143,8 @@ class Supplier(BaseModel):
     address: str
     category: str
     certifications: List[str] = []
+    monthly_purchase_amount: Optional[float] = None
+    monthly_purchase_unit: str = "KG"
     local_supplier: bool = False
     description: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
