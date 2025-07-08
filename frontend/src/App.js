@@ -7828,6 +7828,15 @@ const SupplierManagement = () => {
       setSuppliers(response.data || []);
     } catch (error) {
       console.error('Error fetching suppliers:', error);
+      
+      // Handle authentication errors
+      if (error.response?.status === 401) {
+        console.log('Token expired while fetching suppliers');
+        // Don't reload here, just set empty suppliers
+        setSuppliers([]);
+        return;
+      }
+      
       setSuppliers([]);
     } finally {
       setLoading(false);
