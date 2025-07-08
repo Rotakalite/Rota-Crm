@@ -437,6 +437,156 @@ const PersonnelManagement = () => {
                 <p className="text-gray-400 text-sm">Yukarıdaki butonu kullanarak personel ekleyebilirsiniz.</p>
               </div>
             )}
+
+            {/* Personnel Analytics Charts */}
+            {Array.isArray(personnel) && personnel.length > 0 && (
+              <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                {/* Local vs Non-Local Chart */}
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+                  <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">
+                    🏠 Yerel/Yerel Olmayan Personel Dağılımı
+                  </h3>
+                  <div className="flex flex-col items-center justify-center gap-4">
+                    <div className="w-48 h-48">
+                      <Pie
+                        data={{
+                          labels: ['🏠 Yerel Personel', '🌍 Yerel Olmayan'],
+                          datasets: [{
+                            data: [
+                              personnel.filter(p => p.is_local).length,
+                              personnel.filter(p => !p.is_local).length
+                            ],
+                            backgroundColor: ['#10b981', '#6b7280'],
+                            borderColor: ['#059669', '#4b5563'],
+                            borderWidth: 2,
+                            hoverBackgroundColor: ['#059669', '#374151'],
+                            hoverBorderWidth: 3
+                          }]
+                        }}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: true,
+                          plugins: {
+                            legend: {
+                              position: 'bottom',
+                              labels: {
+                                padding: 15,
+                                font: { size: 12, weight: 'bold' },
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                              }
+                            },
+                            tooltip: {
+                              callbacks: {
+                                label: function(context) {
+                                  const total = personnel.length;
+                                  const value = context.parsed;
+                                  const percentage = ((value / total) * 100).toFixed(1);
+                                  return `${context.label}: ${value} (${percentage}%)`;
+                                }
+                              }
+                            }
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 w-full">
+                      <div className="bg-white rounded-lg p-3 text-center border border-green-200">
+                        <p className="text-green-600 font-bold text-lg">
+                          {personnel.filter(p => p.is_local).length}
+                        </p>
+                        <p className="text-xs text-gray-600">Yerel</p>
+                        <p className="text-xs text-green-500">
+                          {personnel.length > 0 ? ((personnel.filter(p => p.is_local).length / personnel.length) * 100).toFixed(1) : 0}%
+                        </p>
+                      </div>
+                      <div className="bg-white rounded-lg p-3 text-center border border-gray-200">
+                        <p className="text-gray-600 font-bold text-lg">
+                          {personnel.filter(p => !p.is_local).length}
+                        </p>
+                        <p className="text-xs text-gray-600">Yerel Olmayan</p>
+                        <p className="text-xs text-gray-500">
+                          {personnel.length > 0 ? ((personnel.filter(p => !p.is_local).length / personnel.length) * 100).toFixed(1) : 0}%
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Gender Distribution Chart */}
+                <div className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-xl p-6 border border-pink-100">
+                  <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">
+                    👥 Kadın/Erkek Personel Dağılımı
+                  </h3>
+                  <div className="flex flex-col items-center justify-center gap-4">
+                    <div className="w-48 h-48">
+                      <Pie
+                        data={{
+                          labels: ['👩 Kadın', '👨 Erkek'],
+                          datasets: [{
+                            data: [
+                              personnel.filter(p => p.gender === 'Kadın').length,
+                              personnel.filter(p => p.gender === 'Erkek').length
+                            ],
+                            backgroundColor: ['#ec4899', '#3b82f6'],
+                            borderColor: ['#db2777', '#2563eb'],
+                            borderWidth: 2,
+                            hoverBackgroundColor: ['#db2777', '#1d4ed8'],
+                            hoverBorderWidth: 3
+                          }]
+                        }}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: true,
+                          plugins: {
+                            legend: {
+                              position: 'bottom',
+                              labels: {
+                                padding: 15,
+                                font: { size: 12, weight: 'bold' },
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                              }
+                            },
+                            tooltip: {
+                              callbacks: {
+                                label: function(context) {
+                                  const total = personnel.length;
+                                  const value = context.parsed;
+                                  const percentage = ((value / total) * 100).toFixed(1);
+                                  return `${context.label}: ${value} (${percentage}%)`;
+                                }
+                              }
+                            }
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 w-full">
+                      <div className="bg-white rounded-lg p-3 text-center border border-pink-200">
+                        <p className="text-pink-600 font-bold text-lg">
+                          {personnel.filter(p => p.gender === 'Kadın').length}
+                        </p>
+                        <p className="text-xs text-gray-600">Kadın</p>
+                        <p className="text-xs text-pink-500">
+                          {personnel.length > 0 ? ((personnel.filter(p => p.gender === 'Kadın').length / personnel.length) * 100).toFixed(1) : 0}%
+                        </p>
+                      </div>
+                      <div className="bg-white rounded-lg p-3 text-center border border-blue-200">
+                        <p className="text-blue-600 font-bold text-lg">
+                          {personnel.filter(p => p.gender === 'Erkek').length}
+                        </p>
+                        <p className="text-xs text-gray-600">Erkek</p>
+                        <p className="text-xs text-blue-500">
+                          {personnel.length > 0 ? ((personnel.filter(p => p.gender === 'Erkek').length / personnel.length) * 100).toFixed(1) : 0}%
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
