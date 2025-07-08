@@ -177,11 +177,6 @@ const YeniBelgeYonetimiYeni = ({ userRole, dbUser }) => {
       alert('Lütfen dosya seçin!');
       return;
     }
-    
-    if (!documentName.trim()) {
-      alert('Lütfen belge adı girin!');
-      return;
-    }
 
     setUploading(true);
     
