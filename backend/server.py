@@ -751,10 +751,12 @@ async def upload_belge_main_app(
         file_size = len(file_content)
         
         # Store file content in MongoDB GridFS
-        file_id = await asyncio.to_thread(
-            mongo_gridfs.put,
+        file_id = await mongo_gridfs.upload_file(
             file_content,
-            filename=file.filename
+            file.filename,
+            user_id="system",  # GridFS method signature requirement
+            content_type=file.content_type or "application/octet-stream",
+            metadata={"document_name": document_name, "client_id": client_id}
         )
         
         logging.info(f"✅ File content stored in MongoDB GridFS: {file_size} bytes, ID: {file_id}")
