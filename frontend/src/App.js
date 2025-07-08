@@ -7903,7 +7903,7 @@ const SupplierManagement = () => {
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">-- Müşteri Seçin --</option>
-                {clients.map((client) => (
+                {(clients || []).map((client) => (
                   <option key={client.id} value={client.id}>
                     {client.name || client.hotel_name}
                   </option>
