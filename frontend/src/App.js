@@ -7758,41 +7758,123 @@ const TwoFactorAuth = ({ onVerificationComplete }) => {
 
 // Simple Supplier Management Component (Step 1 - Basic Structure)
 const SupplierManagement = () => {
-  const { authToken } = useAuth();
+  const { authToken, user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [suppliers, setSuppliers] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [formData, setFormData] = useState({
+    company_name: '',
+    contact_person: '',
+    email: '',
+    phone: '',
+    address: '',
+    category: '',
+    local_supplier: false,
+    description: ''
+  });
   const API = getApiUrl();
 
-  // Basic fetch suppliers function
-  const fetchSuppliers = async () => {
-    if (!authToken) {
-      console.log('No auth token, skipping supplier fetch');
-      setLoading(false);
+  // Fetch clients first
+  const fetchClients = async () => {
+    if (!authToken) return;
+    try {
+      const response = await axios.get(`${API}/clients`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setClients(response.data || []);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      setClients([]);
+    }
+  };
+
+  // Fetch categories
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${API}/suppliers/categories/list`);
+      setCategories(response.data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      setCategories(['Gıda & İçecek', 'Temizlik & Hijyen', 'Tekstil', 'Teknoloji']);
+    }
+  };
+
+  // Fetch suppliers for selected client
+  const fetchSuppliers = async (clientId) => {
+    if (!authToken || !clientId) {
+      setSuppliers([]);
       return;
     }
     
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/suppliers`, {
+      const response = await axios.get(`${API}/suppliers?client_id=${clientId}`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setSuppliers(response.data || []);
     } catch (error) {
       console.error('Error fetching suppliers:', error);
-      if (error.response?.status === 401) {
-        console.log('Authentication failed, user might need to re-login');
-      }
       setSuppliers([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // Add new supplier
+  const addSupplier = async () => {
+    if (!selectedClient) {
+      alert('Lütfen önce bir müşteri seçin!');
+      return;
+    }
+
+    try {
+      const supplierData = {
+        ...formData,
+        client_id: selectedClient
+      };
+
+      const response = await axios.post(`${API}/suppliers`, supplierData, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      // Refresh suppliers list
+      await fetchSuppliers(selectedClient);
+      
+      // Reset form
+      setFormData({
+        company_name: '',
+        contact_person: '',
+        email: '',
+        phone: '',
+        address: '',
+        category: '',
+        local_supplier: false,
+        description: ''
+      });
+      setShowAddForm(false);
+      
+      alert('Tedarikçi başarıyla eklendi!');
+    } catch (error) {
+      console.error('Error adding supplier:', error);
+      alert('Tedarikçi eklenirken hata oluştu!');
+    }
+  };
+
   useEffect(() => {
     if (authToken) {
-      fetchSuppliers();
+      fetchClients();
+      fetchCategories();
     }
   }, [authToken]);
+
+  useEffect(() => {
+    if (selectedClient) {
+      fetchSuppliers(selectedClient);
+    }
+  }, [selectedClient]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -7800,42 +7882,205 @@ const SupplierManagement = () => {
       <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-purple-700 text-white p-6 shadow-xl">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl font-bold mb-2">🏢 Tedarikçi Yönetimi</h1>
-          <p className="text-blue-100 text-lg">Sürdürülebilir tedarikçi ağınızı yönetin</p>
+          <p className="text-blue-100 text-lg">Müşteri bazlı tedarikçi ağınızı yönetin</p>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        
+        {/* Client Selection */}
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Tedarikçi Listesi</h2>
-          
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          <h2 className="text-xl font-bold text-gray-800 mb-4">1. Müşteri Seçimi</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Müşteri Seçin
+              </label>
+              <select
+                value={selectedClient}
+                onChange={(e) => setSelectedClient(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">-- Müşteri Seçin --</option>
+                {clients.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.name || client.hotel_name}
+                  </option>
+                ))}
+              </select>
             </div>
-          ) : suppliers.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {suppliers.map((supplier) => (
-                <div key={supplier.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-all">
-                  <h3 className="text-lg font-bold text-gray-800 mb-2">{supplier.company_name}</h3>
-                  <p className="text-sm text-gray-600"><strong>İletişim:</strong> {supplier.contact_person}</p>
-                  <p className="text-sm text-gray-600"><strong>Email:</strong> {supplier.email}</p>
-                  <p className="text-sm text-gray-600"><strong>Kategori:</strong> {supplier.category}</p>
-                  {supplier.local_supplier && (
-                    <span className="inline-block bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium mt-2">
-                      🏠 Yerel Tedarikçi
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">Henüz tedarikçi bulunamadı.</p>
-              <p className="text-gray-400 text-sm mt-2">Tedarikçi eklemek için backend API'lerini kullanabilirsiniz.</p>
-            </div>
-          )}
+            {selectedClient && (
+              <div className="flex items-end">
+                <button
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                >
+                  {showAddForm ? '❌ İptal' : '➕ Tedarikçi Ekle'}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Add Supplier Form */}
+        {showAddForm && selectedClient && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">2. Yeni Tedarikçi Ekle</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Şirket Adı</label>
+                <input
+                  type="text"
+                  value={formData.company_name}
+                  onChange={(e) => setFormData({...formData, company_name: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Şirket adını girin"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">İletişim Kişisi</label>
+                <input
+                  type="text"
+                  value={formData.contact_person}
+                  onChange={(e) => setFormData({...formData, contact_person: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="İletişim kişisini girin"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="email@example.com"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Telefon</label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="+90 XXX XXX XX XX"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({...formData, category: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">-- Kategori Seçin --</option>
+                  {categories.map((category) => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="local_supplier"
+                  checked={formData.local_supplier}
+                  onChange={(e) => setFormData({...formData, local_supplier: e.target.checked})}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="local_supplier" className="ml-2 block text-sm text-gray-700">
+                  🏠 Yerel Tedarikçi
+                </label>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Adres</label>
+                <textarea
+                  value={formData.address}
+                  onChange={(e) => setFormData({...formData, address: e.target.value})}
+                  rows="3"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Tam adres bilgisi"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-4">
+              <button
+                onClick={() => setShowAddForm(false)}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                İptal
+              </button>
+              <button
+                onClick={addSupplier}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                Tedarikçi Ekle
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Suppliers List */}
+        {selectedClient && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">
+              3. Tedarikçi Listesi 
+              {clients.find(c => c.id === selectedClient) && (
+                <span className="text-blue-600 font-normal">
+                  - {clients.find(c => c.id === selectedClient)?.name || clients.find(c => c.id === selectedClient)?.hotel_name}
+                </span>
+              )}
+            </h2>
+            
+            {loading ? (
+              <div className="flex justify-center items-center h-32">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div>
+            ) : suppliers.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {suppliers.map((supplier) => (
+                  <div key={supplier.id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-all">
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="text-lg font-bold text-gray-800">{supplier.company_name}</h3>
+                      {supplier.local_supplier && (
+                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                          🏠 Yerel
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <p><strong>👤 İletişim:</strong> {supplier.contact_person}</p>
+                      <p><strong>📧 Email:</strong> {supplier.email}</p>
+                      <p><strong>📞 Telefon:</strong> {supplier.phone}</p>
+                      <p><strong>🏷️ Kategori:</strong> {supplier.category}</p>
+                      {supplier.address && (
+                        <p><strong>📍 Adres:</strong> {supplier.address}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">📦</div>
+                <p className="text-gray-500 text-lg mb-2">Bu müşteri için henüz tedarikçi bulunmuyor.</p>
+                <p className="text-gray-400 text-sm">Yukarıdaki butonu kullanarak tedarikçi ekleyebilirsiniz.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* No Client Selected */}
+        {!selectedClient && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🏢</div>
+              <p className="text-gray-500 text-lg mb-2">Tedarikçi yönetimi için önce bir müşteri seçin.</p>
+              <p className="text-gray-400 text-sm">Yukarıdaki dropdown'dan müşteri seçerek başlayabilirsiniz.</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
