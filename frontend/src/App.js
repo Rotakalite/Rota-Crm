@@ -287,8 +287,8 @@ const PersonnelManagement = () => {
           </div>
         )}
 
-        {/* Add Personnel Form */}
-        {showAddForm && selectedClient && (
+        {/* Add Personnel Form - Admin Only */}
+        {userRole === 'admin' && showAddForm && selectedClient && (
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4">2. Yeni Personel Ekle</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
