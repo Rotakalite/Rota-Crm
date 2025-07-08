@@ -276,6 +276,7 @@ const SustainabilityTargets = () => {
       });
 
       await fetchTargetsWithFreshToken(selectedClient);
+      await fetchAnalytics(selectedClient);
       
       setProgressData({
         actual_value: '',
