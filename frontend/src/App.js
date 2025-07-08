@@ -8046,7 +8046,7 @@ const SupplierManagement = () => {
 
   useEffect(() => {
     if (selectedClient) {
-      fetchSuppliers(selectedClient);
+      fetchSuppliersWithFreshToken(selectedClient);
     }
   }, [selectedClient]);
 
