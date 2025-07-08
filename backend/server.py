@@ -6306,15 +6306,9 @@ async def create_supplier(
         supplier = Supplier(
             client_id=client_id,
             company_name=supplier_data.company_name,
-            contact_person=supplier_data.contact_person,
-            email=supplier_data.email,
-            phone=supplier_data.phone,
             address=supplier_data.address,
             category=supplier_data.category,
-            sustainability_score=supplier_data.sustainability_score,
-            certifications=supplier_data.certifications,
             local_supplier=supplier_data.local_supplier,
-            website=supplier_data.website,
             description=supplier_data.description
         ).dict()
 
