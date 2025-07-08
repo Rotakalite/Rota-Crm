@@ -791,6 +791,305 @@ async def api_health_check_direct():
     }
 
 # ==========================================
+# SUSTAINABILITY TARGETS - MAIN APP ENDPOINTS
+# ==========================================
+
+@app.post("/api/sustainability-targets")
+async def create_sustainability_target(
+    target_data: SustainabilityTargetInput,
+    current_user: User = Depends(get_admin_user)
+):
+    """Create a new sustainability target (Admin only)"""
+    try:
+        client_id = target_data.client_id
+        if not client_id:
+            raise HTTPException(status_code=400, detail="client_id is required")
+
+        client = await db.clients.find_one({"id": client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+
+        target = SustainabilityTarget(
+            client_id=client_id,
+            target_name=target_data.target_name,
+            category=target_data.category,
+            target_type=target_data.target_type,
+            target_value=target_data.target_value,
+            unit=target_data.unit,
+            target_period=target_data.target_period,
+            deadline=target_data.deadline,
+            description=target_data.description
+        ).dict()
+
+        result = await db.sustainability_targets.insert_one(target)
+        
+        return {
+            "message": "Sustainability target created successfully",
+            "target_id": target["id"]
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error creating sustainability target: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.get("/api/sustainability-targets")
+async def get_sustainability_targets(
+    client_id: str = None,
+    category: str = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get sustainability targets with optional filtering"""
+    try:
+        filter_query = {}
+        
+        if current_user.role == UserRole.CLIENT:
+            filter_query["client_id"] = current_user.client_id
+        elif current_user.role == UserRole.ADMIN and client_id:
+            filter_query["client_id"] = client_id
+
+        if category:
+            filter_query["category"] = category
+
+        targets = await db.sustainability_targets.find(filter_query).sort("created_at", -1).to_list(length=None)
+        
+        clean_targets = []
+        for target in targets:
+            if "_id" in target:
+                del target["_id"]
+            clean_targets.append(target)
+        
+        return clean_targets
+
+    except Exception as e:
+        logging.error(f"Error fetching sustainability targets: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.post("/api/sustainability-targets/progress")
+async def add_target_progress(
+    progress_data: TargetProgressInput,
+    current_user: User = Depends(get_admin_user)
+):
+    """Add progress to a sustainability target (Admin only)"""
+    try:
+        target = await db.sustainability_targets.find_one({"id": progress_data.target_id})
+        if not target:
+            raise HTTPException(status_code=404, detail="Target not found")
+
+        progress = TargetProgress(
+            target_id=progress_data.target_id,
+            actual_value=progress_data.actual_value,
+            progress_date=progress_data.progress_date,
+            notes=progress_data.notes
+        ).dict()
+
+        result = await db.target_progress.insert_one(progress)
+        
+        return {
+            "message": "Target progress added successfully",
+            "progress_id": progress["id"]
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error adding target progress: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.get("/api/sustainability-targets/{target_id}/progress")
+async def get_target_progress(
+    target_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get progress data for a specific target"""
+    try:
+        target = await db.sustainability_targets.find_one({"id": target_id})
+        if not target:
+            raise HTTPException(status_code=404, detail="Target not found")
+            
+        if current_user.role == UserRole.CLIENT and target["client_id"] != current_user.client_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+
+        progress_list = await db.target_progress.find({"target_id": target_id}).sort("progress_date", -1).to_list(length=None)
+        
+        clean_progress = []
+        for progress in progress_list:
+            if "_id" in progress:
+                del progress["_id"]
+            clean_progress.append(progress)
+        
+        return clean_progress
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error fetching target progress: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.delete("/api/sustainability-targets/{target_id}")
+async def delete_sustainability_target(
+    target_id: str,
+    current_user: User = Depends(get_admin_user)
+):
+    """Delete a sustainability target (Admin only)"""
+    try:
+        existing = await db.sustainability_targets.find_one({"id": target_id})
+        if not existing:
+            raise HTTPException(status_code=404, detail="Target not found")
+
+        await db.sustainability_targets.delete_one({"id": target_id})
+        await db.target_progress.delete_many({"target_id": target_id})
+        
+        return {"message": "Sustainability target deleted successfully"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error deleting sustainability target: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.put("/api/sustainability-targets/{target_id}")
+async def update_sustainability_target(
+    target_id: str,
+    target_data: SustainabilityTargetInput,
+    current_user: User = Depends(get_admin_user)
+):
+    """Update a sustainability target (Admin only)"""
+    try:
+        existing = await db.sustainability_targets.find_one({"id": target_id})
+        if not existing:
+            raise HTTPException(status_code=404, detail="Target not found")
+
+        if target_data.client_id:
+            client = await db.clients.find_one({"id": target_data.client_id})
+            if not client:
+                raise HTTPException(status_code=404, detail="Client not found")
+
+        update_data = {
+            "target_name": target_data.target_name,
+            "category": target_data.category,
+            "target_type": target_data.target_type,
+            "target_value": target_data.target_value,
+            "unit": target_data.unit,
+            "target_period": target_data.target_period,
+            "deadline": target_data.deadline,
+            "description": target_data.description,
+            "updated_at": datetime.utcnow()
+        }
+        
+        if target_data.client_id:
+            update_data["client_id"] = target_data.client_id
+
+        await db.sustainability_targets.update_one(
+            {"id": target_id},
+            {"$set": update_data}
+        )
+        
+        return {"message": "Sustainability target updated successfully"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating sustainability target: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.get("/api/sustainability-targets/{target_id}")
+async def get_sustainability_target(
+    target_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get a single sustainability target with progress data"""
+    try:
+        target = await db.sustainability_targets.find_one({"id": target_id})
+        if not target:
+            raise HTTPException(status_code=404, detail="Target not found")
+            
+        if current_user.role == UserRole.CLIENT and target["client_id"] != current_user.client_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+
+        progress_list = await db.target_progress.find({"target_id": target_id}).sort("progress_date", -1).to_list(length=None)
+        
+        if "_id" in target:
+            del target["_id"]
+        
+        clean_progress = []
+        for progress in progress_list:
+            if "_id" in progress:
+                del progress["_id"]
+            clean_progress.append(progress)
+        
+        target["progress"] = clean_progress
+        
+        return target
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error fetching sustainability target: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.get("/api/sustainability-targets/analytics/dashboard")
+async def get_sustainability_analytics(
+    client_id: str = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get sustainability targets analytics for dashboard"""
+    try:
+        filter_query = {}
+        
+        if current_user.role == UserRole.CLIENT:
+            filter_query["client_id"] = current_user.client_id
+        elif current_user.role == UserRole.ADMIN and client_id:
+            filter_query["client_id"] = client_id
+
+        targets = await db.sustainability_targets.find(filter_query).to_list(length=None)
+        
+        total_targets = len(targets)
+        active_targets = len([t for t in targets if t.get("status", "active") == "active"])
+        completed_targets = len([t for t in targets if t.get("status", "active") == "completed"])
+        overdue_targets = len([t for t in targets if t.get("status", "active") == "overdue"])
+        
+        category_distribution = {}
+        for target in targets:
+            category = target.get("category", "Unknown")
+            category_distribution[category] = category_distribution.get(category, 0) + 1
+        
+        target_type_distribution = {}
+        for target in targets:
+            target_type = target.get("target_type", "Unknown")
+            target_type_distribution[target_type] = target_type_distribution.get(target_type, 0) + 1
+        
+        progress_data = []
+        for target in targets:
+            progress_records = await db.target_progress.find({"target_id": target["id"]}).sort("progress_date", -1).to_list(length=1)
+            if progress_records:
+                latest_progress = progress_records[0]
+                progress_percentage = min((latest_progress["actual_value"] / target["target_value"]) * 100, 100)
+                progress_data.append({
+                    "target_id": target["id"],
+                    "target_name": target["target_name"],
+                    "progress_percentage": progress_percentage,
+                    "actual_value": latest_progress["actual_value"],
+                    "target_value": target["target_value"]
+                })
+        
+        return {
+            "total_targets": total_targets,
+            "active_targets": active_targets,
+            "completed_targets": completed_targets,
+            "overdue_targets": overdue_targets,
+            "category_distribution": category_distribution,
+            "target_type_distribution": target_type_distribution,
+            "progress_data": progress_data,
+            "average_progress": sum([p["progress_percentage"] for p in progress_data]) / len(progress_data) if progress_data else 0
+        }
+
+    except Exception as e:
+        logging.error(f"Error fetching sustainability analytics: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+# ==========================================
 # YENİ BELGE YÖNETİMİ - MAIN APP ENDPOINTS
 # ==========================================
 
