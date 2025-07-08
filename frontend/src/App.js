@@ -294,9 +294,51 @@ const SustainabilityTargets = () => {
   };
 
   // Calculate progress percentage
-  const calculateProgress = (target, actualValue) => {
-    if (!actualValue) return 0;
-    return Math.min((actualValue / target.target_value) * 100, 100);
+  const calculateProgress = (target) => {
+    const progressList = targetProgress[target.id] || [];
+    if (progressList.length === 0) return 0;
+    
+    const latestProgress = progressList[0]; // Already sorted by date DESC
+    const percentage = Math.min((latestProgress.actual_value / target.target_value) * 100, 100);
+    return percentage;
+  };
+
+  // Get latest progress value
+  const getLatestProgressValue = (target) => {
+    const progressList = targetProgress[target.id] || [];
+    if (progressList.length === 0) return null;
+    return progressList[0].actual_value;
+  };
+
+  // Delete target
+  const deleteTarget = async (targetId) => {
+    if (!confirm('Bu hedefi silmek istediğinizden emin misiniz?')) return;
+    
+    try {
+      let currentToken = authToken;
+      if (session) {
+        try {
+          const freshToken = await session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      await axios.delete(`${API}/sustainability-targets/${targetId}`, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+
+      await fetchTargetsWithFreshToken(selectedClient);
+      await fetchAnalytics(selectedClient);
+      
+      alert('Hedef başarıyla silindi!');
+    } catch (error) {
+      console.error('Error deleting target:', error);
+      alert('Hedef silinirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
   };
 
   useEffect(() => {
