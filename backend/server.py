@@ -757,7 +757,7 @@ async def upload_belge_main_app(
         # Generate a unique file ID for reference
         file_id = str(uuid.uuid4())
         
-        # Save metadata to MongoDB
+        # Save metadata AND binary content to MongoDB
         document_data = {
             "id": document_id,
             "client_id": client_id,
@@ -768,11 +768,12 @@ async def upload_belge_main_app(
             "description": description,
             "filename": file.filename,
             "original_filename": file.filename,
-            "file_id": file_id,  # Store GridFS ID instead of file path
+            "file_id": file_id,
+            "file_content": file_content,  # DIRECT BINARY STORAGE
             "file_size": file_size,
             "created_at": datetime.utcnow(),
             "status": "active",
-            "gridfs_upload": True  # Mark as GridFS upload
+            "binary_storage": True  # Mark as direct binary storage
         }
         
         result = await asyncio.to_thread(db.documents.insert_one, document_data)
