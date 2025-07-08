@@ -98,6 +98,11 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Basic test endpoint
+@app.get("/test")
+async def test_endpoint():
+    return {"status": "working", "message": "Basic endpoint is functional"}
+
 # RAILWAY CORS CONFIGURATION - KALICI ÇÖZÜM: TÜM ORIGIN'LERE İZİN VER
 app.add_middleware(
     CORSMiddleware,
