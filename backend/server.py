@@ -6377,7 +6377,14 @@ async def get_suppliers(
 
         suppliers = await db.suppliers.find(filter_query).sort("company_name", 1).to_list(length=None)
         
-        return suppliers
+        # Clean MongoDB ObjectIds for JSON serialization
+        clean_suppliers = []
+        for supplier in suppliers:
+            if "_id" in supplier:
+                del supplier["_id"]  # Remove MongoDB ObjectId
+            clean_suppliers.append(supplier)
+        
+        return clean_suppliers
 
     except Exception as e:
         logger.error(f"Error fetching suppliers: {str(e)}")
