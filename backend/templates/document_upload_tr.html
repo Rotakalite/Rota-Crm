@@ -3,78 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doküman Yükleme Bildirimi</title>
+    <title>Yeni Doküman Yüklenmiştir</title>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 0; 
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .header { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px; 
-            text-align: center;
-            border-radius: 8px 8px 0 0;
-        }
-        .content { 
-            padding: 30px; 
-            line-height: 1.6;
-        }
-        .footer { 
-            background-color: #f8f9fa; 
-            padding: 20px; 
-            text-align: center; 
-            font-size: 12px;
-            color: #666;
-            border-radius: 0 0 8px 8px;
-        }
-        .document-info {
-            background-color: #e7f3ff;
-            border-left: 4px solid #2196F3;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        .highlight {
-            color: #2196F3;
-            font-weight: bold;
-        }
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px 10px 0 0; text-align: center; margin: -30px -30px 30px -30px; }
+        .logo { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
+        .tagline { font-size: 14px; opacity: 0.9; }
+        .content { background-color: #ffffff; padding: 0; }
+        .document-info { background-color: #f8f9fa; border-left: 4px solid #007bff; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .highlight { color: #007bff; font-weight: bold; }
+        .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; font-size: 12px; color: #666; }
+        .important { background-color: #e7f3ff; border: 1px solid #b8daff; padding: 15px; border-radius: 5px; margin: 15px 0; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📄 Doküman Yükleme Bildirimi</h1>
-            <p>Rota Kalite Danışmanlık</p>
+            <div class="logo">🚀 Rota Kalite Danışmanlık</div>
+            <div class="tagline">Kalite Yönetim Sistemi</div>
         </div>
         <div class="content">
+            <h2 style="color: #333; margin-top: 0;">📄 Yeni Doküman Bildirimi</h2>
+            
             <p>Sayın <strong>{{ client_name }}</strong>,</p>
             
-            <p>Sisteme yeni bir doküman yüklenmiştir.</p>
+            <p>Sistemimize yeni bir doküman yüklenmiştir. Detaylar aşağıdaki gibidir:</p>
             
             <div class="document-info">
-                <p><strong>📋 Doküman Adı:</strong> <span class="highlight">{{ document_name }}</span></p>
-                <p><strong>📁 Yüklendiği Klasör:</strong> <span class="highlight">{{ folder_path }}</span></p>
-                <p><strong>📅 Yükleme Tarihi:</strong> <span class="highlight">{{ upload_date }}</span></p>
+                <p style="margin: 8px 0;"><strong>📋 Doküman Adı:</strong> <span class="highlight">{{ document_name }}</span></p>
+                <p style="margin: 8px 0;"><strong>📁 Klasör Konumu:</strong> <span class="highlight">{{ folder_path }}</span></p>
+                <p style="margin: 8px 0;"><strong>📅 Yükleme Tarihi:</strong> <span class="highlight">{{ upload_date }}</span></p>
             </div>
             
-            <p>Dokümanınız inceleme sürecine alınmıştır. İnceleme tamamlandığında sizinle iletişime geçilecektir.</p>
+            <div class="important">
+                <p style="margin: 0;"><strong>📌 Önemli:</strong> Bu doküman kalite yönetim sisteminize eklenmiştir. Sisteme giriş yaparak dokümana erişebilir ve inceleyebilirsiniz.</p>
+            </div>
             
-            <p>Herhangi bir sorunuz olması durumunda bizimle iletişime geçebilirsiniz.</p>
+            <p>Dokümanla ilgili herhangi bir sorunuz veya değerlendirmeniz olması durumunda bizimle iletişime geçebilirsiniz.</p>
             
-            <p>Teşekkürler,<br>
-            <strong>Rota Kalite Danışmanlık Ekibi</strong></p>
+            <p style="margin-top: 30px;">Saygılarımızla,<br>
+            <strong>Rota Kalite Danışmanlık Ekibi</strong><br>
+            📞 <span style="color: #007bff;">+90 (XXX) XXX XX XX</span><br>
+            📧 <span style="color: #007bff;">info@rotakalitedanismanlik.com</span></p>
         </div>
         <div class="footer">
-            <p>Bu otomatik bir mesajdır, lütfen yanıtlamayınız.</p>
+            <p>Bu otomatik bir bildirim mesajıdır, lütfen yanıtlamayınız.</p>
             <p>© 2025 Rota Kalite Danışmanlık - Tüm hakları saklıdır.</p>
         </div>
     </div>
