@@ -6352,6 +6352,7 @@ async def get_suppliers(
     max_score: Optional[int] = None,
     certification: Optional[str] = None,
     local_only: Optional[bool] = None,
+    client_id: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
     """Get suppliers with optional filtering"""
@@ -6362,7 +6363,9 @@ async def get_suppliers(
         # Role-based filtering
         if current_user.role == UserRole.CLIENT:
             filter_query["client_id"] = current_user.client_id
-        # Admin users can see all suppliers or filter by client_id if needed
+        elif current_user.role == UserRole.ADMIN and client_id:
+            # Admin users can filter by specific client_id
+            filter_query["client_id"] = client_id
         
         # Apply filters
         if category:
