@@ -7970,6 +7970,28 @@ const SupplierManagement = () => {
                   placeholder="Organic, ISO 14001, Fair Trade (virgülle ayırın)"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Aylık Satın Alım Miktarı</label>
+                <div className="flex space-x-2">
+                  <input
+                    type="number"
+                    value={formData.monthly_purchase_amount}
+                    onChange={(e) => setFormData({...formData, monthly_purchase_amount: e.target.value})}
+                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="Miktar girin"
+                    min="0"
+                    step="0.1"
+                  />
+                  <select
+                    value={formData.monthly_purchase_unit}
+                    onChange={(e) => setFormData({...formData, monthly_purchase_unit: e.target.value})}
+                    className="w-24 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="KG">KG</option>
+                    <option value="Litre">Litre</option>
+                  </select>
+                </div>
+              </div>
               <div className="flex items-center">
                 <input
                   type="checkbox"
