@@ -7800,7 +7800,8 @@ const SupplierManagement = () => {
       console.log('Categories data type:', typeof categoriesData, 'isArray:', Array.isArray(categoriesData));
       setCategories(Array.isArray(categoriesData) ? categoriesData : [
         'Et', 'Süt', 'Balık', 'Yumurta', 'Sebze-Meyve',
-        'Gıda & İçecek', 'Temizlik & Hijyen', 'Tekstil', 'Teknoloji'
+        'Gıda & İçecek', 'Temizlik & Hijyen', 'Tekstil', 'Teknoloji',
+        'Bakım-Onarım', 'İSG Hizmeti', 'Yangın Hizmeti', 'Bilişim Hizmeti'
       ]);
     } catch (error) {
       console.error('Error fetching categories:', error);
