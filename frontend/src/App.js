@@ -7849,6 +7849,7 @@ const SupplierManagement = () => {
         company_name: '',
         address: '',
         category: '',
+        certifications: [],
         local_supplier: false,
         description: ''
       });
