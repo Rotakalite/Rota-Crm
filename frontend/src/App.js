@@ -8137,6 +8137,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'waste-management', name: 'Atık Yönetimi', icon: '🗑️' },
     { id: 'suppliers', name: 'Tedarikçilerim', icon: '🏢' },
     { id: 'personnel', name: 'Personel Yönetimi', icon: '👥' },
+    { id: 'sustainability-targets', name: 'Sürdürülebilirlik Hedefleri', icon: '🎯' },
     { id: 'yeni-belge', name: 'Belgelerim', icon: '📋' },
     { id: 'trainings', name: 'Eğitimlerim', icon: '🎓' }
   ];
