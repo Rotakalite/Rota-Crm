@@ -7796,10 +7796,16 @@ const SupplierManagement = () => {
       console.log('Categories response:', response.data);
       const categoriesData = response.data || [];
       console.log('Categories data type:', typeof categoriesData, 'isArray:', Array.isArray(categoriesData));
-      setCategories(Array.isArray(categoriesData) ? categoriesData : ['Gıda & İçecek', 'Temizlik & Hijyen', 'Tekstil', 'Teknoloji']);
+      setCategories(Array.isArray(categoriesData) ? categoriesData : [
+        'Et', 'Süt', 'Balık', 'Yumurta', 'Sebze-Meyve',
+        'Gıda & İçecek', 'Temizlik & Hijyen', 'Tekstil', 'Teknoloji'
+      ]);
     } catch (error) {
       console.error('Error fetching categories:', error);
-      setCategories(['Gıda & İçecek', 'Temizlik & Hijyen', 'Tekstil', 'Teknoloji']);
+      setCategories([
+        'Et', 'Süt', 'Balık', 'Yumurta', 'Sebze-Meyve',
+        'Gıda & İçecek', 'Temizlik & Hijyen', 'Tekstil', 'Teknoloji'
+      ]);
     }
   };
 
