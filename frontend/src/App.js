@@ -926,6 +926,36 @@ const PersonnelManagement = () => {
     }
   };
 
+  // Delete personnel
+  const deletePersonnel = async (personnelId) => {
+    if (!confirm('Bu personeli silmek istediğinizden emin misiniz?')) return;
+    
+    try {
+      let currentToken = authToken;
+      if (session) {
+        try {
+          const freshToken = await session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      await axios.delete(`${API}/personnel/${personnelId}`, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+
+      await fetchPersonnelWithFreshToken(selectedClient);
+      
+      alert('Personel başarıyla silindi!');
+    } catch (error) {
+      console.error('Error deleting personnel:', error);
+      alert('Personel silinirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
   useEffect(() => {
     if (authToken) {
       fetchClients();
