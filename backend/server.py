@@ -6451,9 +6451,9 @@ async def get_suppliers_analytics(
 @api_router.post("/suppliers")
 async def create_supplier(
     supplier_data: SupplierInput,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_admin_user)  # Only admin can create
 ):
-    """Create a new supplier"""
+    """Create a new supplier (Admin only)"""
     try:
         client_id = supplier_data.client_id if current_user.role == UserRole.ADMIN else current_user.client_id
         if not client_id:
