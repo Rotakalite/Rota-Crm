@@ -6132,7 +6132,7 @@ class SupplierInput(BaseModel):
     phone: str
     address: str
     category: str  # Food, Cleaning, Energy, Textile, Technology, etc.
-    sustainability_score: int = Field(ge=0, le=100)  # 0-100 score
+    sustainability_score: int = Field(default=75, ge=0, le=100)  # Default 75 score
     certifications: List[str] = []  # ["Organic", "Fair Trade", "ISO 14001", etc.]
     local_supplier: bool = False  # Is it a local supplier?
     website: Optional[str] = None
