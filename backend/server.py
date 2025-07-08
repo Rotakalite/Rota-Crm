@@ -888,13 +888,17 @@ async def download_belge_main_app(document_id: str):
                 file_data, file_metadata = await mongo_gridfs.download_file(actual_file_id)
                 original_filename = document.get("original_filename", "document.pdf")
                 
+                # FIX: UTF-8 filename encoding for Turkish characters
+                import urllib.parse
+                encoded_filename = urllib.parse.quote(original_filename, safe='')
+                
                 logging.info(f"✅ Downloaded from GridFS: {original_filename} ({len(file_data)} bytes)")
                 
                 return Response(
                     content=file_data,
                     media_type="application/octet-stream",
                     headers={
-                        "Content-Disposition": f'attachment; filename="{original_filename}"'
+                        "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"
                     }
                 )
             except Exception as e:
