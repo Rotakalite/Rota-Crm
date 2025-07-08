@@ -6149,9 +6149,9 @@ class Personnel(BaseModel):
 @api_router.post("/personnel")
 async def create_personnel(
     personnel_data: PersonnelInput,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_admin_user)  # Only admin can create
 ):
-    """Create a new personnel record"""
+    """Create a new personnel record (Admin only)"""
     try:
         # Determine client_id based on user role
         if current_user.role == UserRole.CLIENT:
