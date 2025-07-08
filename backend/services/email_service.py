@@ -8,7 +8,9 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv()
+from pathlib import Path
+env_path = Path(__file__).parent.parent / ".env"
+load_dotenv(env_path)
 
 # Get email configuration from environment
 gmail_user = os.getenv("GMAIL_USER")
