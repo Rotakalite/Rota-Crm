@@ -680,20 +680,53 @@ const SustainabilityTargets = () => {
                       <p><strong>📈 Hedef:</strong> {target.target_value} {target.unit}</p>
                       <p><strong>📅 Dönem:</strong> {target.target_period}</p>
                       <p><strong>⏰ Hedef Tarihi:</strong> {new Date(target.deadline).toLocaleDateString('tr-TR')}</p>
+                      {getLatestProgressValue(target) && (
+                        <p><strong>📊 Gerçekleşen:</strong> {getLatestProgressValue(target)} {target.unit}</p>
+                      )}
                       {target.description && (
                         <p><strong>📝 Açıklama:</strong> {target.description}</p>
                       )}
                     </div>
 
-                    {/* Progress Bar - Placeholder for now */}
+                    {/* Progress Bar */}
                     <div className="mt-4">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm font-medium text-gray-700">İlerleme</span>
-                        <span className="text-sm text-emerald-600 font-bold">0%</span>
+                        <span className={`text-sm font-bold ${
+                          calculateProgress(target) >= 100 ? 'text-green-600' :
+                          calculateProgress(target) >= 75 ? 'text-emerald-600' :
+                          calculateProgress(target) >= 50 ? 'text-yellow-600' :
+                          'text-red-600'
+                        }`}>
+                          {calculateProgress(target).toFixed(1)}%
+                        </span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-emerald-600 h-2 rounded-full" style={{width: '0%'}}></div>
+                      <div className="w-full bg-gray-200 rounded-full h-3">
+                        <div 
+                          className={`h-3 rounded-full transition-all duration-500 ${
+                            calculateProgress(target) >= 100 ? 'bg-green-600' :
+                            calculateProgress(target) >= 75 ? 'bg-emerald-600' :
+                            calculateProgress(target) >= 50 ? 'bg-yellow-600' :
+                            'bg-red-600'
+                          }`}
+                          style={{width: `${Math.min(calculateProgress(target), 100)}%`}}
+                        ></div>
                       </div>
+                      
+                      {/* Progress History */}
+                      {targetProgress[target.id] && targetProgress[target.id].length > 0 && (
+                        <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                          <h4 className="text-sm font-medium text-gray-700 mb-2">Son İlerleme Kayıtları</h4>
+                          <div className="space-y-1 max-h-20 overflow-y-auto">
+                            {targetProgress[target.id].slice(0, 3).map((progress, index) => (
+                              <div key={index} className="flex justify-between items-center text-xs text-gray-600">
+                                <span>{new Date(progress.progress_date).toLocaleDateString('tr-TR')}</span>
+                                <span className="font-medium">{progress.actual_value} {target.unit}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
