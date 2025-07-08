@@ -107,10 +107,11 @@ const SustainabilityTargets = () => {
     }
   };
 
-  // Fetch targets with fresh token
+  // Fetch targets with fresh token and progress data
   const fetchTargetsWithFreshToken = async (clientId) => {
     if (!clientId) {
       setTargets([]);
+      setTargetProgress({});
       return;
     }
     
@@ -132,12 +133,64 @@ const SustainabilityTargets = () => {
       const response = await axios.get(`${API}/sustainability-targets?client_id=${clientId}`, {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
-      setTargets(response.data || []);
+      
+      const fetchedTargets = response.data || [];
+      setTargets(fetchedTargets);
+      
+      // Fetch progress data for each target
+      const progressPromises = fetchedTargets.map(async (target) => {
+        try {
+          const progressResponse = await axios.get(`${API}/sustainability-targets/${target.id}/progress`, {
+            headers: { Authorization: `Bearer ${currentToken}` }
+          });
+          return { targetId: target.id, progress: progressResponse.data || [] };
+        } catch (error) {
+          console.error(`Error fetching progress for target ${target.id}:`, error);
+          return { targetId: target.id, progress: [] };
+        }
+      });
+      
+      const progressResults = await Promise.all(progressPromises);
+      const progressMap = {};
+      progressResults.forEach(({ targetId, progress }) => {
+        progressMap[targetId] = progress;
+      });
+      
+      setTargetProgress(progressMap);
+      
     } catch (error) {
       console.error('Error fetching targets:', error);
       setTargets([]);
+      setTargetProgress({});
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch analytics data
+  const fetchAnalytics = async (clientId) => {
+    if (!clientId) return;
+    
+    try {
+      let currentToken = authToken;
+      if (session) {
+        try {
+          const freshToken = await session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      const response = await axios.get(`${API}/sustainability-targets/analytics/dashboard?client_id=${clientId}`, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+      setAnalytics(response.data || null);
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+      setAnalytics(null);
     }
   };
 
