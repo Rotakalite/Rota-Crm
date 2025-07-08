@@ -7787,6 +7787,14 @@ const SupplierManagement = () => {
       setClients(response.data || []);
     } catch (error) {
       console.error('Error fetching clients:', error);
+      
+      // Handle authentication errors
+      if (error.response?.status === 401) {
+        console.log('Token expired while fetching clients');
+        setClients([]);
+        return;
+      }
+      
       setClients([]);
     }
   };
