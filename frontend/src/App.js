@@ -7934,17 +7934,34 @@ const SupplierManagement = () => {
     }
 
     try {
+      // Get fresh token from session
+      let currentToken = authToken;
+      if (session) {
+        try {
+          const freshToken = await session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+            console.log('🔄 Using fresh token for supplier creation');
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
       const supplierData = {
         ...formData,
         client_id: selectedClient
       };
 
+      console.log('📤 Creating supplier with data:', supplierData);
       const response = await axios.post(`${API}/suppliers`, supplierData, {
-        headers: { Authorization: `Bearer ${authToken}` }
+        headers: { Authorization: `Bearer ${currentToken}` }
       });
 
-      // Refresh suppliers list
-      await fetchSuppliers(selectedClient);
+      console.log('✅ Supplier created successfully:', response.data);
+
+      // Refresh suppliers list with fresh token
+      await fetchSuppliersWithFreshToken(selectedClient);
       
       // Reset form
       setFormData({
@@ -7972,6 +7989,51 @@ const SupplierManagement = () => {
       }
       
       alert('Tedarikçi eklenirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Fetch suppliers with fresh token
+  const fetchSuppliersWithFreshToken = async (clientId) => {
+    if (!clientId) {
+      setSuppliers([]);
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      
+      // Get fresh token from session
+      let currentToken = authToken;
+      if (session) {
+        try {
+          const freshToken = await session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+            console.log('🔄 Using fresh token for fetching suppliers');
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      const response = await axios.get(`${API}/suppliers?client_id=${clientId}`, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+      setSuppliers(response.data || []);
+      console.log('✅ Suppliers fetched successfully:', response.data?.length || 0, 'items');
+    } catch (error) {
+      console.error('Error fetching suppliers:', error);
+      
+      // Handle authentication errors
+      if (error.response?.status === 401) {
+        console.log('Token expired while fetching suppliers');
+        setSuppliers([]);
+        return;
+      }
+      
+      setSuppliers([]);
+    } finally {
+      setLoading(false);
     }
   };
 
