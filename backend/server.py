@@ -6121,6 +6121,216 @@ async def get_2fa_status(user_email: str):
 # Include the API router in the app
 
 # ====================================
+# SUSTAINABILITY TARGET TRACKING MODELS & ENDPOINTS
+# ====================================
+
+# Sustainability Target Models
+class SustainabilityTargetInput(BaseModel):
+    target_name: str
+    category: str  # "Çevresel", "Sosyal", "Ekonomik"
+    target_type: str  # "Karbon Ayak İzi", "Su Tüketimi", "Yerel İstihdam", etc.
+    target_value: float
+    unit: str  # "%", "kg", "litre", "TL", "saat"
+    target_period: str  # "Aylık", "Çeyreklik", "Yıllık"
+    deadline: datetime
+    description: Optional[str] = None
+    client_id: Optional[str] = None
+
+class SustainabilityTarget(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    client_id: str
+    target_name: str
+    category: str
+    target_type: str
+    target_value: float
+    unit: str
+    target_period: str
+    deadline: datetime
+    description: Optional[str] = None
+    status: str = Field(default="active")  # "active", "completed", "overdue"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class TargetProgressInput(BaseModel):
+    target_id: str
+    actual_value: float
+    progress_date: datetime
+    notes: Optional[str] = None
+
+class TargetProgress(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    target_id: str
+    actual_value: float
+    progress_date: datetime
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+@api_router.post("/sustainability-targets")
+async def create_sustainability_target(
+    target_data: SustainabilityTargetInput,
+    current_user: User = Depends(get_admin_user)  # Only admin can create
+):
+    """Create a new sustainability target (Admin only)"""
+    try:
+        # Determine client_id
+        client_id = target_data.client_id
+        if not client_id:
+            raise HTTPException(status_code=400, detail="client_id is required")
+
+        # Validate client exists
+        client = await db.clients.find_one({"id": client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+
+        target = SustainabilityTarget(
+            client_id=client_id,
+            target_name=target_data.target_name,
+            category=target_data.category,
+            target_type=target_data.target_type,
+            target_value=target_data.target_value,
+            unit=target_data.unit,
+            target_period=target_data.target_period,
+            deadline=target_data.deadline,
+            description=target_data.description
+        ).dict()
+
+        result = await db.sustainability_targets.insert_one(target)
+        
+        return {
+            "message": "Sustainability target created successfully",
+            "target_id": target["id"]
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating sustainability target: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@api_router.get("/sustainability-targets")
+async def get_sustainability_targets(
+    client_id: Optional[str] = None,
+    category: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get sustainability targets with optional filtering"""
+    try:
+        # Build filter query
+        filter_query = {}
+        
+        # Role-based filtering
+        if current_user.role == UserRole.CLIENT:
+            filter_query["client_id"] = current_user.client_id
+        elif current_user.role == UserRole.ADMIN and client_id:
+            filter_query["client_id"] = client_id
+
+        if category:
+            filter_query["category"] = category
+
+        targets = await db.sustainability_targets.find(filter_query).sort("created_at", -1).to_list(length=None)
+        
+        # Clean MongoDB ObjectIds for JSON serialization
+        clean_targets = []
+        for target in targets:
+            if "_id" in target:
+                del target["_id"]
+            clean_targets.append(target)
+        
+        return clean_targets
+
+    except Exception as e:
+        logger.error(f"Error fetching sustainability targets: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@api_router.post("/sustainability-targets/progress")
+async def add_target_progress(
+    progress_data: TargetProgressInput,
+    current_user: User = Depends(get_admin_user)  # Only admin can add progress
+):
+    """Add progress to a sustainability target (Admin only)"""
+    try:
+        # Validate target exists
+        target = await db.sustainability_targets.find_one({"id": progress_data.target_id})
+        if not target:
+            raise HTTPException(status_code=404, detail="Target not found")
+
+        progress = TargetProgress(
+            target_id=progress_data.target_id,
+            actual_value=progress_data.actual_value,
+            progress_date=progress_data.progress_date,
+            notes=progress_data.notes
+        ).dict()
+
+        result = await db.target_progress.insert_one(progress)
+        
+        return {
+            "message": "Target progress added successfully",
+            "progress_id": progress["id"]
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error adding target progress: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@api_router.get("/sustainability-targets/{target_id}/progress")
+async def get_target_progress(
+    target_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get progress data for a specific target"""
+    try:
+        # Validate target exists and permissions
+        target = await db.sustainability_targets.find_one({"id": target_id})
+        if not target:
+            raise HTTPException(status_code=404, detail="Target not found")
+            
+        if current_user.role == UserRole.CLIENT and target["client_id"] != current_user.client_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+
+        progress_list = await db.target_progress.find({"target_id": target_id}).sort("progress_date", -1).to_list(length=None)
+        
+        # Clean MongoDB ObjectIds
+        clean_progress = []
+        for progress in progress_list:
+            if "_id" in progress:
+                del progress["_id"]
+            clean_progress.append(progress)
+        
+        return clean_progress
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching target progress: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@api_router.delete("/sustainability-targets/{target_id}")
+async def delete_sustainability_target(
+    target_id: str,
+    current_user: User = Depends(get_admin_user)  # Only admin can delete
+):
+    """Delete a sustainability target (Admin only)"""
+    try:
+        # Check if target exists
+        existing = await db.sustainability_targets.find_one({"id": target_id})
+        if not existing:
+            raise HTTPException(status_code=404, detail="Target not found")
+
+        # Delete target and all its progress records
+        await db.sustainability_targets.delete_one({"id": target_id})
+        await db.target_progress.delete_many({"target_id": target_id})
+        
+        return {"message": "Sustainability target deleted successfully"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting sustainability target: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+# ====================================
 # PERSONNEL MANAGEMENT MODELS & ENDPOINTS
 # ====================================
 
