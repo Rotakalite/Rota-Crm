@@ -35,6 +35,403 @@ const getFileIcon = (filePath) => {
   }
 };
 
+// Personnel Management Component
+const PersonnelManagement = () => {
+  const { authToken, user } = useAuth();
+  const { session } = useClerk();
+  const [loading, setLoading] = useState(true);
+  const [personnel, setPersonnel] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [formData, setFormData] = useState({
+    full_name: '',
+    position: '',
+    location: '',
+    certifications: [],
+    is_local: false,
+    gender: 'Erkek'
+  });
+  const API = getApiUrl();
+
+  // Available certifications
+  const availableCertifications = [
+    'İlk Yardım',
+    'Hijyen',
+    'Can Kurtaran',
+    'Lejyonella',
+    'MYK'
+  ];
+
+  // Fetch clients first
+  const fetchClients = async () => {
+    if (!authToken) return;
+    try {
+      const response = await axios.get(`${API}/clients`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setClients(response.data || []);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      
+      if (error.response?.status === 401) {
+        console.log('Token expired while fetching clients');
+        setClients([]);
+        return;
+      }
+      
+      setClients([]);
+    }
+  };
+
+  // Fetch personnel with fresh token
+  const fetchPersonnelWithFreshToken = async (clientId) => {
+    if (!clientId) {
+      setPersonnel([]);
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      
+      // Get fresh token from session
+      let currentToken = authToken;
+      if (session) {
+        try {
+          const freshToken = await session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+            console.log('🔄 Using fresh token for fetching personnel');
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      const response = await axios.get(`${API}/personnel?client_id=${clientId}`, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+      setPersonnel(response.data || []);
+      console.log('✅ Personnel fetched successfully:', response.data?.length || 0, 'items');
+    } catch (error) {
+      console.error('Error fetching personnel:', error);
+      
+      if (error.response?.status === 401) {
+        console.log('Token expired while fetching personnel');
+        setPersonnel([]);
+        return;
+      }
+      
+      setPersonnel([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Add new personnel
+  const addPersonnel = async () => {
+    if (!selectedClient) {
+      alert('Lütfen önce bir müşteri seçin!');
+      return;
+    }
+
+    try {
+      // Get fresh token from session
+      let currentToken = authToken;
+      if (session) {
+        try {
+          const freshToken = await session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+            console.log('🔄 Using fresh token for personnel creation');
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      const personnelData = {
+        ...formData,
+        client_id: selectedClient
+      };
+
+      console.log('📤 Creating personnel with data:', personnelData);
+      const response = await axios.post(`${API}/personnel`, personnelData, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+
+      console.log('✅ Personnel created successfully:', response.data);
+
+      // Refresh personnel list with fresh token
+      await fetchPersonnelWithFreshToken(selectedClient);
+      
+      // Reset form
+      setFormData({
+        full_name: '',
+        position: '',
+        location: '',
+        certifications: [],
+        is_local: false,
+        gender: 'Erkek'
+      });
+      setShowAddForm(false);
+      
+      alert('Personel başarıyla eklendi!');
+    } catch (error) {
+      console.error('Error adding personnel:', error);
+      
+      if (error.response?.status === 401) {
+        alert('Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.');
+        window.location.reload();
+        return;
+      }
+      
+      alert('Personel eklenirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Handle certification change
+  const handleCertificationChange = (cert, checked) => {
+    if (checked) {
+      setFormData({
+        ...formData,
+        certifications: [...formData.certifications, cert]
+      });
+    } else {
+      setFormData({
+        ...formData,
+        certifications: formData.certifications.filter(c => c !== cert)
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (authToken) {
+      fetchClients();
+    }
+  }, [authToken]);
+
+  useEffect(() => {
+    if (selectedClient) {
+      fetchPersonnelWithFreshToken(selectedClient);
+    }
+  }, [selectedClient]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700 text-white p-6 shadow-xl">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-bold mb-2">👥 Personel Yönetimi</h1>
+          <p className="text-purple-100 text-lg">Personel bilgileri ve sertifika takip sistemi</p>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        
+        {/* Client Selection */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">1. Müşteri Seçimi</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Müşteri Seçin
+              </label>
+              <select
+                value={selectedClient}
+                onChange={(e) => setSelectedClient(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              >
+                <option value="">-- Müşteri Seçin --</option>
+                {Array.isArray(clients) && clients.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.name || client.hotel_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {selectedClient && (
+              <div className="flex items-end">
+                <button
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                >
+                  {showAddForm ? '❌ İptal' : '➕ Personel Ekle'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Add Personnel Form */}
+        {showAddForm && selectedClient && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">2. Yeni Personel Ekle</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">İsim Soyisim</label>
+                <input
+                  type="text"
+                  value={formData.full_name}
+                  onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  placeholder="Tam adını girin"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Görev</label>
+                <input
+                  type="text"
+                  value={formData.position}
+                  onChange={(e) => setFormData({...formData, position: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  placeholder="Ör: Temizlik Görevlisi, Resepsiyon"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">İkamet/Memleket</label>
+                <input
+                  type="text"
+                  value={formData.location}
+                  onChange={(e) => setFormData({...formData, location: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  placeholder="Ör: Antalya, İstanbul"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Cinsiyet</label>
+                <select
+                  value={formData.gender}
+                  onChange={(e) => setFormData({...formData, gender: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="Erkek">Erkek</option>
+                  <option value="Kadın">Kadın</option>
+                </select>
+              </div>
+              
+              {/* Certifications */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Sertifikalar</label>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                  {availableCertifications.map((cert) => (
+                    <label key={cert} className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.certifications.includes(cert)}
+                        onChange={(e) => handleCertificationChange(cert, e.target.checked)}
+                        className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                      />
+                      <span className="text-sm text-gray-700">{cert}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Local Checkbox */}
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="is_local"
+                  checked={formData.is_local}
+                  onChange={(e) => setFormData({...formData, is_local: e.target.checked})}
+                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                />
+                <label htmlFor="is_local" className="ml-2 block text-sm text-gray-700">
+                  🏠 Yerel Personel
+                </label>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-4">
+              <button
+                onClick={() => setShowAddForm(false)}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                İptal
+              </button>
+              <button
+                onClick={addPersonnel}
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+              >
+                Personel Ekle
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Personnel List */}
+        {selectedClient && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">
+              3. Personel Listesi 
+              {Array.isArray(clients) && clients.find(c => c.id === selectedClient) && (
+                <span className="text-purple-600 font-normal">
+                  - {clients.find(c => c.id === selectedClient)?.name || clients.find(c => c.id === selectedClient)?.hotel_name}
+                </span>
+              )}
+            </h2>
+            
+            {loading ? (
+              <div className="flex justify-center items-center h-32">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+              </div>
+            ) : Array.isArray(personnel) && personnel.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {personnel.map((person) => (
+                  <div key={person.id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-all">
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="text-lg font-bold text-gray-800">{person.full_name}</h3>
+                      <div className="flex space-x-1">
+                        {person.is_local && (
+                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                            🏠 Yerel
+                          </span>
+                        )}
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          person.gender === 'Kadın' 
+                            ? 'bg-pink-100 text-pink-800' 
+                            : 'bg-blue-100 text-blue-800'
+                        }`}>
+                          {person.gender === 'Kadın' ? '👩' : '👨'} {person.gender}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <p><strong>💼 Görev:</strong> {person.position}</p>
+                      <p><strong>📍 İkamet:</strong> {person.location}</p>
+                      {person.certifications && person.certifications.length > 0 && (
+                        <p><strong>🏆 Sertifikalar:</strong> {person.certifications.join(', ')}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">👥</div>
+                <p className="text-gray-500 text-lg mb-2">Bu müşteri için henüz personel bulunmuyor.</p>
+                <p className="text-gray-400 text-sm">Yukarıdaki butonu kullanarak personel ekleyebilirsiniz.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* No Client Selected */}
+        {!selectedClient && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">👥</div>
+              <p className="text-gray-500 text-lg mb-2">Personel yönetimi için önce bir müşteri seçin.</p>
+              <p className="text-gray-400 text-sm">Yukarıdaki dropdown'dan müşteri seçerek başlayabilirsiniz.</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Dashboard Component
 const Dashboard = ({ onNavigate }) => {
   const { user } = useUser();
