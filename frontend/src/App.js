@@ -8252,6 +8252,125 @@ const SupplierManagement = () => {
                 <p className="text-gray-400 text-sm">Yukarıdaki butonu kullanarak tedarikçi ekleyebilirsiniz.</p>
               </div>
             )}
+
+            {/* Local vs Non-Local Suppliers Chart */}
+            {Array.isArray(suppliers) && suppliers.length > 0 && (
+              <div className="mt-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                <h3 className="text-lg font-bold text-gray-800 mb-4 text-center">
+                  📊 Yerel/Yerel Olmayan Tedarikçi Dağılımı
+                </h3>
+                <div className="flex flex-col lg:flex-row items-center justify-center gap-8">
+                  {/* Chart */}
+                  <div className="w-64 h-64">
+                    <Pie
+                      data={{
+                        labels: ['🏠 Yerel Tedarikçi', '🌍 Yerel Olmayan'],
+                        datasets: [{
+                          data: [
+                            suppliers.filter(s => s.local_supplier).length,
+                            suppliers.filter(s => !s.local_supplier).length
+                          ],
+                          backgroundColor: [
+                            '#10b981', // Green for local
+                            '#3b82f6'  // Blue for non-local
+                          ],
+                          borderColor: [
+                            '#059669',
+                            '#2563eb'
+                          ],
+                          borderWidth: 2,
+                          hoverBackgroundColor: [
+                            '#059669',
+                            '#1d4ed8'
+                          ],
+                          hoverBorderWidth: 3
+                        }]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                          legend: {
+                            position: 'bottom',
+                            labels: {
+                              padding: 20,
+                              font: {
+                                size: 14,
+                                weight: 'bold'
+                              },
+                              usePointStyle: true,
+                              pointStyle: 'circle'
+                            }
+                          },
+                          tooltip: {
+                            callbacks: {
+                              label: function(context) {
+                                const total = suppliers.length;
+                                const value = context.parsed;
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${context.label}: ${value} (${percentage}%)`;
+                              }
+                            },
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#fff',
+                            borderWidth: 1
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                  
+                  {/* Statistics */}
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4 shadow-sm border border-green-200">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+                        <div>
+                          <p className="text-sm text-gray-600">Yerel Tedarikçi</p>
+                          <p className="text-2xl font-bold text-green-600">
+                            {suppliers.filter(s => s.local_supplier).length}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {suppliers.length > 0 ? ((suppliers.filter(s => s.local_supplier).length / suppliers.length) * 100).toFixed(1) : 0}% of total
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4 shadow-sm border border-blue-200">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+                        <div>
+                          <p className="text-sm text-gray-600">Yerel Olmayan</p>
+                          <p className="text-2xl font-bold text-blue-600">
+                            {suppliers.filter(s => !s.local_supplier).length}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {suppliers.length > 0 ? ((suppliers.filter(s => !s.local_supplier).length / suppliers.length) * 100).toFixed(1) : 0}% of total
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">Toplam Tedarikçi</p>
+                        <p className="text-3xl font-bold text-gray-800">{suppliers.length}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {suppliers.filter(s => s.local_supplier).length > suppliers.filter(s => !s.local_supplier).length 
+                            ? '🏠 Yerel ağırlıklı' 
+                            : suppliers.filter(s => s.local_supplier).length < suppliers.filter(s => !s.local_supplier).length
+                            ? '🌍 Global ağırlıklı'
+                            : '⚖️ Dengeli dağılım'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
