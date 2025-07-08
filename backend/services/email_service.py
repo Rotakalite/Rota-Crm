@@ -218,4 +218,9 @@ class EmailService:
             return False
 
 # Global email service instance
-email_service = EmailService()
+if gmail_user and gmail_password:
+    email_service = EmailService()
+    logging.info("✅ Email service created successfully")
+else:
+    email_service = None
+    logging.warning("⚠️ Email service disabled due to missing credentials")
