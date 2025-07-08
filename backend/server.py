@@ -6621,9 +6621,9 @@ async def update_supplier(
 @api_router.delete("/suppliers/{supplier_id}")
 async def delete_supplier(
     supplier_id: str,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_admin_user)  # Only admin can delete
 ):
-    """Delete a supplier"""
+    """Delete a supplier (Admin only)"""
     try:
         # Get existing supplier
         existing = await db.suppliers.find_one({"id": supplier_id})
