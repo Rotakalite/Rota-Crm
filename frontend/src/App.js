@@ -7979,7 +7979,7 @@ const SupplierManagement = () => {
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">-- Kategori Seçin --</option>
-                  {(categories || []).map((category) => (
+                  {Array.isArray(categories) && categories.map((category) => (
                     <option key={category} value={category}>{category}</option>
                   ))}
                 </select>
