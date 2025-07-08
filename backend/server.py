@@ -7708,6 +7708,26 @@ async def test_auto_folder_creation():
         raise HTTPException(status_code=500, detail=f"Auto folder test error: {str(e)}")
 
 # ==========================================
+# EMAIL ENDPOINTS - MAIN APP (WORKAROUND FOR ROUTER ISSUES)
+# ==========================================
+
+@app.post("/api/email/test-main")
+async def send_test_email_main():
+    """Send test email - main app"""
+    if not email_service:
+        raise HTTPException(status_code=500, detail="Email service not available")
+    
+    try:
+        success = await email_service.send_test_email("test@example.com")
+        if success:
+            return {"message": "Test email gönderildi!", "email": "test@example.com"}
+        else:
+            raise HTTPException(status_code=500, detail="Email gönderilemedi")
+    except Exception as e:
+        logging.error(f"❌ Test email error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Email gönderme hatası: {str(e)}")
+
+# ==========================================
 # API ROUTER REGISTRATION - MUST BE AT END
 # ==========================================
 app.include_router(api_router, prefix="/api")
