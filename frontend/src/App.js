@@ -9054,6 +9054,8 @@ const MainApp = () => {
         return <CarbonFootprint />;
       case 'personnel':
         return <PersonnelManagement />;
+      case 'sustainability-targets':
+        return <SustainabilityTargets />;
       case 'waste-management':
         return <WasteManagement />;
       case 'suppliers':
