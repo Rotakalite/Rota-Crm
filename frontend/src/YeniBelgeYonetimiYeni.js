@@ -335,8 +335,8 @@ const YeniBelgeYonetimiYeni = () => {
                   <div className="flex items-center space-x-4">
                     <div className="text-4xl">🏢</div>
                     <div>
-                      <h3 className="font-bold text-gray-800">{client.name}</h3>
-                      <p className="text-sm text-gray-600">{client.hotel_name}</p>
+                      <h3 className="font-bold text-gray-800">{client.client_name || client.name}</h3>
+                      <p className="text-sm text-gray-600">{client.hotel_name || client.client_name}</p>
                       <p className="text-xs text-blue-600 mt-1">Seçmek için tıklayın →</p>
                     </div>
                   </div>
