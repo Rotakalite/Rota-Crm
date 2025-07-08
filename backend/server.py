@@ -6140,6 +6140,7 @@ class Supplier(BaseModel):
     company_name: str
     address: str
     category: str
+    certifications: List[str] = []
     local_supplier: bool = False
     description: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
