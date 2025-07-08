@@ -642,22 +642,37 @@ const SustainabilityTargets = () => {
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <h3 className="text-lg font-bold text-gray-800">{target.target_name}</h3>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          target.category === 'Çevresel' ? 'bg-green-100 text-green-800' :
-                          target.category === 'Sosyal' ? 'bg-blue-100 text-blue-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {target.category}
-                        </span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            target.category === 'Çevresel' ? 'bg-green-100 text-green-800' :
+                            target.category === 'Sosyal' ? 'bg-blue-100 text-blue-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {target.category}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(target.deadline).toLocaleDateString('tr-TR')}
+                          </span>
+                        </div>
                       </div>
-                      {userRole === 'admin' && (
-                        <button
-                          onClick={() => {setSelectedTarget(target); setShowProgressForm(true);}}
-                          className="px-3 py-1 bg-emerald-600 text-white text-sm rounded hover:bg-emerald-700 transition-colors"
-                        >
-                          📊 Veri Ekle
-                        </button>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {userRole === 'admin' && (
+                          <>
+                            <button
+                              onClick={() => {setSelectedTarget(target); setShowProgressForm(true);}}
+                              className="px-3 py-1 bg-emerald-600 text-white text-sm rounded hover:bg-emerald-700 transition-colors"
+                            >
+                              📊 Veri Ekle
+                            </button>
+                            <button
+                              onClick={() => deleteTarget(target.id)}
+                              className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors"
+                            >
+                              🗑️ Sil
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
                     
                     <div className="space-y-3 text-sm text-gray-600">
