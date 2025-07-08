@@ -10,17 +10,29 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Gmail SMTP Configuration
-conf = ConnectionConfig(
-    MAIL_USERNAME=os.getenv("GMAIL_USER"),
-    MAIL_PASSWORD=os.getenv("GMAIL_PASSWORD"),
-    MAIL_FROM=os.getenv("GMAIL_USER"),
-    MAIL_PORT=587,
-    MAIL_SERVER="smtp.gmail.com",
-    MAIL_STARTTLS=True,
-    MAIL_SSL_TLS=False,
-    TEMPLATE_FOLDER=str(Path(__file__).parent.parent / "templates")
-)
+# Get email configuration from environment
+gmail_user = os.getenv("GMAIL_USER")
+gmail_password = os.getenv("GMAIL_PASSWORD")
+
+logging.info(f"📧 Gmail user: {gmail_user}")
+logging.info(f"📧 Gmail password: {'*' * len(gmail_password) if gmail_password else 'None'}")
+
+# Check if email credentials are available
+if not gmail_user or not gmail_password:
+    logging.warning("⚠️ Gmail credentials not found, email service will be disabled")
+    email_service = None
+else:
+    # Gmail SMTP Configuration
+    conf = ConnectionConfig(
+        MAIL_USERNAME=gmail_user,
+        MAIL_PASSWORD=gmail_password,
+        MAIL_FROM=gmail_user,
+        MAIL_PORT=587,
+        MAIL_SERVER="smtp.gmail.com",
+        MAIL_STARTTLS=True,
+        MAIL_SSL_TLS=False,
+        TEMPLATE_FOLDER=str(Path(__file__).parent.parent / "templates")
+    )
 
 class EmailService:
     def __init__(self):
