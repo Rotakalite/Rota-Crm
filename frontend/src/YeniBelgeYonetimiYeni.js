@@ -31,7 +31,14 @@ const YeniBelgeYonetimiYeni = ({ userRole, dbUser }) => {
   const loadClients = async () => {
     try {
       const response = await axios.get(`${API}/api/clients`);
-      setClients(response.data || []);
+      let allClients = response.data || [];
+      
+      // ROLE-BASED FILTERING: Client users only see their own data
+      if (userRole === 'client' && dbUser?.client_id) {
+        allClients = allClients.filter(client => client.id === dbUser.client_id);
+      }
+      
+      setClients(allClients);
     } catch (error) {
       console.error('❌ Client load error:', error);
     }
