@@ -3257,6 +3257,25 @@ async def create_training(
         except Exception as whatsapp_error:
             logging.error(f"❌ WhatsApp bildirimi hatası: {whatsapp_error}")
             # WhatsApp hatası training create işlemini etkilemesin
+
+        # 📧 Email bildirimi gönder
+        try:
+            if email_service and client.get("email"):
+                # Email bildirimi gönder
+                await email_service.send_training_notification(
+                    recipient_email=client["email"],
+                    training_name=training_data.name,
+                    training_date=training_data.training_date.strftime("%d.%m.%Y"),
+                    trainer=training_data.trainer,
+                    participant_count=training_data.participant_count,
+                    client_name=client.get("name") or client.get("hotel_name", "Değerli Müşteri")
+                )
+                logging.info(f"📧 Eğitim email bildirimi gönderildi: {client['email']}")
+            else:
+                logging.warning(f"⚠️ Email servisi aktif değil veya müşteri email adresi bulunamadı: {training_data.client_id}")
+        except Exception as email_error:
+            logging.error(f"❌ Email bildirimi hatası: {email_error}")
+            # Email hatası training create işlemini etkilemesin
         
         return training
     except Exception as e:
