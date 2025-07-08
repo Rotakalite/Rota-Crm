@@ -745,21 +745,19 @@ async def upload_belge_main_app(
         # Generate document ID and save file
         document_id = str(uuid.uuid4())
         
-        # Create storage directory
-        storage_dir = f"/app/documents/{client_id}"
-        os.makedirs(storage_dir, exist_ok=True)
-        
-        # Save file
-        file_extension = os.path.splitext(file.filename)[1] if file.filename else ".pdf"
-        safe_filename = f"{document_id}_{document_name}{file_extension}"
-        file_path = os.path.join(storage_dir, safe_filename)
-        
+        # RAILWAY PERSISTENT STORAGE FIX: Store in MongoDB instead of disk
+        # Save file content as binary in MongoDB GridFS
         file_content = await file.read()
-        with open(file_path, "wb") as f:
-            f.write(file_content)
-        
         file_size = len(file_content)
-        logging.info(f"✅ File saved: {file_path} ({file_size} bytes)")
+        
+        # Store file content in MongoDB GridFS
+        file_id = await asyncio.to_thread(
+            mongo_gridfs.put,
+            file_content,
+            filename=file.filename
+        )
+        
+        logging.info(f"✅ File content stored in MongoDB GridFS: {file_size} bytes, ID: {file_id}")
         
         # Save metadata to MongoDB
         document_data = {
@@ -772,10 +770,11 @@ async def upload_belge_main_app(
             "description": description,
             "filename": file.filename,
             "original_filename": file.filename,
-            "file_path": file_path,
+            "file_id": file_id,  # Store GridFS ID instead of file path
             "file_size": file_size,
             "created_at": datetime.utcnow(),
-            "status": "active"
+            "status": "active",
+            "gridfs_upload": True  # Mark as GridFS upload
         }
         
         result = await asyncio.to_thread(db.documents.insert_one, document_data)
