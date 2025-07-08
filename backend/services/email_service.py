@@ -28,6 +28,36 @@ class EmailService:
         template_dir = Path(__file__).parent.parent / "templates"
         self.jinja_env = Environment(loader=FileSystemLoader(str(template_dir)))
         logging.info(f"📧 Email service initialized with template dir: {template_dir}")
+        
+        # Log template files for debugging
+        try:
+            template_files = list(template_dir.glob("*.html"))
+            logging.info(f"📧 Found template files: {[f.name for f in template_files]}")
+            
+            # Check if our specific templates exist
+            doc_template = template_dir / "document_upload_tr.html"
+            train_template = template_dir / "training_notification_tr.html"
+            
+            if doc_template.exists():
+                logging.info(f"📧 Document template exists: {doc_template}")
+                # Read first few lines to verify content
+                with open(doc_template, 'r', encoding='utf-8') as f:
+                    first_lines = [f.readline().strip() for _ in range(3)]
+                logging.info(f"📧 Document template first lines: {first_lines}")
+            else:
+                logging.error(f"❌ Document template NOT found: {doc_template}")
+                
+            if train_template.exists():
+                logging.info(f"📧 Training template exists: {train_template}")
+                # Read first few lines to verify content
+                with open(train_template, 'r', encoding='utf-8') as f:
+                    first_lines = [f.readline().strip() for _ in range(3)]
+                logging.info(f"📧 Training template first lines: {first_lines}")
+            else:
+                logging.error(f"❌ Training template NOT found: {train_template}")
+                
+        except Exception as e:
+            logging.error(f"❌ Error checking templates: {str(e)}")
     
     async def send_email(self, to_email: str, subject: str, html_content: str):
         """Send email with HTML content"""
