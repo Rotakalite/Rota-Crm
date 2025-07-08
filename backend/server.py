@@ -6137,18 +6137,10 @@ class Supplier(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     client_id: str
     company_name: str
-    contact_person: str
-    email: str
-    phone: str
     address: str
     category: str
-    sustainability_score: int
-    certifications: List[str] = []
     local_supplier: bool = False
-    website: Optional[str] = None
     description: Optional[str] = None
-    quality_score: Optional[int] = Field(default=None, ge=0, le=100)
-    cost_score: Optional[int] = Field(default=None, ge=0, le=100)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
