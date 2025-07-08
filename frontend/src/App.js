@@ -7991,6 +7991,8 @@ const SupplierManagement = () => {
                   >
                     <option value="KG">KG</option>
                     <option value="Litre">Litre</option>
+                    <option value="Adet">Adet</option>
+                    <option value="Gün">Gün</option>
                   </select>
                 </div>
               </div>
