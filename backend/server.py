@@ -7159,27 +7159,6 @@ async def upload_belge_main(
         
         logging.info(f"🎉 UPLOAD SUCCESS: {document_id}")
         
-        # 📧 Email bildirimi gönder
-        try:
-            if email_service and client.get("email"):
-                # Folder path oluştur
-                folder_path = folder.get("folder_path", folder.get("name", "Bilinmeyen Klasör"))
-                
-                # Email bildirimi gönder
-                await email_service.send_document_upload_notification(
-                    recipient_email=client["email"],
-                    document_name=document_name,
-                    upload_date=datetime.utcnow().strftime("%d.%m.%Y %H:%M"),
-                    folder_path=folder_path,
-                    client_name=client.get("name") or client.get("hotel_name", "Değerli Müşteri")
-                )
-                logging.info(f"📧 Doküman upload email bildirimi gönderildi: {client['email']}")
-            else:
-                logging.warning(f"⚠️ Email servisi aktif değil veya müşteri email adresi bulunamadı: {client_id}")
-        except Exception as email_error:
-            logging.error(f"❌ Email bildirimi hatası: {email_error}")
-            # Email hatası upload işlemini etkilemesin
-        
         return {
             "success": True,
             "message": "Belge başarıyla yüklendi",
