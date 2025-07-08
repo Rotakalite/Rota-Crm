@@ -7203,11 +7203,14 @@ async def list_belge_main(client_id: str = None):
             lambda: list(db.documents.find(filter_query).sort("created_at", -1))
         )
         
-        # Format response
+        # Format response - EXCLUDE BINARY CONTENT from list
         formatted_docs = []
         for doc in documents:
             if "_id" in doc:
                 del doc["_id"]
+            # EXCLUDE binary content field from list response (too large for JSON)
+            if "file_content" in doc:
+                del doc["file_content"]
             formatted_docs.append(doc)
         
         logging.info(f"✅ Found {len(formatted_docs)} documents")
