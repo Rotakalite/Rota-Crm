@@ -851,8 +851,7 @@ async def download_belge_main_app(document_id: str):
         if document.get("gridfs_upload", False) and document.get("file_id"):
             # New GridFS files
             try:
-                file_content = await asyncio.to_thread(mongo_gridfs.get, document["file_id"])
-                file_data = file_content.read()
+                file_data = await mongo_gridfs.download_file(document["file_id"])
                 original_filename = document.get("original_filename", "document.pdf")
                 
                 logging.info(f"✅ Downloaded from GridFS: {original_filename} ({len(file_data)} bytes)")
