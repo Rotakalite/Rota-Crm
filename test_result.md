@@ -487,6 +487,18 @@ test_plan:
     -message: "Conducted comprehensive testing of the document download endpoint and GridFS integration. Verified that the document download endpoint (/api/documents/{id}/download) correctly retrieves files from GridFS and returns them with the proper content type and headers. Examined the server.py implementation and confirmed that it uses the gridfs_id field to locate and retrieve files from GridFS. Tested the GridFS integration directly and confirmed that PDF files are properly stored in GridFS with the correct content type. Created test documents and verified that they can be uploaded and downloaded correctly. The implementation now correctly returns the actual file content from GridFS instead of placeholder text. The issue reported by the user has been resolved."
 
 backend:
+  - task: "Sustainability Targets Backend API Implementation"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Implemented complete Sustainability Targets backend API endpoints. Added POST /api/sustainability-targets (create), GET /api/sustainability-targets (list with filtering), POST /api/sustainability-targets/progress (add progress), GET /api/sustainability-targets/{target_id}/progress (get progress), DELETE /api/sustainability-targets/{target_id} (delete), PUT /api/sustainability-targets/{target_id} (update), GET /api/sustainability-targets/{target_id} (get single with progress), GET /api/sustainability-targets/analytics/dashboard (analytics). All endpoints include proper RBAC with admin/client filtering and MongoDB ObjectId handling."
+
   - task: "Fix CORS Policy Error and Backend Configuration"
     implemented: true
     working: true
