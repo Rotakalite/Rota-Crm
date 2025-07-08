@@ -7870,7 +7870,16 @@ const SupplierManagement = () => {
       alert('Tedarikçi başarıyla eklendi!');
     } catch (error) {
       console.error('Error adding supplier:', error);
-      alert('Tedarikçi eklenirken hata oluştu!');
+      
+      // Handle authentication errors
+      if (error.response?.status === 401) {
+        alert('Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.');
+        // Redirect to login or refresh page
+        window.location.reload();
+        return;
+      }
+      
+      alert('Tedarikçi eklenirken hata oluştu: ' + (error.response?.data?.detail || error.message));
     }
   };
 
