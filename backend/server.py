@@ -779,11 +779,42 @@ async def upload_belge_main_app(
         result = await asyncio.to_thread(db.documents.insert_one, document_data)
         logging.info(f"✅ Metadata saved: {document_id}")
         
+        # GET FOLDER PATH for email notification
+        try:
+            folder_doc = await asyncio.to_thread(db.folders.find_one, {"id": folder_id})
+            folder_path = folder_doc.get("folder_path", "Klasör belirtilmemiş") if folder_doc else "Klasör bulunamadı"
+            
+            # GET CLIENT INFO for email
+            client_doc = await asyncio.to_thread(db.clients.find_one, {"id": client_id})
+            client_name = client_doc.get("name", "Değerli Müşteri") if client_doc else "Değerli Müşteri"
+            client_email = client_doc.get("email") if client_doc else None
+            
+            # SEND EMAIL NOTIFICATION
+            if client_email:
+                from datetime import datetime
+                upload_date = datetime.now().strftime("%d.%m.%Y %H:%M")
+                
+                await email_service.send_document_upload_notification(
+                    recipient_email=client_email,
+                    document_name=document_name,
+                    upload_date=upload_date,
+                    folder_path=folder_path,
+                    client_name=client_name
+                )
+                logging.info(f"📧 Email notification sent to {client_email}")
+            else:
+                logging.warning("⚠️ Client email not found, email notification skipped")
+                
+        except Exception as email_error:
+            logging.error(f"⚠️ Email notification failed: {str(email_error)}")
+            # Don't raise error - document upload still successful
+        
         return {
             "success": True,
             "document_id": document_id,
             "message": "Belge başarıyla yüklendi",
-            "file_size": file_size
+            "file_size": file_size,
+            "email_sent": client_email is not None if 'client_email' in locals() else False
         }
         
     except Exception as e:
