@@ -7858,7 +7858,10 @@ const SupplierManagement = () => {
         address: '',
         category: '',
         local_supplier: false,
-        description: ''
+        description: '',
+        sustainability_score: 75,
+        certifications: [],
+        website: ''
       });
       setShowAddForm(false);
       
