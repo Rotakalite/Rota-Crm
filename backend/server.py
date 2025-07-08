@@ -854,13 +854,17 @@ async def download_belge_main_app(document_id: str):
                 file_data = document["file_content"]
                 original_filename = document.get("original_filename", "document.pdf")
                 
+                # FIX: UTF-8 filename encoding for Turkish characters
+                import urllib.parse
+                encoded_filename = urllib.parse.quote(original_filename, safe='')
+                
                 logging.info(f"✅ Downloaded from MongoDB binary: {original_filename} ({len(file_data)} bytes)")
                 
                 return Response(
                     content=file_data,
                     media_type="application/octet-stream",
                     headers={
-                        "Content-Disposition": f'attachment; filename="{original_filename}"'
+                        "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"
                     }
                 )
             except Exception as e:
