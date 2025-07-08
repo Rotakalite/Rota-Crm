@@ -8028,7 +8028,7 @@ const SupplierManagement = () => {
               3. Tedarikçi Listesi 
               {clients.find(c => c.id === selectedClient) && (
                 <span className="text-blue-600 font-normal">
-                  - {clients.find(c => c.id === selectedClient)?.name || clients.find(c => c.id === selectedClient)?.hotel_name}
+                  - {(clients || []).find(c => c.id === selectedClient)?.name || (clients || []).find(c => c.id === selectedClient)?.hotel_name}
                 </span>
               )}
             </h2>
