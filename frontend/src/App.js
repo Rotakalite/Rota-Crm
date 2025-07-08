@@ -173,14 +173,14 @@ const Dashboard = ({ onNavigate }) => {
                 </p>
               </div>
 
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-                   onClick={() => onNavigate('guest-engagement')}>
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                   onClick={() => onNavigate('personnel')}>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">🎯 Guest Engagement</h3>
+                  <h3 className="text-lg font-semibold">👥 Personel Yönetimi</h3>
                   <span className="text-2xl">→</span>
                 </div>
-                <p className="text-blue-100">
-                  Misafir sürdürülebilirlik skorları
+                <p className="text-purple-100">
+                  Personel bilgileri ve sertifika takibi
                 </p>
               </div>
 
