@@ -8229,7 +8229,7 @@ const TwoFactorAuth = ({ onVerificationComplete }) => {
 
 // Simple Supplier Management Component (Step 1 - Basic Structure)
 const SupplierManagement = () => {
-  const { authToken, user } = useAuth();
+  const { authToken, user, userRole, dbUser } = useAuth();
   const { session } = useClerk();
   const [loading, setLoading] = useState(true);
   const [suppliers, setSuppliers] = useState([]);
