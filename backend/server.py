@@ -5730,6 +5730,12 @@ async def send_document_notification(
         if not client_email or "@" not in client_email or "." not in client_email:
             raise HTTPException(status_code=400, detail=f"Geçersiz email adresi: {client_email}. Lütfen client email'ini düzeltin.")
         
+        # FOLDER PATH FIX: Get proper folder path for email
+        folder_doc = await asyncio.to_thread(db.folders.find_one, {"id": document.get("folder_id")})
+        folder_path = "Klasör belirtilmemiş"
+        if folder_doc:
+            folder_path = folder_doc.get("folder_path") or folder_doc.get("name", "Klasör belirtilmemiş")
+        
         # Send email
         upload_date = document.get("created_at", "Bilinmiyor")
         if hasattr(upload_date, 'strftime'):
@@ -5741,9 +5747,9 @@ async def send_document_notification(
             
         await email_service.send_document_upload_notification(
             recipient_email=client_email,
-            document_name=document.get("name", "Bilinmiyen Doküman"),
+            document_name=document.get("document_name") or document.get("name", "Bilinmiyen Doküman"),
             upload_date=upload_date,
-            folder_path=document.get("folder_path", "Klasör belirtilmemiş"),
+            folder_path=folder_path,
             client_name=client["name"]
         )
         
