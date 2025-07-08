@@ -8459,8 +8459,8 @@ const MainApp = () => {
         return <ConsumptionAnalytics />;
       case 'carbon':
         return <CarbonFootprint />;
-      case 'guest-engagement':
-        return <GuestEngagement />;
+      case 'personnel':
+        return <PersonnelManagement />;
       case 'waste-management':
         return <WasteManagement />;
       case 'suppliers':
