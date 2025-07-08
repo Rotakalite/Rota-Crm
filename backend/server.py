@@ -6405,6 +6405,10 @@ async def get_supplier(
         # Check permissions
         if current_user.role == UserRole.CLIENT and supplier["client_id"] != current_user.client_id:
             raise HTTPException(status_code=403, detail="Access denied")
+        
+        # Clean MongoDB ObjectId for JSON serialization
+        if "_id" in supplier:
+            del supplier["_id"]
             
         return supplier
 
