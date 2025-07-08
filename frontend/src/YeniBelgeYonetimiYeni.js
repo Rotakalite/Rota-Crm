@@ -49,8 +49,15 @@ const YeniBelgeYonetimiYeni = ({ userRole, dbUser }) => {
       const response = await axios.get(`${API}/api/folders`);
       const allFolders = response.data || [];
       
-      // Client'a ait klasörleri filtrele
-      const clientFolders = allFolders.filter(folder => folder.client_id === clientId);
+      // ROLE-BASED FILTERING: Client users only see their own client's folders
+      let clientFolders;
+      if (userRole === 'client' && dbUser?.client_id) {
+        clientFolders = allFolders.filter(folder => folder.client_id === dbUser.client_id);
+      } else {
+        // Admin sees all folders for selected client
+        clientFolders = allFolders.filter(folder => folder.client_id === clientId);
+      }
+      
       setFolders(clientFolders);
       
       // Her klasör için doküman sayısını hesapla
