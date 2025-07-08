@@ -6121,6 +6121,165 @@ async def get_2fa_status(user_email: str):
 # Include the API router in the app
 
 # ====================================
+# PERSONNEL MANAGEMENT MODELS & ENDPOINTS
+# ====================================
+
+# Personnel Models
+class PersonnelInput(BaseModel):
+    full_name: str
+    position: str  # Görev
+    location: str  # İkamet-Memleket
+    certifications: List[str] = []  # ["İlk Yardım", "Hijyen", "Can Kurtaran", "Lejyonella", "MYK"]
+    is_local: bool = False  # Yerel/Yerel Olmayan
+    gender: str  # "Kadın" or "Erkek"
+    client_id: Optional[str] = None  # For admin users
+
+class Personnel(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    client_id: str
+    full_name: str
+    position: str
+    location: str
+    certifications: List[str] = []
+    is_local: bool = False
+    gender: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+@api_router.post("/personnel")
+async def create_personnel(
+    personnel_data: PersonnelInput,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new personnel record"""
+    try:
+        # Determine client_id based on user role
+        if current_user.role == UserRole.CLIENT:
+            client_id = current_user.client_id
+        else:
+            # Admin users must provide client_id
+            client_id = personnel_data.client_id
+            if not client_id:
+                raise HTTPException(status_code=400, detail="client_id is required for admin users")
+
+        # Validate client exists
+        client = await db.clients.find_one({"id": client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+
+        personnel = Personnel(
+            client_id=client_id,
+            full_name=personnel_data.full_name,
+            position=personnel_data.position,
+            location=personnel_data.location,
+            certifications=personnel_data.certifications,
+            is_local=personnel_data.is_local,
+            gender=personnel_data.gender
+        ).dict()
+
+        result = await db.personnel.insert_one(personnel)
+        
+        return {
+            "message": "Personnel created successfully",
+            "personnel_id": personnel["id"]
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating personnel: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@api_router.get("/personnel")
+async def get_personnel(
+    client_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get personnel with optional filtering"""
+    try:
+        # Build filter query
+        filter_query = {}
+        
+        # Role-based filtering
+        if current_user.role == UserRole.CLIENT:
+            filter_query["client_id"] = current_user.client_id
+        elif current_user.role == UserRole.ADMIN and client_id:
+            # Admin users can filter by specific client_id
+            filter_query["client_id"] = client_id
+
+        personnel_list = await db.personnel.find(filter_query).sort("full_name", 1).to_list(length=None)
+        
+        # Clean MongoDB ObjectIds for JSON serialization
+        clean_personnel = []
+        for person in personnel_list:
+            if "_id" in person:
+                del person["_id"]  # Remove MongoDB ObjectId
+            clean_personnel.append(person)
+        
+        return clean_personnel
+
+    except Exception as e:
+        logger.error(f"Error fetching personnel: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@api_router.get("/personnel/{personnel_id}")
+async def get_personnel_by_id(
+    personnel_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get a specific personnel record"""
+    try:
+        person = await db.personnel.find_one({"id": personnel_id})
+        
+        if not person:
+            raise HTTPException(status_code=404, detail="Personnel not found")
+            
+        # Check permissions
+        if current_user.role == UserRole.CLIENT and person["client_id"] != current_user.client_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        # Clean MongoDB ObjectId for JSON serialization
+        if "_id" in person:
+            del person["_id"]
+            
+        return person
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching personnel: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@api_router.delete("/personnel/{personnel_id}")
+async def delete_personnel(
+    personnel_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete a personnel record"""
+    try:
+        # Get existing personnel
+        existing = await db.personnel.find_one({"id": personnel_id})
+        if not existing:
+            raise HTTPException(status_code=404, detail="Personnel not found")
+            
+        # Check permissions
+        if current_user.role == UserRole.CLIENT and existing["client_id"] != current_user.client_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+
+        result = await db.personnel.delete_one({"id": personnel_id})
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Personnel not found")
+            
+        return {"message": "Personnel deleted successfully"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting personnel: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+# ====================================
 # SUPPLIER MANAGEMENT MODELS & ENDPOINTS
 # ====================================
 
