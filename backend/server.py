@@ -863,7 +863,7 @@ async def download_belge_main_app(document_id: str):
                 if not actual_file_id:
                     raise Exception("file_id not found in document")
                 
-                file_data = await mongo_gridfs.download_file(actual_file_id)
+                file_data, file_metadata = await mongo_gridfs.download_file(actual_file_id)
                 original_filename = document.get("original_filename", "document.pdf")
                 
                 logging.info(f"✅ Downloaded from GridFS: {original_filename} ({len(file_data)} bytes)")
