@@ -435,14 +435,13 @@ const YeniBelgeYonetimiYeni = ({ userRole, dbUser }) => {
               {/* Left Column */}
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Belge Adı *</label>
+                  <label className="block text-sm font-medium mb-2">Belge Adı (İsteğe bağlı)</label>
                   <input
                     type="text"
                     value={documentName}
                     onChange={(e) => setDocumentName(e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="Belge adını girin"
-                    required
+                    placeholder="Belge adı (boş bırakılırsa dosya adı kullanılır)"
                   />
                 </div>
 
