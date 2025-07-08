@@ -7795,7 +7795,10 @@ const SupplierManagement = () => {
   const fetchCategories = async () => {
     try {
       const response = await axios.get(`${API}/suppliers/categories/list`);
-      setCategories(response.data || []);
+      console.log('Categories response:', response.data);
+      const categoriesData = response.data || [];
+      console.log('Categories data type:', typeof categoriesData, 'isArray:', Array.isArray(categoriesData));
+      setCategories(Array.isArray(categoriesData) ? categoriesData : ['Gıda & İçecek', 'Temizlik & Hijyen', 'Tekstil', 'Teknoloji']);
     } catch (error) {
       console.error('Error fetching categories:', error);
       setCategories(['Gıda & İçecek', 'Temizlik & Hijyen', 'Tekstil', 'Teknoloji']);
