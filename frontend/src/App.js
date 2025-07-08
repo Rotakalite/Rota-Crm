@@ -8441,6 +8441,14 @@ const SupplierManagement = () => {
     }
   }, [authToken]);
 
+  // Auto-select client for CLIENT role users
+  useEffect(() => {
+    if (userRole === 'client' && dbUser?.client_id && !selectedClient) {
+      setSelectedClient(dbUser.client_id);
+      console.log('🔄 Auto-selected client for CLIENT user:', dbUser.client_id);
+    }
+  }, [userRole, dbUser, selectedClient]);
+
   useEffect(() => {
     if (selectedClient) {
       fetchSuppliersWithFreshToken(selectedClient);
