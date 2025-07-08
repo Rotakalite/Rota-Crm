@@ -1156,19 +1156,29 @@ const PersonnelManagement = () => {
                   <div key={person.id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-all">
                     <div className="flex justify-between items-start mb-3">
                       <h3 className="text-lg font-bold text-gray-800">{person.full_name}</h3>
-                      <div className="flex space-x-1">
-                        {person.is_local && (
-                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-                            🏠 Yerel
+                      <div className="flex items-center space-x-2">
+                        <div className="flex space-x-1">
+                          {person.is_local && (
+                            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                              🏠 Yerel
+                            </span>
+                          )}
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            person.gender === 'Kadın' 
+                              ? 'bg-pink-100 text-pink-800' 
+                              : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {person.gender === 'Kadın' ? '👩' : '👨'} {person.gender}
                           </span>
+                        </div>
+                        {userRole === 'admin' && (
+                          <button
+                            onClick={() => deletePersonnel(person.id)}
+                            className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                          >
+                            🗑️ Sil
+                          </button>
                         )}
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          person.gender === 'Kadın' 
-                            ? 'bg-pink-100 text-pink-800' 
-                            : 'bg-blue-100 text-blue-800'
-                        }`}>
-                          {person.gender === 'Kadın' ? '👩' : '👨'} {person.gender}
-                        </span>
                       </div>
                     </div>
                     <div className="space-y-2 text-sm text-gray-600">
