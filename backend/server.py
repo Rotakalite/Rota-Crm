@@ -6581,9 +6581,9 @@ async def get_supplier(
 async def update_supplier(
     supplier_id: str,
     supplier_data: SupplierInput,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_admin_user)  # Only admin can update
 ):
-    """Update a supplier"""
+    """Update a supplier (Admin only)"""
     try:
         # Get existing supplier
         existing = await db.suppliers.find_one({"id": supplier_id})
