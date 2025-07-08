@@ -6315,6 +6315,8 @@ async def create_supplier(
             address=supplier_data.address,
             category=supplier_data.category,
             certifications=supplier_data.certifications,
+            monthly_purchase_amount=supplier_data.monthly_purchase_amount,
+            monthly_purchase_unit=supplier_data.monthly_purchase_unit,
             local_supplier=supplier_data.local_supplier,
             description=supplier_data.description
         ).dict()
