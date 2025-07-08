@@ -8062,6 +8062,9 @@ const SupplierManagement = () => {
                     </div>
                     <div className="space-y-2 text-sm text-gray-600">
                       <p><strong>🏷️ Kategori:</strong> {supplier.category}</p>
+                      {supplier.monthly_purchase_amount && (
+                        <p><strong>📊 Aylık Miktar:</strong> {supplier.monthly_purchase_amount} {supplier.monthly_purchase_unit}</p>
+                      )}
                       {supplier.certifications && supplier.certifications.length > 0 && (
                         <p><strong>🏆 Sertifikalar:</strong> {supplier.certifications.join(', ')}</p>
                       )}
