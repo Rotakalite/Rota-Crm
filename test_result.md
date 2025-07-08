@@ -597,7 +597,8 @@ test_plan:
   current_focus:
     - "Sustainability Targets Backend API Implementation"
     - "Sustainability Targets Frontend Implementation"
-  stuck_tasks: []
+  stuck_tasks:
+    - "Sustainability Targets Backend API Implementation"
   test_all: false
   test_priority: "high_first"
 
