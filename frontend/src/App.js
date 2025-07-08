@@ -7770,6 +7770,8 @@ const SupplierManagement = () => {
     address: '',
     category: '',
     certifications: [],
+    monthly_purchase_amount: '',
+    monthly_purchase_unit: 'KG',
     local_supplier: false,
     description: ''
   });
