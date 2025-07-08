@@ -357,6 +357,7 @@ const SustainabilityTargets = () => {
   useEffect(() => {
     if (selectedClient) {
       fetchTargetsWithFreshToken(selectedClient);
+      fetchAnalytics(selectedClient);
     }
   }, [selectedClient]);
 
