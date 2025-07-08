@@ -9336,6 +9336,36 @@ const SupplierManagement = () => {
     }
   };
 
+  // Delete supplier
+  const deleteSupplier = async (supplierId) => {
+    if (!confirm('Bu tedarikçiyi silmek istediğinizden emin misiniz?')) return;
+    
+    try {
+      let currentToken = authToken;
+      if (session) {
+        try {
+          const freshToken = await session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      await axios.delete(`${API}/suppliers/${supplierId}`, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+
+      await fetchSuppliersWithFreshToken(selectedClient);
+      
+      alert('Tedarikçi başarıyla silindi!');
+    } catch (error) {
+      console.error('Error deleting supplier:', error);
+      alert('Tedarikçi silinirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
   // Fetch suppliers with fresh token
   const fetchSuppliersWithFreshToken = async (clientId) => {
     if (!clientId) {
