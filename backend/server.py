@@ -750,16 +750,12 @@ async def upload_belge_main_app(
         file_content = await file.read()
         file_size = len(file_content)
         
+        # SIMPLE MONGODB BINARY STORAGE - NO GRIDFS
+        # Store file content directly in document as binary
         logging.info(f"✅ File content read: {file_size} bytes, storing directly in MongoDB")
-        file_id = await mongo_gridfs.upload_file(
-            file_content,
-            file.filename,
-            user_id="system",  # GridFS method signature requirement
-            content_type=file.content_type or "application/octet-stream",
-            metadata={"document_name": document_name, "client_id": client_id}
-        )
         
-        logging.info(f"✅ File content stored in MongoDB GridFS: {file_size} bytes, ID: {file_id}")
+        # Generate a unique file ID for reference
+        file_id = str(uuid.uuid4())
         
         # Save metadata to MongoDB
         document_data = {
