@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useUser } from '@clerk/clerk-react';
 
-const YeniBelgeYonetimiYeni = () => {
+const YeniBelgeYonetimiYeni = ({ userRole, dbUser }) => {
   // UI Flow States
   const [currentView, setCurrentView] = useState('client-selection'); // 'client-selection', 'folder-tree', 'documents'
   const [clients, setClients] = useState([]);
