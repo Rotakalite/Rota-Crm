@@ -7846,16 +7846,10 @@ const SupplierManagement = () => {
       // Reset form
       setFormData({
         company_name: '',
-        contact_person: '',
-        email: '',
-        phone: '',
         address: '',
         category: '',
         local_supplier: false,
-        description: '',
-        sustainability_score: 75,
-        certifications: [],
-        website: ''
+        description: ''
       });
       setShowAddForm(false);
       
