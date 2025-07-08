@@ -521,6 +521,20 @@ const YeniBelgeYonetimiYeni = ({ userRole, dbUser }) => {
               </button>
             </div>
           </div>
+          )}
+
+          {/* CLIENT ROLE - READ ONLY MESSAGE */}
+          {userRole === 'client' && (
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg">
+              <div className="flex">
+                <div className="ml-3">
+                  <p className="text-sm text-blue-700">
+                    <strong>Müşteri Görünümü:</strong> Belgelerinizi görüntüleyebilirsiniz. Yeni belge yüklemek için yöneticiniz ile iletişime geçin.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Documents List */}
           <div className="bg-white rounded-lg shadow-lg p-6">
