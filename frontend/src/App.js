@@ -7767,16 +7767,10 @@ const SupplierManagement = () => {
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     company_name: '',
-    contact_person: '',
-    email: '',
-    phone: '',
     address: '',
     category: '',
     local_supplier: false,
-    description: '',
-    sustainability_score: 75,
-    certifications: [],
-    website: ''
+    description: ''
   });
   const API = getApiUrl();
 
