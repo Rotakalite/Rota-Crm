@@ -423,6 +423,31 @@ const SustainabilityTargets = () => {
           </div>
         )}
 
+        {/* Analytics Cards */}
+        {selectedClient && analytics && (
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">📊 Genel Durum</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-4 rounded-lg text-white">
+                <h3 className="text-sm font-medium mb-2">Toplam Hedef</h3>
+                <p className="text-2xl font-bold">{analytics.total_targets}</p>
+              </div>
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-lg text-white">
+                <h3 className="text-sm font-medium mb-2">Aktif Hedef</h3>
+                <p className="text-2xl font-bold">{analytics.active_targets}</p>
+              </div>
+              <div className="bg-gradient-to-br from-green-500 to-green-600 p-4 rounded-lg text-white">
+                <h3 className="text-sm font-medium mb-2">Tamamlanan</h3>
+                <p className="text-2xl font-bold">{analytics.completed_targets}</p>
+              </div>
+              <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-4 rounded-lg text-white">
+                <h3 className="text-sm font-medium mb-2">Ortalama İlerleme</h3>
+                <p className="text-2xl font-bold">{analytics.average_progress ? `${analytics.average_progress.toFixed(1)}%` : '0%'}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Add Target Form - Admin Only */}
         {userRole === 'admin' && showAddForm && selectedClient && (
           <div className="bg-white rounded-xl shadow-lg p-6">
