@@ -489,15 +489,18 @@ test_plan:
 backend:
   - task: "Sustainability Targets Backend API Implementation"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: true
     status_history:
         -working: "NA"
         -agent: "main"
         -comment: "Implemented complete Sustainability Targets backend API endpoints. Added POST /api/sustainability-targets (create), GET /api/sustainability-targets (list with filtering), POST /api/sustainability-targets/progress (add progress), GET /api/sustainability-targets/{target_id}/progress (get progress), DELETE /api/sustainability-targets/{target_id} (delete), PUT /api/sustainability-targets/{target_id} (update), GET /api/sustainability-targets/{target_id} (get single with progress), GET /api/sustainability-targets/analytics/dashboard (analytics). All endpoints include proper RBAC with admin/client filtering and MongoDB ObjectId handling."
+        -working: false
+        -agent: "testing"
+        -comment: "Tested all Sustainability Targets API endpoints and found that they are not accessible. All endpoints return 404 Not Found. The endpoints are properly defined in the server.py file using the API router, but they are not accessible through the API. The API router is registered at the end of the file with app.include_router(api_router, prefix='/api'), but the endpoints are still not accessible. Other API router endpoints like /api/clients are working correctly, but the sustainability targets endpoints are not. This suggests an issue with how the API router is handling these specific endpoints. The issue might be related to the order of endpoint definitions or a conflict with other endpoints."
 
   - task: "Fix CORS Policy Error and Backend Configuration"
     implemented: true
