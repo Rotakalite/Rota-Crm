@@ -7950,6 +7950,16 @@ const SupplierManagement = () => {
                   ))}
                 </select>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Sertifikalar</label>
+                <input
+                  type="text"
+                  value={formData.certifications.join(', ')}
+                  onChange={(e) => setFormData({...formData, certifications: e.target.value.split(',').map(s => s.trim()).filter(s => s)})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Organic, ISO 14001, Fair Trade (virgülle ayırın)"
+                />
+              </div>
               <div className="flex items-center">
                 <input
                   type="checkbox"
