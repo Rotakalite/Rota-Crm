@@ -427,9 +427,10 @@ const YeniBelgeYonetimiYeni = ({ userRole, dbUser }) => {
             </div>
           </div>
 
-          {/* Upload Section */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h3 className="text-xl font-semibold mb-4">📤 Yeni Belge Yükle</h3>
+          {/* Upload Section - ADMIN ONLY */}
+          {userRole === 'admin' && (
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <h3 className="text-xl font-semibold mb-4">📤 Yeni Belge Yükle</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Left Column */}
