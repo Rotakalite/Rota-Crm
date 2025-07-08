@@ -46,6 +46,8 @@ const SustainabilityTargets = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showProgressForm, setShowProgressForm] = useState(false);
   const [selectedTarget, setSelectedTarget] = useState(null);
+  const [targetProgress, setTargetProgress] = useState({});
+  const [analytics, setAnalytics] = useState(null);
   const [formData, setFormData] = useState({
     target_name: '',
     category: 'Çevresel',
