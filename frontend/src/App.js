@@ -37,7 +37,7 @@ const getFileIcon = (filePath) => {
 
 // Personnel Management Component
 const PersonnelManagement = () => {
-  const { authToken, user } = useAuth();
+  const { authToken, user, userRole, dbUser } = useAuth();
   const { session } = useClerk();
   const [loading, setLoading] = useState(true);
   const [personnel, setPersonnel] = useState([]);
