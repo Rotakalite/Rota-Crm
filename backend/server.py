@@ -844,9 +844,27 @@ async def download_belge_main_app(document_id: str):
         if not document:
             raise HTTPException(status_code=404, detail="Belge bulunamadı")
         
-        # RAILWAY PERSISTENT STORAGE FIX: Download from MongoDB GridFS
-        if document.get("gridfs_upload", False) and document.get("file_id"):
-            # New GridFS files
+        # SIMPLE MONGODB BINARY STORAGE - NO GRIDFS
+        if document.get("binary_storage", False) and document.get("file_content"):
+            # New binary storage files
+            try:
+                file_data = document["file_content"]
+                original_filename = document.get("original_filename", "document.pdf")
+                
+                logging.info(f"✅ Downloaded from MongoDB binary: {original_filename} ({len(file_data)} bytes)")
+                
+                return Response(
+                    content=file_data,
+                    media_type="application/octet-stream",
+                    headers={
+                        "Content-Disposition": f'attachment; filename="{original_filename}"'
+                    }
+                )
+            except Exception as e:
+                logging.error(f"❌ Binary download error: {str(e)}")
+                raise HTTPException(status_code=404, detail="Binary dosya bulunamadı")
+        elif document.get("gridfs_upload", False) and document.get("file_id"):
+            # Legacy GridFS files
             try:
                 # Handle both string and object file_id formats
                 file_id_data = document["file_id"]
