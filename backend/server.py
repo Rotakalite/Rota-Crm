@@ -737,6 +737,47 @@ async def health_check_main():
         "main_app": True
     }
 
+# Sustainability Target Models
+class SustainabilityTargetInput(BaseModel):
+    target_name: str
+    category: str  # "Çevresel", "Sosyal", "Ekonomik"
+    target_type: str  # "Karbon Ayak İzi", "Su Tüketimi", "Yerel İstihdam", etc.
+    target_value: float
+    unit: str  # "%", "kg", "litre", "TL", "saat"
+    target_period: str  # "Aylık", "Çeyreklik", "Yıllık"
+    deadline: datetime
+    description: Optional[str] = None
+    client_id: Optional[str] = None
+
+class SustainabilityTarget(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    client_id: str
+    target_name: str
+    category: str
+    target_type: str
+    target_value: float
+    unit: str
+    target_period: str
+    deadline: datetime
+    description: Optional[str] = None
+    status: str = Field(default="active")  # "active", "completed", "overdue"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class TargetProgressInput(BaseModel):
+    target_id: str
+    actual_value: float
+    progress_date: datetime
+    notes: Optional[str] = None
+
+class TargetProgress(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    target_id: str
+    actual_value: float
+    progress_date: datetime
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
 # ALSO ADD API HEALTH TO MAIN APP - WORKAROUND
 @app.get("/api/health")
 async def api_health_check_direct():
