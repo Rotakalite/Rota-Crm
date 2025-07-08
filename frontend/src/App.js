@@ -7540,7 +7540,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'carbon', name: 'Karbon Ayak İzi', icon: '🌍' },
     { id: 'waste-management', name: 'Atık Yönetimi', icon: '🗑️' },
     { id: 'suppliers', name: 'Tedarikçi Yönetimi', icon: '🏢' },
-    { id: 'guest-engagement', name: 'Guest Engagement', icon: '🎯' },
+    { id: 'personnel', name: 'Personel Yönetimi', icon: '👥' },
     { id: 'yeni-belge', name: 'Belge Yönetimi', icon: '📋' },
     { id: 'trainings', name: 'Eğitim Yönetimi', icon: '🎓' },
     { id: 'email', name: 'Email Yönetimi', icon: '📧' },
