@@ -6253,9 +6253,9 @@ async def get_personnel_by_id(
 @api_router.delete("/personnel/{personnel_id}")
 async def delete_personnel(
     personnel_id: str,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_admin_user)  # Only admin can delete
 ):
-    """Delete a personnel record"""
+    """Delete a personnel record (Admin only)"""
     try:
         # Get existing personnel
         existing = await db.personnel.find_one({"id": personnel_id})
