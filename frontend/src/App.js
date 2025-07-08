@@ -226,6 +226,7 @@ const SustainabilityTargets = () => {
       });
 
       await fetchTargetsWithFreshToken(selectedClient);
+      await fetchAnalytics(selectedClient);
       
       setFormData({
         target_name: '',
