@@ -6129,6 +6129,7 @@ class SupplierInput(BaseModel):
     company_name: str
     address: str
     category: str
+    certifications: List[str] = []  # ["Organic", "Fair Trade", "ISO 14001", etc.]
     local_supplier: bool = False
     description: Optional[str] = None
     client_id: Optional[str] = None  # For admin users
