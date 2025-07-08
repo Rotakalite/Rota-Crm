@@ -8017,12 +8017,12 @@ const SupplierManagement = () => {
                       )}
                     </div>
                     <div className="space-y-2 text-sm text-gray-600">
-                      <p><strong>👤 İletişim:</strong> {supplier.contact_person}</p>
-                      <p><strong>📧 Email:</strong> {supplier.email}</p>
-                      <p><strong>📞 Telefon:</strong> {supplier.phone}</p>
                       <p><strong>🏷️ Kategori:</strong> {supplier.category}</p>
                       {supplier.address && (
                         <p><strong>📍 Adres:</strong> {supplier.address}</p>
+                      )}
+                      {supplier.description && (
+                        <p><strong>📝 Açıklama:</strong> {supplier.description}</p>
                       )}
                     </div>
                   </div>
