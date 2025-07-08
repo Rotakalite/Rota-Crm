@@ -655,9 +655,19 @@ if (!CLERK_PUBLISHABLE_KEY) {
 const useAuth = () => {
   const { user, isLoaded } = useUser();
   const { session } = useClerk();
-  const [authToken, setAuthToken] = useState(null);
-  const [userRole, setUserRole] = useState(null);
-  const [dbUser, setDbUser] = useState(null);
+  const [authToken, setAuthToken] = useState(() => {
+    // Initialize from sessionStorage
+    return sessionStorage.getItem('authToken') || null;
+  });
+  const [userRole, setUserRole] = useState(() => {
+    // Initialize from sessionStorage
+    return sessionStorage.getItem('userRole') || null;
+  });
+  const [dbUser, setDbUser] = useState(() => {
+    // Initialize from sessionStorage
+    const storedUser = sessionStorage.getItem('dbUser');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
   const refreshUser = async () => {
     if (authToken) {
@@ -666,9 +676,19 @@ const useAuth = () => {
           headers: { 'Authorization': `Bearer ${authToken}` }
         });
         setDbUser(response.data);
+        sessionStorage.setItem('dbUser', JSON.stringify(response.data));
         console.log('✅ User data refreshed:', response.data);
       } catch (error) {
         console.error('Error refreshing user:', error);
+        // Clear invalid session data
+        if (error.response?.status === 401) {
+          sessionStorage.removeItem('authToken');
+          sessionStorage.removeItem('userRole');
+          sessionStorage.removeItem('dbUser');
+          setAuthToken(null);
+          setUserRole(null);
+          setDbUser(null);
+        }
       }
     }
   };
@@ -680,6 +700,7 @@ const useAuth = () => {
           // DIRECT role from Clerk metadata - highest priority
           const directRole = user.publicMetadata?.role || 'client';
           setUserRole(directRole);
+          sessionStorage.setItem('userRole', directRole);
           console.log('🔍 Clerk Role:', directRole);
           console.log('✅ Set role to:', directRole);
 
@@ -687,6 +708,7 @@ const useAuth = () => {
           try {
             const token = await session.getToken();
             setAuthToken(token);
+            sessionStorage.setItem('authToken', token);
             console.log('🎯 Token received successfully');
             
             // Register/update user in our database
@@ -702,12 +724,14 @@ const useAuth = () => {
             });
             
             setDbUser(response.data);
+            sessionStorage.setItem('dbUser', JSON.stringify(response.data));
             console.log('✅ User registered in database');
             
           } catch (tokenError) {
             console.error('Token error:', tokenError);
             console.log('🎯 Setting role without token');
             setUserRole(directRole);
+            sessionStorage.setItem('userRole', directRole);
           }
           
         } catch (error) {
@@ -715,6 +739,7 @@ const useAuth = () => {
           // Fallback role setting
           const directRole = user.publicMetadata?.role || 'client';
           setUserRole(directRole);
+          sessionStorage.setItem('userRole', directRole);
         }
       } else if (isLoaded && user) {
         // If no session but user exists, still set role
