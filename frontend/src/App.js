@@ -8040,9 +8040,9 @@ const SupplierManagement = () => {
               <div className="flex justify-center items-center h-32">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
               </div>
-            ) : (suppliers || []).length > 0 ? (
+            ) : Array.isArray(suppliers) && suppliers.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {(suppliers || []).map((supplier) => (
+                {suppliers.map((supplier) => (
                   <div key={supplier.id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-all">
                     <div className="flex justify-between items-start mb-3">
                       <h3 className="text-lg font-bold text-gray-800">{supplier.company_name}</h3>
