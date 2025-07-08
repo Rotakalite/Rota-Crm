@@ -845,22 +845,43 @@ async def download_belge_main_app(document_id: str):
         if not document:
             raise HTTPException(status_code=404, detail="Belge bulunamadı")
         
-        file_path = document.get("file_path")
-        if not file_path or not os.path.exists(file_path):
-            raise HTTPException(status_code=404, detail="Dosya bulunamadı")
-        
-        original_filename = document.get("original_filename", "document.pdf")
-        
-        logging.info(f"✅ Returning file: {original_filename}")
-        
-        return FileResponse(
-            path=file_path,
-            filename=original_filename,
-            headers={
-                "Content-Disposition": f'attachment; filename="{original_filename}"',
-                "Content-Type": "application/octet-stream"
-            }
-        )
+        # RAILWAY PERSISTENT STORAGE FIX: Download from MongoDB GridFS
+        if document.get("gridfs_upload", False) and document.get("file_id"):
+            # New GridFS files
+            try:
+                file_content = await asyncio.to_thread(mongo_gridfs.get, document["file_id"])
+                file_data = file_content.read()
+                original_filename = document.get("original_filename", "document.pdf")
+                
+                logging.info(f"✅ Downloaded from GridFS: {original_filename} ({len(file_data)} bytes)")
+                
+                return Response(
+                    content=file_data,
+                    media_type="application/octet-stream",
+                    headers={
+                        "Content-Disposition": f'attachment; filename="{original_filename}"'
+                    }
+                )
+            except Exception as e:
+                logging.error(f"❌ GridFS download error: {str(e)}")
+                raise HTTPException(status_code=404, detail="GridFS dosya bulunamadı")
+        else:
+            # Legacy disk files (will be 404 after restart)
+            file_path = document.get("file_path")
+            if not file_path or not os.path.exists(file_path):
+                raise HTTPException(status_code=404, detail="Dosya bulunamadı (disk storage deprecated)")
+            
+            original_filename = document.get("original_filename", "document.pdf")
+            logging.info(f"✅ Returning legacy file: {original_filename}")
+            
+            return FileResponse(
+                path=file_path,
+                filename=original_filename,
+                headers={
+                    "Content-Disposition": f'attachment; filename="{original_filename}"',
+                    "Content-Type": "application/octet-stream"
+                }
+            )
         
     except HTTPException:
         raise
