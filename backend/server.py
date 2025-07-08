@@ -7671,6 +7671,14 @@ async def test_auto_folder_creation():
 # EMAIL ENDPOINTS - MAIN APP (WORKAROUND FOR ROUTER ISSUES)
 # ==========================================
 
+@app.get("/api/email/status")
+async def email_status():
+    """Check email service status"""
+    return {
+        "email_service_available": email_service is not None,
+        "templates_status": "updated"
+    }
+
 @app.post("/api/email/test-main")
 async def send_test_email_main():
     """Send test email - main app"""
