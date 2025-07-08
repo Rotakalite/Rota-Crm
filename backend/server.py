@@ -745,12 +745,12 @@ async def upload_belge_main_app(
         # Generate document ID and save file
         document_id = str(uuid.uuid4())
         
-        # RAILWAY PERSISTENT STORAGE FIX: Store in MongoDB instead of disk
-        # Save file content as binary in MongoDB GridFS
+        # EMERGENCY FIX: Direct MongoDB Binary Storage (GridFS yerine)
+        # Save file content as binary in MongoDB document
         file_content = await file.read()
         file_size = len(file_content)
         
-        # Store file content in MongoDB GridFS
+        logging.info(f"✅ File content read: {file_size} bytes, storing directly in MongoDB")
         file_id = await mongo_gridfs.upload_file(
             file_content,
             file.filename,
