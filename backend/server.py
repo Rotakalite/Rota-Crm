@@ -5784,13 +5784,19 @@ async def send_training_notification(
         if not client_email or "@" not in client_email or "." not in client_email:
             raise HTTPException(status_code=400, detail=f"Geçersiz email adresi: {client_email}. Lütfen client email'ini düzeltin.")
         
+        # TRAINING DATA FIX: Handle missing fields with fallbacks
+        training_name = training.get("name") or training.get("training_name") or "Eğitim adı belirtilmemiş"
+        training_date = training.get("training_date") or "Tarih belirtilmemiş"
+        trainer = training.get("trainer") or "Eğitmen belirtilmemiş"
+        participant_count = training.get("participant_count") or 0
+        
         # Send email
         await email_service.send_training_notification(
             recipient_email=client_email,
-            training_name=training["name"],
-            training_date=training["training_date"],
-            trainer=training["trainer"],
-            participant_count=training["participant_count"],
+            training_name=training_name,
+            training_date=training_date,
+            trainer=trainer,
+            participant_count=participant_count,
             client_name=client["name"]
         )
         
