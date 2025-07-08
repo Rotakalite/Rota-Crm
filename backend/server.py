@@ -6310,6 +6310,7 @@ async def create_supplier(
             company_name=supplier_data.company_name,
             address=supplier_data.address,
             category=supplier_data.category,
+            certifications=supplier_data.certifications,
             local_supplier=supplier_data.local_supplier,
             description=supplier_data.description
         ).dict()
