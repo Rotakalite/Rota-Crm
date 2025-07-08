@@ -9618,11 +9618,21 @@ const SupplierManagement = () => {
                   <div key={supplier.id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-all">
                     <div className="flex justify-between items-start mb-3">
                       <h3 className="text-lg font-bold text-gray-800">{supplier.company_name}</h3>
-                      {supplier.local_supplier && (
-                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-                          🏠 Yerel
-                        </span>
-                      )}
+                      <div className="flex items-center space-x-2">
+                        {supplier.local_supplier && (
+                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                            🏠 Yerel
+                          </span>
+                        )}
+                        {userRole === 'admin' && (
+                          <button
+                            onClick={() => deleteSupplier(supplier.id)}
+                            className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                          >
+                            🗑️ Sil
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <div className="space-y-2 text-sm text-gray-600">
                       <p><strong>🏷️ Kategori:</strong> {supplier.category}</p>
