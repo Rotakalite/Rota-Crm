@@ -8468,39 +8468,54 @@ const SupplierManagement = () => {
       {/* Content */}
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         
-        {/* Client Selection */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">1. Müşteri Seçimi</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Müşteri Seçin
-              </label>
-              <select
-                value={selectedClient}
-                onChange={(e) => setSelectedClient(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">-- Müşteri Seçin --</option>
-                {Array.isArray(clients) && clients.map((client) => (
-                  <option key={client.id} value={client.id}>
-                    {client.name || client.hotel_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {selectedClient && (
-              <div className="flex items-end">
-                <button
-                  onClick={() => setShowAddForm(!showAddForm)}
-                  className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+        {/* Client Selection - Only for Admin */}
+        {userRole === 'admin' && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">1. Müşteri Seçimi</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Müşteri Seçin
+                </label>
+                <select
+                  value={selectedClient}
+                  onChange={(e) => setSelectedClient(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  {showAddForm ? '❌ İptal' : '➕ Tedarikçi Ekle'}
-                </button>
+                  <option value="">-- Müşteri Seçin --</option>
+                  {Array.isArray(clients) && clients.map((client) => (
+                    <option key={client.id} value={client.id}>
+                      {client.name || client.hotel_name}
+                    </option>
+                  ))}
+                </select>
               </div>
-            )}
+              {selectedClient && (
+                <div className="flex items-end">
+                  <button
+                    onClick={() => setShowAddForm(!showAddForm)}
+                    className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                  >
+                    {showAddForm ? '❌ İptal' : '➕ Tedarikçi Ekle'}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Client Info - For Client Users */}
+        {userRole === 'client' && selectedClient && Array.isArray(clients) && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">📋 Tedarikçi Listesi</h2>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-blue-800">
+                <strong>🏢 İşletme:</strong> {clients.find(c => c.id === selectedClient)?.name || clients.find(c => c.id === selectedClient)?.hotel_name}
+              </p>
+              <p className="text-blue-600 text-sm mt-1">Sadece kendi tedarikçilerinizi görüntüleyebilirsiniz.</p>
+            </div>
+          </div>
+        )}
 
         {/* Add Supplier Form */}
         {showAddForm && selectedClient && (
