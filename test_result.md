@@ -435,7 +435,9 @@ test_plan:
     - "Document Management API endpoints test"
     - "Level 4 Folder Structure Implementation"
     - "Document Management Client Filtering"
-  stuck_tasks: []
+    - "Document Management Security Fix"
+  stuck_tasks: 
+    - "Document Management Client Filtering"
   test_all: false
   test_priority: "high_first"
 
