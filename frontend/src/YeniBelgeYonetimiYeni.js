@@ -22,9 +22,16 @@ const YeniBelgeYonetimiYeni = () => {
     const getAuthToken = async () => {
       if (user) {
         try {
-          const session = await user.getSession();
-          const token = await session.getToken();
-          setAuthToken(token);
+          // Clerk user'dan session'ı al
+          const session = await user.primaryEmailAddress?.getSession();
+          if (!session) {
+            // Alternatif yöntem
+            const token = await user.getToken();
+            setAuthToken(token);
+          } else {
+            const token = await session.getToken();
+            setAuthToken(token);
+          }
           console.log('🎫 Auth token retrieved successfully');
           
           // Kullanıcı rolünü backend'den al
