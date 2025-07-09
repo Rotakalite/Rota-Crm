@@ -10999,19 +10999,6 @@ const MainApp = () => {
     userRole={userRole} 
     handleNavigate={handleNavigate} 
   />;
-
-  // STEP 4: Show consultant dashboard for consultant users
-  if (userRole === 'consultant') {
-    return <ConsultantApp />;
-  }
-
-  // STEP 5: Show main admin/client app
-  return <MainAdminClientApp 
-    activeTab={activeTab} 
-    setActiveTab={setActiveTab} 
-    userRole={userRole} 
-    handleNavigate={handleNavigate} 
-  />;
 };
 
 // Consultant App - Separate app for consultants
