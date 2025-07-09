@@ -65,8 +65,12 @@ const YeniBelgeYonetimiYeni = () => {
   }, [authToken]);
 
   const loadClients = async () => {
+    if (!authToken) return;
+    
     try {
-      const response = await axios.get(`${API}/api/clients`);
+      const response = await axios.get(`${API}/api/clients`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
       let allClients = response.data || [];
       
       // ROLE-BASED FILTERING: Client users only see their own data
@@ -75,6 +79,7 @@ const YeniBelgeYonetimiYeni = () => {
       }
       
       setClients(allClients);
+      console.log('👥 Clients loaded:', allClients.length);
     } catch (error) {
       console.error('❌ Client load error:', error);
     }
