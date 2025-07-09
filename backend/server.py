@@ -641,6 +641,82 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
         logging.error(f"❌ Unexpected token verification error: {str(e)}")
         raise HTTPException(status_code=401, detail="Token verification failed")
 
+async def get_current_user_for_role_setup(payload: dict = Depends(verify_token)):
+    """Get current user for role setup - allows users without role"""
+    clerk_user_id = payload.get("sub")
+    if not clerk_user_id:
+        logging.error("❌ Missing user ID in token payload")
+        raise HTTPException(status_code=401, detail="Invalid token: missing user ID")
+    
+    logging.info(f"🔍 ROLE SETUP: Looking for user with Clerk ID: {clerk_user_id}")
+    
+    user = await db.users.find_one({"clerk_user_id": clerk_user_id})
+    if not user:
+        logging.warning(f"⚠️ User not found in database for clerk_user_id: {clerk_user_id}")
+        
+        # Extract user info from Clerk token
+        user_email = payload.get("email")
+        if not user_email:
+            # Try alternative email fields
+            email_addresses = payload.get("email_addresses", [])
+            if email_addresses and isinstance(email_addresses, list) and len(email_addresses) > 0:
+                user_email = email_addresses[0].get("email_address", "unknown@example.com")
+            else:
+                user_email = "unknown@example.com"
+        
+        # Try to build full name from available fields
+        given_name = payload.get("given_name", "")
+        family_name = payload.get("family_name", "")
+        full_name = payload.get("name", "")
+        
+        if full_name:
+            user_name = full_name
+        elif given_name or family_name:
+            user_name = f"{given_name} {family_name}".strip()
+        else:
+            user_name = user_email.split("@")[0].title()  # Use email prefix as name
+        
+        logging.info(f"👤 CREATING NEW USER FOR ROLE SETUP - Name: '{user_name}', Email: '{user_email}'")
+        
+        # Create new user in database WITHOUT role
+        new_user = {
+            "id": str(uuid.uuid4()),
+            "clerk_user_id": clerk_user_id,
+            "name": user_name,
+            "email": user_email,
+            "role": None,  # No role yet - will be set by role setup
+            "client_id": "",
+            "created_at": datetime.utcnow()
+        }
+        
+        await db.users.insert_one(new_user)
+        user = new_user
+        logging.info(f"✅ NEW USER CREATED FOR ROLE SETUP: {user['id']} - {user['name']} ({user['email']})")
+    else:
+        # Eski user kayıtlarında 'id' field'ı olmayabilir, kontrol edelim
+        if 'id' not in user:
+            # Eski kayıt için UUID oluştur ve güncelle
+            user_id = str(uuid.uuid4())
+            await db.users.update_one(
+                {"clerk_user_id": clerk_user_id},
+                {"$set": {"id": user_id}}
+            )
+            user['id'] = user_id
+            logging.info(f"🔧 UPDATED OLD USER RECORD with ID: {user_id}")
+        
+        logging.info(f"✅ USER FOUND FOR ROLE SETUP: {user['id']} - {user['name']} ({user['email']}) - Role: {user.get('role', 'None')}")
+    
+    # Return user data as dict (not User object since role might be None)
+    return {
+        "id": user["id"],
+        "clerk_user_id": user["clerk_user_id"],
+        "name": user["name"],
+        "email": user["email"],
+        "role": user.get("role"),
+        "client_id": user.get("client_id", ""),
+        "created_at": user["created_at"]
+    }
+
 async def get_current_user(payload: dict = Depends(verify_token)):
     clerk_user_id = payload.get("sub")
     if not clerk_user_id:
