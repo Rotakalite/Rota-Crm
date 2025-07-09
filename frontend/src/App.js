@@ -9775,6 +9775,237 @@ const SupplierManagement = () => {
 };
 
 // Main App Component
+// Consultant Management Component
+const ConsultantManagement = () => {
+  const { authToken, userRole } = useAuth();
+  const [consultants, setConsultants] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedConsultant, setSelectedConsultant] = useState(null);
+  const API = getApiUrl();
+
+  const fetchConsultants = async () => {
+    if (!authToken) return;
+    
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/consultants`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setConsultants(response.data || []);
+    } catch (error) {
+      console.error('Error fetching consultants:', error);
+      setConsultants([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchClients = async () => {
+    if (!authToken) return;
+    
+    try {
+      const response = await axios.get(`${API}/clients`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setClients(response.data || []);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      setClients([]);
+    }
+  };
+
+  const fetchConsultantClients = async (consultantId) => {
+    if (!authToken) return [];
+    
+    try {
+      const response = await axios.get(`${API}/consultants/${consultantId}/clients`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      return response.data || [];
+    } catch (error) {
+      console.error('Error fetching consultant clients:', error);
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    fetchConsultants();
+    fetchClients();
+  }, [authToken]);
+
+  const handleConsultantClick = async (consultant) => {
+    setSelectedConsultant(consultant);
+    const consultantClients = await fetchConsultantClients(consultant.id);
+    setSelectedConsultant({...consultant, clients: consultantClients});
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            👔 Danışman Yönetimi
+          </h1>
+          <p className="text-gray-600">
+            Sistemdeki danışmanları görüntüleyin ve yönetin
+          </p>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Toplam Danışman</p>
+                <p className="text-2xl font-bold text-gray-900">{consultants.length}</p>
+              </div>
+              <div className="bg-blue-100 p-3 rounded-full">
+                <span className="text-blue-600 text-xl">👔</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Toplam Müşteri</p>
+                <p className="text-2xl font-bold text-gray-900">{clients.length}</p>
+              </div>
+              <div className="bg-green-100 p-3 rounded-full">
+                <span className="text-green-600 text-xl">🏨</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Atanmamış Müşteri</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {clients.filter(c => !c.consultant_id).length}
+                </p>
+              </div>
+              <div className="bg-orange-100 p-3 rounded-full">
+                <span className="text-orange-600 text-xl">⚠️</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Consultants List */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-6">
+              📋 Danışman Listesi
+            </h2>
+            
+            <div className="space-y-4">
+              {consultants.map((consultant) => (
+                <div 
+                  key={consultant.id} 
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    selectedConsultant?.id === consultant.id
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => handleConsultantClick(consultant)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-bold text-gray-800 flex items-center">
+                        {consultant.company_name === 'ROTA' ? (
+                          <>
+                            🏆 {consultant.company_name}
+                            <span className="ml-2 px-2 py-1 bg-gold-100 text-gold-800 text-xs rounded-full">
+                              Sistem Kurucusu
+                            </span>
+                          </>
+                        ) : (
+                          consultant.company_name
+                        )}
+                      </h3>
+                      <p className="text-sm text-gray-600">{consultant.authorized_person_name}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500">
+                        {clients.filter(c => c.consultant_id === consultant.id).length} müşteri
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {consultant.is_active ? '🟢 Aktif' : '🔴 Pasif'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Consultant Details */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-6">
+              🔍 Danışman Detayları
+            </h2>
+            
+            {selectedConsultant ? (
+              <div className="space-y-6">
+                <div className="border-b pb-4">
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">
+                    {selectedConsultant.company_name}
+                  </h3>
+                  <div className="grid grid-cols-1 gap-2 text-sm">
+                    <p><strong>Yetkili:</strong> {selectedConsultant.authorized_person_name}</p>
+                    <p><strong>Email:</strong> {selectedConsultant.email}</p>
+                    <p><strong>Telefon:</strong> {selectedConsultant.phone}</p>
+                    <p><strong>Adres:</strong> {selectedConsultant.address}</p>
+                    <p><strong>Kayıt Tarihi:</strong> {new Date(selectedConsultant.created_at).toLocaleDateString('tr-TR')}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-bold text-gray-800 mb-3">
+                    🏨 Müşterileri ({selectedConsultant.clients?.length || 0})
+                  </h4>
+                  {selectedConsultant.clients && selectedConsultant.clients.length > 0 ? (
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                      {selectedConsultant.clients.map((client) => (
+                        <div key={client.id} className="p-3 bg-gray-50 rounded-lg">
+                          <h5 className="font-medium text-gray-800">{client.hotel_name}</h5>
+                          <p className="text-sm text-gray-600">{client.contact_person}</p>
+                          <p className="text-xs text-gray-500">{client.email}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <div className="text-4xl mb-2">🏨</div>
+                      <p>Henüz müşteri yok</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-500">
+                <div className="text-6xl mb-4">👔</div>
+                <p className="text-lg mb-2">Danışman Seçin</p>
+                <p className="text-sm">Detayları görüntülemek için bir danışman seçin</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Role Setup Component - After Clerk Registration
 const RoleSetup = ({ onComplete }) => {
   const [step, setStep] = useState('role-selection');
