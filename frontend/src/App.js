@@ -2634,11 +2634,22 @@ const Header = () => {
             <span className={`inline-block px-2 py-1 text-xs rounded-full ${
               userRole === 'admin' 
                 ? 'bg-purple-100 text-purple-800' 
+                : userRole === 'consultant'
+                ? 'bg-green-100 text-green-800'
                 : 'bg-blue-100 text-blue-800'
             }`}>
-              {userRole === 'admin' ? 'Admin' : 'Müşteri'}
+              {userRole === 'admin' ? 'Admin' : userRole === 'consultant' ? 'Danışman' : 'Müşteri'}
             </span>
           </div>
+          
+          <button
+            onClick={handleManualRefresh}
+            className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition-colors text-sm"
+            title="Token Yenile"
+          >
+            🔄 Token Yenile
+          </button>
+          
           <button
             onClick={handleSignOut}
             className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
