@@ -6256,6 +6256,29 @@ const ClientDocuments = () => {
     }
   };
 
+  const fetchFoldersForClient = async (clientId) => {
+    if (!authToken || !clientId) return;
+    
+    try {
+      const headers = { 'Authorization': `Bearer ${authToken}` };
+      console.log('📁 Fetching folders for client:', clientId);
+      
+      const response = await axios.get(`${API}/folders`, { headers });
+      console.log('📁 All folders response:', response.data);
+      
+      // Filter folders for selected client
+      const allFolders = Array.isArray(response.data) ? response.data : [];
+      const clientFolders = allFolders.filter(folder => folder.client_id === clientId);
+      
+      console.log('📁 Client folders filtered:', clientFolders.length, 'folders for client', clientId);
+      setFolders(clientFolders);
+      
+    } catch (error) {
+      console.error("❌ Error fetching client folders:", error);
+      setFolders([]);
+    }
+  };
+
   const uploadLargeFile = async (file, metadata) => {
     // Her dosya için direkt upload kullan - chunk karmaşıklığı kaldırıldı
     console.log(`📤 Uploading file: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
