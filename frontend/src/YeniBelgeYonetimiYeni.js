@@ -93,7 +93,7 @@ const YeniBelgeYonetimiYeni = () => {
     if (!authToken) return;
     
     try {
-      const response = await axios.get(`${API}/api/folders`, {
+      const response = await axios.get(`${API}/folders`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       const allFolders = response.data || [];
