@@ -3,6 +3,43 @@ import axios from 'axios';
 import { useUser } from '@clerk/clerk-react';
 
 const YeniBelgeYonetimiYeni = () => {
+  const { user } = useUser();
+  
+  // Auth context'i manuel olarak kontrol edelim
+  const [authToken, setAuthToken] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+  const [dbUser, setDbUser] = useState(null);
+  
+  // Production-ready API URL
+  const API = 'https://rota-crm-production.up.railway.app';
+  
+  // Auth token'i al
+  useEffect(() => {
+    const getAuthToken = async () => {
+      if (user) {
+        try {
+          const session = await user.getSession();
+          const token = await session.getToken();
+          setAuthToken(token);
+          console.log('🎫 Auth token retrieved successfully');
+          
+          // Kullanıcı rolünü backend'den al
+          const response = await axios.get(`${API}/api/me`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          
+          setUserRole(response.data.role);
+          setDbUser(response.data);
+          console.log('👤 User role:', response.data.role);
+        } catch (error) {
+          console.error('❌ Auth error:', error);
+        }
+      }
+    };
+    
+    getAuthToken();
+  }, [user]);
+  
   // UI Flow States
   const [currentView, setCurrentView] = useState('client-selection'); // 'client-selection', 'folder-tree', 'documents'
   const [clients, setClients] = useState([]);
