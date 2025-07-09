@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Rota-CRM frontend application'ında tedarikçi modülü problemi test edilmesi gerekiyor. Kullanıcı tedarikçi modülüne bastığında otomatik logout oluyor."
+user_problem_statement: "Document Management modülünde filtreleme sorunu var. Tüm 905 klasör getiriliyor ama client seçildiğinde 0 klasör gösteriliyor. Ayrıca eski basit tasarım yerine şık YeniBelgeYonetimiYeni tasarımı kullanılmalı. Filtreleme çalışması ve şık UI geri getirilmesi gerekiyor."
 
 backend:
   - task: "Fix CORS Policy Error for Vercel Deployment"
