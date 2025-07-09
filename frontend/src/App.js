@@ -10987,6 +10987,273 @@ const MainApp = () => {
     return <ClientSetupForm onComplete={handleSetupComplete} onSkip={handleSetupSkip} />;
   }
 
+  // STEP 4: Show consultant dashboard for consultant users
+  if (userRole === 'consultant') {
+    return <ConsultantApp />;
+  }
+
+  // STEP 5: Show main admin/client app
+  return <MainAdminClientApp 
+    activeTab={activeTab} 
+    setActiveTab={setActiveTab} 
+    userRole={userRole} 
+    handleNavigate={handleNavigate} 
+  />;
+};
+
+// Consultant App - Separate app for consultants
+const ConsultantApp = () => {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const { userRole, dbUser } = useAuth();
+
+  const handleNavigate = (tab) => {
+    setActiveTab(tab);
+  };
+
+  const renderConsultantContent = () => {
+    switch(activeTab) {
+      case 'dashboard':
+        return <ConsultantDashboard onNavigate={handleNavigate} />;
+      case 'my-clients':
+        return <ConsultantClientManagement onNavigate={handleNavigate} />;
+      case 'client-assignment':
+        return <ConsultantClientAssignment />;
+      case 'reports':
+        return <ConsultantReports />;
+      case 'profile':
+        return <ConsultantProfile />;
+      case 'consumption':
+        return <ConsumptionManagement onNavigate={handleNavigate} />;
+      case 'analytics':
+        return <ConsumptionAnalytics />;
+      case 'carbon':
+        return <CarbonFootprint />;
+      case 'personnel':
+        return <PersonnelManagement />;
+      case 'sustainability-targets':
+        return <SustainabilityTargets />;
+      case 'waste-management':
+        return <WasteManagement />;
+      case 'suppliers':
+        return <SupplierManagement />;
+      case 'document-management':
+        return <DocumentManagement />;
+      case 'training':
+        return <TrainingManagement />;
+      case 'email-management':
+        return <EmailManagement />;
+      case 'whatsapp':
+        return <WhatsAppManagement />;
+      default:
+        return <ConsultantDashboard onNavigate={handleNavigate} />;
+    }
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-100">
+      {/* Consultant Sidebar */}
+      <div className="w-64 bg-white shadow-lg">
+        <div className="p-4">
+          <h2 className="text-xl font-bold text-gray-800">👔 Danışman Paneli</h2>
+          <p className="text-sm text-gray-600">{dbUser?.name || 'Danışman'}</p>
+        </div>
+        
+        <nav className="mt-8">
+          <div className="px-4 py-2">
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Ana Menü</h3>
+          </div>
+          
+          <ul className="mt-2 space-y-1">
+            <li>
+              <button
+                onClick={() => setActiveTab('dashboard')}
+                className={`w-full text-left px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'dashboard' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                📊 Dashboard
+              </button>
+            </li>
+            
+            <li>
+              <button
+                onClick={() => setActiveTab('my-clients')}
+                className={`w-full text-left px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'my-clients' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                🏨 Müşterilerim
+              </button>
+            </li>
+            
+            <li>
+              <button
+                onClick={() => setActiveTab('client-assignment')}
+                className={`w-full text-left px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'client-assignment' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                🔄 Müşteri Atama
+              </button>
+            </li>
+            
+            <li>
+              <button
+                onClick={() => setActiveTab('reports')}
+                className={`w-full text-left px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'reports' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                📈 Raporlarım
+              </button>
+            </li>
+            
+            <li>
+              <button
+                onClick={() => setActiveTab('profile')}
+                className={`w-full text-left px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'profile' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                👤 Profil
+              </button>
+            </li>
+          </ul>
+          
+          <div className="px-4 py-2 mt-8">
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Müşteri Yönetimi</h3>
+          </div>
+          
+          <ul className="mt-2 space-y-1">
+            <li>
+              <button
+                onClick={() => setActiveTab('consumption')}
+                className={`w-full text-left px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'consumption' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                📊 Tüketim Takibi
+              </button>
+            </li>
+            
+            <li>
+              <button
+                onClick={() => setActiveTab('carbon')}
+                className={`w-full text-left px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'carbon' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                🌱 Karbon Ayak İzi
+              </button>
+            </li>
+            
+            <li>
+              <button
+                onClick={() => setActiveTab('personnel')}
+                className={`w-full text-left px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'personnel' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                👥 Personel Yönetimi
+              </button>
+            </li>
+            
+            <li>
+              <button
+                onClick={() => setActiveTab('suppliers')}
+                className={`w-full text-left px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'suppliers' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                🏭 Tedarikçi Yönetimi
+              </button>
+            </li>
+            
+            <li>
+              <button
+                onClick={() => setActiveTab('sustainability-targets')}
+                className={`w-full text-left px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'sustainability-targets' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                🎯 Sürdürülebilirlik Hedefleri
+              </button>
+            </li>
+            
+            <li>
+              <button
+                onClick={() => setActiveTab('document-management')}
+                className={`w-full text-left px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'document-management' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                📁 Doküman Yönetimi
+              </button>
+            </li>
+            
+            <li>
+              <button
+                onClick={() => setActiveTab('training')}
+                className={`w-full text-left px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'training' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                🎓 Eğitim Yönetimi
+              </button>
+            </li>
+            
+            <li>
+              <button
+                onClick={() => setActiveTab('email-management')}
+                className={`w-full text-left px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'email-management' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                📧 Email Yönetimi
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+          {renderConsultantContent()}
+        </main>
+      </div>
+    </div>
+  );
+};
+
+// Main Admin/Client App
+const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate }) => {
   const renderContent = () => {
     switch(activeTab) {
       case 'dashboard':
