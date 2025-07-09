@@ -10193,6 +10193,8 @@ const MainApp = () => {
     switch(activeTab) {
       case 'dashboard':
         return <Dashboard onNavigate={handleNavigate} />;
+      case 'consultants':
+        return <ConsultantManagement />;
       case 'clients':
         return <ClientManagement onNavigate={handleNavigate} />;
       case 'consumption':
