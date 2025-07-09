@@ -9782,8 +9782,24 @@ const ConsultantManagement = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedConsultant, setSelectedConsultant] = useState(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [showClientAssignment, setShowClientAssignment] = useState(false);
+  const [editingConsultant, setEditingConsultant] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [assigningClient, setAssigningClient] = useState(null);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [consultantToDelete, setConsultantToDelete] = useState(null);
+  const [formData, setFormData] = useState({
+    company_name: '',
+    authorized_person_name: '',
+    email: '',
+    phone: '',
+    address: ''
+  });
   const API = getApiUrl();
 
+  // Fetch consultants
   const fetchConsultants = async () => {
     if (!authToken) return;
     
@@ -9792,7 +9808,16 @@ const ConsultantManagement = () => {
       const response = await axios.get(`${API}/consultants`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      setConsultants(response.data || []);
+      const consultantList = response.data || [];
+      
+      // Sort consultants with ROTA first
+      const sortedConsultants = consultantList.sort((a, b) => {
+        if (a.company_name === 'ROTA') return -1;
+        if (b.company_name === 'ROTA') return 1;
+        return a.company_name.localeCompare(b.company_name);
+      });
+      
+      setConsultants(sortedConsultants);
     } catch (error) {
       console.error('Error fetching consultants:', error);
       setConsultants([]);
@@ -9801,6 +9826,7 @@ const ConsultantManagement = () => {
     }
   };
 
+  // Fetch clients
   const fetchClients = async () => {
     if (!authToken) return;
     
@@ -9815,6 +9841,7 @@ const ConsultantManagement = () => {
     }
   };
 
+  // Fetch consultant clients
   const fetchConsultantClients = async (consultantId) => {
     if (!authToken) return [];
     
@@ -9829,16 +9856,154 @@ const ConsultantManagement = () => {
     }
   };
 
-  useEffect(() => {
-    fetchConsultants();
-    fetchClients();
-  }, [authToken]);
+  // Add new consultant
+  const handleAddConsultant = async (e) => {
+    e.preventDefault();
+    
+    try {
+      await axios.post(`${API}/consultants`, formData, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      setFormData({
+        company_name: '',
+        authorized_person_name: '',
+        email: '',
+        phone: '',
+        address: ''
+      });
+      setShowAddForm(false);
+      fetchConsultants();
+      alert('Danışman başarıyla eklendi!');
+    } catch (error) {
+      console.error('Error adding consultant:', error);
+      alert('Danışman ekleme sırasında hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
 
+  // Edit consultant
+  const handleEditConsultant = async (e) => {
+    e.preventDefault();
+    
+    try {
+      await axios.put(`${API}/consultants/${editingConsultant.id}`, formData, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      setFormData({
+        company_name: '',
+        authorized_person_name: '',
+        email: '',
+        phone: '',
+        address: ''
+      });
+      setShowEditForm(false);
+      setEditingConsultant(null);
+      fetchConsultants();
+      alert('Danışman başarıyla güncellendi!');
+    } catch (error) {
+      console.error('Error updating consultant:', error);
+      alert('Danışman güncelleme sırasında hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Delete consultant
+  const handleDeleteConsultant = async () => {
+    if (!consultantToDelete) return;
+    
+    try {
+      await axios.delete(`${API}/consultants/${consultantToDelete.id}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      setShowConfirmDelete(false);
+      setConsultantToDelete(null);
+      fetchConsultants();
+      alert('Danışman başarıyla silindi!');
+    } catch (error) {
+      console.error('Error deleting consultant:', error);
+      alert('Danışman silme sırasında hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Assign client to consultant
+  const handleAssignClient = async (consultantId) => {
+    if (!assigningClient) return;
+    
+    try {
+      await axios.put(`${API}/clients/${assigningClient.id}/consultant`, {
+        consultant_id: consultantId
+      }, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      setAssigningClient(null);
+      setShowClientAssignment(false);
+      fetchClients();
+      fetchConsultants();
+      alert('Müşteri başarıyla danışmana atandı!');
+    } catch (error) {
+      console.error('Error assigning client:', error);
+      alert('Müşteri atama sırasında hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Assign unassigned clients to ROTA
+  const handleAssignUnassignedToRota = async () => {
+    try {
+      const response = await axios.post(`${API}/consultants/assign-unassigned`, {}, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      fetchClients();
+      fetchConsultants();
+      alert(`${response.data.assigned_count} müşteri ROTA'ya atandı!`);
+    } catch (error) {
+      console.error('Error assigning unassigned clients:', error);
+      alert('Müşteri atama sırasında hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Handle consultant selection
   const handleConsultantClick = async (consultant) => {
     setSelectedConsultant(consultant);
     const consultantClients = await fetchConsultantClients(consultant.id);
     setSelectedConsultant({...consultant, clients: consultantClients});
   };
+
+  // Start editing consultant
+  const startEditConsultant = (consultant) => {
+    setEditingConsultant(consultant);
+    setFormData({
+      company_name: consultant.company_name,
+      authorized_person_name: consultant.authorized_person_name,
+      email: consultant.email,
+      phone: consultant.phone,
+      address: consultant.address
+    });
+    setShowEditForm(true);
+  };
+
+  // Start deleting consultant
+  const startDeleteConsultant = (consultant) => {
+    setConsultantToDelete(consultant);
+    setShowConfirmDelete(true);
+  };
+
+  // Filter consultants based on search term
+  const filteredConsultants = consultants.filter(consultant =>
+    consultant.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    consultant.authorized_person_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    consultant.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Get unassigned clients
+  const unassignedClients = clients.filter(client => !client.consultant_id);
+
+  useEffect(() => {
+    fetchConsultants();
+    fetchClients();
+  }, [authToken]);
 
   if (loading) {
     return (
@@ -9851,6 +10016,7 @@ const ConsultantManagement = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto">
+        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             👔 Danışman Yönetimi
@@ -9858,6 +10024,28 @@ const ConsultantManagement = () => {
           <p className="text-gray-600">
             Sistemdeki danışmanları görüntüleyin ve yönetin
           </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-wrap gap-4 mb-8">
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors flex items-center gap-2"
+          >
+            <span>➕</span> Yeni Danışman Ekle
+          </button>
+          <button
+            onClick={() => setShowClientAssignment(true)}
+            className="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors flex items-center gap-2"
+          >
+            <span>🔄</span> Müşteri Atama
+          </button>
+          <button
+            onClick={handleAssignUnassignedToRota}
+            className="bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors flex items-center gap-2"
+          >
+            <span>🏆</span> Atanmamışları ROTA'ya Ata ({unassignedClients.length})
+          </button>
         </div>
 
         {/* Stats Cards */}
@@ -9890,9 +10078,7 @@ const ConsultantManagement = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Atanmamış Müşteri</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {clients.filter(c => !c.consultant_id).length}
-                </p>
+                <p className="text-2xl font-bold text-gray-900">{unassignedClients.length}</p>
               </div>
               <div className="bg-orange-100 p-3 rounded-full">
                 <span className="text-orange-600 text-xl">⚠️</span>
@@ -9901,15 +10087,29 @@ const ConsultantManagement = () => {
           </div>
         </div>
 
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Danışman ara (şirket adı, yetkili kişi, email)..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Consultants List */}
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-6">
-              📋 Danışman Listesi
+              📋 Danışman Listesi ({filteredConsultants.length})
             </h2>
             
-            <div className="space-y-4">
-              {consultants.map((consultant) => (
+            <div className="space-y-4 max-h-96 overflow-y-auto">
+              {filteredConsultants.map((consultant) => (
                 <div 
                   key={consultant.id} 
                   className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
@@ -9920,12 +10120,12 @@ const ConsultantManagement = () => {
                   onClick={() => handleConsultantClick(consultant)}
                 >
                   <div className="flex items-center justify-between">
-                    <div>
+                    <div className="flex-1">
                       <h3 className="font-bold text-gray-800 flex items-center">
                         {consultant.company_name === 'ROTA' ? (
                           <>
                             🏆 {consultant.company_name}
-                            <span className="ml-2 px-2 py-1 bg-gold-100 text-gold-800 text-xs rounded-full">
+                            <span className="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
                               Sistem Kurucusu
                             </span>
                           </>
@@ -9934,14 +10134,39 @@ const ConsultantManagement = () => {
                         )}
                       </h3>
                       <p className="text-sm text-gray-600">{consultant.authorized_person_name}</p>
+                      <p className="text-xs text-gray-500">{consultant.email}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-500">
-                        {clients.filter(c => c.consultant_id === consultant.id).length} müşteri
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {consultant.is_active ? '🟢 Aktif' : '🔴 Pasif'}
-                      </p>
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <p className="text-sm text-gray-500">
+                          {clients.filter(c => c.consultant_id === consultant.id).length} müşteri
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {consultant.is_active ? '🟢 Aktif' : '🔴 Pasif'}
+                        </p>
+                      </div>
+                      {consultant.company_name !== 'ROTA' && (
+                        <div className="flex flex-col gap-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startEditConsultant(consultant);
+                            }}
+                            className="text-blue-600 hover:text-blue-800 text-sm"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startDeleteConsultant(consultant);
+                            }}
+                            className="text-red-600 hover:text-red-800 text-sm"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -10002,6 +10227,247 @@ const ConsultantManagement = () => {
           </div>
         </div>
       </div>
+
+      {/* Add Consultant Modal */}
+      {showAddForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-bold mb-4">Yeni Danışman Ekle</h3>
+            <form onSubmit={handleAddConsultant} className="space-y-4">
+              <input
+                type="text"
+                placeholder="Şirket Adı"
+                value={formData.company_name}
+                onChange={(e) => setFormData({...formData, company_name: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Yetkili Kişi"
+                value={formData.authorized_person_name}
+                onChange={(e) => setFormData({...formData, authorized_person_name: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <input
+                type="tel"
+                placeholder="Telefon"
+                value={formData.phone}
+                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <textarea
+                placeholder="Adres"
+                value={formData.address}
+                onChange={(e) => setFormData({...formData, address: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                rows="3"
+                required
+              />
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Ekle
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAddForm(false)}
+                  className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors"
+                >
+                  İptal
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Consultant Modal */}
+      {showEditForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-bold mb-4">Danışman Düzenle</h3>
+            <form onSubmit={handleEditConsultant} className="space-y-4">
+              <input
+                type="text"
+                placeholder="Şirket Adı"
+                value={formData.company_name}
+                onChange={(e) => setFormData({...formData, company_name: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Yetkili Kişi"
+                value={formData.authorized_person_name}
+                onChange={(e) => setFormData({...formData, authorized_person_name: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <input
+                type="tel"
+                placeholder="Telefon"
+                value={formData.phone}
+                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <textarea
+                placeholder="Adres"
+                value={formData.address}
+                onChange={(e) => setFormData({...formData, address: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                rows="3"
+                required
+              />
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Güncelle
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowEditForm(false)}
+                  className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors"
+                >
+                  İptal
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showConfirmDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-bold mb-4">Danışman Sil</h3>
+            <p className="text-gray-600 mb-4">
+              {consultantToDelete?.company_name} danışmanını silmek istediğinizden emin misiniz?
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={handleDeleteConsultant}
+                className="flex-1 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors"
+              >
+                Sil
+              </button>
+              <button
+                onClick={() => setShowConfirmDelete(false)}
+                className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                İptal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Client Assignment Modal */}
+      {showClientAssignment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
+            <h3 className="text-lg font-bold mb-4">Müşteri Atama</h3>
+            
+            {!assigningClient ? (
+              <div>
+                <p className="text-gray-600 mb-4">Danışmana atanacak müşteriyi seçin:</p>
+                <div className="space-y-2 max-h-80 overflow-y-auto">
+                  {clients.map((client) => (
+                    <div key={client.id} className="p-3 border rounded-lg hover:bg-gray-50">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium">{client.hotel_name}</h4>
+                          <p className="text-sm text-gray-600">{client.contact_person}</p>
+                          <p className="text-xs text-gray-500">
+                            {client.consultant_id ? 
+                              `Mevcut Danışman: ${consultants.find(c => c.id === client.consultant_id)?.company_name || 'Bilinmiyor'}` : 
+                              'Atanmamış'
+                            }
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => setAssigningClient(client)}
+                          className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+                        >
+                          Seç
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div>
+                <p className="text-gray-600 mb-4">
+                  <strong>{assigningClient.hotel_name}</strong> müşterisini hangi danışmana atanacak?
+                </p>
+                <div className="space-y-2 max-h-80 overflow-y-auto">
+                  {consultants.map((consultant) => (
+                    <div key={consultant.id} className="p-3 border rounded-lg hover:bg-gray-50">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium">{consultant.company_name}</h4>
+                          <p className="text-sm text-gray-600">{consultant.authorized_person_name}</p>
+                          <p className="text-xs text-gray-500">
+                            {clients.filter(c => c.consultant_id === consultant.id).length} müşteri
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleAssignClient(consultant.id)}
+                          className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+                        >
+                          Ata
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            <div className="mt-4 flex gap-2">
+              {assigningClient && (
+                <button
+                  onClick={() => setAssigningClient(null)}
+                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                >
+                  Geri
+                </button>
+              )}
+              <button
+                onClick={() => setShowClientAssignment(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                İptal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
