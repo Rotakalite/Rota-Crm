@@ -35,6 +35,8 @@ const getFileIcon = (filePath) => {
   }
 };
 
+// Consultant Dashboard Component
+
 // Sustainability Targets Management Component
 const SustainabilityTargets = () => {
   const { authToken, user, userRole, dbUser } = useAuth();
