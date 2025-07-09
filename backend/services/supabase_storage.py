@@ -19,8 +19,15 @@ class SupabaseStorage:
             return
             
         try:
-            # Use service key for backend operations
-            self.client: Client = create_client(self.url, self.service_key)
+            # Use service key for backend operations - Remove proxy argument
+            self.client: Client = create_client(
+                self.url, 
+                self.service_key,
+                options={
+                    "auto_refresh_token": True,
+                    "persist_session": True
+                }
+            )
             logger.info(f"✅ Supabase client initialized - Bucket: {self.bucket_name}")
         except Exception as e:
             logger.error(f"❌ Failed to initialize Supabase client: {e}")
