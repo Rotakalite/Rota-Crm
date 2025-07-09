@@ -1991,9 +1991,18 @@ const useAuth = () => {
         const response = await axios.get(`${API}/auth/me`, {
           headers: { 'Authorization': `Bearer ${authToken}` }
         });
+        
+        // Update both dbUser and userRole states
         setDbUser(response.data);
+        setUserRole(response.data.role);
+        
+        // Update sessionStorage
         sessionStorage.setItem('dbUser', JSON.stringify(response.data));
+        sessionStorage.setItem('userRole', response.data.role);
+        
         console.log('✅ User data refreshed:', response.data);
+        
+        return response.data;
       } catch (error) {
         console.error('Error refreshing user:', error);
         // Clear invalid session data
@@ -2005,6 +2014,7 @@ const useAuth = () => {
           setUserRole(null);
           setDbUser(null);
         }
+        throw error;
       }
     }
   };
