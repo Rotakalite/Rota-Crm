@@ -86,8 +86,12 @@ const YeniBelgeYonetimiYeni = () => {
   };
 
   const loadFolders = async (clientId) => {
+    if (!authToken) return;
+    
     try {
-      const response = await axios.get(`${API}/api/folders`);
+      const response = await axios.get(`${API}/api/folders`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
       const allFolders = response.data || [];
       
       // ROLE-BASED FILTERING: Client users only see their own client's folders
@@ -100,6 +104,7 @@ const YeniBelgeYonetimiYeni = () => {
       }
       
       setFolders(clientFolders);
+      console.log('📁 Client folders loaded:', clientFolders.length, 'for client:', clientId);
       
       // Her klasör için doküman sayısını hesapla
       await calculateDocumentCounts(clientFolders);
