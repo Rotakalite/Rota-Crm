@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useUser } from '@clerk/clerk-react';
 
 const YeniBelgeYonetimiYeni = () => {
-  const { user } = useUser();
-  
-  // Auth context'i manuel olarak kontrol edelim
+  // useAuth hook'u App.js'den import edemediğimiz için manuel auth kontrol
   const [authToken, setAuthToken] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [dbUser, setDbUser] = useState(null);
@@ -17,21 +14,14 @@ const YeniBelgeYonetimiYeni = () => {
   
   const API = getApiUrl();
   
-  // Auth token'i al
+  // Auth token'i window.Clerk'den al
   useEffect(() => {
     const getAuthToken = async () => {
-      if (user) {
+      if (window.Clerk && window.Clerk.user) {
         try {
-          // Clerk user'dan session'ı al
-          const session = await user.primaryEmailAddress?.getSession();
-          if (!session) {
-            // Alternatif yöntem
-            const token = await user.getToken();
-            setAuthToken(token);
-          } else {
-            const token = await session.getToken();
-            setAuthToken(token);
-          }
+          // Clerk'den direkt token al
+          const token = await window.Clerk.session.getToken();
+          setAuthToken(token);
           console.log('🎫 Auth token retrieved successfully');
           
           // Kullanıcı rolünü backend'den al
@@ -48,8 +38,19 @@ const YeniBelgeYonetimiYeni = () => {
       }
     };
     
-    getAuthToken();
-  }, [user]);
+    // Auth durumunu kontrol et
+    if (window.Clerk && window.Clerk.loaded) {
+      getAuthToken();
+    } else {
+      // Clerk yüklenene kadar bekle
+      const checkClerk = setInterval(() => {
+        if (window.Clerk && window.Clerk.loaded) {
+          clearInterval(checkClerk);
+          getAuthToken();
+        }
+      }, 100);
+    }
+  }, []);
   
   // UI Flow States
   const [currentView, setCurrentView] = useState('client-selection'); // 'client-selection', 'folder-tree', 'documents'
