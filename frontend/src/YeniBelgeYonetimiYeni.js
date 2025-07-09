@@ -108,6 +108,19 @@ const YeniBelgeYonetimiYeni = () => {
       const allFolders = response.data || [];
       console.log('📁 All folders from API:', allFolders.length);
       
+      // DEBUG: Database'deki client_id'leri gösterelim
+      const uniqueClientIds = [...new Set(allFolders.map(f => f.client_id))];
+      console.log('📁 Database unique client_ids:', uniqueClientIds);
+      console.log('📁 Looking for client_id:', clientId);
+      
+      // Client ID'lerin tipini kontrol edelim
+      const sampleFolders = allFolders.slice(0, 5);
+      console.log('📁 Sample folders with client_ids:', sampleFolders.map(f => ({
+        name: f.name,
+        client_id: f.client_id,
+        client_id_type: typeof f.client_id
+      })));
+      
       // ROLE-BASED FILTERING: Client users only see their own client's folders
       let clientFolders;
       if (userRole === 'client' && dbUser?.client_id) {
@@ -115,7 +128,13 @@ const YeniBelgeYonetimiYeni = () => {
         console.log('📁 Client role filtering - dbUser.client_id:', dbUser.client_id);
       } else {
         // Admin sees all folders for selected client
-        clientFolders = allFolders.filter(folder => folder.client_id === clientId);
+        clientFolders = allFolders.filter(folder => {
+          const match = folder.client_id === clientId;
+          if (!match && folder.client_id) {
+            console.log('📁 No match:', folder.client_id, '!==', clientId);
+          }
+          return match;
+        });
         console.log('📁 Admin/Consultant role filtering - clientId:', clientId);
       }
       
