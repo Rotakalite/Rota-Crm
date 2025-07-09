@@ -899,7 +899,7 @@ async def register_consultant_with_user(
 @app.post("/api/clients/register-with-user")
 async def register_client_with_user(
     request_data: dict,
-    current_user: User = Depends(get_current_user)
+    current_user_data: dict = Depends(get_current_user_for_role_setup)
 ):
     """Register client and update user role - AUTH required"""
     try:
@@ -913,7 +913,7 @@ async def register_client_with_user(
         
         # Update user role to CLIENT and link to client
         await db.users.update_one(
-            {"id": current_user.id},
+            {"id": current_user_data["id"]},
             {"$set": {
                 "role": "client",
                 "client_id": client["id"],
@@ -921,7 +921,7 @@ async def register_client_with_user(
             }}
         )
         
-        logging.info(f"✅ USER ROLE UPDATED: {current_user.id} is now CLIENT")
+        logging.info(f"✅ USER ROLE UPDATED: {current_user_data['id']} is now CLIENT")
         
         return {
             "message": "Client created and user role updated successfully",
