@@ -2349,17 +2349,27 @@ const useAuth = () => {
     try {
       if (session) {
         console.log('🔄 Refreshing token...');
+        console.log('🔄 Session available:', !!session);
+        
         const newToken = await session.getToken({ skipCache: true });
+        console.log('🔄 New token received:', !!newToken);
+        
         if (newToken) {
           setAuthToken(newToken);
           sessionStorage.setItem('authToken', newToken);
           console.log('✅ Token refreshed successfully');
           return newToken;
+        } else {
+          console.error('❌ No token received from session');
+          throw new Error('No token received from session');
         }
+      } else {
+        console.error('❌ No session available for refresh');
+        throw new Error('No session available');
       }
-      throw new Error('No session available');
     } catch (error) {
       console.error('❌ Token refresh failed:', error);
+      console.error('❌ Session status:', !!session);
       // Clear session data
       sessionStorage.removeItem('authToken');
       sessionStorage.removeItem('userRole');
