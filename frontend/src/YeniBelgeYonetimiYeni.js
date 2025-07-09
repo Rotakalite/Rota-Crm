@@ -101,22 +101,28 @@ const YeniBelgeYonetimiYeni = () => {
     if (!authToken) return;
     
     try {
+      console.log('📁 loadFolders called with clientId:', clientId);
       const response = await axios.get(`${API}/folders`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       const allFolders = response.data || [];
+      console.log('📁 All folders from API:', allFolders.length);
       
       // ROLE-BASED FILTERING: Client users only see their own client's folders
       let clientFolders;
       if (userRole === 'client' && dbUser?.client_id) {
         clientFolders = allFolders.filter(folder => folder.client_id === dbUser.client_id);
+        console.log('📁 Client role filtering - dbUser.client_id:', dbUser.client_id);
       } else {
         // Admin sees all folders for selected client
         clientFolders = allFolders.filter(folder => folder.client_id === clientId);
+        console.log('📁 Admin/Consultant role filtering - clientId:', clientId);
       }
       
+      console.log('📁 Client folders after filtering:', clientFolders.length);
+      console.log('📁 Sample client folders:', clientFolders.slice(0, 3).map(f => ({ name: f.name, client_id: f.client_id })));
+      
       setFolders(clientFolders);
-      console.log('📁 Client folders loaded:', clientFolders.length, 'for client:', clientId);
       
       // Her klasör için doküman sayısını hesapla
       await calculateDocumentCounts(clientFolders);
