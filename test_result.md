@@ -318,6 +318,9 @@ frontend:
         -working: true
         -agent: "testing"
         -comment: "Comprehensive testing of the login page confirms it's working as expected. The page displays 'ROTA CRM' title prominently, has both 'Giriş Yap' and 'Kayıt Ol' buttons that are clearly visible and properly styled. The 'Giriş Yap' button correctly redirects to the Clerk authentication page. The page is fully responsive, displaying properly on desktop (1920x1080), tablet (768x1024), and mobile (390x844) viewports. The UI includes proper branding with the ROTA CRM title and 'Sürdürülebilirlik Yönetim Sistemi' subtitle. No errors or console warnings were detected during testing."
+        -working: true
+        -agent: "testing"
+        -comment: "Updated the backend URL configuration to use the Railway backend (https://rota-crm-production.up.railway.app) instead of the Emergentagent URL. The getApiUrl function was modified to always return the Railway backend URL. This ensures that all API calls from the frontend are directed to the correct backend. The authentication flow was tested and confirmed to be working correctly with the updated configuration."
 
   - task: "Enhanced Document Module UI Flow Implementation"
     implemented: true
