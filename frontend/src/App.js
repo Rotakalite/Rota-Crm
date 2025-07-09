@@ -11634,7 +11634,7 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
         return <WasteManagement />;
       case 'suppliers':
         return <SupplierManagement />;
-      case 'document-management':
+      case 'yeni-belge':
         return <DocumentManagement />;
       case 'training':
         return <TrainingManagement />;
