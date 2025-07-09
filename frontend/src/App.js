@@ -11096,7 +11096,10 @@ const CustomSignUp = () => {
                     <option value="">Bir danışman seçin...</option>
                     {consultants.map((consultant) => (
                       <option key={consultant.id} value={consultant.id}>
-                        {consultant.company_name} - {consultant.authorized_person_name}
+                        {consultant.company_name === 'ROTA' ? 
+                          `🏆 ${consultant.company_name} - ${consultant.authorized_person_name} (Sistem Kurucusu)` :
+                          `${consultant.company_name} - ${consultant.authorized_person_name}`
+                        }
                       </option>
                     ))}
                   </select>
