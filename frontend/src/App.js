@@ -10860,19 +10860,19 @@ const MainApp = () => {
   const { userRole, isLoaded, dbUser, refreshUser } = useAuth();
   const { user } = useUser();
 
-  // Check if user needs role setup (after Clerk registration)
+  // Check if user needs role setup (after Clerk registration AND 2FA completion)
   useEffect(() => {
-    if (isLoaded && user && dbUser) {
-      // Only show role setup if user data is loaded from database and role is missing
+    if (isLoaded && user && dbUser && twoFACompleted) {
+      // Only show role setup AFTER 2FA is completed and if role is missing
       if (!dbUser.role || dbUser.role === '' || dbUser.role === null) {
-        console.log('User logged in but no role in database, showing role setup');
+        console.log('User logged in, 2FA completed, but no role in database, showing role setup');
         setShowRoleSetup(true);
       } else {
         console.log('User has role in database:', dbUser.role);
         setShowRoleSetup(false);
       }
     }
-  }, [isLoaded, user, dbUser]);
+  }, [isLoaded, user, dbUser, twoFACompleted]); // Added twoFACompleted dependency
 
   // Check if client user needs to complete setup
   useEffect(() => {
