@@ -11207,7 +11207,30 @@ function App() {
         <MainApp />
       </SignedIn>
       <SignedOut>
-        <RedirectToSignIn />
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-md">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">🏨 ROTA CRM</h1>
+            <p className="text-gray-600 mb-6">Sürdürülebilirlik Yönetim Sistemi</p>
+            <div className="space-y-4">
+              <button 
+                onClick={() => window.location.href = '/sign-in'}
+                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                🔐 Giriş Yap
+              </button>
+              <button 
+                onClick={() => window.location.href = '/sign-up'}
+                className="w-full bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                ✨ Kayıt Ol
+              </button>
+            </div>
+            <div className="mt-6 text-xs text-gray-500">
+              <p>💡 Yeni danışmanlar kayıt olabilir</p>
+              <p>🏨 Oteller danışmanları seçebilir</p>
+            </div>
+          </div>
+        </div>
       </SignedOut>
     </ClerkProvider>
   );
