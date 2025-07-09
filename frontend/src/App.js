@@ -9256,7 +9256,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'suppliers', name: 'Tedarikçilerim', icon: '🏢' },
     { id: 'personnel', name: 'Personel Yönetimi', icon: '👥' },
     { id: 'sustainability-targets', name: 'Sürdürülebilirlik Hedefleri', icon: '🎯' },
-    { id: 'document-management', name: 'Belgelerim', icon: '📋' },
+    { id: 'yeni-belge', name: 'Belgelerim', icon: '📋' },
     { id: 'trainings', name: 'Eğitimlerim', icon: '🎓' }
   ];
 
