@@ -1886,7 +1886,7 @@ const Dashboard = ({ onNavigate }) => {
               </div>
 
               <div className="bg-gradient-to-br from-red-500 to-red-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-                   onClick={() => onNavigate('yeni-belge')}>
+                   onClick={() => onNavigate('document-management')}>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">📄 Belge Yönetimi</h3>
                   <span className="text-2xl">→</span>
