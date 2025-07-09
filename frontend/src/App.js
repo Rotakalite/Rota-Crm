@@ -11203,12 +11203,37 @@ const CustomSignUp = () => {
 function App() {
   return (
     <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
-      <SignedIn>
-        <MainApp />
-      </SignedIn>
-      <SignedOut>
-        <RedirectToSignIn />
-      </SignedOut>
+      <div className="min-h-screen bg-gray-100">
+        <SignedIn>
+          <MainApp />
+        </SignedIn>
+        <SignedOut>
+          <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+            <div className="bg-white p-8 rounded-2xl shadow-2xl text-center">
+              <h1 className="text-2xl font-bold text-gray-800 mb-4">🏨 ROTA CRM</h1>
+              <p className="text-gray-600 mb-6">Sürdürülebilirlik Yönetim Sistemi</p>
+              <div className="space-y-4">
+                <a 
+                  href="/sign-in" 
+                  className="block w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  🔐 Giriş Yap
+                </a>
+                <a 
+                  href="/sign-up" 
+                  className="block w-full bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  ✨ Kayıt Ol
+                </a>
+              </div>
+              <div className="mt-6 text-xs text-gray-500">
+                <p>💡 Yeni danışmanlar kayıt olabilir</p>
+                <p>🏨 Oteller danışmanları seçebilir</p>
+              </div>
+            </div>
+          </div>
+        </SignedOut>
+      </div>
     </ClerkProvider>
   );
 }
