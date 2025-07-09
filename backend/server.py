@@ -1704,10 +1704,10 @@ async def download_belge_main_app(document_id: str, current_user: User = Depends
         raise HTTPException(status_code=500, detail=f"İndirme hatası: {str(e)}")
 
 @app.delete("/api/belge/delete/{document_id}")
-async def delete_belge_main_app(document_id: str):
+async def delete_belge_main_app(document_id: str, current_user: User = Depends(get_current_user)):
     """🗑️ BELGE SİLME - MAIN APP - GERÇEK SİLME"""
     try:
-        logging.info(f"🗑️ BELGE DELETE MAIN APP: {document_id}")
+        logging.info(f"🗑️ BELGE DELETE MAIN APP: {document_id}, User: {current_user.email}")
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
@@ -1717,6 +1717,23 @@ async def delete_belge_main_app(document_id: str):
         document = await asyncio.to_thread(db.documents.find_one, {"id": document_id})
         if not document:
             raise HTTPException(status_code=404, detail="Belge bulunamadı")
+        
+        # Security: Check if user can delete this document
+        document_client_id = document.get("client_id")
+        if current_user.role == UserRole.CLIENT:
+            # Clients generally shouldn't delete documents, but if allowed:
+            if current_user.client_id != document_client_id:
+                raise HTTPException(status_code=403, detail="Bu belgeyi silme yetkiniz yok")
+        elif current_user.role == UserRole.CONSULTANT:
+            # Check if document's client is assigned to this consultant
+            consultant_id = getattr(current_user, 'consultant_id', None)
+            if not consultant_id:
+                raise HTTPException(status_code=403, detail="Danışman ID bulunamadı")
+            
+            client = await asyncio.to_thread(db.clients.find_one, {"id": document_client_id})
+            if not client or client.get("consultant_id") != consultant_id:
+                raise HTTPException(status_code=403, detail="Bu belgeyi silme yetkiniz yok")
+        # Admin can delete any document
         
         # 1. DELETE FILE FROM DISK FIRST
         file_path = document.get("file_path")
