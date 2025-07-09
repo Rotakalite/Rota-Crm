@@ -10,8 +10,12 @@ const YeniBelgeYonetimiYeni = () => {
   const [userRole, setUserRole] = useState(null);
   const [dbUser, setDbUser] = useState(null);
   
-  // Production-ready API URL
-  const API = 'https://rota-crm-production.up.railway.app';
+  // Railway backend URL with /api prefix
+  const getApiUrl = () => {
+    return 'https://rota-crm-production.up.railway.app/api';
+  };
+  
+  const API = getApiUrl();
   
   // Auth token'i al
   useEffect(() => {
