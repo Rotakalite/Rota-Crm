@@ -827,6 +827,35 @@ async def get_consultants():
         logging.error(f"Error fetching consultants: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+@app.post("/api/init-admin-user")
+async def init_admin_user(admin_data: dict):
+    """Initialize admin user for ROTA - Special endpoint"""
+    try:
+        # Create admin user in users collection
+        admin_user = User(
+            clerk_user_id=admin_data.get("clerk_user_id", "admin_rota"),
+            email=admin_data.get("email", "admin@rota.com"),
+            name=admin_data.get("name", "ROTA Admin"),
+            role=UserRole.ADMIN,
+            consultant_id=admin_data.get("consultant_id")  # Link to ROTA consultant
+        ).dict()
+        
+        # Check if admin already exists
+        existing = await db.users.find_one({"email": admin_user["email"]})
+        if existing:
+            return {"message": "Admin user already exists", "user_id": existing["id"]}
+        
+        result = await db.users.insert_one(admin_user)
+        
+        return {
+            "message": "Admin user created successfully",
+            "user_id": admin_user["id"],
+            "instructions": "Bu kullanıcı ile Clerk'te aynı email ile kayıt olun ve admin yetkileriniz otomatik aktif olacaktır."
+        }
+    except Exception as e:
+        logging.error(f"Error creating admin user: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
 @app.get("/api/consultants/{consultant_id}")
 async def get_consultant(consultant_id: str, current_user: User = Depends(get_current_user)):
     """Get consultant details"""
