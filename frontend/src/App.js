@@ -10849,11 +10849,17 @@ const MainApp = () => {
 
   // Check if user needs role setup (after Clerk registration)
   useEffect(() => {
-    if (isLoaded && !userRole) {
-      console.log('User logged in but no role set, showing role setup');
-      setShowRoleSetup(true);
+    if (isLoaded && user && dbUser) {
+      // Only show role setup if user data is loaded from database and role is missing
+      if (!dbUser.role || dbUser.role === '' || dbUser.role === null) {
+        console.log('User logged in but no role in database, showing role setup');
+        setShowRoleSetup(true);
+      } else {
+        console.log('User has role in database:', dbUser.role);
+        setShowRoleSetup(false);
+      }
     }
-  }, [isLoaded, userRole]);
+  }, [isLoaded, user, dbUser]);
 
   // Check if client user needs to complete setup
   useEffect(() => {
