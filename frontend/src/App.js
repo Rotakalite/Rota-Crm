@@ -6654,37 +6654,39 @@ const ClientDocuments = () => {
           )}
         </div>
 
-        {/* Client Selection */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Müşteri Seçin: <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={selectedClient?.id || ''}
-            onChange={(e) => {
-              const client = clients.find(c => c.id === e.target.value);
-              setSelectedClient(client || null);
-              setSelectedFolder(null);
-              if (client) {
-                console.log('🎯 Client selected:', client.hotel_name, 'ID:', client.id);
-                fetchDocuments(client.id);
-                fetchFoldersForClient(client.id);
-              } else {
-                console.log('🎯 No client selected, clearing data');
-                setDocuments([]);
-                setFolders([]);
-              }
-            }}
-            className="w-full md:w-64 p-3 border border-gray-300 rounded-md"
-          >
-            <option value="">Müşteri seçiniz...</option>
-            {Array.isArray(clients) ? clients.map((client) => (
-              <option key={client.id} value={client.id}>
-                {client.hotel_name}
-              </option>
-            )) : null}
-          </select>
-        </div>
+        {/* Client Selection - Admin ve Consultant için */}
+        {(userRole === 'admin' || userRole === 'consultant') && (
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Müşteri Seçin: <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={selectedClient?.id || ''}
+              onChange={(e) => {
+                const client = clients.find(c => c.id === e.target.value);
+                setSelectedClient(client || null);
+                setSelectedFolder(null);
+                if (client) {
+                  console.log('🎯 Client selected:', client.hotel_name, 'ID:', client.id);
+                  fetchDocuments(client.id);
+                  fetchFoldersForClient(client.id);
+                } else {
+                  console.log('🎯 No client selected, clearing data');
+                  setDocuments([]);
+                  setFolders([]);
+                }
+              }}
+              className="w-full md:w-64 p-3 border border-gray-300 rounded-md"
+            >
+              <option value="">Müşteri seçiniz...</option>
+              {Array.isArray(clients) ? clients.map((client) => (
+                <option key={client.id} value={client.id}>
+                  {client.hotel_name}
+                </option>
+              )) : null}
+            </select>
+          </div>
+        )}
 
         {/* Breadcrumb */}
         {selectedClient && (
