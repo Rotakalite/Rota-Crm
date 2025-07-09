@@ -435,6 +435,7 @@ test_plan:
     - "Level 4 Folder Structure Implementation"
     - "New Belge Yönetimi System Backend APIs"
     - "New Belge Yönetimi System Frontend Integration"
+    - "Login Page Functionality"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
