@@ -10616,13 +10616,37 @@ const RoleSetup = ({ onComplete }) => {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      alert('Müşteri kaydınız başarıyla oluşturuldu! Rolünüz güncellendi. Sayfa yenilenecek.');
-      onComplete();
+      alert('Müşteri kaydınız başarıyla oluşturuldu! Rolünüz güncellendi.');
       
-      // Force page reload to refresh authentication state
-      setTimeout(() => {
+      // CRITICAL: Update authentication state immediately
+      try {
+        // Get fresh user data from database
+        const userResponse = await axios.get(`${API}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        // Update all auth states
+        const userData = userResponse.data;
+        sessionStorage.setItem('userRole', userData.role);
+        sessionStorage.setItem('dbUser', JSON.stringify(userData));
+        
+        console.log('✅ Authentication state updated:', userData);
+        
+        // Complete role setup
+        onComplete();
+        
+        // Small delay then reload to ensure state is updated
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+        
+      } catch (refreshError) {
+        console.error('Error refreshing user data:', refreshError);
+        alert('Kayıt başarılı ama sayfa yenilenecek.');
+        onComplete();
         window.location.reload();
-      }, 2000);
+      }
+      
     } catch (error) {
       console.error('Error creating client:', error);
       alert('Müşteri kaydı sırasında hata oluştu: ' + (error.response?.data?.detail || error.message));
