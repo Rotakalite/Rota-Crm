@@ -9827,6 +9827,11 @@ const MainApp = () => {
     setShowClientSetup(false);
   };
 
+  // Show role setup for new users (after Clerk registration)
+  if (showRoleSetup && !userRole) {
+    return <RoleSetup onComplete={() => setShowRoleSetup(false)} />;
+  }
+
   // Show 2FA for all users initially
   if (show2FA && !twoFACompleted) {
     return <TwoFactorAuth onVerificationComplete={() => setTwoFACompleted(true)} />;
