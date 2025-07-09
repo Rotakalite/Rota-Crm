@@ -11568,7 +11568,7 @@ const ConsultantApp = () => {
       case 'suppliers':
         return <SupplierManagement />;
       case 'yeni-belge':
-        return <DocumentManagement />;
+        return <YeniBelgeYonetimiYeni />;
       case 'training':
         return <TrainingManagement />;
       case 'email-management':
@@ -11808,7 +11808,7 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
       case 'suppliers':
         return <SupplierManagement />;
       case 'yeni-belge':
-        return <DocumentManagement />;
+        return <YeniBelgeYonetimiYeni />;
       case 'training':
         return <TrainingManagement />;
       case 'email-management':
