@@ -57,13 +57,12 @@ const YeniBelgeYonetimiYeni = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   
-  // Production-ready API URL - Vercel production'da process.env sorunlu olabiliyor
-  const API = 'https://rota-crm-production.up.railway.app';
-
   // Load initial data
   useEffect(() => {
-    loadClients();
-  }, []);
+    if (authToken) {
+      loadClients();
+    }
+  }, [authToken]);
 
   const loadClients = async () => {
     try {
