@@ -6674,7 +6674,6 @@ const ClientDocuments = () => {
             <h3 className="text-lg font-semibold text-gray-800 mb-4">📁 Klasörler</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {folders
-                .filter(folder => folder.client_id === selectedClient.id)
                 .filter(folder => folder.level === 0) // Root folders
                 .map((folder) => (
                   <div
@@ -6694,7 +6693,6 @@ const ClientDocuments = () => {
               }
               
               {folders
-                .filter(folder => folder.client_id === selectedClient.id)
                 .filter(folder => folder.level === 1) // Column folders
                 .map((folder) => {
                   const subFolderCount = folders.filter(f => f.parent_folder_id === folder.id).length;
