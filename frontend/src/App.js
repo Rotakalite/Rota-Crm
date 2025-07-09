@@ -6583,10 +6583,8 @@ const ClientDocuments = () => {
               setSelectedFolder(null);
               if (client) {
                 fetchDocuments(client.id);
-                fetchFoldersForClient(client.id);
-              } else {
-                setDocuments([]);
-                setFolders([]);
+                // Don't filter folders for now - show all folders
+                // fetchFoldersForClient(client.id);
               }
             }}
             className="w-full md:w-64 p-3 border border-gray-300 rounded-md"
