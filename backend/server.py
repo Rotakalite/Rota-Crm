@@ -864,7 +864,7 @@ async def create_consultant(consultant_data: ConsultantCreate):
 @app.post("/api/consultants/register-with-user")
 async def register_consultant_with_user(
     request_data: dict,
-    current_user: User = Depends(get_current_user)
+    current_user_data: dict = Depends(get_current_user_for_role_setup)
 ):
     """Register consultant and update user role - AUTH required"""
     try:
@@ -878,7 +878,7 @@ async def register_consultant_with_user(
         
         # Update user role to CONSULTANT
         await db.users.update_one(
-            {"id": current_user.id},
+            {"id": current_user_data["id"]},
             {"$set": {
                 "role": "consultant",
                 "consultant_id": consultant["id"],
@@ -886,7 +886,7 @@ async def register_consultant_with_user(
             }}
         )
         
-        logging.info(f"✅ USER ROLE UPDATED: {current_user.id} is now CONSULTANT")
+        logging.info(f"✅ USER ROLE UPDATED: {current_user_data['id']} is now CONSULTANT")
         
         return {
             "message": "Consultant created and user role updated successfully",
