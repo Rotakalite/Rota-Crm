@@ -35,7 +35,7 @@ class TestConsumptionManagementEndpoints(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
+        self.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         

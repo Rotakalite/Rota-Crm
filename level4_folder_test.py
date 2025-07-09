@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Railway backend URL
-RAILWAY_API_URL = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
+RAILWAY_API_URL = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
 
 # MongoDB connection
 MONGO_URL = "mongodb://mongo:LbwPeZMoFflpreeQGSoEnUATtNpFRXRG@turntable.proxy.rlwy.net:14941"

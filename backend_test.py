@@ -241,7 +241,7 @@ class TestAnalyticsEndpoints(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
+        self.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
         
         # Sample data structures for mocking responses
         self.client_data = [
@@ -1170,7 +1170,7 @@ class TestSupplierManagementEndpoints(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"  # Use the correct backend URL
+        self.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"  # Use the correct backend URL
         
         # Headers for different user types
         self.headers_admin = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
@@ -1769,7 +1769,7 @@ class TestDocumentEndpoints(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
+        self.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         
@@ -2228,7 +2228,7 @@ class TestGuestEngagementAPIs(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
+        self.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
         
         # Headers for different user types
         self.headers_admin = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
@@ -2499,7 +2499,7 @@ class TestGuestSelfAssessmentAPIs(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
+        self.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
         
         # Headers for different user types
         self.headers_admin = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
@@ -2741,7 +2741,7 @@ class TestSimplifiedUploadSystem(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
+        self.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         
@@ -2973,7 +2973,7 @@ class TestTrainingEndpoints(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
+        self.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         self.headers_no_auth = {}
@@ -3243,7 +3243,7 @@ class TestClientDashboardStats(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
+        self.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         
@@ -3463,7 +3463,7 @@ class TestFolderSystem(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
+        self.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         
@@ -3869,7 +3869,7 @@ class TestFolderCreation(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
+        self.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
         
         # MongoDB connection
         self.mongo_url = "mongodb://localhost:27017"
@@ -4056,7 +4056,7 @@ class TestHierarchicalSubFolderSystem(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
+        self.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         
@@ -4516,7 +4516,7 @@ class TestLevel3SubFolderSystem(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
+        self.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         
@@ -4858,7 +4858,7 @@ class TestHealthAndCORS(unittest.TestCase):
     def setUp(self):
         """Set up test environment"""
         # Use the correct backend URL from frontend/.env
-        self.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
+        self.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         
@@ -5080,13 +5080,13 @@ if __name__ == "__main__":
     from critical_api_tests import run_critical_api_endpoints_tests
     
     # Update API URL in all test classes to use the correct URL from frontend/.env
-    TestAnalyticsEndpoints.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
-    TestDocumentEndpoints.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
-    TestSimplifiedUploadSystem.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
-    TestTrainingEndpoints.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
-    TestClientDashboardStats.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
-    TestFolderSystem.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
-    TestHierarchicalSubFolderSystem.api_url = "https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com/api"
+    TestAnalyticsEndpoints.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
+    TestDocumentEndpoints.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
+    TestSimplifiedUploadSystem.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
+    TestTrainingEndpoints.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
+    TestClientDashboardStats.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
+    TestFolderSystem.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
+    TestHierarchicalSubFolderSystem.api_url = "https://f865af4e-9fb2-429e-b7d9-90a59d1556b1.preview.emergentagent.com/api"
     
     # Run the Railway backend security tests
     run_railway_security_tests()

@@ -1,59 +1,82 @@
 <analysis>
-This trajectory showcases the AI engineer's work on the Rota-CRM application, primarily focusing on two major feature enhancements and significant debugging efforts. The initial phase was dominated by troubleshooting persistent email notification issues, stemming from  errors, incorrect environment variable loading, and critical  validation failures. The core problem was pinpointed as duplicate API endpoint definitions and misconfigured API routing.
+This trajectory primarily documents the AI engineer's efforts in expanding the Rota-CRM application, with a significant focus on developing a multi-role (Consultant/Client) SaaS model and resolving critical deployment and authentication issues. Initially, the engineer worked on implementing the Sustainability Targets module, including backend API scaffolding and frontend UI integration, despite persistent 404 errors related to API routing. A user request then pivoted the work to adding delete functionalities for Personnel and Supplier modules, which were successfully implemented.
 
-Subsequently, the development shifted to implementing comprehensive Supplier Management and Personnel Management modules. This involved creating new backend models and API endpoints, designing interactive React components with forms for data input, dynamic lists, and integrated statistical pie charts. A critical authentication and session persistence problem, manifesting as users being logged out and encountering 401 errors, was resolved by implementing a robust token refresh mechanism using Axios interceptors and . Furthermore, backend MongoDB ObjectId serialization errors were addressed.
-
-Finally, a detailed Role-Based Access Control (RBAC) system was integrated across both new modules, ensuring client users have view-only access to their specific data, while administrators retain full control. The trajectory concludes with the initiation of a new Sustainability Targets module, including backend model definition and initial frontend UI scaffolding.
+The core of the recent work revolves around a major architectural shift: integrating a Consultant Management System. This involved creating new backend models and CRUD endpoints for consultants, modifying the signup flow to allow users to select between Consultant and Hotel Owner roles *after* Clerk authentication, and adapting the UI for role-based access. Debugging efforts repeatedly addressed  errors due to incorrect  prefixing for backend calls and discrepancies between local development URLs and the production Railway backend/Vercel frontend deployment. The engineer meticulously fixed URL inconsistencies in  and addressed an issue where the  component caused React rendering failures due to duplicate definitions. The trajectory concludes with the creation of the  frontend component, and fixing the login flow and admin menu access.
 </analysis>
 
 <product_requirements>
 The Rota-CRM system is a client consumption data management platform with dashboards and Clerk-based authentication. The development work in this trajectory addressed the following explicit user requirements:
-1.  **Email System Refinement**: Improve email notification content for professionalism, ensure accurate data display (document names, folder paths, upload dates for document emails; training name, instructor, training date for training emails), and resolve undefined values. Automatic bulk email sending was to be avoided.
-2.  **Supplier Management Module**: Implement functionality for selecting a client, adding new suppliers with details (company name, address, category, local/non-local, description, certifications, monthly purchase amount with units like KG, Litre, Adet, Gün), and listing existing suppliers filtered by the selected client. Display a pie chart showing local vs. non-local supplier ratios.
-3.  **Personnel Management Module**: Create a new module to manage personnel information, including name, surname, position, residence-hometown, various certifications, local/non-local status, and gender. Display pie charts for local vs. non-local personnel and male vs. female ratios.
-4.  **Role-Based Access Control (RBAC)**: Ensure that each client user can only view their own associated suppliers and personnel. Editing, adding, or deleting data should be restricted to admin users only. Client users' client selection should be automatic and non-editable.
-5.  **Authentication Persistence**: Fix issues where users were unexpectedly logged out upon page refresh or encountered authentication errors during data submission.
-6.  **Sustainability Targets Module**: Develop a brand new, separate module to enable clients to define, track, and report on measurable sustainability goals (e.g., environmental, social, economic KPIs).
+
+1.  **Email System Refinement**: Enhance email notification content for professionalism, accurate data display, and resolve undefined values. Avoid automatic bulk email sending.
+2.  **Supplier Management Module**: Implement functionality to add/list suppliers, including details like company name, address, category, local/non-local status, certifications, and monthly purchase amounts. Display a pie chart for local vs. non-local supplier ratios.
+3.  **Personnel Management Module**: Create a module for personnel information (name, surname, position, certifications, local/non-local, gender) with pie charts for local/non-local and male/female ratios.
+4.  **Role-Based Access Control (RBAC)**: Ensure client users can only view their data. Admin users should have full control (editing, adding, deleting). Client selection should be automatic for CLIENT roles.
+5.  **Authentication Persistence**: Fix unexpected logouts and 401 errors by implementing robust token refresh.
+6.  **Sustainability Targets Module**: Develop a new module for clients to define, track, and report measurable sustainability goals.
+7.  **Delete Functionality**: Add delete buttons for Personnel and Supplier records, ensuring database deletion.
+8.  **Consultant Management System**:
+    *   Allow Consultant users to register with specific details (Company Name, Authorized Person, Email, Phone, Address).
+    *   Modify client signup to allow selection of an existing consultant.
+    *   Enable consultants to manage all modules for their assigned clients (add/remove data).
+    *   Clients retain view-only access.
+    *   The system founder (ROTA) should be a default consultant, appearing at the top of lists.
+    *   The signup flow should first show the standard Clerk registration, followed by role selection (Hotel Owner/Consultant).
+    *   A dedicated Consultant Dashboard or module should be available for consultants.
 </product_requirements>
 
 <key_technical_concepts>
 -   **React**: Frontend UI development.
 -   **FastAPI**: Python backend for RESTful APIs.
--   **MongoDB**: NoSQL database for application data and document storage.
+-   **MongoDB**: NoSQL database.
 -   **Clerk**: JWT-based authentication system.
--   **Axios**: Frontend HTTP client.
+-   **Axios**: Frontend HTTP client with interceptors for token refresh.
 -   **Supervisorctl**: Process manager for services.
--   **Chart.js**: JavaScript library for rendering interactive charts.
--   ****: Used for loading environment variables.
--   **UUIDs**: Employed for unique identifiers.
--   ****: For client-side session persistence.
+-   **Chart.js**: JavaScript library for data visualization.
+-   ****: Environment variable loading.
+-   **UUIDs**: For unique identifiers.
+-   ****: Client-side session persistence.
+-   **Kubernetes Ingress**:  prefix requirement for backend routes.
 </key_technical_concepts>
 
 <code_architecture>
 
 
 -   ****:
-    -   **Summary**: The core FastAPI application, managing all API routes, database operations, and module-specific logic.
-    -   **Changes Made**: This file was central to development. It saw numerous modifications including attempts to enable automatic email notifications (later reverted), critical fixes for environment variable loading impacting email service initialization, and resolution of API routing issues ( errors due to duplicate endpoints and prefixing). New Pydantic models and CRUD API endpoints were added for **Supplier Management**, **Personnel Management**, and the initial setup for **Sustainability Targets**. ObjectId serialization errors from MongoDB were resolved by explicitly removing  fields. Role-Based Access Control was implemented by integrating  dependency for write operations and  filtering for read operations, ensuring data segregation.
--   ****:
-    -   **Summary**: Handles sending various types of emails using templates.
-    -   **Changes Made**: Updated to correctly load environment variables from the  file, fixing a crucial initialization error that prevented email functionality.
--   ****:
-    -   **Summary**: HTML template for document upload notifications.
-    -   **Changes Made**: Subjected to multiple iterations of design and content refinement based on user feedback, aiming for a professional, data-rich display. Eventually, a previously nicer version was restored as per user's final preference.
--   ****:
-    -   **Summary**: HTML template for training notifications.
-    -   **Changes Made**: Similar to , it underwent several revisions to improve content accuracy (e.g., training name, instructor, date) and visual design, finally reverting to a previously preferred version.
--   ****:
-    -   **Summary**: The main React application, managing routing, global state, and incorporating various functional modules like document management, supplier management, and personnel management.
+    -   **Summary**: The central FastAPI application. It defines all API routes, Pydantic models for data, and handles database interactions.
     -   **Changes Made**:
-        -   Fixed  by adding robust array checks ( and ).
-        -   Implemented the **SupplierManagement** component, including forms for supplier data input (with dynamic field additions like certifications, monthly purchase amount/unit) and listing. A Chart.js pie chart was integrated to visualize local/non-local supplier ratios.
-        -   The **Guest Engagement** module was removed from navigation and dashboard, and the **PersonnelManagement** component was added in its place. This component includes forms for personnel data input and two Chart.js pie charts for local/non-local personnel and male/female ratios.
-        -   The  hook was enhanced for robust authentication, adding  for token persistence and an Axios interceptor for automatic token refresh, resolving persistent logout issues.
-        -   Role-Based Access Control (RBAC) UI was implemented: hiding forms/buttons and auto-selecting client for  roles, while  roles retain full control.
-        -   Initial UI scaffolding for the **Sustainability Targets** module was added, including a new dashboard card, sidebar navigation item, and the  component.
+        -   Initial setup for  Pydantic models and basic CRUD (GET, POST, DELETE, analytics, progress update) endpoints.
+        -   Numerous attempts to fix 404 API routing errors, oscillating between defining routes directly on  and using an , with eventual resolution by ensuring the  prefix was consistently used in frontend API calls.
+        -   Added  to the User enum.
+        -   Defined a new  Pydantic model (company_name, authorized_person_name, email, phone_number, address).
+        -   Updated the  model (implied) and  model to include .
+        -   Implemented full CRUD endpoints for the  model.
+        -   Added an endpoint to create a default ROTA consultant.
+        -   Added a special endpoint for creating an admin user () to facilitate testing.
 
+-   ****:
+    -   **Summary**: The main React application managing routing, global state, authentication, and integrating various modules.
+    -   **Changes Made**:
+        -   Implemented  and  components with forms, dynamic fields, and Chart.js visualizations.
+        -   Added  and  functions, integrating delete buttons into their respective list items/cards for persistent database removal.
+        -   Enhanced the  hook for robust authentication, adding  for token persistence and an Axios interceptor for automatic token refresh.
+        -   Implemented Role-Based Access Control (RBAC) in the UI, conditionally rendering forms/buttons and auto-selecting clients based on  vs.  roles.
+        -   Initial UI scaffolding for  module (dashboard card, sidebar navigation, component outline).
+        -   Major modifications to the authentication and signup flow:
+            -   Initially attempted to create a  component to integrate role selection directly into the Clerk signup, which led to multiple JavaScript syntax errors (duplicate component definitions).
+            -   Later,  was removed to revert to Clerk's native flow for initial registration.
+            -   A new  component was introduced, rendered *after* successful Clerk registration, to allow users to select their role (Consultant/Hotel Owner). This component conditionally appears if a user's role is not yet defined.
+            -   The  hook was debugged to prevent defaulting new users to 'client' role prematurely.
+            -   The  function was refactored and debugged multiple times to ensure consistent and correct API calls, specifically to append the  prefix to the Railway backend URL and remove inconsistent localhost/preview URLs.
+        -   The admin menu was updated to include a Consultant Management module, and the  function was updated to display the corresponding  component.
+        -   A new  React component was created to handle the UI for managing consultants.
+
+-   ****:
+    -   **Summary**: Manages email sending via templates.
+    -   **Changes Made**: Updated to correctly load environment variables, fixing initialization errors.
+
+-   ** & **:
+    -   **Summary**: HTML templates for email notifications.
+    -   **Changes Made**: Underwent content and design refinements based on feedback, including reverting to previously preferred versions.
 </code_architecture>
 
 <pending_tasks>
@@ -63,25 +86,22 @@ The Rota-CRM system is a client consumption data management platform with dashbo
 -   Implement Advanced Reporting including PDF export for carbon footprint.
 -   Full development of AI Analytics and Cultural Sustainability modules.
 -   General frontend styling enhancements.
+-   Develop the Consultant Dashboard UI within the  component.
+-   Assign existing clients to the ROTA consultant.
 </pending_tasks>
 
 <current_work>
-Immediately prior to this summary, the AI engineer was actively working on initiating the **Sürdürülebilirlik Hedef Takip (Sustainability Targets) module**, a new, independent feature requested by the user. This module aims to provide functionality for clients to set and track measurable sustainability goals within the Rota-CRM system.
+Immediately prior to this summary, the AI engineer was addressing two key pieces of user feedback related to the newly implemented Consultant Management System:
+1.  **Role Selection Flow**: The user reported that after Clerk registration, the role selection screen was skipped, and the Hotel registration form appeared directly.
+    *   The AI engineer diagnosed this as an issue in the  hook within , where new users were being defaulted to the 'client' role prematurely. This was fixed by adjusting the logic in the  hook (Chat Message 516-517).
+2.  **Missing Consultant Module for Admin**: The user noted that when logging in as an admin, the Consultant module was missing from the navigation.
+    *   The AI engineer addressed this by modifying the menu structure in . A Consultant Management item was added to the admin's sidebar menu (Chat Message 528-529).
+    *   The  function in  was updated to include a  that now renders the  component when this menu item is selected (Chat Message 536-537).
+    *   Crucially, the  React component itself was created in . This component is the placeholder for the UI where administrators/consultants will manage consultant-specific data and client relationships (Chat Message 538-539).
 
-The specific actions taken for this module were foundational:
-1.  **Backend Model Definition**: In , the necessary Pydantic models,  and , were created. These models define the data structure for the sustainability goals that will be stored and managed.
-2.  **Frontend Navigation and Dashboard Integration**:
-    *   A new Sürdürülebilirlik Hedefleri card was added to the main **Dashboard** in , providing a visual entry point for the module.
-    *   A corresponding menu item for Sürdürülebilirlik Hedefleri was integrated into the **Sidebar Navigation** in , allowing users to directly access the module from the main navigation.
-    *   The primary application routing logic in  was updated with a , ensuring that when this navigation option is selected, the application correctly renders the new  component.
-3.  **Frontend Component Scaffold**: A new React component, , was created within . This component currently includes:
-    *   A client selection dropdown for administrative users, enabling them to select a specific client for whom to manage targets.
-    *   Role-based UI logic that automatically selects the current user's client ID for non-admin (CLIENT) roles and hides the client selection dropdown, ensuring read-only access and adherence to the implemented RBAC.
-    *   A basic structural outline for where the actual target setting forms, data display, and visualization (e.g., progress bars) will be implemented.
-
-The last recorded action in the trajectory was restarting the backend to apply these changes, signifying the initial setup for this new module is complete, and it is ready for core feature development.
+The state of the application is that the core backend for consultants is in place, the authentication flow now directs to a post-registration role selection, and the framework for the  frontend UI is set up, accessible via the admin menu. The last action was the creation of the  component.
 </current_work>
 
 <optional_next_step>
-Continue developing the Sürdürülebilirlik Hedef Takip module by implementing the core API endpoints for CRUD operations on sustainability targets and then building out the detailed target setting and tracking UI within the  component.
+Develop the detailed UI and functionality for the  component in  as requested.
 </optional_next_step>
