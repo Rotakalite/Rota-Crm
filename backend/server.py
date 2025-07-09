@@ -1203,6 +1203,50 @@ async def debug_consultants():
         logging.error(f"Error fetching consultants: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+@app.post("/api/debug/fix-user-role")
+async def fix_user_role(request_data: dict):
+    """Fix user role - REMOVE IN PRODUCTION"""
+    try:
+        email = request_data.get("email")
+        new_role = request_data.get("role")  # "consultant", "client", "admin"
+        
+        if not email or not new_role:
+            raise HTTPException(status_code=400, detail="Email and role are required")
+        
+        if new_role not in ["consultant", "client", "admin"]:
+            raise HTTPException(status_code=400, detail="Role must be consultant, client, or admin")
+        
+        # Find user by email
+        user = await db.users.find_one({"email": email})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Update user role
+        update_data = {"role": new_role, "updated_at": datetime.utcnow()}
+        
+        # If changing to consultant, find their consultant record
+        if new_role == "consultant":
+            consultant = await db.consultants.find_one({"email": email})
+            if consultant:
+                update_data["consultant_id"] = consultant["id"]
+        
+        await db.users.update_one(
+            {"email": email},
+            {"$set": update_data}
+        )
+        
+        return {
+            "message": f"User role updated to {new_role}",
+            "user_email": email,
+            "old_role": user.get("role"),
+            "new_role": new_role
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error fixing user role: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
 # Sustainability Target Models
 class SustainabilityTargetInput(BaseModel):
     target_name: str
