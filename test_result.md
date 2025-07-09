@@ -432,10 +432,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Document Management UI Design Fix"
-    - "Document Management Client Filtering"
+    - "Document Management API endpoints test"
     - "Level 4 Folder Structure Implementation"
-    - "New Belge Yönetimi System Backend APIs"
+    - "Document Management Client Filtering"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
