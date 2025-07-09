@@ -1685,19 +1685,38 @@ async def delete_belge_main_app(document_id: str):
         raise HTTPException(status_code=500, detail=f"Silme hatası: {str(e)}")
 
 @app.get("/api/clients")
-async def get_clients_main_app():
-    """📋 CLİENTS LİSTESİ - MAIN APP"""
+async def get_clients_main_app(current_user: User = Depends(get_current_user)):
+    """📋 CLİENTS LİSTESİ - MAIN APP WITH RBAC"""
     try:
-        logging.info("📋 CLIENTS LIST MAIN APP")
+        logging.info(f"📋 CLIENTS LIST MAIN APP - Role: {current_user.role}")
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
         db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
-        # Get clients
-        clients = await asyncio.to_thread(
-            lambda: list(db.clients.find({}))
-        )
+        # Apply RBAC filtering
+        if current_user.role == UserRole.ADMIN:
+            # Admin sees all clients
+            clients = await asyncio.to_thread(
+                lambda: list(db.clients.find({}))
+            )
+        elif current_user.role == UserRole.CONSULTANT:
+            # Consultant sees only their assigned clients
+            consultant_id = getattr(current_user, 'consultant_id', None)
+            if not consultant_id:
+                return []
+            
+            clients = await asyncio.to_thread(
+                lambda: list(db.clients.find({"consultant_id": consultant_id}))
+            )
+        else:
+            # Client sees only their own data
+            if not current_user.client_id:
+                return []
+            
+            clients = await asyncio.to_thread(
+                lambda: list(db.clients.find({"id": current_user.client_id}))
+            )
         
         # Format response
         formatted_clients = []
@@ -1706,7 +1725,7 @@ async def get_clients_main_app():
                 del client["_id"]
             formatted_clients.append(client)
         
-        logging.info(f"✅ Found {len(formatted_clients)} clients")
+        logging.info(f"✅ Found {len(formatted_clients)} clients for {current_user.role}")
         return formatted_clients
         
     except Exception as e:
