@@ -2416,35 +2416,6 @@ async def create_missing_folder_levels():
         logging.error(f"❌ FOLDER CREATION ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Folder creation error: {str(e)}")
 
-@app.get("/api/folders")
-async def get_folders_main_app():
-    """📋 FOLDERS LİSTESİ - MAIN APP"""
-    try:
-        logging.info("📋 FOLDERS LIST MAIN APP")
-        
-        # Get MongoDB connection
-        mongo_client = MongoClient(mongo_url)
-        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
-        
-        # Get folders
-        folders = await asyncio.to_thread(
-            lambda: list(db.folders.find({}))
-        )
-        
-        # Format response
-        formatted_folders = []
-        for folder in folders:
-            if "_id" in folder:
-                del folder["_id"]
-            formatted_folders.append(folder)
-        
-        logging.info(f"✅ Found {len(formatted_folders)} folders")
-        return formatted_folders
-        
-    except Exception as e:
-        logging.error(f"❌ FOLDERS LIST ERROR: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Folders liste hatası: {str(e)}")
-
 # DOCUMENT MANAGEMENT ENDPOINTS - DIRECT TO MAIN APP
 @app.get("/documents")
 async def get_documents_direct(current_user: User = Depends(get_current_user)):
