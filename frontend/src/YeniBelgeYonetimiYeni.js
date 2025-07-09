@@ -264,7 +264,7 @@ const YeniBelgeYonetimiYeni = () => {
         
         console.log(`📤 Uploading file ${i + 1}/${selectedFiles.length}: ${file.name}`);
         
-        const response = await axios.post(`${API}/api/belge/upload`, formData, {
+        const response = await axios.post(`${API}/belge/upload`, formData, {
           headers: { 
             'Content-Type': 'multipart/form-data',
             'Authorization': `Bearer ${authToken}`
