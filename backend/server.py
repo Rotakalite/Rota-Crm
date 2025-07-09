@@ -780,6 +780,36 @@ async def create_consultant(consultant_data: ConsultantCreate):
         logging.error(f"Error creating consultant: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+@app.post("/api/init-default-consultant")
+async def init_default_consultant():
+    """Initialize default ROTA consultant - NO AUTH needed"""
+    try:
+        # Check if ROTA consultant already exists
+        existing = await db.consultants.find_one({"company_name": "ROTA"})
+        if existing:
+            return {"message": "ROTA consultant already exists", "consultant_id": existing["id"]}
+        
+        # Create ROTA as the default consultant
+        rota_consultant = Consultant(
+            company_name="ROTA",
+            authorized_person_name="ROTA Sistem Yöneticisi",
+            email="admin@rota.com",
+            phone="0532 000 00 00",
+            address="ROTA Merkez Ofis",
+            is_active=True,
+            total_clients=0
+        ).dict()
+        
+        result = await db.consultants.insert_one(rota_consultant)
+        
+        return {
+            "message": "ROTA default consultant created successfully",
+            "consultant_id": rota_consultant["id"]
+        }
+    except Exception as e:
+        logging.error(f"Error creating default consultant: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
 @app.get("/api/consultants")
 async def get_consultants():
     """Get all active consultants - NO AUTH for client signup"""
