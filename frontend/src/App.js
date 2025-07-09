@@ -11284,8 +11284,6 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
         return <EmailManagement />;
       case 'whatsapp':
         return <WhatsAppManagement />;
-      default:
-        return <Dashboard onNavigate={handleNavigate} />;
       case 'email':
         return <EmailManagement />;
       case 'trainings':
