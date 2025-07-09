@@ -1419,6 +1419,7 @@ const Dashboard = ({ onNavigate }) => {
           </h1>
           <p className="text-gray-600">
             {userRole === 'admin' ? 'Admin Panel - Sistemin tüm özelliklerine erişebilirsiniz.' 
+            : userRole === 'consultant' ? 'Danışman Paneli - Müşterilerinizi yönetebilir ve sistemin tüm özelliklerine erişebilirsiniz.'
             : 'Müşteri Paneli - Kendi verilerinizi görüntüleyebilir ve yönetebilirsiniz.'}
           </p>
         </div>
