@@ -114,8 +114,12 @@ const YeniBelgeYonetimiYeni = () => {
   };
 
   const calculateDocumentCounts = async (foldersList) => {
+    if (!authToken) return;
+    
     try {
-      const response = await axios.get(`${API}/api/belge/list`);
+      const response = await axios.get(`${API}/api/belge/list`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
       const allDocuments = response.data?.documents || [];
       
       const counts = {};
@@ -127,6 +131,7 @@ const YeniBelgeYonetimiYeni = () => {
       });
       
       setFolderDocumentCounts(counts);
+      console.log('📊 Document counts calculated:', counts);
     } catch (error) {
       console.error('❌ Document count calculation error:', error);
     }
