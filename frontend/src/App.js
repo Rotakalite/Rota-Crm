@@ -6344,20 +6344,31 @@ const ClientDocuments = () => {
   };
 
   const fetchFoldersForClient = async (clientId) => {
-    if (!authToken || !clientId) return;
+    if (!authToken || !clientId) {
+      console.log('❌ fetchFoldersForClient: Missing authToken or clientId');
+      return;
+    }
     
     try {
       const headers = { 'Authorization': `Bearer ${authToken}` };
       console.log('📁 Fetching folders for client:', clientId);
       
       const response = await axios.get(`${API}/folders`, { headers });
-      console.log('📁 All folders response:', response.data);
+      console.log('📁 All folders response:', response.data?.length || 0, 'folders');
       
       // Filter folders for selected client
       const allFolders = Array.isArray(response.data) ? response.data : [];
-      const clientFolders = allFolders.filter(folder => folder.client_id === clientId);
+      const clientFolders = allFolders.filter(folder => {
+        const match = folder.client_id === clientId;
+        if (match) {
+          console.log('✅ Folder match:', folder.name, 'client_id:', folder.client_id);
+        }
+        return match;
+      });
       
       console.log('📁 Client folders filtered:', clientFolders.length, 'folders for client', clientId);
+      console.log('📁 Sample filtered folders:', clientFolders.slice(0, 5).map(f => f.name));
+      
       setFolders(clientFolders);
       
     } catch (error) {
