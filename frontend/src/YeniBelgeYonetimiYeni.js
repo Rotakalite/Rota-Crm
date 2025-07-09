@@ -343,7 +343,7 @@ const YeniBelgeYonetimiYeni = () => {
     }
 
     try {
-      await axios.delete(`${API}/api/belge/delete/${documentId}`, {
+      await axios.delete(`${API}/belge/delete/${documentId}`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
