@@ -11181,7 +11181,7 @@ function App() {
         <MainApp />
       </SignedIn>
       <SignedOut>
-        <CustomSignUp />
+        <RedirectToSignIn />
       </SignedOut>
     </ClerkProvider>
   );
