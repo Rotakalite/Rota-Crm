@@ -4649,6 +4649,23 @@ async def delete_document_file(
 #         raise HTTPException(status_code=500, detail=f"Upload finalization failed: {str(e)}")
 
 # Folder Management Endpoints
+@api_router.get("/me")
+async def get_current_user_info(current_user: User = Depends(get_current_user)):
+    """Get current user information"""
+    try:
+        return {
+            "id": current_user.id,
+            "email": current_user.email,
+            "name": current_user.name,
+            "role": current_user.role,
+            "client_id": getattr(current_user, 'client_id', None),
+            "consultant_id": getattr(current_user, 'consultant_id', None),
+            "created_at": current_user.created_at.isoformat() if current_user.created_at else None
+        }
+    except Exception as e:
+        logging.error(f"❌ Error getting user info: {str(e)}")
+        raise HTTPException(status_code=500, detail="User bilgisi alınamadı")
+
 @api_router.get("/folders")
 async def get_folders(current_user: User = Depends(get_current_user)):
     """Get folder tree for current user"""
