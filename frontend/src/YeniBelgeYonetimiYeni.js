@@ -28,7 +28,7 @@ const YeniBelgeYonetimiYeni = () => {
           console.log('🎫 Auth token retrieved successfully');
           
           // Kullanıcı rolünü backend'den al
-          const response = await axios.get(`${API}/api/me`, {
+          const response = await axios.get(`${API}/me`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           
