@@ -319,6 +319,7 @@ class Client(BaseModel):
     phone: str
     phone_number: Optional[str] = None  # WhatsApp için ek telefon field
     address: str
+    consultant_id: Optional[str] = None  # Which consultant manages this client
     current_stage: ProjectStage = ProjectStage.STAGE_1
     services_completed: List[ServiceType] = []
     carbon_footprint: Optional[float] = None
