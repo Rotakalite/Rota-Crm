@@ -6641,7 +6641,9 @@ const ClientDocuments = () => {
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-lg shadow-md">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">📋 Belge Yönetimi (Admin)</h2>
+          <h2 className="text-2xl font-bold text-gray-800">
+            📋 Belge Yönetimi {userRole === 'admin' ? '(Admin)' : userRole === 'consultant' ? '(Danışman)' : '(Müşteri)'}
+          </h2>
           {selectedClient && (
             <button
               onClick={() => setShowUploadForm(true)}
