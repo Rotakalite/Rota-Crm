@@ -1509,19 +1509,40 @@ async def upload_belge_main_app(
         raise HTTPException(status_code=500, detail=f"Upload hatası: {str(e)}")
 
 @app.get("/api/belge/list")
-async def list_belge_main_app(client_id: str = None):
+async def list_belge_main_app(current_user: User = Depends(get_current_user)):
     """📋 BELGE LİSTESİ - MAIN APP"""
     try:
-        logging.info(f"📋 BELGE LIST MAIN APP: Client: {client_id}")
+        logging.info(f"📋 BELGE LIST MAIN APP: User: {current_user.email}, Role: {current_user.role}")
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
         db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
-        # Build query
+        # Build query based on user role
         query = {"status": {"$ne": "deleted"}}
-        if client_id:
-            query["client_id"] = client_id
+        
+        if current_user.role == UserRole.ADMIN:
+            # Admin sees all documents
+            pass  # No additional filtering
+        elif current_user.role == UserRole.CONSULTANT:
+            # Consultant sees documents for their assigned clients
+            consultant_id = getattr(current_user, 'consultant_id', None)
+            if not consultant_id:
+                return {"success": True, "documents": [], "count": 0}
+            
+            # Get all clients assigned to this consultant
+            clients = list(db.clients.find({"consultant_id": consultant_id}))
+            client_ids = [client.get("id") for client in clients]
+            
+            if client_ids:
+                query["client_id"] = {"$in": client_ids}
+            else:
+                return {"success": True, "documents": [], "count": 0}
+        else:
+            # Client sees only their own documents
+            if not current_user.client_id:
+                return {"success": True, "documents": [], "count": 0}
+            query["client_id"] = current_user.client_id
         
         # Get documents
         documents = await asyncio.to_thread(
