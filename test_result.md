@@ -513,11 +513,11 @@ test_plan:
 backend:
   - task: "Consultant Management System Backend APIs"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: "NA"
         -agent: "main"
@@ -525,6 +525,9 @@ backend:
         -working: true
         -agent: "main"
         -comment: "2025-01-28: Backend endpoints enhanced with additional functionalities. Added DELETE /api/consultants/{consultant_id} with protection against deleting ROTA consultant and consultants with assigned clients. Added PUT /api/clients/{client_id}/consultant for client-consultant assignment. Added POST /api/consultants/assign-unassigned to bulk assign unassigned clients to ROTA consultant. All endpoints properly handle authentication, authorization, and error cases."
+        -working: false
+        -agent: "testing"
+        -comment: "2025-07-09: Comprehensive testing of all consultant management endpoints completed. Only the POST /api/consultants (create) and GET /api/consultants (list) endpoints are working correctly. The other endpoints have issues: GET /api/consultants/{id}, PUT /api/consultants/{id}, GET /api/consultants/{id}/clients, and GET /api/consultants/{id}/dashboard return 401 Unauthorized with admin token, indicating authentication issues. DELETE /api/consultants/{id}, POST /api/consultants/assign-unassigned, and PUT /api/clients/{id}/consultant return 405 Method Not Allowed, indicating these endpoints are not properly implemented. Authentication mechanism needs to be fixed for most endpoints, and some endpoints need proper implementation."
 
   - task: "Consultant Management Frontend Full Implementation"
     implemented: true
