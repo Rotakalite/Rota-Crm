@@ -11276,18 +11276,16 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
         return <WasteManagement />;
       case 'suppliers':
         return <SupplierManagement />;
-      case 'project':
-        return <ProjectManagement client={selectedClient} onNavigate={handleNavigate} />;
-      case 'belge-yonetimi':
-      case 'yeni-belge':
-        return <YeniBelgeYonetimiYeni userRole={userRole} dbUser={dbUser} />;
-      case 'reports':
-        return (
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Raporlar</h2>
-            <p className="text-gray-600">Yakında eklenecek...</p>
-          </div>
-        );
+      case 'document-management':
+        return <DocumentManagement />;
+      case 'training':
+        return <TrainingManagement />;
+      case 'email-management':
+        return <EmailManagement />;
+      case 'whatsapp':
+        return <WhatsAppManagement />;
+      default:
+        return <Dashboard onNavigate={handleNavigate} />;
       case 'email':
         return <EmailManagement />;
       case 'trainings':
