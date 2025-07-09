@@ -9777,7 +9777,16 @@ const MainApp = () => {
   const [showClientSetup, setShowClientSetup] = useState(false);
   const [show2FA, setShow2FA] = useState(true);
   const [twoFACompleted, setTwoFACompleted] = useState(false);
+  const [showRoleSetup, setShowRoleSetup] = useState(false);
   const { userRole, isLoaded, dbUser, refreshUser } = useAuth();
+
+  // Check if user needs role setup (after Clerk registration)
+  useEffect(() => {
+    if (isLoaded && !userRole) {
+      console.log('User logged in but no role set, showing role setup');
+      setShowRoleSetup(true);
+    }
+  }, [isLoaded, userRole]);
 
   // Check if client user needs to complete setup
   useEffect(() => {
