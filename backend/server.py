@@ -8476,48 +8476,6 @@ async def download_belge_main(document_id: str):
         logging.error(f"❌ BELGE DOWNLOAD ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"İndirme hatası: {str(e)}")
 
-@app.get("/api/belge/list")
-async def list_belge_main(client_id: str = None):
-    """📋 BELGE LİSTESİ - MAIN APP"""
-    try:
-        logging.info(f"📋 BELGE LIST MAIN: Client: {client_id}")
-        
-        # Get MongoDB connection
-        mongo_client = MongoClient(mongo_url)
-        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
-        
-        # Build query filter
-        filter_query = {"status": {"$ne": "deleted"}}
-        if client_id:
-            filter_query["client_id"] = client_id
-        
-        # Get documents
-        documents = await asyncio.to_thread(
-            lambda: list(db.documents.find(filter_query).sort("created_at", -1))
-        )
-        
-        # Format response - EXCLUDE BINARY CONTENT from list
-        formatted_docs = []
-        for doc in documents:
-            if "_id" in doc:
-                del doc["_id"]
-            # EXCLUDE binary content field from list response (too large for JSON)
-            if "file_content" in doc:
-                del doc["file_content"]
-            formatted_docs.append(doc)
-        
-        logging.info(f"✅ Found {len(formatted_docs)} documents")
-        
-        return {
-            "success": True,
-            "documents": formatted_docs,
-            "count": len(formatted_docs)
-        }
-        
-    except Exception as e:
-        logging.error(f"❌ BELGE LIST ERROR: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Liste hatası: {str(e)}")
-
 @app.post("/api/test-auto-folder-creation")
 async def test_main_endpoint():
     """Test endpoint on main app"""
