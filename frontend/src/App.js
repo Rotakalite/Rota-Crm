@@ -6394,11 +6394,19 @@ const ClientDocuments = () => {
       
       // Filter folders for selected client
       const allFolders = Array.isArray(response.data) ? response.data : [];
+      
+      // DEBUG: Show first 5 folders' client_ids
+      console.log('📁 Sample folder client_ids:', allFolders.slice(0, 5).map(f => ({
+        name: f.name,
+        client_id: f.client_id
+      })));
+      
+      console.log('📁 Target client_id:', clientId);
+      console.log('📁 Target client_id type:', typeof clientId);
+      
       const clientFolders = allFolders.filter(folder => {
         const match = folder.client_id === clientId;
-        if (match) {
-          console.log('✅ Folder match:', folder.name, 'client_id:', folder.client_id);
-        }
+        console.log(`📁 Folder "${folder.name}" - client_id: "${folder.client_id}" (${typeof folder.client_id}) === "${clientId}" (${typeof clientId}) = ${match}`);
         return match;
       });
       
