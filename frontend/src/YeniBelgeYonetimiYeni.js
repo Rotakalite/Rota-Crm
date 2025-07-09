@@ -121,7 +121,7 @@ const YeniBelgeYonetimiYeni = () => {
     if (!authToken) return;
     
     try {
-      const response = await axios.get(`${API}/api/belge/list`, {
+      const response = await axios.get(`${API}/belge/list`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       const allDocuments = response.data?.documents || [];
