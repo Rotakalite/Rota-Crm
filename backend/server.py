@@ -983,6 +983,151 @@ async def get_consultant_dashboard(
         logging.error(f"Error fetching consultant dashboard: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+@app.delete("/api/consultants/{consultant_id}")
+async def delete_consultant(
+    consultant_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete consultant - Admin only"""
+    try:
+        # Only admin can delete consultants
+        if current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        # Check if consultant exists
+        existing = await db.consultants.find_one({"id": consultant_id})
+        if not existing:
+            raise HTTPException(status_code=404, detail="Consultant not found")
+        
+        # Don't allow deletion of ROTA consultant
+        if existing.get("company_name") == "ROTA":
+            raise HTTPException(status_code=400, detail="Cannot delete ROTA consultant")
+        
+        # Check if consultant has clients
+        clients = await db.clients.find({"consultant_id": consultant_id}).to_list(length=None)
+        if clients:
+            raise HTTPException(status_code=400, detail="Cannot delete consultant with assigned clients")
+        
+        # Delete consultant
+        await db.consultants.delete_one({"id": consultant_id})
+        
+        return {"message": "Consultant deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error deleting consultant: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.put("/api/clients/{client_id}/consultant")
+async def assign_client_to_consultant(
+    client_id: str,
+    consultant_assignment: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Assign client to consultant - Admin only"""
+    try:
+        # Only admin can assign clients
+        if current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        consultant_id = consultant_assignment.get("consultant_id")
+        if not consultant_id:
+            raise HTTPException(status_code=400, detail="Consultant ID is required")
+        
+        # Check if client exists
+        existing_client = await db.clients.find_one({"id": client_id})
+        if not existing_client:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        # Check if consultant exists
+        existing_consultant = await db.consultants.find_one({"id": consultant_id})
+        if not existing_consultant:
+            raise HTTPException(status_code=404, detail="Consultant not found")
+        
+        # Update client's consultant_id
+        await db.clients.update_one(
+            {"id": client_id},
+            {"$set": {
+                "consultant_id": consultant_id,
+                "updated_at": datetime.utcnow()
+            }}
+        )
+        
+        # Update consultant's total_clients count
+        client_count = await db.clients.count_documents({"consultant_id": consultant_id})
+        await db.consultants.update_one(
+            {"id": consultant_id},
+            {"$set": {
+                "total_clients": client_count,
+                "updated_at": datetime.utcnow()
+            }}
+        )
+        
+        return {"message": "Client assigned to consultant successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error assigning client to consultant: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.post("/api/consultants/assign-unassigned")
+async def assign_unassigned_clients_to_rota(
+    current_user: User = Depends(get_current_user)
+):
+    """Assign all unassigned clients to ROTA consultant - Admin only"""
+    try:
+        # Only admin can perform this action
+        if current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        # Find ROTA consultant
+        rota_consultant = await db.consultants.find_one({"company_name": "ROTA"})
+        if not rota_consultant:
+            raise HTTPException(status_code=404, detail="ROTA consultant not found")
+        
+        # Find all unassigned clients
+        unassigned_clients = await db.clients.find({
+            "$or": [
+                {"consultant_id": {"$exists": False}},
+                {"consultant_id": None},
+                {"consultant_id": ""}
+            ]
+        }).to_list(length=None)
+        
+        if not unassigned_clients:
+            return {"message": "No unassigned clients found", "assigned_count": 0}
+        
+        # Assign all unassigned clients to ROTA
+        client_ids = [client["id"] for client in unassigned_clients]
+        await db.clients.update_many(
+            {"id": {"$in": client_ids}},
+            {"$set": {
+                "consultant_id": rota_consultant["id"],
+                "updated_at": datetime.utcnow()
+            }}
+        )
+        
+        # Update ROTA consultant's total_clients count
+        total_clients = await db.clients.count_documents({"consultant_id": rota_consultant["id"]})
+        await db.consultants.update_one(
+            {"id": rota_consultant["id"]},
+            {"$set": {
+                "total_clients": total_clients,
+                "updated_at": datetime.utcnow()
+            }}
+        )
+        
+        return {
+            "message": "Unassigned clients assigned to ROTA successfully",
+            "assigned_count": len(unassigned_clients),
+            "client_names": [client.get("hotel_name", client.get("name", "Unknown")) for client in unassigned_clients]
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error assigning unassigned clients: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
 # Sustainability Target Models
 class SustainabilityTargetInput(BaseModel):
     target_name: str
