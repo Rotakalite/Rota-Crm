@@ -10913,17 +10913,17 @@ const MainApp = () => {
     setShowClientSetup(false);
   };
 
-  // Show role setup for new users (after Clerk registration)
-  if (showRoleSetup && isLoaded && user && dbUser && (!dbUser.role || dbUser.role === '' || dbUser.role === null)) {
-    return <RoleSetup onComplete={() => setShowRoleSetup(false)} />;
-  }
-
-  // Show 2FA for all users initially
+  // STEP 1: Show 2FA for all users FIRST (highest priority)
   if (show2FA && !twoFACompleted) {
     return <TwoFactorAuth onVerificationComplete={() => setTwoFACompleted(true)} />;
   }
 
-  // Show client setup form for new client users
+  // STEP 2: Show role setup for new users (after 2FA is completed)
+  if (showRoleSetup && isLoaded && user && dbUser && (!dbUser.role || dbUser.role === '' || dbUser.role === null)) {
+    return <RoleSetup onComplete={() => setShowRoleSetup(false)} />;
+  }
+
+  // STEP 3: Show client setup form for new client users (after role is set)
   if (showClientSetup && userRole === 'client') {
     return <ClientSetupForm onComplete={handleSetupComplete} onSkip={handleSetupSkip} />;
   }
