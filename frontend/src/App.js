@@ -10534,14 +10534,23 @@ const RoleSetup = ({ onComplete }) => {
     setLoading(true);
     
     try {
-      await axios.post(`${API}/consultants`, {
-        ...consultantData,
-        email: user.emailAddresses[0].emailAddress
+      // Use new endpoint that updates both consultant and user role
+      await axios.post(`${API}/consultants/register-with-user`, {
+        consultant_data: {
+          ...consultantData,
+          email: user.emailAddresses[0].emailAddress
+        }
+      }, {
+        headers: { Authorization: `Bearer ${session?.getToken()}` }
       });
       
-      alert('Danışman kaydınız başarıyla oluşturuldu!');
+      alert('Danışman kaydınız başarıyla oluşturuldu! Lütfen sayfa yenilenene kadar bekleyin.');
       onComplete();
-      window.location.reload();
+      
+      // Force page reload to refresh authentication state
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       console.error('Error creating consultant:', error);
       alert('Danışman kaydı sırasında hata oluştu: ' + (error.response?.data?.detail || error.message));
