@@ -36,6 +36,362 @@ const getFileIcon = (filePath) => {
 };
 
 // Consultant Dashboard Component
+const ConsultantDashboard = ({ onNavigate }) => {
+  const { authToken, dbUser } = useAuth();
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const API = getApiUrl();
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [authToken]);
+
+  const fetchDashboardData = async () => {
+    if (!authToken) return;
+    
+    try {
+      setLoading(true);
+      console.log('📊 Consultant Dashboard: Fetching stats from', `${API}/stats`);
+      
+      const response = await axios.get(`${API}/stats`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      console.log('📊 Consultant Dashboard: Stats response:', response.data);
+      setDashboardData(response.data);
+    } catch (error) {
+      console.error('Error fetching consultant dashboard data:', error);
+      setDashboardData(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">
+          👔 Danışman Dashboard
+        </h1>
+        <p className="text-gray-600 mt-2">
+          Hoş geldiniz {dbUser?.name}! Müşterilerinizi ve aktivitelerinizi yönetin.
+        </p>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">🏨 Müşterilerim</h3>
+              <p className="text-3xl font-bold">{dashboardData?.total_clients || 0}</p>
+            </div>
+            <div className="text-4xl opacity-80">🏨</div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">📄 Dokümanlar</h3>
+              <p className="text-3xl font-bold">{dashboardData?.total_documents || 0}</p>
+            </div>
+            <div className="text-4xl opacity-80">📄</div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">🎓 Eğitimler</h3>
+              <p className="text-3xl font-bold">{dashboardData?.total_trainings || 0}</p>
+            </div>
+            <div className="text-4xl opacity-80">🎓</div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">📊 Aktif Süreçler</h3>
+              <p className="text-3xl font-bold">
+                {(dashboardData?.stage_distribution?.stage_1 || 0) + 
+                 (dashboardData?.stage_distribution?.stage_2 || 0) + 
+                 (dashboardData?.stage_distribution?.stage_3 || 0)}
+              </p>
+            </div>
+            <div className="text-4xl opacity-80">📊</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div 
+          onClick={() => onNavigate('my-clients')}
+          className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+        >
+          <div className="text-center">
+            <div className="text-4xl mb-4">🏨</div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Müşterilerim</h3>
+            <p className="text-gray-600 text-sm">Müşteri bilgilerini görüntüleyin ve yönetin</p>
+          </div>
+        </div>
+
+        <div 
+          onClick={() => onNavigate('reports')}
+          className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+        >
+          <div className="text-center">
+            <div className="text-4xl mb-4">📈</div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Raporlarım</h3>
+            <p className="text-gray-600 text-sm">Müşteri raporlarını görüntüleyin</p>
+          </div>
+        </div>
+
+        <div 
+          onClick={() => onNavigate('consumption')}
+          className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+        >
+          <div className="text-center">
+            <div className="text-4xl mb-4">📊</div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Tüketim Takibi</h3>
+            <p className="text-gray-600 text-sm">Müşteri tüketim verilerini takip edin</p>
+          </div>
+        </div>
+
+        <div 
+          onClick={() => onNavigate('carbon')}
+          className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+        >
+          <div className="text-center">
+            <div className="text-4xl mb-4">🌱</div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Karbon Ayak İzi</h3>
+            <p className="text-gray-600 text-sm">Karbon ayak izi hesaplamalarını yönetin</p>
+          </div>
+        </div>
+
+        <div 
+          onClick={() => onNavigate('personnel')}
+          className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+        >
+          <div className="text-center">
+            <div className="text-4xl mb-4">👥</div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Personel Yönetimi</h3>
+            <p className="text-gray-600 text-sm">Müşteri personel bilgilerini yönetin</p>
+          </div>
+        </div>
+
+        <div 
+          onClick={() => onNavigate('suppliers')}
+          className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+        >
+          <div className="text-center">
+            <div className="text-4xl mb-4">🏭</div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Tedarikçi Yönetimi</h3>
+            <p className="text-gray-600 text-sm">Müşteri tedarikçilerini yönetin</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Consultant Client Management
+const ConsultantClientManagement = ({ onNavigate }) => {
+  const { authToken } = useAuth();
+  const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const API = getApiUrl();
+
+  useEffect(() => {
+    fetchClients();
+  }, [authToken]);
+
+  const fetchClients = async () => {
+    if (!authToken) return;
+    
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/clients`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setClients(response.data || []);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      setClients([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">🏨 Müşterilerim</h1>
+        <p className="text-gray-600 mt-2">
+          Size atanmış müşterilerinizi yönetin
+        </p>
+      </div>
+
+      {clients.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">🏨</div>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">Henüz müşteri yok</h3>
+          <p className="text-gray-600">Size atanmış müşteri bulunmamaktadır.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {clients.map((client) => (
+            <div key={client.id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-800">{client.hotel_name}</h3>
+                <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                  {client.current_stage || 'Başlangıç'}
+                </span>
+              </div>
+              
+              <div className="space-y-2 text-sm text-gray-600">
+                <p><strong>İletişim:</strong> {client.contact_person}</p>
+                <p><strong>Email:</strong> {client.email}</p>
+                <p><strong>Telefon:</strong> {client.phone}</p>
+                <p><strong>Adres:</strong> {client.address}</p>
+              </div>
+              
+              <div className="mt-4 pt-4 border-t">
+                <div className="flex space-x-2">
+                  <button 
+                    onClick={() => onNavigate('consumption')}
+                    className="flex-1 bg-blue-500 text-white py-2 px-3 rounded-lg text-sm hover:bg-blue-600 transition-colors"
+                  >
+                    📊 Tüketim
+                  </button>
+                  <button 
+                    onClick={() => onNavigate('carbon')}
+                    className="flex-1 bg-green-500 text-white py-2 px-3 rounded-lg text-sm hover:bg-green-600 transition-colors"
+                  >
+                    🌱 Karbon
+                  </button>
+                  <button 
+                    onClick={() => onNavigate('personnel')}
+                    className="flex-1 bg-purple-500 text-white py-2 px-3 rounded-lg text-sm hover:bg-purple-600 transition-colors"
+                  >
+                    👥 Personel
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Consultant Client Assignment
+const ConsultantClientAssignment = () => {
+  return (
+    <div className="p-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">🔄 Müşteri Atama</h1>
+        <p className="text-gray-600 mt-2">
+          Bu özellik yakında kullanıma sunulacak
+        </p>
+      </div>
+      
+      <div className="text-center py-12">
+        <div className="text-6xl mb-4">🔄</div>
+        <h3 className="text-xl font-semibold text-gray-800 mb-2">Yakında</h3>
+        <p className="text-gray-600">Müşteri atama özelliği geliştiriliyor.</p>
+      </div>
+    </div>
+  );
+};
+
+// Consultant Reports
+const ConsultantReports = () => {
+  return (
+    <div className="p-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">📈 Raporlarım</h1>
+        <p className="text-gray-600 mt-2">
+          Müşterilerinizin raporlarını görüntüleyin
+        </p>
+      </div>
+      
+      <div className="text-center py-12">
+        <div className="text-6xl mb-4">📈</div>
+        <h3 className="text-xl font-semibold text-gray-800 mb-2">Yakında</h3>
+        <p className="text-gray-600">Rapor özelliği geliştiriliyor.</p>
+      </div>
+    </div>
+  );
+};
+
+// Consultant Profile
+const ConsultantProfile = () => {
+  const { dbUser } = useAuth();
+  
+  return (
+    <div className="p-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">👤 Profil</h1>
+        <p className="text-gray-600 mt-2">
+          Danışman profil bilgilerinizi yönetin
+        </p>
+      </div>
+      
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">İsim</label>
+            <p className="text-gray-900">{dbUser?.name || 'Tanımlı değil'}</p>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <p className="text-gray-900">{dbUser?.email || 'Tanımlı değil'}</p>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+            <p className="text-gray-900 capitalize">{dbUser?.role || 'Tanımlı değil'}</p>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Kayıt Tarihi</label>
+            <p className="text-gray-900">
+              {dbUser?.created_at ? new Date(dbUser.created_at).toLocaleDateString('tr-TR') : 'Tanımlı değil'}
+            </p>
+          </div>
+        </div>
+        
+        <div className="mt-6 pt-6 border-t">
+          <div className="text-center py-8">
+            <div className="text-4xl mb-2">👤</div>
+            <p className="text-gray-600">Profil düzenleme özelliği yakında kullanıma sunulacak</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Sustainability Targets Management Component
 const SustainabilityTargets = () => {
