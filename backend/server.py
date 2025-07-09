@@ -706,12 +706,17 @@ async def get_current_user(payload: dict = Depends(verify_token)):
         logging.info(f"✅ USER FOUND: {user['id']} - {user['name']} ({user['email']}) - Role: {user['role']}")
     
     # Convert to User object
+    user_role = user.get("role")
+    if not user_role or user_role in [None, "", "null"]:
+        # If no role set, raise specific exception for role setup
+        raise HTTPException(status_code=422, detail="User role not set, needs role selection")
+    
     return User(
         id=user["id"],
         clerk_user_id=user["clerk_user_id"],
         name=user["name"],
         email=user["email"],
-        role=UserRole(user["role"]),
+        role=UserRole(user_role),
         client_id=user.get("client_id", ""),
         created_at=user["created_at"]
     )
