@@ -2344,6 +2344,97 @@ const useAuth = () => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
+  // Token refresh function
+  const refreshToken = async () => {
+    try {
+      if (session) {
+        console.log('🔄 Refreshing token...');
+        const newToken = await session.getToken({ skipCache: true });
+        if (newToken) {
+          setAuthToken(newToken);
+          sessionStorage.setItem('authToken', newToken);
+          console.log('✅ Token refreshed successfully');
+          return newToken;
+        }
+      }
+      throw new Error('No session available');
+    } catch (error) {
+      console.error('❌ Token refresh failed:', error);
+      // Clear session data
+      sessionStorage.removeItem('authToken');
+      sessionStorage.removeItem('userRole');
+      sessionStorage.removeItem('dbUser');
+      setAuthToken(null);
+      setUserRole(null);
+      setDbUser(null);
+      throw error;
+    }
+  };
+
+  // Setup axios interceptor for automatic token refresh
+  useEffect(() => {
+    const requestInterceptor = axios.interceptors.request.use(
+      (config) => {
+        const token = sessionStorage.getItem('authToken');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    const responseInterceptor = axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+        
+        // If token expired and we haven't already tried to refresh
+        if (error.response?.status === 401 && !originalRequest._retry && session) {
+          originalRequest._retry = true;
+          
+          try {
+            console.log('🔄 Token expired, attempting refresh...');
+            const newToken = await refreshToken();
+            
+            // Retry the original request with new token
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return axios(originalRequest);
+          } catch (refreshError) {
+            console.error('❌ Token refresh failed, redirecting to login');
+            // Force page reload to trigger login
+            window.location.reload();
+            return Promise.reject(refreshError);
+          }
+        }
+        
+        return Promise.reject(error);
+      }
+    );
+
+    // Cleanup interceptors on unmount
+    return () => {
+      axios.interceptors.request.eject(requestInterceptor);
+      axios.interceptors.response.eject(responseInterceptor);
+    };
+  }, [session]);
+
+  // Periodic token refresh (every 45 minutes)
+  useEffect(() => {
+    if (authToken && session) {
+      const interval = setInterval(async () => {
+        try {
+          console.log('🔄 Periodic token refresh...');
+          await refreshToken();
+        } catch (error) {
+          console.error('❌ Periodic token refresh failed:', error);
+        }
+      }, 45 * 60 * 1000); // 45 minutes
+
+      return () => clearInterval(interval);
+    }
+  }, [authToken, session]);
+
   const refreshUser = async () => {
     if (authToken) {
       try {
