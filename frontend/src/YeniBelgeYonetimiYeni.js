@@ -85,6 +85,15 @@ const YeniBelgeYonetimiYeni = () => {
       });
       let allClients = response.data || [];
       
+      console.log('👥 All clients from API:', allClients);
+      allClients.forEach((client, index) => {
+        console.log(`👥 Client ${index + 1}:`, {
+          id: client.id,
+          name: client.client_name || client.name,
+          hotel_name: client.hotel_name
+        });
+      });
+      
       // ROLE-BASED FILTERING: Client users only see their own data
       if (userRole === 'client' && dbUser?.client_id) {
         allClients = allClients.filter(client => client.id === dbUser.client_id);
