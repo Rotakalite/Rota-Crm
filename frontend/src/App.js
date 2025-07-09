@@ -10902,7 +10902,7 @@ const MainApp = () => {
   };
 
   // Show role setup for new users (after Clerk registration)
-  if (showRoleSetup && !userRole) {
+  if (showRoleSetup && isLoaded && user && dbUser && (!dbUser.role || dbUser.role === '' || dbUser.role === null)) {
     return <RoleSetup onComplete={() => setShowRoleSetup(false)} />;
   }
 
