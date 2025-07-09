@@ -642,7 +642,8 @@ test_plan:
   current_focus:
     - "Consultant Management System Backend APIs"
     - "Consultant Management Frontend Full Implementation"
-  stuck_tasks: []
+  stuck_tasks:
+    - "Consultant Management System Backend APIs"
   test_all: false
   test_priority: "high_first"
 
