@@ -8376,53 +8376,6 @@ def get_safe_filename(filename: str) -> str:
     safe_filename = "".join(c if c in safe_chars else "_" for c in filename)
     return safe_filename[:100]
 
-@app.get("/api/belge/download/{document_id}")
-async def download_belge_main(document_id: str):
-    """🚀 YENİ BELGE İNDİRME - ORİJİNAL FORMAT - MAIN APP"""
-    try:
-        logging.info(f"📥 BELGE DOWNLOAD MAIN: {document_id}")
-        
-        # Get MongoDB connection
-        mongo_client = MongoClient(mongo_url)
-        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
-        
-        # Find document
-        document = await asyncio.to_thread(db.documents.find_one, {"id": document_id})
-        if not document:
-            raise HTTPException(status_code=404, detail="Belge bulunamadı")
-        
-        file_path = document.get("file_path")
-        if not file_path or not os.path.exists(file_path):
-            raise HTTPException(status_code=404, detail="Dosya bulunamadı")
-        
-        original_filename = document.get("original_filename", document.get("filename", "document.pdf"))
-        
-        # Encode filename for Turkish characters (RFC 6266)
-        try:
-            encoded_filename = original_filename.encode('ascii')
-            disposition = f'attachment; filename="{original_filename}"'
-        except UnicodeEncodeError:
-            import urllib.parse
-            encoded_filename = urllib.parse.quote(original_filename, safe='')
-            disposition = f"attachment; filename*=UTF-8''{encoded_filename}"
-        
-        logging.info(f"✅ Returning file: {original_filename}")
-        
-        return FileResponse(
-            path=file_path,
-            filename=original_filename,
-            headers={
-                "Content-Disposition": disposition,
-                "Content-Type": "application/octet-stream"
-            }
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logging.error(f"❌ BELGE DOWNLOAD ERROR: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"İndirme hatası: {str(e)}")
-
 @app.post("/api/test-auto-folder-creation")
 async def test_main_endpoint():
     """Test endpoint on main app"""
