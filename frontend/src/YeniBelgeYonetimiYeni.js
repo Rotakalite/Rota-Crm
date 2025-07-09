@@ -7,11 +7,10 @@ const YeniBelgeYonetimiYeni = () => {
   const [userRole, setUserRole] = useState(null);
   const [dbUser, setDbUser] = useState(null);
   
-  // Frontend .env'den backend URL'yi al
+  // Frontend .env'den Railway backend URL'yi al
   const getApiUrl = () => {
-    return process.env.REACT_APP_BACKEND_URL ? 
-      `${process.env.REACT_APP_BACKEND_URL}/api` : 
-      'https://rota-crm-production.up.railway.app/api';
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://rota-crm-production.up.railway.app';
+    return `${backendUrl}/api`;
   };
   
   const API = getApiUrl();
