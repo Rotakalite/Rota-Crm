@@ -761,6 +761,169 @@ async def health_check_main():
         "main_app": True
     }
 
+# ==========================================
+# CONSULTANT MANAGEMENT - MAIN APP ENDPOINTS
+# ==========================================
+
+@app.post("/api/consultants")
+async def create_consultant(consultant_data: ConsultantCreate):
+    """Create a new consultant - NO AUTH for registration"""
+    try:
+        consultant = Consultant(**consultant_data.dict()).dict()
+        result = await db.consultants.insert_one(consultant)
+        
+        return {
+            "message": "Consultant created successfully",
+            "consultant_id": consultant["id"]
+        }
+    except Exception as e:
+        logging.error(f"Error creating consultant: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.get("/api/consultants")
+async def get_consultants():
+    """Get all active consultants - NO AUTH for client signup"""
+    try:
+        consultants = await db.consultants.find({"is_active": True}).to_list(length=None)
+        
+        clean_consultants = []
+        for consultant in consultants:
+            if "_id" in consultant:
+                del consultant["_id"]
+            clean_consultants.append(consultant)
+        
+        return clean_consultants
+    except Exception as e:
+        logging.error(f"Error fetching consultants: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.get("/api/consultants/{consultant_id}")
+async def get_consultant(consultant_id: str, current_user: User = Depends(get_current_user)):
+    """Get consultant details"""
+    try:
+        consultant = await db.consultants.find_one({"id": consultant_id})
+        if not consultant:
+            raise HTTPException(status_code=404, detail="Consultant not found")
+        
+        if "_id" in consultant:
+            del consultant["_id"]
+        
+        return consultant
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error fetching consultant: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.put("/api/consultants/{consultant_id}")
+async def update_consultant(
+    consultant_id: str,
+    consultant_data: ConsultantCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Update consultant - Admin or self only"""
+    try:
+        # Check if consultant exists
+        existing = await db.consultants.find_one({"id": consultant_id})
+        if not existing:
+            raise HTTPException(status_code=404, detail="Consultant not found")
+        
+        # Check permissions
+        if current_user.role != UserRole.ADMIN and current_user.consultant_id != consultant_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        update_data = consultant_data.dict()
+        update_data["updated_at"] = datetime.utcnow()
+        
+        await db.consultants.update_one(
+            {"id": consultant_id},
+            {"$set": update_data}
+        )
+        
+        return {"message": "Consultant updated successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating consultant: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.get("/api/consultants/{consultant_id}/clients")
+async def get_consultant_clients(
+    consultant_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get clients managed by consultant"""
+    try:
+        # Check permissions
+        if current_user.role != UserRole.ADMIN and current_user.consultant_id != consultant_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        clients = await db.clients.find({"consultant_id": consultant_id}).to_list(length=None)
+        
+        clean_clients = []
+        for client in clients:
+            if "_id" in client:
+                del client["_id"]
+            clean_clients.append(client)
+        
+        return clean_clients
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error fetching consultant clients: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.get("/api/consultants/{consultant_id}/dashboard")
+async def get_consultant_dashboard(
+    consultant_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get consultant dashboard data"""
+    try:
+        # Check permissions
+        if current_user.role != UserRole.ADMIN and current_user.consultant_id != consultant_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        # Get consultant clients
+        clients = await db.clients.find({"consultant_id": consultant_id}).to_list(length=None)
+        
+        # Calculate stats
+        total_clients = len(clients)
+        active_clients = len([c for c in clients if c.get("current_stage") != ProjectStage.STAGE_3])
+        
+        # Get all module data for clients
+        client_ids = [c["id"] for c in clients]
+        
+        # Personnel count
+        personnel_count = await db.personnel.count_documents({"client_id": {"$in": client_ids}})
+        
+        # Suppliers count
+        suppliers_count = await db.suppliers.count_documents({"client_id": {"$in": client_ids}})
+        
+        # Sustainability targets count
+        targets_count = await db.sustainability_targets.count_documents({"client_id": {"$in": client_ids}})
+        
+        # Recent activity - last 10 documents
+        recent_documents = await db.documents.find(
+            {"client_id": {"$in": client_ids}}
+        ).sort("created_at", -1).limit(10).to_list(length=None)
+        
+        return {
+            "total_clients": total_clients,
+            "active_clients": active_clients,
+            "completed_clients": total_clients - active_clients,
+            "personnel_count": personnel_count,
+            "suppliers_count": suppliers_count,
+            "targets_count": targets_count,
+            "recent_documents": len(recent_documents),
+            "clients": [{"id": c["id"], "name": c["name"], "hotel_name": c["hotel_name"], "current_stage": c["current_stage"]} for c in clients]
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error fetching consultant dashboard: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
 # Sustainability Target Models
 class SustainabilityTargetInput(BaseModel):
     target_name: str
