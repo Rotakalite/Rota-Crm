@@ -10535,6 +10535,9 @@ const RoleSetup = ({ onComplete }) => {
     setLoading(true);
     
     try {
+      // Get token from session
+      const token = await session?.getToken();
+      
       // Use new endpoint that updates both consultant and user role
       await axios.post(`${API}/consultants/register-with-user`, {
         consultant_data: {
@@ -10542,10 +10545,10 @@ const RoleSetup = ({ onComplete }) => {
           email: user.emailAddresses[0].emailAddress
         }
       }, {
-        headers: { Authorization: `Bearer ${session?.getToken()}` }
+        headers: { Authorization: `Bearer ${token}` }
       });
       
-      alert('Danışman kaydınız başarıyla oluşturuldu! Lütfen sayfa yenilenene kadar bekleyin.');
+      alert('Danışman kaydınız başarıyla oluşturuldu! Rolünüz güncellendi. Sayfa yenilenecek.');
       onComplete();
       
       // Force page reload to refresh authentication state
