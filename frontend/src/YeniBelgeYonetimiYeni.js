@@ -151,8 +151,12 @@ const YeniBelgeYonetimiYeni = () => {
   };
 
   const loadDocuments = async (folderId) => {
+    if (!authToken) return;
+    
     try {
-      const response = await axios.get(`${API}/api/belge/list`);
+      const response = await axios.get(`${API}/api/belge/list`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
       const allDocuments = response.data?.documents || [];
       
       // Seçili klasör ve alt klasörlerindeki dokümanları filtrele
@@ -168,6 +172,7 @@ const YeniBelgeYonetimiYeni = () => {
       });
       
       setDocuments(folderDocuments);
+      console.log('📄 Documents loaded for folder:', folderId, 'Count:', folderDocuments.length);
     } catch (error) {
       console.error('❌ Document load error:', error);
     }
