@@ -1128,6 +1128,46 @@ async def assign_unassigned_clients_to_rota(
         logging.error(f"Error assigning unassigned clients: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+@app.get("/api/debug/users")
+async def debug_users():
+    """Debug endpoint to check user roles - REMOVE IN PRODUCTION"""
+    try:
+        users = await db.users.find({}).to_list(length=None)
+        
+        clean_users = []
+        for user in users:
+            if "_id" in user:
+                del user["_id"]
+            clean_users.append(user)
+        
+        return {
+            "total_users": len(clean_users),
+            "users": clean_users
+        }
+    except Exception as e:
+        logging.error(f"Error fetching users: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.get("/api/debug/consultants")
+async def debug_consultants():
+    """Debug endpoint to check consultants - REMOVE IN PRODUCTION"""
+    try:
+        consultants = await db.consultants.find({}).to_list(length=None)
+        
+        clean_consultants = []
+        for consultant in consultants:
+            if "_id" in consultant:
+                del consultant["_id"]
+            clean_consultants.append(consultant)
+        
+        return {
+            "total_consultants": len(clean_consultants),
+            "consultants": clean_consultants
+        }
+    except Exception as e:
+        logging.error(f"Error fetching consultants: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
 # Sustainability Target Models
 class SustainabilityTargetInput(BaseModel):
     target_name: str
