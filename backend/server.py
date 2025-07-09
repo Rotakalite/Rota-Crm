@@ -780,6 +780,41 @@ async def create_consultant(consultant_data: ConsultantCreate):
         logging.error(f"Error creating consultant: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+@app.post("/api/consultants/register-with-user")
+async def register_consultant_with_user(
+    request_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Register consultant and update user role - AUTH required"""
+    try:
+        consultant_data = request_data.get("consultant_data")
+        if not consultant_data:
+            raise HTTPException(status_code=400, detail="Consultant data is required")
+        
+        # Create consultant record
+        consultant = Consultant(**consultant_data).dict()
+        await db.consultants.insert_one(consultant)
+        
+        # Update user role to CONSULTANT
+        await db.users.update_one(
+            {"id": current_user.id},
+            {"$set": {
+                "role": "consultant",
+                "consultant_id": consultant["id"],
+                "updated_at": datetime.utcnow()
+            }}
+        )
+        
+        logging.info(f"✅ USER ROLE UPDATED: {current_user.id} is now CONSULTANT")
+        
+        return {
+            "message": "Consultant created and user role updated successfully",
+            "consultant_id": consultant["id"]
+        }
+    except Exception as e:
+        logging.error(f"Error creating consultant with user update: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
 @app.post("/api/init-default-consultant")
 async def init_default_consultant():
     """Initialize default ROTA consultant - NO AUTH needed"""
