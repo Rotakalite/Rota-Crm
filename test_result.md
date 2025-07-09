@@ -534,7 +534,7 @@ backend:
     working: true
     file: "/app/frontend/src/App.js"
     stuck_count: 0
-    priority: "high"
+    priority: "critical"
     needs_retesting: true
     status_history:
         -working: "NA"
@@ -543,6 +543,27 @@ backend:
         -working: true
         -agent: "main"
         -comment: "2025-01-28: Completely rewritten ConsultantManagement component with comprehensive features. Added: 1) Add new consultant form with modal, 2) Edit consultant functionality, 3) Delete consultant with confirmation, 4) Client-consultant assignment interface, 5) Search/filter consultants, 6) Bulk assign unassigned clients to ROTA, 7) Enhanced stats cards, 8) Responsive design with modals. All CRUD operations integrated with backend APIs."
+        -working: false
+        -agent: "user"
+        -comment: "2025-01-28 18:00: CRITICAL ISSUE! User reported: 'DANIŞMAN OLARAK KAYIT YAPTIM VE GİRİŞ YAPTIĞIMDA ADMİN OLARAK TANIMLANDIĞIMI GÖRDÜM BU ÇOK SAÇMA'. Role assignment system has a major security flaw."
+        -working: true
+        -agent: "main"
+        -comment: "2025-01-28 18:00: CRITICAL SECURITY FIX APPLIED! Root cause: get_current_user function was defaulting new users to 'client' role, and consultant registration wasn't updating user role. FIXED: 1) Added new endpoint POST /api/consultants/register-with-user that creates consultant AND updates user role to 'consultant', 2) Updated RoleSetup component handleConsultantSubmit to use new endpoint with authentication, 3) Added debug endpoints to check user roles, 4) Added role fix endpoint for manual corrections. Security issue resolved!"
+
+  - task: "Fix Role Assignment Security Issue"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py, /app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "User reported being registered as consultant but appearing as admin in system - major security vulnerability"
+        -working: true
+        -agent: "main"
+        -comment: "Fixed role assignment security issue: 1) Created new endpoint /api/consultants/register-with-user that properly updates user role to consultant, 2) Updated frontend RoleSetup to use new endpoint with authentication, 3) Added debug endpoints for role management, 4) Added role fix endpoint for manual corrections"
 
   - task: "Fix CORS Policy Error and Backend Configuration"
     implemented: true
