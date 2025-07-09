@@ -2399,6 +2399,10 @@ const useAuth = () => {
       async (error) => {
         const originalRequest = error.config;
         
+        console.log('🔍 Axios interceptor - Error status:', error.response?.status);
+        console.log('🔍 Axios interceptor - Already retried:', !!originalRequest._retry);
+        console.log('🔍 Axios interceptor - Session available:', !!session);
+        
         // If token expired and we haven't already tried to refresh
         if (error.response?.status === 401 && !originalRequest._retry && session) {
           originalRequest._retry = true;
@@ -2407,17 +2411,20 @@ const useAuth = () => {
             console.log('🔄 Token expired, attempting refresh...');
             const newToken = await refreshToken();
             
+            console.log('✅ Token refresh successful, retrying original request');
             // Retry the original request with new token
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
             return axios(originalRequest);
           } catch (refreshError) {
             console.error('❌ Token refresh failed, redirecting to login');
+            console.error('❌ Refresh error:', refreshError);
             // Force page reload to trigger login
             window.location.reload();
             return Promise.reject(refreshError);
           }
         }
         
+        console.log('❌ Request failed, not retrying:', error.response?.status);
         return Promise.reject(error);
       }
     );
