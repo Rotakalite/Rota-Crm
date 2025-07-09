@@ -11174,6 +11174,378 @@ const CustomSignUp = () => {
   );
 };
 
+// Custom Sign Up Component with Role Selection
+const CustomSignUp = () => {
+  const [step, setStep] = useState('role-selection');
+  const [selectedRole, setSelectedRole] = useState('');
+  const [consultants, setConsultants] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [consultantData, setConsultantData] = useState({
+    company_name: '',
+    authorized_person_name: '',
+    email: '',
+    phone: '',
+    address: ''
+  });
+  const [clientData, setClientData] = useState({
+    consultant_id: '',
+    hotel_name: '',
+    contact_person: '',
+    email: '',
+    phone: '',
+    address: ''
+  });
+  const API = getApiUrl();
+
+  const fetchConsultants = async () => {
+    try {
+      const response = await axios.get(`${API}/consultants`);
+      const consultantList = response.data || [];
+      
+      // Sort consultants: ROTA first, then alphabetically
+      const sortedConsultants = consultantList.sort((a, b) => {
+        if (a.company_name === 'ROTA') return -1;
+        if (b.company_name === 'ROTA') return 1;
+        return a.company_name.localeCompare(b.company_name);
+      });
+      
+      setConsultants(sortedConsultants);
+    } catch (error) {
+      console.error('Error fetching consultants:', error);
+      setConsultants([]);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedRole === 'client') {
+      fetchConsultants();
+    }
+  }, [selectedRole]);
+
+  const handleRoleSelection = (role) => {
+    setSelectedRole(role);
+    if (role === 'consultant') {
+      setStep('consultant-form');
+    } else if (role === 'client') {
+      setStep('client-form');
+    }
+  };
+
+  const handleConsultantSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      await axios.post(`${API}/consultants`, consultantData);
+      alert('Danışman kaydınız başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.');
+      window.location.href = '/sign-in';
+    } catch (error) {
+      console.error('Error creating consultant:', error);
+      alert('Danışman kaydı sırasında hata oluştu: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClientSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      const response = await axios.post(`${API}/clients`, {
+        ...clientData,
+        name: clientData.hotel_name
+      });
+      alert('Müşteri kaydınız başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.');
+      window.location.href = '/sign-in';
+    } catch (error) {
+      console.error('Error creating client:', error);
+      alert('Müşteri kaydı sırasında hata oluştu: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-2">Rota CRM</h1>
+            <p className="text-blue-100">Sürdürülebilirlik Yönetim Sistemi</p>
+          </div>
+        </div>
+
+        <div className="p-6">
+          {step === 'role-selection' && (
+            <div className="space-y-6">
+              <div className="text-center">
+                <h2 className="text-xl font-bold text-gray-800 mb-2">Hesap Türü Seçin</h2>
+                <p className="text-gray-600 text-sm">Size uygun hesap türünü seçiniz</p>
+              </div>
+
+              <div className="space-y-4">
+                <button
+                  onClick={() => handleRoleSelection('consultant')}
+                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all transform hover:scale-105 shadow-lg"
+                >
+                  <div className="flex items-center justify-center space-x-3">
+                    <span className="text-2xl">👔</span>
+                    <div className="text-left">
+                      <h3 className="font-bold">Danışman</h3>
+                      <p className="text-sm text-green-100">Müşteri yönetimi ve danışmanlık</p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleRoleSelection('client')}
+                  className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-4 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all transform hover:scale-105 shadow-lg"
+                >
+                  <div className="flex items-center justify-center space-x-3">
+                    <span className="text-2xl">🏨</span>
+                    <div className="text-left">
+                      <h3 className="font-bold">Otel Sahibi</h3>
+                      <p className="text-sm text-blue-100">Otelin sürdürülebilirlik takibi</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+
+              <div className="text-center">
+                <p className="text-sm text-gray-600">
+                  Zaten hesabınız var mı?{' '}
+                  <a href="/sign-in" className="text-blue-600 hover:text-blue-700 font-medium">
+                    Giriş Yap
+                  </a>
+                </p>
+              </div>
+            </div>
+          )}
+
+          {step === 'consultant-form' && (
+            <div className="space-y-6">
+              <div className="text-center">
+                <h2 className="text-xl font-bold text-gray-800 mb-2">👔 Danışman Kaydı</h2>
+                <p className="text-gray-600 text-sm">Danışman bilgilerinizi doldurun</p>
+              </div>
+
+              <form onSubmit={handleConsultantSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Firma Adı *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={consultantData.company_name}
+                    onChange={(e) => setConsultantData({...consultantData, company_name: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="ABC Danışmanlık Ltd."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Yetkili Kişi Adı Soyadı *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={consultantData.authorized_person_name}
+                    onChange={(e) => setConsultantData({...consultantData, authorized_person_name: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Ahmet Yılmaz"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email Adresi *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={consultantData.email}
+                    onChange={(e) => setConsultantData({...consultantData, email: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="ahmet@example.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Telefon Numarası *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={consultantData.phone}
+                    onChange={(e) => setConsultantData({...consultantData, phone: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0532 123 45 67"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Adres *
+                  </label>
+                  <textarea
+                    required
+                    value={consultantData.address}
+                    onChange={(e) => setConsultantData({...consultantData, address: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    rows="3"
+                    placeholder="Tam adres bilgisi..."
+                  />
+                </div>
+
+                <div className="flex space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setStep('role-selection')}
+                    className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+                  >
+                    ← Geri
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-2 px-4 rounded-lg hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 transition-colors"
+                  >
+                    {loading ? 'Kaydediliyor...' : 'Kaydet'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {step === 'client-form' && (
+            <div className="space-y-6">
+              <div className="text-center">
+                <h2 className="text-xl font-bold text-gray-800 mb-2">🏨 Müşteri Kaydı</h2>
+                <p className="text-gray-600 text-sm">Otel bilgilerinizi doldurun</p>
+              </div>
+
+              <form onSubmit={handleClientSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Hangi danışmanla çalışıyorsunuz? *
+                  </label>
+                  <select
+                    required
+                    value={clientData.consultant_id}
+                    onChange={(e) => setClientData({...clientData, consultant_id: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Bir danışman seçin...</option>
+                    {consultants.map((consultant) => (
+                      <option key={consultant.id} value={consultant.id}>
+                        {consultant.company_name === 'ROTA' ? 
+                          `🏆 ${consultant.company_name} - ${consultant.authorized_person_name} (Sistem Kurucusu)` :
+                          `${consultant.company_name} - ${consultant.authorized_person_name}`
+                        }
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Otel Adı *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={clientData.hotel_name}
+                    onChange={(e) => setClientData({...clientData, hotel_name: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Paradise Hotel"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    İletişim Kişisi *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={clientData.contact_person}
+                    onChange={(e) => setClientData({...clientData, contact_person: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Mehmet Demir"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email Adresi *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={clientData.email}
+                    onChange={(e) => setClientData({...clientData, email: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="info@paradisehotel.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Telefon Numarası *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={clientData.phone}
+                    onChange={(e) => setClientData({...clientData, phone: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0242 123 45 67"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Adres *
+                  </label>
+                  <textarea
+                    required
+                    value={clientData.address}
+                    onChange={(e) => setClientData({...clientData, address: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    rows="3"
+                    placeholder="Otel tam adres bilgisi..."
+                  />
+                </div>
+
+                <div className="flex space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setStep('role-selection')}
+                    className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+                  >
+                    ← Geri
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2 px-4 rounded-lg hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 transition-colors"
+                  >
+                    {loading ? 'Kaydediliyor...' : 'Kaydet'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function App() {
   return (
     <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
@@ -11181,7 +11553,7 @@ function App() {
         <MainApp />
       </SignedIn>
       <SignedOut>
-        <RedirectToSignIn />
+        <CustomSignUp />
       </SignedOut>
     </ClerkProvider>
   );
