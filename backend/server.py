@@ -1592,10 +1592,10 @@ async def list_belge_main_app(current_user: User = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail=f"Liste hatası: {str(e)}")
 
 @app.get("/api/belge/download/{document_id}")
-async def download_belge_main_app(document_id: str):
+async def download_belge_main_app(document_id: str, current_user: User = Depends(get_current_user)):
     """📥 BELGE İNDİRME - MAIN APP"""
     try:
-        logging.info(f"📥 BELGE DOWNLOAD MAIN APP: {document_id}")
+        logging.info(f"📥 BELGE DOWNLOAD MAIN APP: {document_id}, User: {current_user.email}")
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
@@ -1605,6 +1605,22 @@ async def download_belge_main_app(document_id: str):
         document = await asyncio.to_thread(db.documents.find_one, {"id": document_id})
         if not document:
             raise HTTPException(status_code=404, detail="Belge bulunamadı")
+        
+        # Security: Check if user can download this document
+        document_client_id = document.get("client_id")
+        if current_user.role == UserRole.CLIENT:
+            if current_user.client_id != document_client_id:
+                raise HTTPException(status_code=403, detail="Bu belgeye erişim yetkiniz yok")
+        elif current_user.role == UserRole.CONSULTANT:
+            # Check if document's client is assigned to this consultant
+            consultant_id = getattr(current_user, 'consultant_id', None)
+            if not consultant_id:
+                raise HTTPException(status_code=403, detail="Danışman ID bulunamadı")
+            
+            client = await asyncio.to_thread(db.clients.find_one, {"id": document_client_id})
+            if not client or client.get("consultant_id") != consultant_id:
+                raise HTTPException(status_code=403, detail="Bu belgeye erişim yetkiniz yok")
+        # Admin can download any document
         
         # SIMPLE MONGODB BINARY STORAGE - NO GRIDFS
         if document.get("binary_storage", False) and document.get("file_content"):
