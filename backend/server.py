@@ -4028,6 +4028,40 @@ async def get_statistics(current_user: User = Depends(get_current_user)):
                 "total_documents": total_documents,
                 "total_trainings": total_trainings
             }
+        elif current_user.role == UserRole.CONSULTANT:
+            # Consultant sees only their assigned clients' statistics
+            consultant_id = getattr(current_user, 'consultant_id', None)
+            if not consultant_id:
+                return {
+                    "total_clients": 0,
+                    "stage_distribution": {"stage_1": 0, "stage_2": 0, "stage_3": 0},
+                    "total_documents": 0,
+                    "total_trainings": 0
+                }
+            
+            # Get consultant's clients
+            consultant_clients = await db.clients.find({"consultant_id": consultant_id}).to_list(length=None)
+            client_ids = [client["id"] for client in consultant_clients]
+            
+            total_clients = len(consultant_clients)
+            stage_1_clients = len([c for c in consultant_clients if c.get("current_stage") == "I.Aşama"])
+            stage_2_clients = len([c for c in consultant_clients if c.get("current_stage") == "II.Aşama"])
+            stage_3_clients = len([c for c in consultant_clients if c.get("current_stage") == "III.Aşama"])
+            
+            # Count documents and trainings for consultant's clients only
+            total_documents = await db.documents.count_documents({"client_id": {"$in": client_ids}})
+            total_trainings = await db.trainings.count_documents({"client_id": {"$in": client_ids}})
+            
+            return {
+                "total_clients": total_clients,
+                "stage_distribution": {
+                    "stage_1": stage_1_clients,
+                    "stage_2": stage_2_clients,
+                    "stage_3": stage_3_clients
+                },
+                "total_documents": total_documents,
+                "total_trainings": total_trainings
+            }
         else:
             # Client sees only their own statistics - document type distribution
             if not current_user.client_id:
