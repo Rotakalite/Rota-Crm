@@ -6617,9 +6617,13 @@ const ClientDocuments = () => {
               setSelectedClient(client || null);
               setSelectedFolder(null);
               if (client) {
+                console.log('🎯 Client selected:', client.hotel_name, 'ID:', client.id);
                 fetchDocuments(client.id);
-                // Don't filter folders for now - show all folders
-                // fetchFoldersForClient(client.id);
+                fetchFoldersForClient(client.id);
+              } else {
+                console.log('🎯 No client selected, clearing data');
+                setDocuments([]);
+                setFolders([]);
               }
             }}
             className="w-full md:w-64 p-3 border border-gray-300 rounded-md"
