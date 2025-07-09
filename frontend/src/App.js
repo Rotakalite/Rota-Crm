@@ -10495,6 +10495,7 @@ const RoleSetup = ({ onComplete }) => {
   });
   const API = getApiUrl();
   const { user } = useAuth();
+  const { session } = useClerk();
 
   const fetchConsultants = async () => {
     try {
