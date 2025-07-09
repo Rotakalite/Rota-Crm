@@ -1446,11 +1446,31 @@ async def upload_belge_main_app(
     document_name: str = Form(...),
     document_type: str = Form(...),
     stage: str = Form(...),
-    description: str = Form(default="")
+    description: str = Form(default=""),
+    current_user: User = Depends(get_current_user)
 ):
     """🚀 YENİ BELGE YÜKLEME - MAIN APP"""
     try:
-        logging.info(f"📤 BELGE UPLOAD MAIN APP: {file.filename} -> Client: {client_id}")
+        logging.info(f"📤 BELGE UPLOAD MAIN APP: {file.filename} -> Client: {client_id}, User: {current_user.email}")
+        
+        # Security: Check if user can upload to this client
+        if current_user.role == UserRole.CLIENT:
+            if current_user.client_id != client_id:
+                raise HTTPException(status_code=403, detail="Bu müşteri için belge yükleme yetkiniz yok")
+        elif current_user.role == UserRole.CONSULTANT:
+            # Check if client is assigned to this consultant
+            consultant_id = getattr(current_user, 'consultant_id', None)
+            if not consultant_id:
+                raise HTTPException(status_code=403, detail="Danışman ID bulunamadı")
+            
+            # Get MongoDB connection
+            mongo_client = MongoClient(mongo_url)
+            db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
+            
+            client = await asyncio.to_thread(db.clients.find_one, {"id": client_id})
+            if not client or client.get("consultant_id") != consultant_id:
+                raise HTTPException(status_code=403, detail="Bu müşteri için belge yükleme yetkiniz yok")
+        # Admin can upload to any client
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
