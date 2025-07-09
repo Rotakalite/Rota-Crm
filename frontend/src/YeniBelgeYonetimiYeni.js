@@ -296,10 +296,13 @@ const YeniBelgeYonetimiYeni = () => {
   };
 
   const downloadDocument = async (doc) => {
+    if (!authToken) return;
+    
     try {
       console.log(`📥 Downloading document: ${doc.name}`);
       
       const response = await axios.get(`${API}/api/belge/download/${doc.id}`, {
+        headers: { Authorization: `Bearer ${authToken}` },
         responseType: 'blob',
         timeout: 30000 // 30 seconds timeout
       });
@@ -329,12 +332,16 @@ const YeniBelgeYonetimiYeni = () => {
   };
 
   const deleteDocument = async (documentId) => {
+    if (!authToken) return;
+    
     if (!window.confirm('Bu belgeyi silmek istediğinizden emin misiniz?')) {
       return;
     }
 
     try {
-      await axios.delete(`${API}/api/belge/delete/${documentId}`);
+      await axios.delete(`${API}/api/belge/delete/${documentId}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
       
       // Reload documents and update counts
       await loadDocuments(selectedFolder.id);
