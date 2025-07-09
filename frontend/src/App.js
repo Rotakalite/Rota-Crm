@@ -10848,7 +10848,16 @@ const CustomSignUp = () => {
   const fetchConsultants = async () => {
     try {
       const response = await axios.get(`${API}/consultants`);
-      setConsultants(response.data || []);
+      const consultantList = response.data || [];
+      
+      // Sort consultants: ROTA first, then alphabetically
+      const sortedConsultants = consultantList.sort((a, b) => {
+        if (a.company_name === 'ROTA') return -1;
+        if (b.company_name === 'ROTA') return 1;
+        return a.company_name.localeCompare(b.company_name);
+      });
+      
+      setConsultants(sortedConsultants);
     } catch (error) {
       console.error('Error fetching consultants:', error);
       setConsultants([]);
