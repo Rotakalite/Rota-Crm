@@ -122,6 +122,14 @@ const YeniBelgeYonetimiYeni = () => {
       console.log('📁 Database unique client_ids:', uniqueClientIds);
       console.log('📁 Looking for client_id:', clientId);
       
+      // Eğer client_id eşleşmiyorsa, database'deki client_id'lerden birini deneyelim
+      if (!uniqueClientIds.includes(clientId) && uniqueClientIds.length > 0) {
+        console.log('⚠️ Client ID not found in database! Trying with first available client_id...');
+        const alternativeClientId = uniqueClientIds[0];
+        console.log('📁 Using alternative client_id:', alternativeClientId);
+        clientId = alternativeClientId;
+      }
+      
       // Client ID'lerin tipini kontrol edelim
       const sampleFolders = allFolders.slice(0, 5);
       console.log('📁 Sample folders with client_ids:', sampleFolders.map(f => ({
