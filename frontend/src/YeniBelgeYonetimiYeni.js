@@ -219,6 +219,11 @@ const YeniBelgeYonetimiYeni = () => {
   };
 
   const uploadDocuments = async () => {
+    if (!authToken) {
+      alert('Auth token bulunamadı!');
+      return;
+    }
+    
     if (!selectedClient) {
       alert('Lütfen müşteri seçin!');
       return;
@@ -256,7 +261,10 @@ const YeniBelgeYonetimiYeni = () => {
         console.log(`📤 Uploading file ${i + 1}/${selectedFiles.length}: ${file.name}`);
         
         const response = await axios.post(`${API}/api/belge/upload`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+          headers: { 
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${authToken}`
+          },
           timeout: 60000, // 1 minute timeout
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
