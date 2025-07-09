@@ -8032,8 +8032,8 @@ const ConsumptionManagement = ({ onNavigate }) => {
         </div>
       )}
 
-      {/* Admin için müşteri seçim uyarısı */}
-      {userRole === 'admin' && !selectedClient && (
+      {/* Admin ve Consultant için müşteri seçim uyarısı */}
+      {(userRole === 'admin' || userRole === 'consultant') && !selectedClient && (
         <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
           <div className="flex items-center">
             <div className="text-yellow-400 mr-3">
