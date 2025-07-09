@@ -10919,7 +10919,7 @@ const MainApp = () => {
   }
 
   // STEP 2: Show role setup for new users (after 2FA is completed)
-  if (showRoleSetup && isLoaded && user && dbUser && (!dbUser.role || dbUser.role === '' || dbUser.role === null)) {
+  if (showRoleSetup && twoFACompleted && isLoaded && user && dbUser && (!dbUser.role || dbUser.role === '' || dbUser.role === null)) {
     return <RoleSetup onComplete={() => setShowRoleSetup(false)} />;
   }
 
