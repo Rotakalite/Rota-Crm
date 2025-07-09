@@ -637,10 +637,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Sustainability Targets Backend API Implementation"
-    - "Sustainability Targets Frontend Implementation"
-  stuck_tasks:
-    - "Sustainability Targets Backend API Implementation"
+    - "Consultant Management System Backend APIs"
+    - "Consultant Management Frontend Full Implementation"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
