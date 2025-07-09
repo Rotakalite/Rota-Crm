@@ -267,6 +267,7 @@ class DocumentType(str, Enum):
 class UserRole(str, Enum):
     ADMIN = "admin"
     CLIENT = "client"
+    CONSULTANT = "consultant"
 
 # Authentication Models
 class User(BaseModel):
