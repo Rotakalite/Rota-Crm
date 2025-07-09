@@ -2014,10 +2014,14 @@ const useAuth = () => {
       if (isLoaded && user && session) {
         try {
           // DIRECT role from Clerk metadata - highest priority
-          const directRole = user.publicMetadata?.role || 'client';
-          setUserRole(directRole);
-          sessionStorage.setItem('userRole', directRole);
-          console.log('🔍 Clerk Role:', directRole);
+          const directRole = user.publicMetadata?.role || null; // Don't default to 'client'
+          if (directRole) {
+            setUserRole(directRole);
+            sessionStorage.setItem('userRole', directRole);
+            console.log('🔍 Clerk Role:', directRole);
+          } else {
+            console.log('🔍 No role set, user needs role selection');
+          }
           console.log('✅ Set role to:', directRole);
 
           // Get token from session
