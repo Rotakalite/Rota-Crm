@@ -277,6 +277,7 @@ class User(BaseModel):
     name: str
     role: UserRole = UserRole.CLIENT
     client_id: Optional[str] = None  # For client users, links to their client record
+    consultant_id: Optional[str] = None  # For consultant users, links to their consultant record
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -286,6 +287,27 @@ class UserCreate(BaseModel):
     name: str
     role: UserRole = UserRole.CLIENT
     client_id: Optional[str] = None
+    consultant_id: Optional[str] = None
+
+# Consultant Models
+class Consultant(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    company_name: str
+    authorized_person_name: str
+    email: str
+    phone: str
+    address: str
+    is_active: bool = True
+    total_clients: int = 0
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ConsultantCreate(BaseModel):
+    company_name: str
+    authorized_person_name: str
+    email: str
+    phone: str
+    address: str
 
 # Existing Models
 class Client(BaseModel):
