@@ -1827,14 +1827,26 @@ const getApiUrl = () => {
 
 // Backend URL Discovery Function
 const discoverBackendURL = async () => {
-  const possibleUrls = [
-    // Current session's backend URL (stored in localStorage)
-    localStorage.getItem('ROTA_BACKEND_URL'),
-    // Latest known working URL pattern
-    'https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com',
-    // Development
-    'http://localhost:8001'
-  ].filter(Boolean);
+  // Always use Railway backend URL
+  const railwayUrl = 'https://rota-crm-production.up.railway.app';
+  
+  // Test if Railway backend is accessible
+  try {
+    const response = await fetch(`${railwayUrl}/health`, { 
+      method: 'GET',
+      timeout: 5000 
+    });
+    if (response.ok) {
+      localStorage.setItem('ROTA_BACKEND_URL', railwayUrl);
+      return railwayUrl;
+    }
+  } catch (error) {
+    console.error('Railway backend not accessible:', error);
+  }
+  
+  // Fallback to Railway URL even if health check fails
+  return railwayUrl;
+};
   
   for (const url of possibleUrls) {
     try {
