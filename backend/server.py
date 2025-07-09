@@ -1363,6 +1363,24 @@ async def fix_user_role(request_data: dict):
         logging.error(f"Error fixing user role: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+@app.get("/api/auth/me")
+async def get_current_user_info(current_user: User = Depends(get_current_user)):
+    """Get current user information"""
+    try:
+        return {
+            "id": current_user.id,
+            "clerk_user_id": current_user.clerk_user_id,
+            "name": current_user.name,
+            "email": current_user.email,
+            "role": current_user.role.value,
+            "client_id": current_user.client_id,
+            "consultant_id": getattr(current_user, 'consultant_id', None),
+            "created_at": current_user.created_at
+        }
+    except Exception as e:
+        logging.error(f"Error getting current user info: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
 # Sustainability Target Models
 class SustainabilityTargetInput(BaseModel):
     target_name: str
