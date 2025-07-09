@@ -2436,7 +2436,7 @@ const useAuth = () => {
     };
   }, [session]);
 
-  // Periodic token refresh (every 45 minutes)
+  // Periodic token refresh (every 30 minutes instead of 45)
   useEffect(() => {
     if (authToken && session) {
       const interval = setInterval(async () => {
@@ -2446,10 +2446,28 @@ const useAuth = () => {
         } catch (error) {
           console.error('❌ Periodic token refresh failed:', error);
         }
-      }, 45 * 60 * 1000); // 45 minutes
+      }, 30 * 60 * 1000); // 30 minutes instead of 45
 
       return () => clearInterval(interval);
     }
+  }, [authToken, session]);
+
+  // Check token expiry on page focus
+  useEffect(() => {
+    const handleFocus = async () => {
+      if (authToken && session) {
+        try {
+          // Try to get a fresh token when page regains focus
+          console.log('🔄 Page focused, checking token freshness...');
+          await refreshToken();
+        } catch (error) {
+          console.error('❌ Token refresh on focus failed:', error);
+        }
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, [authToken, session]);
 
   const refreshUser = async () => {
