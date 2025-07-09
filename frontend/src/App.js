@@ -2594,12 +2594,21 @@ const useAuth = () => {
 const Header = () => {
   const { user } = useUser();
   const { signOut } = useClerk();
-  const { userRole } = useAuth();
+  const { userRole, refreshToken } = useAuth();
 
   const handleSignOut = () => {
     // Clear any localStorage data on logout
     localStorage.removeItem(`client_setup_${userRole}_completed`);
     signOut();
+  };
+
+  const handleManualRefresh = async () => {
+    try {
+      await refreshToken();
+      alert('Token başarıyla yenilendi!');
+    } catch (error) {
+      alert('Token yenileme başarısız: ' + error.message);
+    }
   };
 
   return (
