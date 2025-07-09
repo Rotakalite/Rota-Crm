@@ -10846,6 +10846,7 @@ const MainApp = () => {
   const [twoFACompleted, setTwoFACompleted] = useState(false);
   const [showRoleSetup, setShowRoleSetup] = useState(false);
   const { userRole, isLoaded, dbUser, refreshUser } = useAuth();
+  const { user } = useUser();
 
   // Check if user needs role setup (after Clerk registration)
   useEffect(() => {
