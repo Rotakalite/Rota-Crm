@@ -8364,6 +8364,23 @@ def get_safe_filename(filename: str) -> str:
     safe_filename = "".join(c if c in safe_chars else "_" for c in filename)
     return safe_filename[:100]
 
+@app.get("/api/me")
+async def get_current_user_info(current_user: User = Depends(get_current_user)):
+    """Get current user information"""
+    try:
+        return {
+            "id": current_user.id,
+            "email": current_user.email,
+            "name": current_user.name,
+            "role": current_user.role,
+            "client_id": getattr(current_user, 'client_id', None),
+            "consultant_id": getattr(current_user, 'consultant_id', None),
+            "created_at": current_user.created_at.isoformat() if current_user.created_at else None
+        }
+    except Exception as e:
+        logging.error(f"❌ Error getting user info: {str(e)}")
+        raise HTTPException(status_code=500, detail="User bilgisi alınamadı")
+
 @app.post("/api/test-auto-folder-creation")
 async def test_main_endpoint():
     """Test endpoint on main app"""
