@@ -1821,8 +1821,29 @@ const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
 // Dynamic API URL detection
 const getApiUrl = () => {
-  // Always use Railway backend URL
-  return 'https://rota-crm-production.up.railway.app';
+  // Always use environment variable if available
+  const envUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+  if (envUrl) {
+    return envUrl;
+  }
+  
+  // Production domain - Use Railway backend
+  if (window.location.hostname === 'portal.rotakalitedanismanlik.com') {
+    return 'https://rota-crm-production.up.railway.app/api';
+  }
+  
+  // Development/Preview domains - Use current emergentagent backend
+  if (window.location.hostname.includes('.preview.emergentagent.com')) {
+    return 'https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com';
+  }
+  
+  // Localhost - local development
+  if (window.location.hostname === 'localhost') {
+    return 'http://localhost:8001/api';
+  }
+  
+  // Fallback to current emergentagent backend
+  return 'https://96c96d61-de51-4844-9405-36489580d965.preview.emergentagent.com';
 };
 
 // Backend URL Discovery Function
