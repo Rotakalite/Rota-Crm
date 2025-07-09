@@ -8382,19 +8382,43 @@ async def test_main_endpoint():
     return {"message": "Main app endpoint working!", "status": "ok"}
 
 @app.get("/api/folders")
-async def get_folders_main():
+async def get_folders_main(current_user: User = Depends(get_current_user)):
     """Get folders list - MAIN APP"""
     try:
-        logging.info("📋 FOLDERS LIST MAIN")
+        logging.info(f"📋 FOLDERS LIST MAIN: User: {current_user.email}, Role: {current_user.role}")
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
         db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         
-        # Get folders
-        folders = await asyncio.to_thread(
-            lambda: list(db.folders.find({}))
-        )
+        # Get folders based on user role
+        if current_user.role == UserRole.ADMIN:
+            # Admin sees all folders
+            folders = await asyncio.to_thread(lambda: list(db.folders.find({})))
+        elif current_user.role == UserRole.CONSULTANT:
+            # Consultant sees folders for their assigned clients
+            consultant_id = getattr(current_user, 'consultant_id', None)
+            if not consultant_id:
+                folders = []
+            else:
+                # Get all clients assigned to this consultant
+                clients = list(db.clients.find({"consultant_id": consultant_id}))
+                client_ids = [client.get("id") for client in clients]
+                
+                if client_ids:
+                    folders = await asyncio.to_thread(
+                        lambda: list(db.folders.find({"client_id": {"$in": client_ids}}))
+                    )
+                else:
+                    folders = []
+        else:
+            # Client sees only their own folders
+            if not current_user.client_id:
+                folders = []
+            else:
+                folders = await asyncio.to_thread(
+                    lambda: list(db.folders.find({"client_id": current_user.client_id}))
+                )
         
         # Format response
         formatted_folders = []
