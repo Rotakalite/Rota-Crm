@@ -305,7 +305,7 @@ const YeniBelgeYonetimiYeni = () => {
     try {
       console.log(`📥 Downloading document: ${doc.name}`);
       
-      const response = await axios.get(`${API}/api/belge/download/${doc.id}`, {
+      const response = await axios.get(`${API}/belge/download/${doc.id}`, {
         headers: { Authorization: `Bearer ${authToken}` },
         responseType: 'blob',
         timeout: 30000 // 30 seconds timeout
