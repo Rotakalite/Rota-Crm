@@ -2552,46 +2552,8 @@ const useAuth = () => {
     initAuth();
   }, [user, isLoaded, session]);
 
-  // Add axios interceptor for token refresh
-  useEffect(() => {
-    const interceptor = axios.interceptors.response.use(
-      (response) => response,
-      async (error) => {
-        if (error.response?.status === 401 && session && authToken) {
-          console.log('🔄 Token expired, attempting refresh...');
-          try {
-            const newToken = await session.getToken({ skipCache: true });
-            if (newToken) {
-              setAuthToken(newToken);
-              sessionStorage.setItem('authToken', newToken);
-              console.log('✅ Token refreshed successfully');
-              
-              // Retry the original request
-              error.config.headers['Authorization'] = `Bearer ${newToken}`;
-              return axios.request(error.config);
-            }
-          } catch (refreshError) {
-            console.error('❌ Token refresh failed:', refreshError);
-            // Clear session data on refresh failure
-            setAuthToken(null);
-            setUserRole(null);
-            setDbUser(null);
-            sessionStorage.removeItem('authToken');
-            sessionStorage.removeItem('userRole');
-            sessionStorage.removeItem('dbUser');
-          }
-        }
-        return Promise.reject(error);
-      }
-    );
-
-    // Cleanup interceptor on unmount
-    return () => {
-      axios.interceptors.response.eject(interceptor);
-    };
-  }, [session, authToken]);
-
-  return { user, authToken, userRole, dbUser, isLoaded, refreshUser };
+  return { user, authToken, userRole, dbUser, isLoaded, refreshUser, refreshToken };
+};
 };
 
 // Header Component
