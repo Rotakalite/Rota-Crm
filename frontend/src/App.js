@@ -1847,29 +1847,6 @@ const discoverBackendURL = async () => {
   // Fallback to Railway URL even if health check fails
   return railwayUrl;
 };
-  
-  for (const url of possibleUrls) {
-    try {
-      console.log('🔍 Testing backend URL:', url);
-      const response = await fetch(`${url}/api/health`, { 
-        method: 'GET',
-        timeout: 5000 
-      });
-      
-      if (response.ok) {
-        console.log('✅ Found working backend URL:', url);
-        localStorage.setItem('ROTA_BACKEND_URL', url); // Store for future use
-        return url;
-      }
-    } catch (error) {
-      console.log('❌ Backend URL not reachable:', url);
-    }
-  }
-  
-  // If all fails, return the Railway backend (stable)
-  console.warn('⚠️ Using fallback Railway backend URL');
-  return 'https://rota-crm-production.up.railway.app/api';
-};
 
 const API = getApiUrl();
 
