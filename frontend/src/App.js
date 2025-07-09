@@ -2554,7 +2554,6 @@ const useAuth = () => {
 
   return { user, authToken, userRole, dbUser, isLoaded, refreshUser, refreshToken };
 };
-};
 
 // Header Component
 const Header = () => {
