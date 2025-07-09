@@ -4611,8 +4611,27 @@ async def get_folders(current_user: User = Depends(get_current_user)):
         if current_user.role == UserRole.ADMIN:
             # Admin sees all folders
             folders = await db.folders.find({}).to_list(length=None)
+        elif current_user.role == UserRole.CONSULTANT:
+            # Consultant sees folders for their assigned clients
+            consultant_id = getattr(current_user, 'consultant_id', None)
+            if not consultant_id:
+                return []
+            
+            # Get all clients assigned to this consultant
+            clients = await asyncio.to_thread(
+                lambda: list(db.clients.find({"consultant_id": consultant_id}))
+            )
+            client_ids = [client.get("id") for client in clients]
+            
+            # Get folders for all assigned clients
+            if client_ids:
+                folders = await db.folders.find({"client_id": {"$in": client_ids}}).to_list(length=None)
+            else:
+                folders = []
         else:
             # Client sees only their own folders
+            if not current_user.client_id:
+                return []
             folders = await db.folders.find({"client_id": current_user.client_id}).to_list(length=None)
         
         # Convert MongoDB documents to JSON-serializable format
