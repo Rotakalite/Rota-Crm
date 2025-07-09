@@ -2409,16 +2409,30 @@ const useAuth = () => {
           
           try {
             console.log('🔄 Token expired, attempting refresh...');
+            
+            // Call refreshToken function directly
             const newToken = await refreshToken();
             
             console.log('✅ Token refresh successful, retrying original request');
+            console.log('✅ New token:', newToken ? 'Present' : 'Missing');
+            
             // Retry the original request with new token
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
-            return axios(originalRequest);
+            
+            console.log('🔄 Retrying original request to:', originalRequest.url);
+            const retryResponse = await axios(originalRequest);
+            console.log('✅ Retry successful!');
+            
+            return retryResponse;
           } catch (refreshError) {
             console.error('❌ Token refresh failed, redirecting to login');
             console.error('❌ Refresh error:', refreshError);
-            // Force page reload to trigger login
+            
+            // Clear session and reload page
+            sessionStorage.removeItem('authToken');
+            sessionStorage.removeItem('userRole');
+            sessionStorage.removeItem('dbUser');
+            
             window.location.reload();
             return Promise.reject(refreshError);
           }
@@ -2434,7 +2448,7 @@ const useAuth = () => {
       axios.interceptors.request.eject(requestInterceptor);
       axios.interceptors.response.eject(responseInterceptor);
     };
-  }, [session]);
+  }, [session, refreshToken]); // Add refreshToken to dependencies
 
   // Periodic token refresh (every 30 minutes instead of 45)
   useEffect(() => {
