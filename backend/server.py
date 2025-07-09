@@ -8377,8 +8377,6 @@ def get_safe_filename(filename: str) -> str:
     return safe_filename[:100]
 
 @app.get("/api/belge/download/{document_id}")
-
-@app.get("/api/belge/download/{document_id}")
 async def download_belge_main(document_id: str):
     """🚀 YENİ BELGE İNDİRME - ORİJİNAL FORMAT - MAIN APP"""
     try:
