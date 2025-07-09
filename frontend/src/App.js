@@ -6317,7 +6317,9 @@ const ClientDocuments = () => {
     console.log('🎯 Auth token ready, fetching documents, clients and folders...');
     fetchDocuments();
     fetchFolders();
-    if (userRole === 'admin') {
+    
+    // Admin ve Consultant müşteri listesini görebilir
+    if (userRole === 'admin' || userRole === 'consultant') {
       fetchClients();
     }
   }, [authToken, userRole]);
