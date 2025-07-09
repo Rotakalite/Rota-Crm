@@ -10578,15 +10578,27 @@ const RoleSetup = ({ onComplete }) => {
     setLoading(true);
     
     try {
-      await axios.post(`${API}/clients`, {
-        ...clientData,
-        name: clientData.hotel_name,
-        email: user.emailAddresses[0].emailAddress
+      // Get token from session
+      const token = await session?.getToken();
+      
+      // Use new endpoint that updates both client and user role
+      await axios.post(`${API}/clients/register-with-user`, {
+        client_data: {
+          ...clientData,
+          name: clientData.hotel_name,
+          email: user.emailAddresses[0].emailAddress
+        }
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
       
-      alert('Müşteri kaydınız başarıyla oluşturuldu!');
+      alert('Müşteri kaydınız başarıyla oluşturuldu! Rolünüz güncellendi. Sayfa yenilenecek.');
       onComplete();
-      window.location.reload();
+      
+      // Force page reload to refresh authentication state
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       console.error('Error creating client:', error);
       alert('Müşteri kaydı sırasında hata oluştu: ' + (error.response?.data?.detail || error.message));
