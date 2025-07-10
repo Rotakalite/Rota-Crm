@@ -15,15 +15,18 @@ const YeniBelgeYonetimiYeni = () => {
   
   const API = getApiUrl();
   
-  // Auth token'i window.Clerk'den al
+  // Auth token'i window.Clerk'den al ve refresh et
   useEffect(() => {
     const getAuthToken = async () => {
       if (window.Clerk && window.Clerk.user) {
         try {
-          // Clerk'den direkt token al
-          const token = await window.Clerk.session.getToken();
+          // Clerk'den token al - her zaman fresh token
+          const token = await window.Clerk.session.getToken({ 
+            skipCache: true, // Cache'i atla, fresh token al
+            timeoutInMs: 10000 // 10 saniye timeout
+          });
           setAuthToken(token);
-          console.log('🎫 Auth token retrieved successfully');
+          console.log('🎫 Fresh auth token retrieved successfully');
           
           // Kullanıcı rolünü backend'den al
           const response = await axios.get(`${API}/me`, {
@@ -35,9 +38,39 @@ const YeniBelgeYonetimiYeni = () => {
           console.log('👤 User role:', response.data.role);
         } catch (error) {
           console.error('❌ Auth error:', error);
+          // Token hatası varsa refresh dene
+          if (error.response?.status === 401) {
+            await refreshAuthToken();
+          }
         }
       }
     };
+    
+    // Token refresh function
+    const refreshAuthToken = async () => {
+      try {
+        if (window.Clerk && window.Clerk.session) {
+          console.log('🔄 Refreshing auth token...');
+          const newToken = await window.Clerk.session.getToken({ 
+            skipCache: true,
+            timeoutInMs: 10000
+          });
+          setAuthToken(newToken);
+          console.log('✅ Token refreshed successfully');
+          return newToken;
+        }
+      } catch (refreshError) {
+        console.error('❌ Token refresh failed:', refreshError);
+        // Sayfa yenilemeye zorla
+        window.location.reload();
+      }
+    };
+    
+    // Periodic token refresh (her 10 dakikada bir)
+    const tokenRefreshInterval = setInterval(async () => {
+      console.log('⏰ Periodic token refresh...');
+      await refreshAuthToken();
+    }, 10 * 60 * 1000); // 10 dakika
     
     // Auth durumunu kontrol et
     if (window.Clerk && window.Clerk.loaded) {
@@ -51,6 +84,11 @@ const YeniBelgeYonetimiYeni = () => {
         }
       }, 100);
     }
+    
+    // Cleanup
+    return () => {
+      clearInterval(tokenRefreshInterval);
+    };
   }, []);
   
   // UI Flow States
