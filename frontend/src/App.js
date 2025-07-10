@@ -19,6 +19,8 @@ import { Line, Bar, Pie } from 'react-chartjs-2';
 
 // API URL Configuration
 const getApiUrl = () => {
+  // Always use Railway backend with /api prefix
+  return 'https://rota-crm-production.up.railway.app/api';
 };
 
 // Authentication Hook - Working version from GitHub
