@@ -4743,6 +4743,23 @@ async def get_consumptions(
         else:
             # If no client_id specified, use admin's assigned client (backward compatibility)
             target_client_id = current_user.client_id
+    elif current_user.role == UserRole.CONSULTANT:
+        # Consultant users can see consumption data for their assigned clients
+        if client_id:
+            # Verify that the consultant has access to this client
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=400, detail="Consultant ID not assigned to user")
+            
+            # Check if the client is assigned to this consultant
+            client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+            if not client:
+                raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+            
+            target_client_id = client_id
+        else:
+            # If no client_id specified, return error - consultants must specify client
+            raise HTTPException(status_code=400, detail="Consultant must specify client_id parameter")
     else:
         # Client users can only see their own consumptions
         if not current_user.client_id:
