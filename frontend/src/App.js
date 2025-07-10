@@ -9634,7 +9634,7 @@ const EmailManagement = () => {
     }
   };
 
-  // Send email notification
+  // Send email notification - SABİT FORMAT
   const sendEmailNotification = async () => {
     try {
       if (!selectedClient) {
@@ -9660,13 +9660,17 @@ const EmailManagement = () => {
         }
       }
 
+      const clientName = clients.find(c => c.id === selectedClient)?.name || 
+                        clients.find(c => c.id === selectedClient)?.hotel_name || 
+                        'Değerli Müşterimiz';
+
       const emailData = {
         client_id: selectedClient,
         type: activeTab === 'documents' ? 'document' : 'training',
-        subject: emailContent.subject || (activeTab === 'documents' ? 
-          `Yeni Dokümanlar (${selectedItems.length} adet)` : 
-          `Yeni Eğitimler (${selectedItems.length} adet)`),
-        message: emailContent.message || `${selectedItems.length} adet ${activeTab === 'documents' ? 'doküman' : 'eğitim'} için bilgilendirme.`,
+        subject: activeTab === 'documents' ? 
+          `ROTA CRM - Yeni Doküman Bildirimi (${selectedItems.length} adet)` : 
+          `ROTA CRM - Yeni Eğitim Bildirimi (${selectedItems.length} adet)`,
+        message: `Sayın ${clientName},\n\nSisteminize ${selectedItems.length} adet yeni ${activeTab === 'documents' ? 'doküman' : 'eğitim'} yüklenmiştir. Detaylar aşağıdadır.\n\nSaygılarımızla,\nROTA CRM Ekibi`,
         items: selectedItems.map(item => ({
           id: item.id,
           name: item.displayName,
@@ -9676,7 +9680,7 @@ const EmailManagement = () => {
           } : {
             training_date: item.trainingDate,
             trainer: item.trainer,
-            duration: item.duration
+            hours: item.hours // Eğitim saati
           })
         }))
       };
@@ -9687,7 +9691,6 @@ const EmailManagement = () => {
 
       alert('✅ Email başarıyla gönderildi!');
       clearSelections();
-      setEmailContent({ subject: '', message: '', type: activeTab === 'documents' ? 'document' : 'training' });
       
     } catch (error) {
       console.error('Error sending email:', error);
