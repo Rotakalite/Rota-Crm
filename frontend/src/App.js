@@ -11890,13 +11890,19 @@ const ConsultantApp = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Consultant Sidebar */}
-      <div className="w-64 bg-white shadow-lg">
-        <div className="p-4">
-          <h2 className="text-xl font-bold text-gray-800">👔 Danışman Paneli</h2>
-          <p className="text-sm text-gray-600">{dbUser?.name || 'Danışman'}</p>
-        </div>
+    <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      {/* Elite Consultant Sidebar */}
+      <div className="bg-gradient-to-b from-indigo-900 via-blue-800 to-indigo-900 text-white w-64 min-h-screen shadow-2xl">
+        <div className="p-6">
+          <div className="text-center mb-8">
+            <div className="bg-gradient-to-r from-yellow-400 to-orange-500 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
+              <span className="text-white text-xl font-bold">👔</span>
+            </div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
+              Danışman Paneli
+            </h1>
+            <p className="text-blue-200 text-sm mt-1">{dbUser?.name || 'Elite Danışman'}</p>
+          </div>
         
         <nav className="mt-8">
           <div className="px-4 py-2">
