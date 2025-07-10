@@ -10059,7 +10059,6 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
 
 // 2FA Component
 const TwoFactorAuth = ({ onVerificationComplete }) => {
-  const adminMenuItems = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
     { id: 'clients', name: 'Müşteri Yönetimi', icon: '🏨' },
     { id: 'consultants', name: 'Danışman Yönetimi', icon: '👔' },
