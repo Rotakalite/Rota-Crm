@@ -11624,7 +11624,6 @@ const MainApp = () => {
 };
 
 // Consultant App - Separate app for consultants
-// Consultant App - Separate app for consultants
 const ConsultantApp = () => {
   return (
     <div>
