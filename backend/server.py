@@ -4901,6 +4901,22 @@ async def get_consumption_analytics(
                 raise HTTPException(status_code=400, detail="No clients available for analytics")
             target_client_id = clients[0]["id"]
             logging.info(f"📊 Admin user - using first available client: {target_client_id}")
+    elif current_user.role == UserRole.CONSULTANT:
+        # Consultant users can see analytics for their assigned clients
+        if client_id:
+            # Verify that the consultant has access to this client
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=400, detail="Consultant ID not assigned to user")
+            
+            # Check if the client is assigned to this consultant
+            client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+            if not client:
+                raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+            
+            target_client_id = client_id
+        else:
+            raise HTTPException(status_code=400, detail="Consultant must specify client_id parameter")
     else:
         # Client users can only see their own analytics
         if not current_user.client_id:
