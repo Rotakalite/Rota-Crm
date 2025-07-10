@@ -9989,8 +9989,8 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
   const menuItems = userRole === 'admin' ? adminMenuItems : clientMenuItems;
 
   return (
-    <div className="bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white w-64 min-h-screen shadow-2xl">
-      <div className="p-6">
+    <div className="bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white w-64 h-screen shadow-2xl">
+      <div className="p-6 h-full flex flex-col">
         <div className="text-center mb-8">
           <div className="bg-gradient-to-r from-blue-500 to-purple-600 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
             <span className="text-white text-xl font-bold">R</span>
@@ -10001,7 +10001,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
           <p className="text-gray-400 text-sm mt-1">Sürdürülebilirlik Paneli</p>
         </div>
         
-        <nav className="space-y-2">
+        <nav className="space-y-2 flex-1">
           {menuItems.map((item) => (
             <button
               key={item.id}
@@ -10021,7 +10021,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
           ))}
         </nav>
         
-        <div className="mt-8 p-4 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl">
+        <div className="mt-auto p-4 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl">
           <div className="text-center">
             <div className="text-2xl mb-2">🌱</div>
             <p className="text-white text-sm font-medium">Sürdürülebilir Gelecek</p>
