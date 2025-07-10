@@ -4641,7 +4641,7 @@ async def create_consumption(
     
     logging.info(f"🔍 POST /consumptions called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
     
-    # Check permissions - only admin can create for any client, client can create for themselves
+    # Check permissions - only admin can create for any client, client can create for themselves, consultant can create for assigned clients
     if current_user.role == UserRole.ADMIN:
         # Admin can specify client_id in request body
         if consumption_data.client_id:
@@ -4651,6 +4651,22 @@ async def create_consumption(
             client_id = current_user.client_id
             if not client_id:
                 raise HTTPException(status_code=400, detail="Admin must specify client_id")
+    elif current_user.role == UserRole.CONSULTANT:
+        # Consultant users can create consumption data for their assigned clients
+        if consumption_data.client_id:
+            # Verify that the consultant has access to this client
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=400, detail="Consultant ID not assigned to user")
+            
+            # Check if the client is assigned to this consultant
+            client = await db.clients.find_one({"id": consumption_data.client_id, "consultant_id": consultant_id})
+            if not client:
+                raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+            
+            client_id = consumption_data.client_id
+        else:
+            raise HTTPException(status_code=400, detail="Consultant must specify client_id")
     else:
         # Client users can only create for themselves
         if not current_user.client_id:
