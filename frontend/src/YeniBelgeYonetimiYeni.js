@@ -15,6 +15,41 @@ const YeniBelgeYonetimiYeni = () => {
   
   const API = getApiUrl();
   
+  // Token refresh function
+  const refreshToken = async () => {
+    if (window.Clerk && window.Clerk.session) {
+      try {
+        const newToken = await window.Clerk.session.getToken({ 
+          skipCache: true,
+          timeoutInMs: 10000
+        });
+        setAuthToken(newToken);
+        return newToken;
+      } catch (error) {
+        console.error('❌ Token refresh failed:', error);
+        return null;
+      }
+    }
+    return null;
+  };
+  
+  // API call with auto retry on 401
+  const apiCall = async (apiFunction, retryCount = 0) => {
+    try {
+      return await apiFunction();
+    } catch (error) {
+      if (error.response?.status === 401 && retryCount < 2) {
+        console.log('🔄 Token expired, refreshing...');
+        const newToken = await refreshToken();
+        if (newToken) {
+          console.log('✅ Token refreshed, retrying API call...');
+          return await apiCall(apiFunction, retryCount + 1);
+        }
+      }
+      throw error;
+    }
+  };
+  
   // Auth token'i window.Clerk'den al ve refresh et
   useEffect(() => {
     const getAuthToken = async () => {
