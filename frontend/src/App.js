@@ -12309,11 +12309,11 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="bg-gray-100" style={{ minHeight: '100vh' }}>
       <Sidebar activeTab={activeTab} onNavigate={handleNavigate} userRole={userRole} />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex flex-col overflow-hidden" style={{ marginLeft: '256px', minHeight: '100vh' }}>
         <Header />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50" style={{ minHeight: 'calc(100vh - 64px)' }}>
           {renderContent()}
         </main>
       </div>
