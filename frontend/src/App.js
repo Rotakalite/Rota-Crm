@@ -9974,7 +9974,183 @@ const EmailManagement = () => {
   );
 };
 
-// Simple Sidebar Component (Temporary Fix)
+// Consultant Dashboard Component
+const ConsultantDashboard = ({ onNavigate }) => {
+  const { dbUser } = useAuth();
+  
+  return (
+    <div className="p-6 space-y-6">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-xl">
+        <h1 className="text-3xl font-bold mb-2">👔 Danışman Dashboard</h1>
+        <p className="text-blue-100">Hoş geldiniz, {dbUser?.name || 'Danışman'}</p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-blue-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800">Müşterilerim</h3>
+              <p className="text-3xl font-bold text-blue-600">--</p>
+            </div>
+            <div className="text-blue-500 text-3xl">👥</div>
+          </div>
+          <button
+            onClick={() => onNavigate('my-clients')}
+            className="mt-4 text-blue-600 hover:text-blue-800 transition-colors"
+          >
+            Müşterileri Görüntüle →
+          </button>
+        </div>
+        
+        <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800">Aktif Projeler</h3>
+              <p className="text-3xl font-bold text-green-600">--</p>
+            </div>
+            <div className="text-green-500 text-3xl">📊</div>
+          </div>
+          <button
+            onClick={() => onNavigate('reports')}
+            className="mt-4 text-green-600 hover:text-green-800 transition-colors"
+          >
+            Raporları Görüntüle →
+          </button>
+        </div>
+        
+        <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-purple-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800">Email Bildirimleri</h3>
+              <p className="text-3xl font-bold text-purple-600">--</p>
+            </div>
+            <div className="text-purple-500 text-3xl">📧</div>
+          </div>
+          <button
+            onClick={() => onNavigate('email-management')}
+            className="mt-4 text-purple-600 hover:text-purple-800 transition-colors"
+          >
+            Email Yönetimi →
+          </button>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white p-6 rounded-xl shadow-lg">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Hızlı Erişim</h3>
+          <div className="space-y-3">
+            <button
+              onClick={() => onNavigate('sustainability-targets')}
+              className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center space-x-3"
+            >
+              <span className="text-xl">🎯</span>
+              <span>Sürdürülebilirlik Hedefleri</span>
+            </button>
+            <button
+              onClick={() => onNavigate('carbon')}
+              className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center space-x-3"
+            >
+              <span className="text-xl">🌍</span>
+              <span>Karbon Ayak İzi</span>
+            </button>
+            <button
+              onClick={() => onNavigate('training')}
+              className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center space-x-3"
+            >
+              <span className="text-xl">🎓</span>
+              <span>Eğitim Yönetimi</span>
+            </button>
+          </div>
+        </div>
+        
+        <div className="bg-white p-6 rounded-xl shadow-lg">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Son Aktiviteler</h3>
+          <div className="space-y-3 text-sm text-gray-600">
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <p>Danışman paneline hoş geldiniz! 🎉</p>
+              <span className="text-xs text-gray-500">Şimdi</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Consultant Client Management Component
+const ConsultantClientManagement = ({ onNavigate }) => {
+  return (
+    <div className="p-6">
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">👥 Müşterilerim</h2>
+        <p className="text-gray-600 mb-4">Size atanan müşterilerin listesi burada görünecek.</p>
+        <div className="text-center py-8">
+          <div className="text-6xl mb-4">👥</div>
+          <p className="text-gray-500">Henüz atanmış müşteri bulunmuyor.</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Consultant Client Assignment Component
+const ConsultantClientAssignment = () => {
+  return (
+    <div className="p-6">
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">➕ Müşteri Atama</h2>
+        <p className="text-gray-600 mb-4">Yeni müşteri atama işlemleri burada yapılacak.</p>
+        <div className="text-center py-8">
+          <div className="text-6xl mb-4">➕</div>
+          <p className="text-gray-500">Müşteri atama özelliği yakında aktif olacak.</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Consultant Reports Component
+const ConsultantReports = () => {
+  return (
+    <div className="p-6">
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">📊 Danışman Raporları</h2>
+        <p className="text-gray-600 mb-4">Müşteri raporları ve analiz verileri burada görünecek.</p>
+        <div className="text-center py-8">
+          <div className="text-6xl mb-4">📊</div>
+          <p className="text-gray-500">Rapor özellikleri hazırlanıyor.</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Consultant Profile Component
+const ConsultantProfile = () => {
+  const { dbUser } = useAuth();
+  
+  return (
+    <div className="p-6">
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">👤 Danışman Profili</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Ad Soyad</label>
+            <p className="text-lg text-gray-900">{dbUser?.name || 'Danışman'}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <p className="text-lg text-gray-900">{dbUser?.email || 'Email bulunamadı'}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Rol</label>
+            <p className="text-lg text-gray-900">Danışman</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 const Sidebar = ({ activeTab, onNavigate, userRole }) => {
   const adminMenuItems = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
