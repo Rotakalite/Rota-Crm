@@ -10005,8 +10005,16 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
   const menuItems = userRole === 'admin' ? adminMenuItems : clientMenuItems;
 
   return (
-    <div className="bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white w-64 min-h-screen shadow-2xl flex flex-col">
-      <div className="p-6 flex-1 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
+    <div 
+      className="text-white w-64 shadow-2xl flex flex-col"
+      style={{
+        background: 'linear-gradient(180deg, #111827 0%, #1f2937 50%, #111827 100%)',
+        minHeight: '100vh',
+        height: '100vh',
+        position: 'relative'
+      }}
+    >
+      <div className="p-6 flex-1 flex flex-col" style={{ minHeight: '100%' }}>
         <div className="text-center mb-8">
           <div className="bg-gradient-to-r from-blue-500 to-purple-600 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
             <span className="text-white text-xl font-bold">R</span>
@@ -10017,7 +10025,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
           <p className="text-gray-400 text-sm mt-1">Sürdürülebilirlik Paneli</p>
         </div>
         
-        <nav className="space-y-2 flex-1">
+        <nav className="space-y-2 flex-1" style={{ minHeight: '400px' }}>
           {menuItems.map((item) => (
             <button
               key={item.id}
