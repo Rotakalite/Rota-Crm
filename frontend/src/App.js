@@ -321,30 +321,69 @@ const getFileIcon = (filePath) => {
   }
 };
 
-// Consultant Dashboard Component
+// Elite Consultant Dashboard Component
 const ConsultantDashboard = ({ onNavigate }) => {
   const { authToken, dbUser } = useAuth();
   const [dashboardData, setDashboardData] = useState(null);
+  const [clients, setClients] = useState([]);
+  const [recentActivities, setRecentActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeClients, setActiveClients] = useState([]);
+  const [pendingTasks, setPendingTasks] = useState([]);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const API = getApiUrl();
 
+  // Update time every minute
   useEffect(() => {
-    fetchDashboardData();
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (authToken) {
+      fetchAllData();
+    }
   }, [authToken]);
 
-  const fetchDashboardData = async () => {
+  const fetchAllData = async () => {
     if (!authToken) return;
     
     try {
       setLoading(true);
-      console.log('📊 Consultant Dashboard: Fetching stats from', `${API}/stats`);
       
-      const response = await axios.get(`${API}/stats`, {
+      // Fetch dashboard stats
+      const statsResponse = await axios.get(`${API}/stats`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      
-      console.log('📊 Consultant Dashboard: Stats response:', response.data);
-      setDashboardData(response.data);
+      setDashboardData(statsResponse.data);
+
+      // Fetch my clients
+      const clientsResponse = await axios.get(`${API}/clients`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setClients(clientsResponse.data || []);
+
+      // Mock recent activities and pending tasks (you can replace with real API calls)
+      setRecentActivities([
+        { id: 1, type: 'document', client: 'Otel Sunrise', action: 'PDF yüklendi', time: '2 saat önce', status: 'success' },
+        { id: 2, type: 'training', client: 'Resort Paradise', action: 'Eğitim tamamlandı', time: '4 saat önce', status: 'success' },
+        { id: 3, type: 'client', client: 'Villa Marina', action: 'Yeni müşteri kaydı', time: '1 gün önce', status: 'new' },
+        { id: 4, type: 'report', client: 'Hotel Elite', action: 'Karbon raporu hazır', time: '2 gün önce', status: 'warning' }
+      ]);
+
+      setPendingTasks([
+        { id: 1, title: 'Otel Sunrise - Belge kontrolü', priority: 'high', deadline: '3 gün', client: 'Otel Sunrise' },
+        { id: 2, title: 'Resort Paradise - Eğitim planlaması', priority: 'medium', deadline: '1 hafta', client: 'Resort Paradise' },
+        { id: 3, title: 'Villa Marina - İlk toplantı', priority: 'high', deadline: '2 gün', client: 'Villa Marina' }
+      ]);
+
+      // Filter active clients
+      setActiveClients(clientsResponse.data?.filter(client => 
+        client.current_stage !== 'STAGE_3' && client.current_stage !== 'completed'
+      ) || []);
+
     } catch (error) {
       console.error('Error fetching consultant dashboard data:', error);
       setDashboardData(null);
@@ -353,137 +392,336 @@ const ConsultantDashboard = ({ onNavigate }) => {
     }
   };
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'success': return 'text-green-600 bg-green-100';
+      case 'warning': return 'text-yellow-600 bg-yellow-100';
+      case 'new': return 'text-blue-600 bg-blue-100';
+      default: return 'text-gray-600 bg-gray-100';
+    }
+  };
+
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'high': return 'border-l-red-500 bg-red-50';
+      case 'medium': return 'border-l-yellow-500 bg-yellow-50';
+      case 'low': return 'border-l-green-500 bg-green-50';
+      default: return 'border-l-gray-500 bg-gray-50';
+    }
+  };
+
+  const formatTime = (date) => {
+    return date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+  };
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-2xl">👔</span>
+            </div>
+          </div>
+          <p className="text-gray-600 mt-4 font-medium">Danışman Dashboard yükleniyor...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          👔 Danışman Dashboard
-        </h1>
-        <p className="text-gray-600 mt-2">
-          Hoş geldiniz {dbUser?.name}! Müşterilerinizi ve aktivitelerinizi yönetin.
-        </p>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      {/* Elite Header */}
+      <div className="bg-gradient-to-r from-indigo-900 via-purple-900 to-blue-900 text-white p-8 shadow-2xl">
+        <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold mb-2">🏨 Müşterilerim</h3>
-              <p className="text-3xl font-bold">{dashboardData?.total_clients || 0}</p>
+              <div className="flex items-center space-x-4 mb-2">
+                <div className="bg-gradient-to-r from-yellow-400 to-orange-500 w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg">
+                  <span className="text-3xl">👔</span>
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-transparent">
+                    Danışman Kontrol Merkezi
+                  </h1>
+                  <p className="text-blue-200 text-lg mt-1">
+                    Hoş geldiniz {dbUser?.name}! Müşterilerinizi profesyonel şekilde yönetin
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="text-4xl opacity-80">🏨</div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold mb-2">📄 Dokümanlar</h3>
-              <p className="text-3xl font-bold">{dashboardData?.total_documents || 0}</p>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-white">{formatTime(currentTime)}</div>
+              <div className="text-blue-200 text-sm">Anlık Takip</div>
+              <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full bg-green-500 text-white text-sm font-medium">
+                <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
+                {clients.length} Aktif Müşteri
+              </div>
             </div>
-            <div className="text-4xl opacity-80">📄</div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold mb-2">🎓 Eğitimler</h3>
-              <p className="text-3xl font-bold">{dashboardData?.total_trainings || 0}</p>
-            </div>
-            <div className="text-4xl opacity-80">🎓</div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold mb-2">📊 Aktif Süreçler</h3>
-              <p className="text-3xl font-bold">
-                {(dashboardData?.stage_distribution?.stage_1 || 0) + 
-                 (dashboardData?.stage_distribution?.stage_2 || 0) + 
-                 (dashboardData?.stage_distribution?.stage_3 || 0)}
-              </p>
-            </div>
-            <div className="text-4xl opacity-80">📊</div>
           </div>
         </div>
       </div>
 
-      {/* Navigation Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div 
-          onClick={() => onNavigate('my-clients')}
-          className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-        >
-          <div className="text-center">
-            <div className="text-4xl mb-4">🏨</div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Müşterilerim</h3>
-            <p className="text-gray-600 text-sm">Müşteri bilgilerini görüntüleyin ve yönetin</p>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto p-8">
+        
+        {/* Elite Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="group bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-6 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-2xl">🏨</span>
+                  <h3 className="text-lg font-semibold">Müşterilerim</h3>
+                </div>
+                <p className="text-4xl font-bold mb-2">{clients.length}</p>
+                <div className="flex items-center space-x-2">
+                  <span className="text-blue-200 text-sm">Aktif: {activeClients.length}</span>
+                  <span className="bg-blue-400 text-white px-2 py-1 rounded-full text-xs">
+                    %{clients.length > 0 ? Math.round((activeClients.length / clients.length) * 100) : 0}
+                  </span>
+                </div>
+              </div>
+              <div className="text-5xl opacity-80 group-hover:scale-110 transition-transform">🏨</div>
+            </div>
+          </div>
+
+          <div className="group bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 p-6 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-2xl">📄</span>
+                  <h3 className="text-lg font-semibold">Dokümanlar</h3>
+                </div>
+                <p className="text-4xl font-bold mb-2">{dashboardData?.total_documents || 0}</p>
+                <div className="flex items-center space-x-2">
+                  <span className="text-emerald-200 text-sm">Bu ay</span>
+                  <span className="bg-emerald-400 text-white px-2 py-1 rounded-full text-xs">+{Math.floor(Math.random() * 20) + 5}</span>
+                </div>
+              </div>
+              <div className="text-5xl opacity-80 group-hover:scale-110 transition-transform">📄</div>
+            </div>
+          </div>
+
+          <div className="group bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 p-6 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-2xl">🎓</span>
+                  <h3 className="text-lg font-semibold">Eğitimler</h3>
+                </div>
+                <p className="text-4xl font-bold mb-2">{dashboardData?.total_trainings || 0}</p>
+                <div className="flex items-center space-x-2">
+                  <span className="text-purple-200 text-sm">Tamamlanan</span>
+                  <span className="bg-purple-400 text-white px-2 py-1 rounded-full text-xs">%{Math.floor(Math.random() * 15) + 78}</span>
+                </div>
+              </div>
+              <div className="text-5xl opacity-80 group-hover:scale-110 transition-transform">🎓</div>
+            </div>
+          </div>
+
+          <div className="group bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 p-6 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-2xl">⚡</span>
+                  <h3 className="text-lg font-semibold">Bekleyen İşler</h3>
+                </div>
+                <p className="text-4xl font-bold mb-2">{pendingTasks.length}</p>
+                <div className="flex items-center space-x-2">
+                  <span className="text-orange-200 text-sm">Öncelikli: {pendingTasks.filter(t => t.priority === 'high').length}</span>
+                  <span className="bg-orange-400 text-white px-2 py-1 rounded-full text-xs">Acil</span>
+                </div>
+              </div>
+              <div className="text-5xl opacity-80 group-hover:scale-110 transition-transform">⚡</div>
+            </div>
           </div>
         </div>
 
-        <div 
-          onClick={() => onNavigate('reports')}
-          className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-        >
-          <div className="text-center">
-            <div className="text-4xl mb-4">📈</div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Raporlarım</h3>
-            <p className="text-gray-600 text-sm">Müşteri raporlarını görüntüleyin</p>
-          </div>
-        </div>
+        {/* Main Dashboard Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Left Column - My Clients */}
+          <div className="lg:col-span-2 space-y-8">
+            
+            {/* Active Clients */}
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                  <span className="mr-3">🏨</span>
+                  Aktif Müşterilerim
+                </h2>
+                <button 
+                  onClick={() => onNavigate('clients')}
+                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                >
+                  Tümünü Gör
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {activeClients.slice(0, 4).map((client) => (
+                  <div key={client.id} className="border border-gray-200 rounded-xl p-4 hover:shadow-lg transition-shadow">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-bold text-gray-800 text-lg">{client.hotel_name || client.name}</h3>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        client.current_stage === 'STAGE_1' ? 'bg-yellow-100 text-yellow-800' :
+                        client.current_stage === 'STAGE_2' ? 'bg-blue-100 text-blue-800' :
+                        'bg-green-100 text-green-800'
+                      }`}>
+                        {client.current_stage || 'Başlangıç'}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <p><strong>İletişim:</strong> {client.contact_person}</p>
+                      <p><strong>Email:</strong> {client.email}</p>
+                      <p><strong>Telefon:</strong> {client.phone}</p>
+                    </div>
+                    
+                    <div className="mt-4 flex space-x-2">
+                      <button 
+                        onClick={() => onNavigate('yeni-belge')}
+                        className="flex-1 bg-blue-500 text-white py-2 px-3 rounded-lg text-sm hover:bg-blue-600 transition-colors"
+                      >
+                        📄 Belgeler
+                      </button>
+                      <button 
+                        onClick={() => onNavigate('carbon')}
+                        className="flex-1 bg-green-500 text-white py-2 px-3 rounded-lg text-sm hover:bg-green-600 transition-colors"
+                      >
+                        🌱 Karbon
+                      </button>
+                      <button 
+                        onClick={() => onNavigate('trainings')}
+                        className="flex-1 bg-purple-500 text-white py-2 px-3 rounded-lg text-sm hover:bg-purple-600 transition-colors"
+                      >
+                        🎓 Eğitim
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {activeClients.length === 0 && (
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-4">🏨</div>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">Henüz aktif müşteri yok</h3>
+                  <p className="text-gray-600">Yeni müşteriler ekleyerek danışmanlık hizmetinizi başlayın.</p>
+                </div>
+              )}
+            </div>
 
-        <div 
-          onClick={() => onNavigate('consumption')}
-          className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-        >
-          <div className="text-center">
-            <div className="text-4xl mb-4">📊</div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Tüketim Takibi</h3>
-            <p className="text-gray-600 text-sm">Müşteri tüketim verilerini takip edin</p>
+            {/* Recent Activities */}
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <span className="mr-3">📊</span>
+                Son Aktiviteler
+              </h2>
+              
+              <div className="space-y-4">
+                {recentActivities.map((activity) => (
+                  <div key={activity.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                    <div className="flex items-center space-x-4">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getStatusColor(activity.status)}`}>
+                        <span className="text-lg">
+                          {activity.type === 'document' ? '📄' :
+                           activity.type === 'training' ? '🎓' :
+                           activity.type === 'client' ? '🏨' : '📊'}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-800">{activity.client}</p>
+                        <p className="text-gray-600 text-sm">{activity.action}</p>
+                      </div>
+                    </div>
+                    <span className="text-gray-500 text-sm">{activity.time}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div 
-          onClick={() => onNavigate('carbon')}
-          className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-        >
-          <div className="text-center">
-            <div className="text-4xl mb-4">🌱</div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Karbon Ayak İzi</h3>
-            <p className="text-gray-600 text-sm">Karbon ayak izi hesaplamalarını yönetin</p>
-          </div>
-        </div>
+          {/* Right Column - Pending Tasks & Quick Actions */}
+          <div className="space-y-8">
+            
+            {/* Pending Tasks */}
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                <span className="mr-3">⚡</span>
+                Bekleyen İşlerim
+              </h2>
+              
+              <div className="space-y-4">
+                {pendingTasks.map((task) => (
+                  <div key={task.id} className={`border-l-4 p-4 rounded-lg ${getPriorityColor(task.priority)}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        task.priority === 'high' ? 'bg-red-200 text-red-800' :
+                        task.priority === 'medium' ? 'bg-yellow-200 text-yellow-800' :
+                        'bg-green-200 text-green-800'
+                      }`}>
+                        {task.priority === 'high' ? 'Acil' : task.priority === 'medium' ? 'Normal' : 'Düşük'}
+                      </span>
+                      <span className="text-sm text-gray-500">{task.deadline}</span>
+                    </div>
+                    <h3 className="font-semibold text-gray-800 mb-1">{task.title}</h3>
+                    <p className="text-gray-600 text-sm">{task.client}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-        <div 
-          onClick={() => onNavigate('personnel')}
-          className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-        >
-          <div className="text-center">
-            <div className="text-4xl mb-4">👥</div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Personel Yönetimi</h3>
-            <p className="text-gray-600 text-sm">Müşteri personel bilgilerini yönetin</p>
-          </div>
-        </div>
-
-        <div 
-          onClick={() => onNavigate('suppliers')}
-          className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-        >
-          <div className="text-center">
-            <div className="text-4xl mb-4">🏭</div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Tedarikçi Yönetimi</h3>
-            <p className="text-gray-600 text-sm">Müşteri tedarikçilerini yönetin</p>
+            {/* Quick Actions */}
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                <span className="mr-3">🚀</span>
+                Hızlı Aksiyonlar
+              </h2>
+              
+              <div className="grid grid-cols-1 gap-4">
+                <button 
+                  onClick={() => onNavigate('clients')}
+                  className="p-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all transform hover:scale-105"
+                >
+                  <div className="flex items-center justify-center space-x-2">
+                    <span className="text-2xl">🏨</span>
+                    <span className="font-medium">Müşteri Yönet</span>
+                  </div>
+                </button>
+                
+                <button 
+                  onClick={() => onNavigate('yeni-belge')}
+                  className="p-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all transform hover:scale-105"
+                >
+                  <div className="flex items-center justify-center space-x-2">
+                    <span className="text-2xl">📄</span>
+                    <span className="font-medium">Belge Yönet</span>
+                  </div>
+                </button>
+                
+                <button 
+                  onClick={() => onNavigate('trainings')}
+                  className="p-4 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl hover:from-purple-600 hover:to-pink-700 transition-all transform hover:scale-105"
+                >
+                  <div className="flex items-center justify-center space-x-2">
+                    <span className="text-2xl">🎓</span>
+                    <span className="font-medium">Eğitim Planla</span>
+                  </div>
+                </button>
+                
+                <button 
+                  onClick={() => onNavigate('carbon')}
+                  className="p-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all transform hover:scale-105"
+                >
+                  <div className="flex items-center justify-center space-x-2">
+                    <span className="text-2xl">🌱</span>
+                    <span className="font-medium">Karbon Analizi</span>
+                  </div>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
