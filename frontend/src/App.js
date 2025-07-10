@@ -9976,7 +9976,88 @@ const EmailManagement = () => {
 
 // Simple Sidebar Component (Temporary Fix)
 const Sidebar = ({ activeTab, onNavigate, userRole }) => {
-const ConsultantClientManagement = ({ onNavigate }) => {
+  const adminMenuItems = [
+    { id: 'dashboard', name: 'Dashboard', icon: '📊' },
+    { id: 'clients', name: 'Müşteri Yönetimi', icon: '🏨' },
+    { id: 'consultants', name: 'Danışman Yönetimi', icon: '👔' },
+    { id: 'consumption', name: 'Tüketim Takibi', icon: '⚡' },
+    { id: 'analytics', name: 'Tüketim Analizi', icon: '📈' },
+    { id: 'carbon', name: 'Karbon Ayak İzi', icon: '🌍' },
+    { id: 'waste-management', name: 'Atık Yönetimi', icon: '🗑️' },
+    { id: 'suppliers', name: 'Tedarikçi Yönetimi', icon: '🏢' },
+    { id: 'personnel', name: 'Personel Yönetimi', icon: '👥' },
+    { id: 'sustainability-targets', name: 'Sürdürülebilirlik Hedefleri', icon: '🎯' },
+    { id: 'yeni-belge', name: 'Belge Yönetimi', icon: '📋' },
+    { id: 'training', name: 'Eğitim Yönetimi', icon: '🎓' },
+    { id: 'email-management', name: 'Email Yönetimi', icon: '📧' }
+  ];
+
+  const clientMenuItems = [
+    { id: 'dashboard', name: 'Dashboard', icon: '📊' },
+    { id: 'consumption', name: 'Tüketim Takibi', icon: '⚡' },
+    { id: 'analytics', name: 'Tüketim Analizi', icon: '📈' },
+    { id: 'carbon', name: 'Karbon Ayak İzi', icon: '🌍' },
+    { id: 'sustainability-targets', name: 'Sürdürülebilirlik Hedefleri', icon: '🎯' },
+    { id: 'yeni-belge', name: 'Belge Yönetimi', icon: '📋' },
+    { id: 'training', name: 'Eğitimlerim', icon: '🎓' }
+  ];
+
+  const menuItems = userRole === 'admin' ? adminMenuItems : clientMenuItems;
+
+  return (
+    <div 
+      className="text-white w-64 shadow-2xl flex flex-col"
+      style={{
+        background: 'linear-gradient(180deg, #111827 0%, #1f2937 50%, #111827 100%)',
+        minHeight: '100vh',
+        height: '100vh',
+        position: 'relative'
+      }}
+    >
+      <div className="p-6 flex-1 flex flex-col" style={{ minHeight: '100%' }}>
+        <div className="text-center mb-8">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
+            <span className="text-white text-xl font-bold">R</span>
+          </div>
+          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            ROTA CRM
+          </h1>
+          <p className="text-gray-400 text-sm mt-1">Sürdürülebilirlik Paneli</p>
+        </div>
+
+        <nav className="space-y-2 flex-1" style={{ minHeight: '400px' }}>
+          {menuItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => onNavigate(item.id)}
+              className={`group w-full text-left px-4 py-3 rounded-xl transition-all duration-200 ${
+                activeTab === item.id 
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105' 
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white hover:translate-x-2'
+              }`}
+            >
+              <span className="mr-3 text-lg">{item.icon}</span>
+              <span className="font-medium">{item.name}</span>
+              {activeTab === item.id && (
+                <span className="float-right text-white">⚡</span>
+              )}
+            </button>
+          ))}
+        </nav>
+        
+        <div className="mt-auto p-4 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl">
+          <div className="text-center">
+            <div className="text-2xl mb-2">🌱</div>
+            <p className="text-white text-sm font-medium">Sürdürülebilir Gelecek</p>
+            <p className="text-emerald-100 text-xs mt-1">Çevre dostu çözümler</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Consultant Client Management Component
   return (
     <div className="p-6">
       <div className="bg-white rounded-xl shadow-lg p-6">
