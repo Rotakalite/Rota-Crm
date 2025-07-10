@@ -9996,8 +9996,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'sustainability-targets', name: 'Sürdürülebilirlik Hedefleri', icon: '🎯' },
     { id: 'yeni-belge', name: 'Belge Yönetimi', icon: '📋' },
     { id: 'training', name: 'Eğitim Yönetimi', icon: '🎓' },
-    { id: 'email-management', name: 'Email Yönetimi', icon: '📧' },
-    { id: 'whatsapp', name: 'WhatsApp Yönetimi', icon: '💬' }
+    { id: 'email-management', name: 'Email Yönetimi', icon: '📧' }
   ];
 
   const clientMenuItems = [
