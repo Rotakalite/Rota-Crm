@@ -10016,7 +10016,9 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
         top: 0,
         zIndex: 10,
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        overflowY: 'auto', // Sidebar scroll özelliği
+        overflowX: 'hidden'
       }}
     >
       <div 
@@ -10026,7 +10028,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
           background: 'linear-gradient(180deg, #111827 0%, #1f2937 50%, #111827 100%)'
         }}
       >
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 flex-shrink-0">
           <div className="bg-gradient-to-r from-blue-500 to-purple-600 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
             <span className="text-white text-xl font-bold">R</span>
           </div>
@@ -10036,7 +10038,14 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
           <p className="text-gray-400 text-sm mt-1">Sürdürülebilirlik Paneli</p>
         </div>
 
-        <nav className="space-y-2 flex-1" style={{ minHeight: '400px' }}>
+        <nav 
+          className="space-y-2 flex-1 overflow-y-auto overflow-x-hidden" 
+          style={{ 
+            minHeight: '400px',
+            maxHeight: 'calc(100vh - 200px)', // Header ve footer için alan bırak
+            paddingRight: '8px' // Scroll bar için alan
+          }}
+        >
           {menuItems.map((item) => (
             <button
               key={item.id}
@@ -10057,10 +10066,10 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
         </nav>
         
         <div 
-          className="p-4 rounded-xl" 
+          className="p-4 rounded-xl flex-shrink-0" 
           style={{ 
             background: 'linear-gradient(90deg, #059669, #0d9488)',
-            marginTop: 'auto',
+            marginTop: '20px',
             marginBottom: '20px'
           }}
         >
