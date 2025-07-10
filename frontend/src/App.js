@@ -12234,7 +12234,9 @@ const ConsultantApp = () => {
           top: 0,
           zIndex: 10,
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          overflowY: 'auto', // Consultant sidebar scroll
+          overflowX: 'hidden'
         }}
       >
         <div 
@@ -12244,7 +12246,7 @@ const ConsultantApp = () => {
             background: 'linear-gradient(180deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%)'
           }}
         >
-          <div className="text-center mb-8">
+          <div className="text-center mb-8 flex-shrink-0">
             <div className="bg-gradient-to-r from-yellow-400 to-orange-500 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
               <span className="text-white text-xl font-bold">👔</span>
             </div>
@@ -12254,7 +12256,14 @@ const ConsultantApp = () => {
             <p className="text-blue-200 text-sm mt-1">{dbUser?.name || 'Elite Danışman'}</p>
           </div>
         
-          <nav className="space-y-2 flex-1">
+          <nav 
+            className="space-y-2 flex-1 overflow-y-auto overflow-x-hidden" 
+            style={{ 
+              minHeight: '400px',
+              maxHeight: 'calc(100vh - 200px)', // Header ve footer için alan bırak
+              paddingRight: '8px' // Scroll bar için alan
+            }}
+          >
             {consultantMenuItems.map((item) => (
               <button
                 key={item.id}
@@ -12275,10 +12284,10 @@ const ConsultantApp = () => {
           </nav>
           
           <div 
-            className="p-4 rounded-xl" 
+            className="p-4 rounded-xl flex-shrink-0" 
             style={{ 
               background: 'linear-gradient(90deg, #059669, #0d9488)',
-              marginTop: 'auto',
+              marginTop: '20px',
               marginBottom: '20px'
             }}
           >
