@@ -11682,4 +11682,13 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
   );
 };
 
-export default MainApp;
+// Wrap MainApp with ClerkProvider
+const App = () => {
+  return (
+    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+      <MainApp />
+    </ClerkProvider>
+  );
+};
+
+export default App;
