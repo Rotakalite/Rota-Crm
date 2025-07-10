@@ -10006,15 +10006,26 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
 
   return (
     <div 
-      className="text-white w-64 shadow-2xl flex flex-col"
+      className="text-white w-64 shadow-2xl"
       style={{
         background: 'linear-gradient(180deg, #111827 0%, #1f2937 50%, #111827 100%)',
         minHeight: '100vh',
         height: '100vh',
-        position: 'relative'
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        zIndex: 10,
+        display: 'flex',
+        flexDirection: 'column'
       }}
     >
-      <div className="p-6 flex-1 flex flex-col" style={{ minHeight: '100%' }}>
+      <div 
+        className="p-6 flex-1 flex flex-col"
+        style={{ 
+          minHeight: '100vh',
+          background: 'linear-gradient(180deg, #111827 0%, #1f2937 50%, #111827 100%)'
+        }}
+      >
         <div className="text-center mb-8">
           <div className="bg-gradient-to-r from-blue-500 to-purple-600 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
             <span className="text-white text-xl font-bold">R</span>
@@ -10045,7 +10056,14 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
           ))}
         </nav>
         
-        <div className="mt-auto p-4 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl">
+        <div 
+          className="p-4 rounded-xl" 
+          style={{ 
+            background: 'linear-gradient(90deg, #059669, #0d9488)',
+            marginTop: 'auto',
+            marginBottom: '20px'
+          }}
+        >
           <div className="text-center">
             <div className="text-2xl mb-2">🌱</div>
             <p className="text-white text-sm font-medium">Sürdürülebilir Gelecek</p>
