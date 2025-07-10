@@ -3429,6 +3429,71 @@ async def create_column_folders(client_id: str, root_folder_id: str, root_folder
     except Exception as e:
         logging.error(f"❌ Failed to create column folders: {str(e)}")
 
+async def create_level4_for_client(client_id: str):
+    """Create Level 4 folders (POLİTİKALAR, PROSEDÜRLER, etc.) for a specific client"""
+    try:
+        logging.info(f"🏗️ Creating Level 4 folders for client: {client_id}")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
+        
+        # Level 4 klasörler
+        level4_folders = [
+            "POLİTİKALAR",
+            "PROSEDÜRLER", 
+            "FORMLAR",
+            "LİSTELER",
+            "KAYITLAR"
+        ]
+        
+        # Level 2 ve Level 3 klasörleri bul
+        parent_folders = await asyncio.to_thread(
+            lambda: list(db.folders.find({
+                "client_id": client_id,
+                "level": {"$in": [2, 3]}
+            }))
+        )
+        
+        created_count = 0
+        
+        for parent_folder in parent_folders:
+            parent_id = parent_folder["id"]
+            parent_path = parent_folder["folder_path"]
+            
+            for folder_name in level4_folders:
+                level4_id = f"level4_{parent_id}_{folder_name.lower().replace('i̇', 'i')}"
+                level4_path = f"{parent_path}/{folder_name}"
+                
+                # Check if already exists
+                existing = await asyncio.to_thread(
+                    db.folders.find_one, {"id": level4_id}
+                )
+                
+                if existing:
+                    continue
+                
+                # Create Level 4 folder
+                level4_folder = {
+                    "id": level4_id,
+                    "client_id": client_id,
+                    "name": folder_name,
+                    "parent_folder_id": parent_id,
+                    "folder_path": level4_path,
+                    "level": 4,
+                    "created_at": datetime.utcnow()
+                }
+                
+                await asyncio.to_thread(db.folders.insert_one, level4_folder)
+                created_count += 1
+        
+        logging.info(f"✅ Created {created_count} Level 4 folders for client: {client_id}")
+        return created_count
+        
+    except Exception as e:
+        logging.error(f"❌ Failed to create Level 4 folders for client {client_id}: {str(e)}")
+        return 0
+
 async def get_client_access(current_user: User = Depends(get_current_user)):
     # Both admin and client can access, but with different permissions
     return current_user
