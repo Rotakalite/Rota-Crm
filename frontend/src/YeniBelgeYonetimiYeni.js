@@ -154,9 +154,11 @@ const YeniBelgeYonetimiYeni = () => {
     if (!authToken) return;
     
     try {
-      const response = await axios.get(`${API}/clients`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
+      const response = await apiCall(async () => 
+        axios.get(`${API}/clients`, {
+          headers: { Authorization: `Bearer ${authToken}` }
+        })
+      );
       let allClients = response.data || [];
       
       console.log('👥 All clients from API:', allClients);
