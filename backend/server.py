@@ -8376,6 +8376,69 @@ def get_safe_filename(filename: str) -> str:
     safe_filename = "".join(c if c in safe_chars else "_" for c in filename)
     return safe_filename[:100]
 
+@app.post("/api/debug/fix-folder-names")
+async def fix_folder_names_for_client(request_data: dict):
+    """Fix folder names for a specific client"""
+    try:
+        client_id = request_data.get("client_id")
+        correct_name = request_data.get("correct_client_name")
+        
+        if not client_id or not correct_name:
+            raise HTTPException(status_code=400, detail="client_id and correct_client_name required")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
+        
+        # Update root folder name
+        root_folder_name = f"{correct_name} SYS"
+        result = await asyncio.to_thread(
+            db.folders.update_many,
+            {
+                "client_id": client_id,
+                "level": 0,
+                "name": {"$regex": ".*SYS$"}
+            },
+            {
+                "$set": {
+                    "name": root_folder_name,
+                    "folder_path": root_folder_name
+                }
+            }
+        )
+        
+        # Update folder paths for all folders
+        folders = await asyncio.to_thread(
+            lambda: list(db.folders.find({"client_id": client_id}))
+        )
+        
+        updated_count = 0
+        for folder in folders:
+            if folder.get("level") == 0:
+                continue  # Root already updated
+            
+            # Reconstruct folder path with correct root name
+            old_path = folder.get("folder_path", "")
+            if "Unknown Client SYS" in old_path:
+                new_path = old_path.replace("Unknown Client SYS", root_folder_name)
+                await asyncio.to_thread(
+                    db.folders.update_one,
+                    {"id": folder["id"]},
+                    {"$set": {"folder_path": new_path}}
+                )
+                updated_count += 1
+        
+        return {
+            "success": True,
+            "root_folders_updated": result.modified_count,
+            "total_paths_updated": updated_count,
+            "new_root_name": root_folder_name
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Fix folder names error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/api/debug/database-info")
 async def debug_database_info():
     """Debug: Database connection info"""
