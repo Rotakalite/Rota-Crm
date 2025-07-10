@@ -501,18 +501,20 @@ test_plan:
         -agent: "main"
         -comment: "Enhanced email management UI to better support both individual and bulk selection. Added larger checkboxes with clear labels, 'Clear Selection' buttons, improved visual feedback, and instructional text in header. Individual selection via large checkboxes with 'Seç/Seçildi' labels, bulk selection via 'Tümünü Seç/Kaldır' buttons, and clear selection via 'Seçimi Temizle' buttons."
 
-  - task: "Customer Management Delete Functionality"
+  - task: "Fix Consultant Client Assignment Authentication Error"
     implemented: true
     working: true
-    file: "/app/frontend/src/App.js"
+    file: "/app/backend/server.py"
     stuck_count: 0
-    priority: "high"
+    priority: "critical"
     needs_retesting: true
     status_history:
         -working: false
         -agent: "user"
-        -comment: "User reported that they cannot delete customers in the customer management module."
+        -comment: "Kullanıcı 'Client not assigned to user' hatası aldığını bildirdi. Danışman modülünde assigned client'lar görünmüyor."
         -working: true
+        -agent: "main"
+        -comment: "2025-01-28: CRITICAL FIX APPLIED! Backend'deki consumption endpoint'lerinde CONSULTANT rolü için logic eksikti. Sadece ADMIN ve CLIENT rolleri handle ediliyordu. Şu düzeltmeler yapıldı: 1) GET /api/consumptions endpoint'inde consultant role logic eklendi 2) POST /api/consumptions endpoint'inde consultant role logic eklendi 3) GET /api/consumptions/analytics endpoint'inde consultant role logic eklendi 4) Consultant'lar artık sadece kendi assigned client'larının consumption datalarını görebilir 5) Proper access control ve validation eklendi - consultant_id check, client assignment verification. Consultant users must specify client_id parameter ve sadece assigned client'larına access var."
   - task: "Email Management Backend API Connection Fix"
     implemented: true
     working: true
