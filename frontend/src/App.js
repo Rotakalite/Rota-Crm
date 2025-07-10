@@ -9926,54 +9926,28 @@ const EmailManagement = () => {
               )}
             </div>
 
-            {/* Email Composition */}
+            {/* Email Gönderme - SABİT FORMAT */}
             {((activeTab === 'documents' && selectedDocuments.length > 0) || 
               (activeTab === 'trainings' && selectedTrainings.length > 0)) && (
               <div className="bg-white rounded-xl shadow-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">✉️ Email Oluştur</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">✉️ Email Gönder (Sabit Format)</h3>
                 
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Konusu
-                    </label>
-                    <input
-                      type="text"
-                      value={emailContent.subject}
-                      onChange={(e) => setEmailContent(prev => ({ ...prev, subject: e.target.value }))}
-                      placeholder={activeTab === 'documents' ? 
-                        `Yeni Dokümanlar (${selectedDocuments.length} adet)` : 
-                        `Yeni Eğitimler (${selectedTrainings.length} adet)`}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
+                <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                  <div className="text-sm text-gray-600 space-y-2">
+                    <p><strong>📧 Konu:</strong> ROTA CRM - Yeni {activeTab === 'documents' ? 'Doküman' : 'Eğitim'} Bildirimi ({(activeTab === 'documents' ? selectedDocuments : selectedTrainings).length} adet)</p>
+                    <p><strong>📝 İçerik:</strong> Standart ROTA CRM bildirim formatı kullanılacak</p>
+                    <p><strong>📊 Seçilen İtemler:</strong> {activeTab === 'documents' ? selectedDocuments.length : selectedTrainings.length} adet</p>
+                    <p><strong>🏢 Müşteri:</strong> {clients.find(c => c.id === selectedClient)?.name || clients.find(c => c.id === selectedClient)?.hotel_name}</p>
                   </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Mesajı
-                    </label>
-                    <textarea
-                      value={emailContent.message}
-                      onChange={(e) => setEmailContent(prev => ({ ...prev, message: e.target.value }))}
-                      placeholder={`${(activeTab === 'documents' ? selectedDocuments : selectedTrainings).length} adet ${activeTab === 'documents' ? 'doküman' : 'eğitim'} için detaylı bilgi aşağıdadır.`}
-                      rows={4}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm text-gray-600">
-                      <p><strong>Seçilen Items:</strong> {activeTab === 'documents' ? selectedDocuments.length : selectedTrainings.length}</p>
-                      <p><strong>Gönderilecek Müşteri:</strong> {clients.find(c => c.id === selectedClient)?.name || clients.find(c => c.id === selectedClient)?.hotel_name}</p>
-                    </div>
-                    
-                    <button
-                      onClick={sendEmailNotification}
-                      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                    >
-                      📧 Email Gönder
-                    </button>
-                  </div>
+                </div>
+                
+                <div className="flex justify-center">
+                  <button
+                    onClick={sendEmailNotification}
+                    className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg"
+                  >
+                    📧 Sabit Formatta Email Gönder
+                  </button>
                 </div>
               </div>
             )}
