@@ -6623,6 +6623,117 @@ async def delete_training(training_id: str, current_user: User = Depends(get_adm
 
 # Include the router in the main app
 # EMAIL NOTIFICATION ENDPOINTS
+# EMAIL NOTIFICATION MODELS
+class EmailNotificationInput(BaseModel):
+    client_id: str
+    type: str  # 'document' | 'training'
+    subject: str
+    message: str
+    items: List[dict]  # Document or training items with details
+
+@api_router.post("/email/send-notification")
+async def send_email_notification(
+    notification_data: EmailNotificationInput,
+    current_user: User = Depends(get_current_user)
+):
+    """Send email notification for documents or trainings to specific client"""
+    try:
+        # Verify permission
+        if current_user.role not in ['admin', 'consultant']:
+            raise HTTPException(status_code=403, detail="Sadece admin ve consultant kullanıcıları email gönderebilir")
+        
+        # Get client information
+        client = await db.clients.find_one({"id": notification_data.client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Müşteri bulunamadı")
+        
+        # Check if email service is available
+        if not email_service:
+            raise HTTPException(status_code=500, detail="Email servisi kullanılamıyor")
+        
+        # Build email content
+        client_name = client.get('name') or client.get('hotel_name')
+        email_content = f"""
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+    <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h1 style="color: #2563eb; text-align: center; margin-bottom: 30px;">
+            📧 ROTA CRM - Bildirim
+        </h1>
+        
+        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h2 style="color: #374151; margin: 0;">🏢 {client_name}</h2>
+            <p style="color: #6b7280; margin: 5px 0 0 0;">İşletme Bilgilendirmesi</p>
+        </div>
+        
+        <h3 style="color: #374151;">{notification_data.subject}</h3>
+        <p style="color: #6b7280; line-height: 1.6;">{notification_data.message}</p>
+        
+        <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h4 style="color: #1f2937; margin: 0 0 15px 0;">
+                {'📄 Doküman Detayları:' if notification_data.type == 'document' else '🎓 Eğitim Detayları:'}
+            </h4>
+"""
+        
+        # Add items details
+        for i, item in enumerate(notification_data.items, 1):
+            if notification_data.type == 'document':
+                email_content += f"""
+            <div style="border-left: 4px solid #3b82f6; padding-left: 15px; margin-bottom: 15px;">
+                <p style="margin: 0; font-weight: bold; color: #1f2937;">{i}. {item.get('name', 'Unknown Document')}</p>
+                <p style="margin: 5px 0; color: #6b7280; font-size: 14px;">📁 Klasör: {item.get('folder_path', 'Unknown')}</p>
+                <p style="margin: 5px 0; color: #6b7280; font-size: 14px;">📅 Yükleme Tarihi: {item.get('upload_date', 'Unknown')}</p>
+            </div>
+"""
+            else:  # training
+                email_content += f"""
+            <div style="border-left: 4px solid #10b981; padding-left: 15px; margin-bottom: 15px;">
+                <p style="margin: 0; font-weight: bold; color: #1f2937;">{i}. {item.get('name', 'Unknown Training')}</p>
+                <p style="margin: 5px 0; color: #6b7280; font-size: 14px;">👨‍🏫 Eğitmen: {item.get('trainer', 'Unknown')}</p>
+                <p style="margin: 5px 0; color: #6b7280; font-size: 14px;">📅 Tarih: {item.get('training_date', 'Unknown')}</p>
+                <p style="margin: 5px 0; color: #6b7280; font-size: 14px;">⏰ Süre: {item.get('duration', 'Unknown')}</p>
+            </div>
+"""
+        
+        email_content += f"""
+        </div>
+        
+        <div style="background-color: #e5e7eb; padding: 15px; border-radius: 6px; margin-top: 30px;">
+            <p style="margin: 0; color: #374151; font-size: 12px; text-align: center;">
+                Bu email otomatik olarak ROTA CRM sistemi tarafından gönderilmiştir.<br>
+                Gönderen: {current_user.name} ({current_user.role})<br>
+                Tarih: {datetime.now().strftime('%d.%m.%Y %H:%M')}
+            </p>
+        </div>
+    </div>
+</div>
+"""
+        
+        # Send email
+        success = await email_service.send_email(
+            to_email=client.get('email', 'test@example.com'),
+            subject=f"ROTA CRM - {notification_data.subject}",
+            html_content=email_content
+        )
+        
+        if success:
+            logging.info(f"✅ Email notification sent: {notification_data.type} to {client_name}")
+            return {
+                "success": True,
+                "message": f"Email başarıyla gönderildi: {client_name}",
+                "details": {
+                    "type": notification_data.type,
+                    "items_count": len(notification_data.items),
+                    "client": client_name,
+                    "sent_by": current_user.name
+                }
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Email gönderilemedi")
+            
+    except Exception as e:
+        logging.error(f"❌ Email notification error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Email gönderme hatası: {str(e)}")
+
 @api_router.post("/email/test")
 async def send_test_email(current_user: User = Depends(get_current_user)):
     """Send test email to current user"""
