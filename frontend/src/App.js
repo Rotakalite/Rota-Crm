@@ -9510,14 +9510,22 @@ const EmailManagement = () => {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
       
-      const fetchedDocuments = response.data || [];
-      setDocuments(fetchedDocuments.map(doc => ({
+      // Backend returns: { success: true, documents: [...], count: 5 }
+      const responseData = response.data || {};
+      const fetchedDocuments = responseData.documents || responseData.data || responseData || [];
+      
+      // Ensure it's an array
+      const documentsArray = Array.isArray(fetchedDocuments) ? fetchedDocuments : [];
+      
+      setDocuments(documentsArray.map(doc => ({
         ...doc,
         selected: false,
-        displayName: doc.file_name || doc.document_name || 'Unknown Document',
+        displayName: doc.file_name || doc.document_name || doc.original_filename || 'Unknown Document',
         uploadDate: doc.uploaded_at || doc.created_at || new Date().toISOString(),
-        folderPath: doc.folder_path || 'Unknown Folder'
+        folderPath: doc.folder_path || doc.folder_name || 'Unknown Folder'
       })));
+      
+      console.log(`✅ Documents loaded: ${documentsArray.length} items`);
       
     } catch (error) {
       console.error('Error fetching documents:', error);
