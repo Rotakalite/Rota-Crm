@@ -1780,19 +1780,53 @@ const Dashboard = ({ onNavigate }) => {
     );
   }
 
+  const formatTime = (date) => {
+    return date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString('tr-TR', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
   return (
-    <div className="p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Hoş Geldiniz, {user?.firstName || 'Kullanıcı'}! 👋
-          </h1>
-          <p className="text-gray-600">
-            {userRole === 'admin' ? 'Admin Panel - Sistemin tüm özelliklerine erişebilirsiniz.' 
-            : userRole === 'consultant' ? 'Danışman Paneli - Müşterilerinizi yönetebilir ve sistemin tüm özelliklerine erişebilirsiniz.'
-            : 'Müşteri Paneli - Kendi verilerinizi görüntüleyebilir ve yönetebilirsiniz.'}
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      {/* Elite Header */}
+      <div className="bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 text-white p-8 shadow-2xl">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center space-x-4 mb-2">
+                <div className="bg-gradient-to-r from-yellow-400 to-orange-500 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg">
+                  <span className="text-2xl">👋</span>
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-transparent">
+                    Hoş Geldiniz, {user?.firstName || 'Değerli Kullanıcı'}!
+                  </h1>
+                  <p className="text-blue-200 text-lg mt-1">
+                    {userRole === 'admin' ? '🎯 Admin Panel - Sistemin tüm kontrolü sizde' 
+                    : userRole === 'consultant' ? '💼 Danışman Paneli - Müşterilerinizi elite seviyede yönetin'
+                    : '🏨 Müşteri Paneli - Sürdürülebilirlik yolculuğunuza devam edin'}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-white">{formatTime(currentTime)}</div>
+              <div className="text-blue-200 text-sm">{formatDate(currentTime)}</div>
+              <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full bg-green-500 text-white text-sm font-medium">
+                <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
+                Sistem Aktif
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
 
         {/* Admin & Consultant Dashboard */}
         {(userRole === 'admin' || userRole === 'consultant') && dashboardData && (
