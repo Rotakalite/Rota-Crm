@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
-import { ClerkProvider, SignedIn, SignedOut, RedirectToSignIn, useUser, useClerk } from '@clerk/clerk-react';
+import { ClerkProvider, SignedIn, SignedOut, RedirectToSignIn, useUser, useClerk, SignOutButton } from '@clerk/clerk-react';
 import YeniBelgeYonetimiYeni from './YeniBelgeYonetimiYeni';
 import {
   Chart as ChartJS,
