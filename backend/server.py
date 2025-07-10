@@ -6468,7 +6468,7 @@ async def send_email_notification(
                 <p style="margin: 0; font-weight: bold; color: #1f2937;">{i}. {item.get('name', 'Unknown Training')}</p>
                 <p style="margin: 5px 0; color: #6b7280; font-size: 14px;">👨‍🏫 Eğitmen: {item.get('trainer', 'Unknown')}</p>
                 <p style="margin: 5px 0; color: #6b7280; font-size: 14px;">📅 Tarih: {item.get('training_date', 'Unknown')}</p>
-                <p style="margin: 5px 0; color: #6b7280; font-size: 14px;">⏰ Süre: {item.get('duration', 'Unknown')}</p>
+                <p style="margin: 5px 0; color: #6b7280; font-size: 14px;">⏰ Eğitim Saati: {item.get('hours', 'Unknown')}</p>
             </div>
 """
         
