@@ -1,0 +1,279 @@
+{
+  "consultant_management": {
+    "list_consultants": {
+      "status": "PASS",
+      "details": {
+        "endpoint": "/consultants",
+        "method": "GET",
+        "status_code": 200,
+        "response_size": 2237,
+        "accessible": true,
+        "response_data": [
+          {
+            "id": "776390cf-b13a-48e7-9297-fd858524cfbb",
+            "company_name": "ROTA",
+            "authorized_person_name": "ROTA Sistem Yöneticisi",
+            "email": "admin@rota.com",
+            "phone": "0532 000 00 00",
+            "address": "ROTA Merkez Ofis",
+            "is_active": true,
+            "total_clients": 1,
+            "created_at": "2025-07-09T16:22:23.022000",
+            "updated_at": "2025-07-09T17:42:40.048000"
+          },
+          {
+            "id": "a8c0a878-ad10-4bff-9ab8-0f342f5c39d2",
+            "company_name": "KAYA DANIŞMANLIK",
+            "authorized_person_name": "FİLİZ KAYA",
+            "email": "palavancaner@gmail.com",
+            "phone": "05065857519",
+            "address": "ANTALYA",
+            "is_active": true,
+            "total_clients": 1,
+            "created_at": "2025-07-09T19:36:19.969000",
+            "updated_at": "2025-07-10T20:30:44.079000"
+          },
+          {
+            "id": "e9e56e92-985f-4b53-9675-dcd4069bf0b5",
+            "company_name": "Test Consultant Company 380d8ccb-cb48-4be0-a7de-fba1dcd4a6b8",
+            "authorized_person_name": "Test Person",
+            "email": "test27c98a72-4b23-4492-a767-b40a3163020a@testconsultant.com",
+            "phone": "1234567890",
+            "address": "123 Test Street, Test City",
+            "is_active": true,
+            "total_clients": 0,
+            "created_at": "2025-07-10T19:16:47.658000",
+            "updated_at": "2025-07-10T19:16:47.658000"
+          },
+          {
+            "id": "1468de99-68bc-45b1-afad-97084c6c2ae3",
+            "company_name": "Test Consultant Company 3bb80b71-6311-41af-9b27-4be39498edcb",
+            "authorized_person_name": "Test Person",
+            "email": "test7a2a1733-ea32-4804-836a-9fd8c5a37de4@testconsultant.com",
+            "phone": "1234567890",
+            "address": "123 Test Street, Test City",
+            "is_active": true,
+            "total_clients": 0,
+            "created_at": "2025-07-10T19:21:19.308000",
+            "updated_at": "2025-07-10T19:21:19.308000"
+          },
+          {
+            "id": "f3047980-6f44-4b09-9670-f7d11dad58cf",
+            "company_name": "Test Consulting 69efb110-7338-416c-8972-4b0adf36ebca",
+            "authorized_person_name": "Jane Smith",
+            "email": "jane@testconsulting.com",
+            "phone": "0987654321",
+            "address": "456 Consultant Ave, Business City",
+            "is_active": true,
+            "total_clients": 0,
+            "created_at": "2025-07-10T20:07:57.623000",
+            "updated_at": "2025-07-10T20:07:57.623000"
+          },
+          {
+            "id": "755dd48a-d3b2-4a34-9b77-a5e72765cb40",
+            "company_name": "Test Consulting 6f9c4b3c-ee6f-49e2-bdc1-a511336f9c48",
+            "authorized_person_name": "Jane Smith",
+            "email": "test024f1540-493e-478c-9b82-6e16cfdcbc61@testconsulting.com",
+            "phone": "0987654321",
+            "address": "456 Consultant Ave, Business City",
+            "is_active": true,
+            "total_clients": 0,
+            "created_at": "2025-07-10T20:09:33.812000",
+            "updated_at": "2025-07-10T20:09:33.812000"
+          }
+        ],
+        "status_match": true
+      },
+      "is_critical": false
+    },
+    "create_consultant": {
+      "status": "PASS",
+      "details": {
+        "endpoint": "/consultants",
+        "method": "POST",
+        "status_code": 200,
+        "response_size": 100,
+        "accessible": true,
+        "response_data": {
+          "message": "Consultant created successfully",
+          "consultant_id": "443c9a39-212e-4643-9103-3296a7039a79"
+        },
+        "status_match": true
+      },
+      "is_critical": false
+    },
+    "get_consultant_details": {
+      "status": "AUTH_REQUIRED",
+      "details": {
+        "endpoint": "/consultants/776390cf-b13a-48e7-9297-fd858524cfbb",
+        "method": "GET",
+        "status_code": 401,
+        "response_size": 53,
+        "accessible": true,
+        "response_data": {
+          "detail": "Invalid token: could not get signing key"
+        },
+        "status_match": true
+      },
+      "is_critical": false
+    }
+  },
+  "email_management": {
+    "list_documents": {
+      "status": "AUTH_REQUIRED",
+      "details": {
+        "endpoint": "/belge/list",
+        "method": "GET",
+        "status_code": 401,
+        "response_size": 53,
+        "accessible": true,
+        "response_data": {
+          "detail": "Invalid token: could not get signing key"
+        },
+        "status_match": true
+      },
+      "is_critical": false
+    },
+    "client_filtering": {
+      "status": "SKIP",
+      "details": {
+        "reason": "No client IDs"
+      },
+      "is_critical": false
+    },
+    "upload_endpoint_exists": {
+      "status": "AUTH_REQUIRED",
+      "details": {
+        "endpoint": "/belge/upload",
+        "method": "POST",
+        "status_code": 401,
+        "response_size": 53,
+        "accessible": true,
+        "response_data": {
+          "detail": "Invalid token: could not get signing key"
+        },
+        "status_match": true
+      },
+      "is_critical": false
+    },
+    "mongodb_data_retrieval": {
+      "status": "FAIL",
+      "details": {
+        "endpoint": "/belge/list",
+        "method": "GET",
+        "status_code": 401,
+        "response_size": 53,
+        "accessible": true,
+        "response_data": {
+          "detail": "Invalid token: could not get signing key"
+        }
+      },
+      "is_critical": true
+    }
+  },
+  "training_management": {
+    "list_trainings": {
+      "status": "AUTH_REQUIRED",
+      "details": {
+        "endpoint": "/trainings",
+        "method": "GET",
+        "status_code": 401,
+        "response_size": 53,
+        "accessible": true,
+        "response_data": {
+          "detail": "Invalid token: could not get signing key"
+        },
+        "status_match": true
+      },
+      "is_critical": false
+    },
+    "client_filtering": {
+      "status": "SKIP",
+      "details": {
+        "reason": "No client IDs"
+      },
+      "is_critical": false
+    }
+  },
+  "client_management": {
+    "list_clients": {
+      "status": "AUTH_REQUIRED",
+      "details": {
+        "endpoint": "/clients",
+        "method": "GET",
+        "status_code": 401,
+        "response_size": 53,
+        "accessible": true,
+        "response_data": {
+          "detail": "Invalid token: could not get signing key"
+        },
+        "status_match": true
+      },
+      "is_critical": false
+    }
+  },
+  "authentication": {
+    "no_auth_endpoints": {
+      "status": "PASS",
+      "details": {
+        "working": [
+          "GET /health",
+          "GET /consultants",
+          "GET /suppliers/categories/list",
+          "GET /suppliers/certifications/list"
+        ],
+        "broken": []
+      },
+      "is_critical": false
+    },
+    "auth_required_endpoints": {
+      "status": "PASS",
+      "details": {
+        "working": [
+          "GET /belge/list",
+          "GET /clients",
+          "GET /auth/me",
+          "GET /sustainability-targets"
+        ],
+        "broken": []
+      },
+      "is_critical": false
+    },
+    "jwt_validation": {
+      "status": "TOKEN_INVALID",
+      "details": {
+        "endpoint": "/auth/me",
+        "method": "GET",
+        "status_code": 401,
+        "response_size": 53,
+        "accessible": true,
+        "response_data": {
+          "detail": "Invalid token: could not get signing key"
+        },
+        "status_match": true
+      },
+      "is_critical": false
+    }
+  },
+  "summary": {
+    "total_tests": 13,
+    "passed_tests": 4,
+    "failed_tests": 9,
+    "critical_issues": [
+      "email_management: mongodb_data_retrieval"
+    ],
+    "working_endpoints": [
+      "/consultants",
+      "/consultants"
+    ],
+    "broken_endpoints": [
+      "/consultants/776390cf-b13a-48e7-9297-fd858524cfbb",
+      "/belge/list",
+      "/belge/upload",
+      "/belge/list",
+      "/trainings",
+      "/clients",
+      "/auth/me"
+    ]
+  }
+}
