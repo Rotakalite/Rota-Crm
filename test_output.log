@@ -1,0 +1,146 @@
+
+=== Running Document Management API Tests ===
+2025-07-09 21:31:49,883 - INFO - 
+=== Testing GET /api/folders endpoint ===
+2025-07-09 21:31:51,289 - INFO - Admin response status code: 200
+2025-07-09 21:31:51,294 - INFO - Found 1345 folders
+2025-07-09 21:31:51,294 - INFO - Sample folder: CAN SYS, Level: 0, Client ID: 4e04f9fc-2ba5-48c5-8ea0-b75058e5ac0b
+2025-07-09 21:31:51,294 - INFO - Found 1100 Level 4 folders
+2025-07-09 21:31:51,294 - INFO - ✅ GET /api/folders with admin auth test passed
+2025-07-09 21:31:52,009 - INFO - Client response status code: 200
+2025-07-09 21:31:52,013 - INFO - Client can see 1345 folders
+2025-07-09 21:31:52,014 - INFO - Client folders have client_ids: {'ab97ab73-f7ec-4684-a499-7af40e51727c', '88f92c44-b766-4591-9c90-be0f74326508', '1f22d3b2-5f32-4257-aa61-40b3dbea038f', '4e04f9fc-2ba5-48c5-8ea0-b75058e5ac0b', '16f0895a-8ae2-4a27-ae04-a9a905b31223'}
+2025-07-09 21:31:52,014 - WARNING - ⚠️ Client can see folders for multiple clients - this may be a security issue
+2025-07-09 21:31:52,014 - INFO - ✅ GET /api/folders with client auth test completed
+2025-07-09 21:31:52,769 - INFO - Invalid auth response status code: 200
+2025-07-09 21:31:52,769 - ERROR - ❌ Error testing GET /api/folders with invalid auth: 200 != 401
+F2025-07-09 21:31:52,772 - INFO - 
+=== Testing GET /api/belge/list endpoint ===
+2025-07-09 21:31:53,348 - INFO - Admin response status code: 200
+2025-07-09 21:31:53,348 - INFO - Found 0 documents
+2025-07-09 21:31:53,348 - INFO - ✅ GET /api/belge/list with admin auth test passed
+2025-07-09 21:31:53,829 - INFO - Client response status code: 200
+2025-07-09 21:31:53,830 - INFO - Client can see 0 documents
+2025-07-09 21:31:53,830 - INFO - ✅ GET /api/belge/list with client auth test passed
+2025-07-09 21:31:54,435 - INFO - Invalid auth response status code: 200
+2025-07-09 21:31:54,435 - WARNING - ⚠️ GET /api/belge/list with invalid auth returns 200 - authentication may not be enforced
+2025-07-09 21:31:55,090 - INFO - No auth response status code: 200
+2025-07-09 21:31:55,090 - WARNING - ⚠️ GET /api/belge/list with no auth returns 200 - authentication may not be enforced
+.2025-07-09 21:31:55,092 - INFO - 
+=== Testing POST /api/belge/upload endpoint ===
+2025-07-09 21:31:56,422 - INFO - Using folder: POLİTİKALAR, ID: level4_17663ad6-1ca3-4fea-a218-87098d0fe81a_poli̇ti̇kalar, Client ID: 4e04f9fc-2ba5-48c5-8ea0-b75058e5ac0b
+2025-07-09 21:31:56,917 - INFO - Admin response status code: 200
+2025-07-09 21:31:56,918 - INFO - Created document with ID: 93c8d135-0290-4443-bb73-70fc4dfbb4a0
+2025-07-09 21:31:56,918 - INFO - ✅ POST /api/belge/upload with admin auth test passed
+2025-07-09 21:31:57,384 - INFO - Invalid auth response status code: 200
+2025-07-09 21:31:57,384 - WARNING - ⚠️ POST /api/belge/upload with invalid auth returns 200 - authentication may not be enforced
+2025-07-09 21:31:57,863 - INFO - No auth response status code: 200
+2025-07-09 21:31:57,863 - WARNING - ⚠️ POST /api/belge/upload with no auth returns 200 - authentication may not be enforced
+.2025-07-09 21:31:57,866 - INFO - 
+=== Testing GET /api/belge/download/{id} endpoint ===
+2025-07-09 21:31:58,369 - INFO - Found document ID for download test: dbf4a116-e8fa-4ba8-b3d6-62f3383b8bc7
+2025-07-09 21:31:58,847 - INFO - Admin response status code: 200
+2025-07-09 21:31:58,848 - INFO - Downloaded document with Content-Type: application/octet-stream
+2025-07-09 21:31:58,848 - INFO - Content-Disposition: attachment; filename*=UTF-8''test_document.pdf
+2025-07-09 21:31:58,848 - INFO - Content length: 48 bytes
+2025-07-09 21:31:58,848 - INFO - ✅ GET /api/belge/download/{id} with admin auth test passed
+2025-07-09 21:31:59,337 - INFO - Client response status code: 200
+2025-07-09 21:31:59,337 - INFO - Client downloaded document with Content-Type: application/octet-stream
+2025-07-09 21:31:59,338 - INFO - Content-Disposition: attachment; filename*=UTF-8''test_document.pdf
+2025-07-09 21:31:59,338 - INFO - Content length: 48 bytes
+2025-07-09 21:31:59,338 - INFO - ✅ GET /api/belge/download/{id} with client auth test passed
+2025-07-09 21:31:59,826 - INFO - Invalid auth response status code: 200
+2025-07-09 21:31:59,827 - WARNING - ⚠️ GET /api/belge/download/{id} with invalid auth returns 200 - authentication may not be enforced
+2025-07-09 21:32:00,287 - INFO - No auth response status code: 200
+2025-07-09 21:32:00,288 - WARNING - ⚠️ GET /api/belge/download/{id} with no auth returns 200 - authentication may not be enforced
+2025-07-09 21:32:00,858 - INFO - Non-existent document response status code: 404
+2025-07-09 21:32:00,859 - INFO - ✅ GET /api/belge/download/{id} with non-existent ID correctly returns 404
+.2025-07-09 21:32:00,860 - INFO - 
+=== Testing DELETE /api/belge/delete/{id} endpoint ===
+2025-07-09 21:32:01,340 - INFO - Found document ID for delete test: dbf4a116-e8fa-4ba8-b3d6-62f3383b8bc7
+2025-07-09 21:32:01,815 - INFO - Admin response status code: 200
+2025-07-09 21:32:01,815 - INFO - Delete response: Belge kalıcı olarak silindi
+2025-07-09 21:32:02,316 - INFO - ✅ DELETE /api/belge/delete/{id} with admin auth test passed
+2025-07-09 21:32:02,797 - INFO - Found new document ID for invalid auth delete test: dbed096e-386b-4ff5-98ae-c3d15fcc611e
+2025-07-09 21:32:03,246 - INFO - Invalid auth response status code: 200
+2025-07-09 21:32:03,246 - WARNING - ⚠️ DELETE /api/belge/delete/{id} with invalid auth returns 200 - authentication may not be enforced
+2025-07-09 21:32:03,713 - INFO - Found new document ID for no auth delete test: 93c8d135-0290-4443-bb73-70fc4dfbb4a0
+2025-07-09 21:32:04,195 - INFO - No auth response status code: 200
+2025-07-09 21:32:04,195 - WARNING - ⚠️ DELETE /api/belge/delete/{id} with no auth returns 200 - authentication may not be enforced
+2025-07-09 21:32:04,648 - INFO - Non-existent document response status code: 500
+2025-07-09 21:32:04,648 - ERROR - ❌ Error testing DELETE /api/belge/delete with non-existent ID: 500 != 404
+F
+======================================================================
+FAIL: test_01_get_folders (__main__.TestDocumentManagementAPI.test_01_get_folders)
+Test GET /api/folders endpoint
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/document_management_test.py", line 127, in test_01_get_folders
+    self.assertEqual(response.status_code, 401)
+AssertionError: 200 != 401
+
+======================================================================
+FAIL: test_05_belge_delete (__main__.TestDocumentManagementAPI.test_05_belge_delete)
+Test DELETE /api/belge/delete/{id} endpoint
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/document_management_test.py", line 676, in test_05_belge_delete
+    self.assertEqual(response.status_code, 404)
+AssertionError: 500 != 404
+
+----------------------------------------------------------------------
+Ran 5 tests in 14.769s
+
+FAILED (failures=2)
+
+=== Running Level 4 Folder Structure Tests ===
+2025-07-09 21:32:04,651 - INFO - 
+=== Testing Level 4 folder structure implementation ===
+2025-07-09 21:32:05,888 - INFO - Admin response status code: 200
+2025-07-09 21:32:05,897 - INFO - Found 1100 Level 4 folders
+2025-07-09 21:32:05,897 - INFO - Level 4 folder names: {'KAYITLAR', 'PROSEDÜRLER', 'FORMLAR', 'POLİTİKALAR', 'LİSTELER'}
+2025-07-09 21:32:05,897 - INFO - Found 140 Level 2 folders and 80 Level 3 folders
+2025-07-09 21:32:05,897 - INFO - ✅ Level 4 folder structure implementation test passed
+.2025-07-09 21:32:05,903 - INFO - 
+=== Testing POST /api/folders/create-level4-structure endpoint ===
+2025-07-09 21:32:17,346 - INFO - Admin response status code: 200
+2025-07-09 21:32:17,347 - INFO - Extracted created_count from message: 0
+2025-07-09 21:32:17,347 - INFO - Create Level 4 structure response: Successfully created 0 Level 4 folders
+2025-07-09 21:32:17,347 - INFO - Level 4 structure: ['POLİTİKALAR', 'PROSEDÜRLER', 'FORMLAR', 'LİSTELER', 'KAYITLAR']
+2025-07-09 21:32:17,347 - INFO - Parent folders processed: 220
+2025-07-09 21:32:17,347 - INFO - ✅ POST /api/folders/create-level4-structure with admin auth test passed
+2025-07-09 21:32:28,684 - INFO - Invalid auth response status code: 200
+2025-07-09 21:32:28,684 - WARNING - ⚠️ POST /api/folders/create-level4-structure with invalid auth returns 200 - authentication may not be enforced
+2025-07-09 21:32:40,128 - INFO - No auth response status code: 200
+2025-07-09 21:32:40,129 - WARNING - ⚠️ POST /api/folders/create-level4-structure with no auth returns 200 - authentication may not be enforced
+.
+----------------------------------------------------------------------
+Ran 2 tests in 35.479s
+
+OK
+
+=== Running Client Filtering Tests ===
+2025-07-09 21:32:40,130 - INFO - 
+=== Testing client filtering in folder and document endpoints ===
+2025-07-09 21:32:41,863 - INFO - Admin folders response status code: 200
+2025-07-09 21:32:41,867 - INFO - Admin can see 1345 folders
+2025-07-09 21:32:41,867 - INFO - Admin can see folders for 5 different clients
+2025-07-09 21:32:41,867 - INFO - ✅ Admin can see folders for multiple clients
+2025-07-09 21:32:43,261 - INFO - Client folders response status code: 200
+2025-07-09 21:32:43,267 - INFO - Client can see 1345 folders
+2025-07-09 21:32:43,267 - INFO - Client can see folders for 5 different clients
+2025-07-09 21:32:43,267 - WARNING - ⚠️ Client can see folders for multiple clients - this may be a security issue
+2025-07-09 21:32:43,267 - INFO - ✅ Client folder access test completed
+2025-07-09 21:32:43,882 - INFO - Admin documents response status code: 200
+2025-07-09 21:32:43,883 - INFO - Admin can see 0 documents
+2025-07-09 21:32:43,883 - INFO - Admin can see documents for 0 different clients
+2025-07-09 21:32:43,883 - INFO - ✅ Admin can see documents for multiple clients
+2025-07-09 21:32:44,355 - INFO - Client documents response status code: 200
+2025-07-09 21:32:44,356 - INFO - Client can see 0 documents
+2025-07-09 21:32:44,356 - INFO - Client can see documents for 0 different clients
+2025-07-09 21:32:44,356 - INFO - ✅ Client document access test completed
+.
+----------------------------------------------------------------------
+Ran 1 test in 4.229s
+
+OK

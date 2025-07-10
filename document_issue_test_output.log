@@ -1,0 +1,155 @@
+2025-07-07 08:56:48,449 - INFO - Using existing client ID: KAYA_CLIENT_001
+2025-07-07 08:56:48,567 - INFO - Using existing folder ID: a4676ecc-1bb6-4957-ae3a-4609bb425bbf
+2025-07-07 08:56:48,567 - INFO - 
+=== Testing existing documents ===
+2025-07-07 08:56:48,567 - INFO - Step 1: Getting list of existing documents...
+2025-07-07 08:59:03,057 - ERROR - ❌ Error testing existing documents: HTTPSConnectionPool(host='9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com', port=443): Max retries exceeded with url: /api/documents (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0xfa1ecfbfead0>, 'Connection to 9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com timed out. (connect timeout=None)'))
+E2025-07-07 08:59:03,897 - INFO - Using existing client ID: KAYA_CLIENT_001
+2025-07-07 08:59:04,019 - INFO - Using existing folder ID: a4676ecc-1bb6-4957-ae3a-4609bb425bbf
+2025-07-07 08:59:04,020 - INFO - 
+=== Testing upload-download workflow ===
+2025-07-07 08:59:04,020 - INFO - Step 1: Uploading a PDF file...
+2025-07-07 09:01:18,225 - ERROR - ❌ Error testing upload-download workflow: HTTPSConnectionPool(host='9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com', port=443): Max retries exceeded with url: /api/upload-document (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0xfa1ece2412d0>, 'Connection to 9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com timed out. (connect timeout=None)'))
+E
+======================================================================
+ERROR: test_existing_documents (__main__.TestDocumentDownloadIssue.test_existing_documents)
+Test downloading existing documents
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/util/connection.py", line 85, in create_connection
+    raise err
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/util/connection.py", line 73, in create_connection
+    sock.connect(sa)
+TimeoutError: [Errno 110] Connection timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 488, in _make_request
+    raise new_e
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 1093, in _validate_conn
+    conn.connect()
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connection.py", line 704, in connect
+    self.sock = sock = self._new_conn()
+                       ^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connection.py", line 207, in _new_conn
+    raise ConnectTimeoutError(
+urllib3.exceptions.ConnectTimeoutError: (<urllib3.connection.HTTPSConnection object at 0xfa1ecfbfead0>, 'Connection to 9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com timed out. (connect timeout=None)')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/.venv/lib/python3.11/site-packages/requests/adapters.py", line 486, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/util/retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com', port=443): Max retries exceeded with url: /api/documents (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0xfa1ecfbfead0>, 'Connection to 9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com timed out. (connect timeout=None)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/document_download_issue_test.py", line 233, in test_existing_documents
+    response = requests.get(list_url, headers=self.headers)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/adapters.py", line 507, in send
+    raise ConnectTimeout(e, request=request)
+requests.exceptions.ConnectTimeout: HTTPSConnectionPool(host='9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com', port=443): Max retries exceeded with url: /api/documents (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0xfa1ecfbfead0>, 'Connection to 9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com timed out. (connect timeout=None)'))
+
+======================================================================
+ERROR: test_upload_download_workflow (__main__.TestDocumentDownloadIssue.test_upload_download_workflow)
+Test the complete upload-download workflow
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/util/connection.py", line 85, in create_connection
+    raise err
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/util/connection.py", line 73, in create_connection
+    sock.connect(sa)
+TimeoutError: [Errno 110] Connection timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 488, in _make_request
+    raise new_e
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 1093, in _validate_conn
+    conn.connect()
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connection.py", line 704, in connect
+    self.sock = sock = self._new_conn()
+                       ^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connection.py", line 207, in _new_conn
+    raise ConnectTimeoutError(
+urllib3.exceptions.ConnectTimeoutError: (<urllib3.connection.HTTPSConnection object at 0xfa1ece2412d0>, 'Connection to 9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com timed out. (connect timeout=None)')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/.venv/lib/python3.11/site-packages/requests/adapters.py", line 486, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/util/retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com', port=443): Max retries exceeded with url: /api/upload-document (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0xfa1ece2412d0>, 'Connection to 9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com timed out. (connect timeout=None)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/document_download_issue_test.py", line 124, in test_upload_download_workflow
+    response = requests.post(upload_url, headers=self.headers, files=files, data=data)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/api.py", line 115, in post
+    return request("post", url, data=data, json=json, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/adapters.py", line 507, in send
+    raise ConnectTimeout(e, request=request)
+requests.exceptions.ConnectTimeout: HTTPSConnectionPool(host='9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com', port=443): Max retries exceeded with url: /api/upload-document (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0xfa1ece2412d0>, 'Connection to 9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com timed out. (connect timeout=None)'))
+
+----------------------------------------------------------------------
+Ran 2 tests in 270.688s
+
+FAILED (errors=2)

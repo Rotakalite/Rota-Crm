@@ -1,0 +1,23 @@
+INFO:     Started server process [2438]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8003 (Press CTRL+C to quit)
+INFO:     127.0.0.1:38956 - "GET /api/belge/list HTTP/1.1" 200 OK
+INFO:__main__:📤 BELGE UPLOAD: test.pdf -> Client: KAYA_CLIENT_001
+INFO:__main__:✅ Client validated: None
+INFO:     127.0.0.1:50024 - "POST /api/belge/upload HTTP/1.1" 404 Not Found
+INFO:__main__:📤 BELGE UPLOAD: test.pdf -> Client: KAYA_CLIENT_001
+INFO:__main__:✅ Client validated: None
+INFO:__main__:✅ Folder validated: KAYA Kalite Danışmanlık SYS
+INFO:__main__:✅ Storage structure created: /app/documents/KAYA_CLIENT_001/a4676ecc-1bb6-4957-ae3a-4609bb425bbf
+INFO:__main__:🆔 Document ID: ebb23c1e-df74-49c5-8a3f-5a545d94859c
+INFO:__main__:💾 File path: /app/documents/KAYA_CLIENT_001/a4676ecc-1bb6-4957-ae3a-4609bb425bbf/ebb23c1e-df74-49c5-8a3f-5a545d94859c_test.pdf
+INFO:__main__:✅ File saved: 118 bytes
+INFO:__main__:✅ MongoDB record created: 686bd011b1eb7068acbcca35
+INFO:__main__:🎉 UPLOAD SUCCESS: ebb23c1e-df74-49c5-8a3f-5a545d94859c
+INFO:     127.0.0.1:34756 - "POST /api/belge/upload HTTP/1.1" 200 OK
+INFO:__main__:📥 BELGE DOWNLOAD: ebb23c1e-df74-49c5-8a3f-5a545d94859c
+INFO:__main__:✅ Document found: YENİ TEST PDF
+INFO:__main__:✅ File exists: /app/documents/KAYA_CLIENT_001/a4676ecc-1bb6-4957-ae3a-4609bb425bbf/ebb23c1e-df74-49c5-8a3f-5a545d94859c_test.pdf
+INFO:__main__:🎉 DOWNLOAD SUCCESS: test.pdf
+INFO:     127.0.0.1:38136 - "GET /api/belge/download/ebb23c1e-df74-49c5-8a3f-5a545d94859c HTTP/1.1" 200 OK

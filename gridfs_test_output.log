@@ -1,0 +1,37 @@
+test_document_date_formatting (__main__.TestGridFSIntegration.test_document_date_formatting)
+Test document date formatting ... 2025-07-07 08:55:30,472 - INFO - 
+=== Testing document date formatting ===
+2025-07-07 08:55:30,589 - INFO - Created document with ID: 92694f4a-41a9-4be2-9fa8-e244554d0331 and created_at: 2025-07-07T08:55:30.472910
+2025-07-07 08:55:30,707 - INFO - Document created_at as ISO string: 2025-07-07T08:55:30.472000
+2025-07-07 08:55:30,707 - INFO - Document created_at with safe formatting: 2025-07-07 08:55:30
+2025-07-07 08:55:30,707 - INFO - ✅ Document date formatting test passed
+ok
+test_gridfs_store_and_retrieve (__main__.TestGridFSIntegration.test_gridfs_store_and_retrieve)
+Test storing and retrieving files from GridFS ... 2025-07-07 08:55:31,479 - INFO - 
+=== Testing GridFS store and retrieve functionality ===
+2025-07-07 08:55:31,479 - INFO - Step 1: Storing a file in GridFS...
+2025-07-07 08:55:31,953 - INFO - Stored file in GridFS with ID: 686b8b83cd8d22380d12343b
+2025-07-07 08:55:31,953 - INFO - Step 2: Creating a document record in the database...
+2025-07-07 08:55:32,071 - INFO - Created document record with ID: 6ecb44b6-430a-43d8-9018-a874915428f1
+2025-07-07 08:55:32,071 - INFO - Step 3: Retrieving the document record from the database...
+2025-07-07 08:55:32,189 - INFO - Document has GridFS ID: 686b8b83cd8d22380d12343b
+2025-07-07 08:55:32,189 - INFO - Step 4: Retrieving the file from GridFS...
+2025-07-07 08:55:32,543 - INFO - GridFS file info: filename=test_document.pdf, content_type=application/pdf, length=319
+2025-07-07 08:55:32,543 - INFO - ✅ GridFS store and retrieve test passed
+ok
+test_training_name_field (__main__.TestGridFSIntegration.test_training_name_field)
+Test training name field ... 2025-07-07 08:55:33,289 - INFO - 
+=== Testing training name field ===
+2025-07-07 08:55:33,411 - INFO - Created training with ID: a9b56221-2c3b-4922-a202-fdc501a919b4 and name: Test Training with Name Field 39456e05-fe8c-491d-b562-74ef2080eed0
+2025-07-07 08:55:33,528 - INFO - Created training with ID: 0f00197a-b923-41de-8114-35494da21169 and title: Test Training with Title Field bb1f851c-9d1b-449e-8154-c5da4a26bef5
+2025-07-07 08:55:33,646 - INFO - Created training with ID: 243e3ccd-487a-4bb2-ba7f-6ba74649b3b8, name: Test Training Name c88d9330-60da-485b-b0ae-038fa6b3324e, and title: Test Training Title 42af3ce4-73e4-41d2-97cd-fbb193f297c6
+2025-07-07 08:55:34,006 - INFO - Training 1 display title: Test Training with Name Field 39456e05-fe8c-491d-b562-74ef2080eed0
+2025-07-07 08:55:34,006 - INFO - Training 2 display title: Test Training with Title Field bb1f851c-9d1b-449e-8154-c5da4a26bef5
+2025-07-07 08:55:34,006 - INFO - Training 3 display title: Test Training Title 42af3ce4-73e4-41d2-97cd-fbb193f297c6
+2025-07-07 08:55:34,006 - INFO - ✅ Training name field test passed
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 4.376s
+
+OK

@@ -1,0 +1,3 @@
+2025-07-07 14:46:02,288 - INFO - 
+=== Testing GET /api/belge/list endpoint ===
+2025-07-07 14:48:15,375 - ERROR - ❌ Error testing list endpoint with admin: HTTPSConnectionPool(host='fa8c9f7b-7d18-4995-aa12-a264e654b749.preview.emergentagent.com', port=443): Max retries exceeded with url: /api/belge/list (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0xf8e6775f2e50>, 'Connection to fa8c9f7b-7d18-4995-aa12-a264e654b749.preview.emergentagent.com timed out. (connect timeout=None)'))

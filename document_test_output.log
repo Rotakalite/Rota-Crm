@@ -1,0 +1,197 @@
+2025-07-07 08:55:19,998 - INFO - Found valid document ID: de28aa9e-ba50-4b53-ad87-6a6eaf52bf4c for client: KAYA_CLIENT_001
+2025-07-07 08:55:19,998 - INFO - 
+=== Testing /api/documents/{id}/download with admin authentication ===
+2025-07-07 08:55:20,819 - INFO - Admin response status code (Railway): 401
+2025-07-07 08:55:20,820 - ERROR - ❌ Error testing document download with admin (Railway): 401 not found in [200, 404]
+F2025-07-07 08:55:21,553 - INFO - Found valid document ID: de28aa9e-ba50-4b53-ad87-6a6eaf52bf4c for client: KAYA_CLIENT_001
+2025-07-07 08:55:21,554 - INFO - 
+=== Testing /api/documents/{id}/download with client authentication ===
+2025-07-07 08:55:22,230 - INFO - Client response status code (Railway): 401
+2025-07-07 08:55:22,230 - ERROR - ❌ Error testing document download with client (Railway): 401 not found in [200, 403, 404]
+F2025-07-07 08:55:22,963 - INFO - Found valid document ID: de28aa9e-ba50-4b53-ad87-6a6eaf52bf4c for client: KAYA_CLIENT_001
+2025-07-07 08:55:22,967 - INFO - 
+=== Testing /api/documents/{id}/download with invalid document ID ===
+2025-07-07 08:55:23,647 - INFO - Invalid ID response status code (Railway): 401
+2025-07-07 08:55:23,647 - ERROR - ❌ Error testing document download with invalid ID (Railway): 401 != 404
+F2025-07-07 08:55:24,442 - INFO - Found valid document ID: de28aa9e-ba50-4b53-ad87-6a6eaf52bf4c for client: KAYA_CLIENT_001
+2025-07-07 08:55:24,442 - INFO - 
+=== Testing /api/documents/{id}/download with invalid token ===
+2025-07-07 08:55:24,994 - INFO - Invalid token response status code (Railway): 401
+2025-07-07 08:55:24,995 - INFO - ✅ Invalid token correctly returns 401 (Railway)
+2025-07-07 08:57:41,137 - ERROR - ❌ Error testing document download with invalid token (EmergentAgent): HTTPSConnectionPool(host='9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com', port=443): Max retries exceeded with url: /api/documents/de28aa9e-ba50-4b53-ad87-6a6eaf52bf4c/download (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0xfeefe7862290>, 'Connection to 9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com timed out. (connect timeout=None)'))
+E2025-07-07 08:57:41,900 - INFO - Found valid document ID: de28aa9e-ba50-4b53-ad87-6a6eaf52bf4c for client: KAYA_CLIENT_001
+2025-07-07 08:57:41,901 - INFO - 
+=== Testing /api/documents/{id}/download with no authentication ===
+2025-07-07 08:57:42,445 - INFO - No auth response status code (Railway): 403
+2025-07-07 08:57:42,445 - INFO - ✅ No authentication correctly returns 403 (Railway)
+2025-07-07 08:59:56,306 - ERROR - ❌ Error testing document download with no auth (EmergentAgent): HTTPSConnectionPool(host='9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com', port=443): Max retries exceeded with url: /api/documents/de28aa9e-ba50-4b53-ad87-6a6eaf52bf4c/download (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0xfeefe78bbb90>, 'Connection to 9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com timed out. (connect timeout=None)'))
+E
+======================================================================
+ERROR: test_download_document_with_invalid_token (__main__.TestDocumentDownloadEndpoint.test_download_document_with_invalid_token)
+Test document download with invalid authentication token
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/util/connection.py", line 85, in create_connection
+    raise err
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/util/connection.py", line 73, in create_connection
+    sock.connect(sa)
+TimeoutError: [Errno 110] Connection timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 488, in _make_request
+    raise new_e
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 1093, in _validate_conn
+    conn.connect()
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connection.py", line 704, in connect
+    self.sock = sock = self._new_conn()
+                       ^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connection.py", line 207, in _new_conn
+    raise ConnectTimeoutError(
+urllib3.exceptions.ConnectTimeoutError: (<urllib3.connection.HTTPSConnection object at 0xfeefe7862290>, 'Connection to 9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com timed out. (connect timeout=None)')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/.venv/lib/python3.11/site-packages/requests/adapters.py", line 486, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/util/retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com', port=443): Max retries exceeded with url: /api/documents/de28aa9e-ba50-4b53-ad87-6a6eaf52bf4c/download (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0xfeefe7862290>, 'Connection to 9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com timed out. (connect timeout=None)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/document_download_test.py", line 291, in test_download_document_with_invalid_token
+    response = requests.get(url, headers=self.headers_invalid)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/adapters.py", line 507, in send
+    raise ConnectTimeout(e, request=request)
+requests.exceptions.ConnectTimeout: HTTPSConnectionPool(host='9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com', port=443): Max retries exceeded with url: /api/documents/de28aa9e-ba50-4b53-ad87-6a6eaf52bf4c/download (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0xfeefe7862290>, 'Connection to 9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com timed out. (connect timeout=None)'))
+
+======================================================================
+ERROR: test_download_document_with_no_auth (__main__.TestDocumentDownloadEndpoint.test_download_document_with_no_auth)
+Test document download with no authentication
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/util/connection.py", line 85, in create_connection
+    raise err
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/util/connection.py", line 73, in create_connection
+    sock.connect(sa)
+TimeoutError: [Errno 110] Connection timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 488, in _make_request
+    raise new_e
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 1093, in _validate_conn
+    conn.connect()
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connection.py", line 704, in connect
+    self.sock = sock = self._new_conn()
+                       ^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connection.py", line 207, in _new_conn
+    raise ConnectTimeoutError(
+urllib3.exceptions.ConnectTimeoutError: (<urllib3.connection.HTTPSConnection object at 0xfeefe78bbb90>, 'Connection to 9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com timed out. (connect timeout=None)')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/.venv/lib/python3.11/site-packages/requests/adapters.py", line 486, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/urllib3/util/retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com', port=443): Max retries exceeded with url: /api/documents/de28aa9e-ba50-4b53-ad87-6a6eaf52bf4c/download (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0xfeefe78bbb90>, 'Connection to 9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com timed out. (connect timeout=None)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/document_download_test.py", line 325, in test_download_document_with_no_auth
+    response = requests.get(url, headers=self.headers_no_auth)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.venv/lib/python3.11/site-packages/requests/adapters.py", line 507, in send
+    raise ConnectTimeout(e, request=request)
+requests.exceptions.ConnectTimeout: HTTPSConnectionPool(host='9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com', port=443): Max retries exceeded with url: /api/documents/de28aa9e-ba50-4b53-ad87-6a6eaf52bf4c/download (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0xfeefe78bbb90>, 'Connection to 9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com timed out. (connect timeout=None)'))
+
+======================================================================
+FAIL: test_download_document_with_admin (__main__.TestDocumentDownloadEndpoint.test_download_document_with_admin)
+Test document download with admin authentication
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/document_download_test.py", line 78, in test_download_document_with_admin
+    self.assertIn(response.status_code, [200, 404])
+AssertionError: 401 not found in [200, 404]
+
+======================================================================
+FAIL: test_download_document_with_client (__main__.TestDocumentDownloadEndpoint.test_download_document_with_client)
+Test document download with client authentication
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/document_download_test.py", line 157, in test_download_document_with_client
+    self.assertIn(response.status_code, [200, 403, 404])
+AssertionError: 401 not found in [200, 403, 404]
+
+======================================================================
+FAIL: test_download_document_with_invalid_id (__main__.TestDocumentDownloadEndpoint.test_download_document_with_invalid_id)
+Test document download with invalid document ID
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/document_download_test.py", line 236, in test_download_document_with_invalid_id
+    self.assertEqual(response.status_code, 404)
+AssertionError: 401 != 404
+
+----------------------------------------------------------------------
+Ran 5 tests in 277.087s
+
+FAILED (failures=3, errors=2)

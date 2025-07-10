@@ -1,0 +1,8 @@
+2025-07-07 09:01:06,414 - INFO - Testing document download for document ID: 75e917fb-97cc-466b-a370-66528f96631c
+2025-07-07 09:01:06,414 - INFO - Document Name: Test Document
+2025-07-07 09:01:06,414 - INFO - GridFS ID: 686b03850202c859bcc7d9bb
+2025-07-07 09:01:06,531 - INFO - File exists in GridFS: True
+2025-07-07 09:01:06,647 - INFO - GridFS file info: filename=test_document.pdf, content_type=application/pdf, length=319
+2025-07-07 09:01:06,765 - INFO - Is PDF: True
+2025-07-07 09:01:06,765 - INFO - Is Placeholder: False
+2025-07-07 09:03:21,105 - ERROR - Error checking GridFS or downloading document: HTTPSConnectionPool(host='9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com', port=443): Max retries exceeded with url: /api/documents/75e917fb-97cc-466b-a370-66528f96631c/download (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0xfbbdd59a9890>, 'Connection to 9fdcc5d0-9b6d-4e6f-bc8f-589c3991a8cc.preview.emergentagent.com timed out. (connect timeout=None)'))
