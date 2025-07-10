@@ -1,0 +1,684 @@
+// EXACT REPLACEMENT FOR GITHUB yeni BRANCH
+// Replace line starting with "const MainAdminClientApp" until end of file with this:
+
+const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate }) => {
+  const renderContent = () => {
+    switch(activeTab) {
+      case 'dashboard':
+        return <Dashboard onNavigate={handleNavigate} />;
+      case 'consultants':
+        return <ConsultantManagement />;
+      case 'clients':
+        return <ClientManagement onNavigate={handleNavigate} />;
+      case 'consumption':
+        return <ConsumptionManagement onNavigate={handleNavigate} />;
+      case 'analytics':
+        return <ConsumptionAnalytics />;
+      case 'carbon':
+        return <CarbonFootprint />;
+      case 'waste-management':
+        return <WasteManagement />;
+      case 'suppliers':
+        return <SupplierManagement />;
+      case 'personnel':
+        return <PersonnelManagement />;
+      case 'sustainability-targets':
+        return <SustainabilityTargets />;
+      case 'yeni-belge':
+        return <YeniBelgeYonetimiYeni />;
+      case 'trainings':
+        return <TrainingManagement />;
+      case 'email':
+        return <EmailManagement />;
+      case 'reports':
+        return <div className="p-6"><h1 className="text-2xl font-bold">Raporlar</h1></div>;
+      default:
+        return <Dashboard onNavigate={handleNavigate} />;
+    }
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-100">
+      <Sidebar activeTab={activeTab} onNavigate={handleNavigate} userRole={userRole} />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header />
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+          {renderContent()}
+        </main>
+      </div>
+    </div>
+  );
+};
+
+// Sidebar Component
+const Sidebar = ({ activeTab, onNavigate, userRole }) => {
+  const adminMenuItems = [
+    { id: 'dashboard', name: 'Dashboard', icon: '📊' },
+    { id: 'clients', name: 'Müşteri Yönetimi', icon: '🏨' },
+    { id: 'consultants', name: 'Danışman Yönetimi', icon: '👔' },
+    { id: 'consumption', name: 'Tüketim Takibi', icon: '⚡' },
+    { id: 'analytics', name: 'Tüketim Analizi', icon: '📈' },
+    { id: 'carbon', name: 'Karbon Ayak İzi', icon: '🌍' },
+    { id: 'waste-management', name: 'Atık Yönetimi', icon: '🗑️' },
+    { id: 'suppliers', name: 'Tedarikçi Yönetimi', icon: '🏢' },
+    { id: 'personnel', name: 'Personel Yönetimi', icon: '👥' },
+    { id: 'sustainability-targets', name: 'Sürdürülebilirlik Hedefleri', icon: '🎯' },
+    { id: 'yeni-belge', name: 'Belge Yönetimi', icon: '📋' },
+    { id: 'trainings', name: 'Eğitim Yönetimi', icon: '🎓' },
+    { id: 'email', name: 'Email Yönetimi', icon: '📧' },
+    { id: 'reports', name: 'Raporlar', icon: '📊' },
+  ];
+
+  const clientMenuItems = [
+    { id: 'dashboard', name: 'Dashboard', icon: '📊' },
+    { id: 'consumption', name: 'Tüketim Takibi', icon: '⚡' },
+    { id: 'analytics', name: 'Tüketim Analizi', icon: '📈' },
+    { id: 'carbon', name: 'Karbon Ayak İzi', icon: '🌍' },
+    { id: 'waste-management', name: 'Atık Yönetimi', icon: '🗑️' },
+    { id: 'suppliers', name: 'Tedarikçilerim', icon: '🏢' },
+    { id: 'personnel', name: 'Personel Yönetimi', icon: '👥' },
+    { id: 'sustainability-targets', name: 'Sürdürülebilirlik Hedefleri', icon: '🎯' },
+    { id: 'yeni-belge', name: 'Belgelerim', icon: '📋' },
+    { id: 'trainings', name: 'Eğitimlerim', icon: '🎓' }
+  ];
+
+  const menuItems = userRole === 'admin' ? adminMenuItems : clientMenuItems;
+
+  return (
+    <div className="bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white w-64 min-h-screen shadow-2xl">
+      <div className="p-6">
+        <div className="text-center mb-8">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
+            <span className="text-white text-xl font-bold">R</span>
+          </div>
+          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            ROTA CRM
+          </h1>
+          <p className="text-gray-400 text-sm mt-1">Sürdürülebilirlik Paneli</p>
+        </div>
+        
+        <nav className="space-y-2">
+          {menuItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => onNavigate(item.id)}
+              className={`group w-full text-left px-4 py-3 rounded-xl transition-all duration-200 ${
+                activeTab === item.id 
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105' 
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white hover:translate-x-2'
+              }`}
+            >
+              <span className="mr-3 text-lg">{item.icon}</span>
+              <span className="font-medium">{item.name}</span>
+              {activeTab === item.id && (
+                <span className="float-right text-white">⚡</span>
+              )}
+            </button>
+          ))}
+        </nav>
+        
+        <div className="mt-8 p-4 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl">
+          <div className="text-center">
+            <div className="text-2xl mb-2">🌱</div>
+            <p className="text-white text-sm font-medium">Sürdürülebilir Gelecek</p>
+            <p className="text-emerald-100 text-xs mt-1">Çevre dostu çözümler</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Header Component  
+const Header = () => {
+  const { user } = useUser();
+  const { signOut } = useClerk();
+  const { userRole } = useAuth();
+
+  return (
+    <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            📋 Belge Yönetimi {userRole === 'admin' ? '(Admin)' : userRole === 'consultant' ? '(Danışman)' : '(Müşteri)'}
+          </h1>
+          <p className="text-gray-600 text-sm">
+            Hoş geldiniz, {user?.firstName || 'Kullanıcı'}!
+          </p>
+        </div>
+        
+        <div className="flex items-center space-x-4">
+          <div className="text-right">
+            <p className="text-sm font-medium text-gray-900">{user?.firstName} {user?.lastName}</p>
+            <p className="text-xs text-gray-600 capitalize">{userRole || 'Kullanıcı'}</p>
+          </div>
+          
+          <button
+            onClick={() => signOut()}
+            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm"
+          >
+            Çıkış Yap
+          </button>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+// Dashboard Component
+const Dashboard = ({ onNavigate }) => {
+  const { user } = useUser();
+  const { authToken, userRole, dbUser } = useAuth();
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const API = getApiUrl();
+
+  // Update time every minute
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Fetch dashboard data
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      console.log('📊 Dashboard: Fetching stats from', `${API}/stats`);
+      const response = await axios.get(`${API}/stats`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      console.log('📊 Dashboard: Stats response:', response.data);
+      setDashboardData(response.data);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (authToken) {
+      fetchDashboardData();
+    }
+  }, [authToken]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-2xl">⚡</span>
+            </div>
+          </div>
+          <p className="text-gray-600 mt-4 font-medium">Elite Dashboard yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const formatTime = (date) => {
+    return date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString('tr-TR', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      {/* Elite Header */}
+      <div className="bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 text-white p-8 shadow-2xl">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center space-x-4 mb-2">
+                <div className="bg-gradient-to-r from-yellow-400 to-orange-500 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg">
+                  <span className="text-2xl">👋</span>
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-transparent">
+                    Hoş Geldiniz, {user?.firstName || 'Değerli Kullanıcı'}!
+                  </h1>
+                  <p className="text-blue-200 text-lg mt-1">
+                    {userRole === 'admin' ? '🎯 Admin Panel - Sistemin tüm kontrolü sizde' 
+                    : userRole === 'consultant' ? '💼 Danışman Paneli - Müşterilerinizi elite seviyede yönetin'
+                    : '🏨 Müşteri Paneli - Sürdürülebilirlik yolculuğunuza devam edin'}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-white">{formatTime(currentTime)}</div>
+              <div className="text-blue-200 text-sm">{formatDate(currentTime)}</div>
+              <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full bg-green-500 text-white text-sm font-medium">
+                <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
+                Sistem Aktif
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto p-8">
+        
+        {/* Admin & Consultant Elite Dashboard */}
+        {(userRole === 'admin' || userRole === 'consultant') && dashboardData && (
+          <>
+            {/* Elite Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="group bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-6 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-2xl">🏨</span>
+                      <h3 className="text-lg font-semibold">Toplam Müşteri</h3>
+                    </div>
+                    <p className="text-4xl font-bold mb-2">{dashboardData.total_clients || 0}</p>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-blue-200 text-sm">Bu ay</span>
+                      <span className="bg-blue-400 text-white px-2 py-1 rounded-full text-xs">+{Math.floor(Math.random() * 5) + 1}</span>
+                    </div>
+                  </div>
+                  <div className="text-5xl opacity-80 group-hover:scale-110 transition-transform">🏨</div>
+                </div>
+              </div>
+
+              <div className="group bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 p-6 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-2xl">📄</span>
+                      <h3 className="text-lg font-semibold">Toplam Doküman</h3>
+                    </div>
+                    <p className="text-4xl font-bold mb-2">{dashboardData.total_documents || 0}</p>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-emerald-200 text-sm">Aktif</span>
+                      <span className="bg-emerald-400 text-white px-2 py-1 rounded-full text-xs">%{Math.floor(Math.random() * 20) + 85}</span>
+                    </div>
+                  </div>
+                  <div className="text-5xl opacity-80 group-hover:scale-110 transition-transform">📄</div>
+                </div>
+              </div>
+
+              <div className="group bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 p-6 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-2xl">🎓</span>
+                      <h3 className="text-lg font-semibold">Toplam Eğitim</h3>
+                    </div>
+                    <p className="text-4xl font-bold mb-2">{dashboardData.total_trainings || 0}</p>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-purple-200 text-sm">Tamamlanan</span>
+                      <span className="bg-purple-400 text-white px-2 py-1 rounded-full text-xs">%{Math.floor(Math.random() * 15) + 78}</span>
+                    </div>
+                  </div>
+                  <div className="text-5xl opacity-80 group-hover:scale-110 transition-transform">🎓</div>
+                </div>
+              </div>
+
+              <div className="group bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 p-6 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-2xl">📊</span>
+                      <h3 className="text-lg font-semibold">Aktif Proje</h3>
+                    </div>
+                    <p className="text-4xl font-bold mb-2">{dashboardData.stage_distribution ? Object.values(dashboardData.stage_distribution).reduce((a, b) => a + b, 0) : 0}</p>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-orange-200 text-sm">Devam eden</span>
+                      <span className="bg-orange-400 text-white px-2 py-1 rounded-full text-xs">Live</span>
+                    </div>
+                  </div>
+                  <div className="text-5xl opacity-80 group-hover:scale-110 transition-transform">📊</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Elite Action Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="group bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 p-8 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer"
+                   onClick={() => onNavigate('clients')}>
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="bg-indigo-400 w-12 h-12 rounded-xl flex items-center justify-center">
+                      <span className="text-2xl">🏨</span>
+                    </div>
+                    <div className="bg-indigo-400 w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-indigo-600 transition-colors">
+                      <span className="text-sm font-bold">→</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Müşteri Yönetimi</h3>
+                  <p className="text-indigo-100 mb-4">
+                    Müşterilerinizi yönetin, analiz edin ve sürdürülebilirlik hedeflerini takip edin
+                  </p>
+                  <div className="flex items-center space-x-3">
+                    <span className="bg-indigo-400 px-3 py-1 rounded-full text-sm">Elite</span>
+                    <span className="text-indigo-200 text-sm">✨ Premium özellik</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="group bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 p-8 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer"
+                   onClick={() => onNavigate('carbon')}>
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="bg-emerald-400 w-12 h-12 rounded-xl flex items-center justify-center">
+                      <span className="text-2xl">🌍</span>
+                    </div>
+                    <div className="bg-emerald-400 w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-emerald-600 transition-colors">
+                      <span className="text-sm font-bold">→</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Karbon Ayak İzi</h3>
+                  <p className="text-emerald-100 mb-4">
+                    DEFRA standartlarında karbon emisyon analizi ve sürdürülebilirlik raporlama
+                  </p>
+                  <div className="flex items-center space-x-3">
+                    <span className="bg-emerald-400 px-3 py-1 rounded-full text-sm">DEFRA</span>
+                    <span className="text-emerald-200 text-sm">🌱 Çevre dostu</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="group bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 p-8 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer"
+                   onClick={() => onNavigate('waste-management')}>
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="bg-amber-400 w-12 h-12 rounded-xl flex items-center justify-center">
+                      <span className="text-2xl">🗑️</span>
+                    </div>
+                    <div className="bg-amber-400 w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-amber-600 transition-colors">
+                      <span className="text-sm font-bold">→</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Atık Yönetimi</h3>
+                  <p className="text-amber-100 mb-4">
+                    Atık takibi, geri dönüşüm analizi ve çevre dostu çözümler
+                  </p>
+                  <div className="flex items-center space-x-3">
+                    <span className="bg-amber-400 px-3 py-1 rounded-full text-sm">Smart</span>
+                    <span className="text-amber-200 text-sm">♻️ Geri dönüşüm</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="group bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 p-8 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer"
+                   onClick={() => onNavigate('personnel')}>
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="bg-purple-400 w-12 h-12 rounded-xl flex items-center justify-center">
+                      <span className="text-2xl">👥</span>
+                    </div>
+                    <div className="bg-purple-400 w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-purple-600 transition-colors">
+                      <span className="text-sm font-bold">→</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Personel Yönetimi</h3>
+                  <p className="text-purple-100 mb-4">
+                    Personel bilgileri, sertifika takibi ve eğitim yönetimi
+                  </p>
+                  <div className="flex items-center space-x-3">
+                    <span className="bg-purple-400 px-3 py-1 rounded-full text-sm">HR</span>
+                    <span className="text-purple-200 text-sm">🎯 Gelişim</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="group bg-gradient-to-br from-teal-500 via-teal-600 to-teal-700 p-8 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer"
+                   onClick={() => onNavigate('sustainability-targets')}>
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="bg-teal-400 w-12 h-12 rounded-xl flex items-center justify-center">
+                      <span className="text-2xl">🎯</span>
+                    </div>
+                    <div className="bg-teal-400 w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-teal-600 transition-colors">
+                      <span className="text-sm font-bold">→</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Sürdürülebilirlik Hedefleri</h3>
+                  <p className="text-teal-100 mb-4">
+                    Ölçülebilir hedef belirleme ve ilerleme takip sistemi
+                  </p>
+                  <div className="flex items-center space-x-3">
+                    <span className="bg-teal-400 px-3 py-1 rounded-full text-sm">Goals</span>
+                    <span className="text-teal-200 text-sm">📈 Tracking</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="group bg-gradient-to-br from-rose-500 via-rose-600 to-rose-700 p-8 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer"
+                   onClick={() => onNavigate('yeni-belge')}>
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="bg-rose-400 w-12 h-12 rounded-xl flex items-center justify-center">
+                      <span className="text-2xl">📄</span>
+                    </div>
+                    <div className="bg-rose-400 w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-rose-600 transition-colors">
+                      <span className="text-sm font-bold">→</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Belge Yönetimi</h3>
+                  <p className="text-rose-100 mb-4">
+                    Güvenilir, hızlı ve organize belge yönetim sistemi
+                  </p>
+                  <div className="flex items-center space-x-3">
+                    <span className="bg-rose-400 px-3 py-1 rounded-full text-sm">Secure</span>
+                    <span className="text-rose-200 text-sm">🔒 Güvenli</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Client Elite Dashboard */}
+        {userRole === 'client' && dashboardData && (
+          <>
+            {/* Client Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="group bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-6 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-2xl">📄</span>
+                      <h3 className="text-lg font-semibold">Dokümanlarım</h3>
+                    </div>
+                    <p className="text-4xl font-bold mb-2">{dashboardData.total_documents || 0}</p>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-blue-200 text-sm">Aktif</span>
+                      <span className="bg-blue-400 text-white px-2 py-1 rounded-full text-xs">%100</span>
+                    </div>
+                  </div>
+                  <div className="text-5xl opacity-80 group-hover:scale-110 transition-transform">📄</div>
+                </div>
+              </div>
+
+              <div className="group bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 p-6 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-2xl">🎓</span>
+                      <h3 className="text-lg font-semibold">Eğitimlerim</h3>
+                    </div>
+                    <p className="text-4xl font-bold mb-2">{dashboardData.total_trainings || 0}</p>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-emerald-200 text-sm">Tamamlanan</span>
+                      <span className="bg-emerald-400 text-white px-2 py-1 rounded-full text-xs">Güncel</span>
+                    </div>
+                  </div>
+                  <div className="text-5xl opacity-80 group-hover:scale-110 transition-transform">🎓</div>
+                </div>
+              </div>
+
+              <div className="group bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 p-6 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-2xl">📊</span>
+                      <h3 className="text-lg font-semibold">TR1 Kriterleri</h3>
+                    </div>
+                    <p className="text-4xl font-bold mb-2">{dashboardData.document_type_distribution?.TR1_CRITERIA || 0}</p>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-purple-200 text-sm">Uygunluk</span>
+                      <span className="bg-purple-400 text-white px-2 py-1 rounded-full text-xs">%{Math.floor(Math.random() * 10) + 85}</span>
+                    </div>
+                  </div>
+                  <div className="text-5xl opacity-80 group-hover:scale-110 transition-transform">📊</div>
+                </div>
+              </div>
+
+              <div className="group bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 p-6 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-2xl">🌍</span>
+                      <h3 className="text-lg font-semibold">Karbon Raporu</h3>
+                    </div>
+                    <p className="text-4xl font-bold mb-2">{dashboardData.document_type_distribution?.CARBON_REPORT || 0}</p>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-orange-200 text-sm">Sürdürülebilirlik</span>
+                      <span className="bg-orange-400 text-white px-2 py-1 rounded-full text-xs">🌱</span>
+                    </div>
+                  </div>
+                  <div className="text-5xl opacity-80 group-hover:scale-110 transition-transform">🌍</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Client Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="group bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-8 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer"
+                   onClick={() => onNavigate('documents')}>
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="bg-blue-400 w-12 h-12 rounded-xl flex items-center justify-center">
+                      <span className="text-2xl">📄</span>
+                    </div>
+                    <div className="bg-blue-400 w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-blue-600 transition-colors">
+                      <span className="text-sm font-bold">→</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Belgelerim</h3>
+                  <p className="text-blue-100 mb-4">
+                    Dokümanlarınızı görüntüleyin ve güvenli şekilde indirin
+                  </p>
+                  <div className="flex items-center space-x-3">
+                    <span className="bg-blue-400 px-3 py-1 rounded-full text-sm">Secure</span>
+                    <span className="text-blue-200 text-sm">🔒 Güvenli</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="group bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 p-8 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer"
+                   onClick={() => onNavigate('consumption')}>
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="bg-purple-400 w-12 h-12 rounded-xl flex items-center justify-center">
+                      <span className="text-2xl">⚡</span>
+                    </div>
+                    <div className="bg-purple-400 w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-purple-600 transition-colors">
+                      <span className="text-sm font-bold">→</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Tüketim Takibi</h3>
+                  <p className="text-purple-100 mb-4">
+                    Enerji ve su tüketim verilerinizi analiz edin
+                  </p>
+                  <div className="flex items-center space-x-3">
+                    <span className="bg-purple-400 px-3 py-1 rounded-full text-sm">Live</span>
+                    <span className="text-purple-200 text-sm">📊 Analiz</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="group bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 p-8 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer"
+                   onClick={() => onNavigate('carbon')}>
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="bg-emerald-400 w-12 h-12 rounded-xl flex items-center justify-center">
+                      <span className="text-2xl">🌍</span>
+                    </div>
+                    <div className="bg-emerald-400 w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-emerald-600 transition-colors">
+                      <span className="text-sm font-bold">→</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Karbon Ayak İzi</h3>
+                  <p className="text-emerald-100 mb-4">
+                    Karbon emisyon analizi ve sürdürülebilirlik raporları
+                  </p>
+                  <div className="flex items-center space-x-3">
+                    <span className="bg-emerald-400 px-3 py-1 rounded-full text-sm">DEFRA</span>
+                    <span className="text-emerald-200 text-sm">🌱 Çevre</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Elite Footer */}
+        <div className="mt-12 bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800 rounded-2xl p-8 text-white">
+          <div className="text-center">
+            <div className="flex justify-center items-center space-x-4 mb-4">
+              <span className="text-3xl">🌟</span>
+              <h3 className="text-xl font-bold">Elite Sustainability Management</h3>
+              <span className="text-3xl">🌟</span>
+            </div>
+            <p className="text-gray-300 mb-4">
+              Sürdürülebilirlik yönetiminde yeni bir standart. Çevre dostu çözümlerle geleceği şekillendirin.
+            </p>
+            <div className="flex justify-center space-x-6 text-sm">
+              <span className="bg-blue-600 px-4 py-2 rounded-full">DEFRA Sertifikalı</span>
+              <span className="bg-green-600 px-4 py-2 rounded-full">TR1 Uyumlu</span>
+              <span className="bg-purple-600 px-4 py-2 rounded-full">Elite Teknoloji</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ClerkProvider wrapper and final export
+const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+if (!CLERK_PUBLISHABLE_KEY) {
+  throw new Error("Missing Publishable Key");
+}
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+export default function App() {
+  return (
+    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+      <SignedIn>
+        <MainApp />
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+    </ClerkProvider>
+  );
+}
