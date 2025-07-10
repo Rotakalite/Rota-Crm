@@ -2513,12 +2513,6 @@ ChartJS.register(
 
 const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
-// Dynamic API URL detection
-const getApiUrl = () => {
-  // Always use Railway backend with /api prefix
-  return 'https://rota-crm-production.up.railway.app/api';
-};
-
 // Backend URL Discovery Function
 const discoverBackendURL = async () => {
   // Always use Railway backend URL
