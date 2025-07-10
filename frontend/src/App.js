@@ -11882,4 +11882,50 @@ const ConsultantApp = () => {
 
 // Main Admin/Client App
 const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate }) => {
+  const renderContent = () => {
+    switch(activeTab) {
+      case 'dashboard':
+        return <Dashboard onNavigate={handleNavigate} />;
+      case 'consultants':
+        return <ConsultantManagement />;
+      case 'clients':
+        return <ClientManagement onNavigate={handleNavigate} />;
+      case 'consumption':
+        return <ConsumptionManagement onNavigate={handleNavigate} />;
+      case 'analytics':
+        return <ConsumptionAnalytics />;
+      case 'carbon':
+        return <CarbonFootprint />;
+      case 'waste-management':
+        return <WasteManagement />;
+      case 'suppliers':
+        return <SupplierManagement />;
+      case 'personnel':
+        return <PersonnelManagement />;
+      case 'sustainability-targets':
+        return <SustainabilityTargets />;
+      case 'yeni-belge':
+        return <YeniBelgeYonetimiYeni />;
+      case 'trainings':
+        return <TrainingManagement />;
+      case 'email':
+        return <EmailManagement />;
+      case 'reports':
+        return <div className="p-6"><h1 className="text-2xl font-bold">Raporlar</h1></div>;
+      default:
+        return <Dashboard onNavigate={handleNavigate} />;
+    }
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-100">
+      <Sidebar activeTab={activeTab} onNavigate={handleNavigate} userRole={userRole} />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header />
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+          {renderContent()}
+        </main>
+      </div>
+    </div>
+  );
 };
