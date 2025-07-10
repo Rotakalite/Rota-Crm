@@ -10058,66 +10058,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
 };
 
 // 2FA Component
-
-// Consultant Client Assignment Component
-const ConsultantClientAssignment = () => {
-  return (
-    <div className="p-6">
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">➕ Müşteri Atama</h2>
-        <p className="text-gray-600 mb-4">Yeni müşteri atama işlemleri burada yapılacak.</p>
-        <div className="text-center py-8">
-          <div className="text-6xl mb-4">➕</div>
-          <p className="text-gray-500">Müşteri atama özelliği yakında aktif olacak.</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Consultant Reports Component
-const ConsultantReports = () => {
-  return (
-    <div className="p-6">
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">📊 Danışman Raporları</h2>
-        <p className="text-gray-600 mb-4">Müşteri raporları ve analiz verileri burada görünecek.</p>
-        <div className="text-center py-8">
-          <div className="text-6xl mb-4">📊</div>
-          <p className="text-gray-500">Rapor özellikleri hazırlanıyor.</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Consultant Profile Component
-const ConsultantProfile = () => {
-  const { dbUser } = useAuth();
-  
-  return (
-    <div className="p-6">
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">👤 Danışman Profili</h2>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Ad Soyad</label>
-            <p className="text-lg text-gray-900">{dbUser?.name || 'Danışman'}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <p className="text-lg text-gray-900">{dbUser?.email || 'Email bulunamadı'}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Rol</label>
-            <p className="text-lg text-gray-900">Danışman</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-const Sidebar = ({ activeTab, onNavigate, userRole }) => {
+const TwoFactorAuth = ({ onVerificationComplete }) => {
   const adminMenuItems = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
     { id: 'clients', name: 'Müşteri Yönetimi', icon: '🏨' },
