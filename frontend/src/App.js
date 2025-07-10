@@ -10005,8 +10005,8 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
   const menuItems = userRole === 'admin' ? adminMenuItems : clientMenuItems;
 
   return (
-    <div className="bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white w-64 h-screen shadow-2xl">
-      <div className="p-6 h-full flex flex-col">
+    <div className="bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white w-64 min-h-screen shadow-2xl flex flex-col">
+      <div className="p-6 flex-1 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
         <div className="text-center mb-8">
           <div className="bg-gradient-to-r from-blue-500 to-purple-600 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
             <span className="text-white text-xl font-bold">R</span>
