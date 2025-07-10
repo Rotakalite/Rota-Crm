@@ -914,8 +914,10 @@ async def register_client_with_user(
         # 🏗️ AUTOMATIC FOLDER CREATION FOR NEW CLIENT
         try:
             logging.info(f"🏗️ AUTO FOLDER CREATION: Starting for client {client['id']}")
-            await create_client_root_folder(client["id"], client.get("client_name", "Unknown Client"))
-            logging.info(f"✅ AUTO FOLDER CREATION: Completed for client {client['id']}")
+            # Client model'inda field name -> 'name', hotel_name -> 'hotel_name'
+            client_display_name = client.get("name") or client.get("hotel_name") or "Unknown Client"
+            await create_client_root_folder(client["id"], client_display_name)
+            logging.info(f"✅ AUTO FOLDER CREATION: Completed for client {client['id']} - {client_display_name}")
         except Exception as folder_error:
             logging.error(f"❌ AUTO FOLDER CREATION ERROR: {str(folder_error)}")
             # Don't fail the registration if folder creation fails
