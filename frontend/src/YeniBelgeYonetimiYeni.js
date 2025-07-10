@@ -50,79 +50,109 @@ const YeniBelgeYonetimiYeni = () => {
     }
   };
   
-  // Auth token'i window.Clerk'den al ve refresh et
+  // Auth token'i window.Clerk'den al ve refresh et - ENHANCED VERSION
   useEffect(() => {
+    let tokenRefreshInterval;
+    
     const getAuthToken = async () => {
       if (window.Clerk && window.Clerk.user) {
         try {
-          // Clerk'den token al - her zaman fresh token
+          // FORCE FRESH TOKEN - NO CACHE
           const token = await window.Clerk.session.getToken({ 
-            skipCache: true, // Cache'i atla, fresh token al
-            timeoutInMs: 10000 // 10 saniye timeout
-          });
-          setAuthToken(token);
-          console.log('🎫 Fresh auth token retrieved successfully');
-          
-          // Kullanıcı rolünü backend'den al
-          const response = await axios.get(`${API}/me`, {
-            headers: { Authorization: `Bearer ${token}` }
+            skipCache: true,
+            timeoutInMs: 15000,
+            template: null // Use default template
           });
           
-          setUserRole(response.data.role);
-          setDbUser(response.data);
-          console.log('👤 User role:', response.data.role);
+          if (token) {
+            setAuthToken(token);
+            console.log('🎫 Fresh auth token retrieved successfully');
+            
+            // Test token immediately
+            try {
+              const response = await axios.get(`${API}/me`, {
+                headers: { Authorization: `Bearer ${token}` }
+              });
+              
+              setUserRole(response.data.role);
+              setDbUser(response.data);
+              console.log('👤 User role verified:', response.data.role);
+            } catch (apiError) {
+              console.error('❌ Token verification failed:', apiError);
+              if (apiError.response?.status === 401) {
+                console.log('🔄 Token invalid, getting new one...');
+                setTimeout(getAuthToken, 1000); // Retry after 1 second
+              }
+            }
+          }
         } catch (error) {
           console.error('❌ Auth error:', error);
-          // Token hatası varsa refresh dene
-          if (error.response?.status === 401) {
-            await refreshAuthToken();
-          }
+          // Fallback: Try to get session again
+          setTimeout(getAuthToken, 2000);
         }
       }
     };
     
-    // Token refresh function
-    const refreshAuthToken = async () => {
+    // Token refresh function - MORE AGGRESSIVE
+    const forceRefreshToken = async () => {
       try {
         if (window.Clerk && window.Clerk.session) {
-          console.log('🔄 Refreshing auth token...');
+          console.log('🔄 FORCE TOKEN REFRESH...');
+          
+          // Invalidate session cache first
+          await window.Clerk.session.reload();
+          
+          // Get completely fresh token
           const newToken = await window.Clerk.session.getToken({ 
             skipCache: true,
-            timeoutInMs: 10000
+            timeoutInMs: 15000
           });
-          setAuthToken(newToken);
-          console.log('✅ Token refreshed successfully');
-          return newToken;
+          
+          if (newToken) {
+            setAuthToken(newToken);
+            console.log('✅ FORCE TOKEN REFRESH SUCCESS');
+            return newToken;
+          }
         }
       } catch (refreshError) {
-        console.error('❌ Token refresh failed:', refreshError);
-        // Sayfa yenilemeye zorla
+        console.error('❌ FORCE TOKEN REFRESH FAILED:', refreshError);
+        // Last resort: reload page
+        console.log('🔄 Reloading page as last resort...');
         window.location.reload();
       }
     };
     
-    // Periodic token refresh (her 10 dakikada bir)
-    const tokenRefreshInterval = setInterval(async () => {
-      console.log('⏰ Periodic token refresh...');
-      await refreshAuthToken();
-    }, 10 * 60 * 1000); // 10 dakika
+    // MORE FREQUENT token refresh (every 5 minutes instead of 10)
+    const startTokenRefreshInterval = () => {
+      tokenRefreshInterval = setInterval(async () => {
+        console.log('⏰ SCHEDULED TOKEN REFRESH...');
+        await forceRefreshToken();
+      }, 5 * 60 * 1000); // 5 dakika
+    };
     
     // Auth durumunu kontrol et
     if (window.Clerk && window.Clerk.loaded) {
       getAuthToken();
+      startTokenRefreshInterval();
     } else {
       // Clerk yüklenene kadar bekle
       const checkClerk = setInterval(() => {
         if (window.Clerk && window.Clerk.loaded) {
           clearInterval(checkClerk);
           getAuthToken();
+          startTokenRefreshInterval();
         }
       }, 100);
+      
+      // Safety cleanup
+      setTimeout(() => clearInterval(checkClerk), 10000);
     }
     
     // Cleanup
     return () => {
-      clearInterval(tokenRefreshInterval);
+      if (tokenRefreshInterval) {
+        clearInterval(tokenRefreshInterval);
+      }
     };
   }, []);
   
