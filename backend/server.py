@@ -911,6 +911,16 @@ async def register_client_with_user(
         client = Client(**client_data).dict()
         await db.clients.insert_one(client)
         
+        # 🏗️ AUTOMATIC FOLDER CREATION FOR NEW CLIENT
+        try:
+            logging.info(f"🏗️ AUTO FOLDER CREATION: Starting for client {client['id']}")
+            await create_client_root_folder(client["id"], client.get("client_name", "Unknown Client"))
+            logging.info(f"✅ AUTO FOLDER CREATION: Completed for client {client['id']}")
+        except Exception as folder_error:
+            logging.error(f"❌ AUTO FOLDER CREATION ERROR: {str(folder_error)}")
+            # Don't fail the registration if folder creation fails
+            pass
+        
         # Update user role to CLIENT and link to client
         await db.users.update_one(
             {"id": current_user_data["id"]},
