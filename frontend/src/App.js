@@ -10072,7 +10072,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
           style={{ 
             background: 'linear-gradient(90deg, #059669, #0d9488)',
             marginTop: '20px',
-            marginBottom: '20px'
+            marginBottom: '10px'
           }}
         >
           <div className="text-center">
@@ -10080,6 +10080,16 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
             <p className="text-white text-sm font-medium">Sürdürülebilir Gelecek</p>
             <p className="text-emerald-100 text-xs mt-1">Çevre dostu çözümler</p>
           </div>
+        </div>
+        
+        {/* Çıkış Butonu */}
+        <div className="p-4 flex-shrink-0">
+          <SignOutButton>
+            <button className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg">
+              <span className="text-lg">🚪</span>
+              <span className="font-medium">Çıkış Yap</span>
+            </button>
+          </SignOutButton>
         </div>
       </div>
     </div>
