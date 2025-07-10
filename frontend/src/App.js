@@ -9906,7 +9906,7 @@ const EmailManagement = () => {
                                 </p>
                                 <p className="text-sm text-gray-500">
                                   📅 Tarih: {new Date(training.trainingDate).toLocaleDateString('tr-TR')} | 
-                                  ⏰ Süre: {training.duration}
+                                  ⏰ Eğitim Saati: {training.hours}
                                 </p>
                               </div>
                             </div>
