@@ -12259,11 +12259,13 @@ const ConsultantApp = () => {
           </div>
         
           <nav 
-            className="space-y-2 flex-1 overflow-y-auto overflow-x-hidden" 
+            className="space-y-2 flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-blue-800" 
             style={{ 
               minHeight: '400px',
               maxHeight: 'calc(100vh - 200px)', // Header ve footer için alan bırak
-              paddingRight: '8px' // Scroll bar için alan
+              paddingRight: '8px', // Scroll bar için alan
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#2563EB #1E40AF'
             }}
           >
             {consultantMenuItems.map((item) => (
