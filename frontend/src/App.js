@@ -12212,17 +12212,29 @@ const ConsultantApp = () => {
   ];
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" style={{ minHeight: '100vh' }}>
       {/* Elite Consultant Sidebar */}
       <div 
-        className="text-white w-64 shadow-2xl flex flex-col"
+        className="text-white w-64 shadow-2xl"
         style={{
           background: 'linear-gradient(180deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%)',
           minHeight: '100vh',
-          height: '100vh'
+          height: '100vh',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          zIndex: 10,
+          display: 'flex',
+          flexDirection: 'column'
         }}
       >
-        <div className="p-6 flex-1 flex flex-col">
+        <div 
+          className="p-6 flex-1 flex flex-col"
+          style={{ 
+            minHeight: '100vh',
+            background: 'linear-gradient(180deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%)'
+          }}
+        >
           <div className="text-center mb-8">
             <div className="bg-gradient-to-r from-yellow-400 to-orange-500 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
               <span className="text-white text-xl font-bold">👔</span>
@@ -12253,7 +12265,14 @@ const ConsultantApp = () => {
             ))}
           </nav>
           
-          <div className="mt-auto p-4 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl">
+          <div 
+            className="p-4 rounded-xl" 
+            style={{ 
+              background: 'linear-gradient(90deg, #059669, #0d9488)',
+              marginTop: 'auto',
+              marginBottom: '20px'
+            }}
+          >
             <div className="text-center">
               <div className="text-2xl mb-2">🎯</div>
               <p className="text-white text-sm font-medium">Danışman Başarı</p>
@@ -12264,8 +12283,8 @@ const ConsultantApp = () => {
       </div>
       
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+      <div className="flex flex-col overflow-hidden" style={{ marginLeft: '256px', minHeight: '100vh' }}>
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50" style={{ minHeight: '100vh' }}>
           {renderConsultantContent()}
         </main>
       </div>
