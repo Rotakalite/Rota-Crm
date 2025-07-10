@@ -9975,8 +9975,7 @@ const EmailManagement = () => {
 };
 
 // Simple Sidebar Component (Temporary Fix)
-
-// Consultant Client Management Component
+const Sidebar = ({ activeTab, onNavigate, userRole }) => {
 const ConsultantClientManagement = ({ onNavigate }) => {
   return (
     <div className="p-6">
