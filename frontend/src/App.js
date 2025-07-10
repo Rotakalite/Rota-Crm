@@ -10057,20 +10057,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
   );
 };
 
-// Consultant Client Management Component
-  return (
-    <div className="p-6">
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">👥 Müşterilerim</h2>
-        <p className="text-gray-600 mb-4">Size atanan müşterilerin listesi burada görünecek.</p>
-        <div className="text-center py-8">
-          <div className="text-6xl mb-4">👥</div>
-          <p className="text-gray-500">Henüz atanmış müşteri bulunmuyor.</p>
-        </div>
-      </div>
-    </div>
-  );
-};
+// 2FA Component
 
 // Consultant Client Assignment Component
 const ConsultantClientAssignment = () => {
