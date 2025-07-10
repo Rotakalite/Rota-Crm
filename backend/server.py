@@ -8364,6 +8364,40 @@ def get_safe_filename(filename: str) -> str:
     safe_filename = "".join(c if c in safe_chars else "_" for c in filename)
     return safe_filename[:100]
 
+@app.get("/api/debug/database-info")
+async def debug_database_info():
+    """Debug: Database connection info"""
+    try:
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
+        
+        # Test connection
+        server_info = mongo_client.server_info()
+        
+        # Count collections
+        collections = db.list_collection_names()
+        
+        # Count clients 
+        clients_count = db.clients.count_documents({})
+        
+        # Sample client
+        sample_client = db.clients.find_one({})
+        
+        return {
+            "mongo_url": mongo_url[:50] + "..." if len(mongo_url) > 50 else mongo_url,
+            "db_name": os.environ.get('DB_NAME', 'rotacrm'),
+            "server_version": server_info.get('version'),
+            "collections": collections,
+            "clients_count": clients_count,
+            "sample_client": {
+                "id": sample_client.get("id") if sample_client else None,
+                "name": sample_client.get("name") if sample_client else None,
+                "hotel_name": sample_client.get("hotel_name") if sample_client else None
+            } if sample_client else None
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
 @app.get("/api/me")
 async def get_current_user_info(current_user: User = Depends(get_current_user)):
     """Get current user information"""
