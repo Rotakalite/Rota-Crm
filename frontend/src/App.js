@@ -12163,12 +12163,10 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
         return <SustainabilityTargets />;
       case 'yeni-belge':
         return <YeniBelgeYonetimiYeni />;
-      case 'trainings':
+      case 'training':
         return <TrainingManagement />;
-      case 'email':
+      case 'email-management':
         return <EmailManagement />;
-      case 'reports':
-        return <div className="p-6"><h1 className="text-2xl font-bold">Raporlar</h1></div>;
       default:
         return <Dashboard onNavigate={handleNavigate} />;
     }
