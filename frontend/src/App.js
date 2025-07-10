@@ -12130,9 +12130,126 @@ const MainApp = () => {
 
 // Consultant App - Separate app for consultants
 const ConsultantApp = () => {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const { userRole, dbUser } = useAuth();
+
+  const handleNavigate = (tab) => {
+    setActiveTab(tab);
+  };
+
+  const renderConsultantContent = () => {
+    switch(activeTab) {
+      case 'dashboard':
+        return <ConsultantDashboard onNavigate={handleNavigate} />;
+      case 'my-clients':
+        return <ConsultantClientManagement onNavigate={handleNavigate} />;
+      case 'client-assignment':
+        return <ConsultantClientAssignment />;
+      case 'reports':
+        return <ConsultantReports />;
+      case 'profile':
+        return <ConsultantProfile />;
+      case 'consumption':
+        return <ConsumptionManagement onNavigate={handleNavigate} />;
+      case 'analytics':
+        return <ConsumptionAnalytics />;
+      case 'carbon':
+        return <CarbonFootprint />;
+      case 'personnel':
+        return <PersonnelManagement />;
+      case 'sustainability-targets':
+        return <SustainabilityTargets />;
+      case 'waste-management':
+        return <WasteManagement />;
+      case 'suppliers':
+        return <SupplierManagement />;
+      case 'yeni-belge':
+        return <YeniBelgeYonetimiYeni />;
+      case 'training':
+        return <TrainingManagement />;
+      case 'email-management':
+        return <EmailManagement />;
+      default:
+        return <ConsultantDashboard onNavigate={handleNavigate} />;
+    }
+  };
+
+  const consultantMenuItems = [
+    { id: 'dashboard', name: 'Dashboard', icon: '📊' },
+    { id: 'my-clients', name: 'Müşterilerim', icon: '👥' },
+    { id: 'client-assignment', name: 'Müşteri Atama', icon: '➕' },
+    { id: 'reports', name: 'Raporlar', icon: '📊' },
+    { id: 'profile', name: 'Profil', icon: '👤' },
+    { id: 'consumption', name: 'Tüketim Takibi', icon: '⚡' },
+    { id: 'analytics', name: 'Analitik', icon: '📈' },
+    { id: 'carbon', name: 'Karbon Ayak İzi', icon: '🌍' },
+    { id: 'personnel', name: 'Personel Yönetimi', icon: '👥' },
+    { id: 'sustainability-targets', name: 'Sürdürülebilirlik Hedefleri', icon: '🎯' },
+    { id: 'waste-management', name: 'Atık Yönetimi', icon: '🗑️' },
+    { id: 'suppliers', name: 'Tedarikçi Yönetimi', icon: '🏢' },
+    { id: 'yeni-belge', name: 'Belge Yönetimi', icon: '📋' },
+    { id: 'training', name: 'Eğitim Yönetimi', icon: '🎓' },
+    { id: 'email-management', name: 'Email Yönetimi', icon: '📧' }
+  ];
+
   return (
-    <div>
-      <h1>Consultant App</h1>
+    <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      {/* Elite Consultant Sidebar */}
+      <div 
+        className="text-white w-64 shadow-2xl flex flex-col"
+        style={{
+          background: 'linear-gradient(180deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%)',
+          minHeight: '100vh',
+          height: '100vh'
+        }}
+      >
+        <div className="p-6 flex-1 flex flex-col">
+          <div className="text-center mb-8">
+            <div className="bg-gradient-to-r from-yellow-400 to-orange-500 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
+              <span className="text-white text-xl font-bold">👔</span>
+            </div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
+              Danışman Paneli
+            </h1>
+            <p className="text-blue-200 text-sm mt-1">{dbUser?.name || 'Elite Danışman'}</p>
+          </div>
+        
+          <nav className="space-y-2 flex-1">
+            {consultantMenuItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`group w-full text-left px-4 py-3 rounded-xl transition-all duration-200 flex items-center space-x-3 ${
+                  activeTab === item.id
+                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg transform scale-105'
+                    : 'text-blue-200 hover:bg-blue-700 hover:text-white hover:translate-x-2'
+                }`}
+              >
+                <span className="text-lg">{item.icon}</span>
+                <span className="font-medium">{item.name}</span>
+                {activeTab === item.id && (
+                  <span className="ml-auto text-white">⚡</span>
+                )}
+              </button>
+            ))}
+          </nav>
+          
+          <div className="mt-auto p-4 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl">
+            <div className="text-center">
+              <div className="text-2xl mb-2">🎯</div>
+              <p className="text-white text-sm font-medium">Danışman Başarı</p>
+              <p className="text-emerald-100 text-xs mt-1">Müşteri odaklı çözümler</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+          {renderConsultantContent()}
+        </main>
+      </div>
     </div>
   );
 };
