@@ -11880,7 +11880,6 @@ const ConsultantApp = () => {
   );
 };
 
--e 
 // Main Admin/Client App
 const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate }) => {
   const renderContent = () => {
