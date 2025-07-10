@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL
-BACKEND_URL = "https://539ffbd1-9de6-4314-8bdd-a94fe4106807.preview.emergentagent.com/api"
+BACKEND_URL = "https://f083c15a-fa7b-4093-8fa4-c3772ba33625.preview.emergentagent.com/api"
 RAILWAY_API_URL = "https://rota-crm-production.up.railway.app/api"
 
 # Test JWT token for admin user

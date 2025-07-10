@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL
-BACKEND_URL = "https://539ffbd1-9de6-4314-8bdd-a94fe4106807.preview.emergentagent.com"
+BACKEND_URL = "https://f083c15a-fa7b-4093-8fa4-c3772ba33625.preview.emergentagent.com"
 
 class TestClientSecurityCode(unittest.TestCase):
     """Test class for client data security by examining the backend code"""
