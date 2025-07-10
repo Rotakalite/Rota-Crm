@@ -9548,7 +9548,7 @@ const EmailManagement = () => {
         displayName: training.name || training.training_name || 'Unknown Training',
         trainingDate: training.date || training.training_date || new Date().toISOString(),
         trainer: training.trainer || training.instructor || 'Unknown Trainer',
-        duration: training.duration || training.hours || 'Unknown Duration'
+        hours: training.hours || training.duration || '2 saat' // Eğitim saati
       })));
       
     } catch (error) {
