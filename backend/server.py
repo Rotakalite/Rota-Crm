@@ -3288,6 +3288,11 @@ async def create_client_root_folder(client_id: str, client_name: str):
         # Create 4 column sub-folders automatically
         await create_column_folders(client_id, root_folder["id"], root_folder_name)
         
+        # 🏗️ CREATE LEVEL 4 FOLDERS AUTOMATICALLY
+        logging.info(f"🏗️ Creating Level 4 folders for new client: {client_id}")
+        level4_count = await create_level4_for_client(client_id)
+        logging.info(f"✅ Created {level4_count} Level 4 folders for new client: {client_id}")
+        
         return root_folder
         
     except Exception as e:
