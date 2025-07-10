@@ -1730,6 +1730,7 @@ const Dashboard = ({ onNavigate }) => {
   const { authToken, userRole, dbUser } = useAuth();
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const API = getApiUrl();
 
   // Fetch dashboard data
