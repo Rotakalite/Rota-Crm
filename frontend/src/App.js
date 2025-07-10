@@ -1766,12 +1766,15 @@ const Dashboard = ({ onNavigate }) => {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="text-gray-600 mt-4">Dashboard yükleniyor...</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-2xl">⚡</span>
+            </div>
           </div>
+          <p className="text-gray-600 mt-4 font-medium">Elite Dashboard yükleniyor...</p>
         </div>
       </div>
     );
