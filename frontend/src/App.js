@@ -9995,9 +9995,9 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'personnel', name: 'Personel Yönetimi', icon: '👥' },
     { id: 'sustainability-targets', name: 'Sürdürülebilirlik Hedefleri', icon: '🎯' },
     { id: 'yeni-belge', name: 'Belge Yönetimi', icon: '📋' },
-    { id: 'trainings', name: 'Eğitim Yönetimi', icon: '🎓' },
-    { id: 'email', name: 'Email Yönetimi', icon: '📧' },
-    { id: 'reports', name: 'Raporlar', icon: '📊' },
+    { id: 'training', name: 'Eğitim Yönetimi', icon: '🎓' },
+    { id: 'email-management', name: 'Email Yönetimi', icon: '📧' },
+    { id: 'whatsapp', name: 'WhatsApp Yönetimi', icon: '💬' }
   ];
 
   const clientMenuItems = [
@@ -10005,12 +10005,9 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'consumption', name: 'Tüketim Takibi', icon: '⚡' },
     { id: 'analytics', name: 'Tüketim Analizi', icon: '📈' },
     { id: 'carbon', name: 'Karbon Ayak İzi', icon: '🌍' },
-    { id: 'waste-management', name: 'Atık Yönetimi', icon: '🗑️' },
-    { id: 'suppliers', name: 'Tedarikçilerim', icon: '🏢' },
-    { id: 'personnel', name: 'Personel Yönetimi', icon: '👥' },
     { id: 'sustainability-targets', name: 'Sürdürülebilirlik Hedefleri', icon: '🎯' },
-    { id: 'yeni-belge', name: 'Belgelerim', icon: '📋' },
-    { id: 'trainings', name: 'Eğitimlerim', icon: '🎓' }
+    { id: 'yeni-belge', name: 'Belge Yönetimi', icon: '📋' },
+    { id: 'training', name: 'Eğitimlerim', icon: '🎓' }
   ];
 
   const menuItems = userRole === 'admin' ? adminMenuItems : clientMenuItems;
