@@ -1733,6 +1733,14 @@ const Dashboard = ({ onNavigate }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const API = getApiUrl();
 
+  // Update time every minute
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
+
   // Fetch dashboard data
   const fetchDashboardData = async () => {
     try {
