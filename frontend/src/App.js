@@ -9549,15 +9549,23 @@ const EmailManagement = () => {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
       
-      const fetchedTrainings = response.data || [];
-      setTrainings(fetchedTrainings.map(training => ({
+      // Backend might return direct array or wrapped object
+      const responseData = response.data || {};
+      const fetchedTrainings = responseData.trainings || responseData.data || responseData || [];
+      
+      // Ensure it's an array
+      const trainingsArray = Array.isArray(fetchedTrainings) ? fetchedTrainings : [];
+      
+      setTrainings(trainingsArray.map(training => ({
         ...training,
         selected: false,
-        displayName: training.name || training.training_name || 'Unknown Training',
-        trainingDate: training.date || training.training_date || new Date().toISOString(),
-        trainer: training.trainer || training.instructor || 'Unknown Trainer',
+        displayName: training.name || training.training_name || training.title || 'Unknown Training',
+        trainingDate: training.date || training.training_date || training.created_at || new Date().toISOString(),
+        trainer: training.trainer || training.instructor || training.instructor_name || 'Unknown Trainer',
         hours: training.hours || training.duration || '2 saat' // Eğitim saati
       })));
+      
+      console.log(`✅ Trainings loaded: ${trainingsArray.length} items`);
       
     } catch (error) {
       console.error('Error fetching trainings:', error);
