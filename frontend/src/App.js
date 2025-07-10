@@ -11625,12 +11625,6 @@ const MainApp = () => {
 
 // Consultant App - Separate app for consultants
 const ConsultantApp = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const { userRole, dbUser } = useAuth();
-
-  const handleNavigate = (tab) => {
-    setActiveTab(tab);
-  };
 
   const renderConsultantContent = () => {
     switch(activeTab) {
