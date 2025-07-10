@@ -11681,3 +11681,5 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
     </div>
   );
 };
+
+export default MainApp;
