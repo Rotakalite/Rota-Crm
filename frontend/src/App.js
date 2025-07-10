@@ -2114,7 +2114,10 @@ const Dashboard = ({ onNavigate }) => {
         </div>
       </div>
 
-        {/* Admin & Consultant Dashboard */}
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto p-8">
+        
+        {/* Admin & Consultant Elite Dashboard */}
         {(userRole === 'admin' || userRole === 'consultant') && dashboardData && (
           <>
             {/* Admin Stats Cards */}
