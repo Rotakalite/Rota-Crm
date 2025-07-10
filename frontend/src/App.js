@@ -11682,48 +11682,12 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
   );
 };
 
-// Wrap MainApp with ClerkProvider and add Clerk authentication flow
+//Wrap MainApp with ClerkProvider and add Clerk authentication flow
 const App = () => {
   return (
     <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
       <SignedOut>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-          <div className="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">ROTA CRM</h1>
-              <p className="text-gray-600">Sürdürülebilirlik Yönetim Sistemi</p>
-            </div>
-            
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600 text-center mb-6">
-                Sisteme giriş yapmak için lütfen giriş yapın veya yeni hesap oluşturun.
-              </p>
-              
-              <div className="space-y-3">
-                <a
-                  href={`${window.location.origin}?__clerk_redirect_url=${encodeURIComponent(window.location.href)}`}
-                  onClick={() => window.location.href = `/sign-in`}
-                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-center block"
-                >
-                  🔐 Giriş Yap
-                </a>
-                
-                <a
-                  href={`${window.location.origin}?__clerk_redirect_url=${encodeURIComponent(window.location.href)}`}
-                  onClick={() => window.location.href = `/sign-up`}
-                  className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors font-medium text-center block"
-                >
-                  📝 Kayıt Ol
-                </a>
-              </div>
-              
-              <div className="mt-6 text-xs text-gray-500 text-center">
-                <p>🏢 Danışman olarak kayıt olmak için "Kayıt Ol" butonunu kullanın</p>
-                <p>👥 Müşteri seçimi giriş sonrası yapılacaktır</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <RedirectToSignIn />
       </SignedOut>
       
       <SignedIn>
