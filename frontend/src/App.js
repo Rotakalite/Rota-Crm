@@ -9474,7 +9474,512 @@ const ClientSetupForm = ({ onComplete, onSkip }) => {
   );
 };
 
-const Sidebar = ({ activeTab, onNavigate, userRole }) => {
+// Email Management Component - NEW IMPLEMENTATION
+const EmailManagement = () => {
+  const { authToken, user, userRole, dbUser } = useAuth();
+  const { session } = useClerk();
+  const [loading, setLoading] = useState(true);
+  const [documents, setDocuments] = useState([]);
+  const [trainings, setTrainings] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [selectedDocuments, setSelectedDocuments] = useState([]);
+  const [selectedTrainings, setSelectedTrainings] = useState([]);
+  const [activeTab, setActiveTab] = useState('documents'); // 'documents' | 'trainings'
+  const [emailContent, setEmailContent] = useState({
+    subject: '',
+    message: '',
+    type: 'document' // 'document' | 'training'
+  });
+  
+  const API = getApiUrl();
+
+  // Fetch documents for email notifications
+  const fetchDocuments = async (clientId) => {
+    try {
+      let currentToken = authToken;
+      if (!currentToken && session) {
+        try {
+          currentToken = await session.getToken();
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      const response = await axios.get(`${API}/belge/list?client_id=${clientId}`, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+      
+      const fetchedDocuments = response.data || [];
+      setDocuments(fetchedDocuments.map(doc => ({
+        ...doc,
+        selected: false,
+        displayName: doc.file_name || doc.document_name || 'Unknown Document',
+        uploadDate: doc.uploaded_at || doc.created_at || new Date().toISOString(),
+        folderPath: doc.folder_path || 'Unknown Folder'
+      })));
+      
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+      setDocuments([]);
+    }
+  };
+
+  // Fetch trainings for email notifications  
+  const fetchTrainings = async (clientId) => {
+    try {
+      let currentToken = authToken;
+      if (!currentToken && session) {
+        try {
+          currentToken = await session.getToken();
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      const response = await axios.get(`${API}/trainings?client_id=${clientId}`, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+      
+      const fetchedTrainings = response.data || [];
+      setTrainings(fetchedTrainings.map(training => ({
+        ...training,
+        selected: false,
+        displayName: training.name || training.training_name || 'Unknown Training',
+        trainingDate: training.date || training.training_date || new Date().toISOString(),
+        trainer: training.trainer || training.instructor || 'Unknown Trainer',
+        duration: training.duration || training.hours || 'Unknown Duration'
+      })));
+      
+    } catch (error) {
+      console.error('Error fetching trainings:', error);
+      setTrainings([]);
+    }
+  };
+
+  // Fetch clients
+  const fetchClients = async () => {
+    try {
+      let currentToken = authToken;
+      if (!currentToken && session) {
+        try {
+          currentToken = await session.getToken();
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      const response = await axios.get(`${API}/clients`, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+      setClients(response.data || []);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      setClients([]);
+    }
+  };
+
+  // Toggle document selection
+  const toggleDocumentSelection = (docId) => {
+    setDocuments(prev => prev.map(doc => 
+      doc.id === docId ? { ...doc, selected: !doc.selected } : doc
+    ));
+    
+    setSelectedDocuments(prev => {
+      if (prev.includes(docId)) {
+        return prev.filter(id => id !== docId);
+      } else {
+        return [...prev, docId];
+      }
+    });
+  };
+
+  // Toggle training selection
+  const toggleTrainingSelection = (trainingId) => {
+    setTrainings(prev => prev.map(training => 
+      training.id === trainingId ? { ...training, selected: !training.selected } : training
+    ));
+    
+    setSelectedTrainings(prev => {
+      if (prev.includes(trainingId)) {
+        return prev.filter(id => id !== trainingId);
+      } else {
+        return [...prev, trainingId];
+      }
+    });
+  };
+
+  // Select all documents
+  const selectAllDocuments = () => {
+    const allSelected = documents.every(doc => doc.selected);
+    setDocuments(prev => prev.map(doc => ({ ...doc, selected: !allSelected })));
+    setSelectedDocuments(allSelected ? [] : documents.map(doc => doc.id));
+  };
+
+  // Select all trainings
+  const selectAllTrainings = () => {
+    const allSelected = trainings.every(training => training.selected);
+    setTrainings(prev => prev.map(training => ({ ...training, selected: !allSelected })));
+    setSelectedTrainings(allSelected ? [] : trainings.map(training => training.id));
+  };
+
+  // Clear selections
+  const clearSelections = () => {
+    if (activeTab === 'documents') {
+      setDocuments(prev => prev.map(doc => ({ ...doc, selected: false })));
+      setSelectedDocuments([]);
+    } else {
+      setTrainings(prev => prev.map(training => ({ ...training, selected: false })));
+      setSelectedTrainings([]);
+    }
+  };
+
+  // Send email notification
+  const sendEmailNotification = async () => {
+    try {
+      if (!selectedClient) {
+        alert('Lütfen müşteri seçin!');
+        return;
+      }
+
+      const selectedItems = activeTab === 'documents' ? 
+        documents.filter(doc => selectedDocuments.includes(doc.id)) :
+        trainings.filter(training => selectedTrainings.includes(training.id));
+
+      if (selectedItems.length === 0) {
+        alert('Lütfen en az bir item seçin!');
+        return;
+      }
+
+      let currentToken = authToken;
+      if (!currentToken && session) {
+        try {
+          currentToken = await session.getToken();
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      const emailData = {
+        client_id: selectedClient,
+        type: activeTab === 'documents' ? 'document' : 'training',
+        subject: emailContent.subject || (activeTab === 'documents' ? 
+          `Yeni Dokümanlar (${selectedItems.length} adet)` : 
+          `Yeni Eğitimler (${selectedItems.length} adet)`),
+        message: emailContent.message || `${selectedItems.length} adet ${activeTab === 'documents' ? 'doküman' : 'eğitim'} için bilgilendirme.`,
+        items: selectedItems.map(item => ({
+          id: item.id,
+          name: item.displayName,
+          ...(activeTab === 'documents' ? {
+            upload_date: item.uploadDate,
+            folder_path: item.folderPath
+          } : {
+            training_date: item.trainingDate,
+            trainer: item.trainer,
+            duration: item.duration
+          })
+        }))
+      };
+
+      await axios.post(`${API}/email/send-notification`, emailData, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+
+      alert('✅ Email başarıyla gönderildi!');
+      clearSelections();
+      setEmailContent({ subject: '', message: '', type: activeTab === 'documents' ? 'document' : 'training' });
+      
+    } catch (error) {
+      console.error('Error sending email:', error);
+      alert('❌ Email gönderilirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Initial data loading
+  useEffect(() => {
+    if (authToken && userRole === 'admin') {
+      fetchClients();
+    }
+    setLoading(false);
+  }, [authToken, userRole]);
+
+  // Auto-select client for CLIENT role users
+  useEffect(() => {
+    if (userRole === 'client' && dbUser?.client_id && !selectedClient) {
+      setSelectedClient(dbUser.client_id);
+    }
+  }, [userRole, dbUser, selectedClient]);
+
+  // Load data when client is selected
+  useEffect(() => {
+    if (selectedClient) {
+      fetchDocuments(selectedClient);
+      fetchTrainings(selectedClient);
+    }
+  }, [selectedClient]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white p-6 shadow-xl">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-bold mb-2">📧 Email Yönetimi</h1>
+          <p className="text-blue-100 text-lg">Doküman ve eğitim bildirimleri gönderme sistemi</p>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        
+        {/* Client Selection - Only for Admin */}
+        {userRole === 'admin' && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">1. Müşteri Seçimi</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Müşteri Seçin
+                </label>
+                <select
+                  value={selectedClient}
+                  onChange={(e) => setSelectedClient(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">-- Müşteri Seçin --</option>
+                  {Array.isArray(clients) && clients.map((client) => (
+                    <option key={client.id} value={client.id}>
+                      {client.name || client.hotel_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Client Info - For Client Users */}
+        {userRole === 'client' && selectedClient && Array.isArray(clients) && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">📧 Email Bildirimleri</h2>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-blue-800">
+                <strong>🏢 İşletme:</strong> {clients.find(c => c.id === selectedClient)?.name || clients.find(c => c.id === selectedClient)?.hotel_name}
+              </p>
+              <p className="text-blue-600 text-sm mt-1">Doküman ve eğitim bildirimlerinizi buradan yönetebilirsiniz.</p>
+            </div>
+          </div>
+        )}
+
+        {selectedClient && (
+          <>
+            {/* Tabs */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <div className="flex space-x-4 mb-6">
+                <button
+                  onClick={() => setActiveTab('documents')}
+                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                    activeTab === 'documents'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  📄 Dokümanlar ({documents.length})
+                </button>
+                <button
+                  onClick={() => setActiveTab('trainings')}
+                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                    activeTab === 'trainings'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  🎓 Eğitimler ({trainings.length})
+                </button>
+              </div>
+
+              {/* Selection Controls */}
+              <div className="flex flex-wrap gap-4 mb-6">
+                <button
+                  onClick={activeTab === 'documents' ? selectAllDocuments : selectAllTrainings}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  {(activeTab === 'documents' ? documents : trainings).every(item => item.selected) ? 
+                    '❌ Tümünü Kaldır' : '✅ Tümünü Seç'}
+                </button>
+                <button
+                  onClick={clearSelections}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  🗑️ Seçimi Temizle
+                </button>
+                <div className="text-sm text-gray-600 flex items-center">
+                  Seçilen: {activeTab === 'documents' ? selectedDocuments.length : selectedTrainings.length} item
+                </div>
+              </div>
+
+              {/* Documents Tab */}
+              {activeTab === 'documents' && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-800">📄 Dokümanlar</h3>
+                  
+                  {documents.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>Henüz doküman bulunmuyor.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {documents.map((doc) => (
+                        <div
+                          key={doc.id}
+                          className={`border rounded-lg p-4 cursor-pointer transition-colors ${
+                            doc.selected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                          onClick={() => toggleDocumentSelection(doc.id)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <input
+                                type="checkbox"
+                                checked={doc.selected}
+                                onChange={() => {}}
+                                className="h-5 w-5 text-blue-600"
+                              />
+                              <div>
+                                <h4 className="font-medium text-gray-900">{doc.displayName}</h4>
+                                <p className="text-sm text-gray-600">
+                                  📁 Klasör: {doc.folderPath}
+                                </p>
+                                <p className="text-sm text-gray-500">
+                                  📅 Yükleme: {new Date(doc.uploadDate).toLocaleDateString('tr-TR')}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <span className={`px-2 py-1 rounded-full text-xs ${
+                                doc.selected ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'
+                              }`}>
+                                {doc.selected ? 'Seçildi' : 'Seç'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Trainings Tab */}
+              {activeTab === 'trainings' && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-800">🎓 Eğitimler</h3>
+                  
+                  {trainings.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>Henüz eğitim bulunmuyor.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {trainings.map((training) => (
+                        <div
+                          key={training.id}
+                          className={`border rounded-lg p-4 cursor-pointer transition-colors ${
+                            training.selected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                          onClick={() => toggleTrainingSelection(training.id)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <input
+                                type="checkbox"
+                                checked={training.selected}
+                                onChange={() => {}}
+                                className="h-5 w-5 text-blue-600"
+                              />
+                              <div>
+                                <h4 className="font-medium text-gray-900">{training.displayName}</h4>
+                                <p className="text-sm text-gray-600">
+                                  👨‍🏫 Eğitmen: {training.trainer}
+                                </p>
+                                <p className="text-sm text-gray-500">
+                                  📅 Tarih: {new Date(training.trainingDate).toLocaleDateString('tr-TR')} | 
+                                  ⏰ Süre: {training.duration}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <span className={`px-2 py-1 rounded-full text-xs ${
+                                training.selected ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'
+                              }`}>
+                                {training.selected ? 'Seçildi' : 'Seç'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Email Composition */}
+            {((activeTab === 'documents' && selectedDocuments.length > 0) || 
+              (activeTab === 'trainings' && selectedTrainings.length > 0)) && (
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">✉️ Email Oluştur</h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Konusu
+                    </label>
+                    <input
+                      type="text"
+                      value={emailContent.subject}
+                      onChange={(e) => setEmailContent(prev => ({ ...prev, subject: e.target.value }))}
+                      placeholder={activeTab === 'documents' ? 
+                        `Yeni Dokümanlar (${selectedDocuments.length} adet)` : 
+                        `Yeni Eğitimler (${selectedTrainings.length} adet)`}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Mesajı
+                    </label>
+                    <textarea
+                      value={emailContent.message}
+                      onChange={(e) => setEmailContent(prev => ({ ...prev, message: e.target.value }))}
+                      placeholder={`${(activeTab === 'documents' ? selectedDocuments : selectedTrainings).length} adet ${activeTab === 'documents' ? 'doküman' : 'eğitim'} için detaylı bilgi aşağıdadır.`}
+                      rows={4}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm text-gray-600">
+                      <p><strong>Seçilen Items:</strong> {activeTab === 'documents' ? selectedDocuments.length : selectedTrainings.length}</p>
+                      <p><strong>Gönderilecek Müşteri:</strong> {clients.find(c => c.id === selectedClient)?.name || clients.find(c => c.id === selectedClient)?.hotel_name}</p>
+                    </div>
+                    
+                    <button
+                      onClick={sendEmailNotification}
+                      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                    >
+                      📧 Email Gönder
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
   const adminMenuItems = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
     { id: 'clients', name: 'Müşteri Yönetimi', icon: '🏨' },
