@@ -9485,11 +9485,11 @@ const EmailManagement = () => {
   const [selectedClient, setSelectedClient] = useState('');
   const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [selectedTrainings, setSelectedTrainings] = useState([]);
-  const [activeTab, setActiveTab] = useState('documents'); // 'documents' | 'trainings'
+  const [activeTab, setActiveTab] = useState('documents');
   const [emailContent, setEmailContent] = useState({
     subject: '',
     message: '',
-    type: 'document' // 'document' | 'training'
+    type: 'document'
   });
   
   const API = getApiUrl();
