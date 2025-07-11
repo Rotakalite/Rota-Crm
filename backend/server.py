@@ -4959,7 +4959,23 @@ async def update_consumption(
         raise HTTPException(status_code=404, detail="Tüketim verisi bulunamadı")
     
     # Check permissions
-    if current_user.role == UserRole.CLIENT and current_user.client_id != consumption["client_id"]:
+    if current_user.role == UserRole.CLIENT:
+        if current_user.client_id != consumption["client_id"]:
+            raise HTTPException(status_code=403, detail="Bu tüketim verisini güncelleme yetkiniz yok")
+    elif current_user.role == UserRole.CONSULTANT:
+        # Consultant can update consumption data for their assigned clients
+        consultant_id = current_user.consultant_id
+        if not consultant_id:
+            raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+        
+        # Check if the consumption's client is assigned to this consultant
+        client = await db.clients.find_one({"id": consumption["client_id"], "consultant_id": consultant_id})
+        if not client:
+            raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+    elif current_user.role == UserRole.ADMIN:
+        # Admin can update any consumption
+        pass
+    else:
         raise HTTPException(status_code=403, detail="Bu tüketim verisini güncelleme yetkiniz yok")
     
     # Update consumption data and recalculate carbon emissions
