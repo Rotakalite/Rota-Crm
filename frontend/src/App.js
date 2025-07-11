@@ -12440,11 +12440,68 @@ const ConsultantApp = () => {
         </div>
       </div>
       
-      {/* Main Content */}
-      <div className="flex flex-col overflow-hidden" style={{ marginLeft: '256px', minHeight: '100vh' }}>
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50" style={{ minHeight: '100vh' }}>
+      {/* Main Content Area with Client Selection Header */}
+      <div 
+        className="flex-1 flex flex-col"
+        style={{ marginLeft: '256px' }} // Account for fixed sidebar
+      >
+        {/* Client Selection Header */}
+        <div className="bg-white shadow-md border-b border-gray-200 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <h1 className="text-xl font-bold text-gray-800">
+                👔 Danışman Paneli
+              </h1>
+              {clients.length > 0 && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-medium text-gray-600">Aktif Müşteri:</span>
+                  <select
+                    value={selectedClient?.id || ''}
+                    onChange={(e) => {
+                      const client = clients.find(c => c.id === e.target.value);
+                      handleClientSelect(client);
+                    }}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white min-w-[200px]"
+                  >
+                    <option value="">Müşteri seçin...</option>
+                    {clients.map((client) => (
+                      <option key={client.id} value={client.id}>
+                        {client.hotel_name || client.client_name || client.name || 'İsimsiz Müşteri'}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center space-x-2">
+              {selectedClient && (
+                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                  ✓ {selectedClient.hotel_name || selectedClient.client_name || selectedClient.name}
+                </span>
+              )}
+              <SignOutButton />
+            </div>
+          </div>
+          {!selectedClient && clients.length > 0 && (
+            <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-yellow-800 text-sm">
+                ⚠️ Modülleri kullanmak için yukarıdan bir müşteri seçin.
+              </p>
+            </div>
+          )}
+          {clients.length === 0 && (
+            <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-800 text-sm">
+                ❌ Size atanmış müşteri bulunamadı. Lütfen sistem yöneticisi ile iletişime geçin.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Content Area */}
+        <div className="flex-1 p-6 overflow-y-auto">
           {renderConsultantContent()}
-        </main>
+        </div>
       </div>
     </div>
   );
