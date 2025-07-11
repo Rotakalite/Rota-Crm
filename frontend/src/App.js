@@ -12301,23 +12301,23 @@ const ConsultantApp = () => {
   const renderConsultantContent = () => {
     switch(activeTab) {
       case 'dashboard':
-        return <ConsultantDashboard onNavigate={handleNavigate} selectedClient={selectedClient} />;
+        return <ConsultantDashboard onNavigate={handleNavigate} />;
       case 'my-clients':
-        return <ConsultantClientManagement onNavigate={handleNavigate} selectedClient={selectedClient} />;
+        return <ConsultantClientManagement onNavigate={handleNavigate} />;
       case 'client-assignment':
-        return <ConsultantClientAssignment selectedClient={selectedClient} />;
+        return <ConsultantClientAssignment />;
       case 'reports':
-        return <ConsultantReports selectedClient={selectedClient} />;
+        return <ConsultantReports />;
       case 'profile':
         return <ConsultantProfile />;
       case 'consumption':
-        return <ConsumptionManagement onNavigate={handleNavigate} selectedClient={selectedClient} />;
+        return <ConsumptionManagement onNavigate={handleNavigate} />;
       case 'analytics':
-        return <ConsumptionAnalytics selectedClient={selectedClient} />;
+        return <ConsumptionAnalytics />;
       case 'carbon':
-        return <CarbonFootprint selectedClient={selectedClient} />;
+        return <CarbonFootprint />;
       case 'personnel':
-        return <PersonnelManagement selectedClient={selectedClient} />;
+        return <PersonnelManagement />;
       case 'sustainability-targets':
         return <SustainabilityTargets selectedClient={selectedClient} />;
       case 'waste-management':
