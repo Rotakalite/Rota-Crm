@@ -7736,40 +7736,6 @@ const ConsumptionManagement = ({ onNavigate }) => {
           </select>
         </div>
         
-        {userRole === 'admin' && (
-          <button
-            onClick={() => {
-              setEditingConsumption(null);
-              setConsumptionData({
-                year: selectedYear,
-                month: new Date().getMonth() + 1,
-                electricity: '',
-                water: '',
-                natural_gas: '',
-                coal: '',
-                // DEFRA Additional Fuel Types
-                diesel: '',
-                gasoline: '',
-                lpg: '',
-                fuel_oil: '',
-                // DEFRA F-Gases
-                r134a_gas: '',
-                r600a_gas: '',
-                r410a_gas: '',
-                r32_gas: '',
-                co2_fire: '',
-                fm200_fire: '',
-                accommodation_count: ''
-              });
-              setShowConsumptionForm(true);
-            }}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-          >
-            <span className="mr-2">+</span>
-            Yeni Tüketim Verisi
-          </button>
-        )}
-        
         {userRole === 'client' && (
           <div className="text-gray-600 text-sm">
             📊 Tüketim verilerinizi görüntüleyebilirsiniz
