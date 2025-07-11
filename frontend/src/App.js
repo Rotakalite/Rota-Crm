@@ -341,6 +341,16 @@ const ConsultantDashboard = ({ onNavigate }) => {
     try {
       setLoading(true);
       
+      // Debug user information
+      console.log('🔍 CONSULTANT DEBUG - dbUser:', dbUser);
+      console.log('🔍 CONSULTANT DEBUG - consultant_id:', dbUser?.consultant_id);
+      
+      // Fetch user info from /api/me for complete data
+      const userResponse = await axios.get(`${API}/auth/me`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      console.log('🔍 CONSULTANT DEBUG - API /auth/me response:', userResponse.data);
+      
       const statsResponse = await axios.get(`${API}/stats`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
@@ -349,6 +359,7 @@ const ConsultantDashboard = ({ onNavigate }) => {
       const clientsResponse = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
+      console.log('🔍 CONSULTANT DEBUG - clients response:', clientsResponse.data);
       setClients(clientsResponse.data || []);
 
     } catch (error) {
