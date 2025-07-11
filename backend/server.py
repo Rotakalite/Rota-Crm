@@ -5014,17 +5014,34 @@ async def update_consumption(
 @api_router.delete("/consumptions/{consumption_id}")
 async def delete_consumption(
     consumption_id: str,
-    current_user: User = Depends(get_admin_user)  # Only admin can delete
+    current_user: User = Depends(get_current_user)  # Allow admin and consultant
 ):
     """Delete consumption record"""
     
-    logging.info(f"🗑️ DELETE /consumptions/{consumption_id} called by admin user: {current_user.name}")
+    logging.info(f"🗑️ DELETE /consumptions/{consumption_id} called by user: {current_user.name} ({current_user.role})")
     
     # Check if consumption exists
     existing = await db.consumptions.find_one({"id": consumption_id})
     if not existing:
         logging.info(f"❌ Consumption not found: {consumption_id}")
         raise HTTPException(status_code=404, detail="Tüketim verisi bulunamadı")
+    
+    # Check permissions
+    if current_user.role == UserRole.ADMIN:
+        # Admin can delete any consumption
+        pass
+    elif current_user.role == UserRole.CONSULTANT:
+        # Consultant can delete consumption data for their assigned clients
+        consultant_id = current_user.consultant_id
+        if not consultant_id:
+            raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+        
+        # Check if the consumption's client is assigned to this consultant
+        client = await db.clients.find_one({"id": existing["client_id"], "consultant_id": consultant_id})
+        if not client:
+            raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+    else:
+        raise HTTPException(status_code=403, detail="Bu tüketim verisini silme yetkiniz yok")
     
     result = await db.consumptions.delete_one({"id": consumption_id})
     if result.deleted_count == 0:
