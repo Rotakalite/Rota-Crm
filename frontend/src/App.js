@@ -3875,7 +3875,7 @@ const GuestEngagement = () => {
 };
 
 // Waste Management Component
-const WasteManagement = () => {
+const WasteManagement = ({ selectedClient: propSelectedClient }) => {
   const [loading, setLoading] = useState(false);
   const [analytics, setAnalytics] = useState({});
   const [wasteRecords, setWasteRecords] = useState([]);
@@ -3900,16 +3900,19 @@ const WasteManagement = () => {
   const { authToken, userRole } = useAuth();
   const API = getApiUrl();
 
+  // Use selectedClient from props (for consultant) or manage locally (for admin/client)
+  const effectiveSelectedClient = propSelectedClient || selectedClient;
+
   // Fetch clients for admin users
   const fetchClients = async () => {
-    if (userRole !== 'admin') return;
+    if (userRole !== 'admin' && userRole !== 'consultant') return;
     
     try {
       const response = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setClients(response.data || []);
-      if (response.data?.length > 0) {
+      if (response.data?.length > 0 && !propSelectedClient) {
         setSelectedClient(response.data[0].id);
       }
     } catch (error) {
