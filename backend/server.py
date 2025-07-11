@@ -1383,14 +1383,22 @@ async def debug_database_check():
         consultants = await db.consultants.find().to_list(length=None)
         logging.info(f"🔍 DB DEBUG - Found {len(consultants)} consultants")
         
-        # Check all clients
+        # Check all clients with full data
         clients = await db.clients.find().to_list(length=None)
         logging.info(f"🔍 DB DEBUG - Found {len(clients)} clients")
+        
+        # Log each client's full data
+        for i, client in enumerate(clients):
+            logging.info(f"🔍 CLIENT {i+1} FULL DATA: {client}")
         
         # Check specific consultant
         target_consultant_id = "678d2dfc-b008-4cbc-99d2-1aeed51c81d3"
         assigned_clients = await db.clients.find({"consultant_id": target_consultant_id}).to_list(length=None)
         logging.info(f"🔍 DB DEBUG - Clients assigned to {target_consultant_id}: {len(assigned_clients)}")
+        
+        # Log assigned clients full data
+        for i, client in enumerate(assigned_clients):
+            logging.info(f"🔍 ASSIGNED CLIENT {i+1} FULL DATA: {client}")
         
         return {
             "total_consultants": len(consultants),
