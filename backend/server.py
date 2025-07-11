@@ -794,6 +794,7 @@ async def get_current_user(payload: dict = Depends(verify_token)):
         email=user["email"],
         role=UserRole(user_role),
         client_id=user.get("client_id", ""),
+        consultant_id=user.get("consultant_id"),
         created_at=user["created_at"]
     )
 
