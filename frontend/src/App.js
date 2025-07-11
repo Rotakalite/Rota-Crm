@@ -1402,7 +1402,7 @@ const SustainabilityTargets = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {userRole === 'admin' && (
+                        {(userRole === 'admin' || userRole === 'consultant') && (
                           <>
                             <button
                               onClick={() => {setSelectedTarget(target); setShowProgressForm(true);}}
