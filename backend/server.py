@@ -1789,12 +1789,15 @@ async def get_clients_main_app(current_user: User = Depends(get_current_user)):
         elif current_user.role == UserRole.CONSULTANT:
             # Consultant sees only their assigned clients
             consultant_id = getattr(current_user, 'consultant_id', None)
+            logging.info(f"🔍 CONSULTANT USER - consultant_id: {consultant_id}")
             if not consultant_id:
+                logging.warning(f"⚠️ CONSULTANT USER has no consultant_id assigned: {current_user.email}")
                 return []
             
             clients = await asyncio.to_thread(
                 lambda: list(db.clients.find({"consultant_id": consultant_id}))
             )
+            logging.info(f"📋 Found {len(clients)} clients for consultant: {consultant_id}")
         else:
             # Client sees only their own data
             if not current_user.client_id:
