@@ -8192,38 +8192,86 @@ const ConsumptionManagement = ({ onNavigate }) => {
       )}
 
       {/* Analytics Section - Admin and Consultant Client Selection */}
-      {(userRole === 'admin' || userRole === 'consultant') && !consumptionData.client_id && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
-          <h3 className="text-lg font-medium text-yellow-800 mb-2">📊 Analiz için Müşteri Seçin</h3>
-          <p className="text-yellow-600 mb-3">
-            Tüketim analizlerini görüntülemek için 
-            {userRole === 'consultant' ? ' size atanan müşterilerden birini seçin.' : ' yukarıdan bir müşteri seçin.'}
-          </p>
-          <select
-            value={consumptionData.client_id || ''}
-            onChange={(e) => {
-              setConsumptionData({...consumptionData, client_id: e.target.value});
-              setSelectedClient(e.target.value); // Also update selectedClient state
-              // Trigger both analytics and consumptions fetch when client is selected
-              if (e.target.value) {
-                setTimeout(() => {
-                  fetchAnalytics();
-                  fetchConsumptions();
-                }, 100);
-              } else {
-                setAnalytics(null);
-                setConsumptions([]);
-              }
-            }}
-            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Müşteri seçin...</option>
-            {(Array.isArray(clients) ? clients : []).map((client) => (
-              <option key={client.id} value={client.id}>
-                {client.hotel_name || client.client_name || client.name}
-              </option>
-            ))}
-          </select>
+      {(userRole === 'admin' || userRole === 'consultant') && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium text-blue-800">📊 Müşteri Seçimi</h3>
+            {consumptionData.client_id && (
+              <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                ✓ Müşteri Seçili
+              </span>
+            )}
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-blue-700 mb-2">
+                {userRole === 'consultant' ? 'Size atanan müşterilerden birini seçin:' : 'Müşteri seçin:'}
+              </label>
+              <select
+                value={consumptionData.client_id || ''}
+                onChange={(e) => {
+                  console.log('🔄 Client selected:', e.target.value);
+                  setConsumptionData({...consumptionData, client_id: e.target.value});
+                  setSelectedClient(e.target.value); // Also update selectedClient state
+                  // Trigger both analytics and consumptions fetch when client is selected
+                  if (e.target.value) {
+                    setTimeout(() => {
+                      fetchAnalytics();
+                      fetchConsumptions();
+                    }, 100);
+                  } else {
+                    setAnalytics(null);
+                    setConsumptions([]);
+                  }
+                }}
+                className="w-full px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Müşteri seçin...</option>
+                {(Array.isArray(clients) ? clients : []).map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.hotel_name || client.client_name || client.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {consumptionData.client_id && (
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => {
+                    console.log('🆕 Creating new consumption for client:', consumptionData.client_id);
+                    setEditingConsumption(null);
+                    setConsumptionData({
+                      ...consumptionData,
+                      year: selectedYear,
+                      month: new Date().getMonth() + 1,
+                      electricity: '',
+                      water: '',
+                      natural_gas: '',
+                      coal: '',
+                      // DEFRA Additional Fuel Types
+                      diesel: '',
+                      gasoline: '',
+                      lpg: '',
+                      fuel_oil: '',
+                      // DEFRA F-Gases
+                      r134a_gas: '',
+                      r600a_gas: '',
+                      r410a_gas: '',
+                      r32_gas: '',
+                      co2_fire: '',
+                      fm200_fire: '',
+                      accommodation_count: ''
+                    });
+                    setShowConsumptionForm(true);
+                  }}
+                  className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                >
+                  <span>➕</span>
+                  <span>Yeni Tüketim Verisi</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
