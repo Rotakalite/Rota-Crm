@@ -1898,14 +1898,40 @@ async def get_clients_main_app(current_user: User = Depends(get_current_user)):
             # Consultant sees only their assigned clients
             consultant_id = getattr(current_user, 'consultant_id', None)
             logging.info(f"🔍 CONSULTANT USER - consultant_id: {consultant_id}")
+            logging.info(f"🔍 CONSULTANT USER - consultant_id type: {type(consultant_id)}")
+            
             if not consultant_id:
                 logging.warning(f"⚠️ CONSULTANT USER has no consultant_id assigned: {current_user.email}")
                 return []
+            
+            # DEBUG: Check all clients in database
+            all_clients_debug = await asyncio.to_thread(
+                lambda: list(db.clients.find({}))
+            )
+            logging.info(f"🔍 DEBUG - Total clients in DB: {len(all_clients_debug)}")
+            for i, client in enumerate(all_clients_debug):
+                client_consultant_id = client.get("consultant_id")
+                logging.info(f"🔍 DEBUG CLIENT {i+1}: id={client.get('id')}, consultant_id={client_consultant_id}, type={type(client_consultant_id)}")
+                logging.info(f"🔍 DEBUG MATCH CHECK: {consultant_id} == {client_consultant_id} = {consultant_id == client_consultant_id}")
             
             clients = await asyncio.to_thread(
                 lambda: list(db.clients.find({"consultant_id": consultant_id}))
             )
             logging.info(f"📋 Found {len(clients)} clients for consultant: {consultant_id}")
+            
+            # DEBUG: Try different query approaches
+            if len(clients) == 0:
+                logging.warning(f"⚠️ No clients found with direct query, trying string conversion...")
+                clients_str = await asyncio.to_thread(
+                    lambda: list(db.clients.find({"consultant_id": str(consultant_id)}))
+                )
+                logging.info(f"📋 Found {len(clients_str)} clients with string conversion")
+                
+                # Try finding any client with consultant_id field
+                clients_any = await asyncio.to_thread(
+                    lambda: list(db.clients.find({"consultant_id": {"$exists": True}}))
+                )
+                logging.info(f"📋 Found {len(clients_any)} clients with any consultant_id")
         else:
             # Client sees only their own data
             if not current_user.client_id:
