@@ -12296,37 +12296,37 @@ const ConsultantApp = () => {
   const renderConsultantContent = () => {
     switch(activeTab) {
       case 'dashboard':
-        return <ConsultantDashboard onNavigate={handleNavigate} />;
+        return <ConsultantDashboard onNavigate={handleNavigate} selectedClient={selectedClient} />;
       case 'my-clients':
-        return <ConsultantClientManagement onNavigate={handleNavigate} />;
+        return <ConsultantClientManagement onNavigate={handleNavigate} selectedClient={selectedClient} />;
       case 'client-assignment':
-        return <ConsultantClientAssignment />;
+        return <ConsultantClientAssignment selectedClient={selectedClient} />;
       case 'reports':
-        return <ConsultantReports />;
+        return <ConsultantReports selectedClient={selectedClient} />;
       case 'profile':
         return <ConsultantProfile />;
       case 'consumption':
-        return <ConsumptionManagement onNavigate={handleNavigate} />;
+        return <ConsumptionManagement onNavigate={handleNavigate} selectedClient={selectedClient} />;
       case 'analytics':
-        return <ConsumptionAnalytics />;
+        return <ConsumptionAnalytics selectedClient={selectedClient} />;
       case 'carbon':
-        return <CarbonFootprint />;
+        return <CarbonFootprint selectedClient={selectedClient} />;
       case 'personnel':
-        return <PersonnelManagement />;
+        return <PersonnelManagement selectedClient={selectedClient} />;
       case 'sustainability-targets':
-        return <SustainabilityTargets />;
+        return <SustainabilityTargets selectedClient={selectedClient} />;
       case 'waste-management':
-        return <WasteManagement />;
+        return <WasteManagement selectedClient={selectedClient} />;
       case 'suppliers':
-        return <SupplierManagement />;
+        return <SupplierManagement selectedClient={selectedClient} />;
       case 'yeni-belge':
-        return <YeniBelgeYonetimiYeni />;
+        return <YeniBelgeYonetimiYeni selectedClient={selectedClient} />;
       case 'training':
-        return <TrainingManagement />;
+        return <TrainingManagement selectedClient={selectedClient} />;
       case 'email-management':
-        return <EmailManagement />;
+        return <EmailManagement selectedClient={selectedClient} />;
       default:
-        return <ConsultantDashboard onNavigate={handleNavigate} />;
+        return <ConsultantDashboard onNavigate={handleNavigate} selectedClient={selectedClient} />;
     }
   };
 
