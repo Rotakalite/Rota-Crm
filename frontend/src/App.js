@@ -5330,12 +5330,22 @@ const ConsumptionAnalytics = () => {
       setLoading(true);
       const params = new URLSearchParams();
       if (selectedYear) params.append('year', selectedYear);
-      if (userRole === 'admin' && selectedClient) params.append('client_id', selectedClient);
+      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
+        params.append('client_id', selectedClient);
+      }
+
+      console.log('🔍 ConsumptionAnalytics API call:', {
+        userRole,
+        selectedClient,
+        selectedYear,
+        params: params.toString()
+      });
 
       const response = await axios.get(`${API}/consumptions/analytics?${params}`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setAnalyticsData(response.data);
+      console.log('✅ Analytics data fetched:', response.data);
     } catch (error) {
       console.error('Error fetching analytics:', error);
       setAnalyticsData(null);
