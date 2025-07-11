@@ -1375,6 +1375,36 @@ async def fix_user_role(request_data: dict):
         logging.error(f"Error fixing user role: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+@app.get("/api/debug/database-check")
+async def debug_database_check():
+    """DEBUG: Check database state for consultant-client relationships"""
+    try:
+        # Check all consultants
+        consultants = await db.consultants.find().to_list(length=None)
+        logging.info(f"🔍 DB DEBUG - Found {len(consultants)} consultants")
+        
+        # Check all clients
+        clients = await db.clients.find().to_list(length=None)
+        logging.info(f"🔍 DB DEBUG - Found {len(clients)} clients")
+        
+        # Check specific consultant
+        target_consultant_id = "678d2dfc-b008-4cbc-99d2-1aeed51c81d3"
+        assigned_clients = await db.clients.find({"consultant_id": target_consultant_id}).to_list(length=None)
+        logging.info(f"🔍 DB DEBUG - Clients assigned to {target_consultant_id}: {len(assigned_clients)}")
+        
+        return {
+            "total_consultants": len(consultants),
+            "total_clients": len(clients),
+            "target_consultant_id": target_consultant_id,
+            "assigned_clients_count": len(assigned_clients),
+            "consultants": [{"id": c.get("id"), "name": c.get("name"), "email": c.get("email")} for c in consultants],
+            "clients": [{"id": c.get("id"), "name": c.get("client_name"), "consultant_id": c.get("consultant_id")} for c in clients],
+            "assigned_clients": [{"id": c.get("id"), "name": c.get("client_name")} for c in assigned_clients]
+        }
+    except Exception as e:
+        logging.error(f"Error in database debug: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Debug error: {str(e)}")
+
 @app.get("/api/debug/user-info")
 async def debug_user_info(current_user: User = Depends(get_current_user)):
     """DEBUG: Get complete user information"""
