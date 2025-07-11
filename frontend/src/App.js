@@ -7401,6 +7401,13 @@ const ConsumptionManagement = ({ onNavigate }) => {
   const { authToken, userRole } = useAuth();
 
   useEffect(() => {
+    console.log('🔍 ConsumptionManagement useEffect triggered:', {
+      authToken: !!authToken,
+      userRole,
+      selectedYear,
+      selectedClient
+    });
+    
     if (authToken) {
       fetchConsumptions();
       fetchAnalytics();
