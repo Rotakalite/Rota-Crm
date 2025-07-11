@@ -4075,8 +4075,30 @@ async def get_client_trainings(client_id: str, current_user: User = Depends(get_
 async def update_training_status(
     training_id: str,
     status: str,
-    current_user: User = Depends(get_admin_user)
+    current_user: User = Depends(get_current_user)  # Allow admin and consultant
 ):
+    # Find the training first
+    training = await db.trainings.find_one({"id": training_id})
+    if not training:
+        raise HTTPException(status_code=404, detail="Training not found")
+    
+    # Check permissions
+    if current_user.role == UserRole.ADMIN:
+        # Admin can update any training
+        pass
+    elif current_user.role == UserRole.CONSULTANT:
+        # Consultant can update training for their assigned clients
+        consultant_id = current_user.consultant_id
+        if not consultant_id:
+            raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+        
+        # Check if the training's client is assigned to this consultant
+        client = await db.clients.find_one({"id": training["client_id"], "consultant_id": consultant_id})
+        if not client:
+            raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+    else:
+        raise HTTPException(status_code=403, detail="Bu eğitimi güncelleme yetkiniz yok")
+    
     result = await db.trainings.update_one(
         {"id": training_id},
         {"$set": {"status": status}}
