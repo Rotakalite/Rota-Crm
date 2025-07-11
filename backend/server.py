@@ -1413,6 +1413,40 @@ async def debug_database_check():
         logging.error(f"Error in database debug: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Debug error: {str(e)}")
 
+@app.get("/api/debug/clients-query")
+async def debug_clients_query(current_user: User = Depends(get_current_user)):
+    """DEBUG: Test MongoDB clients query for consultant"""
+    try:
+        logging.info(f"🔍 DEBUG CLIENTS QUERY - User: {current_user.email}")
+        logging.info(f"🔍 DEBUG CLIENTS QUERY - Role: {current_user.role}")
+        logging.info(f"🔍 DEBUG CLIENTS QUERY - consultant_id: {getattr(current_user, 'consultant_id', None)}")
+        
+        consultant_id = getattr(current_user, 'consultant_id', None)
+        
+        # Raw MongoDB query
+        all_clients = await db.clients.find().to_list(length=None)
+        logging.info(f"🔍 ALL CLIENTS IN DB: {len(all_clients)}")
+        
+        for client in all_clients:
+            logging.info(f"🔍 CLIENT: id={client.get('id')}, consultant_id={client.get('consultant_id')}, type={type(client.get('consultant_id'))}")
+        
+        # Filtered query
+        if consultant_id:
+            filtered_clients = await db.clients.find({"consultant_id": consultant_id}).to_list(length=None)
+            logging.info(f"🔍 FILTERED CLIENTS: {len(filtered_clients)}")
+            logging.info(f"🔍 QUERY: consultant_id={consultant_id}, type={type(consultant_id)}")
+        
+        return {
+            "user_consultant_id": consultant_id,
+            "user_consultant_id_type": str(type(consultant_id)),
+            "total_clients": len(all_clients),
+            "filtered_clients": len(filtered_clients) if consultant_id else 0,
+            "all_clients": [{"id": c.get("id"), "consultant_id": c.get("consultant_id"), "consultant_id_type": str(type(c.get("consultant_id")))} for c in all_clients]
+        }
+    except Exception as e:
+        logging.error(f"Error in debug clients query: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Debug error: {str(e)}")
+
 @app.get("/api/debug/user-info")
 async def debug_user_info(current_user: User = Depends(get_current_user)):
     """DEBUG: Get complete user information"""
