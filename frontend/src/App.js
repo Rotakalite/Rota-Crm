@@ -1194,8 +1194,8 @@ const SustainabilityTargets = () => {
           </div>
         )}
 
-        {/* Add Target Form - Admin Only */}
-        {userRole === 'admin' && showAddForm && selectedClient && (
+        {/* Add Target Form - Admin and Consultant */}
+        {(userRole === 'admin' || userRole === 'consultant') && showAddForm && selectedClient && (
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4">2. Yeni Hedef Ekle</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
