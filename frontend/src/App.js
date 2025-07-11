@@ -12319,19 +12319,19 @@ const ConsultantApp = () => {
       case 'personnel':
         return <PersonnelManagement />;
       case 'sustainability-targets':
-        return <SustainabilityTargets selectedClient={selectedClient} />;
+        return <SustainabilityTargets />;
       case 'waste-management':
-        return <WasteManagement selectedClient={selectedClient} />;
+        return <WasteManagement />;
       case 'suppliers':
-        return <SupplierManagement selectedClient={selectedClient} />;
+        return <SupplierManagement />;
       case 'yeni-belge':
-        return <YeniBelgeYonetimiYeni selectedClient={selectedClient} />;
+        return <YeniBelgeYonetimiYeni />;
       case 'training':
-        return <TrainingManagement selectedClient={selectedClient} />;
+        return <TrainingManagement />;
       case 'email-management':
-        return <EmailManagement selectedClient={selectedClient} />;
+        return <EmailManagement />;
       default:
-        return <ConsultantDashboard onNavigate={handleNavigate} selectedClient={selectedClient} />;
+        return <ConsultantDashboard onNavigate={handleNavigate} />;
     }
   };
 
