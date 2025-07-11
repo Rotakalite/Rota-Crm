@@ -7458,11 +7458,25 @@ const ConsumptionManagement = ({ onNavigate }) => {
       return;
     }
     
+    // Admin ve Consultant için müşteri seçimi zorunlu
+    if ((userRole === 'admin' || userRole === 'consultant') && !selectedClient) {
+      console.log('⚠️ Admin/Consultant must select client for analytics');
+      setAnalytics(null);
+      return;
+    }
+    
     try {
       let url = `${API}/consumptions/analytics?year=${selectedYear}`;
-      if (userRole === 'admin' && selectedClient) {
+      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
         url += `&client_id=${selectedClient}`;
       }
+      
+      console.log('🔍 Fetching analytics:', {
+        url,
+        userRole,
+        selectedClient,
+        year: selectedYear
+      });
       
       const response = await axios.get(url, {
         headers: { 'Authorization': `Bearer ${authToken}` }
