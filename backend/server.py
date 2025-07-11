@@ -1375,6 +1375,42 @@ async def fix_user_role(request_data: dict):
         logging.error(f"Error fixing user role: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+@app.get("/api/debug/user-info")
+async def debug_user_info(current_user: User = Depends(get_current_user)):
+    """DEBUG: Get complete user information"""
+    try:
+        logging.info(f"🔍 DEBUG USER INFO - ID: {current_user.id}")
+        logging.info(f"🔍 DEBUG USER INFO - Email: {current_user.email}")
+        logging.info(f"🔍 DEBUG USER INFO - Role: {current_user.role}")
+        logging.info(f"🔍 DEBUG USER INFO - Client ID: {current_user.client_id}")
+        logging.info(f"🔍 DEBUG USER INFO - Consultant ID: {getattr(current_user, 'consultant_id', None)}")
+        
+        # If consultant, find clients assigned to this consultant
+        if current_user.role == UserRole.CONSULTANT:
+            consultant_id = getattr(current_user, 'consultant_id', None)
+            logging.info(f"🔍 CONSULTANT DEBUG - Looking for clients with consultant_id: {consultant_id}")
+            
+            if consultant_id:
+                clients = await db.clients.find({"consultant_id": consultant_id}).to_list(length=None)
+                logging.info(f"🔍 CONSULTANT DEBUG - Found {len(clients)} clients assigned to consultant")
+                for client in clients:
+                    logging.info(f"🔍 CLIENT DEBUG - ID: {client.get('id')}, Name: {client.get('client_name')}")
+            else:
+                logging.warning("⚠️ CONSULTANT has no consultant_id assigned!")
+        
+        return {
+            "user_id": current_user.id,
+            "email": current_user.email,
+            "name": current_user.name,
+            "role": current_user.role.value,
+            "client_id": current_user.client_id,
+            "consultant_id": getattr(current_user, 'consultant_id', None),
+            "debug": "Check server logs for detailed information"
+        }
+    except Exception as e:
+        logging.error(f"Error in debug user info: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Debug error: {str(e)}")
+
 @app.get("/api/auth/me")
 async def get_current_user_info(current_user: User = Depends(get_current_user)):
     """Get current user information"""
