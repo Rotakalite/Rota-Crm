@@ -10911,7 +10911,7 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
                             🏠 Yerel
                           </span>
                         )}
-                        {userRole === 'admin' && (
+                        {(userRole === 'admin' || userRole === 'consultant') && (
                           <button
                             onClick={() => deleteSupplier(supplier.id)}
                             className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
