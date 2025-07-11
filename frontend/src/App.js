@@ -1917,7 +1917,7 @@ const PersonnelManagement = () => {
                             {person.gender === 'Kadın' ? '👩' : '👨'} {person.gender}
                           </span>
                         </div>
-                        {userRole === 'admin' && (
+                        {(userRole === 'admin' || userRole === 'consultant') && (
                           <button
                             onClick={() => deletePersonnel(person.id)}
                             className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
