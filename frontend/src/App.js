@@ -5307,9 +5307,9 @@ const ConsumptionAnalytics = () => {
   const { authToken, userRole, dbUser } = useAuth();
   const API = getApiUrl();
 
-  // Fetch clients for admin users
+  // Fetch clients for admin and consultant users
   const fetchClients = async () => {
-    if (userRole !== 'admin') return;
+    if (userRole !== 'admin' && userRole !== 'consultant') return;
     
     try {
       const response = await axios.get(`${API}/clients`, {
