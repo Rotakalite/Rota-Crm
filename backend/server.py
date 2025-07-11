@@ -5258,6 +5258,23 @@ async def get_carbon_analytics(
         else:
             # Admin needs to specify client_id for carbon analytics
             raise HTTPException(status_code=400, detail="Client ID required for carbon analytics")
+    elif current_user.role == UserRole.CONSULTANT:
+        # Consultant users can see carbon data for their assigned clients
+        if client_id:
+            # Verify that the consultant has access to this client
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+            
+            # Check if the client is assigned to this consultant
+            assigned_client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+            if not assigned_client:
+                raise HTTPException(status_code=403, detail="Bu müşteri için yetkiniz yok")
+            
+            target_client_id = client_id
+        else:
+            # If no client_id specified, consultant must specify which client
+            raise HTTPException(status_code=400, detail="Client ID required for carbon analytics")
     else:
         # Client users can only see their own carbon data
         if not current_user.client_id:
