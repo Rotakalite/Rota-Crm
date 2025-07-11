@@ -1914,24 +1914,26 @@ async def get_clients_main_app(current_user: User = Depends(get_current_user)):
                 logging.info(f"🔍 DEBUG CLIENT {i+1}: id={client.get('id')}, consultant_id={client_consultant_id}, type={type(client_consultant_id)}")
                 logging.info(f"🔍 DEBUG MATCH CHECK: {consultant_id} == {client_consultant_id} = {consultant_id == client_consultant_id}")
             
-            clients = await asyncio.to_thread(
-                lambda: list(db.clients.find({"consultant_id": consultant_id}))
-            )
-            logging.info(f"📋 Found {len(clients)} clients for consultant: {consultant_id}")
+            # Try multiple query approaches to handle type mismatches
+            query_approaches = [
+                {"consultant_id": consultant_id},                    # Direct match
+                {"consultant_id": str(consultant_id)},               # String conversion
+                {"consultant_id": {"$in": [consultant_id, str(consultant_id)]}}  # Either type
+            ]
             
-            # DEBUG: Try different query approaches
-            if len(clients) == 0:
-                logging.warning(f"⚠️ No clients found with direct query, trying string conversion...")
-                clients_str = await asyncio.to_thread(
-                    lambda: list(db.clients.find({"consultant_id": str(consultant_id)}))
-                )
-                logging.info(f"📋 Found {len(clients_str)} clients with string conversion")
-                
-                # Try finding any client with consultant_id field
-                clients_any = await asyncio.to_thread(
-                    lambda: list(db.clients.find({"consultant_id": {"$exists": True}}))
-                )
-                logging.info(f"📋 Found {len(clients_any)} clients with any consultant_id")
+            clients = []
+            for i, query in enumerate(query_approaches):
+                try:
+                    clients = await asyncio.to_thread(
+                        lambda q=query: list(db.clients.find(q))
+                    )
+                    logging.info(f"📋 Query approach {i+1}: {query} -> Found {len(clients)} clients")
+                    if len(clients) > 0:
+                        break
+                except Exception as e:
+                    logging.error(f"❌ Query approach {i+1} failed: {str(e)}")
+            
+            logging.info(f"📋 FINAL RESULT: Found {len(clients)} clients for consultant: {consultant_id}")
         else:
             # Client sees only their own data
             if not current_user.client_id:
