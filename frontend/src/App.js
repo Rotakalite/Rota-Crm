@@ -7764,9 +7764,11 @@ const ConsumptionManagement = ({ onNavigate }) => {
             </div>
             
             <form className="p-6 overflow-y-auto flex-1 space-y-4">
-              {userRole === 'admin' && (
+              {(userRole === 'admin' || userRole === 'consultant') && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Müşteri Seçin</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Müşteri Seçin {userRole === 'consultant' && '(Sadece size atanan müşteriler)'}
+                  </label>
                   <select
                     value={consumptionData.client_id || ''}
                     onChange={(e) => setConsumptionData({...consumptionData, client_id: e.target.value})}
@@ -7776,7 +7778,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
                     <option value="">Müşteri seçin...</option>
                     {(Array.isArray(clients) ? clients : []).map((client) => (
                       <option key={client.id} value={client.id}>
-                        {client.hotel_name}
+                        {client.hotel_name || client.client_name || client.name}
                       </option>
                     ))}
                   </select>
