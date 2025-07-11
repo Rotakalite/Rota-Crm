@@ -7490,8 +7490,8 @@ const ConsumptionManagement = ({ onNavigate }) => {
   };
 
   const fetchClients = async () => {
-    if (!authToken || userRole !== 'admin') {
-      return; // Only admin needs clients list
+    if (!authToken || (userRole !== 'admin' && userRole !== 'consultant')) {
+      return; // Only admin and consultant need clients list
     }
     try {
       const response = await axios.get(`${API}/clients`, {
