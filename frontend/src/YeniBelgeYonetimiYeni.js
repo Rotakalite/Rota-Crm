@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const YeniBelgeYonetimiYeni = () => {
+const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
   // useAuth hook'u App.js'den import edemediğimiz için manuel auth kontrol
   const [authToken, setAuthToken] = useState(null);
   const [userRole, setUserRole] = useState(null);
