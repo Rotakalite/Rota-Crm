@@ -9046,7 +9046,7 @@ const TrainingManagement = () => {
   };
 
   useEffect(() => {
-    if (authToken && userRole === 'admin') {
+    if (authToken && (userRole === 'admin' || userRole === 'consultant')) {
       fetchTrainings();
       fetchClients();
     }
