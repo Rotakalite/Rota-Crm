@@ -9012,7 +9012,7 @@ const ClientTrainings = () => {
   );
 };
 
-const TrainingManagement = () => {
+const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
   const [trainings, setTrainings] = useState([]);
   const [clients, setClients] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -9028,6 +9028,9 @@ const TrainingManagement = () => {
   });
   const [loading, setLoading] = useState(false);
   const { authToken, userRole } = useAuth();
+
+  // Use selectedClient from props (for consultant) or manage locally (for admin/client)
+  const effectiveSelectedClient = propSelectedClient;
 
   // Delete training function
   const deleteTraining = async (trainingId) => {
