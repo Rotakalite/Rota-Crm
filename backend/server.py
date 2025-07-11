@@ -6641,14 +6641,31 @@ async def update_training(
     return Training(**updated_training)
 
 @api_router.delete("/trainings/{training_id}")
-async def delete_training(training_id: str, current_user: User = Depends(get_admin_user)):
-    """Delete a training (Admin only)"""
-    logging.info(f"📚 DELETE /trainings/{training_id} called by admin: {current_user.name}")
+async def delete_training(training_id: str, current_user: User = Depends(get_current_user)):  # Allow admin and consultant
+    """Delete a training (Admin and Consultant)"""
+    logging.info(f"📚 DELETE /trainings/{training_id} called by user: {current_user.name} ({current_user.role})")
     
     # Check if training exists
     training = await db.trainings.find_one({"id": training_id})
     if not training:
         raise HTTPException(status_code=404, detail="Training not found")
+    
+    # Check permissions
+    if current_user.role == UserRole.ADMIN:
+        # Admin can delete any training
+        pass
+    elif current_user.role == UserRole.CONSULTANT:
+        # Consultant can delete training for their assigned clients
+        consultant_id = current_user.consultant_id
+        if not consultant_id:
+            raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+        
+        # Check if the training's client is assigned to this consultant
+        client = await db.clients.find_one({"id": training["client_id"], "consultant_id": consultant_id})
+        if not client:
+            raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+    else:
+        raise HTTPException(status_code=403, detail="Bu eğitimi silme yetkiniz yok")
     
     # Delete training
     result = await db.trainings.delete_one({"id": training_id})
