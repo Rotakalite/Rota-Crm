@@ -9058,6 +9058,16 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
     }
   }, [authToken, userRole]);
 
+  // Set effective client_id in formData when propSelectedClient changes
+  useEffect(() => {
+    if (propSelectedClient && propSelectedClient.id) {
+      setFormData(prev => ({
+        ...prev,
+        client_id: propSelectedClient.id
+      }));
+    }
+  }, [propSelectedClient]);
+
   const fetchTrainings = async () => {
     if (!authToken) return;
     
