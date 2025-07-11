@@ -2172,9 +2172,22 @@ agent_communication:
     -agent: "main"
     -message: "CLIENT DROPDOWN & DUPLICATE FIELDS FIXED! Corrected client mapping in CarbonFootprint dropdown and removed duplicate DEFRA fuel types section from consumption form. Both issues resolved."
 
+  - task: "Carbon Footprint Analytics Consultant Access Fix"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "Consultant users getting 403 Forbidden error when accessing Carbon Footprint analytics module. Error message: 'Client user not properly linked to a client'. Frontend sends correct client_id but backend restricts consultant access."
+        -working: true
+        -agent: "main"
+        -comment: "CRITICAL FIX APPLIED! Carbon Footprint endpoint'inde consultant role için logic eklendi. 1) Duplicate endpoint'lerden biri silindi, 2) CONSULTANT role için proper authentication ve authorization logic eklendi - consultant_id check, client assignment verification, 3) Consultant'lar artık sadece kendi assigned client'larının carbon footprint verilerini görebilir, 4) Proper error handling ile 403 yetkisiz erişim engellendi. Endpoint artık admin/client/consultant rollerin hepsini destekliyor."
+
 agent_communication:
-    -agent: "testing"
-    -message: "I've thoroughly tested the DEFRA Carbon calculation system. All emission factors match the official DEFRA 2024 values: electricity (0.19338 kg CO2/kWh), water (0.344 kg CO2/m³), natural gas (0.18316 kg CO2/kWh), coal (2240 kg CO2/tonne), diesel (2.51 kg CO2/litre), gasoline (2.16 kg CO2/litre), LPG (1.51 kg CO2/litre), and fuel oil (2.54 kg CO2/litre). The carbon calculation function correctly processes all fuel types and produces accurate CO2 emissions results. The POST /api/consumptions endpoint automatically calculates carbon footprint fields when creating new consumption records. The GET /api/analytics/carbon-footprint endpoint works correctly, providing detailed carbon analytics with monthly breakdowns and yearly totals. The benchmarking system correctly categorizes performance as Excellent/Good/Average/Poor based on industry standards. All tests passed successfully."
     -agent: "testing"
     -message: "I've tested the DEFRA F-Gas carbon calculation system thoroughly. Verified that all F-Gas emission factors match the expected values: r134a_gas (1430 kg CO2e/kg), r600a_gas (3 kg CO2e/kg), r410a_gas (2088 kg CO2e/kg), r32_gas (675 kg CO2e/kg), co2_fire (1 kg CO2e/kg), and fm200_fire (3220 kg CO2e/kg). The carbon calculation function correctly processes all F-Gas values and produces accurate CO2 emissions results. The POST /api/consumptions endpoint correctly accepts and processes F-Gas fields. The PUT /api/consumptions/{id} endpoint correctly updates F-Gas fields. The GET /api/analytics/carbon-footprint endpoint correctly includes F-Gas emissions in the carbon footprint analysis. The emissions breakdown correctly categorizes refrigerants (r134a_gas, r600a_gas, r410a_gas, r32_gas) and fire suppressants (co2_fire, fm200_fire). All tests passed successfully."
 
