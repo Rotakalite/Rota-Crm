@@ -168,6 +168,55 @@ const useAuth = () => {
     }
   }, [authToken, session]);
 
+  // Enhanced activity-based token refresh
+  useEffect(() => {
+    if (authToken && session) {
+      let lastActivity = Date.now();
+      let refreshTimeout;
+
+      const resetActivityTimer = () => {
+        lastActivity = Date.now();
+        
+        // Clear existing timeout
+        if (refreshTimeout) {
+          clearTimeout(refreshTimeout);
+        }
+        
+        // Set new timeout for 3 minutes of inactivity
+        refreshTimeout = setTimeout(async () => {
+          try {
+            console.log('🔄 Proactive token refresh due to inactivity...');
+            await refreshToken();
+            console.log('✅ Proactive refresh successful');
+          } catch (error) {
+            console.error('❌ Proactive refresh failed:', error);
+          }
+        }, 3 * 60 * 1000); // 3 minutes
+      };
+
+      // Activity events to monitor
+      const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+      
+      // Add activity listeners
+      activityEvents.forEach(event => {
+        document.addEventListener(event, resetActivityTimer, true);
+      });
+
+      // Initialize timer
+      resetActivityTimer();
+
+      return () => {
+        // Clean up
+        activityEvents.forEach(event => {
+          document.removeEventListener(event, resetActivityTimer, true);
+        });
+        if (refreshTimeout) {
+          clearTimeout(refreshTimeout);
+        }
+      };
+    }
+  }, [authToken, session]);
+
   // Check token expiry on page focus
   useEffect(() => {
     const handleFocus = async () => {
