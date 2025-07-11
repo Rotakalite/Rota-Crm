@@ -7414,9 +7414,9 @@ const ConsumptionManagement = ({ onNavigate }) => {
       return;
     }
     
-    // Admin için müşteri seçimi zorunlu
-    if (userRole === 'admin' && !selectedClient) {
-      console.log('⚠️ Admin must select client for consumptions');
+    // Admin ve Consultant için müşteri seçimi zorunlu
+    if ((userRole === 'admin' || userRole === 'consultant') && !selectedClient) {
+      console.log('⚠️ Admin/Consultant must select client for consumptions');
       setConsumptions([]);
       return;
     }
