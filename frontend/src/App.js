@@ -5384,21 +5384,24 @@ const ConsumptionAnalytics = () => {
         {/* Controls */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <div className="flex gap-4 items-center">
-            {/* Client Selection for Admin */}
-            {userRole === 'admin' && (
+            {/* Client Selection for Admin and Consultant */}
+            {(userRole === 'admin' || userRole === 'consultant') && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Müşteri Seçin
+                  {userRole === 'consultant' ? 'Size Atanan Müşteriler' : 'Müşteri Seçin'}
                 </label>
                 <select
                   value={selectedClient}
-                  onChange={(e) => setSelectedClient(e.target.value)}
-                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => {
+                    console.log('🔄 Analytics client selected:', e.target.value);
+                    setSelectedClient(e.target.value);
+                  }}
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 min-w-[200px]"
                 >
                   <option value="">Müşteri Seçin</option>
                   {clients.map(client => (
                     <option key={client.id} value={client.id}>
-                      {client.hotel_name}
+                      {client.hotel_name || client.client_name || client.name}
                     </option>
                   ))}
                 </select>
