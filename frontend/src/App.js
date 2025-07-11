@@ -41,12 +41,14 @@ const useAuth = () => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  // Token refresh function
+  // Enhanced token refresh with better error handling
   const refreshToken = async () => {
     try {
       if (session) {
         console.log('🔄 Refreshing token...');
         console.log('🔄 Session available:', !!session);
+        console.log('🔄 Session status:', session.status);
+        console.log('🔄 Session lastActiveAt:', session.lastActiveAt);
         
         const newToken = await session.getToken({ skipCache: true });
         console.log('🔄 New token received:', !!newToken);
@@ -67,13 +69,22 @@ const useAuth = () => {
     } catch (error) {
       console.error('❌ Token refresh failed:', error);
       console.error('❌ Session status:', !!session);
-      // Clear session data
-      sessionStorage.removeItem('authToken');
-      sessionStorage.removeItem('userRole');
-      sessionStorage.removeItem('dbUser');
-      setAuthToken(null);
-      setUserRole(null);
-      setDbUser(null);
+      console.error('❌ Session details:', session ? {
+        status: session.status,
+        lastActiveAt: session.lastActiveAt,
+        id: session.id
+      } : 'No session');
+      
+      // Only clear if session is actually invalid
+      if (!session || session.status !== 'active') {
+        console.log('🧹 Clearing session data due to invalid session');
+        sessionStorage.removeItem('authToken');
+        sessionStorage.removeItem('userRole');
+        sessionStorage.removeItem('dbUser');
+        setAuthToken(null);
+        setUserRole(null);
+        setDbUser(null);
+      }
       throw error;
     }
   };
