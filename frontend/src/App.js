@@ -2931,17 +2931,22 @@ const CarbonFootprint = () => {
 
         {/* Controls */}
         <div className="flex flex-wrap gap-4 items-center">
-          {/* Admin Client Selection */}
-          {userRole === 'admin' && (
+          {/* Client Selection for Admin and Consultant */}
+          {(userRole === 'admin' || userRole === 'consultant') && (
             <select
               value={selectedClient}
-              onChange={(e) => setSelectedClient(e.target.value)}
+              onChange={(e) => {
+                console.log('🔄 Carbon footprint client selected:', e.target.value);
+                setSelectedClient(e.target.value);
+              }}
               className="px-4 py-2 rounded-lg bg-white text-gray-800 font-medium min-w-[200px]"
             >
-              <option value="">Müşteri Seçin</option>
+              <option value="">
+                {userRole === 'consultant' ? 'Size Atanan Müşteriler' : 'Müşteri Seçin'}
+              </option>
               {clients.map(client => (
                 <option key={client.id} value={client.id}>
-                  {client.name}
+                  {client.hotel_name || client.client_name || client.name}
                 </option>
               ))}
             </select>
