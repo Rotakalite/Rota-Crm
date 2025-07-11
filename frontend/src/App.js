@@ -5361,7 +5361,7 @@ const ConsumptionAnalytics = () => {
   }, [authToken, userRole]);
 
   useEffect(() => {
-    if (authToken && (userRole !== 'admin' || selectedClient)) {
+    if (authToken && ((userRole !== 'admin' && userRole !== 'consultant') || selectedClient)) {
       fetchAnalyticsData();
     }
   }, [authToken, selectedClient, selectedYear]);
