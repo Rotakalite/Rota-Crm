@@ -7534,6 +7534,10 @@ const ConsumptionManagement = ({ onNavigate }) => {
       console.log('🔍 Consumption API call:', {
         endpoint,
         method,
+        userRole,
+        'consumptionData.client_id': consumptionData.client_id,
+        'selectedClient': selectedClient,
+        'will send client_id': ((userRole === 'admin' || userRole === 'consultant') && consumptionData.client_id),
         authToken: authToken ? `${authToken.substring(0, 20)}...` : 'null'
       });
       
