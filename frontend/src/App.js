@@ -12255,10 +12255,42 @@ const MainApp = () => {
 // Consultant App - Separate app for consultants
 const ConsultantApp = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const { userRole, dbUser } = useAuth();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [clients, setClients] = useState([]);
+  const { userRole, dbUser, authToken } = useAuth();
+
+  // Fetch consultant's assigned clients
+  useEffect(() => {
+    if (authToken) {
+      fetchConsultantClients();
+    }
+  }, [authToken]);
+
+  const fetchConsultantClients = async () => {
+    try {
+      const response = await axios.get(`${API}/clients`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      console.log('🎯 Consultant clients fetched:', response.data);
+      setClients(response.data || []);
+      
+      // Auto-select first client if available
+      if (response.data && response.data.length > 0 && !selectedClient) {
+        setSelectedClient(response.data[0]);
+        console.log('🎯 Auto-selected first client:', response.data[0]);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching consultant clients:', error);
+    }
+  };
 
   const handleNavigate = (tab) => {
     setActiveTab(tab);
+  };
+
+  const handleClientSelect = (client) => {
+    setSelectedClient(client);
+    console.log('🎯 Client selected:', client);
   };
 
   const renderConsultantContent = () => {
