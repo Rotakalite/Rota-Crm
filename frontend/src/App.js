@@ -7557,7 +7557,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
         co2_fire: parseFloat(consumptionData.co2_fire) || 0,
         fm200_fire: parseFloat(consumptionData.fm200_fire) || 0,
         accommodation_count: parseInt(consumptionData.accommodation_count) || 0,
-        ...(userRole === 'admin' && consumptionData.client_id && { client_id: consumptionData.client_id })
+        ...((userRole === 'admin' || userRole === 'consultant') && consumptionData.client_id && { client_id: consumptionData.client_id })
       }, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
