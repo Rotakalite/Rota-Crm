@@ -341,11 +341,17 @@ const ConsultantDashboard = ({ onNavigate }) => {
     try {
       setLoading(true);
       
-      // Debug user information
+      // Debug user information - DETAILED
       console.log('🔍 CONSULTANT DEBUG - dbUser:', dbUser);
       console.log('🔍 CONSULTANT DEBUG - consultant_id:', dbUser?.consultant_id);
       
-      // Fetch user info from /api/me for complete data
+      // Fetch COMPLETE user info from debug endpoint
+      const debugResponse = await axios.get(`${API}/debug/user-info`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      console.log('🔍 CONSULTANT DEBUG - Debug endpoint response:', debugResponse.data);
+      
+      // Fetch user info from /api/auth/me for complete data
       const userResponse = await axios.get(`${API}/auth/me`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
