@@ -1406,8 +1406,8 @@ async def debug_database_check():
             "target_consultant_id": target_consultant_id,
             "assigned_clients_count": len(assigned_clients),
             "consultants": [{"id": c.get("id"), "name": c.get("name"), "email": c.get("email")} for c in consultants],
-            "clients": [{"id": c.get("id"), "name": c.get("client_name"), "consultant_id": c.get("consultant_id")} for c in clients],
-            "assigned_clients": [{"id": c.get("id"), "name": c.get("client_name")} for c in assigned_clients]
+            "clients": clients,  # Return full client objects
+            "assigned_clients": assigned_clients  # Return full assigned client objects
         }
     except Exception as e:
         logging.error(f"Error in database debug: {str(e)}")
