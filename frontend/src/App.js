@@ -2899,7 +2899,7 @@ const CarbonFootprint = () => {
 
   // Initial data fetch
   useEffect(() => {
-    if (authToken && userRole === 'admin') {
+    if (authToken && (userRole === 'admin' || userRole === 'consultant')) {
       fetchClients();
     }
   }, [authToken, userRole]);
