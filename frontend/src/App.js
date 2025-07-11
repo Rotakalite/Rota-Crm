@@ -2868,18 +2868,26 @@ const CarbonFootprint = () => {
   const fetchCarbonData = async () => {
     setLoading(true);
     try {
-      const clientId = userRole === 'admin' ? selectedClient : dbUser?.client_id;
+      let clientId;
+      if (userRole === 'admin' || userRole === 'consultant') {
+        clientId = selectedClient;
+      } else {
+        clientId = dbUser?.client_id;
+      }
+      
       if (!clientId) {
+        console.log('⚠️ No client selected for carbon footprint');
         setLoading(false);
         return;
       }
       
-      console.log('🌍 Fetching carbon data for client:', clientId, 'year:', selectedYear);
+      console.log('🌍 Fetching carbon data for client:', clientId, 'year:', selectedYear, 'userRole:', userRole);
       
       const response = await axios.get(`${API}/analytics/carbon-footprint?year=${selectedYear}&client_id=${clientId}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       
+      console.log('✅ Carbon data fetched:', response.data);
       console.log('🌍 Carbon data received:', response.data);
       setCarbonData(response.data);
     } catch (error) {
