@@ -10428,7 +10428,7 @@ const TwoFactorAuth = ({ onVerificationComplete }) => {
 // Will be added back in incremental steps
 
 // Simple Supplier Management Component (Step 1 - Basic Structure)
-const SupplierManagement = () => {
+const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
   const { authToken, user, userRole, dbUser } = useAuth();
   const { session } = useClerk();
   const [loading, setLoading] = useState(true);
@@ -10449,6 +10449,9 @@ const SupplierManagement = () => {
   });
   const API = getApiUrl();
 
+  // Use selectedClient from props (for consultant) or manage locally (for admin/client)
+  const effectiveSelectedClient = propSelectedClient || selectedClient;
+
   // Fetch clients first
   const fetchClients = async () => {
     if (!authToken) return;
@@ -10457,6 +10460,11 @@ const SupplierManagement = () => {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setClients(response.data || []);
+      
+      // Auto-select first client if no prop provided
+      if (response.data?.length > 0 && !propSelectedClient) {
+        setSelectedClient(response.data[0].id);
+      }
     } catch (error) {
       console.error('Error fetching clients:', error);
       
