@@ -9575,7 +9575,7 @@ const ClientSetupForm = ({ onComplete, onSkip }) => {
 };
 
 // Email Management Component - NEW IMPLEMENTATION
-const EmailManagement = () => {
+const EmailManagement = ({ selectedClient: propSelectedClient }) => {
   const { authToken, user, userRole, dbUser } = useAuth();
   const { session } = useClerk();
   const [loading, setLoading] = useState(true);
@@ -9593,6 +9593,9 @@ const EmailManagement = () => {
   });
   
   const API = getApiUrl();
+
+  // Use selectedClient from props (for consultant) or manage locally (for admin/client)
+  const effectiveSelectedClient = propSelectedClient?.id || selectedClient;
 
   // Fetch documents for email notifications
   const fetchDocuments = async (clientId) => {
