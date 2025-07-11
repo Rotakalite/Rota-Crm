@@ -9597,6 +9597,16 @@ const EmailManagement = ({ selectedClient: propSelectedClient }) => {
   // Use selectedClient from props (for consultant) or manage locally (for admin/client)
   const effectiveSelectedClient = propSelectedClient?.id || selectedClient;
 
+  // Auto-select client when propSelectedClient changes
+  useEffect(() => {
+    if (propSelectedClient && propSelectedClient.id) {
+      setSelectedClient(propSelectedClient.id);
+      // Auto-fetch data for selected client
+      fetchDocuments(propSelectedClient.id);
+      fetchTrainings(propSelectedClient.id);
+    }
+  }, [propSelectedClient]);
+
   // Fetch documents for email notifications
   const fetchDocuments = async (clientId) => {
     try {
