@@ -7423,7 +7423,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
     
     try {
       let url = `${API}/consumptions?year=${selectedYear}`;
-      if (userRole === 'admin' && selectedClient) {
+      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
         url += `&client_id=${selectedClient}`;
       }
       
