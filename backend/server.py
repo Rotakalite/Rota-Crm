@@ -4002,15 +4002,31 @@ async def get_client_carbon_reports(client_id: str, current_user: User = Depends
 @api_router.post("/trainings", response_model=Training)
 async def create_training(
     training_data: TrainingCreate,
-    current_user: User = Depends(get_admin_user)
+    current_user: User = Depends(get_current_user)  # Allow admin and consultant
 ):
     try:
-        logging.info(f"📚 Creating training with data: {training_data}")
+        logging.info(f"📚 Creating training with data: {training_data} by user: {current_user.email} ({current_user.role})")
         
-        # Check if admin can access this client
+        # Check if client exists
         client = await db.clients.find_one({"id": training_data.client_id})
         if not client:
             raise HTTPException(status_code=404, detail="Client not found")
+        
+        # Check permissions
+        if current_user.role == UserRole.ADMIN:
+            # Admin can create training for any client
+            pass
+        elif current_user.role == UserRole.CONSULTANT:
+            # Consultant can create training for their assigned clients
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+            
+            # Check if the client is assigned to this consultant
+            if client.get("consultant_id") != consultant_id:
+                raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+        else:
+            raise HTTPException(status_code=403, detail="Bu müşteri için eğitim oluşturma yetkiniz yok")
         
         training_dict = training_data.dict()
         training = Training(**training_dict)
