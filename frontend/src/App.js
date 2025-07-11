@@ -2966,7 +2966,7 @@ const CarbonFootprint = () => {
           {/* Refresh Button */}
           <button
             onClick={fetchCarbonData}
-            disabled={loading || (!selectedClient && userRole === 'admin')}
+            disabled={loading || (((userRole === 'admin' || userRole === 'consultant') && !selectedClient))}
             className="px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg font-medium transition-all disabled:opacity-50"
           >
             {loading ? '🔄 Yükleniyor...' : '🔄 Yenile'}
