@@ -787,6 +787,21 @@ test_plan:
         -agent: "main"
         -comment: "WASTE MANAGEMENT CONSULTANT ACCESS FIX APPLIED! Backend: 1) GET /consumptions/waste endpoint'inde consultant role logic eklendi, 2) POST /consumptions/waste endpoint'inde consultant role logic eklendi, 3) GET /consumptions/waste/analytics endpoint'inde consultant role logic eklendi, 4) Client assignment verification implemented. Frontend: 1) Client selection UI consultant'lar için aktif edildi, 2) fetchWasteRecords function'ında consultant logic eklendi. Consultant'lar artık assigned client'larının atık verilerini görebilir ve yeni atık kaydı ekleyebilir."
 
+  - task: "Sustainability Targets Consultant Access Fix"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "Danışman olarak Sustainability Targets modülünde hedef eklemek istediğinde 403 Forbidden hatası alıyor. Error mesajı: 'Admin access required'. Danışman kullanıcısı hedef ekleyemiyor."
+        -working: true
+        -agent: "main"
+        -comment: "SUSTAINABILITY TARGETS CONSULTANT ACCESS FIX APPLIED! Backend: 1) POST /sustainability-targets endpoint'inde consultant role logic eklendi - consultant'lar assigned client'larına hedef ekleyebilir, 2) GET /sustainability-targets endpoint'inde consultant role logic eklendi - consultant'lar assigned client'larının hedeflerini görebilir, 3) PUT /sustainability-targets/{id} endpoint'inde consultant role logic eklendi - consultant'lar assigned client'larının hedeflerini güncelleyebilir, 4) DELETE /sustainability-targets/{id} endpoint'inde consultant role logic eklendi - consultant'lar assigned client'larının hedeflerini silebilir, 5) POST /sustainability-targets/progress endpoint'inde consultant role logic eklendi - consultant'lar progress ekleyebilir, 6) GET /sustainability-targets/analytics/dashboard endpoint'inde consultant role logic eklendi. Tüm endpoint'lerde client assignment verification implemented."
+
 agent_communication:
     -agent: "main"
     -message: "🚨 CRİTİK GÜVENLİK SORUNU TESPİT EDİLDİ VE DÜZELTİLDİ! Kullanıcı 'DANIŞMAN OLARAK KAYIT YAPTIM VE GİRİŞ YAPTIĞIMDA ADMİN OLARAK TANIMLANDIĞIMI GÖRDÜM BU ÇOK SAÇMA' diye bildirdi. ✅ SORUN: Role assignment sisteminde güvenlik açığı - kullanıcılar yanlış rollerle sisteme giriş yapıyordu ✅ ÇÖZÜM: 1) Yeni endpoint POST /api/consultants/register-with-user oluşturuldu - hem consultant kaydeder hem user role'ünü günceller, 2) Frontend RoleSetup component'i yeni endpoint'i kullanacak şekilde güncellendi, 3) Debug endpoint'leri eklendi role kontrolü için, 4) Manuel role düzeltme endpoint'i eklendi. GÜVENLİK AÇIĞI KAPANDI!"
