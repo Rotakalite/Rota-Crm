@@ -7589,9 +7589,9 @@ async def get_personnel_by_id(
 @api_router.delete("/personnel/{personnel_id}")
 async def delete_personnel(
     personnel_id: str,
-    current_user: User = Depends(get_admin_user)  # Only admin can delete
+    current_user: User = Depends(get_current_user)  # Allow consultants to delete
 ):
-    """Delete a personnel record (Admin only)"""
+    """Delete a personnel record (Admin and Consultant access)"""
     try:
         # Get existing personnel
         existing = await db.personnel.find_one({"id": personnel_id})
@@ -7601,6 +7601,16 @@ async def delete_personnel(
         # Check permissions
         if current_user.role == UserRole.CLIENT and existing["client_id"] != current_user.client_id:
             raise HTTPException(status_code=403, detail="Access denied")
+        elif current_user.role == UserRole.CONSULTANT:
+            # Consultant can delete personnel for their assigned clients
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+            
+            # Check if the client is assigned to this consultant
+            assigned_client = await db.clients.find_one({"id": existing["client_id"], "consultant_id": consultant_id})
+            if not assigned_client:
+                raise HTTPException(status_code=403, detail="Bu müşteri için yetkiniz yok")
 
         result = await db.personnel.delete_one({"id": personnel_id})
         
