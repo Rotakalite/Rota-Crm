@@ -8060,6 +8060,35 @@ async def get_suppliers(
         # Role-based filtering
         if current_user.role == UserRole.CLIENT:
             filter_query["client_id"] = current_user.client_id
+        elif current_user.role == UserRole.CONSULTANT:
+            # Consultant users can see suppliers for their assigned clients
+            if client_id:
+                # Verify that the consultant has access to this client
+                consultant_id = current_user.consultant_id
+                if not consultant_id:
+                    raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+                
+                # Check if the client is assigned to this consultant
+                assigned_client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+                if not assigned_client:
+                    raise HTTPException(status_code=403, detail="Bu müşteri için yetkiniz yok")
+                
+                filter_query["client_id"] = client_id
+            else:
+                # If no client_id specified, return suppliers for all assigned clients
+                consultant_id = current_user.consultant_id
+                if not consultant_id:
+                    raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+                
+                # Get all client IDs assigned to this consultant
+                assigned_clients = await db.clients.find({"consultant_id": consultant_id}).to_list(length=None)
+                client_ids = [client["id"] for client in assigned_clients]
+                
+                if client_ids:
+                    filter_query["client_id"] = {"$in": client_ids}
+                else:
+                    # No assigned clients, return empty result
+                    return []
         elif current_user.role == UserRole.ADMIN and client_id:
             # Admin users can filter by specific client_id
             filter_query["client_id"] = client_id
