@@ -7167,13 +7167,34 @@ class TargetProgress(BaseModel):
 @api_router.post("/sustainability-targets")
 async def create_sustainability_target(
     target_data: SustainabilityTargetInput,
-    current_user: User = Depends(get_admin_user)
+    current_user: User = Depends(get_current_user)  # Allow consultants
 ):
-    """Create a new sustainability target (Admin only)"""
+    """Create a new sustainability target (Admin and Consultant access)"""
     try:
-        client_id = target_data.client_id
-        if not client_id:
-            raise HTTPException(status_code=400, detail="client_id is required")
+        # Determine client_id based on user role
+        if current_user.role == UserRole.CLIENT:
+            client_id = current_user.client_id
+        elif current_user.role == UserRole.CONSULTANT:
+            # Consultant users can create targets for their assigned clients
+            if target_data.client_id:
+                # Verify that the consultant has access to this client
+                consultant_id = current_user.consultant_id
+                if not consultant_id:
+                    raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+                
+                # Check if the client is assigned to this consultant
+                assigned_client = await db.clients.find_one({"id": target_data.client_id, "consultant_id": consultant_id})
+                if not assigned_client:
+                    raise HTTPException(status_code=403, detail="Bu müşteri için yetkiniz yok")
+                
+                client_id = target_data.client_id
+            else:
+                raise HTTPException(status_code=400, detail="Client ID required for target creation")
+        else:
+            # Admin users
+            client_id = target_data.client_id
+            if not client_id:
+                raise HTTPException(status_code=400, detail="client_id is required")
 
         client = await db.clients.find_one({"id": client_id})
         if not client:
