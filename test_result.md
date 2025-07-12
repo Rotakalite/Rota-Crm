@@ -772,6 +772,21 @@ test_plan:
         -agent: "main"
         -comment: "PERSONNEL MANAGEMENT CONSULTANT ACCESS FIX APPLIED! 1) POST /personnel endpoint'inde consultant role logic eklendi - consultant'lar assigned client'larına personel ekleyebilir, 2) GET /personnel endpoint'inde consultant role logic eklendi - consultant'lar sadece assigned client'larının personelini görebilir, 3) DELETE /personnel endpoint'inde consultant role logic eklendi - consultant'lar assigned client'larının personelini silebilir, 4) Tüm endpoint'lerde proper access control ve client assignment verification implemented."
 
+  - task: "Waste Management Consultant Access Fix"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py, /app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "Danışman kullanıcısı Atık Yönetimi modülünde de aynı sorunları yaşıyor. Client selection dropdown yok ve assigned client'larını göremiyorlar."
+        -working: true
+        -agent: "main"
+        -comment: "WASTE MANAGEMENT CONSULTANT ACCESS FIX APPLIED! Backend: 1) GET /consumptions/waste endpoint'inde consultant role logic eklendi, 2) POST /consumptions/waste endpoint'inde consultant role logic eklendi, 3) GET /consumptions/waste/analytics endpoint'inde consultant role logic eklendi, 4) Client assignment verification implemented. Frontend: 1) Client selection UI consultant'lar için aktif edildi, 2) fetchWasteRecords function'ında consultant logic eklendi. Consultant'lar artık assigned client'larının atık verilerini görebilir ve yeni atık kaydı ekleyebilir."
+
 agent_communication:
     -agent: "main"
     -message: "🚨 CRİTİK GÜVENLİK SORUNU TESPİT EDİLDİ VE DÜZELTİLDİ! Kullanıcı 'DANIŞMAN OLARAK KAYIT YAPTIM VE GİRİŞ YAPTIĞIMDA ADMİN OLARAK TANIMLANDIĞIMI GÖRDÜM BU ÇOK SAÇMA' diye bildirdi. ✅ SORUN: Role assignment sisteminde güvenlik açığı - kullanıcılar yanlış rollerle sisteme giriş yapıyordu ✅ ÇÖZÜM: 1) Yeni endpoint POST /api/consultants/register-with-user oluşturuldu - hem consultant kaydeder hem user role'ünü günceller, 2) Frontend RoleSetup component'i yeni endpoint'i kullanacak şekilde güncellendi, 3) Debug endpoint'leri eklendi role kontrolü için, 4) Manuel role düzeltme endpoint'i eklendi. GÜVENLİK AÇIĞI KAPANDI!"
