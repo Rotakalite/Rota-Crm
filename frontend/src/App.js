@@ -4790,7 +4790,23 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                   {loading ? 'Kaydediliyor...' : 'Kaydet'}
                 </button>
                 <button
-                  onClick={() => setShowAddRecord(false)}
+                  onClick={() => {
+                    // Reset form when canceling
+                    setNewRecord({
+                      year: 2025,
+                      month: new Date().getMonth() + 1,
+                      organic_waste: 0,
+                      plastic_waste: 0,
+                      glass_waste: 0,
+                      paper_waste: 0,
+                      metal_waste: 0,
+                      electronic_waste: 0,
+                      oil_waste: 0,
+                      mixed_waste: 0,
+                      accommodation_count: 1
+                    });
+                    setShowAddRecord(false);
+                  }}
                   className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 font-medium"
                 >
                   İptal
