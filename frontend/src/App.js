@@ -4040,8 +4040,16 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
     try {
       setLoading(true);
       const recordData = { ...newRecord };
-      if (userRole === 'admin' && selectedClient) {
-        recordData.client_id = selectedClient;
+      
+      // Add client_id for admin and consultant
+      if (userRole === 'admin' || userRole === 'consultant') {
+        if (selectedClient) {
+          recordData.client_id = selectedClient;
+        } else {
+          alert('Lütfen önce bir müşteri seçin!');
+          setLoading(false);
+          return;
+        }
       }
 
       await axios.post(`${API}/consumptions/waste`, recordData, {
