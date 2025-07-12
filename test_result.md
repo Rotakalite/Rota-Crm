@@ -738,7 +738,20 @@ test_plan:
   stuck_tasks:
     - "Consultant Management System Backend APIs"
   test_all: false
-  test_priority: "high_first"
+  - task: "Personnel Management Consultant Access Fix"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "Danışman kullanıcısı Personnel Management modülünde assigned client'larını göremiyorlar. Client selection dropdown boş geliyormuş. Danışman olarak giriş yapınca 'Personel yönetimi için önce bir müşteri seçin' mesajı görüyor ama müşteri listesi boş."
+        -working: true
+        -agent: "main"
+        -comment: "PERSONNEL MANAGEMENT CONSULTANT ACCESS FIX APPLIED! 1) POST /personnel endpoint'inde consultant role logic eklendi - consultant'lar assigned client'larına personel ekleyebilir, 2) GET /personnel endpoint'inde consultant role logic eklendi - consultant'lar sadece assigned client'larının personelini görebilir, 3) DELETE /personnel endpoint'inde consultant role logic eklendi - consultant'lar assigned client'larının personelini silebilir, 4) Tüm endpoint'lerde proper access control ve client assignment verification implemented."
 
 agent_communication:
     -agent: "main"
