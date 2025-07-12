@@ -7438,13 +7438,29 @@ class Personnel(BaseModel):
 @api_router.post("/personnel")
 async def create_personnel(
     personnel_data: PersonnelInput,
-    current_user: User = Depends(get_admin_user)  # Only admin can create
+    current_user: User = Depends(get_current_user)  # Allow consultants to create
 ):
-    """Create a new personnel record (Admin only)"""
+    """Create a new personnel record (Admin and Consultant access)"""
     try:
         # Determine client_id based on user role
         if current_user.role == UserRole.CLIENT:
             client_id = current_user.client_id
+        elif current_user.role == UserRole.CONSULTANT:
+            # Consultant users can create personnel for their assigned clients
+            if personnel_data.client_id:
+                # Verify that the consultant has access to this client
+                consultant_id = current_user.consultant_id
+                if not consultant_id:
+                    raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+                
+                # Check if the client is assigned to this consultant
+                assigned_client = await db.clients.find_one({"id": personnel_data.client_id, "consultant_id": consultant_id})
+                if not assigned_client:
+                    raise HTTPException(status_code=403, detail="Bu müşteri için yetkiniz yok")
+                
+                client_id = personnel_data.client_id
+            else:
+                raise HTTPException(status_code=400, detail="Client ID required for personnel creation")
         else:
             # Admin users must provide client_id
             client_id = personnel_data.client_id
