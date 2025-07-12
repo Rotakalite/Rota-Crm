@@ -5915,6 +5915,22 @@ async def create_waste_record(
             client_id = current_user.client_id
             if not client_id:
                 raise HTTPException(status_code=400, detail="Admin must specify client_id")
+    elif current_user.role == UserRole.CONSULTANT:
+        # Consultant users can create waste data for their assigned clients
+        if waste_data.client_id:
+            # Verify that the consultant has access to this client
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+            
+            # Check if the client is assigned to this consultant
+            assigned_client = await db.clients.find_one({"id": waste_data.client_id, "consultant_id": consultant_id})
+            if not assigned_client:
+                raise HTTPException(status_code=403, detail="Bu müşteri için yetkiniz yok")
+            
+            client_id = waste_data.client_id
+        else:
+            raise HTTPException(status_code=400, detail="Client ID required for waste data creation")
     else:
         if not current_user.client_id:
             raise HTTPException(status_code=400, detail="Client not assigned to user")
