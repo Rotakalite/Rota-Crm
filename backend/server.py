@@ -6500,6 +6500,20 @@ async def get_trainings(current_user: User = Depends(get_current_user)):
         if current_user.role == UserRole.ADMIN:
             # Admin sees all trainings
             trainings = await db.trainings.find().to_list(length=None)
+        elif current_user.role == UserRole.CONSULTANT:
+            # Consultant sees trainings for their assigned clients
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                return []
+            
+            # Get all client IDs assigned to this consultant
+            assigned_clients = await db.clients.find({"consultant_id": consultant_id}).to_list(length=None)
+            client_ids = [client["id"] for client in assigned_clients]
+            
+            if client_ids:
+                trainings = await db.trainings.find({"client_id": {"$in": client_ids}}).to_list(length=None)
+            else:
+                trainings = []
         else:
             # Client sees only their own trainings
             trainings = await db.trainings.find({"client_id": current_user.client_id}).to_list(length=None)
