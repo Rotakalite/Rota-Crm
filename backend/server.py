@@ -7445,13 +7445,28 @@ async def update_sustainability_target(
 @api_router.delete("/sustainability-targets/{target_id}")
 async def delete_sustainability_target(
     target_id: str,
-    current_user: User = Depends(get_admin_user)
+    current_user: User = Depends(get_current_user)  # Allow consultants
 ):
-    """Delete a sustainability target (Admin only)"""
+    """Delete a sustainability target (Admin and Consultant access)"""
     try:
         existing = await db.sustainability_targets.find_one({"id": target_id})
         if not existing:
             raise HTTPException(status_code=404, detail="Target not found")
+
+        # Check permissions
+        if current_user.role == UserRole.CLIENT:
+            if current_user.client_id != existing["client_id"]:
+                raise HTTPException(status_code=403, detail="Bu hedef için yetkiniz yok")
+        elif current_user.role == UserRole.CONSULTANT:
+            # Consultant can delete targets for their assigned clients
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+            
+            # Check if the target's client is assigned to this consultant
+            assigned_client = await db.clients.find_one({"id": existing["client_id"], "consultant_id": consultant_id})
+            if not assigned_client:
+                raise HTTPException(status_code=403, detail="Bu müşteri için yetkiniz yok")
 
         await db.sustainability_targets.delete_one({"id": target_id})
         await db.target_progress.delete_many({"target_id": target_id})
