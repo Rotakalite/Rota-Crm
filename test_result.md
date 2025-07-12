@@ -567,6 +567,21 @@ test_plan:
     -message: "2025-01-25: PERSONNEL MANAGEMENT CONSULTANT ACCESS FIX TESTING COMPLETED! ✅ COMPREHENSIVE BACKEND VERIFICATION: All Personnel Management endpoints (POST /api/personnel, GET /api/personnel, DELETE /api/personnel/{id}) are properly implemented and deployed. ✅ CONSULTANT ROLE LOGIC CONFIRMED: Backend code analysis shows consultant role logic is implemented at lines 7448-7463 (POST), 7511-7539 (GET), and 7604-7613 (DELETE) with proper client assignment verification. ✅ DATABASE STATE VERIFIED: MongoDB contains 1 personnel record, 1 client assigned to consultant (DENİZ OTEL → KAYA DANIŞMANLIK), confirming consultant-client relationships are established. ✅ AUTHENTICATION SECURITY: All endpoints properly require authentication (403 Forbidden without auth, 401 Unauthorized with invalid tokens). ✅ ACCESS CONTROL IMPLEMENTATION: Code includes 'Bu müşteri için yetkiniz yok' error message and consultant_id validation. ✅ API ROUTER REGISTRATION: Personnel endpoints are properly registered under /api prefix. 🎯 CONSULTANT ACCESS FIX STATUS: The backend implementation successfully addresses the original issue where consultant users couldn't access Personnel Management for their assigned clients. All required scenarios are implemented: Consultant + valid assigned client_id = proper access, Consultant + invalid/unassigned client_id = 403 Forbidden, Consultant + no client_id = returns all assigned clients' personnel, Admin/client roles unchanged. The fix is ready for production use."
 
 backend:
+  - task: "Personnel Management Consultant Access Fix"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Personnel Management consultant access fix implemented. Added consultant role logic to POST /api/personnel (lines 7448-7463), GET /api/personnel (lines 7511-7539), and DELETE /api/personnel/{id} (lines 7604-7613). Includes client assignment verification, proper error messages ('Bu müşteri için yetkiniz yok'), and consultant_id validation. Consultant users can now access Personnel Management for their assigned clients only."
+        -working: true
+        -agent: "testing"
+        -comment: "2025-01-25: PERSONNEL MANAGEMENT CONSULTANT ACCESS FIX TESTING COMPLETED! ✅ COMPREHENSIVE BACKEND VERIFICATION: All Personnel Management endpoints (POST /api/personnel, GET /api/personnel, DELETE /api/personnel/{id}) are properly implemented and deployed. ✅ CONSULTANT ROLE LOGIC CONFIRMED: Backend code analysis shows consultant role logic is implemented at lines 7448-7463 (POST), 7511-7539 (GET), and 7604-7613 (DELETE) with proper client assignment verification. ✅ DATABASE STATE VERIFIED: MongoDB contains 1 personnel record, 1 client assigned to consultant (DENİZ OTEL → KAYA DANIŞMANLIK), confirming consultant-client relationships are established. ✅ AUTHENTICATION SECURITY: All endpoints properly require authentication (403 Forbidden without auth, 401 Unauthorized with invalid tokens). ✅ ACCESS CONTROL IMPLEMENTATION: Code includes 'Bu müşteri için yetkiniz yok' error message and consultant_id validation. ✅ API ROUTER REGISTRATION: Personnel endpoints are properly registered under /api prefix. 🎯 CONSULTANT ACCESS FIX STATUS: The backend implementation successfully addresses the original issue where consultant users couldn't access Personnel Management for their assigned clients. All required scenarios are implemented: Consultant + valid assigned client_id = proper access, Consultant + invalid/unassigned client_id = 403 Forbidden, Consultant + no client_id = returns all assigned clients' personnel, Admin/client roles unchanged. The fix is ready for production use."
+
   - task: "Consultant Management System Backend APIs"
     implemented: true
     working: true
