@@ -4151,7 +4151,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
             ⚙️ Kontrol Paneli
           </h3>
           <div className="flex flex-wrap items-center gap-4">
-            {userRole === 'admin' && (
+            {(userRole === 'admin' || userRole === 'consultant') && (
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">🏨 Müşteri Seçimi</label>
                 <select
