@@ -4649,7 +4649,28 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
 
       {/* Add Record Modal */}
       {showAddRecord && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div 
+          className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+          onClick={(e) => {
+            // Reset form when clicking outside modal
+            if (e.target === e.currentTarget) {
+              setNewRecord({
+                year: 2025,
+                month: new Date().getMonth() + 1,
+                organic_waste: 0,
+                plastic_waste: 0,
+                glass_waste: 0,
+                paper_waste: 0,
+                metal_waste: 0,
+                electronic_waste: 0,
+                oil_waste: 0,
+                mixed_waste: 0,
+                accommodation_count: 1
+              });
+              setShowAddRecord(false);
+            }
+          }}
+        >
           <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Yeni Atık Kaydı Ekle</h3>
