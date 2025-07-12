@@ -7978,11 +7978,33 @@ async def get_suppliers_analytics(
 @api_router.post("/suppliers")
 async def create_supplier(
     supplier_data: SupplierInput,
-    current_user: User = Depends(get_admin_user)  # Only admin can create
+    current_user: User = Depends(get_current_user)  # Allow consultants
 ):
-    """Create a new supplier (Admin only)"""
+    """Create a new supplier (Admin and Consultant access)"""
     try:
-        client_id = supplier_data.client_id if current_user.role == UserRole.ADMIN else current_user.client_id
+        # Determine client_id based on user role
+        if current_user.role == UserRole.CLIENT:
+            client_id = current_user.client_id
+        elif current_user.role == UserRole.CONSULTANT:
+            # Consultant users can create suppliers for their assigned clients
+            if supplier_data.client_id:
+                # Verify that the consultant has access to this client
+                consultant_id = current_user.consultant_id
+                if not consultant_id:
+                    raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+                
+                # Check if the client is assigned to this consultant
+                assigned_client = await db.clients.find_one({"id": supplier_data.client_id, "consultant_id": consultant_id})
+                if not assigned_client:
+                    raise HTTPException(status_code=403, detail="Bu müşteri için yetkiniz yok")
+                
+                client_id = supplier_data.client_id
+            else:
+                raise HTTPException(status_code=400, detail="Client ID required for supplier creation")
+        else:
+            # Admin users
+            client_id = supplier_data.client_id if current_user.role == UserRole.ADMIN else current_user.client_id
+        
         if not client_id:
             raise HTTPException(status_code=400, detail="Client ID required")
 
