@@ -4229,6 +4229,14 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             <p className="mt-4 text-gray-600 text-lg">Veriler yükleniyor...</p>
           </div>
+        ) : (userRole === 'consultant' && !selectedClient) ? (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🗑️</div>
+              <p className="text-gray-500 text-lg mb-2">Atık yönetimi için önce bir müşteri seçin.</p>
+              <p className="text-gray-400 text-sm">Yukarıdaki dropdown'dan müşteri seçerek başlayabilirsiniz.</p>
+            </div>
+          </div>
         ) : (
           <>
             {/* Tab Content */}
