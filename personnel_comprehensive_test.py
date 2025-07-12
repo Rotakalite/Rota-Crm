@@ -58,7 +58,7 @@ class PersonnelManagementComprehensiveTester:
         print("\n🗄️  CHECKING DATABASE STATE")
         print("-" * 50)
         
-        if not self.db:
+        if self.db is None:
             print("❌ No database connection available")
             return
         
