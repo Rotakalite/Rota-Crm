@@ -443,6 +443,8 @@ test_plan:
     - "Document Management Client Filtering"
   test_all: false
   test_priority: "high_first"
+  completed_tasks:
+    - "Personnel Management Consultant Access Fix"
 
   - task: "Document Management UI Design Fix"
     implemented: true
