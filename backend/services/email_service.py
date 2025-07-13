@@ -140,7 +140,9 @@ class EmailService:
         training_date: str,
         trainer: str,
         participant_count: int,
-        client_name: str = "Değerli Müşteri"
+        client_name: str = "Değerli Müşteri",
+        sender_name: str = "ROTA CRM",
+        sender_role: str = "Sistem"
     ):
         """Send Turkish notification for training"""
         try:
@@ -150,7 +152,9 @@ class EmailService:
                 training_name=training_name,
                 training_date=training_date,
                 trainer=trainer,
-                participant_count=participant_count
+                participant_count=participant_count,
+                sender_name=sender_name,
+                sender_role=sender_role
             )
             
             message = MessageSchema(
