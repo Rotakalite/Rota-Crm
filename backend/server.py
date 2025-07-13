@@ -6939,24 +6939,50 @@ async def send_training_notification(
 @api_router.post("/email/bulk-document-notification")
 async def send_bulk_document_notification(
     document_ids: str = Form(...),
-    current_user: User = Depends(get_admin_user)
+    current_user: User = Depends(get_current_user)  # Allow consultants
 ):
-    """Admin-only: Send bulk document upload notification email"""
+    """Send bulk document upload notification email (Admin and Consultant access)"""
     if not email_service:
         raise HTTPException(status_code=500, detail="Email service not available")
     
     try:
-        doc_ids = document_ids.split(',')
+        # Check permissions
+        if current_user.role not in ['admin', 'consultant']:
+            raise HTTPException(status_code=403, detail="Sadece admin ve consultant kullanıcıları email gönderebilir")
+
+        # Parse document IDs
+        try:
+            doc_ids = [doc_id.strip() for doc_id in document_ids.split(',') if doc_id.strip()]
+        except:
+            raise HTTPException(status_code=400, detail="Geçersiz doküman ID formatı")
         
-        # Get documents
+        if not doc_ids:
+            raise HTTPException(status_code=400, detail="En az bir doküman ID'si gerekli")
+
+        # Get all documents
         documents = []
+        client_ids = set()
+        
         for doc_id in doc_ids:
-            document = await db.documents.find_one({"id": doc_id.strip()})
+            document = await db.documents.find_one({"id": doc_id})
             if document:
                 documents.append(document)
-        
+                client_ids.add(document["client_id"])
+
         if not documents:
-            raise HTTPException(status_code=404, detail="No documents found")
+            raise HTTPException(status_code=404, detail="Hiç doküman bulunamadı")
+
+        # For consultant, verify they have access to all clients
+        if current_user.role == 'consultant':
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+            
+            # Check if all clients are assigned to this consultant
+            for client_id in client_ids:
+                assigned_client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+                if not assigned_client:
+                    raise HTTPException(status_code=403, detail=f"Müşteri {client_id} için yetkiniz yok")
         
         # Group by client (should be same client for bulk)
         client_id = documents[0]["client_id"]
