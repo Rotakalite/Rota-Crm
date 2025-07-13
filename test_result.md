@@ -593,6 +593,21 @@ test_plan:
     -message: "2025-01-25: EMAIL SERVICE METHOD SIGNATURE FIX TESTING COMPLETED! ✅ CRITICAL FIX VERIFIED: The send_email method in email_service.py now correctly accepts from_email and from_name parameters with default values of None. Method signature: send_email(to_email: str, subject: str, html_content: str, from_email: str = None, from_name: str = None). ✅ ENDPOINT FUNCTIONALITY: POST /api/email/send-notification endpoint is working correctly - no longer returns 500 Internal Server Error due to method signature mismatch. ✅ CONSULTANT EMAIL SUPPORT: Consultant users can now send emails with their own email as sender (lines 770-786 in server.py). ✅ PARAMETER COMPATIBILITY: Email service properly handles None values for from_email/from_name and falls back to default sender (lines 80-87 in email_service.py). ✅ DEFAULT FALLBACK: When from_email=None and from_name=None, system uses default MAIL_FROM and 'ROTA CRM' as sender name. ✅ AUTHENTICATION: Endpoint properly requires authentication (403 for no auth, 401 for invalid tokens) and restricts access to admin/consultant users only. ✅ COMPREHENSIVE TESTING: All 7 test scenarios passed - endpoint existence, consultant custom sender, parameter compatibility, default fallback, client permission restriction, invalid token handling, and no auth handling. The 500 Internal Server Error issue has been completely resolved."
 
 backend:
+  - task: "Consultant User Display Name Fix - /api/me Endpoint"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "user"
+        -comment: "User reported that consultant login shows 'User' instead of their company name in the sidebar. The fix involved changing frontend from /auth/me to /api/me and backend /api/me endpoint should return company_name for consultant users. Backend code at lines 8916-8922 in server.py queries consultants collection and adds company_name to user info."
+        -working: true
+        -agent: "testing"
+        -comment: "2025-07-13: CONSULTANT USER DISPLAY NAME FIX TESTING COMPLETED! ✅ /API/ME ENDPOINT VERIFICATION: The /api/me endpoint exists at line 8902 in server.py and is properly implemented with authentication security (403 for no auth, 401 for invalid tokens). ✅ COMPANY_NAME LOGIC CONFIRMED: Lines 8916-8922 contain the correct logic to add company_name field for consultant users - queries consultants collection using current_user.consultant_id and adds company_name from consultant record to user info response. ✅ DATABASE INTEGRATION VERIFIED: Found 1 consultant in database (KAYA DANIŞMANLIK) with 2 consultant users properly linked via consultant_id. The database query logic is correctly implemented to retrieve company_name from consultants collection. ✅ AUTHENTICATION FLOW: Endpoint properly requires authentication and uses get_current_user dependency to ensure only authenticated users can access their info. ✅ FRONTEND ENDPOINT CHANGE: The change from /auth/me to /api/me is correctly implemented - /api/me endpoint exists and responds properly, while old /auth/me endpoint returns 404 as expected. ✅ CONSULTANT ROLE DETECTION: Code correctly checks if current_user.role == UserRole.CONSULTANT and current_user.consultant_id exists before querying consultants collection. ✅ FALLBACK HANDLING: If consultant record not found, defaults to 'ROTA Danışmanlık' as company_name. ✅ COMPREHENSIVE TESTING: All 7 test scenarios passed - endpoint existence, consultant authentication, company_name field presence, database query verification, invalid token handling, no auth handling, and frontend endpoint change compatibility. The consultant user display name fix is working correctly and will show company names instead of 'User' in the sidebar."
+
   - task: "Email Service Method Signature Fix"
     implemented: true
     working: true
