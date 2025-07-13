@@ -10083,8 +10083,8 @@ const EmailManagement = ({ selectedClient: propSelectedClient }) => {
       {/* Content */}
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         
-        {/* Client Selection - Only for Admin */}
-        {userRole === 'admin' && (
+        {/* Client Selection - For Admin and Consultant */}
+        {(userRole === 'admin' || userRole === 'consultant') && (
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4">1. Müşteri Seçimi</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -10108,6 +10108,18 @@ const EmailManagement = ({ selectedClient: propSelectedClient }) => {
             </div>
           </div>
         )}
+
+        {/* Show message if consultant hasn't selected client yet */}
+        {userRole === 'consultant' && !selectedClient ? (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">📧</div>
+              <p className="text-gray-500 text-lg mb-2">Email yönetimi için önce bir müşteri seçin.</p>
+              <p className="text-gray-400 text-sm">Yukarıdaki dropdown'dan müşteri seçerek başlayabilirsiniz.</p>
+            </div>
+          </div>
+        ) : (
+          <>
 
         {/* Client Info - For Client Users */}
         {userRole === 'client' && selectedClient && Array.isArray(clients) && (
