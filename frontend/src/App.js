@@ -250,7 +250,7 @@ const useAuth = () => {
     if (authToken) {
       try {
         const API = getApiUrl();
-        const response = await axios.get(`${API}/auth/me`, {
+        const response = await axios.get(`${API}/api/me`, {
           headers: { 'Authorization': `Bearer ${authToken}` }
         });
         
