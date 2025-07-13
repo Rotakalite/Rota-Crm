@@ -2804,6 +2804,32 @@ async def upload_document_direct(
         db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         logging.info(f"✅ MongoDB connected successfully")
         
+        # Check permissions based on user role
+        if current_user.role == UserRole.ADMIN:
+            # Admin can upload documents for any client
+            logging.info(f"✅ Admin user authorized for client: {client_id}")
+        elif current_user.role == UserRole.CONSULTANT:
+            # Consultant users can upload documents for their assigned clients
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                logging.error(f"❌ Consultant ID not assigned to user: {current_user.name}")
+                raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+            
+            # Check if the client is assigned to this consultant
+            assigned_client = await asyncio.to_thread(db.clients.find_one, {"id": client_id, "consultant_id": consultant_id})
+            if not assigned_client:
+                logging.error(f"❌ Client {client_id} not assigned to consultant {consultant_id}")
+                raise HTTPException(status_code=403, detail="Bu müşteri için yetkiniz yok")
+            
+            logging.info(f"✅ Consultant user authorized for assigned client: {client_id}")
+        else:
+            # Client users can only upload documents for themselves
+            if current_user.client_id != client_id:
+                logging.error(f"❌ Client user trying to upload for different client")
+                raise HTTPException(status_code=403, detail="Access denied: Cannot upload documents for other clients")
+            
+            logging.info(f"✅ Client user authorized for own documents")
+            
         # Verify client exists
         logging.info(f"👤 Checking client: {client_id}")
         client = await asyncio.to_thread(db.clients.find_one, {"id": client_id})
