@@ -12041,7 +12041,7 @@ const RoleSetup = ({ onComplete }) => {
     address: ''
   });
   const API = getApiUrl();
-  const { user } = useAuth();
+  const { user, dbUser } = useAuth();
   const { session } = useClerk();
 
   const fetchConsultants = async () => {
