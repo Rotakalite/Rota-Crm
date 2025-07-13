@@ -9863,13 +9863,13 @@ async def get_current_user_info(current_user: User = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail="User bilgisi alınamadı")
 
 # SIMPLE TEST ENDPOINT
-@app.get("/api/test-stats")
+@app.get("/test-stats")
 async def test_stats_endpoint():
     """Simple test endpoint"""
     return {"message": "Test endpoint working", "timestamp": datetime.utcnow().isoformat()}
 
 # DIRECT STATS ENDPOINT ON MAIN APP - WORKAROUND FOR DEPLOYMENT ISSUE
-@app.get("/api/stats-public")
+@app.get("/stats-public")
 async def get_public_statistics_main():
     """Get public statistics without authentication for dashboard - MAIN APP VERSION"""
     try:
