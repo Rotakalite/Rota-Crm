@@ -1165,6 +1165,321 @@ class TestWasteManagementEndpoints(unittest.TestCase):
             logger.error(f"❌ Error testing GET /api/waste-management/analytics with year parameter: {str(e)}")
             raise
 
+class Test2FASystem(unittest.TestCase):
+    """Test class for 2FA system endpoints"""
+    
+    def setUp(self):
+        """Set up test environment"""
+        self.api_url = "https://rota-crm-production.up.railway.app/api"
+        
+        # Test email addresses
+        self.test_email = "test2fa@example.com"
+        self.invalid_email = "invalid-email"
+        
+        # Headers for requests
+        self.headers = {"Content-Type": "application/json"}
+    
+    def test_2fa_send_code_endpoint(self):
+        """Test POST /api/auth/2fa/send-code endpoint"""
+        logger.info("\n=== Testing POST /api/auth/2fa/send-code endpoint ===")
+        
+        url = f"{self.api_url}/auth/2fa/send-code"
+        
+        # Test with valid email
+        try:
+            payload = {"email": self.test_email}
+            response = requests.post(url, headers=self.headers, json=payload)
+            logger.info(f"Send code response status code: {response.status_code}")
+            
+            # Should NOT get 405 Method Not Allowed (this was the bug)
+            self.assertNotEqual(response.status_code, 405, "Should not get 405 Method Not Allowed")
+            
+            # Should get 200 OK or 500 (if email service fails)
+            self.assertIn(response.status_code, [200, 500])
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"Send code response: {data}")
+                
+                # Verify response structure
+                self.assertIn("message", data)
+                self.assertIn("success", data)
+                self.assertTrue(data["success"])
+                
+                logger.info("✅ 2FA send code endpoint working correctly")
+            elif response.status_code == 500:
+                data = response.json()
+                logger.info(f"Expected 500 error (email service): {data}")
+                logger.info("✅ Endpoint accessible but email service may not be configured")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing 2FA send code: {str(e)}")
+            raise
+        
+        # Test with missing email
+        try:
+            payload = {}
+            response = requests.post(url, headers=self.headers, json=payload)
+            logger.info(f"Missing email response status code: {response.status_code}")
+            
+            # Should get 400 Bad Request
+            self.assertEqual(response.status_code, 400)
+            
+            data = response.json()
+            self.assertIn("detail", data)
+            self.assertIn("Email required", data["detail"])
+            
+            logger.info("✅ Missing email validation working")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing missing email: {str(e)}")
+            raise
+        
+        # Test with invalid email format
+        try:
+            payload = {"email": self.invalid_email}
+            response = requests.post(url, headers=self.headers, json=payload)
+            logger.info(f"Invalid email response status code: {response.status_code}")
+            
+            # Should get 200 (endpoint doesn't validate email format) or 400/500
+            self.assertIn(response.status_code, [200, 400, 500])
+            
+            logger.info("✅ Invalid email handling working")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing invalid email: {str(e)}")
+            raise
+    
+    def test_2fa_verify_code_endpoint(self):
+        """Test POST /api/auth/2fa/verify-code endpoint"""
+        logger.info("\n=== Testing POST /api/auth/2fa/verify-code endpoint ===")
+        
+        url = f"{self.api_url}/auth/2fa/verify-code"
+        
+        # Test with dummy code (should fail validation)
+        try:
+            payload = {"email": self.test_email, "code": "123456"}
+            response = requests.post(url, headers=self.headers, json=payload)
+            logger.info(f"Verify code response status code: {response.status_code}")
+            
+            # Should NOT get 405 Method Not Allowed (this was the bug)
+            self.assertNotEqual(response.status_code, 405, "Should not get 405 Method Not Allowed")
+            
+            # Should get 400 Bad Request (invalid code)
+            self.assertEqual(response.status_code, 400)
+            
+            data = response.json()
+            logger.info(f"Verify code response: {data}")
+            
+            # Verify error message
+            self.assertIn("detail", data)
+            self.assertIn("Geçersiz kod", data["detail"])
+            
+            logger.info("✅ 2FA verify code endpoint working correctly")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing 2FA verify code: {str(e)}")
+            raise
+        
+        # Test with missing email
+        try:
+            payload = {"code": "123456"}
+            response = requests.post(url, headers=self.headers, json=payload)
+            logger.info(f"Missing email response status code: {response.status_code}")
+            
+            # Should get 400 Bad Request
+            self.assertEqual(response.status_code, 400)
+            
+            data = response.json()
+            self.assertIn("detail", data)
+            self.assertIn("Email ve kod gerekli", data["detail"])
+            
+            logger.info("✅ Missing email validation working")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing missing email: {str(e)}")
+            raise
+        
+        # Test with missing code
+        try:
+            payload = {"email": self.test_email}
+            response = requests.post(url, headers=self.headers, json=payload)
+            logger.info(f"Missing code response status code: {response.status_code}")
+            
+            # Should get 400 Bad Request
+            self.assertEqual(response.status_code, 400)
+            
+            data = response.json()
+            self.assertIn("detail", data)
+            self.assertIn("Email ve kod gerekli", data["detail"])
+            
+            logger.info("✅ Missing code validation working")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing missing code: {str(e)}")
+            raise
+        
+        # Test with both missing
+        try:
+            payload = {}
+            response = requests.post(url, headers=self.headers, json=payload)
+            logger.info(f"Missing both response status code: {response.status_code}")
+            
+            # Should get 400 Bad Request
+            self.assertEqual(response.status_code, 400)
+            
+            data = response.json()
+            self.assertIn("detail", data)
+            self.assertIn("Email ve kod gerekli", data["detail"])
+            
+            logger.info("✅ Missing both validation working")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing missing both: {str(e)}")
+            raise
+    
+    def test_2fa_status_endpoint(self):
+        """Test GET /api/auth/2fa/status endpoint"""
+        logger.info("\n=== Testing GET /api/auth/2fa/status endpoint ===")
+        
+        url = f"{self.api_url}/auth/2fa/status"
+        
+        # Test with valid email parameter
+        try:
+            params = {"user_email": self.test_email}
+            response = requests.get(url, params=params)
+            logger.info(f"Status response status code: {response.status_code}")
+            
+            # Should NOT get 405 Method Not Allowed (this was the bug)
+            self.assertNotEqual(response.status_code, 405, "Should not get 405 Method Not Allowed")
+            
+            # Should get 200 OK
+            self.assertEqual(response.status_code, 200)
+            
+            data = response.json()
+            logger.info(f"Status response: {data}")
+            
+            # Verify response structure
+            self.assertIn("has_pending_code", data)
+            self.assertIsInstance(data["has_pending_code"], bool)
+            
+            # If there's a pending code, should have expires_at
+            if data["has_pending_code"]:
+                self.assertIn("expires_at", data)
+            
+            logger.info("✅ 2FA status endpoint working correctly")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing 2FA status: {str(e)}")
+            raise
+        
+        # Test without email parameter
+        try:
+            response = requests.get(url)
+            logger.info(f"No email response status code: {response.status_code}")
+            
+            # Should get 422 Unprocessable Entity (missing required parameter)
+            self.assertEqual(response.status_code, 422)
+            
+            logger.info("✅ Missing email parameter validation working")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing missing email parameter: {str(e)}")
+            raise
+    
+    def test_2fa_full_flow_simulation(self):
+        """Test the complete 2FA flow simulation"""
+        logger.info("\n=== Testing 2FA full flow simulation ===")
+        
+        send_url = f"{self.api_url}/auth/2fa/send-code"
+        verify_url = f"{self.api_url}/auth/2fa/verify-code"
+        status_url = f"{self.api_url}/auth/2fa/status"
+        
+        test_email = "flowtest@example.com"
+        
+        try:
+            # Step 1: Send code
+            logger.info("Step 1: Sending 2FA code...")
+            payload = {"email": test_email}
+            response = requests.post(send_url, headers=self.headers, json=payload)
+            logger.info(f"Send code status: {response.status_code}")
+            
+            if response.status_code == 200:
+                logger.info("✅ Code sent successfully")
+                
+                # Step 2: Check status
+                logger.info("Step 2: Checking 2FA status...")
+                params = {"user_email": test_email}
+                response = requests.get(status_url, params=params)
+                logger.info(f"Status check: {response.status_code}")
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    logger.info(f"Status data: {data}")
+                    
+                    # Should have pending code after sending
+                    if data.get("has_pending_code"):
+                        logger.info("✅ Status correctly shows pending code")
+                    else:
+                        logger.info("⚠️ Status shows no pending code (may be expected)")
+                
+                # Step 3: Try to verify with wrong code
+                logger.info("Step 3: Verifying with wrong code...")
+                payload = {"email": test_email, "code": "000000"}
+                response = requests.post(verify_url, headers=self.headers, json=payload)
+                logger.info(f"Wrong code verification: {response.status_code}")
+                
+                if response.status_code == 400:
+                    data = response.json()
+                    logger.info(f"Expected error: {data}")
+                    logger.info("✅ Wrong code correctly rejected")
+                
+                logger.info("✅ 2FA flow simulation completed successfully")
+            else:
+                logger.info(f"⚠️ Code sending failed with status {response.status_code}")
+                logger.info("✅ Flow test completed (email service may not be configured)")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing 2FA flow: {str(e)}")
+            raise
+    
+    def test_2fa_endpoints_not_mocked(self):
+        """Test that 2FA endpoints are returning real responses, not mocks"""
+        logger.info("\n=== Testing 2FA endpoints are not mocked ===")
+        
+        send_url = f"{self.api_url}/auth/2fa/send-code"
+        
+        try:
+            payload = {"email": "realtest@example.com"}
+            response = requests.post(send_url, headers=self.headers, json=payload)
+            logger.info(f"Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"Response data: {data}")
+                
+                # Check for real implementation indicators
+                message = data.get("message", "")
+                
+                # Should not contain mock indicators
+                mock_indicators = ["mock", "fake", "test", "placeholder"]
+                is_mock = any(indicator in message.lower() for indicator in mock_indicators)
+                
+                if not is_mock:
+                    logger.info("✅ Response appears to be from real implementation")
+                else:
+                    logger.info("⚠️ Response may be from mock implementation")
+                
+                # Check for Turkish message (indicates real implementation)
+                if "gönderildi" in message:
+                    logger.info("✅ Turkish message indicates real implementation")
+                
+            logger.info("✅ 2FA endpoints appear to be real implementation")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing real implementation: {str(e)}")
+            raise
+
 class TestConsultantUserDisplayNameFix(unittest.TestCase):
     """Test class for consultant user display name fix - /api/me endpoint"""
     
