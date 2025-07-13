@@ -10049,7 +10049,7 @@ const EmailManagement = ({ selectedClient: propSelectedClient }) => {
 
   // Initial data loading
   useEffect(() => {
-    if (authToken && userRole === 'admin') {
+    if (authToken && (userRole === 'admin' || userRole === 'consultant')) {
       fetchClients();
     }
     setLoading(false);
