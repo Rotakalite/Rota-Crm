@@ -8971,7 +8971,7 @@ const ClientTrainings = () => {
   const [trainings, setTrainings] = useState([]);
   const [selectedTraining, setSelectedTraining] = useState(null);
   const [showTrainingModal, setShowTrainingModal] = useState(false);
-  const { authToken, userRole, dbUser } = useAuth();
+  const { authToken, userRole, dbUser, refreshToken } = useAuth();
 
   useEffect(() => {
     if (authToken && userRole === 'client') {
