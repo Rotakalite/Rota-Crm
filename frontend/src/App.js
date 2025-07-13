@@ -9155,6 +9155,7 @@ const ClientTrainings = () => {
 const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
   const [trainings, setTrainings] = useState([]);
   const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState(''); // Add client selection state
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
     client_id: '',
