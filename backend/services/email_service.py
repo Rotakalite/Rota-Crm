@@ -103,7 +103,9 @@ class EmailService:
         document_name: str,
         upload_date: str,
         folder_path: str = "Klasör belirtilmemiş",
-        client_name: str = "Değerli Müşteri"
+        client_name: str = "Değerli Müşteri",
+        sender_name: str = "ROTA CRM",
+        sender_role: str = "Sistem"
     ):
         """Send Turkish notification for document upload"""
         try:
@@ -112,7 +114,9 @@ class EmailService:
                 client_name=client_name,
                 document_name=document_name,
                 upload_date=upload_date,
-                folder_path=folder_path
+                folder_path=folder_path,
+                sender_name=sender_name,
+                sender_role=sender_role
             )
             
             message = MessageSchema(
