@@ -12050,8 +12050,15 @@ const RoleSetup = ({ onComplete }) => {
       const consultantList = response.data || [];
       
       const sortedConsultants = consultantList.sort((a, b) => {
+        // Current user (admin) always first
+        if (dbUser?.email && a.email === dbUser.email) return -1;
+        if (dbUser?.email && b.email === dbUser.email) return 1;
+        
+        // Then ROTA
         if (a.company_name === 'ROTA') return -1;
         if (b.company_name === 'ROTA') return 1;
+        
+        // Then alphabetically
         return a.company_name.localeCompare(b.company_name);
       });
       
