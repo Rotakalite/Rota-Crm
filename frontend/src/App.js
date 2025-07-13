@@ -651,6 +651,9 @@ const ConsultantClientManagement = ({ onNavigate }) => {
   const { authToken } = useAuth();
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [bulkImportFile, setBulkImportFile] = useState(null);
+  const [bulkImportLoading, setBulkImportLoading] = useState(false);
+  const [bulkImportResult, setBulkImportResult] = useState(null);
   const API = getApiUrl();
 
   // Handle bulk import
