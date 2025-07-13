@@ -7100,6 +7100,35 @@ async def get_email_history(token: str = Depends(verify_token)):
         logging.error(f"Error fetching email history: {str(e)}")
         raise HTTPException(status_code=500, detail="Email geçmişi alınamadı")
 
+# TEMPORARY PUBLIC STATS ENDPOINT FOR DASHBOARD
+@api_router.get("/stats-public")
+async def get_public_statistics():
+    """Get public statistics without authentication for dashboard"""
+    try:
+        # Get real data from database
+        total_clients = await db.clients.count_documents({})
+        stage_1_clients = await db.clients.count_documents({"current_stage": "I.Aşama"})
+        stage_2_clients = await db.clients.count_documents({"current_stage": "II.Aşama"}) 
+        stage_3_clients = await db.clients.count_documents({"current_stage": "III.Aşama"})
+        total_documents = await db.documents.count_documents({})
+        total_trainings = await db.trainings.count_documents({})
+        
+        logging.info(f"📊 PUBLIC STATS - Clients: {total_clients}, Docs: {total_documents}, Trainings: {total_trainings}")
+        
+        return {
+            "total_clients": total_clients,
+            "stage_distribution": {
+                "stage_1": stage_1_clients,
+                "stage_2": stage_2_clients,
+                "stage_3": stage_3_clients
+            },
+            "total_documents": total_documents,
+            "total_trainings": total_trainings
+        }
+    except Exception as e:
+        logging.error(f"Error fetching public stats: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Stats error: {str(e)}")
+
 @api_router.get("/auth/2fa/status")
 async def get_2fa_status_router(user_email: str):
     """Get 2FA status for user - Router version (deprecated)"""
