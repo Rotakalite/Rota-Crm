@@ -3606,7 +3606,7 @@ const GuestEngagement = () => {
     feedback_comment: ''
   });
 
-  const { authToken, userRole, dbUser } = useAuth();
+  const { authToken, userRole, dbUser, refreshToken } = useAuth();
 
   useEffect(() => {
     if (!authToken) return;
