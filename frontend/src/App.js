@@ -12700,7 +12700,10 @@ const ConsultantApp = () => {
             <h1 className="text-xl font-bold bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
               Danışman Paneli
             </h1>
-            <p className="text-blue-200 text-sm mt-1">{dbUser?.company_name || dbUser?.name || 'ROTA Danışmanlık'}</p>
+            <p className="text-blue-200 text-sm mt-1">
+              {dbUser?.company_name || dbUser?.name || 'User'}
+              {console.log('🔍 SIDEBAR DEBUG - dbUser:', dbUser)}
+            </p>
           </div>
         
           <nav 
