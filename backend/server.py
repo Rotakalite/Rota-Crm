@@ -8903,7 +8903,7 @@ async def debug_database_info():
 async def get_current_user_info(current_user: User = Depends(get_current_user)):
     """Get current user information"""
     try:
-        return {
+        user_info = {
             "id": current_user.id,
             "email": current_user.email,
             "name": current_user.name,
@@ -8912,6 +8912,17 @@ async def get_current_user_info(current_user: User = Depends(get_current_user)):
             "consultant_id": getattr(current_user, 'consultant_id', None),
             "created_at": current_user.created_at.isoformat() if current_user.created_at else None
         }
+        
+        # Add company_name for consultant users
+        if current_user.role == UserRole.CONSULTANT and current_user.consultant_id:
+            consultant = await db.consultants.find_one({"id": current_user.consultant_id})
+            if consultant:
+                user_info["company_name"] = consultant.get("company_name", "ROTA Danışmanlık")
+            else:
+                user_info["company_name"] = "ROTA Danışmanlık"
+        
+        return user_info
+        
     except Exception as e:
         logging.error(f"❌ Error getting user info: {str(e)}")
         raise HTTPException(status_code=500, detail="User bilgisi alınamadı")
