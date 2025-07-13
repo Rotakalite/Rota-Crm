@@ -6573,7 +6573,7 @@ const ClientDocuments = () => {
     files: [],
     folder_id: ''
   });
-  const { authToken, userRole, dbUser } = useAuth();
+  const { authToken, userRole, dbUser, refreshToken } = useAuth();
 
   // Get document count for a folder
   const getFolderDocumentCount = (folderId) => {
