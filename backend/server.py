@@ -4248,11 +4248,11 @@ async def upload_document(
     stage: ProjectStage = Form(...),
     file: UploadFile = File(...),
     folder_id: str = Form(...),  # Required folder selection
-    current_user: User = Depends(get_admin_user)  # Only admin can upload
+    current_user: User = Depends(get_current_user)  # Allow consultants
 ):
-    """Upload document file to local storage and save metadata to database (Admin only)"""
+    """Upload document file to local storage and save metadata to database (Admin and Consultant access)"""
     
-    logging.info(f"📤 Upload document request - Admin: {current_user.name} - Client: {client_id} - Folder: {folder_id} - File: {file.filename}")
+    logging.info(f"📤 Upload document request - User: {current_user.name} ({current_user.role}) - Client: {client_id} - Folder: {folder_id} - File: {file.filename}")
     
     # Check file size (500MB limit)
     if file.size and file.size > 500 * 1024 * 1024:  # 500MB
@@ -4268,6 +4268,21 @@ async def upload_document(
     # Check permissions
     if current_user.role == UserRole.ADMIN:
         # Admin can upload documents for any client
+        client = await db.clients.find_one({"id": client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+    elif current_user.role == UserRole.CONSULTANT:
+        # Consultant users can upload documents for their assigned clients
+        consultant_id = current_user.consultant_id
+        if not consultant_id:
+            raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+        
+        # Check if the client is assigned to this consultant
+        assigned_client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+        if not assigned_client:
+            raise HTTPException(status_code=403, detail="Bu müşteri için yetkiniz yok")
+        
+        # Verify the client exists
         client = await db.clients.find_one({"id": client_id})
         if not client:
             raise HTTPException(status_code=404, detail="Client not found")
