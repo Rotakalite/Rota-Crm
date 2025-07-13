@@ -2859,7 +2859,7 @@ const CarbonFootprint = () => {
   const [selectedYear, setSelectedYear] = useState(2025);
   const [loading, setLoading] = useState(false);
 
-  const { authToken, userRole, dbUser } = useAuth();
+  const { authToken, userRole, dbUser, refreshToken } = useAuth();
 
   // Fetch clients for admin and consultant users
   const fetchClients = async () => {
