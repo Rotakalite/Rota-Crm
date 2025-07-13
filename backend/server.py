@@ -4269,6 +4269,35 @@ async def get_statistics(current_user: User = Depends(get_current_user)):
             "total_trainings": 0
         }
 
+# PUBLIC STATS ENDPOINT FOR DASHBOARD (NO AUTHENTICATION REQUIRED)
+@api_router.get("/stats-public")
+async def get_public_statistics():
+    """Get public statistics without authentication for dashboard"""
+    try:
+        # Get real data from database - same as admin view
+        total_clients = await db.clients.count_documents({})
+        stage_1_clients = await db.clients.count_documents({"current_stage": "I.Aşama"})
+        stage_2_clients = await db.clients.count_documents({"current_stage": "II.Aşama"})
+        stage_3_clients = await db.clients.count_documents({"current_stage": "III.Aşama"})
+        total_documents = await db.documents.count_documents({})
+        total_trainings = await db.trainings.count_documents({})
+        
+        logging.info(f"📊 PUBLIC STATS - Clients: {total_clients}, Docs: {total_documents}, Trainings: {total_trainings}")
+        
+        return {
+            "total_clients": total_clients,
+            "stage_distribution": {
+                "stage_1": stage_1_clients,
+                "stage_2": stage_2_clients,
+                "stage_3": stage_3_clients
+            },
+            "total_documents": total_documents,
+            "total_trainings": total_trainings
+        }
+    except Exception as e:
+        logging.error(f"Error fetching public stats: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Stats error: {str(e)}")
+
 # File Upload Endpoints with Google Cloud Storage
 @api_router.post("/upload-document")
 async def upload_document(
