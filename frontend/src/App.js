@@ -5163,12 +5163,20 @@ const ClientManagement = ({ onNavigate }) => {
               <h2 className="text-lg font-semibold text-gray-900">Müşteri Listesi</h2>
               <p className="text-sm text-gray-600">Toplam {clients.length} müşteri</p>
             </div>
-            <button
-              onClick={() => setShowAddClient(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              ➕ Yeni Müşteri
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowBulkImport(true)}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+              >
+                📊 Toplu Import
+              </button>
+              <button
+                onClick={() => setShowAddClient(true)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                ➕ Yeni Müşteri
+              </button>
+            </div>
           </div>
         </div>
 
