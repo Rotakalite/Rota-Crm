@@ -237,7 +237,7 @@ class TwoFAAnalysis:
             findings.append(f"❌ Send code endpoint failed: {send_response.status_code}")
         
         # Check database storage
-        if self.db:
+        if self.db is not None:
             time.sleep(1)
             codes = list(self.db.verification_codes.find({"email": test_email}))
             if codes:
