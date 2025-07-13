@@ -6763,11 +6763,26 @@ async def send_email_notification(
 </div>
 """
         
+        # Determine sender email based on user role
+        sender_email = None
+        sender_name = "ROTA CRM"
+        
+        if current_user.role == 'consultant':
+            # Use consultant's email as sender
+            sender_email = current_user.email
+            sender_name = f"ROTA CRM - {current_user.name}"
+        elif current_user.role == 'admin':
+            # Use admin's email as sender
+            sender_email = current_user.email
+            sender_name = f"ROTA CRM - {current_user.name}"
+        
         # Send email
         success = await email_service.send_email(
             to_email=client.get('email', 'test@example.com'),
             subject=f"ROTA CRM - {notification_data.subject}",
-            html_content=email_content
+            html_content=email_content,
+            from_email=sender_email,  # Pass sender email
+            from_name=sender_name     # Pass sender name
         )
         
         if success:
