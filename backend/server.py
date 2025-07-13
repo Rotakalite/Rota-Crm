@@ -7100,6 +7100,21 @@ async def get_email_history(token: str = Depends(verify_token)):
         logging.error(f"Error fetching email history: {str(e)}")
         raise HTTPException(status_code=500, detail="Email geçmişi alınamadı")
 
+# SIMPLE PUBLIC STATS ENDPOINT FOR TESTING
+@api_router.get("/stats-simple")
+async def get_simple_stats():
+    """Simple stats endpoint for testing"""
+    return {
+        "total_clients": 2,
+        "total_documents": 2,
+        "total_trainings": 2,
+        "stage_distribution": {
+            "stage_1": 2,
+            "stage_2": 0,
+            "stage_3": 0
+        }
+    }
+
 # TEMPORARY PUBLIC STATS ENDPOINT FOR DASHBOARD
 @api_router.get("/stats-public")
 async def get_public_statistics():
