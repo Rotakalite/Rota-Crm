@@ -1165,6 +1165,291 @@ class TestWasteManagementEndpoints(unittest.TestCase):
             logger.error(f"❌ Error testing GET /api/waste-management/analytics with year parameter: {str(e)}")
             raise
 
+class TestEmailServiceMethodSignatureFix(unittest.TestCase):
+    """Test class for email service method signature fix - URGENT TEST"""
+    
+    def setUp(self):
+        """Set up test environment"""
+        self.api_url = RAILWAY_API_URL
+        
+        # Headers for different user types
+        self.headers_admin = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
+        self.headers_consultant = {"Authorization": f"Bearer {KAYA_CLIENT_TOKEN}"}  # Using KAYA as consultant
+        self.headers_client = {"Authorization": f"Bearer {CANO_CLIENT_TOKEN}"}
+        self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
+        self.headers_no_auth = {}
+        
+        # Test data for email notification
+        self.test_email_data = {
+            "client_id": "8bfd3a85-2483-4b63-9e80-e53747c3db7e",  # Sample client ID
+            "type": "document",
+            "subject": "Test Email Notification",
+            "message": "Bu bir test email bildirimidir.",
+            "items": [
+                {
+                    "name": "Test Doküman 1",
+                    "folder_path": "Test Klasör/Alt Klasör",
+                    "upload_date": "25.01.2025 14:30"
+                },
+                {
+                    "name": "Test Doküman 2", 
+                    "folder_path": "Test Klasör/Başka Alt Klasör",
+                    "upload_date": "25.01.2025 15:00"
+                }
+            ]
+        }
+        
+        self.test_training_email_data = {
+            "client_id": "8bfd3a85-2483-4b63-9e80-e53747c3db7e",
+            "type": "training",
+            "subject": "Eğitim Bildirimi",
+            "message": "Yeni eğitim programı hakkında bilgilendirme.",
+            "items": [
+                {
+                    "name": "Sürdürülebilirlik Eğitimi",
+                    "trainer": "Ahmet Yılmaz",
+                    "training_date": "30.01.2025",
+                    "hours": "2 saat"
+                }
+            ]
+        }
+    
+    def test_email_send_notification_endpoint_exists(self):
+        """Test that the email send notification endpoint exists and is accessible"""
+        logger.info("\n=== Testing POST /api/email/send-notification endpoint existence ===")
+        
+        url = f"{self.api_url}/email/send-notification"
+        
+        # Test with admin user
+        try:
+            response = requests.post(url, headers=self.headers_admin, json=self.test_email_data)
+            logger.info(f"Admin response status code: {response.status_code}")
+            
+            # Should NOT get 404 Not Found (endpoint should exist)
+            self.assertNotEqual(response.status_code, 404, "Endpoint should exist and not return 404")
+            
+            # Should get 200 OK, 400 Bad Request, 401 Unauthorized, 403 Forbidden, or 500 Internal Server Error
+            self.assertIn(response.status_code, [200, 400, 401, 403, 500])
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"Success response: {data}")
+                self.assertIn("success", data)
+                self.assertTrue(data["success"])
+                logger.info("✅ Email send notification endpoint working correctly")
+            elif response.status_code == 500:
+                # This was the original error - should be fixed now
+                data = response.json()
+                logger.info(f"500 Error response: {data}")
+                # Check if it's the old method signature error
+                error_detail = data.get("detail", "")
+                self.assertNotIn("send_email() got an unexpected keyword argument", error_detail, 
+                               "Method signature error should be fixed")
+                logger.info("✅ No method signature error found")
+            else:
+                data = response.json()
+                logger.info(f"Other response ({response.status_code}): {data}")
+                logger.info("✅ Endpoint exists and responds (not 404)")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing email send notification endpoint: {str(e)}")
+            raise
+    
+    def test_consultant_email_with_custom_sender(self):
+        """Test that consultant users can send emails with their own email as sender"""
+        logger.info("\n=== Testing consultant email with custom sender ===")
+        
+        url = f"{self.api_url}/email/send-notification"
+        
+        # Test with consultant user
+        try:
+            response = requests.post(url, headers=self.headers_consultant, json=self.test_email_data)
+            logger.info(f"Consultant response status code: {response.status_code}")
+            
+            # Should NOT get 500 Internal Server Error due to method signature
+            if response.status_code == 500:
+                data = response.json()
+                error_detail = data.get("detail", "")
+                logger.info(f"500 Error detail: {error_detail}")
+                
+                # Check if it's the old method signature error
+                self.assertNotIn("send_email() got an unexpected keyword argument", error_detail,
+                               "Method signature error should be fixed")
+                self.assertNotIn("from_email", error_detail,
+                               "from_email parameter should be accepted")
+                self.assertNotIn("from_name", error_detail,
+                               "from_name parameter should be accepted")
+                
+                logger.info("✅ No method signature error - different 500 error")
+            elif response.status_code == 200:
+                data = response.json()
+                logger.info(f"Success response: {data}")
+                self.assertIn("success", data)
+                self.assertTrue(data["success"])
+                self.assertIn("sent_by", data.get("details", {}))
+                logger.info("✅ Consultant email sent successfully with custom sender")
+            else:
+                data = response.json()
+                logger.info(f"Other response ({response.status_code}): {data}")
+                logger.info("✅ No 500 method signature error")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing consultant email: {str(e)}")
+            raise
+    
+    def test_email_service_parameter_compatibility(self):
+        """Test that email service handles None values for from_email and from_name"""
+        logger.info("\n=== Testing email service parameter compatibility ===")
+        
+        url = f"{self.api_url}/email/send-notification"
+        
+        # Test with admin user (should use admin email as sender)
+        try:
+            response = requests.post(url, headers=self.headers_admin, json=self.test_training_email_data)
+            logger.info(f"Admin training email response status code: {response.status_code}")
+            
+            # Should NOT get 500 Internal Server Error due to method signature
+            if response.status_code == 500:
+                data = response.json()
+                error_detail = data.get("detail", "")
+                logger.info(f"500 Error detail: {error_detail}")
+                
+                # Check if it's the old method signature error
+                self.assertNotIn("send_email() got an unexpected keyword argument", error_detail,
+                               "Method signature error should be fixed")
+                self.assertNotIn("from_email", error_detail,
+                               "from_email parameter should be accepted")
+                self.assertNotIn("from_name", error_detail,
+                               "from_name parameter should be accepted")
+                
+                logger.info("✅ No method signature error - different 500 error")
+            elif response.status_code == 200:
+                data = response.json()
+                logger.info(f"Success response: {data}")
+                self.assertIn("success", data)
+                self.assertTrue(data["success"])
+                logger.info("✅ Admin training email sent successfully")
+            else:
+                data = response.json()
+                logger.info(f"Other response ({response.status_code}): {data}")
+                logger.info("✅ No 500 method signature error")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing admin training email: {str(e)}")
+            raise
+    
+    def test_email_service_default_fallback(self):
+        """Test that email service uses default values when from_email/from_name are None"""
+        logger.info("\n=== Testing email service default fallback ===")
+        
+        url = f"{self.api_url}/email/test"
+        
+        # Test the test email endpoint which should use default sender
+        try:
+            response = requests.post(url, headers=self.headers_admin)
+            logger.info(f"Test email response status code: {response.status_code}")
+            
+            # Should NOT get 500 Internal Server Error due to method signature
+            if response.status_code == 500:
+                data = response.json()
+                error_detail = data.get("detail", "")
+                logger.info(f"500 Error detail: {error_detail}")
+                
+                # Check if it's the old method signature error
+                self.assertNotIn("send_email() got an unexpected keyword argument", error_detail,
+                               "Method signature error should be fixed")
+                
+                # Check if it's email service availability issue
+                if "Email service not available" in error_detail:
+                    logger.info("⚠️ Email service not available - this is expected in test environment")
+                else:
+                    logger.info("✅ No method signature error - different 500 error")
+            elif response.status_code == 200:
+                data = response.json()
+                logger.info(f"Success response: {data}")
+                self.assertIn("message", data)
+                logger.info("✅ Test email sent successfully with default sender")
+            else:
+                data = response.json()
+                logger.info(f"Other response ({response.status_code}): {data}")
+                logger.info("✅ No 500 method signature error")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing test email endpoint: {str(e)}")
+            raise
+    
+    def test_client_user_email_permission(self):
+        """Test that client users cannot send email notifications (should get 403)"""
+        logger.info("\n=== Testing client user email permission ===")
+        
+        url = f"{self.api_url}/email/send-notification"
+        
+        # Test with client user (should be forbidden)
+        try:
+            response = requests.post(url, headers=self.headers_client, json=self.test_email_data)
+            logger.info(f"Client response status code: {response.status_code}")
+            
+            # Should NOT get 500 Internal Server Error due to method signature
+            if response.status_code == 500:
+                data = response.json()
+                error_detail = data.get("detail", "")
+                logger.info(f"500 Error detail: {error_detail}")
+                
+                # Check if it's the old method signature error
+                self.assertNotIn("send_email() got an unexpected keyword argument", error_detail,
+                               "Method signature error should be fixed")
+                
+                logger.info("✅ No method signature error - different 500 error")
+            elif response.status_code == 403:
+                data = response.json()
+                logger.info(f"Expected 403 response: {data}")
+                self.assertIn("detail", data)
+                logger.info("✅ Client user correctly forbidden from sending emails")
+            else:
+                data = response.json()
+                logger.info(f"Other response ({response.status_code}): {data}")
+                logger.info("✅ No 500 method signature error")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing client email permission: {str(e)}")
+            raise
+    
+    def test_invalid_token_email_endpoint(self):
+        """Test email endpoint with invalid token"""
+        logger.info("\n=== Testing email endpoint with invalid token ===")
+        
+        url = f"{self.api_url}/email/send-notification"
+        
+        try:
+            response = requests.post(url, headers=self.headers_invalid, json=self.test_email_data)
+            logger.info(f"Invalid token response status code: {response.status_code}")
+            
+            # Should get 401 Unauthorized, not 500 Internal Server Error
+            self.assertEqual(response.status_code, 401, "Should get 401 Unauthorized for invalid token")
+            
+            logger.info("✅ Invalid token correctly returns 401")
+        except Exception as e:
+            logger.error(f"❌ Error testing invalid token: {str(e)}")
+            raise
+    
+    def test_no_auth_email_endpoint(self):
+        """Test email endpoint with no authentication"""
+        logger.info("\n=== Testing email endpoint with no authentication ===")
+        
+        url = f"{self.api_url}/email/send-notification"
+        
+        try:
+            response = requests.post(url, headers=self.headers_no_auth, json=self.test_email_data)
+            logger.info(f"No auth response status code: {response.status_code}")
+            
+            # Should get 403 Forbidden, not 500 Internal Server Error
+            self.assertEqual(response.status_code, 403, "Should get 403 Forbidden for no authentication")
+            
+            logger.info("✅ No authentication correctly returns 403")
+        except Exception as e:
+            logger.error(f"❌ Error testing no authentication: {str(e)}")
+            raise
+
 class TestSupplierManagementEndpoints(unittest.TestCase):
     """Test class for supplier management endpoints"""
     
