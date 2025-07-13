@@ -11317,7 +11317,7 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
 // Main App Component
 // Consultant Management Component
 const ConsultantManagement = () => {
-  const { authToken, userRole } = useAuth();
+  const { authToken, userRole, dbUser } = useAuth();
   const [consultants, setConsultants] = useState([]);
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
