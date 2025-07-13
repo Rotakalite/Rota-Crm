@@ -854,6 +854,21 @@ test_plan:
         -agent: "main"
         -comment: "DOCUMENT MANAGEMENT CONSULTANT UPLOAD ACCESS FIX APPLIED! Backend: 1) POST /api/upload-document endpoint'inde consultant role logic eklendi (4251'de get_admin_user yerine get_current_user), 2) Consultant'lar assigned client'larına belge yükleyebilir, 3) POST /upload-document direct endpoint'inde consultant permission check eklendi, 4) Client assignment verification implemented. Consultant'lar artık assigned client'larının folder'larına belge yükleyebilir."
 
+  - task: "Email Management Consultant Access Complete Setup"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py, /app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "Email yönetimini danışmana tanımlamak gerekiyor. Danışman kendine tanımlanan müşterilere doküman yüklediğinde ve eğitim tanımladığında kendi mail adresi ile mail atabilecek."
+        -working: true
+        -agent: "main"
+        -comment: "EMAIL MANAGEMENT CONSULTANT ACCESS COMPLETE SETUP APPLIED! Backend: 1) POST /email/send-notification zaten consultant access var, 2) POST /email/document-notification endpoint'inde consultant access eklendi (get_admin_user → get_current_user), 3) POST /email/training-notification endpoint'inde consultant access eklendi, 4) POST /email/bulk-document-notification endpoint'inde consultant access eklendi, 5) Email gönderirken consultant'ın kendi email'i sender olarak kullanılıyor (from_email, from_name parameters), 6) Client assignment verification tüm email endpoint'lerinde implemented. Frontend: 1) fetchClients consultant için de aktif edildi, 2) EmailManagement component consultant'lar için client selection destekliyor. Consultant'lar artık assigned client'larına kendi email'leri ile doküman/eğitim bildirimleri gönderebilir."
+
 agent_communication:
     -agent: "testing"
     -message: "Successfully tested the document download endpoint (/api/documents/{id}/download). The endpoint is properly implemented and working as expected. It correctly requires authentication, returning 403 Forbidden when no token is provided and 401 Unauthorized for invalid tokens. The endpoint properly retrieves document metadata from MongoDB and checks user access permissions, returning 403 Access Denied if a client user tries to access a document that doesn't belong to them. For valid requests, it returns the document content with proper headers (Content-Type: application/pdf, Content-Disposition: attachment). The endpoint also correctly handles error cases, returning 404 Not Found for non-existent documents. MongoDB database contains 6 documents that can be accessed through this endpoint. No issues were found with the implementation."
