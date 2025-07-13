@@ -167,7 +167,7 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
   
   // Form states
   const [documentName, setDocumentName] = useState('');
-  const [documentType, setDocumentType] = useState('CARBON_REPORT');
+  const [documentType, setDocumentType] = useState('PROCEDURE');
   const [stage, setStage] = useState('I.Aşama');
   const [description, setDescription] = useState('');
   const [selectedFiles, setSelectedFiles] = useState([]);
