@@ -6755,7 +6755,7 @@ async def send_email_notification(
         <div style="background-color: #e5e7eb; padding: 15px; border-radius: 6px; margin-top: 30px;">
             <p style="margin: 0; color: #374151; font-size: 12px; text-align: center;">
                 Bu email otomatik olarak ROTA CRM sistemi tarafından gönderilmiştir.<br>
-                Gönderen: {current_user.name} ({current_user.role})<br>
+                Gönderen: {current_user.name} - {'Danışman' if current_user.role == 'consultant' else 'Yönetici' if current_user.role == 'admin' else 'Müşteri'}<br>
                 Tarih: {datetime.now().strftime('%d.%m.%Y %H:%M')}
             </p>
         </div>
