@@ -9646,7 +9646,7 @@ const ClientSetupForm = ({ onComplete, onSkip }) => {
       });
 
       // Update user record with client_id
-      await axios.put(`${API}/auth/me`, {
+      await axios.put(`${API}/api/me`, {
         client_id: clientResponse.data.id
       }, {
         headers: { 'Authorization': `Bearer ${authToken}` }
