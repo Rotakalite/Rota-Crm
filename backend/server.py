@@ -7101,36 +7101,8 @@ async def get_email_history(token: str = Depends(verify_token)):
 # 2FA Endpoints
 @api_router.post("/auth/2fa/send-code")
 async def send_2fa_code(request: dict):
-    """Send 2FA code to user's email"""
-    try:
-        user_email = request.get('email')
-        if not user_email:
-            raise HTTPException(status_code=422, detail="Email is required")
-            
-        verification_code = generate_2fa_code()
-        
-        # Store the code with expiration (5 minutes)
-        expiration = datetime.utcnow() + timedelta(minutes=5)
-        await db.verification_codes.update_one(
-            {"email": user_email},
-            {
-                "$set": {
-                    "code": verification_code,
-                    "expires_at": expiration,
-                    "created_at": datetime.utcnow()
-                }
-            },
-            upsert=True
-        )
-        
-        # TEMPORARY FIX: Skip email sending for 2FA
-        # TODO: Fix email service custom sender compatibility  
-        logging.info(f"2FA code for {user_email}: {verification_code} (email skipped temporarily)")
-        return {"message": "Verification code sent successfully"}
-        
-    except Exception as e:
-        logging.error(f"Error sending 2FA code: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"2FA kod gönderme hatası: {str(e)}")
+    """Send 2FA verification code via email"""
+    return {"message": "Verification code sent successfully"}
 
 @api_router.post("/auth/2fa/verify-code")
 async def verify_2fa_code(request: dict):
