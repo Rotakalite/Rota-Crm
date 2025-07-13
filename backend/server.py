@@ -6880,7 +6880,9 @@ async def send_document_notification(
             document_name=document.get("document_name") or document.get("name", "Bilinmiyen Doküman"),
             upload_date=upload_date,
             folder_path=folder_path,
-            client_name=client["name"]
+            client_name=client["name"],
+            sender_name=current_user.name,
+            sender_role='Danışman' if current_user.role == 'consultant' else 'Yönetici' if current_user.role == 'admin' else 'Müşteri'
         )
         
         return {"message": f"Doküman bildirimi {client['name']} müşterisine gönderildi!"}
