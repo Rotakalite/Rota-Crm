@@ -657,8 +657,8 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
             </div>
           </div>
 
-          {/* Upload Section - ADMIN ONLY */}
-          {userRole === 'admin' && (
+          {/* Upload Section - ADMIN AND CONSULTANT */}
+          {(userRole === 'admin' || userRole === 'consultant') && (
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h3 className="text-xl font-semibold mb-4">📤 Yeni Belge Yükle</h3>
             
