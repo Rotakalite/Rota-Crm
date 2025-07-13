@@ -76,27 +76,21 @@ class EmailService:
     async def send_email(self, to_email: str, subject: str, html_content: str, from_email: str = None, from_name: str = None):
         """Send email with HTML content"""
         try:
-            # Use custom sender if provided, otherwise use default
-            sender_email = from_email if from_email else self.conf.MAIL_FROM
-            sender_name = from_name if from_name else "ROTA CRM"
-            
-            # Format sender with name if provided
-            if from_name and from_email:
-                formatted_sender = f"{sender_name} <{sender_email}>"
-            else:
-                formatted_sender = sender_email
+            # For now, ignore custom sender and use default
+            # TODO: Implement proper custom sender support
             
             message = MessageSchema(
                 subject=subject,
                 recipients=[to_email],
                 body=html_content,
                 subtype="html"
-                # Note: FastMail uses the ConnectionConfig MAIL_FROM by default
-                # Custom sender is handled differently in some versions
             )
             
             await self.fastmail.send_message(message)
-            logging.info(f"📧 Email sent to {to_email} from {formatted_sender} with subject: {subject}")
+            
+            # Log with sender info if provided
+            sender_info = f"from {from_name} <{from_email}>" if from_email else "with default sender"
+            logging.info(f"📧 Email sent to {to_email} {sender_info} with subject: {subject}")
             return True
             
         except Exception as e:
