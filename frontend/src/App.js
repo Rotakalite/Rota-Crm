@@ -422,7 +422,7 @@ const ConsultantDashboard = ({ onNavigate }) => {
       });
       console.log('🔍 CONSULTANT DEBUG - API /api/me response:', userResponse.data);
       
-      const statsResponse = await axios.get(`${API}/stats-public`);
+      const statsResponse = await axios.get(`${API.replace('/api', '')}/stats-public`);
       setDashboardData(statsResponse.data);
 
       const clientsResponse = await axios.get(`${API}/clients`, {
