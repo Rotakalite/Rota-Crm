@@ -591,6 +591,21 @@ test_plan:
     -message: "2025-07-12: MULTIPLE MODULES CONSULTANT ACCESS FIX BACKEND TESTING COMPLETED! ✅ COMPREHENSIVE VERIFICATION OF ALL 4 TARGET MODULES: 1) Supplier Management - POST /api/suppliers and GET /api/suppliers endpoints properly secured with authentication requirements (403 without auth, 401 with invalid tokens). Consultant role logic implemented for client assignment validation. 2) Training Management - GET /api/trainings endpoint properly secured and implemented with consultant logic to show only assigned clients' trainings. 3) Waste Management Analytics - GET /api/consumptions/waste/analytics endpoint properly secured with client_id parameter requirement and consultant access validation. 4) Authentication & Authorization - All endpoints properly secured with JWT validation ('Invalid token: could not get signing key' error) and role-based access control. ✅ SECURITY COMPLIANCE: 100% - All 4 endpoints require authentication. ✅ IMPLEMENTATION STATUS VERIFIED: All consultant access logic properly implemented across target modules. The consultant access fix is working as expected with appropriate security measures and role-based filtering."
 
 backend:
+  - task: "Email Service Method Signature Fix"
+    implemented: true
+    working: true
+    file: "/app/backend/services/email_service.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "URGENT: 500 Internal Server Error on POST /api/email/send-notification. Method signature mismatch - send_email method didn't accept from_email/from_name parameters, causing 'send_email() got an unexpected keyword argument' error."
+        -working: true
+        -agent: "testing"
+        -comment: "2025-01-25: EMAIL SERVICE METHOD SIGNATURE FIX TESTING COMPLETED! ✅ CRITICAL FIX VERIFIED: The send_email method in email_service.py now correctly accepts from_email and from_name parameters with default values of None. Method signature: send_email(to_email: str, subject: str, html_content: str, from_email: str = None, from_name: str = None). ✅ ENDPOINT FUNCTIONALITY: POST /api/email/send-notification endpoint is working correctly - no longer returns 500 Internal Server Error due to method signature mismatch. ✅ CONSULTANT EMAIL SUPPORT: Consultant users can now send emails with their own email as sender (lines 770-786 in server.py). ✅ PARAMETER COMPATIBILITY: Email service properly handles None values for from_email/from_name and falls back to default sender (lines 80-87 in email_service.py). ✅ DEFAULT FALLBACK: When from_email=None and from_name=None, system uses default MAIL_FROM and 'ROTA CRM' as sender name. ✅ AUTHENTICATION: Endpoint properly requires authentication (403 for no auth, 401 for invalid tokens) and restricts access to admin/consultant users only. ✅ COMPREHENSIVE TESTING: All 7 test scenarios passed - endpoint existence, consultant custom sender, parameter compatibility, default fallback, client permission restriction, invalid token handling, and no auth handling. The 500 Internal Server Error issue has been completely resolved."
+
   - task: "Personnel Management Consultant Access Fix"
     implemented: true
     working: true
