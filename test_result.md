@@ -605,6 +605,21 @@ test_plan:
     -message: "DASHBOARD STATS ENDPOINT TESTING COMPLETED! 🔍 ROOT CAUSE IDENTIFIED: The dashboard showing zeros (customers: 0, documents: 0, trainings: 0, projects: 0) is caused by AUTHENTICATION FAILURE, not missing data. ✅ DATABASE VERIFICATION: Database contains actual data - 1 client (DENİZ OTEL), 2 documents, 2 trainings. ✅ ENDPOINT ACCESSIBILITY: Both /api/stats and /stats endpoints are accessible and properly configured. ✅ AUTHENTICATION ISSUE: All test tokens return 'Invalid token: could not get signing key' (401 Unauthorized). This indicates that frontend authentication tokens are expired/invalid. ❌ CRITICAL FINDING: Frontend cannot authenticate with backend, so /api/stats returns 401 instead of data, causing dashboard to show zeros. 🎯 SOLUTION NEEDED: Frontend needs to refresh/regenerate authentication tokens or fix token validation logic. The backend endpoints and database are working correctly - the issue is purely authentication-related."
 
 backend:
+  - task: "Dashboard Stats Endpoint Testing - Zero Values Issue"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "Dashboard is showing all zeros (customers: 0, documents: 0, trainings: 0, projects: 0). Frontend calls /api/stats endpoint for dashboard data. User reports 'Henüz müşteri bulunmamaktadır' (No customers found) message."
+        -working: false
+        -agent: "testing"
+        -comment: "DASHBOARD STATS ENDPOINT TESTING COMPLETED! 🔍 ROOT CAUSE IDENTIFIED: The dashboard showing zeros is caused by AUTHENTICATION FAILURE, not missing data. ✅ DATABASE VERIFICATION: Database contains actual data - 1 client (DENİZ OTEL), 2 documents, 2 trainings. ✅ ENDPOINT ACCESSIBILITY: Both /api/stats and /stats endpoints are accessible and properly configured. ✅ AUTHENTICATION ISSUE: All test tokens return 'Invalid token: could not get signing key' (401 Unauthorized). This indicates that frontend authentication tokens are expired/invalid. ❌ CRITICAL FINDING: Frontend cannot authenticate with backend, so /api/stats returns 401 instead of data, causing dashboard to show zeros. 🎯 SOLUTION NEEDED: Frontend needs to refresh/regenerate authentication tokens or fix token validation logic. The backend endpoints and database are working correctly - the issue is purely authentication-related."
+
   - task: "Consultant User Display Name Fix - /api/me Endpoint"
     implemented: true
     working: true
