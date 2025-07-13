@@ -10312,8 +10312,7 @@ const EmailManagement = ({ selectedClient: propSelectedClient }) => {
                 </div>
               </div>
             )}
-            </>
-          )
+          </>
         )}
       </div>
     </div>
