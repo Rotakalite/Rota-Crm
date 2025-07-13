@@ -822,9 +822,22 @@ test_plan:
         -agent: "main"
         -comment: "MULTIPLE MODULES CONSULTANT ACCESS FIX APPLIED! Backend: 1) Supplier Management - POST/GET endpoint'lerinde consultant role logic eklendi, 2) Training Management - GET endpoint'inde consultant role logic eklendi, 3) Client assignment verification implemented for all modules. Frontend: SupplierManagement zaten consultant için client selection UI'ı var. TrainingManagement'ta backend training'leri consultant'a göre filtrelenecek."
 
+  - task: "Document Management Consultant Upload Access Fix"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "Danışman olarak giriş yapıp belge yönetimine baktığında belge yükleme yetkisi olmadığını gördü. Danışman uygulamasında belge yükleme yetkisi yok."
+        -working: true
+        -agent: "main"
+        -comment: "DOCUMENT MANAGEMENT CONSULTANT UPLOAD ACCESS FIX APPLIED! Backend: 1) POST /api/upload-document endpoint'inde consultant role logic eklendi (4251'de get_admin_user yerine get_current_user), 2) Consultant'lar assigned client'larına belge yükleyebilir, 3) POST /upload-document direct endpoint'inde consultant permission check eklendi, 4) Client assignment verification implemented. Consultant'lar artık assigned client'larının folder'larına belge yükleyebilir."
+
 agent_communication:
-    -agent: "main"
-    -message: "🎯 CONSULTANT MANAGEMENT SYSTEM TAMAMEN TAMAMLANDI! Kullanıcının 'kaldığın yerden devam eder misin' talebine yanıt olarak: ✅ Backend: Tüm CRUD endpoint'leri (create, read, update, delete, client assignment, bulk operations) ✅ Frontend: Tam özellikli ConsultantManagement component (add/edit/delete consultant, search, client assignment, ROTA auto-assignment) ✅ Modal'lar: Add, Edit, Delete confirmation, Client assignment ✅ Güvenlik: ROTA consultant silme koruması, client'li consultant silme koruması ✅ UI/UX: Responsive design, search functionality, stats cards ✅ Bulk Operations: Atanmamış müşterileri ROTA'ya otomatik atama. Sistem production-ready durumda!"
     -agent: "testing"
     -message: "Successfully tested the document download endpoint (/api/documents/{id}/download). The endpoint is properly implemented and working as expected. It correctly requires authentication, returning 403 Forbidden when no token is provided and 401 Unauthorized for invalid tokens. The endpoint properly retrieves document metadata from MongoDB and checks user access permissions, returning 403 Access Denied if a client user tries to access a document that doesn't belong to them. For valid requests, it returns the document content with proper headers (Content-Type: application/pdf, Content-Disposition: attachment). The endpoint also correctly handles error cases, returning 404 Not Found for non-existent documents. MongoDB database contains 6 documents that can be accessed through this endpoint. No issues were found with the implementation."
     -agent: "testing"
