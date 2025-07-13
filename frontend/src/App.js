@@ -2133,14 +2133,36 @@ const Dashboard = ({ onNavigate }) => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
+      console.log('📊 Dashboard: Current authToken:', authToken ? 'EXISTS' : 'NULL');
       console.log('📊 Dashboard: Fetching stats from', `${API}/stats`);
+      
+      if (!authToken) {
+        console.error('❌ Dashboard: No auth token available');
+        return;
+      }
+      
       const response = await axios.get(`${API}/stats`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       console.log('📊 Dashboard: Stats response:', response.data);
       setDashboardData(response.data);
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      console.error('❌ Dashboard: Error fetching stats:', error.response?.status, error.response?.data);
+      if (error.response?.status === 401) {
+        console.log('🔄 Dashboard: Token expired, trying refresh...');
+        try {
+          const newToken = await refreshToken();
+          if (newToken) {
+            console.log('✅ Dashboard: Token refreshed, retrying stats...');
+            const retryResponse = await axios.get(`${API}/stats`, {
+              headers: { Authorization: `Bearer ${newToken}` }
+            });
+            setDashboardData(retryResponse.data);
+          }
+        } catch (refreshError) {
+          console.error('❌ Dashboard: Token refresh failed:', refreshError);
+        }
+      }
     } finally {
       setLoading(false);
     }
