@@ -683,8 +683,16 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
                     onChange={(e) => setDocumentType(e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
+                    <option value="TR1_CRITERIA">Türkiye Sürdürülebilir Turizm Programı Kriterleri (TR-I)</option>
+                    <option value="STAGE_1_DOC">I. Aşama Belgesi</option>
+                    <option value="STAGE_2_DOC">II. Aşama Belgesi</option>
+                    <option value="STAGE_3_DOC">III. Aşama Belgesi</option>
                     <option value="CARBON_REPORT">Karbon Ayak İzi Raporu</option>
                     <option value="SUSTAINABILITY_REPORT">Sürdürülebilirlik Raporu</option>
+                    <option value="PROCEDURE">Prosedür</option>
+                    <option value="FORM">Form</option>
+                    <option value="LIST">Liste</option>
+                    <option value="INSTRUCTION">Talimat</option>
                     <option value="CERTIFICATE">Sertifika</option>
                     <option value="OTHER">Diğer</option>
                   </select>
