@@ -9298,17 +9298,78 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Eğitim Yönetimi</h2>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-        >
-          <span className="mr-2">+</span>
-          Yeni Eğitim Ekle
-        </button>
-      </div>
+      {/* Client Selection - For Admin and Consultant */}
+      {(userRole === 'admin' || userRole === 'consultant') && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">1. Müşteri Seçimi</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Müşteri Seçin
+              </label>
+              <select
+                value={selectedClient}
+                onChange={(e) => {
+                  setSelectedClient(e.target.value);
+                  // Auto-fill form client_id when selected
+                  setFormData(prev => ({ ...prev, client_id: e.target.value }));
+                }}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">-- Tüm Müşteriler --</option>
+                {Array.isArray(clients) && clients.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.name || client.hotel_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {(selectedClient || userRole === 'admin') && (
+              <div className="flex items-end">
+                <button
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center"
+                >
+                  <span className="mr-2">+</span>
+                  {showAddForm ? 'İptal' : 'Yeni Eğitim Ekle'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Show message if consultant hasn't selected client yet */}
+      {userRole === 'consultant' && !selectedClient ? (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">📚</div>
+            <p className="text-gray-500 text-lg mb-2">Eğitim yönetimi için önce bir müşteri seçin.</p>
+            <p className="text-gray-400 text-sm">Yukarıdaki dropdown'dan müşteri seçerek başlayabilirsiniz.</p>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Header - Only show when client selected or admin */}
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-gray-800">
+              Eğitim Yönetimi 
+              {selectedClient && (
+                <span className="text-lg text-gray-600 font-normal ml-2">
+                  - {clients.find(c => c.id === selectedClient)?.hotel_name || clients.find(c => c.id === selectedClient)?.name}
+                </span>
+              )}
+            </h2>
+            {userRole === 'admin' && !selectedClient && (
+              <button
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+              >
+                <span className="mr-2">+</span>
+                Yeni Eğitim Ekle
+              </button>
+            )}
+          </div>
 
       {/* Add Training Form */}
       {showAddForm && (
