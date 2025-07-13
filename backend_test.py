@@ -1170,7 +1170,7 @@ class TestConsultantUserDisplayNameFix(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://ecd50858-c16e-4cf1-bfa1-501728878062.preview.emergentagent.com/api"
+        self.api_url = "https://rota-crm-production.up.railway.app/api"
         
         # Test JWT tokens for different user types
         # These tokens should be valid for testing consultant functionality
