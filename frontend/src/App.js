@@ -388,7 +388,7 @@ const getFileIcon = (filePath) => {
 
 // Functional Consultant Dashboard - Fixed Version
 const ConsultantDashboard = ({ onNavigate }) => {
-  const { authToken, dbUser } = useAuth();
+  const { authToken, dbUser, refreshToken } = useAuth();
   const [dashboardData, setDashboardData] = useState(null);
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
