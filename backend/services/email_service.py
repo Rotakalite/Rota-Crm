@@ -73,18 +73,29 @@ class EmailService:
         except Exception as e:
             logging.error(f"❌ Error checking templates: {str(e)}")
     
-    async def send_email(self, to_email: str, subject: str, html_content: str):
+    async def send_email(self, to_email: str, subject: str, html_content: str, from_email: str = None, from_name: str = None):
         """Send email with HTML content"""
         try:
+            # Use custom sender if provided, otherwise use default
+            sender_email = from_email if from_email else self.conf.MAIL_FROM
+            sender_name = from_name if from_name else "ROTA CRM"
+            
+            # Format sender with name if provided
+            if from_name and from_email:
+                formatted_sender = f"{sender_name} <{sender_email}>"
+            else:
+                formatted_sender = sender_email
+            
             message = MessageSchema(
                 subject=subject,
                 recipients=[to_email],
                 body=html_content,
-                subtype="html"
+                subtype="html",
+                mail_from=formatted_sender  # Custom sender
             )
             
             await self.fastmail.send_message(message)
-            logging.info(f"📧 Email sent to {to_email} with subject: {subject}")
+            logging.info(f"📧 Email sent to {to_email} from {formatted_sender} with subject: {subject}")
             return True
             
         except Exception as e:
