@@ -155,7 +155,7 @@ class TwoFAAnalysis:
         logger.info("\n⏰ TESTING CODE EXPIRATION")
         logger.info("="*60)
         
-        if not self.db is not None:
+        if self.db is None:
             logger.error("❌ Cannot test expiration without database access")
             return
         
