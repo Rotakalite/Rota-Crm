@@ -263,6 +263,10 @@ class DocumentType(str, Enum):
     STAGE_3_DOC = "III. Aşama Belgesi"
     CARBON_REPORT = "Karbon Ayak İzi Raporu"
     SUSTAINABILITY_REPORT = "Sürdürülebilirlik Raporu"
+    PROCEDURE = "Prosedür"
+    FORM = "Form"
+    LIST = "Liste"
+    INSTRUCTION = "Talimat"
 
 class UserRole(str, Enum):
     ADMIN = "admin"
