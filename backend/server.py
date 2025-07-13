@@ -9862,6 +9862,35 @@ async def get_current_user_info(current_user: User = Depends(get_current_user)):
         logging.error(f"❌ Error getting user info: {str(e)}")
         raise HTTPException(status_code=500, detail="User bilgisi alınamadı")
 
+# DIRECT STATS ENDPOINT ON MAIN APP - WORKAROUND FOR DEPLOYMENT ISSUE
+@app.get("/api/stats-public")
+async def get_public_statistics_main():
+    """Get public statistics without authentication for dashboard - MAIN APP VERSION"""
+    try:
+        # Get real data from database
+        total_clients = await db.clients.count_documents({})
+        stage_1_clients = await db.clients.count_documents({"current_stage": "I.Aşama"})
+        stage_2_clients = await db.clients.count_documents({"current_stage": "II.Aşama"}) 
+        stage_3_clients = await db.clients.count_documents({"current_stage": "III.Aşama"})
+        total_documents = await db.documents.count_documents({})
+        total_trainings = await db.trainings.count_documents({})
+        
+        logging.info(f"📊 PUBLIC STATS MAIN APP - Clients: {total_clients}, Docs: {total_documents}, Trainings: {total_trainings}")
+        
+        return {
+            "total_clients": total_clients,
+            "stage_distribution": {
+                "stage_1": stage_1_clients,
+                "stage_2": stage_2_clients,
+                "stage_3": stage_3_clients
+            },
+            "total_documents": total_documents,
+            "total_trainings": total_trainings
+        }
+    except Exception as e:
+        logging.error(f"Error fetching public stats main app: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Stats error: {str(e)}")
+
 # ==========================================
 # API ROUTER REGISTRATION - MUST BE AT END
 # ==========================================
