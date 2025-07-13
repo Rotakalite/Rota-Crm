@@ -10103,6 +10103,158 @@ async def download_import_template(current_user: User = Depends(get_admin_user))
         logging.error(f"❌ Template download error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Template indirme hatası: {str(e)}")
 
+# BULK EMAIL ENDPOINTS - ADMIN ONLY
+@app.post("/api/bulk-email/send")
+async def send_bulk_email(
+    request: dict,
+    current_user: User = Depends(get_admin_user)
+):
+    """Send bulk email to clients - ADMIN ONLY"""
+    try:
+        email_type = request.get("email_type", "custom")
+        subject = request.get("subject", "")
+        content = request.get("content", "")
+        target_filters = request.get("filters", {})
+        
+        if not subject or not content:
+            raise HTTPException(status_code=400, detail="Email konusu ve içeriği gereklidir")
+        
+        # Build query based on filters
+        query = {}
+        if target_filters.get("city"):
+            query["city"] = target_filters["city"]
+        if target_filters.get("audit_company"):
+            query["audit_company"] = target_filters["audit_company"]
+        if target_filters.get("has_email"):
+            query["email"] = {"$ne": "", "$exists": True}
+        
+        # Get clients matching filters
+        clients = await db.clients.find(query).to_list(length=None)
+        
+        if not clients:
+            raise HTTPException(status_code=400, detail="Filtre kriterlerine uygun müşteri bulunamadı")
+        
+        # Filter clients with valid email addresses
+        valid_email_clients = [
+            client for client in clients 
+            if client.get("email") and "@" in client.get("email", "")
+        ]
+        
+        if not valid_email_clients:
+            raise HTTPException(status_code=400, detail="Geçerli email adresi olan müşteri bulunamadı")
+        
+        from services.email_service import email_service
+        
+        if not email_service:
+            raise HTTPException(status_code=500, detail="Email servisi mevcut değil")
+        
+        sent_count = 0
+        failed_count = 0
+        
+        for client in valid_email_clients:
+            try:
+                # Personalize content
+                personalized_content = content.replace("{hotel_name}", client.get("hotel_name", ""))
+                personalized_content = personalized_content.replace("{city}", client.get("city", ""))
+                personalized_content = personalized_content.replace("{contact_person}", client.get("contact_person", ""))
+                
+                # Send email
+                await email_service.send_email(
+                    to_email=client["email"],
+                    subject=subject,
+                    html_content=f"""
+                    <html>
+                    <head>
+                        <style>
+                            body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                            .header {{ background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }}
+                            .content {{ background: white; padding: 30px; border: 1px solid #e1e5e9; }}
+                            .footer {{ background: #f8f9fa; padding: 20px; border-radius: 0 0 10px 10px; text-align: center; color: #666; }}
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <div class="header">
+                                <h1>🏨 ROTA Kalite Danışmanlık</h1>
+                                <p>Profesyonel Kalite ve Çevre Danışmanlığı</p>
+                            </div>
+                            <div class="content">
+                                {personalized_content}
+                            </div>
+                            <div class="footer">
+                                <p>Bu email ROTA Kalite Danışmanlık tarafından gönderilmiştir.</p>
+                                <p>© 2024 ROTA Kalite Danışmanlık Ltd. Şti.</p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                    """
+                )
+                
+                sent_count += 1
+                
+                if sent_count % 10 == 0:
+                    logging.info(f"📧 BULK EMAIL - İlerleme: {sent_count} email gönderildi")
+                
+            except Exception as email_error:
+                logging.error(f"❌ Email gönderme hatası - {client.get('email', 'Unknown')}: {str(email_error)}")
+                failed_count += 1
+                continue
+        
+        logging.info(f"📧 BULK EMAIL - Tamamlandı: {sent_count} başarılı, {failed_count} başarısız")
+        
+        return {
+            "success": True,
+            "sent_count": sent_count,
+            "failed_count": failed_count,
+            "total_clients": len(clients),
+            "valid_email_count": len(valid_email_clients),
+            "message": f"Toplu email gönderimi tamamlandı! {sent_count} email başarıyla gönderildi."
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ BULK EMAIL ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Toplu email gönderme hatası: {str(e)}")
+
+@app.get("/api/bulk-email/stats")
+async def get_bulk_email_stats(current_user: User = Depends(get_admin_user)):
+    """Get email statistics for bulk email - ADMIN ONLY"""
+    try:
+        # Get total clients
+        total_clients = await db.clients.count_documents({})
+        
+        # Get clients with email
+        clients_with_email = await db.clients.count_documents({
+            "email": {"$ne": "", "$exists": True}
+        })
+        
+        # Get city distribution
+        city_pipeline = [
+            {"$group": {"_id": "$city", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}}
+        ]
+        city_stats = await db.clients.aggregate(city_pipeline).to_list(length=None)
+        
+        # Get audit company distribution
+        audit_pipeline = [
+            {"$group": {"_id": "$audit_company", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}}
+        ]
+        audit_stats = await db.clients.aggregate(audit_pipeline).to_list(length=None)
+        
+        return {
+            "total_clients": total_clients,
+            "clients_with_email": clients_with_email,
+            "email_coverage_percentage": round((clients_with_email / total_clients * 100), 2) if total_clients > 0 else 0,
+            "city_distribution": city_stats[:10],  # Top 10 cities
+            "audit_company_distribution": audit_stats[:10]  # Top 10 audit companies
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Bulk email stats error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Email istatistik hatası: {str(e)}")
+
 # ==========================================
 # API ROUTER REGISTRATION - MUST BE AT END
 # ==========================================
