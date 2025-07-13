@@ -54,7 +54,7 @@ class TwoFAAnalysis:
         test_email = "analysis@test.com"
         
         # Clear any existing codes for this email
-        if self.db:
+        if self.db is not None:
             self.db.verification_codes.delete_many({"email": test_email})
             logger.info(f"🧹 Cleared existing codes for {test_email}")
         
@@ -67,7 +67,7 @@ class TwoFAAnalysis:
         logger.info(f"Response: {response.status_code} - {response.text}")
         
         # Check database immediately after
-        if self.db:
+        if self.db is not None:
             time.sleep(1)  # Brief wait
             codes = list(self.db.verification_codes.find({"email": test_email}))
             logger.info(f"Codes in database after send: {len(codes)}")
