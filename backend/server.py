@@ -6107,7 +6107,7 @@ async def get_waste_analytics(
         "total_accommodation": sum(r.get("accommodation_count", 0) for r in records)
     }
 
-    # Monthly breakdown (simplified)
+    # Monthly breakdown with all waste types
     monthly_data = []
     for record in records:
         monthly_data.append({
@@ -6116,7 +6116,16 @@ async def get_waste_analytics(
             "total_waste": record.get("total_waste", 0),
             "recycling_rate": record.get("recycling_rate", 0),
             "per_person_waste": record.get("per_person_waste", 0),
-            "accommodation_count": record.get("accommodation_count", 0)
+            "accommodation_count": record.get("accommodation_count", 0),
+            # Add individual waste types for charts
+            "organic_waste": record.get("organic_waste", 0),
+            "plastic_waste": record.get("plastic_waste", 0),
+            "glass_waste": record.get("glass_waste", 0),
+            "paper_waste": record.get("paper_waste", 0),
+            "metal_waste": record.get("metal_waste", 0),
+            "electronic_waste": record.get("electronic_waste", 0),
+            "mixed_waste": record.get("mixed_waste", 0),
+            "oil_waste": record.get("oil_waste", 0)
         })
 
     # Waste type breakdown (latest month)
