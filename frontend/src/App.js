@@ -9531,15 +9531,30 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
         <div className="p-6">
           <h3 className="text-lg font-semibold mb-4">Eğitimler</h3>
           
-          {trainings.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <span className="text-6xl mb-4 block">📚</span>
-              <h4 className="text-xl font-semibold mb-2">Henüz eğitim yok</h4>
-              <p>İlk eğitimi eklemek için yukarıdaki butonu kullanın.</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {trainings.map((training) => (
+          {(() => {
+            // Filter trainings based on selected client for consultant
+            const filteredTrainings = userRole === 'consultant' && selectedClient 
+              ? trainings.filter(training => training.client_id === selectedClient)
+              : selectedClient 
+                ? trainings.filter(training => training.client_id === selectedClient)
+                : trainings;
+            
+            return filteredTrainings.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <span className="text-6xl mb-4 block">📚</span>
+                <h4 className="text-xl font-semibold mb-2">
+                  {selectedClient ? 'Bu müşteri için henüz eğitim yok' : 'Henüz eğitim yok'}
+                </h4>
+                <p>
+                  {selectedClient 
+                    ? 'Bu müşteri için ilk eğitimi eklemek için yukarıdaki butonu kullanın.'
+                    : 'İlk eğitimi eklemek için önce müşteri seçin.'
+                  }
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredTrainings.map((training) => (
                 <div key={training.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
