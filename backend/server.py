@@ -7188,8 +7188,11 @@ async def send_2fa_code(request: dict):
             return {"message": "Verification code sent successfully"}
             
         except Exception as e:
-            logging.error(f"Error sending 2FA code email: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"2FA kod gönderme hatası: {str(e)}")
+            error_msg = str(e) if str(e) else type(e).__name__
+            logging.error(f"Error sending 2FA code email: {error_msg}")
+            logging.error(f"Error type: {type(e)}")
+            logging.error(f"Error args: {e.args}")
+            raise HTTPException(status_code=500, detail=f"2FA kod gönderme hatası: {error_msg}")
         
     except Exception as e:
         logging.error(f"Error sending 2FA code: {str(e)}")
