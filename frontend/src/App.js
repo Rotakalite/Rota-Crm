@@ -2165,24 +2165,40 @@ const Dashboard = ({ onNavigate }) => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      console.log('📊 Dashboard: Using real database numbers');
+      console.log('📊 Dashboard: Fetching authenticated stats');
+      console.log('📊 Dashboard: AuthToken exists:', !!authToken);
+      console.log('📊 Dashboard: User role:', userRole);
       
-      // Use real database numbers (verified by testing agent)
-      const realData = {
-        total_clients: 2,        // DENİZ OTEL, BELO
-        total_documents: 2,      // Real documents in database  
-        total_trainings: 2,      // Real trainings in database
-        stage_distribution: {
-          stage_1: 2,           // Both clients in stage 1
-          stage_2: 0,
-          stage_3: 0
-        }
-      };
+      if (!authToken) {
+        console.error('❌ Dashboard: No auth token available');
+        return;
+      }
       
-      console.log('📊 Dashboard: Real database stats:', realData);
-      setDashboardData(realData);
+      // Use authenticated stats endpoint
+      const response = await axios.get(`${API}/stats`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      console.log('📊 Dashboard: Authenticated stats response:', response.data);
+      setDashboardData(response.data);
     } catch (error) {
-      console.error('❌ Dashboard: Error:', error);
+      console.error('❌ Dashboard: Error fetching authenticated stats:', error.response?.status, error.response?.data);
+      
+      if (error.response?.status === 401) {
+        console.log('🔄 Dashboard: Token expired, trying refresh...');
+        try {
+          const newToken = await refreshToken();
+          if (newToken) {
+            console.log('✅ Dashboard: Token refreshed, retrying...');
+            const retryResponse = await axios.get(`${API}/stats`, {
+              headers: { Authorization: `Bearer ${newToken}` }
+            });
+            setDashboardData(retryResponse.data);
+          }
+        } catch (refreshError) {
+          console.error('❌ Dashboard: Token refresh failed:', refreshError);
+        }
+      }
     } finally {
       setLoading(false);
     }
