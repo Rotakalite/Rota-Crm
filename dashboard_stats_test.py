@@ -219,19 +219,22 @@ class DashboardStatsTest(unittest.TestCase):
         logger.info("\n=== Testing database data verification ===")
         
         try:
+            # Use synchronous MongoDB client for simpler testing
+            from pymongo import MongoClient
+            
             # Connect to MongoDB
-            client = AsyncIOMotorClient(MONGO_URL)
+            client = MongoClient(MONGO_URL)
             db = client[DB_NAME]
             
             # Test clients collection
             try:
-                clients_count = asyncio.run(db.clients.count_documents({}))
+                clients_count = db.clients.count_documents({})
                 logger.info(f"📊 Clients collection count: {clients_count}")
                 
                 if clients_count > 0:
                     logger.info("✅ Clients collection has data")
                     # Get sample client data
-                    sample_clients = asyncio.run(db.clients.find({}).limit(3).to_list(length=3))
+                    sample_clients = list(db.clients.find({}).limit(3))
                     for i, client in enumerate(sample_clients):
                         client_name = client.get("name", "Unknown")
                         hotel_name = client.get("hotel_name", "Unknown")
@@ -244,13 +247,13 @@ class DashboardStatsTest(unittest.TestCase):
             
             # Test documents collection
             try:
-                documents_count = asyncio.run(db.documents.count_documents({}))
+                documents_count = db.documents.count_documents({})
                 logger.info(f"📊 Documents collection count: {documents_count}")
                 
                 if documents_count > 0:
                     logger.info("✅ Documents collection has data")
                     # Get sample document data
-                    sample_docs = asyncio.run(db.documents.find({}).limit(3).to_list(length=3))
+                    sample_docs = list(db.documents.find({}).limit(3))
                     for i, doc in enumerate(sample_docs):
                         doc_name = doc.get("name", "Unknown")
                         client_id = doc.get("client_id", "Unknown")
@@ -263,13 +266,13 @@ class DashboardStatsTest(unittest.TestCase):
             
             # Test trainings collection
             try:
-                trainings_count = asyncio.run(db.trainings.count_documents({}))
+                trainings_count = db.trainings.count_documents({})
                 logger.info(f"📊 Trainings collection count: {trainings_count}")
                 
                 if trainings_count > 0:
                     logger.info("✅ Trainings collection has data")
                     # Get sample training data
-                    sample_trainings = asyncio.run(db.trainings.find({}).limit(3).to_list(length=3))
+                    sample_trainings = list(db.trainings.find({}).limit(3))
                     for i, training in enumerate(sample_trainings):
                         training_name = training.get("name", "Unknown")
                         client_id = training.get("client_id", "Unknown")
