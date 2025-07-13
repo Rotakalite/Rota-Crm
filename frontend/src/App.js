@@ -2171,6 +2171,16 @@ const Dashboard = ({ onNavigate }) => {
   useEffect(() => {
     if (authToken) {
       fetchDashboardData();
+    } else {
+      // Force token refresh if no token
+      console.log('🔄 Dashboard: No token, forcing refresh...');
+      refreshToken().then((newToken) => {
+        if (newToken) {
+          console.log('✅ Dashboard: Token refreshed successfully');
+        }
+      }).catch((error) => {
+        console.error('❌ Dashboard: Force refresh failed:', error);
+      });
     }
   }, [authToken]);
 
