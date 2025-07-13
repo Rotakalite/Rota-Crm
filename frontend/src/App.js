@@ -6188,7 +6188,7 @@ const ClientDocuments = () => {
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
-  const { authToken, userRole, dbUser } = useAuth();
+  const { authToken, userRole, dbUser, refreshToken } = useAuth();
 
 
   // Get document count for a folder
