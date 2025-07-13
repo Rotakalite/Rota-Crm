@@ -201,7 +201,7 @@ class TwoFAAnalysis:
         logger.info(f"Send response: {response.status_code} - {response.text}")
         
         # Check if code was stored
-        if self.db:
+        if self.db is not None:
             time.sleep(2)
             codes = list(self.db.verification_codes.find({"email": test_email}))
             if codes:
