@@ -9941,6 +9941,168 @@ async def get_public_statistics_main():
         logging.error(f"Error fetching public stats main app: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Stats error: {str(e)}")
 
+# BULK IMPORT ENDPOINTS - ADMIN ONLY
+@app.post("/api/bulk-import/clients")
+async def bulk_import_clients(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_admin_user)
+):
+    """Bulk import clients from Excel file - ADMIN ONLY"""
+    try:
+        import pandas as pd
+        import io
+        from datetime import datetime
+        
+        # Validate file type
+        if not file.filename.endswith(('.xlsx', '.xls')):
+            raise HTTPException(status_code=400, detail="Sadece Excel dosyaları (.xlsx, .xls) kabul edilir")
+        
+        # Read Excel file
+        contents = await file.read()
+        df = pd.read_excel(io.BytesIO(contents))
+        
+        logging.info(f"📊 BULK IMPORT - Excel dosyası okundu: {len(df)} satır")
+        logging.info(f"📊 BULK IMPORT - Kolonlar: {list(df.columns)}")
+        
+        # Expected columns mapping
+        column_mapping = {
+            'TESİS ADI': 'hotel_name',
+            'TESIS ADI': 'hotel_name', 
+            'TESİS_ADI': 'hotel_name',
+            'İL': 'city',
+            'IL': 'city',
+            'İLÇE': 'district',
+            'ILCE': 'district',
+            'TELEFON': 'phone',
+            'MAİL': 'email',
+            'MAIL': 'email',
+            'SERTİFİKA BİTİŞ TARİHİ': 'certificate_end_date',
+            'SERTIFIKA BITIS TARIHI': 'certificate_end_date',
+            'DENETLEYEN FİRMA': 'audit_company',
+            'DENETLEYEN FIRMA': 'audit_company'
+        }
+        
+        # Normalize column names
+        df.columns = df.columns.str.upper().str.strip()
+        
+        imported_count = 0
+        skipped_count = 0
+        error_count = 0
+        
+        for index, row in df.iterrows():
+            try:
+                # Extract data using column mapping
+                hotel_data = {}
+                for excel_col, db_field in column_mapping.items():
+                    if excel_col in df.columns:
+                        value = row[excel_col]
+                        if pd.notna(value):
+                            hotel_data[db_field] = str(value).strip()
+                
+                # Required fields check
+                if not hotel_data.get('hotel_name'):
+                    logging.warning(f"Satır {index+1}: Tesis adı eksik, atlanıyor")
+                    skipped_count += 1
+                    continue
+                
+                # Generate unique ID
+                client_id = str(uuid.uuid4())
+                
+                # Prepare client document
+                client_doc = {
+                    "id": client_id,
+                    "name": hotel_data.get('hotel_name', ''),
+                    "hotel_name": hotel_data.get('hotel_name', ''),
+                    "city": hotel_data.get('city', ''),
+                    "district": hotel_data.get('district', ''),
+                    "phone": hotel_data.get('phone', ''),
+                    "email": hotel_data.get('email', ''),
+                    "certificate_end_date": hotel_data.get('certificate_end_date', ''),
+                    "audit_company": hotel_data.get('audit_company', ''),
+                    "current_stage": "I.Aşama",  # Default stage
+                    "created_at": datetime.utcnow(),
+                    "created_by": current_user.email,
+                    "import_source": "bulk_excel",
+                    "contact_person": "",  # Can be filled later
+                    "address": f"{hotel_data.get('district', '')} / {hotel_data.get('city', '')}".strip(' /')
+                }
+                
+                # Check for duplicates (by hotel_name and city)
+                existing = await db.clients.find_one({
+                    "hotel_name": client_doc["hotel_name"],
+                    "city": client_doc["city"]
+                })
+                
+                if existing:
+                    logging.info(f"Satır {index+1}: {client_doc['hotel_name']} zaten mevcut, atlanıyor")
+                    skipped_count += 1
+                    continue
+                
+                # Insert to database
+                await db.clients.insert_one(client_doc)
+                imported_count += 1
+                
+                if imported_count % 100 == 0:
+                    logging.info(f"📊 BULK IMPORT - İlerleme: {imported_count} müşteri eklendi")
+                
+            except Exception as row_error:
+                logging.error(f"Satır {index+1} hatası: {str(row_error)}")
+                error_count += 1
+                continue
+        
+        logging.info(f"📊 BULK IMPORT - Tamamlandı: {imported_count} eklendi, {skipped_count} atlandı, {error_count} hata")
+        
+        return {
+            "success": True,
+            "imported_count": imported_count,
+            "skipped_count": skipped_count,
+            "error_count": error_count,
+            "total_rows": len(df),
+            "message": f"Toplu müşteri ekleme tamamlandı! {imported_count} müşteri başarıyla eklendi."
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ BULK IMPORT ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Toplu import hatası: {str(e)}")
+
+@app.get("/api/bulk-import/template")
+async def download_import_template(current_user: User = Depends(get_admin_user)):
+    """Download Excel template for bulk import - ADMIN ONLY"""
+    try:
+        import pandas as pd
+        import io
+        from fastapi.responses import StreamingResponse
+        
+        # Create template DataFrame
+        template_data = {
+            'TESİS ADI': ['Örnek Otel 1', 'Örnek Otel 2'],
+            'İL': ['İstanbul', 'Ankara'],
+            'İLÇE': ['Beyoğlu', 'Çankaya'],
+            'TELEFON': ['+90 212 555 0001', '+90 312 555 0002'],
+            'MAİL': ['info@ornekotel1.com', 'info@ornekotel2.com'],
+            'SERTİFİKA BİTİŞ TARİHİ': ['2024-12-31', '2025-06-30'],
+            'DENETLEYEN FİRMA': ['ABC Denetim', 'XYZ Kalite']
+        }
+        
+        df = pd.DataFrame(template_data)
+        
+        # Create Excel file in memory
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name='Müşteri Listesi')
+        
+        output.seek(0)
+        
+        return StreamingResponse(
+            io.BytesIO(output.read()),
+            media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            headers={"Content-Disposition": "attachment; filename=musteri_import_template.xlsx"}
+        )
+        
+    except Exception as e:
+        logging.error(f"❌ Template download error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Template indirme hatası: {str(e)}")
+
 # ==========================================
 # API ROUTER REGISTRATION - MUST BE AT END
 # ==========================================
