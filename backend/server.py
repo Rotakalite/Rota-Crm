@@ -9419,44 +9419,302 @@ async def send_2fa_code(request: dict):
         if email_service:
             subject = "ROTA CRM - Doğrulama Kodu"
             html_content = f"""
-            <html>
+            <!DOCTYPE html>
+            <html lang="tr">
             <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>ROTA CRM - Güvenlik Doğrulama</title>
                 <style>
-                    body {{ font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }}
-                    .container {{ max-width: 600px; margin: 0 auto; background-color: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }}
-                    .header {{ text-align: center; margin-bottom: 30px; }}
-                    .logo {{ font-size: 28px; font-weight: bold; color: #4F46E5; margin-bottom: 10px; }}
-                    .code-box {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; }}
-                    .code {{ font-size: 32px; font-weight: bold; letter-spacing: 4px; }}
-                    .warning {{ background-color: #FEF3C7; border: 1px solid #F59E0B; padding: 15px; border-radius: 6px; margin: 20px 0; }}
-                    .footer {{ text-align: center; margin-top: 30px; color: #666; font-size: 14px; }}
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+                    
+                    * {{
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }}
+                    
+                    body {{
+                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                        line-height: 1.6;
+                        color: #1a1a1a;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        margin: 0;
+                        padding: 40px 20px;
+                        min-height: 100vh;
+                    }}
+                    
+                    .email-container {{
+                        max-width: 600px;
+                        margin: 0 auto;
+                        background: #ffffff;
+                        border-radius: 20px;
+                        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+                        overflow: hidden;
+                        position: relative;
+                    }}
+                    
+                    .header-gradient {{
+                        background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #db2777 100%);
+                        padding: 40px 40px 60px 40px;
+                        text-align: center;
+                        position: relative;
+                        overflow: hidden;
+                    }}
+                    
+                    .header-gradient::before {{
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.05"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+                        opacity: 0.3;
+                    }}
+                    
+                    .logo-container {{
+                        position: relative;
+                        z-index: 2;
+                        margin-bottom: 20px;
+                    }}
+                    
+                    .logo {{
+                        font-size: 28px;
+                        font-weight: 700;
+                        color: #ffffff;
+                        margin-bottom: 8px;
+                        letter-spacing: -0.5px;
+                    }}
+                    
+                    .logo-subtitle {{
+                        color: rgba(255, 255, 255, 0.9);
+                        font-size: 14px;
+                        font-weight: 500;
+                        text-transform: uppercase;
+                        letter-spacing: 2px;
+                    }}
+                    
+                    .header-title {{
+                        color: #ffffff;
+                        font-size: 24px;
+                        font-weight: 600;
+                        margin-top: 30px;
+                        position: relative;
+                        z-index: 2;
+                    }}
+                    
+                    .content-section {{
+                        padding: 50px 40px;
+                        background: #ffffff;
+                    }}
+                    
+                    .greeting {{
+                        font-size: 18px;
+                        color: #374151;
+                        margin-bottom: 24px;
+                        font-weight: 500;
+                    }}
+                    
+                    .main-text {{
+                        font-size: 16px;
+                        color: #6b7280;
+                        margin-bottom: 40px;
+                        line-height: 1.7;
+                    }}
+                    
+                    .verification-box {{
+                        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+                        border-radius: 16px;
+                        padding: 40px;
+                        text-align: center;
+                        margin: 40px 0;
+                        position: relative;
+                        overflow: hidden;
+                        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                    }}
+                    
+                    .verification-box::before {{
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 3px;
+                        background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+                    }}
+                    
+                    .code-label {{
+                        color: #cbd5e1;
+                        font-size: 14px;
+                        font-weight: 500;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                        margin-bottom: 16px;
+                    }}
+                    
+                    .verification-code {{
+                        font-family: 'Courier New', monospace;
+                        font-size: 42px;
+                        font-weight: 700;
+                        color: #ffffff;
+                        letter-spacing: 8px;
+                        margin-bottom: 20px;
+                        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+                    }}
+                    
+                    .code-validity {{
+                        color: #94a3b8;
+                        font-size: 14px;
+                        font-weight: 500;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 8px;
+                    }}
+                    
+                    .security-notice {{
+                        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+                        border: 1px solid #f59e0b;
+                        border-radius: 12px;
+                        padding: 24px;
+                        margin: 40px 0;
+                        position: relative;
+                    }}
+                    
+                    .security-notice::before {{
+                        content: '⚠️';
+                        position: absolute;
+                        top: -10px;
+                        left: 20px;
+                        background: #ffffff;
+                        padding: 0 8px;
+                        font-size: 20px;
+                    }}
+                    
+                    .security-title {{
+                        font-weight: 600;
+                        color: #92400e;
+                        margin-bottom: 8px;
+                        font-size: 16px;
+                    }}
+                    
+                    .security-text {{
+                        color: #a16207;
+                        font-size: 14px;
+                        line-height: 1.6;
+                    }}
+                    
+                    .additional-info {{
+                        background: #f8fafc;
+                        border-radius: 12px;
+                        padding: 24px;
+                        margin: 30px 0;
+                        border-left: 4px solid #3b82f6;
+                    }}
+                    
+                    .additional-info p {{
+                        color: #64748b;
+                        font-size: 15px;
+                        margin: 0;
+                    }}
+                    
+                    .footer {{
+                        background: #f1f5f9;
+                        padding: 40px;
+                        text-align: center;
+                        border-top: 1px solid #e2e8f0;
+                    }}
+                    
+                    .footer-text {{
+                        color: #64748b;
+                        font-size: 13px;
+                        line-height: 1.6;
+                        margin-bottom: 12px;
+                    }}
+                    
+                    .company-info {{
+                        color: #374151;
+                        font-size: 14px;
+                        font-weight: 600;
+                        margin-bottom: 8px;
+                    }}
+                    
+                    .copyright {{
+                        color: #9ca3af;
+                        font-size: 12px;
+                        font-weight: 500;
+                    }}
+                    
+                    .divider {{
+                        height: 1px;
+                        background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+                        margin: 20px 0;
+                    }}
+                    
+                    @media (max-width: 600px) {{
+                        body {{ padding: 20px 10px; }}
+                        .email-container {{ margin: 0; }}
+                        .header-gradient, .content-section, .footer {{ padding: 30px 20px; }}
+                        .verification-code {{ font-size: 36px; letter-spacing: 6px; }}
+                        .header-title {{ font-size: 20px; }}
+                    }}
                 </style>
             </head>
             <body>
-                <div class="container">
-                    <div class="header">
-                        <div class="logo">🔒 ROTA CRM</div>
-                        <h2>İki Faktörlü Doğrulama</h2>
+                <div class="email-container">
+                    <div class="header-gradient">
+                        <div class="logo-container">
+                            <div class="logo">ROTA CRM</div>
+                            <div class="logo-subtitle">Elite Danışmanlık Sistemi</div>
+                        </div>
+                        <h1 class="header-title">🔐 Güvenlik Doğrulama</h1>
                     </div>
                     
-                    <p>Merhaba,</p>
-                    <p>ROTA CRM hesabınıza giriş yapmak için aşağıdaki doğrulama kodunu kullanın:</p>
-                    
-                    <div class="code-box">
-                        <div class="code">{verification_code}</div>
-                        <p style="margin: 10px 0 0 0; font-size: 14px;">Bu kod 10 dakika geçerlidir</p>
+                    <div class="content-section">
+                        <div class="greeting">Sayın Kullanıcı,</div>
+                        
+                        <p class="main-text">
+                            ROTA CRM Elite Danışmanlık Sistemi'ne güvenli erişim için 
+                            <strong>iki faktörlü kimlik doğrulama</strong> kodunuz hazır. 
+                            Lütfen aşağıdaki özel doğrulama kodunu giriş ekranında kullanın.
+                        </p>
+                        
+                        <div class="verification-box">
+                            <div class="code-label">Doğrulama Kodu</div>
+                            <div class="verification-code">{verification_code}</div>
+                            <div class="code-validity">
+                                ⏱️ Bu kod 10 dakika süreyle geçerlidir
+                            </div>
+                        </div>
+                        
+                        <div class="security-notice">
+                            <div class="security-title">Gizlilik ve Güvenlik Bildirimi</div>
+                            <div class="security-text">
+                                Bu doğrulama kodu yalnızca sizin için oluşturulmuştur. 
+                                Kodu kimseyle paylaşmayın. ROTA CRM ekibi bu kodu asla 
+                                telefon veya email yoluyla talep etmez.
+                            </div>
+                        </div>
+                        
+                        <div class="additional-info">
+                            <p>
+                                <strong>Bu giriş denemesi sizin değil mi?</strong><br>
+                                Eğer bu doğrulama kodunu siz talep etmediyseniz, lütfen derhal 
+                                hesap güvenliğiniz için şifrenizi değiştirin ve sistem yöneticisi ile iletişime geçin.
+                            </p>
+                        </div>
                     </div>
-                    
-                    <div class="warning">
-                        <strong>⚠️ Güvenlik Uyarısı:</strong><br>
-                        Bu kodu kimseyle paylaşmayın. ROTA CRM personeli bu kodu asla sizden istemez.
-                    </div>
-                    
-                    <p>Eğer bu giriş denemesi siz değilseniz, lütfen derhal şifrenizi değiştirin.</p>
                     
                     <div class="footer">
-                        <p>Bu e-posta ROTA CRM güvenlik sistemi tarafından otomatik olarak gönderilmiştir.</p>
-                        <p>© {datetime.utcnow().year} ROTA Kalite Danışmanlık</p>
+                        <div class="company-info">ROTA Kalite Danışmanlık Ltd. Şti.</div>
+                        <div class="footer-text">
+                            Bu e-posta, ROTA CRM güvenlik sistemi tarafından otomatik olarak oluşturulmuş ve gönderilmiştir.
+                        </div>
+                        <div class="divider"></div>
+                        <div class="copyright">
+                            © {datetime.utcnow().year} ROTA CRM - Tüm hakları saklıdır.
+                        </div>
                     </div>
                 </div>
             </body>
