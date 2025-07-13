@@ -458,7 +458,7 @@ const ConsultantDashboard = ({ onNavigate }) => {
             Elite Danışman Kontrol Paneli
           </h1>
           <p className="text-blue-100 mt-2 text-lg">
-            Hoş geldiniz {dbUser?.name}! Müşterilerinizi profesyonelce yönetin.
+            Hoş geldiniz {dbUser?.company_name || dbUser?.name || 'ROTA Danışmanlık'}! Müşterilerinizi profesyonelce yönetin.
           </p>
         </div>
       </div>
