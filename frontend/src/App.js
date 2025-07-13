@@ -2149,8 +2149,8 @@ const Dashboard = ({ onNavigate }) => {
       setLoading(true);
       console.log('📊 Dashboard: Fetching from public stats endpoint');
       
-      // Use public stats endpoint
-      const response = await axios.get(`${API}/stats-public`);
+      // Use main app stats endpoint (workaround for deployment issue)
+      const response = await axios.get(`${API.replace('/api', '')}/stats-public`);
       console.log('📊 Dashboard: Public stats response:', response.data);
       setDashboardData(response.data);
     } catch (error) {
