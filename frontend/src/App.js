@@ -3951,9 +3951,20 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
       console.log('🗑️ Analytics Response:', response.data);
       const analyticsData = response.data;
       
+      // Debug: Log detailed structure
+      console.log('🔍 DETAILED DEBUG:');
+      console.log('- Analytics Data Keys:', Object.keys(analyticsData));
+      console.log('- Monthly Data:', analyticsData.monthly_data);
+      console.log('- Monthly Data Length:', analyticsData.monthly_data?.length || 0);
+      
+      if (analyticsData.monthly_data && analyticsData.monthly_data.length > 0) {
+        console.log('- First Record Structure:', analyticsData.monthly_data[0]);
+        console.log('- First Record Keys:', Object.keys(analyticsData.monthly_data[0]));
+      }
+      
       // Validate monthly_data structure
       const monthlyData = analyticsData.monthly_data || [];
-      console.log('📊 Monthly Data:', monthlyData);
+      console.log('📊 Monthly Data for State:', monthlyData);
       
       // Validate each record for consistency
       monthlyData.forEach((record, index) => {
