@@ -5410,7 +5410,7 @@ const ConsumptionAnalytics = () => {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('overview'); // overview, per-person
 
-  const { authToken, userRole, dbUser } = useAuth();
+  const { authToken, userRole, dbUser, refreshToken } = useAuth();
   const API = getApiUrl();
 
   // Fetch clients for admin and consultant users
