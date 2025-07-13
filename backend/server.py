@@ -6770,11 +6770,11 @@ async def send_email_notification(
         if current_user.role == 'consultant':
             # Use consultant's email as sender
             sender_email = current_user.email
-            sender_name = f"ROTA CRM - {current_user.name}"
+            sender_name = f"{current_user.name} (ROTA CRM Danışmanı)"
         elif current_user.role == 'admin':
             # Use admin's email as sender
             sender_email = current_user.email
-            sender_name = f"ROTA CRM - {current_user.name}"
+            sender_name = f"{current_user.name} (ROTA CRM)"
         
         # Send email
         success = await email_service.send_email(
