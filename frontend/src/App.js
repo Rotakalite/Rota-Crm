@@ -2188,6 +2188,23 @@ const Dashboard = ({ onNavigate }) => {
     }
   };
 
+  // Force token refresh on mount
+  useEffect(() => {
+    const forceTokenRefresh = async () => {
+      console.log('🔄 Dashboard mounted: Forcing token refresh...');
+      try {
+        const newToken = await refreshToken();
+        if (newToken) {
+          console.log('✅ Dashboard mount: Token refreshed successfully');
+        }
+      } catch (error) {
+        console.error('❌ Dashboard mount: Token refresh failed:', error);
+      }
+    };
+    
+    forceTokenRefresh();
+  }, []); // Run once on mount
+
   useEffect(() => {
     if (authToken) {
       fetchDashboardData();
