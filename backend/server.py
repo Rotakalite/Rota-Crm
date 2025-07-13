@@ -9537,6 +9537,167 @@ async def send_test_email_main():
         raise HTTPException(status_code=500, detail=f"Email gönderme hatası: {str(e)}")
 
 # ==========================================
+# 2FA ENDPOINTS - MUST BE BEFORE API ROUTER
+# ==========================================
+@app.post("/api/auth/2fa/send-code")
+async def send_2fa_code(request: dict):
+    """Send 2FA verification code via email"""
+    try:
+        email = request.get("email")
+        if not email:
+            raise HTTPException(status_code=400, detail="Email required")
+        
+        # Generate 6-digit verification code
+        import random
+        verification_code = f"{random.randint(100000, 999999)}"
+        
+        # Store code in database with expiration (10 minutes)
+        from datetime import datetime, timedelta
+        expires_at = datetime.utcnow() + timedelta(minutes=10)
+        
+        # Remove any existing code for this email
+        await db.verification_codes.delete_many({"email": email})
+        
+        # Store new code
+        await db.verification_codes.insert_one({
+            "email": email,
+            "code": verification_code,
+            "expires_at": expires_at,
+            "created_at": datetime.utcnow(),
+            "used": False
+        })
+        
+        # Send email with verification code
+        from services.email_service import email_service
+        if email_service:
+            subject = "ROTA CRM - Doğrulama Kodu"
+            html_content = f"""
+            <html>
+            <head>
+                <style>
+                    body {{ font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }}
+                    .container {{ max-width: 600px; margin: 0 auto; background-color: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }}
+                    .header {{ text-align: center; margin-bottom: 30px; }}
+                    .logo {{ font-size: 28px; font-weight: bold; color: #4F46E5; margin-bottom: 10px; }}
+                    .code-box {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; }}
+                    .code {{ font-size: 32px; font-weight: bold; letter-spacing: 4px; }}
+                    .warning {{ background-color: #FEF3C7; border: 1px solid #F59E0B; padding: 15px; border-radius: 6px; margin: 20px 0; }}
+                    .footer {{ text-align: center; margin-top: 30px; color: #666; font-size: 14px; }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <div class="logo">🔒 ROTA CRM</div>
+                        <h2>İki Faktörlü Doğrulama</h2>
+                    </div>
+                    
+                    <p>Merhaba,</p>
+                    <p>ROTA CRM hesabınıza giriş yapmak için aşağıdaki doğrulama kodunu kullanın:</p>
+                    
+                    <div class="code-box">
+                        <div class="code">{verification_code}</div>
+                        <p style="margin: 10px 0 0 0; font-size: 14px;">Bu kod 10 dakika geçerlidir</p>
+                    </div>
+                    
+                    <div class="warning">
+                        <strong>⚠️ Güvenlik Uyarısı:</strong><br>
+                        Bu kodu kimseyle paylaşmayın. ROTA CRM personeli bu kodu asla sizden istemez.
+                    </div>
+                    
+                    <p>Eğer bu giriş denemesi siz değilseniz, lütfen derhal şifrenizi değiştirin.</p>
+                    
+                    <div class="footer">
+                        <p>Bu e-posta ROTA CRM güvenlik sistemi tarafından otomatik olarak gönderilmiştir.</p>
+                        <p>© {datetime.utcnow().year} ROTA Kalite Danışmanlık</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            
+            await email_service.send_email(
+                to_email=email,
+                subject=subject,
+                html_content=html_content
+            )
+            
+            logging.info(f"📧 2FA code sent to {email}")
+        else:
+            logging.warning("📧 Email service not available, 2FA code not sent")
+            
+        return {"message": "Doğrulama kodu email adresinize gönderildi", "success": True}
+        
+    except Exception as e:
+        logging.error(f"❌ Error sending 2FA code: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"2FA kodu gönderme hatası: {str(e)}")
+
+@app.post("/api/auth/2fa/verify-code")
+async def verify_2fa_code(request: dict):
+    """Verify 2FA code"""
+    try:
+        email = request.get("email")
+        code = request.get("code")
+        
+        if not email or not code:
+            raise HTTPException(status_code=400, detail="Email ve kod gerekli")
+        
+        # Find verification code in database
+        stored = await db.verification_codes.find_one({
+            "email": email,
+            "code": str(code),
+            "used": False
+        })
+        
+        if not stored:
+            raise HTTPException(status_code=400, detail="Geçersiz kod")
+        
+        # Check if code is expired
+        if datetime.utcnow() > stored["expires_at"]:
+            # Clean up expired code
+            await db.verification_codes.delete_one({"_id": stored["_id"]})
+            raise HTTPException(status_code=400, detail="Kod süresi dolmuş")
+        
+        # Mark code as used
+        await db.verification_codes.update_one(
+            {"_id": stored["_id"]},
+            {"$set": {"used": True, "verified_at": datetime.utcnow()}}
+        )
+        
+        logging.info(f"✅ 2FA code verified for {email}")
+        return {"message": "Kod başarıyla doğrulandı", "verified": True}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ Error verifying 2FA code: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"2FA kod doğrulama hatası: {str(e)}")
+
+@app.get("/api/auth/2fa/status")
+async def get_2fa_status(user_email: str):
+    """Get 2FA status for user"""
+    try:
+        stored = await db.verification_codes.find_one({"email": user_email})
+        
+        if not stored:
+            return {"has_pending_code": False}
+            
+        # Check if code is still valid
+        if datetime.utcnow() > stored["expires_at"]:
+            # Clean up expired code
+            await db.verification_codes.delete_one({"email": user_email})
+            return {"has_pending_code": False}
+            
+        return {
+            "has_pending_code": True,
+            "expires_at": stored["expires_at"].isoformat()
+        }
+        
+    except Exception as e:
+        logging.error(f"Error getting 2FA status: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"2FA durum hatası: {str(e)}")
+
+# ==========================================
 # USER INFO ENDPOINT - MUST BE BEFORE API ROUTER
 # ==========================================
 @app.get("/api/me")
