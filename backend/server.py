@@ -6808,22 +6808,37 @@ async def send_test_email(current_user: User = Depends(get_current_user)):
 @api_router.post("/email/document-notification")
 async def send_document_notification(
     document_id: str = Form(...),
-    current_user: User = Depends(get_admin_user)
+    current_user: User = Depends(get_current_user)  # Allow consultants
 ):
-    """Admin-only: Send document upload notification email"""
+    """Send document upload notification email (Admin and Consultant access)"""
     if not email_service:
         raise HTTPException(status_code=500, detail="Email service not available")
     
     try:
-        # Get document details
+        # Check permissions
+        if current_user.role not in ['admin', 'consultant']:
+            raise HTTPException(status_code=403, detail="Sadece admin ve consultant kullanıcıları email gönderebilir")
+
+        # Get document information
         document = await db.documents.find_one({"id": document_id})
         if not document:
-            raise HTTPException(status_code=404, detail="Document not found")
-        
-        # Get client details
+            raise HTTPException(status_code=404, detail="Doküman bulunamadı")
+
+        # For consultant, verify they have access to this document's client
+        if current_user.role == 'consultant':
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+            
+            # Check if the document's client is assigned to this consultant
+            assigned_client = await db.clients.find_one({"id": document["client_id"], "consultant_id": consultant_id})
+            if not assigned_client:
+                raise HTTPException(status_code=403, detail="Bu müşteri için yetkiniz yok")
+
+        # Get client information
         client = await db.clients.find_one({"id": document["client_id"]})
         if not client:
-            raise HTTPException(status_code=404, detail="Client not found")
+            raise HTTPException(status_code=404, detail="Müşteri bulunamadı")
         
         # Validate email address
         client_email = client.get("email", "")
