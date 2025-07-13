@@ -10109,8 +10109,8 @@ const EmailManagement = ({ selectedClient: propSelectedClient }) => {
           </div>
         )}
 
-        {/* Show message if consultant hasn't selected client yet */}
-        {userRole === 'consultant' && !selectedClient ? (
+        {/* Consultant needs client selection message */}
+        {userRole === 'consultant' && !selectedClient && (
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="text-center py-12">
               <div className="text-6xl mb-4">📧</div>
