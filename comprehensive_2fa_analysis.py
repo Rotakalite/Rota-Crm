@@ -222,7 +222,7 @@ class TwoFAAnalysis:
         logger.info("🔍 Testing basic 2FA flow...")
         
         test_email = "report@test.com"
-        if self.db:
+        if self.db is not None:
             self.db.verification_codes.delete_many({"email": test_email})
         
         # Send code
