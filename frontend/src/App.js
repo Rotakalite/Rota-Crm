@@ -416,11 +416,11 @@ const ConsultantDashboard = ({ onNavigate }) => {
       });
       console.log('🔍 CONSULTANT DEBUG - Debug endpoint response:', debugResponse.data);
       
-      // Fetch user info from /api/auth/me for complete data
-      const userResponse = await axios.get(`${API}/auth/me`, {
+      // Fetch user info from /api/me for complete data
+      const userResponse = await axios.get(`${API}/api/me`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      console.log('🔍 CONSULTANT DEBUG - API /auth/me response:', userResponse.data);
+      console.log('🔍 CONSULTANT DEBUG - API /api/me response:', userResponse.data);
       
       const statsResponse = await axios.get(`${API}/stats`, {
         headers: { Authorization: `Bearer ${authToken}` }
