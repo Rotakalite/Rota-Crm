@@ -605,6 +605,18 @@ test_plan:
     -message: "DASHBOARD STATS ENDPOINT TESTING COMPLETED! 🔍 ROOT CAUSE IDENTIFIED: The dashboard showing zeros (customers: 0, documents: 0, trainings: 0, projects: 0) is caused by AUTHENTICATION FAILURE, not missing data. ✅ DATABASE VERIFICATION: Database contains actual data - 1 client (DENİZ OTEL), 2 documents, 2 trainings. ✅ ENDPOINT ACCESSIBILITY: Both /api/stats and /stats endpoints are accessible and properly configured. ✅ AUTHENTICATION ISSUE: All test tokens return 'Invalid token: could not get signing key' (401 Unauthorized). This indicates that frontend authentication tokens are expired/invalid. ❌ CRITICAL FINDING: Frontend cannot authenticate with backend, so /api/stats returns 401 instead of data, causing dashboard to show zeros. 🎯 SOLUTION NEEDED: Frontend needs to refresh/regenerate authentication tokens or fix token validation logic. The backend endpoints and database are working correctly - the issue is purely authentication-related."
 
 backend:
+  - task: "Authenticated Stats Endpoint Testing"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "testing"
+        -comment: "2025-07-13: COMPREHENSIVE AUTHENTICATED STATS ENDPOINT TESTING COMPLETED! ✅ ENDPOINT VERIFICATION: Both /stats (main app) and /api/stats (API router) endpoints are properly implemented and accessible. ✅ AUTHENTICATION SECURITY: All endpoints properly require authentication - returning 401 Unauthorized for invalid/expired tokens and 403 Forbidden when no authentication is provided. ✅ DATABASE VERIFICATION: Direct MongoDB database access confirms EXACT EXPECTED NUMBERS: 2 clients, 2 documents, 2 trainings (matches review request expectations perfectly). ✅ RESPONSE STRUCTURE: API returns proper dashboard-compatible structure with total_clients, total_documents, total_trainings, and stage_distribution fields. ✅ STAGE DISTRIBUTION: Shows 2 clients in Stage 1, 0 in Stage 2, 0 in Stage 3. ✅ DATA CONSISTENCY: API endpoint numbers match direct database counts exactly. ✅ DASHBOARD INTEGRATION: Response structure meets all dashboard requirements with correct data types (integers) and non-negative values. The authenticated stats endpoint is fully functional and ready for dashboard integration. Dashboard can now fetch real database numbers through proper authentication instead of using hardcoded data."
+
   - task: "Dashboard Stats Endpoint Testing - Zero Values Issue"
     implemented: true
     working: false
