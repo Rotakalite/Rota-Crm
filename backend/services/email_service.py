@@ -90,8 +90,9 @@ class EmailService:
                 subject=subject,
                 recipients=[to_email],
                 body=html_content,
-                subtype="html",
-                mail_from=formatted_sender  # Custom sender
+                subtype="html"
+                # Note: FastMail uses the ConnectionConfig MAIL_FROM by default
+                # Custom sender is handled differently in some versions
             )
             
             await self.fastmail.send_message(message)
