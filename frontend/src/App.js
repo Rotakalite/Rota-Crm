@@ -12093,7 +12093,7 @@ const RoleSetup = ({ onComplete }) => {
       // CRITICAL: Update authentication state immediately
       try {
         // Get fresh user data from database
-        const userResponse = await axios.get(`${API}/auth/me`, {
+        const userResponse = await axios.get(`${API}/api/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
