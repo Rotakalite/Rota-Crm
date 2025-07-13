@@ -18,9 +18,8 @@ import logging
 import requests
 import os
 import sys
-import asyncio
 from datetime import datetime
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import MongoClient
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
