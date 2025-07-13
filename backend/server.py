@@ -9862,6 +9862,12 @@ async def get_current_user_info(current_user: User = Depends(get_current_user)):
         logging.error(f"❌ Error getting user info: {str(e)}")
         raise HTTPException(status_code=500, detail="User bilgisi alınamadı")
 
+# SIMPLE TEST ENDPOINT
+@app.get("/api/test-stats")
+async def test_stats_endpoint():
+    """Simple test endpoint"""
+    return {"message": "Test endpoint working", "timestamp": datetime.utcnow().isoformat()}
+
 # DIRECT STATS ENDPOINT ON MAIN APP - WORKAROUND FOR DEPLOYMENT ISSUE
 @app.get("/api/stats-public")
 async def get_public_statistics_main():
