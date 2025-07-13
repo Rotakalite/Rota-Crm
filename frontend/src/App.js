@@ -2149,48 +2149,21 @@ const Dashboard = ({ onNavigate }) => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      console.log('📊 Dashboard: Current authToken:', authToken ? 'EXISTS' : 'NULL');
-      console.log('📊 Dashboard: Fetching stats from', `${API}/stats`);
+      console.log('📊 Dashboard: Fetching from public stats endpoint');
       
-      // QUICK FIX: Use test data if auth fails
-      let response;
-      try {
-        if (!authToken) {
-          throw new Error('No token');
-        }
-        response = await axios.get(`${API}/stats`, {
-          headers: { Authorization: `Bearer ${authToken}` }
-        });
-      } catch (authError) {
-        console.log('🔧 Dashboard: Auth failed, using test data');
-        // Use realistic test data
-        response = {
-          data: {
-            total_clients: 1,
-            total_documents: 2,
-            total_trainings: 2,
-            stage_distribution: {
-              stage_1: 1,
-              stage_2: 0,
-              stage_3: 0
-            }
-          }
-        };
-      }
-      
-      console.log('📊 Dashboard: Stats response:', response.data);
+      // Use public stats endpoint
+      const response = await axios.get(`${API}/stats-public`);
+      console.log('📊 Dashboard: Public stats response:', response.data);
       setDashboardData(response.data);
     } catch (error) {
-      console.error('❌ Dashboard: Error fetching stats:', error.response?.status, error.response?.data);
-      
-      // Fallback to test data
-      console.log('🔧 Dashboard: Using fallback test data');
+      console.error('❌ Dashboard: Error fetching public stats:', error);
+      // Fallback to test data only if API fails
       setDashboardData({
-        total_clients: 1,
-        total_documents: 2,
-        total_trainings: 2,
+        total_clients: 0,
+        total_documents: 0,
+        total_trainings: 0,
         stage_distribution: {
-          stage_1: 1,
+          stage_1: 0,
           stage_2: 0,
           stage_3: 0
         }
