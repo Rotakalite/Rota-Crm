@@ -2115,7 +2115,7 @@ const PersonnelManagement = () => {
 // Dashboard Component
 const Dashboard = ({ onNavigate }) => {
   const { user } = useUser();
-  const { authToken, userRole, dbUser } = useAuth();
+  const { authToken, userRole, dbUser, refreshToken } = useAuth();
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
