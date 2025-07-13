@@ -1342,7 +1342,8 @@ test_plan:
   current_focus:
     - "Fix 2FA Backend Endpoints"
     - "Waste Management Backend APIs"
-  stuck_tasks: []
+  stuck_tasks: 
+    - "Fix 2FA Backend Endpoints"
   test_all: false
   test_priority: "high_first"
 
