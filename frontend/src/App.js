@@ -5129,9 +5129,22 @@ const ClientManagement = ({ onNavigate }) => {
   const [sortBy, setSortBy] = useState('hotel_name');
   const [sortOrder, setSortOrder] = useState('asc');
   const [clientTypeFilter, setClientTypeFilter] = useState('all'); // 'all', 'bulk', 'registered'
-  // Cache for better performance
-  const [dataCache, setDataCache] = useState({});
-  const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
+  
+  // Bulk Email States
+  const [showBulkEmail, setShowBulkEmail] = useState(false);
+  const [bulkEmailLoading, setBulkEmailLoading] = useState(false);
+  const [bulkEmailStats, setBulkEmailStats] = useState(null);
+  const [bulkEmailForm, setBulkEmailForm] = useState({
+    subject: '',
+    content: '',
+    target_filters: {
+      city: '',
+      audit_company: '',
+      has_email: true
+    }
+  });
+  const [bulkEmailResult, setBulkEmailResult] = useState(null);
+  
   const [newClient, setNewClient] = useState({
     name: '',
     hotel_name: '',
