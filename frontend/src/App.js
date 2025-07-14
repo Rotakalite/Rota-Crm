@@ -5406,7 +5406,7 @@ const ClientManagement = ({ onNavigate }) => {
   const handleSearch = (term) => {
     setSearchTerm(term);
     setCurrentPage(1);
-    fetchClients(1, itemsPerPage, term, sortBy, sortOrder);
+    fetchClients(1, itemsPerPage, term, sortBy, sortOrder, clientTypeFilter);
   };
 
   // Sort handler
@@ -5415,21 +5415,28 @@ const ClientManagement = ({ onNavigate }) => {
     setSortBy(field);
     setSortOrder(newOrder);
     setCurrentPage(1);
-    fetchClients(1, itemsPerPage, searchTerm, field, newOrder);
+    fetchClients(1, itemsPerPage, searchTerm, field, newOrder, clientTypeFilter);
   };
 
   // Pagination handlers
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
-      fetchClients(page, itemsPerPage, searchTerm, sortBy, sortOrder);
+      fetchClients(page, itemsPerPage, searchTerm, sortBy, sortOrder, clientTypeFilter);
     }
   };
 
   const handleItemsPerPageChange = (limit) => {
     setItemsPerPage(limit);
     setCurrentPage(1);
-    fetchClients(1, limit, searchTerm, sortBy, sortOrder);
+    fetchClients(1, limit, searchTerm, sortBy, sortOrder, clientTypeFilter);
+  };
+
+  // Client type filter handler
+  const handleClientTypeChange = (type) => {
+    setClientTypeFilter(type);
+    setCurrentPage(1);
+    fetchClients(1, itemsPerPage, searchTerm, sortBy, sortOrder, type);
   };
 
   // Add new client
