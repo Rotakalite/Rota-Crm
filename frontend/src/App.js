@@ -666,6 +666,11 @@ const ConsultantClientManagement = ({ onNavigate }) => {
   const [hasNext, setHasNext] = useState(false);
   const [clientTypeFilter, setClientTypeFilter] = useState('');
   const [dataCache, setDataCache] = useState({});
+
+  // Cache key generator
+  const getCacheKey = (page, limit, search, sort, order, clientType) => {
+    return `${page}-${limit}-${search}-${sort}-${order}-${clientType}`;
+  };
   const API = getApiUrl();
 
   const handlePageChange = (newPage) => {
