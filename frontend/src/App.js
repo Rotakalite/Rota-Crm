@@ -5322,7 +5322,27 @@ const ClientManagement = ({ onNavigate }) => {
     }
   };
 
-  // Search handler
+  // Search with debouncing
+  const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
+  
+  const handleSearchDebounced = (term) => {
+    setSearchTerm(term);
+    
+    // Clear previous timer
+    if (searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer);
+    }
+    
+    // Set new timer
+    const newTimer = setTimeout(() => {
+      setCurrentPage(1);
+      fetchClients(1, itemsPerPage, term, sortBy, sortOrder);
+    }, 300); // 300ms delay
+    
+    setSearchDebounceTimer(newTimer);
+  };
+  
+  // Search handler (immediate for dropdown)
   const handleSearch = (term) => {
     setSearchTerm(term);
     setCurrentPage(1);
