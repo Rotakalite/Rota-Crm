@@ -10334,8 +10334,9 @@ async def send_bulk_email(
         if not subject or not content:
             raise HTTPException(status_code=400, detail="Email konusu ve içeriği gereklidir")
         
-        # Build query based on filters
-        query = {}
+        # Build query based on filters - ONLY bulk clients for bulk email
+        query = {"client_type": "bulk"}  # Only bulk clients
+        
         if target_filters.get("city"):
             query["city"] = target_filters["city"]
         if target_filters.get("audit_company"):
@@ -10343,11 +10344,17 @@ async def send_bulk_email(
         if target_filters.get("has_email"):
             query["email"] = {"$ne": "", "$exists": True}
         
-        # Get clients matching filters
+        print(f"📧 BULK EMAIL - Query: {query}")
+        logging.info(f"📧 BULK EMAIL - Query: {query}")
+        
+        # Get ONLY bulk clients matching filters
         clients = await db.clients.find(query).to_list(length=None)
         
         if not clients:
-            raise HTTPException(status_code=400, detail="Filtre kriterlerine uygun müşteri bulunamadı")
+            raise HTTPException(status_code=400, detail="Filtre kriterlerine uygun BULK müşteri bulunamadı")
+        
+        print(f"📧 BULK EMAIL - Found {len(clients)} bulk clients")
+        logging.info(f"📧 BULK EMAIL - Found {len(clients)} bulk clients")
         
         # Filter clients with valid email addresses
         valid_email_clients = [
