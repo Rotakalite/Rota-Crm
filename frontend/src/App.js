@@ -4973,10 +4973,6 @@ const ClientManagement = ({ onNavigate }) => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddClient, setShowAddClient] = useState(false);
-  const [showBulkImport, setShowBulkImport] = useState(false);
-  const [bulkImportFile, setBulkImportFile] = useState(null);
-  const [bulkImportLoading, setBulkImportLoading] = useState(false);
-  const [bulkImportResult, setBulkImportResult] = useState(null);
   const [newClient, setNewClient] = useState({
     name: '',
     hotel_name: '',
