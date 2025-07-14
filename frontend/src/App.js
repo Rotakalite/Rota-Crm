@@ -4977,7 +4977,7 @@ const ClientManagement = ({ onNavigate }) => {
   const [bulkImportProgress, setBulkImportProgress] = useState(0);
   const [bulkImportStatus, setBulkImportStatus] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(100);
+  const [itemsPerPage, setItemsPerPage] = useState(50);  // Daha az müşteri
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [hasNext, setHasNext] = useState(false);
