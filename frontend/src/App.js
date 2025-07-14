@@ -5130,7 +5130,7 @@ const ClientManagement = ({ onNavigate }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('hotel_name');
   const [sortOrder, setSortOrder] = useState('asc');
-  const [clientTypeFilter, setClientTypeFilter] = useState('all'); // 'all', 'bulk', 'registered'
+  const [clientTypeFilter, setClientTypeFilter] = useState('registered'); // Default to registered clients only
   
   // Bulk Email States
   const [showBulkEmail, setShowBulkEmail] = useState(false);
