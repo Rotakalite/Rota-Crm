@@ -670,7 +670,7 @@ const ConsultantClientManagement = ({ onNavigate }) => {
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
-      fetchClients(newPage, itemsPerPage, searchTerm, sortBy, sortOrder);
+      fetchClients(newPage, itemsPerPage, searchTerm, sortBy, sortOrder, clientTypeFilter);
     }
   };
 
