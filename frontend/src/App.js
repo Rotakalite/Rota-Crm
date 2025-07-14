@@ -5527,33 +5527,39 @@ const ClientManagement = ({ onNavigate }) => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th 
-                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                       onClick={() => handleSort('hotel_name')}
                     >
-                      Otel {sortBy === 'hotel_name' && (sortOrder === 'asc' ? '🔼' : '🔽')}
+                      Otel Adı {sortBy === 'hotel_name' && (sortOrder === 'asc' ? '🔼' : '🔽')}
                     </th>
                     <th 
-                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                       onClick={() => handleSort('city')}
                     >
-                      Lokasyon {sortBy === 'city' && (sortOrder === 'asc' ? '🔼' : '🔽')}
+                      Şehir {sortBy === 'city' && (sortOrder === 'asc' ? '🔼' : '🔽')}
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      İlçe
                     </th>
                     <th 
-                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                       onClick={() => handleSort('phone')}
                     >
                       Telefon {sortBy === 'phone' && (sortOrder === 'asc' ? '🔼' : '🔽')}
                     </th>
                     <th 
-                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                       onClick={() => handleSort('email')}
                     >
                       Email {sortBy === 'email' && (sortOrder === 'asc' ? '🔼' : '🔽')}
                     </th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Sertifika
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Sertifika Bitiş
                     </th>
-                    <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Denetim Firma
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       İşlem
                     </th>
                   </tr>
@@ -5561,46 +5567,44 @@ const ClientManagement = ({ onNavigate }) => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {clients.slice(0, 50).map((client, index) => (  // Max 50 client render
                     <tr key={client.id || index} className="hover:bg-gray-50">
-                      <td className="px-3 py-2 whitespace-nowrap">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 h-6 w-6">
-                            <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center">
+                          <div className="flex-shrink-0 h-8 w-8">
+                            <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
                               <span className="text-blue-600 font-medium text-xs">
                                 {client.hotel_name?.charAt(0).toUpperCase() || 'H'}
                               </span>
                             </div>
                           </div>
-                          <div className="ml-2">
-                            <div className="text-xs font-medium text-gray-900 truncate max-w-[100px]">
+                          <div className="ml-3">
+                            <div className="text-sm font-medium text-gray-900">
                               {client.hotel_name || 'Belirtilmemiş'}
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
-                        <div className="max-w-[80px] truncate">
-                          {client.city || 'Yok'}
-                        </div>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                        {client.city || 'Belirtilmemiş'}
                       </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
-                        <div className="max-w-[80px] truncate">
-                          {client.phone || 'Yok'}
-                        </div>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                        {client.district || 'Belirtilmemiş'}
                       </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
-                        <div className="max-w-[100px] truncate">
-                          {client.email || 'Yok'}
-                        </div>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                        {client.phone || 'Belirtilmemiş'}
                       </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
-                        <div className="max-w-[80px] truncate">
-                          {client.certificate_end_date || 'Yok'}
-                        </div>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                        {client.email || 'Belirtilmemiş'}
                       </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-right text-xs font-medium">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                        {client.certificate_end_date || 'Belirtilmemiş'}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                        {client.audit_company || 'Belirtilmemiş'}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
                         <button
                           onClick={() => handleDeleteClient(client.id, client.hotel_name)}
-                          className="text-red-500 hover:text-red-700 p-1 rounded"
+                          className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"
                           title="Sil"
                         >
                           🗑️
