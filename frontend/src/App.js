@@ -5128,9 +5128,14 @@ const ClientManagement = ({ onNavigate }) => {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
+      console.log('🔍 API Response:', response.data);
+      console.log('🔍 Is Array?', Array.isArray(response.data));
+      console.log('🔍 Response keys:', Object.keys(response.data));
+      
       // Handle both old format (array) and new format (object with pagination)
       if (Array.isArray(response.data)) {
         // Old format - no pagination
+        console.log('⚠️ OLD FORMAT - NO PAGINATION!');
         setClients(response.data);
         setTotalCount(response.data.length);
         setTotalPages(1);
@@ -5139,6 +5144,9 @@ const ClientManagement = ({ onNavigate }) => {
         setHasPrev(false);
       } else {
         // New format - with pagination
+        console.log('✅ NEW FORMAT - WITH PAGINATION!');
+        console.log('🔍 Clients count:', response.data.clients?.length);
+        console.log('🔍 Pagination:', response.data.pagination);
         setClients(response.data.clients || []);
         setTotalCount(response.data.pagination.total_count || 0);
         setTotalPages(response.data.pagination.total_pages || 1);
