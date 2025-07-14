@@ -3701,9 +3701,10 @@ async def get_clients(
     search: str = None,  # Arama parametresi
     sort: str = "hotel_name",  # Sıralama parametresi
     order: str = "asc",  # Sıralama yönü
+    client_type: str = "all",  # Client type filter: 'all', 'bulk', 'registered'
     current_user: User = Depends(get_current_user)
 ):
-    """Get clients with pagination, search and sorting"""
+    """Get clients with pagination, search, sorting and client type filtering"""
     print(f"🚨🚨🚨 SECURITY CHECK: GET /clients called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
     logging.error(f"🚨🚨🚨 SECURITY CHECK: GET /clients called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
     
@@ -3732,6 +3733,14 @@ async def get_clients(
         }
         print(f"🔍 SEARCH FILTER: {search_filter}")
     
+    # Add client type filter
+    if client_type != "all":
+        if search_filter:
+            search_filter = {"$and": [search_filter, {"client_type": client_type}]}
+        else:
+            search_filter = {"client_type": client_type}
+        print(f"🏷️ CLIENT TYPE FILTER: {client_type}")
+    
     # Build sort criteria
     sort_direction = 1 if order == "asc" else -1
     sort_criteria = [(sort, sort_direction)]
@@ -3748,6 +3757,7 @@ async def get_clients(
         'certificate_end_date': 1,
         'audit_company': 1,
         'current_stage': 1,
+        'client_type': 1,  # Include client_type in response
         'created_at': 1,
         '_id': 0  # Exclude MongoDB _id for performance
     }
