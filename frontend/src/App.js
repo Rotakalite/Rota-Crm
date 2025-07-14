@@ -656,6 +656,10 @@ const ConsultantClientManagement = ({ onNavigate }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [hasPrev, setHasPrev] = useState(false);
+  const [hasNext, setHasNext] = useState(false);
   const API = getApiUrl();
 
   useEffect(() => {
