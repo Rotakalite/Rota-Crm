@@ -5485,7 +5485,7 @@ const ClientManagement = ({ onNavigate }) => {
 
   useEffect(() => {
     if (authToken && userRole === 'admin') {
-      fetchClients(1, itemsPerPage, searchTerm, sortBy, sortOrder);
+      fetchClients(1, itemsPerPage, searchTerm, sortBy, sortOrder, clientTypeFilter);
     }
   }, [authToken, userRole]);
 
