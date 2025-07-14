@@ -13686,7 +13686,7 @@ const App = () => {
       
       <SignedIn>
         <MainApp />
-      )}
+      </SignedIn>
 
       {/* Bulk Email Modal - Admin Only */}
       {showBulkEmail && userRole === 'admin' && (
