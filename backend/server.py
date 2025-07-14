@@ -10163,15 +10163,15 @@ async def download_import_template(current_user: User = Depends(get_admin_user))
         import io
         from fastapi.responses import StreamingResponse
         
-        # Create template DataFrame
+        # Create template DataFrame with clear examples
         template_data = {
-            'TESİS ADI': ['Örnek Otel 1', 'Örnek Otel 2'],
-            'İL': ['İstanbul', 'Ankara'],
-            'İLÇE': ['Beyoğlu', 'Çankaya'],
-            'TELEFON': ['+90 212 555 0001', '+90 312 555 0002'],
-            'MAİL': ['info@ornekotel1.com', 'info@ornekotel2.com'],
-            'SERTİFİKA BİTİŞ TARİHİ': ['2024-12-31', '2025-06-30'],
-            'DENETLEYEN FİRMA': ['ABC Denetim', 'XYZ Kalite']
+            'TESİS ADI': ['Grand Hotel İstanbul', 'Antalya Resort Otel', 'Şehir Butik Otel'],
+            'İL': ['İstanbul', 'Antalya', 'Ankara'],
+            'İLÇE': ['Beyoğlu', 'Kemer', 'Çankaya'],
+            'TELEFON': ['+90 212 555 0001', '+90 242 555 0002', '+90 312 555 0003'],
+            'MAİL': ['info@grandhotel.com', 'rezervasyon@antalyaresort.com', 'bilgi@sehirbutik.com'],
+            'SERTİFİKA BİTİŞ TARİHİ': ['2024-12-31', '2025-06-30', '2025-12-31'],
+            'DENETLEYEN FİRMA': ['ABC Belgelendirme A.Ş.', 'XYZ Denetim Ltd.', 'Kalite Kontrol Şirketi']
         }
         
         df = pd.DataFrame(template_data)
