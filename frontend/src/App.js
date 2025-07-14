@@ -5163,6 +5163,15 @@ const ClientManagement = ({ onNavigate }) => {
               <p className="text-sm text-gray-600">Toplam {clients.length} müşteri</p>
             </div>
             <div className="flex gap-3">
+              {/* Bulk Import Button - Admin Only */}
+              {userRole === 'admin' && (
+                <button
+                  onClick={() => setShowBulkImport(true)}
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+                >
+                  📊 Toplu İçe Aktar
+                </button>
+              )}
               <button
                 onClick={() => setShowAddClient(true)}
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
