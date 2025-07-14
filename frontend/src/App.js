@@ -662,12 +662,12 @@ const ConsultantClientManagement = ({ onNavigate }) => {
     fetchClients(currentPage, itemsPerPage, searchTerm, sortBy, sortOrder);
   }, [authToken]);
 
-  const fetchClients = async () => {
+  const fetchClients = async (page, perPage, search, sort, order) => {
     if (!authToken) return;
     
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/clients`, {
+      const response = await axios.get(`${API}/clients?page=${page}&per_page=${perPage}&search=${search}&sort=${sort}&order=${order}`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setClients(response.data || []);
