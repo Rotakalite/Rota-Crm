@@ -5285,7 +5285,7 @@ const ClientManagement = ({ onNavigate }) => {
   };
 
   // Fetch clients
-  const fetchClients = async (page = 1, limit = itemsPerPage, search = searchTerm, sort = sortBy, order = sortOrder) => {
+  const fetchClients = async (page = 1, limit = itemsPerPage, search = searchTerm, sort = sortBy, order = sortOrder, clientType = clientTypeFilter) => {
     try {
       setLoading(true);
       const params = { page, limit };
@@ -5297,6 +5297,9 @@ const ClientManagement = ({ onNavigate }) => {
       }
       if (order) {
         params.order = order;
+      }
+      if (clientType && clientType !== 'all') {
+        params.client_type = clientType;
       }
       
       const response = await axios.get(`${API}/clients`, {
