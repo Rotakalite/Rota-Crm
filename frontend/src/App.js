@@ -6094,26 +6094,6 @@ const ClientManagement = ({ onNavigate }) => {
           
           {/* Action Buttons */}
           <div className="flex gap-3 mt-4">
-            {/* Bulk Import Button - Admin Only */}
-            {userRole === 'admin' && (
-              <button
-                onClick={() => setShowBulkImport(true)}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-              >
-                📊 Toplu İçe Aktar
-              </button>
-            )}
-            
-            {/* Bulk Email Button - Admin Only */}
-            {userRole === 'admin' && (
-              <button
-                onClick={() => setShowBulkEmail(true)}
-                className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
-              >
-                📧 Toplu Email
-              </button>
-            )}
-            
             <button
               onClick={() => setShowAddClient(true)}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
