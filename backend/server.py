@@ -3729,12 +3729,43 @@ async def get_clients(
     sort_direction = 1 if order == "asc" else -1
     sort_criteria = [(sort, sort_direction)]
     
+    # Projection - only return necessary fields for performance
+    projection = {
+        'id': 1,
+        'hotel_name': 1,
+        'name': 1,
+        'city': 1,
+        'district': 1,
+        'phone': 1,
+        'email': 1,
+        'certificate_end_date': 1,
+        'audit_company': 1,
+        'current_stage': 1,
+        'created_at': 1,
+        '_id': 0  # Exclude MongoDB _id for performance
+    }
+    
     if current_user.role == UserRole.ADMIN:
-        # Get total count for pagination (with search filter)
+        # Use text search for better performance when search is provided
+        if search and search.strip():
+            # Use text search index
+            search_filter = {
+                "$text": {"$search": search.strip()}
+            }
+            # Add text score for better sorting
+            projection['score'] = {"$meta": "textScore"}
+            sort_criteria = [("score", {"$meta": "textScore"})] + sort_criteria
+        else:
+            search_filter = {}
+        
+        # Get total count for pagination (optimized)
         total_count = await db.clients.count_documents(search_filter)
         
-        # Get paginated clients (with search filter and sorting)
-        clients = await db.clients.find(search_filter).sort(sort_criteria).skip(skip).limit(limit).to_list(length=limit)
+        # Get paginated clients with projection for performance
+        clients = await db.clients.find(
+            search_filter, 
+            projection
+        ).sort(sort_criteria).skip(skip).limit(limit).to_list(length=limit)
         
         # Calculate pagination info
         total_pages = (total_count + limit - 1) // limit  # Ceiling division
