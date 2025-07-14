@@ -5261,8 +5261,32 @@ const ClientManagement = ({ onNavigate }) => {
     }
   };
 
-  // Fetch clients with pagination, search and sorting
+  // Cache for better performance
+  const [dataCache, setDataCache] = useState({});
+  const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
+  
+  // Generate cache key
+  const getCacheKey = (page, limit, search, sort, order) => {
+    return `${page}-${limit}-${search || ''}-${sort}-${order}`;
+  };
+  
+  // Fetch clients with caching and optimization
   const fetchClients = async (page = 1, limit = itemsPerPage, search = searchTerm, sort = sortBy, order = sortOrder) => {
+    const cacheKey = getCacheKey(page, limit, search, sort, order);
+    
+    // Check cache first
+    if (dataCache[cacheKey]) {
+      console.log('📋 Using cached data for:', cacheKey);
+      const cachedData = dataCache[cacheKey];
+      setClients(cachedData.clients || []);
+      setTotalCount(cachedData.totalCount || 0);
+      setTotalPages(cachedData.totalPages || 1);
+      setCurrentPage(cachedData.currentPage || 1);
+      setHasNext(cachedData.hasNext || false);
+      setHasPrev(cachedData.hasPrev || false);
+      return;
+    }
+    
     try {
       setLoading(true);
       const params = { page, limit };
@@ -5276,38 +5300,69 @@ const ClientManagement = ({ onNavigate }) => {
         params.order = order;
       }
       
+      const startTime = Date.now();
       const response = await axios.get(`${API}/clients`, {
         params,
         headers: { Authorization: `Bearer ${authToken}` }
       });
+      const endTime = Date.now();
       
+      console.log(`⚡ API Response time: ${endTime - startTime}ms`);
       console.log('🔍 API Response:', response.data);
-      console.log('🔍 Is Array?', Array.isArray(response.data));
-      console.log('🔍 Response keys:', Object.keys(response.data));
       
       // Handle both old format (array) and new format (object with pagination)
       if (Array.isArray(response.data)) {
         // Old format - no pagination
         console.log('⚠️ OLD FORMAT - NO PAGINATION!');
-        setClients(response.data);
-        setTotalCount(response.data.length);
-        setTotalPages(1);
-        setCurrentPage(1);
-        setHasNext(false);
-        setHasPrev(false);
+        const data = {
+          clients: response.data,
+          totalCount: response.data.length,
+          totalPages: 1,
+          currentPage: 1,
+          hasNext: false,
+          hasPrev: false
+        };
+        setClients(data.clients);
+        setTotalCount(data.totalCount);
+        setTotalPages(data.totalPages);
+        setCurrentPage(data.currentPage);
+        setHasNext(data.hasNext);
+        setHasPrev(data.hasPrev);
+        
+        // Cache the data
+        setDataCache(prev => ({...prev, [cacheKey]: data}));
       } else {
         // New format - with pagination
         console.log('✅ NEW FORMAT - WITH PAGINATION!');
         console.log('🔍 Clients count:', response.data.clients?.length);
         console.log('🔍 Pagination:', response.data.pagination);
-        console.log('🔍 Search:', response.data.search);
-        console.log('🔍 Sort:', response.data.sort, response.data.order);
-        setClients(response.data.clients || []);
-        setTotalCount(response.data.pagination.total_count || 0);
-        setTotalPages(response.data.pagination.total_pages || 1);
-        setCurrentPage(response.data.pagination.page || 1);
-        setHasNext(response.data.pagination.has_next || false);
-        setHasPrev(response.data.pagination.has_prev || false);
+        
+        const data = {
+          clients: response.data.clients || [],
+          totalCount: response.data.pagination.total_count || 0,
+          totalPages: response.data.pagination.total_pages || 1,
+          currentPage: response.data.pagination.page || 1,
+          hasNext: response.data.pagination.has_next || false,
+          hasPrev: response.data.pagination.has_prev || false
+        };
+        
+        setClients(data.clients);
+        setTotalCount(data.totalCount);
+        setTotalPages(data.totalPages);
+        setCurrentPage(data.currentPage);
+        setHasNext(data.hasNext);
+        setHasPrev(data.hasPrev);
+        
+        // Cache the data (limit cache size)
+        setDataCache(prev => {
+          const newCache = {...prev, [cacheKey]: data};
+          const keys = Object.keys(newCache);
+          if (keys.length > 20) {
+            // Remove oldest entries
+            keys.slice(0, 5).forEach(key => delete newCache[key]);
+          }
+          return newCache;
+        });
       }
     } catch (error) {
       console.error('Error fetching clients:', error);
