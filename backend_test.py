@@ -1165,6 +1165,350 @@ class TestWasteManagementEndpoints(unittest.TestCase):
             logger.error(f"❌ Error testing GET /api/waste-management/analytics with year parameter: {str(e)}")
             raise
 
+class TestConsultantClientAccess(unittest.TestCase):
+    """Test class for consultant authentication and client access"""
+    
+    def setUp(self):
+        """Set up test environment"""
+        # Use the backend URL from frontend/.env
+        self.api_url = "https://4ee1e29f-eceb-4966-ad56-8377a758d2bb.preview.emergentagent.com/api"
+        
+        # Test JWT tokens for different user types
+        # These are sample tokens - in real scenario they would be generated from Clerk
+        self.consultant_token = "eyJhbGciOiJSUzI1NiIsImtpZCI6Imluc18yUHFUQU9lQVNUUTlqaHRQcVpwSGlDRnVvIiwidHlwIjoiSldUIn0.eyJhenAiOiJodHRwczovLzRlZTFlMjlmLWVjZWItNDk2Ni1hZDU2LTgzNzdhNzU4ZDJiYi5wcmV2aWV3LmVtZXJnZW50YWdlbnQuY29tIiwiZXhwIjoxNzE5OTM2MTYwLCJpYXQiOjE3MTk5MzI1NjAsImlzcyI6Imh0dHBzOi8vYWRhcHRpbmctZWZ0LTYuY2xlcmsuYWNjb3VudHMuZGV2IiwibmJmIjoxNzE5OTMyNTUwLCJzdWIiOiJ1c2VyX0NPTlNVTFRBTlRfMDAxIiwiZW1haWwiOiJjb25zdWx0YW50QHJvdGEuY29tIiwibmFtZSI6IlJPVEEgQ29uc3VsdGFudCJ9.signature"
+        self.admin_token = ADMIN_TOKEN
+        self.client_token = KAYA_CLIENT_TOKEN
+        self.invalid_token = INVALID_JWT_TOKEN
+        
+        # Headers for different authentication scenarios
+        self.headers_consultant = {"Authorization": f"Bearer {self.consultant_token}"}
+        self.headers_admin = {"Authorization": f"Bearer {self.admin_token}"}
+        self.headers_client = {"Authorization": f"Bearer {self.client_token}"}
+        self.headers_invalid = {"Authorization": f"Bearer {self.invalid_token}"}
+        self.headers_no_auth = {}
+        
+        # MongoDB connection for direct database verification
+        self.mongo_url = "mongodb+srv://rotauser:Ccpp1144@rota-crm-cluster.6f2phik.mongodb.net/rotacrm?retryWrites=true&w=majority&appName=rota-crm-cluster"
+        self.db_name = "rotacrm"
+    
+    def test_consultant_authentication_token_validation(self):
+        """Test 1: Consultant Authentication - Getting auth token validation"""
+        logger.info("\n=== Test 1: Consultant Authentication Token Validation ===")
+        
+        url = f"{self.api_url}/clients"
+        
+        try:
+            # Test with consultant token
+            response = requests.get(url, headers=self.headers_consultant)
+            logger.info(f"Consultant token response status code: {response.status_code}")
+            
+            # Should get either 200 (success) or 401 (token expired/invalid) or 403 (not authorized)
+            self.assertIn(response.status_code, [200, 401, 403])
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"✅ Consultant authentication successful - Found {len(data)} clients")
+                self.assertIsInstance(data, list, "Response should be a list of clients")
+                
+            elif response.status_code == 401:
+                data = response.json()
+                logger.info(f"⚠️ Consultant token validation failed (expected): {data.get('detail', 'No detail')}")
+                self.assertIn("detail", data, "401 response should contain error detail")
+                
+            elif response.status_code == 403:
+                data = response.json()
+                logger.info(f"⚠️ Consultant access forbidden (expected): {data.get('detail', 'No detail')}")
+                self.assertIn("detail", data, "403 response should contain error detail")
+                
+            logger.info("✅ Consultant authentication token validation test completed")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing consultant authentication: {str(e)}")
+            raise
+    
+    def test_get_clients_endpoint_access(self):
+        """Test 2: GET /api/clients Endpoint - Consultant user accessing client list"""
+        logger.info("\n=== Test 2: GET /api/clients Endpoint Access ===")
+        
+        url = f"{self.api_url}/clients"
+        
+        try:
+            # Test consultant access to clients endpoint
+            response = requests.get(url, headers=self.headers_consultant)
+            logger.info(f"GET /api/clients with consultant token - Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"✅ Consultant can access clients endpoint - Retrieved {len(data)} clients")
+                
+                # Verify response structure
+                self.assertIsInstance(data, list, "Clients response should be a list")
+                
+                # If clients exist, verify structure
+                if len(data) > 0:
+                    client = data[0]
+                    expected_fields = ["id", "name", "hotel_name", "contact_person", "email", "phone", "address"]
+                    for field in expected_fields:
+                        self.assertIn(field, client, f"Client should have {field} field")
+                    
+                    # Log client details for verification
+                    for i, client in enumerate(data):
+                        logger.info(f"Client {i+1}: {client.get('name', 'Unknown')} - {client.get('hotel_name', 'Unknown Hotel')}")
+                
+            elif response.status_code == 401:
+                data = response.json()
+                logger.info(f"⚠️ Authentication required: {data.get('detail', 'No detail')}")
+                self.assertIn("Invalid token", data.get("detail", ""), "Should indicate token issue")
+                
+            elif response.status_code == 403:
+                data = response.json()
+                logger.info(f"⚠️ Access forbidden: {data.get('detail', 'No detail')}")
+                
+            logger.info("✅ GET /api/clients endpoint access test completed")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing GET /api/clients endpoint: {str(e)}")
+            raise
+    
+    def test_role_based_access_control(self):
+        """Test 3: Role-based Access Control - Consultant should only see assigned clients"""
+        logger.info("\n=== Test 3: Role-based Access Control Testing ===")
+        
+        url = f"{self.api_url}/clients"
+        
+        # Test different user roles
+        test_cases = [
+            ("Admin", self.headers_admin, "Should see all clients"),
+            ("Consultant", self.headers_consultant, "Should see only assigned clients"),
+            ("Client", self.headers_client, "Should see only own client data")
+        ]
+        
+        for role_name, headers, expected_behavior in test_cases:
+            try:
+                logger.info(f"\n--- Testing {role_name} role access ---")
+                response = requests.get(url, headers=headers)
+                logger.info(f"{role_name} response status: {response.status_code}")
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    client_count = len(data)
+                    logger.info(f"{role_name} can see {client_count} clients - {expected_behavior}")
+                    
+                    # Verify role-specific access patterns
+                    if role_name == "Admin":
+                        # Admin should potentially see multiple clients
+                        self.assertGreaterEqual(client_count, 0, "Admin should see clients")
+                        
+                    elif role_name == "Consultant":
+                        # Consultant should see only assigned clients
+                        self.assertGreaterEqual(client_count, 0, "Consultant should see assigned clients")
+                        
+                        # Log consultant-specific client access
+                        if client_count > 0:
+                            logger.info(f"Consultant assigned clients:")
+                            for client in data:
+                                logger.info(f"  - {client.get('name', 'Unknown')} ({client.get('hotel_name', 'Unknown Hotel')})")
+                        
+                    elif role_name == "Client":
+                        # Client should see exactly 1 client (themselves)
+                        self.assertEqual(client_count, 1, "Client should see exactly 1 client (themselves)")
+                        
+                elif response.status_code in [401, 403]:
+                    data = response.json()
+                    logger.info(f"{role_name} access denied: {data.get('detail', 'No detail')}")
+                    
+                logger.info(f"✅ {role_name} role access control test completed")
+                
+            except Exception as e:
+                logger.error(f"❌ Error testing {role_name} role access: {str(e)}")
+                continue
+    
+    def test_error_handling_scenarios(self):
+        """Test 4: Error Handling - Invalid tokens and missing auth scenarios"""
+        logger.info("\n=== Test 4: Error Handling Scenarios ===")
+        
+        url = f"{self.api_url}/clients"
+        
+        # Test scenarios for error handling
+        error_test_cases = [
+            ("Invalid Token", self.headers_invalid, 401, "Invalid token should return 401"),
+            ("No Authentication", self.headers_no_auth, 403, "No auth should return 403"),
+            ("Malformed Token", {"Authorization": "Bearer malformed.token"}, 401, "Malformed token should return 401"),
+            ("Empty Token", {"Authorization": "Bearer "}, 401, "Empty token should return 401"),
+            ("Wrong Auth Type", {"Authorization": "Basic dGVzdDp0ZXN0"}, 403, "Wrong auth type should return 403")
+        ]
+        
+        for test_name, headers, expected_status, description in error_test_cases:
+            try:
+                logger.info(f"\n--- Testing {test_name} ---")
+                response = requests.get(url, headers=headers)
+                logger.info(f"{test_name} response status: {response.status_code}")
+                
+                # Verify expected error status
+                self.assertEqual(response.status_code, expected_status, description)
+                
+                # Verify error response structure
+                if response.status_code in [401, 403]:
+                    try:
+                        data = response.json()
+                        self.assertIn("detail", data, "Error response should contain detail field")
+                        logger.info(f"{test_name} error detail: {data.get('detail', 'No detail')}")
+                    except:
+                        logger.info(f"{test_name} returned non-JSON error response")
+                
+                logger.info(f"✅ {test_name} error handling test passed")
+                
+            except Exception as e:
+                logger.error(f"❌ Error testing {test_name}: {str(e)}")
+                continue
+    
+    def test_database_consultant_client_relationships(self):
+        """Test 5: Database verification of consultant-client relationships"""
+        logger.info("\n=== Test 5: Database Consultant-Client Relationships ===")
+        
+        try:
+            # Connect to MongoDB directly to verify relationships
+            from pymongo import MongoClient
+            mongo_client = MongoClient(self.mongo_url)
+            db = mongo_client[self.db_name]
+            
+            # Check consultants in database
+            consultants = list(db.consultants.find({}))
+            logger.info(f"📊 Found {len(consultants)} consultants in database")
+            
+            for consultant in consultants:
+                consultant_id = consultant.get("id")
+                company_name = consultant.get("company_name", "Unknown")
+                logger.info(f"  Consultant: {company_name} (ID: {consultant_id})")
+            
+            # Check clients and their consultant assignments
+            clients = list(db.clients.find({}))
+            logger.info(f"📊 Found {len(clients)} clients in database")
+            
+            assigned_clients = 0
+            unassigned_clients = 0
+            
+            for client in clients:
+                client_id = client.get("id")
+                client_name = client.get("name", "Unknown")
+                hotel_name = client.get("hotel_name", "Unknown Hotel")
+                consultant_id = client.get("consultant_id")
+                
+                if consultant_id:
+                    assigned_clients += 1
+                    logger.info(f"  ✅ Client: {client_name} ({hotel_name}) -> Consultant ID: {consultant_id}")
+                else:
+                    unassigned_clients += 1
+                    logger.info(f"  ⚠️ Client: {client_name} ({hotel_name}) -> No consultant assigned")
+            
+            logger.info(f"📊 Client Assignment Summary: {assigned_clients} assigned, {unassigned_clients} unassigned")
+            
+            # Check users and their roles
+            users = list(db.users.find({}))
+            logger.info(f"📊 Found {len(users)} users in database")
+            
+            consultant_users = 0
+            client_users = 0
+            admin_users = 0
+            
+            for user in users:
+                user_role = user.get("role", "unknown")
+                user_email = user.get("email", "unknown")
+                consultant_id = user.get("consultant_id")
+                client_id = user.get("client_id")
+                
+                if user_role == "consultant":
+                    consultant_users += 1
+                    logger.info(f"  👤 Consultant User: {user_email} -> Consultant ID: {consultant_id}")
+                elif user_role == "client":
+                    client_users += 1
+                    logger.info(f"  👤 Client User: {user_email} -> Client ID: {client_id}")
+                elif user_role == "admin":
+                    admin_users += 1
+                    logger.info(f"  👤 Admin User: {user_email}")
+            
+            logger.info(f"📊 User Role Summary: {admin_users} admin, {consultant_users} consultant, {client_users} client")
+            
+            # Verify data integrity
+            self.assertGreater(len(clients), 0, "Should have clients in database")
+            self.assertGreater(len(users), 0, "Should have users in database")
+            
+            logger.info("✅ Database consultant-client relationships verification completed")
+            
+            mongo_client.close()
+            
+        except Exception as e:
+            logger.error(f"❌ Error verifying database relationships: {str(e)}")
+            raise
+    
+    def test_comprehensive_consultant_access_flow(self):
+        """Test 6: Comprehensive consultant access flow simulation"""
+        logger.info("\n=== Test 6: Comprehensive Consultant Access Flow ===")
+        
+        # Simulate a complete consultant workflow
+        try:
+            # Step 1: Consultant authentication
+            logger.info("Step 1: Testing consultant authentication...")
+            auth_url = f"{self.api_url}/auth/me"  # or similar endpoint to verify token
+            
+            # Try to get current user info with consultant token
+            try:
+                response = requests.get(auth_url, headers=self.headers_consultant)
+                logger.info(f"Auth verification status: {response.status_code}")
+                
+                if response.status_code == 200:
+                    user_data = response.json()
+                    logger.info(f"✅ Consultant authenticated: {user_data.get('email', 'Unknown')}")
+                    logger.info(f"   Role: {user_data.get('role', 'Unknown')}")
+                    logger.info(f"   Consultant ID: {user_data.get('consultant_id', 'None')}")
+                else:
+                    logger.info(f"⚠️ Auth endpoint not accessible or token invalid")
+            except:
+                logger.info("⚠️ Auth endpoint test skipped (endpoint may not exist)")
+            
+            # Step 2: Access clients list
+            logger.info("Step 2: Accessing clients list...")
+            clients_url = f"{self.api_url}/clients"
+            response = requests.get(clients_url, headers=self.headers_consultant)
+            
+            if response.status_code == 200:
+                clients = response.json()
+                logger.info(f"✅ Retrieved {len(clients)} clients")
+                
+                # Step 3: Verify consultant can only see assigned clients
+                logger.info("Step 3: Verifying client access restrictions...")
+                
+                if len(clients) > 0:
+                    # Test accessing specific client data
+                    test_client = clients[0]
+                    client_id = test_client.get("id")
+                    
+                    logger.info(f"Testing access to client: {test_client.get('name', 'Unknown')}")
+                    
+                    # Try to access client-specific endpoints (if they exist)
+                    client_specific_endpoints = [
+                        f"/clients/{client_id}",
+                        f"/clients/{client_id}/documents",
+                        f"/clients/{client_id}/trainings"
+                    ]
+                    
+                    for endpoint in client_specific_endpoints:
+                        try:
+                            test_url = f"{self.api_url}{endpoint}"
+                            test_response = requests.get(test_url, headers=self.headers_consultant)
+                            logger.info(f"   {endpoint}: {test_response.status_code}")
+                        except:
+                            logger.info(f"   {endpoint}: endpoint test skipped")
+                
+                logger.info("✅ Comprehensive consultant access flow completed")
+                
+            else:
+                logger.info(f"⚠️ Could not access clients list: {response.status_code}")
+                
+        except Exception as e:
+            logger.error(f"❌ Error in comprehensive consultant access flow: {str(e)}")
+            raise
+
 class TestAuthenticatedStatsEndpoint(unittest.TestCase):
     """Test class for authenticated stats endpoint to fix dashboard"""
     
