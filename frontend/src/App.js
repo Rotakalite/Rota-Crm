@@ -5039,7 +5039,7 @@ const ClientManagement = ({ onNavigate }) => {
           'Authorization': `Bearer ${authToken}`,
           'Content-Type': 'multipart/form-data'
         },
-        timeout: 300000, // 5 dakika timeout
+        timeout: 1200000, // 20 dakika timeout
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           setBulkImportProgress(percentCompleted * 0.3); // Upload is 30% of total process
