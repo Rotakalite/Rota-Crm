@@ -718,18 +718,6 @@ const ConsultantClientManagement = ({ onNavigate }) => {
     }
   };
 
-    } catch (error) {
-      console.error('Error fetching clients:', error);
-      setClients([]);
-      setTotalPages(1);
-      setTotalCount(0);
-      setHasPrev(false);
-      setHasNext(false);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
