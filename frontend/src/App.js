@@ -5285,14 +5285,51 @@ const ClientManagement = ({ onNavigate }) => {
 
         {/* Header Actions */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Müşteri Listesi</h2>
               <p className="text-sm text-gray-600">
+                {searchTerm ? `"${searchTerm}" araması - ` : ''}
                 Toplam {totalCount} müşteri - Sayfa {currentPage} / {totalPages}
               </p>
             </div>
-            <div className="flex gap-3 items-center">
+            
+            {/* Search and Filters */}
+            <div className="flex flex-col md:flex-row gap-3 items-center">
+              {/* Search Input */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Otel adı, şehir, email ile ara..."
+                  value={searchTerm}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                />
+                <span className="absolute right-3 top-2.5 text-gray-400">🔍</span>
+              </div>
+              
+              {/* Sort Options */}
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-gray-600">Sıralama:</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => handleSort(e.target.value)}
+                  className="border border-gray-300 rounded px-2 py-1 text-sm"
+                >
+                  <option value="hotel_name">Otel Adı</option>
+                  <option value="city">Şehir</option>
+                  <option value="phone">Telefon</option>
+                  <option value="email">Email</option>
+                </select>
+                <button
+                  onClick={() => handleSort(sortBy)}
+                  className="px-2 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200"
+                  title={sortOrder === 'asc' ? 'A-Z sıralama' : 'Z-A sıralama'}
+                >
+                  {sortOrder === 'asc' ? '🔼' : '🔽'}
+                </button>
+              </div>
+              
               {/* Items per page selector */}
               <div className="flex items-center gap-2">
                 <label className="text-sm text-gray-600">Sayfa başına:</label>
@@ -5301,28 +5338,32 @@ const ClientManagement = ({ onNavigate }) => {
                   onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
                   className="border border-gray-300 rounded px-2 py-1 text-sm"
                 >
+                  <option value={25}>25</option>
                   <option value={50}>50</option>
                   <option value={100}>100</option>
                   <option value={200}>200</option>
-                  <option value={500}>500</option>
                 </select>
               </div>
-              {/* Bulk Import Button - Admin Only */}
-              {userRole === 'admin' && (
-                <button
-                  onClick={() => setShowBulkImport(true)}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-                >
-                  📊 Toplu İçe Aktar
-                </button>
-              )}
-              <button
-                onClick={() => setShowAddClient(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                ➕ Yeni Müşteri
-              </button>
             </div>
+          </div>
+          
+          {/* Action Buttons */}
+          <div className="flex gap-3 mt-4">
+            {/* Bulk Import Button - Admin Only */}
+            {userRole === 'admin' && (
+              <button
+                onClick={() => setShowBulkImport(true)}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+              >
+                📊 Toplu İçe Aktar
+              </button>
+            )}
+            <button
+              onClick={() => setShowAddClient(true)}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              ➕ Yeni Müşteri
+            </button>
           </div>
         </div>
 
