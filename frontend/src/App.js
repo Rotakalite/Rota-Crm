@@ -5534,6 +5534,20 @@ const ClientManagement = ({ onNavigate }) => {
                 <span className="absolute right-3 top-2.5 text-gray-400">🔍</span>
               </div>
               
+              {/* Client Type Filter */}
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-gray-600">Müşteri Tipi:</label>
+                <select
+                  value={clientTypeFilter}
+                  onChange={(e) => handleClientTypeChange(e.target.value)}
+                  className="border border-gray-300 rounded px-2 py-1 text-sm"
+                >
+                  <option value="all">Tümü</option>
+                  <option value="registered">Kayıtlı Müşteriler</option>
+                  <option value="bulk">Toplu Müşteriler</option>
+                </select>
+              </div>
+              
               {/* Sort Options */}
               <div className="flex items-center gap-2">
                 <label className="text-sm text-gray-600">Sıralama:</label>
