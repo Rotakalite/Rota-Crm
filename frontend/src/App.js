@@ -5057,7 +5057,7 @@ const ClientManagement = ({ onNavigate }) => {
       console.log('✅ Bulk import tamamlandı:', response.data);
       setBulkImportResult(response.data);
       
-      // Refresh client list
+      // Refresh client list with current search/sort
       setBulkImportStatus('🔄 Müşteri listesi güncelleniyor...');
       await fetchClients();
       
