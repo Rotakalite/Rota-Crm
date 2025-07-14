@@ -5203,14 +5203,14 @@ const ClientManagement = ({ onNavigate }) => {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
-      fetchClients(page, itemsPerPage);
+      fetchClients(page, itemsPerPage, searchTerm, sortBy, sortOrder);
     }
   };
 
   const handleItemsPerPageChange = (limit) => {
     setItemsPerPage(limit);
     setCurrentPage(1);
-    fetchClients(1, limit);
+    fetchClients(1, limit, searchTerm, sortBy, sortOrder);
   };
 
   // Add new client
