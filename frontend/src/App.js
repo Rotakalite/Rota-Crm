@@ -5446,6 +5446,26 @@ const ClientManagement = ({ onNavigate }) => {
                   )}
                 </div>
 
+                {/* Progress Bar */}
+                {bulkImportLoading && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                      <span className="text-blue-800 font-medium">{bulkImportStatus}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div 
+                        className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out"
+                        style={{ width: `${bulkImportProgress}%` }}
+                      ></div>
+                    </div>
+                    <div className="flex justify-between text-xs text-blue-600 mt-1">
+                      <span>İlerleme</span>
+                      <span>{Math.round(bulkImportProgress)}%</span>
+                    </div>
+                  </div>
+                )}
+
                 {/* Import Result */}
                 {bulkImportResult && (
                   <div className={`border rounded-lg p-4 ${
