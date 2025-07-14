@@ -4979,6 +4979,12 @@ const ClientManagement = ({ onNavigate }) => {
   const [bulkImportResult, setBulkImportResult] = useState(null);
   const [bulkImportProgress, setBulkImportProgress] = useState(0);
   const [bulkImportStatus, setBulkImportStatus] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(100);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [hasNext, setHasNext] = useState(false);
+  const [hasPrev, setHasPrev] = useState(false);
   const [newClient, setNewClient] = useState({
     name: '',
     hotel_name: '',
