@@ -674,7 +674,7 @@ const ConsultantClientManagement = ({ onNavigate }) => {
   };
 
   useEffect(() => {
-    fetchClients(currentPage, itemsPerPage, searchTerm, sortBy, sortOrder);
+    fetchClients(currentPage, itemsPerPage, searchTerm, sortBy, sortOrder, clientTypeFilter);
   }, [authToken]);
 
   const fetchClients = async (page, perPage, search, sort, order) => {
