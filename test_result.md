@@ -59,6 +59,8 @@
 ## agent_communication:
 ##     -agent: "main"  # or "testing" or "user"
 ##     -message: "Communication message between agents"
+##     -agent: "main"
+##     -message: "2025-01-25: Bulk email sistemi frontend UI'sını tamamlamak için kaldığım yerden devam ediyorum. Analiz sonucu: Backend bulk email endpoints'leri tamamen implementte (/api/bulk-email/send, /api/bulk-email/stats). Frontend'de de bulk email modal'ı, form'lar, state management ve function'lar mevcut. Önce backend'i test edeceğim, sonra frontend'i."
 
 # Protocol Guidelines for Main agent
 #
