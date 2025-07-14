@@ -676,7 +676,7 @@ const ConsultantClientManagement = ({ onNavigate }) => {
 
   useEffect(() => {
     if (authToken) {
-      fetchClients(currentPage, itemsPerPage, searchTerm, sortBy, sortOrder);
+      fetchClients(currentPage, itemsPerPage, searchTerm, sortBy, sortOrder, clientTypeFilter);
     }
   }, [authToken]);
 
