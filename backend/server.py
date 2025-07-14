@@ -451,6 +451,7 @@ class ClientCreate(BaseModel):
     email: str
     phone: str
     address: str
+    client_type: str = "registered"  # Default to registered
 
 class ClientUpdate(BaseModel):
     name: Optional[str] = None
@@ -463,6 +464,7 @@ class ClientUpdate(BaseModel):
     services_completed: Optional[List[ServiceType]] = None
     carbon_footprint: Optional[float] = None
     sustainability_score: Optional[int] = None
+    client_type: Optional[str] = None
 
 class Document(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
