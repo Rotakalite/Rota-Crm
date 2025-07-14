@@ -5335,50 +5335,49 @@ const ClientManagement = ({ onNavigate }) => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {clients.map((client) => (
-                    <tr key={client.id} className="hover:bg-gray-50">
-                      <td className="px-3 py-3 whitespace-nowrap">
+                  {clients.slice(0, 50).map((client, index) => (  // Max 50 client render
+                    <tr key={client.id || index} className="hover:bg-gray-50">
+                      <td className="px-3 py-2 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 h-8 w-8">
-                            <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                          <div className="flex-shrink-0 h-6 w-6">
+                            <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center">
                               <span className="text-blue-600 font-medium text-xs">
                                 {client.hotel_name?.charAt(0).toUpperCase() || 'H'}
                               </span>
                             </div>
                           </div>
                           <div className="ml-2">
-                            <div className="text-sm font-medium text-gray-900 truncate max-w-[120px]">
+                            <div className="text-xs font-medium text-gray-900 truncate max-w-[100px]">
                               {client.hotel_name || 'Belirtilmemiş'}
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
-                        <div className="max-w-[100px] truncate">
-                          {client.city || 'Belirtilmemiş'}
-                          {client.district && ` / ${client.district}`}
+                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
+                        <div className="max-w-[80px] truncate">
+                          {client.city || 'Yok'}
                         </div>
                       </td>
-                      <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
-                        <div className="max-w-[100px] truncate">
+                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
+                        <div className="max-w-[80px] truncate">
                           {client.phone || 'Yok'}
                         </div>
                       </td>
-                      <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
-                        <div className="max-w-[120px] truncate">
+                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
+                        <div className="max-w-[100px] truncate">
                           {client.email || 'Yok'}
                         </div>
                       </td>
-                      <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
-                        <div className="max-w-[100px] truncate">
+                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
+                        <div className="max-w-[80px] truncate">
                           {client.certificate_end_date || 'Yok'}
                         </div>
                       </td>
-                      <td className="px-3 py-3 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="px-3 py-2 whitespace-nowrap text-right text-xs font-medium">
                         <button
                           onClick={() => handleDeleteClient(client.id, client.hotel_name)}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded-full transition-colors"
-                          title="Müşteriyi Sil"
+                          className="text-red-500 hover:text-red-700 p-1 rounded"
+                          title="Sil"
                         >
                           🗑️
                         </button>
