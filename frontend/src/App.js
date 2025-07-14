@@ -5124,6 +5124,9 @@ const ClientManagement = ({ onNavigate }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('hotel_name');
   const [sortOrder, setSortOrder] = useState('asc');
+  // Cache for better performance
+  const [dataCache, setDataCache] = useState({});
+  const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
   const [newClient, setNewClient] = useState({
     name: '',
     hotel_name: '',
