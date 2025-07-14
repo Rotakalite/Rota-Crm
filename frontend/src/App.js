@@ -5275,8 +5275,8 @@ const ClientManagement = ({ onNavigate }) => {
   };
   
   // Fetch clients with caching and optimization
-  const fetchClients = async (page = 1, limit = itemsPerPage, search = searchTerm, sort = sortBy, order = sortOrder) => {
-    const cacheKey = getCacheKey(page, limit, search, sort, order);
+  const fetchClients = async (page = 1, limit = itemsPerPage, search = searchTerm, sort = sortBy, order = sortOrder, clientType = clientTypeFilter) => {
+    const cacheKey = getCacheKey(page, limit, search, sort, order, clientType);
     
     // Check cache first
     if (dataCache[cacheKey]) {
@@ -5302,6 +5302,9 @@ const ClientManagement = ({ onNavigate }) => {
       }
       if (order) {
         params.order = order;
+      }
+      if (clientType && clientType !== 'all') {
+        params.client_type = clientType;
       }
       
       const startTime = Date.now();
