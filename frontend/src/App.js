@@ -654,7 +654,7 @@ const ConsultantClientManagement = ({ onNavigate }) => {
   const API = getApiUrl();
 
   useEffect(() => {
-    fetchClients();
+    fetchClients(currentPage, itemsPerPage, searchTerm, sortBy, sortOrder);
   }, [authToken]);
 
   const fetchClients = async () => {
