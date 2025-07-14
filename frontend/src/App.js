@@ -5296,13 +5296,13 @@ const ClientManagement = ({ onNavigate }) => {
 
         {/* Clients Grid */}
         {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="text-gray-600 mt-4">Müşteriler yükleniyor...</p>
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-2 text-gray-600">Müşteriler yükleniyor...</span>
           </div>
         ) : clients.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-8 text-center">
-            <p className="text-gray-500">Henüz müşteri bulunmuyor. İlk müşterinizi ekleyin.</p>
+          <div className="text-center py-12">
+            <p className="text-gray-500">Henüz müşteri bulunmuyor.</p>
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow overflow-hidden">
