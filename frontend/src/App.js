@@ -5122,12 +5122,23 @@ const ClientManagement = ({ onNavigate }) => {
     }
   };
 
-  // Fetch clients with pagination
-  const fetchClients = async (page = 1, limit = itemsPerPage) => {
+  // Fetch clients with pagination, search and sorting
+  const fetchClients = async (page = 1, limit = itemsPerPage, search = searchTerm, sort = sortBy, order = sortOrder) => {
     try {
       setLoading(true);
+      const params = { page, limit };
+      if (search && search.trim()) {
+        params.search = search.trim();
+      }
+      if (sort) {
+        params.sort = sort;
+      }
+      if (order) {
+        params.order = order;
+      }
+      
       const response = await axios.get(`${API}/clients`, {
-        params: { page, limit },
+        params,
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
@@ -5150,6 +5161,8 @@ const ClientManagement = ({ onNavigate }) => {
         console.log('✅ NEW FORMAT - WITH PAGINATION!');
         console.log('🔍 Clients count:', response.data.clients?.length);
         console.log('🔍 Pagination:', response.data.pagination);
+        console.log('🔍 Search:', response.data.search);
+        console.log('🔍 Sort:', response.data.sort, response.data.order);
         setClients(response.data.clients || []);
         setTotalCount(response.data.pagination.total_count || 0);
         setTotalPages(response.data.pagination.total_pages || 1);
@@ -5168,6 +5181,22 @@ const ClientManagement = ({ onNavigate }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Search handler
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    setCurrentPage(1);
+    fetchClients(1, itemsPerPage, term, sortBy, sortOrder);
+  };
+
+  // Sort handler
+  const handleSort = (field) => {
+    const newOrder = sortBy === field && sortOrder === 'asc' ? 'desc' : 'asc';
+    setSortBy(field);
+    setSortOrder(newOrder);
+    setCurrentPage(1);
+    fetchClients(1, itemsPerPage, searchTerm, field, newOrder);
   };
 
   // Pagination handlers
