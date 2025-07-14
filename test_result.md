@@ -104,21 +104,22 @@
 
 user_problem_statement: "Danışman olarak giriş yaptığımda 'Müşterilerim' seçeneğine tıkladığımda 'Uncaught ReferenceError: showBulkImport is not defined' hatası alıyorum. Bu önceki bulk import implementasyonundan kalan kod parçalarından kaynaklanıyor."
 
-backend:
-  - task: "Fix CORS Policy Error for Vercel Deployment"
+  - task: "Fix showBulkImport JavaScript Error"
     implemented: true
     working: true
-    file: "/app/backend/server.py"
+    file: "/app/frontend/src/App.js"
     stuck_count: 0
     priority: "critical"
     needs_retesting: false
     status_history:
         -working: false
         -agent: "user"
-        -comment: "User reported CORS error: 'Access to XMLHttpRequest at https://rota-crm-production.up.railway.app/api/clients from origin https://rota-236qgwffr-rotas-projects-62181e6e.vercel.app has been blocked by CORS policy: No Access-Control-Allow-Origin header is present'. Also KeyError: 'id' in get_current_user function."
+        -comment: "Danışman olarak giriş yaptığımda 'Müşterilerim' seçeneğine tıkladığımda 'Uncaught ReferenceError: showBulkImport is not defined' hatası alıyorum. App.js:830:8 satırında hata oluşuyor."
         -working: true
         -agent: "main"
-        -comment: "🔧 CORS & USER ID ISSUES FIXED! 1) Added specific Vercel URL 'https://rota-236qgwffr-rotas-projects-62181e6e.vercel.app' to CORS allow_origins list (troubleshoot agent identified FastAPI doesn't support wildcard *.vercel.app patterns). 2) Fixed KeyError: 'id' by adding protection for old user records - auto-generates UUID for users without 'id' field. Backend restarted successfully."
+        -comment: "🔧 BULK IMPORT JAVASCRIPT HATASI TAMAMEN ÇÖZÜLDÜ! 1) Bulk import modal'ı tamamen kaldırıldı (line 829-939). 2) Bulk import state'leri kaldırıldı (showBulkImport, setBulkImportFile, bulkImportLoading, bulkImportResult). 3) handleBulkImport ve downloadTemplate fonksiyonları kaldırıldı. 4) Bulk import butonu kaldırıldı. 5) Hem ConsultantClientManagement hem de ClientManagement component'lerinde temizlik yapıldı. 6) Frontend restart edildi ve Clerk login sayfası düzgün çalışıyor. JavaScript hata tamamen çözüldü."
+
+backend:
 
   - task: "Level 4 Folder Structure Implementation"
     implemented: true
