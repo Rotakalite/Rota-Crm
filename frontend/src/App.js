@@ -5652,36 +5652,6 @@ const ClientManagement = ({ onNavigate }) => {
   const API = getApiUrl();
 
   // Fetch clients
-      setBulkImportLoading(false);
-    }
-  };
-  
-  // Download template
-  const downloadTemplate = async () => {
-    try {
-      const response = await axios.get(`${API}/bulk-import/template`, {
-        headers: { Authorization: `Bearer ${authToken}` },
-        responseType: 'blob'
-      });
-      
-      // Create download link
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'musteri_import_template.xlsx');
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-      
-      console.log('📥 Template indirildi');
-    } catch (error) {
-      console.error('❌ Template indirme hatası:', error);
-      alert('Template indirme hatası: ' + (error.response?.data?.detail || error.message));
-    }
-  };
-
-  // Fetch clients
   const fetchClients = async (page = 1, limit = itemsPerPage, search = searchTerm, sort = sortBy, order = sortOrder, clientType = clientTypeFilter) => {
     try {
       setLoading(true);
