@@ -4977,6 +4977,8 @@ const ClientManagement = ({ onNavigate }) => {
   const [bulkImportFile, setBulkImportFile] = useState(null);
   const [bulkImportLoading, setBulkImportLoading] = useState(false);
   const [bulkImportResult, setBulkImportResult] = useState(null);
+  const [bulkImportProgress, setBulkImportProgress] = useState(0);
+  const [bulkImportStatus, setBulkImportStatus] = useState('');
   const [newClient, setNewClient] = useState({
     name: '',
     hotel_name: '',
