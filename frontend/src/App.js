@@ -5270,8 +5270,8 @@ const ClientManagement = ({ onNavigate }) => {
   };
 
   // Generate cache key
-  const getCacheKey = (page, limit, search, sort, order) => {
-    return `${page}-${limit}-${search || ''}-${sort}-${order}`;
+  const getCacheKey = (page, limit, search, sort, order, clientType) => {
+    return `${page}-${limit}-${search || ''}-${sort}-${order}-${clientType || 'all'}`;
   };
   
   // Fetch clients with caching and optimization
