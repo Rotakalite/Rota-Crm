@@ -11352,6 +11352,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
   const adminMenuItems = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
     { id: 'clients', name: 'Müşteri Yönetimi', icon: '🏨' },
+    { id: 'bulk-operations', name: 'Bulk İşlemler', icon: '📦' },
     { id: 'consultants', name: 'Danışman Yönetimi', icon: '👔' },
     { id: 'consumption', name: 'Tüketim Takibi', icon: '⚡' },
     { id: 'analytics', name: 'Tüketim Analizi', icon: '📈' },
