@@ -3687,16 +3687,48 @@ async def assign_client_to_user(
         logging.error(f"❌ Error assigning client to user: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/clients", response_model=List[Client])
-async def get_clients(current_user: User = Depends(get_current_user)):
+@api_router.get("/clients")
+async def get_clients(
+    page: int = 1,
+    limit: int = 100,
+    current_user: User = Depends(get_current_user)
+):
+    """Get clients with pagination"""
     print(f"🚨🚨🚨 SECURITY CHECK: GET /clients called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
     logging.error(f"🚨🚨🚨 SECURITY CHECK: GET /clients called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
     
+    # Validate pagination parameters
+    if page < 1:
+        page = 1
+    if limit < 1 or limit > 1000:  # Max 1000 per page
+        limit = 100
+    
+    skip = (page - 1) * limit
+    
     if current_user.role == UserRole.ADMIN:
-        clients = await db.clients.find().to_list(1000)
-        print(f"🚨 ADMIN USER - returning {len(clients)} clients")
-        logging.error(f"🚨 ADMIN USER - returning {len(clients)} clients")
-        return [Client(**client) for client in clients]
+        # Get total count for pagination
+        total_count = await db.clients.count_documents({})
+        
+        # Get paginated clients
+        clients = await db.clients.find().skip(skip).limit(limit).to_list(length=limit)
+        
+        # Calculate pagination info
+        total_pages = (total_count + limit - 1) // limit  # Ceiling division
+        
+        print(f"🚨 ADMIN USER - returning {len(clients)} clients (page {page}/{total_pages})")
+        logging.error(f"🚨 ADMIN USER - returning {len(clients)} clients (page {page}/{total_pages})")
+        
+        return {
+            "clients": [Client(**client) for client in clients],
+            "pagination": {
+                "page": page,
+                "limit": limit,
+                "total_count": total_count,
+                "total_pages": total_pages,
+                "has_next": page < total_pages,
+                "has_prev": page > 1
+            }
+        }
     else:
         print(f"🚨 CLIENT USER DETECTED - APPLYING SECURITY FILTER")
         logging.error(f"🚨 CLIENT USER DETECTED - APPLYING SECURITY FILTER")
@@ -3716,7 +3748,18 @@ async def get_clients(current_user: User = Depends(get_current_user)):
         
         print(f"🚨 CLIENT USER SECURITY APPLIED - returning ONLY their client: {client['name']}")
         logging.error(f"🚨 CLIENT USER SECURITY APPLIED - returning ONLY their client: {client['name']}")
-        return [Client(**client)]
+        
+        return {
+            "clients": [Client(**client)],
+            "pagination": {
+                "page": 1,
+                "limit": 1,
+                "total_count": 1,
+                "total_pages": 1,
+                "has_next": False,
+                "has_prev": False
+            }
+        }
 
 @api_router.get("/clients/{client_id}", response_model=Client)
 async def get_client(client_id: str, current_user: User = Depends(get_current_user)):
