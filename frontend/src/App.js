@@ -5240,52 +5240,112 @@ const ClientManagement = ({ onNavigate }) => {
             <p className="text-gray-500">Henüz müşteri bulunmuyor. İlk müşterinizi ekleyin.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {clients.map((client) => (
-              <div key={client.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                      {client.hotel_name}
-                    </h3>
-                    <p className="text-sm text-gray-600">{client.name}</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      Aktif
-                    </span>
-                    <button
-                      onClick={() => handleDeleteClient(client.id, client.hotel_name)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded-full transition-colors"
-                      title="Müşteriyi Sil"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                </div>
-
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <span className="mr-2">📧</span>
-                    {client.email || 'Email belirtilmemiş'}
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <span className="mr-2">📞</span>
-                    {client.phone || 'Telefon belirtilmemiş'}
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <span className="mr-2">📍</span>
-                    {client.address || 'Adres belirtilmemiş'}
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => onNavigate('documents')}
-                    className="flex-1 bg-blue-50 text-blue-600 px-3 py-2 rounded text-sm hover:bg-blue-100 transition-colors"
-                  >
-                    📄 Belgeleri
-                  </button>
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900">Müşteri Listesi</h3>
+              <p className="text-sm text-gray-500 mt-1">Toplam {clients.length} müşteri</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Otel Adı
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Şehir/İlçe
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      İletişim
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Sertifika Bitiş
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Denetleyen Firma
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Durum
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      İşlemler
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {clients.map((client) => (
+                    <tr key={client.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                              <span className="text-blue-600 font-medium text-sm">
+                                {client.hotel_name?.charAt(0).toUpperCase() || 'H'}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {client.hotel_name || 'Otel Adı Belirtilmemiş'}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {client.name || 'İsim Belirtilmemiş'}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div>
+                          <div className="font-medium">{client.city || 'Şehir Belirtilmemiş'}</div>
+                          <div className="text-gray-500">{client.district || 'İlçe Belirtilmemiş'}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="space-y-1">
+                          <div className="flex items-center">
+                            <span className="mr-2">📧</span>
+                            {client.email || 'Email yok'}
+                          </div>
+                          <div className="flex items-center">
+                            <span className="mr-2">📞</span>
+                            {client.phone || 'Telefon yok'}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="flex items-center">
+                          <span className="mr-2">📅</span>
+                          {client.certificate_end_date || 'Belirtilmemiş'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="flex items-center">
+                          <span className="mr-2">🏢</span>
+                          {client.audit_company || 'Belirtilmemiş'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          {client.current_stage || 'Aktif'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end space-x-2">
+                          <button
+                            onClick={() => handleDeleteClient(client.id, client.hotel_name)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-full transition-colors"
+                            title="Müşteriyi Sil"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
                   <button
                     onClick={() => onNavigate('consumption')}
                     className="flex-1 bg-green-50 text-green-600 px-3 py-2 rounded text-sm hover:bg-green-100 transition-colors"
