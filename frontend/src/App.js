@@ -664,6 +664,7 @@ const ConsultantClientManagement = ({ onNavigate }) => {
   const [totalCount, setTotalCount] = useState(0);
   const [hasPrev, setHasPrev] = useState(false);
   const [hasNext, setHasNext] = useState(false);
+  const [clientTypeFilter, setClientTypeFilter] = useState('all');
   const API = getApiUrl();
 
   const handlePageChange = (newPage) => {
