@@ -138,8 +138,11 @@ app.add_middleware(
     allow_origins=["*"],  # TÜM ORIGIN'LERE İZİN VER - RAILWAY/VERCEL DEĞİŞKEN URL PROBLEMİ İÇİN
     allow_credentials=False,  # "*" kullanırken credentials false olmalı
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
-    allow_headers=["*"],  # TÜM HEADER'LARA İZİN VER
+    allow_headers=["*"],
 )
+
+# Add GZip compression for better performance
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Set maximum request size to 500MB
 app.state.max_request_size = 500 * 1024 * 1024  # 500MB
