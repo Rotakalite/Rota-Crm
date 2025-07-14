@@ -664,13 +664,6 @@ const ConsultantClientManagement = ({ onNavigate }) => {
   const [totalCount, setTotalCount] = useState(0);
   const [hasPrev, setHasPrev] = useState(false);
   const [hasNext, setHasNext] = useState(false);
-  const [clientTypeFilter, setClientTypeFilter] = useState('');
-  const [dataCache, setDataCache] = useState({});
-
-  // Cache key generator
-  const getCacheKey = (page, limit, search, sort, order, clientType) => {
-    return `${page}-${limit}-${search}-${sort}-${order}-${clientType}`;
-  };
   const API = getApiUrl();
 
   const handlePageChange = (newPage) => {
@@ -681,23 +674,49 @@ const ConsultantClientManagement = ({ onNavigate }) => {
   };
 
   useEffect(() => {
-    fetchClients(currentPage, itemsPerPage, searchTerm, sortBy, sortOrder);
+    if (authToken) {
+      fetchClients(currentPage, itemsPerPage, searchTerm, sortBy, sortOrder);
+    }
   }, [authToken]);
 
-  const fetchClients = async (page, perPage, search, sort, order) => {
-    if (!authToken) return;
-    
+  const fetchClients = async (page = 1, limit = itemsPerPage, search = searchTerm, sort = sortBy, order = sortOrder) => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/clients?page=${page}&per_page=${perPage}&search=${search}&sort=${sort}&order=${order}`, {
+      const params = { page, limit };
+      if (search && search.trim()) {
+        params.search = search.trim();
+      }
+      if (sort) {
+        params.sort = sort;
+      }
+      if (order) {
+        params.order = order;
+      }
+      
+      const response = await axios.get(`${API}/clients`, {
+        params,
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
-      // Update pagination state
+      // Handle response
       const { data, meta } = response.data;
       setClients(data || []);
       setTotalPages(meta?.total_pages || 1);
       setTotalCount(meta?.total_count || 0);
+      setHasPrev(page > 1);
+      setHasNext(page < (meta?.total_pages || 1));
+      
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      setClients([]);
+      setTotalPages(1);
+      setTotalCount(0);
+      setHasPrev(false);
+      setHasNext(false);
+    } finally {
+      setLoading(false);
+    }
+  };
       setHasPrev(page > 1);
       setHasNext(page < (meta?.total_pages || 1));
       
