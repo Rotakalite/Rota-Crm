@@ -5172,12 +5172,13 @@ const BulkOperations = ({ onNavigate }) => {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
-      const { data, meta } = response.data;
-      setBulkClients(data || []);
-      setTotalPages(meta?.total_pages || 1);
-      setTotalCount(meta?.total_count || 0);
-      setHasPrev(page > 1);
-      setHasNext(page < (meta?.total_pages || 1));
+      // Backend returns { clients, pagination } format
+      const { clients, pagination } = response.data;
+      setBulkClients(clients || []);
+      setTotalPages(pagination?.total_pages || 1);
+      setTotalCount(pagination?.total_count || 0);
+      setHasPrev(pagination?.has_prev || false);
+      setHasNext(pagination?.has_next || false);
       
     } catch (error) {
       console.error('Error fetching bulk clients:', error);
