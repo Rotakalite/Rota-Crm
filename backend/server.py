@@ -10443,11 +10443,12 @@ async def send_bulk_email(
 async def get_bulk_email_stats(current_user: User = Depends(get_admin_user)):
     """Get email statistics for bulk email - ADMIN ONLY"""
     try:
-        # Get total clients
-        total_clients = await db.clients.count_documents({})
+        # Get total BULK clients
+        total_bulk_clients = await db.clients.count_documents({"client_type": "bulk"})
         
-        # Get clients with email
-        clients_with_email = await db.clients.count_documents({
+        # Get BULK clients with email
+        bulk_clients_with_email = await db.clients.count_documents({
+            "client_type": "bulk",
             "email": {"$ne": "", "$exists": True}
         })
         
@@ -10466,9 +10467,9 @@ async def get_bulk_email_stats(current_user: User = Depends(get_admin_user)):
         audit_stats = await db.clients.aggregate(audit_pipeline).to_list(length=None)
         
         return {
-            "total_clients": total_clients,
-            "clients_with_email": clients_with_email,
-            "email_coverage_percentage": round((clients_with_email / total_clients * 100), 2) if total_clients > 0 else 0,
+            "total_bulk_clients": total_bulk_clients,
+            "bulk_clients_with_email": bulk_clients_with_email,
+            "email_coverage_percentage": round((bulk_clients_with_email / total_bulk_clients * 100), 2) if total_bulk_clients > 0 else 0,
             "city_distribution": city_stats[:10],  # Top 10 cities
             "audit_company_distribution": audit_stats[:10]  # Top 10 audit companies
         }
