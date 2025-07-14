@@ -5387,17 +5387,29 @@ const ClientManagement = ({ onNavigate }) => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Otel
+                    <th 
+                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('hotel_name')}
+                    >
+                      Otel {sortBy === 'hotel_name' && (sortOrder === 'asc' ? '🔼' : '🔽')}
                     </th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Lokasyon
+                    <th 
+                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('city')}
+                    >
+                      Lokasyon {sortBy === 'city' && (sortOrder === 'asc' ? '🔼' : '🔽')}
                     </th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Telefon
+                    <th 
+                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('phone')}
+                    >
+                      Telefon {sortBy === 'phone' && (sortOrder === 'asc' ? '🔼' : '🔽')}
                     </th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Email
+                    <th 
+                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('email')}
+                    >
+                      Email {sortBy === 'email' && (sortOrder === 'asc' ? '🔼' : '🔽')}
                     </th>
                     <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Sertifika
