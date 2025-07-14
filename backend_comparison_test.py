@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 # Test data
 RAILWAY_BACKEND_URL = "https://rota-crm-production.up.railway.app/api"
-EMERGENT_BACKEND_URL = "https://ecd50858-c16e-4cf1-bfa1-501728878062.preview.emergentagent.com/api"
+EMERGENT_BACKEND_URL = "https://4ee1e29f-eceb-4966-ad56-8377a758d2bb.preview.emergentagent.com/api"
 
 # Test JWT token - this is a sample token for testing
 # In a real scenario, you would generate this from Clerk
