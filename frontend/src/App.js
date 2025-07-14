@@ -5512,6 +5512,8 @@ const ClientManagement = ({ onNavigate }) => {
                       setShowBulkImport(false);
                       setBulkImportFile(null);
                       setBulkImportResult(null);
+                      setBulkImportProgress(0);
+                      setBulkImportStatus('');
                     }}
                     disabled={bulkImportLoading}
                     className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 disabled:opacity-50"
