@@ -5182,6 +5182,15 @@ const BulkOperations = ({ onNavigate }) => {
       
     } catch (error) {
       console.error('Error fetching bulk clients:', error);
+      
+      // Check if it's an authentication error
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        console.error('🔐 Authentication error:', error.response?.data?.detail);
+        alert('Authentication hatası: Lütfen yeniden giriş yapın.');
+      } else {
+        console.error('API error:', error.response?.data?.detail || error.message);
+      }
+      
       setBulkClients([]);
       setTotalPages(1);
       setTotalCount(0);
