@@ -13862,7 +13862,7 @@ const App = () => {
           </div>
         </div>
       )}
-    </div>
+    </ClerkProvider>
   );
 };
 
