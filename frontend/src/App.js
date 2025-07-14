@@ -674,10 +674,22 @@ const ConsultantClientManagement = ({ onNavigate }) => {
       const response = await axios.get(`${API}/clients?page=${page}&per_page=${perPage}&search=${search}&sort=${sort}&order=${order}`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      setClients(response.data || []);
+      
+      // Update pagination state
+      const { data, meta } = response.data;
+      setClients(data || []);
+      setTotalPages(meta?.total_pages || 1);
+      setTotalCount(meta?.total_count || 0);
+      setHasPrev(page > 1);
+      setHasNext(page < (meta?.total_pages || 1));
+      
     } catch (error) {
       console.error('Error fetching clients:', error);
       setClients([]);
+      setTotalPages(1);
+      setTotalCount(0);
+      setHasPrev(false);
+      setHasNext(false);
     } finally {
       setLoading(false);
     }
