@@ -5122,20 +5122,58 @@ const ClientManagement = ({ onNavigate }) => {
     }
   };
 
-  // Fetch clients
-  const fetchClients = async () => {
+  // Fetch clients with pagination
+  const fetchClients = async (page = 1, limit = itemsPerPage) => {
     try {
       setLoading(true);
       const response = await axios.get(`${API}/clients`, {
+        params: { page, limit },
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      setClients(response.data || []);
+      
+      // Handle both old format (array) and new format (object with pagination)
+      if (Array.isArray(response.data)) {
+        // Old format - no pagination
+        setClients(response.data);
+        setTotalCount(response.data.length);
+        setTotalPages(1);
+        setCurrentPage(1);
+        setHasNext(false);
+        setHasPrev(false);
+      } else {
+        // New format - with pagination
+        setClients(response.data.clients || []);
+        setTotalCount(response.data.pagination.total_count || 0);
+        setTotalPages(response.data.pagination.total_pages || 1);
+        setCurrentPage(response.data.pagination.page || 1);
+        setHasNext(response.data.pagination.has_next || false);
+        setHasPrev(response.data.pagination.has_prev || false);
+      }
     } catch (error) {
       console.error('Error fetching clients:', error);
       setClients([]);
+      setTotalCount(0);
+      setTotalPages(1);
+      setCurrentPage(1);
+      setHasNext(false);
+      setHasPrev(false);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Pagination handlers
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      fetchClients(page, itemsPerPage);
+    }
+  };
+
+  const handleItemsPerPageChange = (limit) => {
+    setItemsPerPage(limit);
+    setCurrentPage(1);
+    fetchClients(1, limit);
   };
 
   // Add new client
