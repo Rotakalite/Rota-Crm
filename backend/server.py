@@ -10452,15 +10452,17 @@ async def get_bulk_email_stats(current_user: User = Depends(get_admin_user)):
             "email": {"$ne": "", "$exists": True}
         })
         
-        # Get city distribution
+        # Get city distribution for BULK clients
         city_pipeline = [
+            {"$match": {"client_type": "bulk"}},
             {"$group": {"_id": "$city", "count": {"$sum": 1}}},
             {"$sort": {"count": -1}}
         ]
         city_stats = await db.clients.aggregate(city_pipeline).to_list(length=None)
         
-        # Get audit company distribution
+        # Get audit company distribution for BULK clients
         audit_pipeline = [
+            {"$match": {"client_type": "bulk"}},
             {"$group": {"_id": "$audit_company", "count": {"$sum": 1}}},
             {"$sort": {"count": -1}}
         ]
