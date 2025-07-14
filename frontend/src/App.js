@@ -13686,8 +13686,183 @@ const App = () => {
       
       <SignedIn>
         <MainApp />
-      </SignedIn>
-    </ClerkProvider>
+      )}
+
+      {/* Bulk Email Modal - Admin Only */}
+      {showBulkEmail && userRole === 'admin' && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                📧 Toplu Email Gönderimi (Sadece Bulk Müşteriler)
+              </h3>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Email Stats */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-blue-800 mb-3">📊 Bulk Müşteri İstatistikleri</h4>
+                  {bulkEmailStats ? (
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-blue-700">Toplam Bulk Müşteri:</span>
+                        <span className="font-medium text-blue-900">{bulkEmailStats.total_bulk_clients}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-blue-700">Email Adresi Olan:</span>
+                        <span className="font-medium text-blue-900">{bulkEmailStats.bulk_clients_with_email}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-blue-700">Email Kapsama:</span>
+                        <span className="font-medium text-blue-900">{bulkEmailStats.email_coverage_percentage}%</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-blue-600">İstatistikler yükleniyor...</p>
+                  )}
+                </div>
+
+                {/* Email Form */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Konusu:
+                    </label>
+                    <input
+                      type="text"
+                      value={bulkEmailForm.subject}
+                      onChange={(e) => setBulkEmailForm({...bulkEmailForm, subject: e.target.value})}
+                      placeholder="Email konusunu girin..."
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email İçeriği:
+                    </label>
+                    <textarea
+                      value={bulkEmailForm.content}
+                      onChange={(e) => setBulkEmailForm({...bulkEmailForm, content: e.target.value})}
+                      placeholder="Email içeriğini girin... (HTML desteklenir)"
+                      rows={6}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Placeholder'lar: {'{hotel_name}'}, {'{city}'}, {'{contact_person}'}
+                    </p>
+                  </div>
+
+                  {/* Filters */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Şehir Filtresi:
+                      </label>
+                      <select
+                        value={bulkEmailForm.target_filters.city}
+                        onChange={(e) => setBulkEmailForm({
+                          ...bulkEmailForm,
+                          target_filters: {...bulkEmailForm.target_filters, city: e.target.value}
+                        })}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
+                      >
+                        <option value="">Tüm Şehirler</option>
+                        {bulkEmailStats?.city_distribution?.map(city => (
+                          <option key={city._id} value={city._id}>
+                            {city._id} ({city.count} müşteri)
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Denetim Firması:
+                      </label>
+                      <select
+                        value={bulkEmailForm.target_filters.audit_company}
+                        onChange={(e) => setBulkEmailForm({
+                          ...bulkEmailForm,
+                          target_filters: {...bulkEmailForm.target_filters, audit_company: e.target.value}
+                        })}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
+                      >
+                        <option value="">Tüm Firmalar</option>
+                        {bulkEmailStats?.audit_company_distribution?.map(company => (
+                          <option key={company._id} value={company._id}>
+                            {company._id} ({company.count} müşteri)
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Send Result */}
+              {bulkEmailResult && (
+                <div className={`mt-6 border rounded-lg p-4 ${
+                  bulkEmailResult.success 
+                    ? 'bg-green-50 border-green-200' 
+                    : 'bg-red-50 border-red-200'
+                }`}>
+                  <h4 className={`font-semibold mb-2 ${
+                    bulkEmailResult.success ? 'text-green-800' : 'text-red-800'
+                  }`}>
+                    {bulkEmailResult.success ? '✅ Email Gönderildi!' : '❌ Gönderim Başarısız!'}
+                  </h4>
+                  {bulkEmailResult.success ? (
+                    <div className="text-green-700 text-sm">
+                      <p>{bulkEmailResult.message}</p>
+                      <p>📧 <strong>{bulkEmailResult.sent_count}</strong> bulk müşteriye gönderildi</p>
+                    </div>
+                  ) : (
+                    <p className="text-red-700 text-sm">{bulkEmailResult.error}</p>
+                  )}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-6">
+                <button
+                  onClick={handleBulkEmailSend}
+                  disabled={!bulkEmailForm.subject || !bulkEmailForm.content || bulkEmailLoading}
+                  className="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                >
+                  {bulkEmailLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Gönderiliyor...
+                    </span>
+                  ) : (
+                    '📧 Bulk Email Gönder'
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowBulkEmail(false);
+                    setBulkEmailForm({
+                      subject: '',
+                      content: '',
+                      target_filters: {
+                        city: '',
+                        audit_company: '',
+                        has_email: true
+                      }
+                    });
+                    setBulkEmailResult(null);
+                    setBulkEmailStats(null);
+                  }}
+                  disabled={bulkEmailLoading}
+                  className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 disabled:opacity-50"
+                >
+                  {bulkEmailLoading ? 'Bekleyin...' : 'Kapat'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
