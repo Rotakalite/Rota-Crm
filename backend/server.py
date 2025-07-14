@@ -10439,7 +10439,7 @@ async def send_bulk_email(
         logging.error(f"❌ BULK EMAIL ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Toplu email gönderme hatası: {str(e)}")
 
-@app.get("/api/bulk-email/stats")
+@api_router.get("/bulk-email/stats")
 async def get_bulk_email_stats(current_user: User = Depends(get_admin_user)):
     """Get email statistics for bulk email - ADMIN ONLY"""
     try:
