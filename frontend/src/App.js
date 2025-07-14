@@ -5346,16 +5346,6 @@ const ClientManagement = ({ onNavigate }) => {
               </table>
             </div>
           </div>
-                  <button
-                    onClick={() => onNavigate('consumption')}
-                    className="flex-1 bg-green-50 text-green-600 px-3 py-2 rounded text-sm hover:bg-green-100 transition-colors"
-                  >
-                    ⚡ Tüketim
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
         )}
       </div>
 
