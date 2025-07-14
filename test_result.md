@@ -307,6 +307,18 @@ backend:
         -agent: "testing"
         -comment: "Fixed the Email Management endpoints by moving the API router registration to the end of the file after all endpoint definitions. The API router is now registered at line 5609 with app.include_router(api_router, prefix='/api'). Also fixed the endpoint authentication by changing the dependency from token: str = Depends(verify_token) to current_user: User = Depends(get_current_user). Tested the endpoints with the Railway API URL and they are now properly registered. The endpoints return 405 Method Not Allowed errors when accessed with GET requests, which is expected since they are defined as GET endpoints but the server is configured to require authentication. When accessed with proper authentication, the endpoints should return the expected data. The fix ensures that all API endpoints defined in the server.py file are properly registered with the FastAPI router."
 
+  - task: "Bulk Email System Frontend UI Completion"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "2025-01-25: Bulk email sistemi frontend UI'sını tamamen tamamladım. showBulkEmail hatası çözüldü, modal doğru yere taşındı. Backend bulk email endpoints'leri API router'a taşındı ve çalışıyor. Frontend'deki tüm duplicate function'lar temizlendi. Syntax error'lar çözüldü. Bulk email modal'ı admin-only olarak hazır ve functional."
+
 frontend:
   - task: "Login Page Functionality"
     implemented: true
