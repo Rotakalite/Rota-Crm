@@ -102,9 +102,9 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Veriler frontend'e gelirken çok yavaş geliyor. Performance optimizasyonu gerekiyor."
+user_problem_statement: "Bulk olarak eklenen müşteriler ile kendi kaydolan müşterilerin ayrılıp birbirine karışmaması lazım. Bulk müşteriler sadece toplu tanıtım mailleri için, kayıtlı müşteriler tüm modüller için kullanılacak."
 
-  - task: "Frontend Performance Optimization"
+  - task: "Client Type Separation - Bulk vs Registered Clients"
     implemented: true
     working: true
     file: "/app/frontend/src/App.js, /app/backend/server.py"
@@ -112,12 +112,12 @@ user_problem_statement: "Veriler frontend'e gelirken çok yavaş geliyor. Perfor
     priority: "critical"
     needs_retesting: true
     status_history:
-        -working: false
+        -working: "NA"
         -agent: "user"
-        -comment: "Veriler frontend'e gelirken çok yavaş geliyor. Performance optimizasyonu gerekiyor."
+        -comment: "Bulk olarak eklenen müşteriler ile kendi kaydolan müşterilerin ayrılıp birbirine karışmaması lazım. Bulk müşteriler sadece toplu tanıtım mailleri için, kayıtlı müşteriler tüm modüller için kullanılacak."
         -working: true
         -agent: "main"
-        -comment: "⚡ PERFORMANCE OPTIMIZASYONU TAMAMLANDI! Backend: 1) MongoDB index'leri oluşturuldu: text search, hotel_name, city, phone, email, created_at, compound indexes. 2) Query projection eklendi: sadece gerekli field'lar (_id exclude). 3) Text search optimize edildi: MongoDB $text operator kullanıyor. 4) GZip compression middleware eklendi (minimum_size=1000). 5) Query performance: Search 118ms, Sort 107ms, Count 116ms. Frontend: 1) Axios timeout optimize edildi (10s). 2) Loading states iyileştirildi: search-aware mesajlar. 3) Empty state iyileştirildi: arama sonuç mesajları. 4) Cache infrastructure hazır (dataCache state). 5) Debounce infrastructure hazır (searchDebounceTimer). Performance dramatik olarak iyileştirildi!"
+        -comment: "🏷️ MÜŞTERİ TİPİ AYRIMI SİSTEMİ EKLENDİ! Backend: 1) Client schema'ya client_type field eklendi ('bulk'/'registered'). 2) Bulk import'ta client_type='bulk' otomatik set ediliyor. 3) Manual client add'de client_type='registered' default. 4) GET /clients endpoint'ine client_type filter parametresi eklendi. 5) Client projection'a client_type field eklendi. Frontend: 1) Client type filter dropdown: Tümü/Kayıtlı/Toplu seçenekleri. 2) Visual indicators: Bulk müşteriler turuncu, kayıtlı müşteriler mavi avatar. 3) Client type kolonu eklendi: 'Toplu Müşteri'/'Kayıtlı Müşteri' badge'leri. 4) Cache system client_type ile çalışıyor. 5) Tüm handler'lar client_type parametresi ile güncellendi. İş mantığı: Bulk müşteriler sadece email campaign'ler için, kayıtlı müşteriler tüm modüller için ayrıldı!"
 
 
 backend:
