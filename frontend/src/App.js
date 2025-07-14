@@ -678,7 +678,7 @@ const ConsultantClientManagement = ({ onNavigate }) => {
     if (authToken) {
       fetchClients(currentPage, itemsPerPage, searchTerm, sortBy, sortOrder, clientTypeFilter);
     }
-  }, [authToken]);
+  }, [authToken, currentPage, itemsPerPage, searchTerm, sortBy, sortOrder, clientTypeFilter]);
 
   const fetchClients = async (page = 1, limit = itemsPerPage, search = searchTerm, sort = sortBy, order = sortOrder, clientType = clientTypeFilter) => {
     try {
