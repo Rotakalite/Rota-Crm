@@ -5615,12 +5615,6 @@ const ClientManagement = ({ onNavigate }) => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddClient, setShowAddClient] = useState(false);
-  const [showBulkImport, setShowBulkImport] = useState(false);
-  const [bulkImportFile, setBulkImportFile] = useState(null);
-  const [bulkImportLoading, setBulkImportLoading] = useState(false);
-  const [bulkImportResult, setBulkImportResult] = useState(null);
-  const [bulkImportProgress, setBulkImportProgress] = useState(0);
-  const [bulkImportStatus, setBulkImportStatus] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);  // Daha az müşteri
   const [totalCount, setTotalCount] = useState(0);
@@ -5632,7 +5626,6 @@ const ClientManagement = ({ onNavigate }) => {
   const [sortOrder, setSortOrder] = useState('asc');
   const [clientTypeFilter, setClientTypeFilter] = useState('registered'); // Default to registered clients only
   
-  // Bulk Email States
   const [showBulkEmail, setShowBulkEmail] = useState(false);
   const [bulkEmailLoading, setBulkEmailLoading] = useState(false);
   const [bulkEmailStats, setBulkEmailStats] = useState(null);
