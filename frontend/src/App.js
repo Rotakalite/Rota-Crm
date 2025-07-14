@@ -662,6 +662,13 @@ const ConsultantClientManagement = ({ onNavigate }) => {
   const [hasNext, setHasNext] = useState(false);
   const API = getApiUrl();
 
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      fetchClients(newPage, itemsPerPage, searchTerm, sortBy, sortOrder);
+    }
+  };
+
   useEffect(() => {
     fetchClients(currentPage, itemsPerPage, searchTerm, sortBy, sortOrder);
   }, [authToken]);
