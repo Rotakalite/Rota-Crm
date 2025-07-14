@@ -4982,6 +4982,9 @@ const ClientManagement = ({ onNavigate }) => {
   const [totalPages, setTotalPages] = useState(0);
   const [hasNext, setHasNext] = useState(false);
   const [hasPrev, setHasPrev] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('hotel_name');
+  const [sortOrder, setSortOrder] = useState('asc');
   const [newClient, setNewClient] = useState({
     name: '',
     hotel_name: '',
