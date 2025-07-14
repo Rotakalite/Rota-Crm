@@ -3691,9 +3691,12 @@ async def assign_client_to_user(
 async def get_clients(
     page: int = 1,
     limit: int = 50,  # Daha az müşteri varsayılan
+    search: str = None,  # Arama parametresi
+    sort: str = "hotel_name",  # Sıralama parametresi
+    order: str = "asc",  # Sıralama yönü
     current_user: User = Depends(get_current_user)
 ):
-    """Get clients with pagination"""
+    """Get clients with pagination, search and sorting"""
     print(f"🚨🚨🚨 SECURITY CHECK: GET /clients called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
     logging.error(f"🚨🚨🚨 SECURITY CHECK: GET /clients called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
     
@@ -3701,22 +3704,44 @@ async def get_clients(
     if page < 1:
         page = 1
     if limit < 1 or limit > 1000:  # Max 1000 per page
-        limit = 100
+        limit = 50
     
     skip = (page - 1) * limit
     
+    # Build search filter
+    search_filter = {}
+    if search and search.strip():
+        search_pattern = {"$regex": search.strip(), "$options": "i"}
+        search_filter = {
+            "$or": [
+                {"hotel_name": search_pattern},
+                {"name": search_pattern},
+                {"city": search_pattern},
+                {"district": search_pattern},
+                {"email": search_pattern},
+                {"phone": search_pattern},
+                {"audit_company": search_pattern}
+            ]
+        }
+        print(f"🔍 SEARCH FILTER: {search_filter}")
+    
+    # Build sort criteria
+    sort_direction = 1 if order == "asc" else -1
+    sort_criteria = [(sort, sort_direction)]
+    
     if current_user.role == UserRole.ADMIN:
-        # Get total count for pagination
-        total_count = await db.clients.count_documents({})
+        # Get total count for pagination (with search filter)
+        total_count = await db.clients.count_documents(search_filter)
         
-        # Get paginated clients
-        clients = await db.clients.find().skip(skip).limit(limit).to_list(length=limit)
+        # Get paginated clients (with search filter and sorting)
+        clients = await db.clients.find(search_filter).sort(sort_criteria).skip(skip).limit(limit).to_list(length=limit)
         
         # Calculate pagination info
         total_pages = (total_count + limit - 1) // limit  # Ceiling division
         
-        print(f"🚨 ADMIN USER - returning {len(clients)} clients (page {page}/{total_pages})")
-        logging.error(f"🚨 ADMIN USER - returning {len(clients)} clients (page {page}/{total_pages})")
+        search_info = f" (search: '{search}')" if search else ""
+        print(f"🚨 ADMIN USER - returning {len(clients)} clients (page {page}/{total_pages}){search_info}")
+        logging.error(f"🚨 ADMIN USER - returning {len(clients)} clients (page {page}/{total_pages}){search_info}")
         
         return {
             "clients": [Client(**client) for client in clients],
@@ -3727,7 +3752,10 @@ async def get_clients(
                 "total_pages": total_pages,
                 "has_next": page < total_pages,
                 "has_prev": page > 1
-            }
+            },
+            "search": search,
+            "sort": sort,
+            "order": order
         }
     else:
         print(f"🚨 CLIENT USER DETECTED - APPLYING SECURITY FILTER")
@@ -3758,7 +3786,10 @@ async def get_clients(
                 "total_pages": 1,
                 "has_next": False,
                 "has_prev": False
-            }
+            },
+            "search": search,
+            "sort": sort,
+            "order": order
         }
 
 @api_router.get("/clients/{client_id}", response_model=Client)
