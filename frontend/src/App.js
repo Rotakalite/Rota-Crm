@@ -5345,6 +5345,118 @@ const ClientManagement = ({ onNavigate }) => {
           </div>
         </div>
       )}
+
+      {/* Bulk Import Modal - Admin Only */}
+      {showBulkImport && userRole === 'admin' && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                📊 Toplu Müşteri İçe Aktarma
+              </h3>
+              
+              <div className="space-y-6">
+                {/* Instructions */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-blue-800 mb-2">📋 Kullanım Talimatları:</h4>
+                  <ul className="text-blue-700 text-sm space-y-1">
+                    <li>• Excel dosyanızda şu kolonlar olmalı: <strong>TESİS ADI, İL, İLÇE, TELEFON, MAİL, SERTİFİKA BİTİŞ TARİHİ, DENETLEYEN FİRMA</strong></li>
+                    <li>• Sadece .xlsx ve .xls formatları kabul edilir</li>
+                    <li>• Aynı isim ve şehirdeki oteller atlanır (duplicate check)</li>
+                    <li>• İşlem uzun sürebilir, lütfen bekleyin</li>
+                  </ul>
+                </div>
+
+                {/* Template Download */}
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-800 mb-2">📥 Örnek Template:</h4>
+                  <p className="text-gray-600 text-sm mb-3">
+                    Doğru format için örnek Excel dosyasını indirin ve kendi verilerinizle doldurun.
+                  </p>
+                  <button
+                    onClick={downloadTemplate}
+                    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm"
+                  >
+                    📥 Template İndir (.xlsx)
+                  </button>
+                </div>
+
+                {/* File Upload */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Excel Dosyası Seçin:
+                  </label>
+                  <input
+                    type="file"
+                    accept=".xlsx,.xls"
+                    onChange={(e) => setBulkImportFile(e.target.files[0])}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  {bulkImportFile && (
+                    <p className="mt-2 text-sm text-green-600">
+                      ✅ Seçilen dosya: {bulkImportFile.name}
+                    </p>
+                  )}
+                </div>
+
+                {/* Import Result */}
+                {bulkImportResult && (
+                  <div className={`border rounded-lg p-4 ${
+                    bulkImportResult.success 
+                      ? 'bg-green-50 border-green-200' 
+                      : 'bg-red-50 border-red-200'
+                  }`}>
+                    <h4 className={`font-semibold mb-2 ${
+                      bulkImportResult.success ? 'text-green-800' : 'text-red-800'
+                    }`}>
+                      {bulkImportResult.success ? '✅ İşlem Tamamlandı!' : '❌ İşlem Başarısız!'}
+                    </h4>
+                    {bulkImportResult.success ? (
+                      <div className="text-green-700 text-sm space-y-1">
+                        <p>📊 <strong>{bulkImportResult.imported_count}</strong> müşteri başarıyla eklendi</p>
+                        <p>⏭️ <strong>{bulkImportResult.skipped_count}</strong> müşteri atlandı (duplicate)</p>
+                        <p>❌ <strong>{bulkImportResult.error_count}</strong> hata</p>
+                        <p>📋 Toplam <strong>{bulkImportResult.total_rows}</strong> satır işlendi</p>
+                      </div>
+                    ) : (
+                      <p className="text-red-700 text-sm">{bulkImportResult.error}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={handleBulkImport}
+                    disabled={!bulkImportFile || bulkImportLoading}
+                    className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  >
+                    {bulkImportLoading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        İçe Aktarılıyor...
+                      </span>
+                    ) : (
+                      '📤 İçe Aktar'
+                    )}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowBulkImport(false);
+                      setBulkImportFile(null);
+                      setBulkImportResult(null);
+                    }}
+                    disabled={bulkImportLoading}
+                    className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 disabled:opacity-50"
+                  >
+                    {bulkImportLoading ? 'Bekleyin...' : 'Kapat'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
