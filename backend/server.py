@@ -3690,7 +3690,7 @@ async def assign_client_to_user(
 @api_router.get("/clients")
 async def get_clients(
     page: int = 1,
-    limit: int = 100,
+    limit: int = 50,  # Daha az müşteri varsayılan
     current_user: User = Depends(get_current_user)
 ):
     """Get clients with pagination"""
