@@ -9964,26 +9964,111 @@ async def bulk_import_clients(
         logging.info(f"📊 BULK IMPORT - Excel dosyası okundu: {len(df)} satır")
         logging.info(f"📊 BULK IMPORT - Kolonlar: {list(df.columns)}")
         
-        # Expected columns mapping
+        # Expected columns mapping - more comprehensive
         column_mapping = {
+            # Hotel name variations
             'TESİS ADI': 'hotel_name',
             'TESIS ADI': 'hotel_name', 
             'TESİS_ADI': 'hotel_name',
+            'TESIS_ADI': 'hotel_name',
+            'OTEL ADI': 'hotel_name',
+            'OTEL_ADI': 'hotel_name',
+            'HOTEL NAME': 'hotel_name',
+            'HOTEL_NAME': 'hotel_name',
+            'NAME': 'hotel_name',
+            'ISIM': 'hotel_name',
+            'İSIM': 'hotel_name',
+            
+            # City variations
             'İL': 'city',
             'IL': 'city',
+            'CITY': 'city',
+            'ŞEHIR': 'city',
+            'SEHIR': 'city',
+            
+            # District variations
             'İLÇE': 'district',
             'ILCE': 'district',
+            'DISTRICT': 'district',
+            'COUNTY': 'district',
+            
+            # Phone variations
             'TELEFON': 'phone',
+            'PHONE': 'phone',
+            'TEL': 'phone',
+            'MOBILE': 'phone',
+            'GSM': 'phone',
+            
+            # Email variations
             'MAİL': 'email',
             'MAIL': 'email',
+            'EMAIL': 'email',
+            'E-MAIL': 'email',
+            'E_MAIL': 'email',
+            'EPOSTA': 'email',
+            'E-POSTA': 'email',
+            
+            # Certificate end date variations
             'SERTİFİKA BİTİŞ TARİHİ': 'certificate_end_date',
             'SERTIFIKA BITIS TARIHI': 'certificate_end_date',
+            'SERTİFİKA BİTİŞ': 'certificate_end_date',
+            'SERTIFIKA BITIS': 'certificate_end_date',
+            'CERTIFICATE END DATE': 'certificate_end_date',
+            'CERT END DATE': 'certificate_end_date',
+            'BITIŞ TARİHİ': 'certificate_end_date',
+            'BITIS TARIHI': 'certificate_end_date',
+            
+            # Audit company variations
             'DENETLEYEN FİRMA': 'audit_company',
-            'DENETLEYEN FIRMA': 'audit_company'
+            'DENETLEYEN FIRMA': 'audit_company',
+            'AUDIT COMPANY': 'audit_company',
+            'AUDITOR': 'audit_company',
+            'DENETIM FİRMASI': 'audit_company',
+            'DENETIM FIRMASI': 'audit_company',
+            'BELGELENDIREN FİRMA': 'audit_company',
+            'BELGELENDIREN FIRMA': 'audit_company'
         }
         
-        # Normalize column names
+        # Normalize column names (uppercase and strip)
         df.columns = df.columns.str.upper().str.strip()
+        
+        # Debug: Print original column names
+        logging.info(f"📊 BULK IMPORT - Original columns: {list(df.columns)}")
+        
+        # Check which columns are mapped
+        mapped_columns = []
+        unmapped_columns = []
+        
+        for col in df.columns:
+            if col in column_mapping:
+                mapped_columns.append(f"{col} -> {column_mapping[col]}")
+            else:
+                unmapped_columns.append(col)
+        
+        logging.info(f"📊 BULK IMPORT - Mapped columns: {mapped_columns}")
+        logging.info(f"📊 BULK IMPORT - Unmapped columns: {unmapped_columns}")
+        
+        # Alert if critical columns are missing
+        critical_mappings = {
+            'hotel_name': ['TESİS ADI', 'TESIS ADI', 'OTEL ADI', 'NAME'],
+            'phone': ['TELEFON', 'PHONE', 'TEL'],
+            'email': ['MAİL', 'MAIL', 'EMAIL'],
+            'certificate_end_date': ['SERTİFİKA BİTİŞ TARİHİ', 'SERTIFIKA BITIS TARIHI'],
+            'audit_company': ['DENETLEYEN FİRMA', 'DENETLEYEN FIRMA']
+        }
+        
+        missing_critical = []
+        for field, possible_columns in critical_mappings.items():
+            found = False
+            for col in possible_columns:
+                if col in df.columns:
+                    found = True
+                    break
+            if not found:
+                missing_critical.append(f"{field} (tried: {', '.join(possible_columns)})")
+        
+        if missing_critical:
+            logging.warning(f"📊 BULK IMPORT - Missing critical columns: {missing_critical}")
         
         imported_count = 0
         skipped_count = 0
