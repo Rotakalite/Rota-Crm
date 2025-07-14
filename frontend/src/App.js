@@ -5664,6 +5664,9 @@ const ClientManagement = ({ onNavigate }) => {
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Denetim Firma
                     </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Müşteri Tipi
+                    </th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       İşlem
                     </th>
@@ -5675,15 +5678,24 @@ const ClientManagement = ({ onNavigate }) => {
                       <td className="px-4 py-3 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-8 w-8">
-                            <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                              <span className="text-blue-600 font-medium text-xs">
+                            <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
+                              client.client_type === 'bulk' ? 'bg-orange-100' : 'bg-blue-100'
+                            }`}>
+                              <span className={`font-medium text-xs ${
+                                client.client_type === 'bulk' ? 'text-orange-600' : 'text-blue-600'
+                              }`}>
                                 {client.hotel_name?.charAt(0).toUpperCase() || 'H'}
                               </span>
                             </div>
                           </div>
                           <div className="ml-3">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
                               {client.hotel_name || 'Belirtilmemiş'}
+                              {client.client_type === 'bulk' && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                  Toplu
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -5705,6 +5717,15 @@ const ClientManagement = ({ onNavigate }) => {
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                         {client.audit_company || 'Belirtilmemiş'}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          client.client_type === 'bulk' 
+                            ? 'bg-orange-100 text-orange-800' 
+                            : 'bg-green-100 text-green-800'
+                        }`}>
+                          {client.client_type === 'bulk' ? 'Toplu Müşteri' : 'Kayıtlı Müşteri'}
+                        </span>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
                         <button
