@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Admin uygulamasında müşteri yönetimine Excel'den toplu müşteri içe aktarma özelliğini eklemek istiyorum. Bu özellik sadece admin kullanıcıları için erişilebilir olmalı ve güvenli şekilde çalışmalı."
+user_problem_statement: "22,879 müşteri aynı anda frontend'de gösterilince program donuyor. Pagination (sayfalama) sistemi ekleyerek 100-200'lük gruplar halinde göstermek istiyorum."
 
   - task: "Admin Bulk Client Import Feature Implementation"
     implemented: true
