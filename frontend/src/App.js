@@ -5445,6 +5445,75 @@ const ClientManagement = ({ onNavigate }) => {
     fetchClients(1, limit, searchTerm, sortBy, sortOrder, clientTypeFilter);
   };
 
+  // Bulk Email Functions
+  const fetchBulkEmailStats = async () => {
+    try {
+      const response = await axios.get(`${API}/bulk-email/stats`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setBulkEmailStats(response.data);
+    } catch (error) {
+      console.error('Error fetching bulk email stats:', error);
+    }
+  };
+
+  const handleBulkEmailSend = async () => {
+    if (!bulkEmailForm.subject || !bulkEmailForm.content) {
+      alert('Lütfen konu ve içerik alanlarını doldurun!');
+      return;
+    }
+
+    const confirmSend = window.confirm(
+      'Bulk email gönderimini başlatmak istediğinizden emin misiniz?\n\nBu işlem geri alınamaz.'
+    );
+
+    if (!confirmSend) return;
+
+    try {
+      setBulkEmailLoading(true);
+      setBulkEmailResult(null);
+
+      const response = await axios.post(`${API}/bulk-email/send`, {
+        subject: bulkEmailForm.subject,
+        content: bulkEmailForm.content,
+        target_filters: bulkEmailForm.target_filters
+      }, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      setBulkEmailResult(response.data);
+      
+      // Reset form
+      setBulkEmailForm({
+        subject: '',
+        content: '',
+        target_filters: {
+          city: '',
+          audit_company: '',
+          has_email: true
+        }
+      });
+
+    } catch (error) {
+      console.error('Error sending bulk email:', error);
+      const errorMessage = error.response?.data?.detail || error.message;
+      alert('Bulk email gönderim hatası: ' + errorMessage);
+      setBulkEmailResult({
+        success: false,
+        error: errorMessage
+      });
+    } finally {
+      setBulkEmailLoading(false);
+    }
+  };
+
+  // Load bulk email stats when bulk email modal opens
+  useEffect(() => {
+    if (showBulkEmail) {
+      fetchBulkEmailStats();
+    }
+  }, [showBulkEmail]);
+
   // Client type filter handler
   const handleClientTypeChange = (type) => {
     setClientTypeFilter(type);
