@@ -5381,8 +5381,6 @@ const ClientManagement = ({ onNavigate }) => {
   };
 
   // Search with debouncing
-  const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
-  
   const handleSearchDebounced = (term) => {
     setSearchTerm(term);
     
