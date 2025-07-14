@@ -717,9 +717,7 @@ const ConsultantClientManagement = ({ onNavigate }) => {
       setLoading(false);
     }
   };
-      setHasPrev(page > 1);
-      setHasNext(page < (meta?.total_pages || 1));
-      
+
     } catch (error) {
       console.error('Error fetching clients:', error);
       setClients([]);
