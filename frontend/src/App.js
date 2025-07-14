@@ -5289,28 +5289,8 @@ const ClientManagement = ({ onNavigate }) => {
     }
   };
 
-  // Generate cache key
-  const getCacheKey = (page, limit, search, sort, order, clientType) => {
-    return `${page}-${limit}-${search || ''}-${sort}-${order}-${clientType || 'all'}`;
-  };
-  
-  // Fetch clients with caching and optimization
-  const fetchClients = async (page = 1, limit = itemsPerPage, search = searchTerm, sort = sortBy, order = sortOrder, clientType = clientTypeFilter) => {
-    const cacheKey = getCacheKey(page, limit, search, sort, order, clientType);
-    
-    // Check cache first
-    if (dataCache[cacheKey]) {
-      console.log('📋 Using cached data for:', cacheKey);
-      const cachedData = dataCache[cacheKey];
-      setClients(cachedData.clients || []);
-      setTotalCount(cachedData.totalCount || 0);
-      setTotalPages(cachedData.totalPages || 1);
-      setCurrentPage(cachedData.currentPage || 1);
-      setHasNext(cachedData.hasNext || false);
-      setHasPrev(cachedData.hasPrev || false);
-      return;
-    }
-    
+  // Fetch clients
+  const fetchClients = async (page = 1, limit = itemsPerPage, search = searchTerm, sort = sortBy, order = sortOrder) => {
     try {
       setLoading(true);
       const params = { page, limit };
@@ -5323,19 +5303,31 @@ const ClientManagement = ({ onNavigate }) => {
       if (order) {
         params.order = order;
       }
-      if (clientType && clientType !== 'all') {
-        params.client_type = clientType;
-      }
       
-      const startTime = Date.now();
       const response = await axios.get(`${API}/clients`, {
         params,
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      const endTime = Date.now();
       
-      console.log(`⚡ API Response time: ${endTime - startTime}ms`);
-      console.log('🔍 API Response:', response.data);
+      // Handle response
+      const { data, meta } = response.data;
+      setClients(data || []);
+      setTotalPages(meta?.total_pages || 1);
+      setTotalCount(meta?.total_count || 0);
+      setHasPrev(page > 1);
+      setHasNext(page < (meta?.total_pages || 1));
+      
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      setClients([]);
+      setTotalPages(1);
+      setTotalCount(0);
+      setHasPrev(false);
+      setHasNext(false);
+    } finally {
+      setLoading(false);
+    }
+  };
       
       // Handle both old format (array) and new format (object with pagination)
       if (Array.isArray(response.data)) {
