@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://018fd1a5-7bf7-4aa3-b404-d6f979fde11e.preview.emergentagent.com/api"
+BACKEND_URL = "https://rota-crm-production.up.railway.app/api"
 
 # MongoDB connection details from backend/.env
 MONGO_URL = "mongodb+srv://rotauser:Ccpp1144@rota-crm-cluster.6f2phik.mongodb.net/rotacrm?retryWrites=true&w=majority&appName=rota-crm-cluster"
