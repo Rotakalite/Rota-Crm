@@ -332,6 +332,7 @@ class Client(BaseModel):
     services_completed: List[ServiceType] = []
     carbon_footprint: Optional[float] = None
     sustainability_score: Optional[int] = None
+    client_type: str = "registered"  # "bulk" or "registered"
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
