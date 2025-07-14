@@ -5423,14 +5423,22 @@ const BulkOperations = ({ onNavigate }) => {
               </div>
               <div className="flex space-x-2">
                 <button
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  onClick={() => {
+                    const newPage = Math.max(1, currentPage - 1);
+                    setCurrentPage(newPage);
+                    fetchBulkClients(newPage);
+                  }}
                   disabled={!hasPrev}
                   className="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50"
                 >
                   Önceki
                 </button>
                 <button
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  onClick={() => {
+                    const newPage = Math.min(totalPages, currentPage + 1);
+                    setCurrentPage(newPage);
+                    fetchBulkClients(newPage);
+                  }}
                   disabled={!hasNext}
                   className="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50"
                 >
