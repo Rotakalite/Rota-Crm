@@ -1046,20 +1046,6 @@ const SustainabilityTargets = () => {
   const units = ['%', 'kg', 'litre', 'TL', 'saat', 'adet', 'gün'];
   const periods = ['Aylık', 'Çeyreklik', 'Yıllık'];
 
-  // Fetch clients
-  const fetchClients = async () => {
-    if (!authToken) return;
-    try {
-      const response = await axios.get(`${API}/clients`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
-      setClients(response.data || []);
-    } catch (error) {
-      console.error('Error fetching clients:', error);
-      setClients([]);
-    }
-  };
-
   // Fetch targets with fresh token and progress data
   const fetchTargetsWithFreshToken = async (clientId) => {
     if (!clientId) {
