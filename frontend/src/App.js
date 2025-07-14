@@ -5059,7 +5059,7 @@ const ClientManagement = ({ onNavigate }) => {
       
       // Refresh client list with current search/sort
       setBulkImportStatus('🔄 Müşteri listesi güncelleniyor...');
-      await fetchClients();
+      await fetchClients(currentPage, itemsPerPage, searchTerm, sortBy, sortOrder);
       
       // Clear form
       setBulkImportFile(null);
