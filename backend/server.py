@@ -3803,7 +3803,8 @@ async def get_clients(
             },
             "search": search,
             "sort": sort,
-            "order": order
+            "order": order,
+            "client_type": client_type
         }
     else:
         print(f"🚨 CLIENT USER DETECTED - APPLYING SECURITY FILTER")
@@ -3837,7 +3838,8 @@ async def get_clients(
             },
             "search": search,
             "sort": sort,
-            "order": order
+            "order": order,
+            "client_type": client_type
         }
 
 @api_router.get("/clients/{client_id}", response_model=Client)
