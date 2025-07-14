@@ -5110,6 +5110,506 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
   );
 };
 
+// Bulk Operations Component
+const BulkOperations = ({ onNavigate }) => {
+  const { authToken, userRole } = useAuth();
+  const [bulkClients, setBulkClients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('hotel_name');
+  const [sortOrder, setSortOrder] = useState('asc');
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [hasPrev, setHasPrev] = useState(false);
+  const [hasNext, setHasNext] = useState(false);
+  
+  // Bulk Import States
+  const [showBulkImport, setShowBulkImport] = useState(false);
+  const [bulkImportFile, setBulkImportFile] = useState(null);
+  const [bulkImportLoading, setBulkImportLoading] = useState(false);
+  const [bulkImportProgress, setBulkImportProgress] = useState(0);
+  const [bulkImportStatus, setBulkImportStatus] = useState('');
+  const [bulkImportResult, setBulkImportResult] = useState(null);
+  
+  // Bulk Email States
+  const [showBulkEmail, setShowBulkEmail] = useState(false);
+  const [bulkEmailLoading, setBulkEmailLoading] = useState(false);
+  const [bulkEmailStats, setBulkEmailStats] = useState(null);
+  const [bulkEmailForm, setBulkEmailForm] = useState({
+    subject: '',
+    content: '',
+    target_filters: {
+      city: '',
+      audit_company: '',
+      has_email: true
+    }
+  });
+  const [bulkEmailResult, setBulkEmailResult] = useState(null);
+  
+  const API = getApiUrl();
+
+  // Fetch bulk clients only
+  const fetchBulkClients = async (page = 1, limit = itemsPerPage, search = searchTerm, sort = sortBy, order = sortOrder) => {
+    try {
+      setLoading(true);
+      const params = { page, limit, client_type: 'bulk' }; // Force bulk only
+      if (search && search.trim()) {
+        params.search = search.trim();
+      }
+      if (sort) {
+        params.sort = sort;
+      }
+      if (order) {
+        params.order = order;
+      }
+      
+      const response = await axios.get(`${API}/clients`, {
+        params,
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      const { data, meta } = response.data;
+      setBulkClients(data || []);
+      setTotalPages(meta?.total_pages || 1);
+      setTotalCount(meta?.total_count || 0);
+      setHasPrev(page > 1);
+      setHasNext(page < (meta?.total_pages || 1));
+      
+    } catch (error) {
+      console.error('Error fetching bulk clients:', error);
+      setBulkClients([]);
+      setTotalPages(1);
+      setTotalCount(0);
+      setHasPrev(false);
+      setHasNext(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load bulk clients on mount
+  useEffect(() => {
+    if (authToken) {
+      fetchBulkClients();
+    }
+  }, [authToken]);
+
+  // Handle bulk import
+  const handleBulkImport = async () => {
+    if (!bulkImportFile) {
+      alert('Lütfen bir dosya seçin!');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', bulkImportFile);
+
+    try {
+      setBulkImportLoading(true);
+      setBulkImportProgress(0);
+      setBulkImportStatus('Dosya yükleniyor...');
+      setBulkImportResult(null);
+
+      const response = await axios.post(`${API}/bulk-import/clients`, formData, {
+        headers: { 
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'multipart/form-data'
+        },
+        timeout: 1200000, // 20 minutes timeout
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setBulkImportProgress(percentCompleted);
+          setBulkImportStatus(`Dosya yükleniyor... ${percentCompleted}%`);
+        }
+      });
+
+      setBulkImportResult(response.data);
+      setBulkImportStatus('İşlem tamamlandı!');
+      setBulkImportProgress(100);
+      
+      // Refresh bulk clients list
+      fetchBulkClients();
+      
+    } catch (error) {
+      console.error('Bulk import error:', error);
+      setBulkImportResult({
+        success: false,
+        error: error.response?.data?.detail || error.message
+      });
+    } finally {
+      setBulkImportLoading(false);
+    }
+  };
+
+  // Bulk Email Functions
+  const fetchBulkEmailStats = async () => {
+    try {
+      const response = await axios.get(`${API}/bulk-email/stats`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setBulkEmailStats(response.data);
+    } catch (error) {
+      console.error('Error fetching bulk email stats:', error);
+    }
+  };
+
+  const handleBulkEmailSend = async () => {
+    if (!bulkEmailForm.subject || !bulkEmailForm.content) {
+      alert('Lütfen konu ve içerik alanlarını doldurun!');
+      return;
+    }
+
+    const confirmSend = window.confirm(
+      'Bulk email gönderimini başlatmak istediğinizden emin misiniz?\\n\\nBu işlem geri alınamaz.'
+    );
+
+    if (!confirmSend) return;
+
+    try {
+      setBulkEmailLoading(true);
+      setBulkEmailResult(null);
+
+      const response = await axios.post(`${API}/bulk-email/send`, {
+        subject: bulkEmailForm.subject,
+        content: bulkEmailForm.content,
+        target_filters: bulkEmailForm.target_filters
+      }, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      setBulkEmailResult(response.data);
+      
+      // Reset form
+      setBulkEmailForm({
+        subject: '',
+        content: '',
+        target_filters: {
+          city: '',
+          audit_company: '',
+          has_email: true
+        }
+      });
+
+    } catch (error) {
+      console.error('Error sending bulk email:', error);
+      const errorMessage = error.response?.data?.detail || error.message;
+      setBulkEmailResult({
+        success: false,
+        error: errorMessage
+      });
+    } finally {
+      setBulkEmailLoading(false);
+    }
+  };
+
+  // Load bulk email stats when bulk email modal opens
+  useEffect(() => {
+    if (showBulkEmail) {
+      fetchBulkEmailStats();
+    }
+  }, [showBulkEmail]);
+
+  return (
+    <div className="p-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">📦 Bulk İşlemler</h1>
+        <p className="text-gray-600">
+          Toplu müşteri yükleme ve bulk email gönderim işlemleri
+        </p>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex flex-wrap gap-4 mb-6">
+        <button
+          onClick={() => setShowBulkImport(true)}
+          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+        >
+          📤 Toplu Müşteri Yükleme
+        </button>
+        
+        <button
+          onClick={() => setShowBulkEmail(true)}
+          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
+        >
+          📧 Bulk Email Gönder
+        </button>
+      </div>
+
+      {/* Bulk Clients Table */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h3 className="text-lg font-medium text-gray-900">Bulk Müşteri Listesi</h3>
+          <p className="text-sm text-gray-500 mt-1">Toplam {totalCount} bulk müşteri</p>
+        </div>
+        
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-2 text-gray-600">Yükleniyor...</span>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Otel Adı
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Şehir
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Telefon
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Denetim Firması
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {bulkClients.map((client) => (
+                  <tr key={client.id}>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                          <span className="text-orange-600 font-medium">📦</span>
+                        </div>
+                        <div className="ml-3">
+                          <div className="text-sm font-medium text-gray-900">
+                            {client.hotel_name || 'N/A'}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                      {client.city || 'N/A'}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                      {client.email || 'N/A'}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                      {client.phone || 'N/A'}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                      {client.audit_company || 'N/A'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="px-6 py-4 border-t border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-700">
+                Sayfa {currentPage} / {totalPages} (Toplam {totalCount} müşteri)
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={!hasPrev}
+                  className="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50"
+                >
+                  Önceki
+                </button>
+                <button
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={!hasNext}
+                  className="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50"
+                >
+                  Sonraki
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Bulk Import Modal */}
+      {showBulkImport && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">📤 Toplu Müşteri Yükleme</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Excel Dosyası Seçin:
+                </label>
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={(e) => setBulkImportFile(e.target.files[0])}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                />
+              </div>
+
+              {bulkImportLoading && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                    <span className="text-blue-800 font-medium">{bulkImportStatus}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div 
+                      className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
+                      style={{ width: `${bulkImportProgress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+
+              {bulkImportResult && (
+                <div className={`border rounded-lg p-4 ${
+                  bulkImportResult.success 
+                    ? 'bg-green-50 border-green-200' 
+                    : 'bg-red-50 border-red-200'
+                }`}>
+                  <h4 className={`font-semibold mb-2 ${
+                    bulkImportResult.success ? 'text-green-800' : 'text-red-800'
+                  }`}>
+                    {bulkImportResult.success ? '✅ İşlem Tamamlandı!' : '❌ İşlem Başarısız!'}
+                  </h4>
+                  {bulkImportResult.success && (
+                    <div className="text-green-700 text-sm space-y-1">
+                      <p>📊 <strong>{bulkImportResult.imported_count}</strong> müşteri eklendi</p>
+                      <p>⏭️ <strong>{bulkImportResult.skipped_count}</strong> müşteri atlandı</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={handleBulkImport}
+                  disabled={!bulkImportFile || bulkImportLoading}
+                  className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium"
+                >
+                  {bulkImportLoading ? 'Yükleniyor...' : '📤 Dosyayı Yükle'}
+                </button>
+                <button
+                  onClick={() => setShowBulkImport(false)}
+                  className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600"
+                >
+                  Kapat
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Email Modal */}
+      {showBulkEmail && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">📧 Bulk Email Gönderimi</h3>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Stats */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-800 mb-3">📊 İstatistikler</h4>
+                {bulkEmailStats ? (
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-blue-700">Toplam Bulk Müşteri:</span>
+                      <span className="font-medium text-blue-900">{bulkEmailStats.total_bulk_clients}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-blue-700">Email Adresi Olan:</span>
+                      <span className="font-medium text-blue-900">{bulkEmailStats.bulk_clients_with_email}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-blue-700">Email Kapsama:</span>
+                      <span className="font-medium text-blue-900">{bulkEmailStats.email_coverage_percentage}%</span>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-blue-600">Yükleniyor...</p>
+                )}
+              </div>
+
+              {/* Email Form */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Konusu:
+                  </label>
+                  <input
+                    type="text"
+                    value={bulkEmailForm.subject}
+                    onChange={(e) => setBulkEmailForm({...bulkEmailForm, subject: e.target.value})}
+                    placeholder="Email konusunu girin..."
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email İçeriği:
+                  </label>
+                  <textarea
+                    value={bulkEmailForm.content}
+                    onChange={(e) => setBulkEmailForm({...bulkEmailForm, content: e.target.value})}
+                    placeholder="Email içeriğini girin..."
+                    rows={6}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {bulkEmailResult && (
+              <div className={`mt-6 border rounded-lg p-4 ${
+                bulkEmailResult.success 
+                  ? 'bg-green-50 border-green-200' 
+                  : 'bg-red-50 border-red-200'
+              }`}>
+                <h4 className={`font-semibold mb-2 ${
+                  bulkEmailResult.success ? 'text-green-800' : 'text-red-800'
+                }`}>
+                  {bulkEmailResult.success ? '✅ Email Gönderildi!' : '❌ Gönderim Başarısız!'}
+                </h4>
+                {bulkEmailResult.success && (
+                  <p className="text-green-700 text-sm">
+                    📧 <strong>{bulkEmailResult.sent_count}</strong> müşteriye gönderildi
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-6">
+              <button
+                onClick={handleBulkEmailSend}
+                disabled={!bulkEmailForm.subject || !bulkEmailForm.content || bulkEmailLoading}
+                className="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 disabled:opacity-50 font-medium"
+              >
+                {bulkEmailLoading ? 'Gönderiliyor...' : '📧 Email Gönder'}
+              </button>
+              <button
+                onClick={() => setShowBulkEmail(false)}
+                className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600"
+              >
+                Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Client Management Component
 const ClientManagement = ({ onNavigate }) => {
   const [clients, setClients] = useState([]);
