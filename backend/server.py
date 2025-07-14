@@ -10319,6 +10319,11 @@ async def download_import_template(current_user: User = Depends(get_admin_user))
         raise HTTPException(status_code=500, detail=f"Template indirme hatası: {str(e)}")
 
 # BULK EMAIL ENDPOINTS - ADMIN ONLY
+@api_router.get("/bulk-email/test")
+async def test_bulk_email_endpoint():
+    """Test endpoint for bulk email system"""
+    return {"message": "Bulk email endpoint is working", "status": "ok"}
+
 @api_router.post("/bulk-email/send")
 async def send_bulk_email(
     request: dict,
