@@ -5198,6 +5198,13 @@ const BulkOperations = ({ onNavigate }) => {
     }
   }, [authToken]);
 
+  // Refresh when pagination changes
+  useEffect(() => {
+    if (authToken) {
+      fetchBulkClients(currentPage);
+    }
+  }, [currentPage, authToken]);
+
   // Handle bulk import
   const handleBulkImport = async () => {
     if (!bulkImportFile) {
