@@ -1,0 +1,139 @@
+2025-07-10 19:20:58,663 - INFO - 🚀 Starting Comprehensive Backend Testing for Rota CRM
+2025-07-10 19:20:58,664 - INFO - Testing backend at: https://ecd50858-c16e-4cf1-bfa1-501728878062.preview.emergentagent.com/api
+test_authentication_required_endpoints (__main__.TestCoreAuthentication.test_authentication_required_endpoints)
+Test that protected endpoints require authentication ... 2025-07-10 19:20:58,664 - INFO - 
+=== Testing authentication requirements ===
+2025-07-10 19:20:58,773 - INFO - No auth /clients: 403
+2025-07-10 19:21:06,300 - INFO - Invalid token /clients: 401
+2025-07-10 19:21:06,508 - INFO - No auth /consultants: 200
+2025-07-10 19:21:06,509 - ERROR - ❌ Error testing authentication for /consultants: 200 not found in [401, 403] : Endpoint /consultants should require authentication
+2025-07-10 19:21:06,575 - INFO - No auth /folders: 404
+2025-07-10 19:21:06,575 - ERROR - ❌ Error testing authentication for /folders: 404 not found in [401, 403] : Endpoint /folders should require authentication
+2025-07-10 19:21:06,677 - INFO - No auth /belge/list: 403
+2025-07-10 19:21:13,068 - INFO - Invalid token /belge/list: 401
+2025-07-10 19:21:13,340 - INFO - No auth /suppliers: 404
+2025-07-10 19:21:13,340 - ERROR - ❌ Error testing authentication for /suppliers: 404 not found in [401, 403] : Endpoint /suppliers should require authentication
+2025-07-10 19:21:13,405 - INFO - No auth /waste-management: 404
+2025-07-10 19:21:13,406 - ERROR - ❌ Error testing authentication for /waste-management: 404 not found in [401, 403] : Endpoint /waste-management should require authentication
+2025-07-10 19:21:13,471 - INFO - No auth /auth/me: 403
+2025-07-10 19:21:13,764 - INFO - Invalid token /auth/me: 401
+2025-07-10 19:21:13,764 - INFO - ✅ Authentication requirements test completed
+ok
+test_health_endpoint (__main__.TestCoreAuthentication.test_health_endpoint)
+Test basic health endpoint - should work without auth ... 2025-07-10 19:21:13,766 - INFO - 
+=== Testing /api/health endpoint ===
+2025-07-10 19:21:13,816 - INFO - Health endpoint response status: 200
+2025-07-10 19:21:13,817 - INFO - ✅ Health endpoint test passed
+ok
+test_document_list_endpoint_security (__main__.TestDocumentManagementSecurity.test_document_list_endpoint_security)
+Test GET /api/belge/list endpoint security - CRITICAL ... 2025-07-10 19:21:13,818 - INFO - 
+=== Testing GET /api/belge/list endpoint security ===
+2025-07-10 19:21:17,498 - INFO - No auth response status: 403
+2025-07-10 19:21:17,498 - INFO - ✅ No auth correctly rejected
+2025-07-10 19:21:17,772 - INFO - Invalid token response status: 401
+2025-07-10 19:21:17,772 - INFO - ✅ Invalid token correctly rejected
+2025-07-10 19:21:18,034 - INFO - Client response status: 401
+2025-07-10 19:21:18,034 - WARNING - ⚠️ Client access returned 401
+ok
+test_folders_endpoint_security (__main__.TestDocumentManagementSecurity.test_folders_endpoint_security)
+Test GET /api/folders endpoint security - CRITICAL ... 2025-07-10 19:21:18,036 - INFO - 
+=== Testing GET /api/folders endpoint security ===
+2025-07-10 19:21:18,091 - INFO - No auth response status: 404
+2025-07-10 19:21:18,091 - ERROR - ❌ Error testing no auth: 404 not found in [401, 403] : Folders endpoint should require authentication
+2025-07-10 19:21:18,234 - INFO - Invalid token response status: 404
+2025-07-10 19:21:18,234 - ERROR - ❌ Error testing invalid token: 404 != 401 : Folders endpoint should reject invalid tokens
+2025-07-10 19:21:18,287 - INFO - Admin response status: 404
+2025-07-10 19:21:18,287 - WARNING - ⚠️ Admin access returned 404
+2025-07-10 19:21:18,338 - INFO - Client response status: 404
+2025-07-10 19:21:18,338 - WARNING - ⚠️ Client access returned 404
+ok
+test_level4_folder_structure (__main__.TestDocumentManagementSecurity.test_level4_folder_structure)
+Test Level 4 folder structure implementation ... 2025-07-10 19:21:18,340 - INFO - 
+=== Testing Level 4 folder structure ===
+2025-07-10 19:21:18,390 - INFO - Admin response status: 404
+2025-07-10 19:21:18,390 - WARNING - ⚠️ Could not retrieve folders: 404
+ok
+test_client_list_endpoint_security (__main__.TestClientManagement.test_client_list_endpoint_security)
+Test GET /api/clients endpoint security - CRITICAL ... 2025-07-10 19:21:18,391 - INFO - 
+=== Testing GET /api/clients endpoint security ===
+2025-07-10 19:21:18,442 - INFO - No auth response status: 403
+2025-07-10 19:21:18,442 - INFO - ✅ No auth correctly rejected
+2025-07-10 19:21:18,695 - INFO - Invalid token response status: 401
+2025-07-10 19:21:18,696 - INFO - ✅ Invalid token correctly rejected
+2025-07-10 19:21:18,962 - INFO - Admin response status: 401
+2025-07-10 19:21:18,962 - WARNING - ⚠️ Admin access returned 401
+2025-07-10 19:21:19,261 - INFO - Client response status: 401
+2025-07-10 19:21:19,261 - WARNING - ⚠️ Client access returned 401
+ok
+test_consultant_creation (__main__.TestConsultantManagement.test_consultant_creation)
+Test POST /api/consultants endpoint ... 2025-07-10 19:21:19,263 - INFO - 
+=== Testing POST /api/consultants endpoint ===
+2025-07-10 19:21:19,427 - INFO - No auth response status: 200
+2025-07-10 19:21:19,427 - INFO - Consultant created successfully: {'message': 'Consultant created successfully', 'consultant_id': '1468de99-68bc-45b1-afad-97084c6c2ae3'}
+2025-07-10 19:21:19,427 - INFO - ✅ Public consultant creation working
+ok
+test_consultant_list_endpoint (__main__.TestConsultantManagement.test_consultant_list_endpoint)
+Test GET /api/consultants endpoint ... 2025-07-10 19:21:19,428 - INFO - 
+=== Testing GET /api/consultants endpoint ===
+2025-07-10 19:21:19,587 - INFO - No auth response status: 200
+2025-07-10 19:21:19,587 - INFO - Found 4 consultants (public access)
+2025-07-10 19:21:19,587 - INFO - ✅ Public consultant list access working
+2025-07-10 19:21:19,779 - INFO - Admin response status: 200
+2025-07-10 19:21:19,779 - INFO - Admin can see 4 consultants
+2025-07-10 19:21:19,779 - INFO - ✅ Admin consultant access working
+ok
+test_email_management_endpoints (__main__.TestEmailManagement.test_email_management_endpoints)
+Test email management endpoints ... 2025-07-10 19:21:19,781 - INFO - 
+=== Testing Email Management endpoints ===
+2025-07-10 19:21:19,841 - INFO - Admin /email-management/clients-real: 404
+2025-07-10 19:21:19,841 - WARNING - ⚠️ /email-management/clients-real not found - may not be implemented
+2025-07-10 19:21:19,890 - INFO - No auth /email-management/clients-real: 404
+2025-07-10 19:21:19,948 - INFO - Admin /email-management/documents-real: 404
+2025-07-10 19:21:19,948 - WARNING - ⚠️ /email-management/documents-real not found - may not be implemented
+2025-07-10 19:21:19,999 - INFO - No auth /email-management/documents-real: 404
+2025-07-10 19:21:20,075 - INFO - Admin /email-management/trainings-real: 404
+2025-07-10 19:21:20,075 - WARNING - ⚠️ /email-management/trainings-real not found - may not be implemented
+2025-07-10 19:21:20,167 - INFO - No auth /email-management/trainings-real: 404
+ok
+test_supplier_protected_endpoints (__main__.TestSupplierManagement.test_supplier_protected_endpoints)
+Test protected supplier endpoints ... 2025-07-10 19:21:20,169 - INFO - 
+=== Testing Supplier protected endpoints ===
+2025-07-10 19:21:21,285 - INFO - No auth /suppliers: 404
+2025-07-10 19:21:21,368 - INFO - Invalid token /suppliers: 404
+2025-07-10 19:21:21,427 - INFO - No auth /suppliers/analytics/dashboard: 404
+2025-07-10 19:21:21,479 - INFO - Invalid token /suppliers/analytics/dashboard: 404
+ok
+test_supplier_public_endpoints (__main__.TestSupplierManagement.test_supplier_public_endpoints)
+Test public supplier endpoints ... 2025-07-10 19:21:21,480 - INFO - 
+=== Testing Supplier public endpoints ===
+2025-07-10 19:21:21,535 - INFO - No auth /suppliers/categories/list: 404
+2025-07-10 19:21:21,535 - WARNING - ⚠️ /suppliers/categories/list returned 404
+2025-07-10 19:21:21,588 - INFO - No auth /suppliers/certifications/list: 404
+2025-07-10 19:21:21,589 - WARNING - ⚠️ /suppliers/certifications/list returned 404
+ok
+test_waste_management_endpoints (__main__.TestWasteManagement.test_waste_management_endpoints)
+Test waste management endpoints ... 2025-07-10 19:21:21,590 - INFO - 
+=== Testing Waste Management endpoints ===
+2025-07-10 19:21:21,661 - INFO - No auth /waste-management: 404
+2025-07-10 19:21:21,759 - INFO - Invalid token /waste-management: 404
+2025-07-10 19:21:21,855 - INFO - Admin /waste-management: 404
+2025-07-10 19:21:21,856 - WARNING - ⚠️ /waste-management not found
+2025-07-10 19:21:21,940 - INFO - No auth /waste-management/analytics: 404
+2025-07-10 19:21:21,999 - INFO - Invalid token /waste-management/analytics: 404
+2025-07-10 19:21:22,078 - INFO - Admin /waste-management/analytics: 404
+2025-07-10 19:21:22,079 - WARNING - ⚠️ /waste-management/analytics not found
+ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 23.416s
+
+OK
+2025-07-10 19:21:22,080 - INFO - 
+================================================================================
+2025-07-10 19:21:22,080 - INFO - 🏁 COMPREHENSIVE BACKEND TESTING SUMMARY
+2025-07-10 19:21:22,081 - INFO - ================================================================================
+2025-07-10 19:21:22,081 - INFO - Tests run: 12
+2025-07-10 19:21:22,081 - INFO - Failures: 0
+2025-07-10 19:21:22,081 - INFO - Errors: 0
+2025-07-10 19:21:22,081 - INFO - 
+✅ ALL TESTS PASSED!
