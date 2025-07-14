@@ -9999,6 +9999,11 @@ async def bulk_import_clients(
                         if pd.notna(value):
                             hotel_data[db_field] = str(value).strip()
                 
+                # Debug log for first few rows
+                if index < 3:
+                    logging.info(f"📊 BULK IMPORT - Satır {index+1} raw data: {dict(row)}")
+                    logging.info(f"📊 BULK IMPORT - Satır {index+1} mapped data: {hotel_data}")
+                
                 # Required fields check
                 if not hotel_data.get('hotel_name'):
                     logging.warning(f"Satır {index+1}: Tesis adı eksik, atlanıyor")
