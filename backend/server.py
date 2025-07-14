@@ -10222,6 +10222,7 @@ async def bulk_import_clients(
                     "certificate_end_date": hotel_data.get('certificate_end_date', ''),
                     "audit_company": hotel_data.get('audit_company', ''),
                     "current_stage": "I.Aşama",  # Default stage
+                    "client_type": "bulk",  # Mark as bulk import
                     "created_at": datetime.utcnow(),
                     "created_by": current_user.email,
                     "import_source": "bulk_excel",
