@@ -5251,9 +5251,25 @@ const ClientManagement = ({ onNavigate }) => {
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Müşteri Listesi</h2>
-              <p className="text-sm text-gray-600">Toplam {clients.length} müşteri</p>
+              <p className="text-sm text-gray-600">
+                Toplam {totalCount} müşteri - Sayfa {currentPage} / {totalPages}
+              </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 items-center">
+              {/* Items per page selector */}
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-gray-600">Sayfa başına:</label>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                  className="border border-gray-300 rounded px-2 py-1 text-sm"
+                >
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                  <option value={200}>200</option>
+                  <option value={500}>500</option>
+                </select>
+              </div>
               {/* Bulk Import Button - Admin Only */}
               {userRole === 'admin' && (
                 <button
