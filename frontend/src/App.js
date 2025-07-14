@@ -17,6 +17,10 @@ import {
 } from 'chart.js';
 import { Line, Bar, Pie } from 'react-chartjs-2';
 
+// Axios performance optimization
+axios.defaults.timeout = 10000; // 10 second timeout
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+
 // API URL Configuration
 const getApiUrl = () => {
   // Use environment variable for backend URL
