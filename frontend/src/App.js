@@ -5268,10 +5268,6 @@ const ClientManagement = ({ onNavigate }) => {
     }
   };
 
-  // Cache for better performance
-  const [dataCache, setDataCache] = useState({});
-  const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
-  
   // Generate cache key
   const getCacheKey = (page, limit, search, sort, order) => {
     return `${page}-${limit}-${search || ''}-${sort}-${order}`;
