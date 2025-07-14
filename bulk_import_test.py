@@ -1,7 +1,21 @@
 #!/usr/bin/env python3
 """
-Bulk Import Endpoints Testing
-Tests the bulk import functionality that was just created.
+Admin Bulk Client Import Feature Testing
+========================================
+
+This script tests the admin bulk client import functionality including:
+1. POST /api/bulk-import/clients endpoint (admin only)
+2. GET /api/bulk-import/template endpoint (admin only)
+3. Security testing for non-admin users
+4. Excel file processing logic
+5. Authentication and authorization
+
+Test Scenarios:
+- Admin token with POST /api/bulk-import/clients (multipart/form-data)
+- Admin token with GET /api/bulk-import/template
+- Non-admin token with endpoints (403 expected)
+- Invalid token with endpoints (401 expected)
+- No token with endpoints (403 expected)
 """
 
 import requests
@@ -21,8 +35,10 @@ logger = logging.getLogger(__name__)
 BACKEND_URL = "https://rota-crm-production.up.railway.app"
 API_BASE_URL = f"{BACKEND_URL}/api"
 
-# Test tokens (these are sample tokens for testing)
+# Test tokens (these are sample tokens for testing - will be invalid but we test the security)
 ADMIN_TOKEN = "eyJhbGciOiJSUzI1NiIsImtpZCI6Imluc18yUHFUQU9lQVNUUTlqaHRQcVpwSGlDRnVvIiwidHlwIjoiSldUIn0.eyJhenAiOiJodHRwczovL3JvdGEtY3JtLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJleHAiOjE3MTk5MzYxNjAsImlhdCI6MTcxOTkzMjU2MCwiaXNzIjoiaHR0cHM6Ly9hZGFwdGluZy1lZnQtNi5jbGVyay5hY2NvdW50cy5kZXYiLCJuYmYiOjE3MTk5MzI1NTAsInN1YiI6InVzZXJfQURNSU4iLCJlbWFpbCI6ImFkbWluQHJvdGFrYWxpdGVkYW5pc21hbmxpay5jb20iLCJuYW1lIjoiQWRtaW4gVXNlciJ9.signature"
+CLIENT_TOKEN = "eyJhbGciOiJSUzI1NiIsImtpZCI6Imluc18yUHFUQU9lQVNUUTlqaHRQcVpwSGlDRnVvIiwidHlwIjoiSldUIn0.eyJhenAiOiJodHRwczovL3JvdGEtY3JtLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJleHAiOjE3MTk5MzYxNjAsImlhdCI6MTcxOTkzMjU2MCwiaXNzIjoiaHR0cHM6Ly9hZGFwdGluZy1lZnQtNi5jbGVyay5hY2NvdW50cy5kZXYiLCJuYmYiOjE3MTk5MzI1NTAsInN1YiI6InVzZXJfQ0xJRU5UIiwiZW1haWwiOiJjbGllbnRAdGVzdC5jb20iLCJuYW1lIjoiQ2xpZW50IFVzZXIifQ.signature"
+CONSULTANT_TOKEN = "eyJhbGciOiJSUzI1NiIsImtpZCI6Imluc18yUHFUQU9lQVNUUTlqaHRQcVpwSGlDRnVvIiwidHlwIjoiSldUIn0.eyJhenAiOiJodHRwczovL3JvdGEtY3JtLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJleHAiOjE3MTk5MzYxNjAsImlhdCI6MTcxOTkzMjU2MCwiaXNzIjoiaHR0cHM6Ly9hZGFwdGluZy1lZnQtNi5jbGVyay5hY2NvdW50cy5kZXYiLCJuYmYiOjE3MTk5MzI1NTAsInN1YiI6InVzZXJfQ09OU1VMVEFOVCIsImVtYWlsIjoiY29uc3VsdGFudEB0ZXN0LmNvbSIsIm5hbWUiOiJDb25zdWx0YW50IFVzZXIifQ.signature"
 INVALID_TOKEN = "invalid.token.format"
 
 def make_request(method, endpoint, headers=None, data=None, files=None, params=None):
