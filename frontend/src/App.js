@@ -5588,11 +5588,15 @@ const ClientManagement = ({ onNavigate }) => {
         {loading ? (
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-2 text-gray-600">Müşteriler yükleniyor...</span>
+            <span className="ml-2 text-gray-600">
+              {searchTerm ? 'Aranıyor...' : 'Müşteriler yükleniyor...'}
+            </span>
           </div>
         ) : clients.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500">Henüz müşteri bulunmuyor.</p>
+            <p className="text-gray-500">
+              {searchTerm ? `"${searchTerm}" için sonuç bulunamadı.` : 'Henüz müşteri bulunmuyor.'}
+            </p>
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow overflow-hidden">
