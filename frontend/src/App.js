@@ -3163,10 +3163,19 @@ const CarbonFootprint = () => {
       
       console.log('🏨 [DEBUG] Clients API response:', response.data);
       
-      setClients(Array.isArray(response.data) ? response.data : []);
-      if (response.data?.length > 0) {
-        setSelectedClient(response.data[0].id);
-        console.log('🏨 [DEBUG] Auto-selected first client:', response.data[0].id);
+      // Handle new backend response format { clients, pagination }
+      let clientsArray = [];
+      if (response.data.clients && Array.isArray(response.data.clients)) {
+        clientsArray = response.data.clients;
+      } else if (Array.isArray(response.data)) {
+        // Fallback for old format
+        clientsArray = response.data;
+      }
+      
+      setClients(clientsArray);
+      if (clientsArray.length > 0) {
+        setSelectedClient(clientsArray[0].id);
+        console.log('🏨 [DEBUG] Auto-selected first client:', clientsArray[0].id);
       }
     } catch (error) {
       console.error("❌ [ERROR] Error fetching clients:", error);
