@@ -5727,6 +5727,7 @@ const SimpleClientManagement = ({ onNavigate }) => {
   const [clientTypeFilter, setClientTypeFilter] = useState('registered'); // Default to registered clients
   const [hasPrev, setHasPrev] = useState(false);
   const [hasNext, setHasNext] = useState(false);
+  const [showAddClient, setShowAddClient] = useState(false);
   
   const [newClientData, setNewClientData] = useState({
     name: '',
