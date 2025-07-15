@@ -5839,14 +5839,6 @@ const SimpleClientManagement = ({ onNavigate }) => {
     fetchClients(1, itemsPerPage, term, sortBy, sortOrder, clientTypeFilter);
   };
 
-  // Sort handler
-  const handleSort = (field) => {
-    const newOrder = sortBy === field && sortOrder === 'asc' ? 'desc' : 'asc';
-    setSortBy(field);
-    setSortOrder(newOrder);
-    setCurrentPage(1);
-    fetchClients(1, itemsPerPage, searchTerm, field, newOrder, clientTypeFilter);
-  };
 
   // Pagination handlers
   const handlePageChange = (page) => {
