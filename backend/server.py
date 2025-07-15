@@ -3023,7 +3023,7 @@ async def get_statistics_direct(current_user: User = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail=f"Stats failed: {str(e)}")
 
 # CLIENT REGISTRATION ENDPOINTS - DIRECT TO MAIN APP
-@app.post("/clients")
+@app.post("/clients-direct")
 async def create_client_direct(
     client_data: dict,
     current_user: User = Depends(get_current_user)
