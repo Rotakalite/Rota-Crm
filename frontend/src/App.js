@@ -6425,8 +6425,8 @@ const SimpleClientManagement = ({ onNavigate }) => {
                   </label>
                   <input
                     type="email"
-                    value={newClient.email}
-                    onChange={(e) => setNewClient({...newClient, email: e.target.value})}
+                    value={newClientData.email}
+                    onChange={(e) => setNewClientData({...newClientData, email: e.target.value})}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                     placeholder="Email adresi"
                   />
@@ -6438,8 +6438,8 @@ const SimpleClientManagement = ({ onNavigate }) => {
                   </label>
                   <input
                     type="tel"
-                    value={newClient.phone}
-                    onChange={(e) => setNewClient({...newClient, phone: e.target.value})}
+                    value={newClientData.phone}
+                    onChange={(e) => setNewClientData({...newClientData, phone: e.target.value})}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                     placeholder="Telefon numarası"
                   />
@@ -6450,8 +6450,8 @@ const SimpleClientManagement = ({ onNavigate }) => {
                     Adres
                   </label>
                   <textarea
-                    value={newClient.address}
-                    onChange={(e) => setNewClient({...newClient, address: e.target.value})}
+                    value={newClientData.address}
+                    onChange={(e) => setNewClientData({...newClientData, address: e.target.value})}
                     rows={3}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                     placeholder="Adres bilgisi"
