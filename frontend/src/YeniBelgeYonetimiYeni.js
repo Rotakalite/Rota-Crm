@@ -189,7 +189,7 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
           headers: { Authorization: `Bearer ${authToken}` }
         })
       );
-      let allClients = response.data || [];
+      let allClients = response.data.clients || [];
       
       console.log('👥 All clients from API:', allClients);
       allClients.forEach((client, index) => {
