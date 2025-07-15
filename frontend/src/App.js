@@ -13244,6 +13244,18 @@ const ConsultantManagement = () => {
   // Get unassigned clients
   const unassignedClients = clients.filter(client => !client.consultant_id);
   
+  // Debug consultant client counts
+  console.log('🔍 CONSULTANT MANAGEMENT DEBUG:');
+  console.log('📊 Total clients:', clients.length);
+  console.log('📊 Unassigned clients:', unassignedClients.length);
+  console.log('📊 Consultants:', consultants.length);
+  
+  // Log each consultant's client count
+  consultants.forEach(consultant => {
+    const clientCount = clients.filter(c => c.consultant_id === consultant.id).length;
+    console.log(`📊 ${consultant.company_name}: ${clientCount} clients`);
+  });
+  
   console.log('🔍 CONSULTANT MANAGEMENT DEBUG:');
   console.log('📊 Total clients:', clients.length);
   console.log('📊 Unassigned clients:', unassignedClients.length);
