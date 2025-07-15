@@ -5496,6 +5496,23 @@ const BulkOperations = ({ onNavigate }) => {
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                       {client.audit_company || 'N/A'}
                     </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                      {client.certificate_end_date ? (
+                        <div className="flex items-center">
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            new Date(client.certificate_end_date) < new Date() 
+                              ? 'bg-red-100 text-red-800' 
+                              : new Date(client.certificate_end_date) < new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-green-100 text-green-800'
+                          }`}>
+                            {new Date(client.certificate_end_date).toLocaleDateString('tr-TR')}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">Belirtilmemiş</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
