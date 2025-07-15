@@ -1336,8 +1336,15 @@ const SustainabilityTargets = () => {
   };
 
   useEffect(() => {
+    console.log('🔍 ClientManagement useEffect triggered');
+    console.log('🔍 authToken:', authToken ? 'EXISTS' : 'MISSING');
+    console.log('🔍 userRole:', userRole);
+    
     if (authToken) {
+      console.log('🔍 Calling fetchClients...');
       fetchClients();
+    } else {
+      console.log('❌ No authToken, skipping fetchClients');
     }
   }, [authToken]);
 
