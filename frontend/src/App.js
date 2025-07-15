@@ -13580,6 +13580,35 @@ const RoleSetup = ({ onComplete }) => {
     audit_company: '',
     certificate_end_date: ''
   });
+  
+  // Türkiye İl ve İlçe Listesi (Self-Registration için)
+  const turkeyProvinces = {
+    'ADANA': ['ALADAĞ', 'CEYHAN', 'ÇUKUROVA', 'FEKE', 'İMAMOĞLU', 'KARAİSALI', 'KARATAŞ', 'KOZAN', 'MERKEZ', 'POZANTI', 'SAİMBEYLİ', 'SARIÇAM', 'TUFANBEYLI', 'YUMURTALIK', 'YÜREĞİR'],
+    'ADIYAMAN': ['BESNİ', 'ÇELİKHAN', 'GERGER', 'GÖLBAŞI', 'KAHTA', 'MERKEZ', 'SAMSAT', 'SİNCİK', 'TUT'],
+    'AFYONKARAHİSAR': ['BAŞMAKÇI', 'BAYAT', 'BOLVADIN', 'ÇAY', 'ÇOBANLAR', 'DAZKIRI', 'DİNAR', 'EMİRDAĞ', 'EVCİLER', 'HOCALAR', 'İHSANİYE', 'İSCAHİSAR', 'KIZILÖREN', 'MERKEZ', 'SANDIKLI', 'SİNANPAŞA', 'SULTANDAĞI', 'ŞUHUT'],
+    'AĞRI': ['DİYADİN', 'DOĞUBAYAZIT', 'ELEŞKİRT', 'HAMUR', 'MERKEZ', 'PATNOS', 'TAŞLIÇAY', 'TUTAK'],
+    'AMASYA': ['GÖYNÜCEK', 'GÜMÜŞHACIKÖY', 'HAMAMÖZÜ', 'MERKEZ', 'MERZİFON', 'SULUOVA', 'TAŞOVA'],
+    'ANKARA': ['AKYURT', 'ALTINDAĞ', 'AYAŞ', 'BALA', 'BEYPAZARI', 'ÇAMLIDERE', 'ÇANKAYA', 'ÇUBUK', 'ELMADAĞ', 'ETİMESGUT', 'EVREN', 'GÖLBAŞI', 'GÜDÜL', 'HAYMANA', 'KAHRAMANKAZAN', 'KAZAN', 'KEÇİÖREN', 'KIZILCAHAMAM', 'MAMAK', 'NALLIHAN', 'POLATLІ', 'PURSAKLAR', 'SİNCAN', 'ŞEREFLİKOÇHİSAR', 'YENİMAHALLE'],
+    'ANTALYA': ['AKSEKİ', 'AKSU', 'ALANYA', 'DEMRE', 'DÖŞEMEALTI', 'ELMALI', 'FİNİKE', 'GAZİPAŞA', 'GÜNDOĞMUŞ', 'İBRADI', 'KAŞ', 'KEMER', 'KEPEZ', 'KONYAALTI', 'KORKUTELI', 'KUMLUCA', 'MANAVGAT', 'MURATPAŞA', 'SERİK'],
+    'ISPARTA': ['AKSU', 'ATABEY', 'EĞİRDİR', 'GELENDOST', 'GÖNEN', 'KEÇİBORLU', 'MERKEZ', 'SENİRKENT', 'SÜTÇÜLER', 'ŞARKİKARAAĞAÇ', 'ULUBORLU', 'YALVAÇ', 'YENİŞARBADEMLİ'],
+    'İSTANBUL': ['ADALAR', 'ARNAVUTKÖY', 'ATAŞEHİR', 'AVCILAR', 'BAĞCILAR', 'BAHÇELİEVLER', 'BAKIRKÖY', 'BAŞAKŞEHİR', 'BAYRAMPAŞA', 'BEŞİKTAŞ', 'BEYKOZ', 'BEYLİKDÜZÜ', 'BEYOĞLU', 'BÜYÜKÇEKMECE', 'ÇATALCA', 'ÇEKMEKÖY', 'ESENLER', 'ESENYURT', 'EYÜPSULTAN', 'FATİH', 'GAZİOSMANPAŞA', 'GÜNGÖREN', 'KADIKÖY', 'KAĞITHANE', 'KARTAL', 'KÜÇÜKÇEKMECE', 'MALTEPE', 'PENDİK', 'SANCAKTEPE', 'SARIYER', 'SİLİVRİ', 'SULTANBEYLİ', 'SULTANGAZİ', 'ŞİLE', 'ŞİŞLİ', 'TUZLA', 'ÜMRANİYE', 'ÜSKÜDAR', 'ZEYTİNBURNU'],
+    'İZMİR': ['ALİAĞA', 'BALÇOVA', 'BAYINDIR', 'BAYRAKLI', 'BERGAMA', 'BEYDAĞ', 'BORNOVA', 'BUCA', 'ÇEŞME', 'ÇİĞLİ', 'DİKİLİ', 'FOÇA', 'GAZİEMİR', 'GÜZELBAHÇE', 'KARABAĞLAR', 'KARABURUN', 'KARŞIYAKA', 'KEMALPAŞA', 'KINIK', 'KİRAZ', 'KONAK', 'MENDERES', 'MENEMEN', 'NARLIDA', 'ÖDEMİŞ', 'SEFERIHISAR', 'SELÇUK', 'TİRE', 'TORBALI', 'URLA'],
+    'MUĞLA': ['BODRUM', 'DALAMAN', 'DATÇA', 'FETHİYE', 'KAVAKLIDERE', 'KÖYCEĞIZ', 'MARMARIS', 'MENTEŞE', 'MİLAS', 'ORTACA', 'SEYDİKEMER', 'ULA', 'YATAĞAN']
+  };
+
+  // Denetim Firmaları
+  const auditCompanies = [
+    'Alberk QA Uluslararası Teknik Kontrol ve Belgelendirme A.Ş.',
+    'Bureau Veritas Gözetim Hizmetleri Ltd. Şti.',
+    'Control Union Gözetim ve Belgelendirme Ltd. Şti.',
+    'FQC Global Sertifikasyon Anonim Şirketi',
+    'Kiwa Belgelendirme Hizmetleri A.Ş.',
+    'RoyalCert Belgelendirme ve Gözetim Hizmetleri A.Ş',
+    'TSE Global',
+    'TÜV Austria Turk Belgelendirme Eğitim ve Gözetim Hizmetleri LTD. ŞTİ.',
+    'TRB Uluslararası Belgelendirme Teknik Kontrol ve Gözetim Hizmetleri Tic. Ltd.Şti.'
+  ];
+  
   const API = getApiUrl();
   const { user, dbUser } = useAuth();
   const { session } = useClerk();
