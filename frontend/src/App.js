@@ -13726,6 +13726,14 @@ const MainApp = () => {
   const { userRole, isLoaded, dbUser, refreshUser } = useAuth();
   const { user } = useUser();
 
+  // Handle 2FA completion with localStorage persistence
+  const handle2FAComplete = () => {
+    const today = new Date().toDateString();
+    localStorage.setItem('rota_2fa_completed_date', today);
+    setTwoFACompleted(true);
+    console.log('✅ 2FA completed for today:', today);
+  };
+
   // Check if user needs role setup (after Clerk registration AND 2FA completion)
   useEffect(() => {
     if (isLoaded && user && dbUser && twoFACompleted) {
