@@ -2554,8 +2554,8 @@ const Dashboard = ({ onNavigate }) => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto p-8">
         
-        {/* Admin & Consultant Elite Dashboard */}
-        {(userRole === 'admin' || userRole === 'consultant') && dashboardData && (
+        {/* Enhanced Admin Dashboard */}
+        {userRole === 'admin' && adminDashboardData && (
           <>
             {/* Admin Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
