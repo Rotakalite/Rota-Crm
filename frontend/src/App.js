@@ -83,7 +83,8 @@ const useAuth = () => {
       // Only clear if session is actually invalid
       if (!session || session.status !== 'active') {
         console.log('🧹 Clearing session data due to invalid session');
-        sessionStorage.removeItem('authToken');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('tokenTimestamp');
         sessionStorage.removeItem('userRole');
         sessionStorage.removeItem('dbUser');
         setAuthToken(null);
