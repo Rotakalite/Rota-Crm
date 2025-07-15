@@ -9156,7 +9156,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
         console.log('✅ Clients fetched for consumption:', response.data.clients.length);
       } else if (Array.isArray(response.data)) {
         // Fallback for old format
-        setClients(response.data);
+        setClients(response.data.clients || []);
         console.log('✅ Clients fetched for consumption (old format):', response.data.length);
       } else {
         setClients([]);
