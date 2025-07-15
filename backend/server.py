@@ -4513,6 +4513,144 @@ async def update_training_status(
         raise HTTPException(status_code=404, detail="Training not found")
     return {"message": "Training status updated"}
 
+@api_router.get("/client-dashboard-stats")
+async def get_client_dashboard_stats(current_user: User = Depends(get_current_user)):
+    """Get comprehensive dashboard statistics for client users"""
+    try:
+        if current_user.role == UserRole.CLIENT:
+            if not current_user.client_id:
+                raise HTTPException(status_code=403, detail="Client ID not found")
+            
+            # Get client info
+            client = await db.clients.find_one({"id": current_user.client_id})
+            if not client:
+                raise HTTPException(status_code=404, detail="Client not found")
+            
+            # Get documents for this client
+            documents = await db.documents.find({"client_id": current_user.client_id}).to_list(None)
+            total_documents = len(documents)
+            
+            # Get trainings for this client
+            trainings = await db.trainings.find({"client_id": current_user.client_id}).to_list(None)
+            total_trainings = len(trainings)
+            completed_trainings = len([t for t in trainings if t.get("status") == "completed"])
+            
+            # Get consumption data for this client
+            consumptions = await db.consumptions.find({"client_id": current_user.client_id}).to_list(None)
+            
+            # Calculate energy and water consumption by month
+            energy_by_month = {}
+            water_by_month = {}
+            for consumption in consumptions:
+                month = consumption.get("month", "unknown")
+                energy_by_month[month] = energy_by_month.get(month, 0) + consumption.get("energy_kwh", 0)
+                water_by_month[month] = water_by_month.get(month, 0) + consumption.get("water_m3", 0)
+            
+            # Get waste management data
+            waste_data = await db.waste_management.find({"client_id": current_user.client_id}).to_list(None)
+            
+            # Get sustainability targets
+            targets = await db.sustainability_targets.find({"client_id": current_user.client_id}).to_list(None)
+            
+            # Calculate certificate validity
+            certificate_status = "Aktif"
+            certificate_days_left = 180
+            if client.get("certificate_end_date"):
+                from datetime import datetime
+                cert_date = datetime.fromisoformat(client["certificate_end_date"].replace('Z', '+00:00'))
+                days_left = (cert_date - datetime.now()).days
+                certificate_days_left = max(0, days_left)
+                certificate_status = "Aktif" if days_left > 0 else "Süresi Dolmuş"
+            
+            # Recent activities (last 10 activities)
+            recent_activities = []
+            
+            # Add document activities
+            recent_docs = sorted(documents, key=lambda x: x.get("created_at", ""), reverse=True)[:3]
+            for doc in recent_docs:
+                recent_activities.append({
+                    "type": "document",
+                    "title": f"{doc.get('document_type', 'Belge')} yüklendi",
+                    "time": doc.get("created_at", ""),
+                    "icon": "📄"
+                })
+            
+            # Add training activities
+            recent_trainings = sorted(trainings, key=lambda x: x.get("created_at", ""), reverse=True)[:2]
+            for training in recent_trainings:
+                recent_activities.append({
+                    "type": "training",
+                    "title": f"{training.get('title', 'Eğitim')} tamamlandı",
+                    "time": training.get("created_at", ""),
+                    "icon": "🎓"
+                })
+            
+            # Sort activities by time
+            recent_activities.sort(key=lambda x: x.get("time", ""), reverse=True)
+            
+            return {
+                "client_info": {
+                    "name": client.get("name", ""),
+                    "hotel_name": client.get("hotel_name", ""),
+                    "email": client.get("email", ""),
+                    "certificate_status": certificate_status,
+                    "certificate_days_left": certificate_days_left,
+                    "audit_company": client.get("audit_company", "")
+                },
+                "statistics": {
+                    "total_documents": total_documents,
+                    "total_trainings": total_trainings,
+                    "completed_trainings": completed_trainings,
+                    "training_completion_rate": int((completed_trainings / total_trainings * 100) if total_trainings > 0 else 0)
+                },
+                "consumption_data": {
+                    "energy_by_month": energy_by_month,
+                    "water_by_month": water_by_month,
+                    "total_energy": sum(energy_by_month.values()),
+                    "total_water": sum(water_by_month.values())
+                },
+                "sustainability_progress": {
+                    "carbon_reduction": 65,  # This would come from carbon footprint calculations
+                    "energy_efficiency": 80,
+                    "waste_reduction": 45,
+                    "water_saving": 90
+                },
+                "recent_activities": recent_activities[:5],
+                "recommendations": [
+                    {
+                        "type": "energy",
+                        "title": "Enerji Tasarrufu",
+                        "description": "LED aydınlatmaya geçiş yaparak %15 tasarruf sağlayabilirsiniz.",
+                        "priority": "high"
+                    },
+                    {
+                        "type": "water",
+                        "title": "Su Yönetimi", 
+                        "description": "Akıllı sulama sistemi ile %20 su tasarrufu mümkün.",
+                        "priority": "medium"
+                    },
+                    {
+                        "type": "waste",
+                        "title": "Atık Azaltma",
+                        "description": "Geri dönüşüm programınızı genişletmeyi düşünün.",
+                        "priority": "medium"
+                    },
+                    {
+                        "type": "training",
+                        "title": "Eğitim",
+                        "description": "Personel sürdürülebilirlik eğitimleri planlanabilir.",
+                        "priority": "low"
+                    }
+                ]
+            }
+        else:
+            # For admin/consultant users, return basic stats
+            return await get_statistics(current_user)
+            
+    except Exception as e:
+        logging.error(f"Error in get_client_dashboard_stats: {str(e)}")
+        raise HTTPException(status_code=500, detail="Dashboard verileri alınamadı")
+
 # Statistics (Role-based)
 @api_router.get("/stats")
 async def get_statistics(current_user: User = Depends(get_current_user)):
