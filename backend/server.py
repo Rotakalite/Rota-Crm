@@ -322,11 +322,11 @@ class Client(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
     hotel_name: str
-    contact_person: str
+    contact_person: Optional[str] = None  # Made optional for compatibility
     email: str
     phone: str
     phone_number: Optional[str] = None  # WhatsApp için ek telefon field
-    address: str
+    address: Optional[str] = None  # Made optional for compatibility
     consultant_id: Optional[str] = None  # Which consultant manages this client
     current_stage: ProjectStage = ProjectStage.STAGE_1
     services_completed: List[ServiceType] = []
