@@ -2609,7 +2609,7 @@ const Dashboard = ({ onNavigate }) => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-semibold mb-2">📊 Aktif Proje</h3>
-                    <p className="text-3xl font-bold">{dashboardData.stage_distribution ? Object.values(dashboardData.stage_distribution).reduce((a, b) => a + b, 0) : 0}</p>
+                    <p className="text-3xl font-bold">{adminDashboardData.overview?.assigned_clients || 0}</p>
                   </div>
                   <div className="text-4xl opacity-80">📊</div>
                 </div>
