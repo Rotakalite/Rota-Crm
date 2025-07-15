@@ -6399,8 +6399,8 @@ const SimpleClientManagement = ({ onNavigate }) => {
                   </label>
                   <input
                     type="text"
-                    value={newClient.name}
-                    onChange={(e) => setNewClient({...newClient, name: e.target.value})}
+                    value={newClientData.name}
+                    onChange={(e) => setNewClientData({...newClientData, name: e.target.value})}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                     placeholder="Firma adını girin"
                   />
@@ -6412,8 +6412,8 @@ const SimpleClientManagement = ({ onNavigate }) => {
                   </label>
                   <input
                     type="text"
-                    value={newClient.hotel_name}
-                    onChange={(e) => setNewClient({...newClient, hotel_name: e.target.value})}
+                    value={newClientData.hotel_name}
+                    onChange={(e) => setNewClientData({...newClientData, hotel_name: e.target.value})}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                     placeholder="Otel adını girin"
                   />
