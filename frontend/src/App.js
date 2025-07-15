@@ -6645,7 +6645,20 @@ const SimpleClientManagement = ({ onNavigate }) => {
                   Kaydet
                 </button>
                 <button
-                  onClick={() => setShowAddClient(false)}
+                  onClick={() => {
+                    setShowAddClient(false);
+                    setNewClientData({
+                      name: '',
+                      hotel_name: '',
+                      email: '',
+                      phone: '',
+                      city: '',
+                      district: '',
+                      address: '',
+                      certificate_end_date: '',
+                      audit_company: ''
+                    });
+                  }}
                   className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600"
                 >
                   İptal
