@@ -13265,6 +13265,7 @@ const ConsultantManagement = () => {
   useEffect(() => {
     fetchConsultants();
     fetchClients();
+    fetchConsultantStats();
   }, [authToken]);
 
   if (loading) {
