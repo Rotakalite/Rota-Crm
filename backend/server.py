@@ -4725,12 +4725,7 @@ async def get_client_dashboard_stats(current_user: User = Depends(get_current_us
                     "total_energy": sum(energy_by_month.values()),
                     "total_water": sum(water_by_month.values())
                 },
-                "sustainability_progress": {
-                    "carbon_reduction": 65,  # This would come from carbon footprint calculations
-                    "energy_efficiency": 80,
-                    "waste_reduction": 45,
-                    "water_saving": 90
-                },
+                "sustainability_progress": sustainability_progress,
                 "recent_activities": recent_activities[:5],
                 "recommendations": [
                     {
