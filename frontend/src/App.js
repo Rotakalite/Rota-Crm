@@ -2390,6 +2390,7 @@ const Dashboard = ({ onNavigate }) => {
   const { user } = useUser();
   const { authToken, userRole, dbUser, refreshToken } = useAuth();
   const [dashboardData, setDashboardData] = useState(null);
+  const [clientDashboardData, setClientDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
   const API = getApiUrl();
