@@ -486,7 +486,7 @@ const ConsultantDashboard = ({ onNavigate }) => {
             const retryClientsResponse = await axios.get(`${API}/clients`, {
               headers: { Authorization: `Bearer ${newToken}` }
             });
-            setClients(retryClientsResponse.data || []);
+            setClients(retryClientsResponse.data.clients || []);
             
             console.log('✅ Consultant dashboard data refreshed successfully');
             return; // Exit catch block if successful
