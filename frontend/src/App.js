@@ -3930,7 +3930,7 @@ const GuestEngagement = () => {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      setClients(response.data);
+      setClients(response.data.clients || []);
       if (userRole === 'client' && dbUser?.client_id) {
         setSelectedClient(dbUser.client_id);
       }
