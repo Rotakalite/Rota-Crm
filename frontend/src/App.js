@@ -13014,7 +13014,22 @@ const ConsultantManagement = () => {
     phone: '',
     address: ''
   });
+  const [consultantStats, setConsultantStats] = useState(null);
+  
   const API = getApiUrl();
+
+  // Fetch consultant statistics
+  const fetchConsultantStats = async () => {
+    try {
+      const response = await axios.get(`${API}/consultants/stats`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      console.log('📊 Consultant Stats Response:', response.data);
+      setConsultantStats(response.data);
+    } catch (error) {
+      console.error('Error fetching consultant stats:', error);
+    }
+  };
 
   // Fetch consultants
   const fetchConsultants = async () => {
