@@ -4549,6 +4549,145 @@ async def update_training_status(
         raise HTTPException(status_code=404, detail="Training not found")
     return {"message": "Training status updated"}
 
+@api_router.get("/admin-dashboard-stats")
+async def get_admin_dashboard_stats(current_user: User = Depends(get_admin_user)):
+    """Get comprehensive admin dashboard statistics"""
+    try:
+        # Get all clients
+        clients = await db.clients.find({}).to_list(None)
+        total_clients = len(clients)
+        
+        # Client type distribution
+        registered_clients = len([c for c in clients if c.get("client_type") == "registered"])
+        bulk_clients = len([c for c in clients if c.get("client_type") == "bulk"])
+        
+        # Get documents
+        documents = await db.documents.find({}).to_list(None)
+        total_documents = len(documents)
+        
+        # Document type distribution
+        document_types = {}
+        for doc in documents:
+            doc_type = doc.get("document_type", "Other")
+            document_types[doc_type] = document_types.get(doc_type, 0) + 1
+        
+        # Get trainings
+        trainings = await db.trainings.find({}).to_list(None)
+        total_trainings = len(trainings)
+        completed_trainings = len([t for t in trainings if t.get("status") == "completed"])
+        
+        # Get consultants
+        consultants = await db.consultants.find({}).to_list(None)
+        total_consultants = len(consultants)
+        
+        # Assigned vs unassigned clients
+        assigned_clients = len([c for c in clients if c.get("consultant_id")])
+        unassigned_clients = total_clients - assigned_clients
+        
+        # Get consumption data
+        consumptions = await db.consumptions.find({}).to_list(None)
+        total_energy = sum(c.get("energy_kwh", 0) for c in consumptions)
+        total_water = sum(c.get("water_m3", 0) for c in consumptions)
+        
+        # Monthly consumption trends
+        monthly_consumption = {}
+        for consumption in consumptions:
+            month = consumption.get("month", "Unknown")
+            if month not in monthly_consumption:
+                monthly_consumption[month] = {"energy": 0, "water": 0}
+            monthly_consumption[month]["energy"] += consumption.get("energy_kwh", 0)
+            monthly_consumption[month]["water"] += consumption.get("water_m3", 0)
+        
+        # Get carbon footprint data
+        carbon_data = await db.carbon_footprint.find({}).to_list(None)
+        total_carbon = sum(c.get("total_co2", 0) for c in carbon_data)
+        
+        # Get waste management data
+        waste_data = await db.waste_management.find({}).to_list(None)
+        total_waste = sum(w.get("total_waste", 0) for w in waste_data)
+        recycled_waste = sum(w.get("recycled_amount", 0) for w in waste_data)
+        
+        # Recent activities
+        recent_activities = []
+        
+        # Recent document uploads
+        recent_docs = sorted(documents, key=lambda x: x.get("created_at", ""), reverse=True)[:5]
+        for doc in recent_docs:
+            recent_activities.append({
+                "type": "document",
+                "title": f"Yeni {doc.get('document_type', 'belge')} yüklendi",
+                "client": doc.get("client_id", "Unknown"),
+                "time": doc.get("created_at", ""),
+                "icon": "📄"
+            })
+        
+        # Recent training completions
+        recent_trainings = sorted(trainings, key=lambda x: x.get("created_at", ""), reverse=True)[:5]
+        for training in recent_trainings:
+            recent_activities.append({
+                "type": "training",
+                "title": f"Eğitim tamamlandı: {training.get('title', 'Eğitim')}",
+                "client": training.get("client_id", "Unknown"),
+                "time": training.get("created_at", ""),
+                "icon": "🎓"
+            })
+        
+        # Sort activities by time
+        recent_activities.sort(key=lambda x: x.get("time", ""), reverse=True)
+        
+        # Top performing clients (by document count)
+        client_performance = {}
+        for doc in documents:
+            client_id = doc.get("client_id")
+            if client_id:
+                client_performance[client_id] = client_performance.get(client_id, 0) + 1
+        
+        top_clients = sorted(client_performance.items(), key=lambda x: x[1], reverse=True)[:5]
+        
+        # System health metrics
+        from datetime import datetime, timedelta
+        now = datetime.now()
+        last_24h = now - timedelta(hours=24)
+        
+        recent_documents = len([d for d in documents if d.get("created_at") and d.get("created_at") > last_24h.isoformat()])
+        recent_trainings_count = len([t for t in trainings if t.get("created_at") and t.get("created_at") > last_24h.isoformat()])
+        
+        return {
+            "overview": {
+                "total_clients": total_clients,
+                "registered_clients": registered_clients,
+                "bulk_clients": bulk_clients,
+                "total_documents": total_documents,
+                "total_trainings": total_trainings,
+                "completed_trainings": completed_trainings,
+                "total_consultants": total_consultants,
+                "assigned_clients": assigned_clients,
+                "unassigned_clients": unassigned_clients
+            },
+            "consumption_analytics": {
+                "total_energy": total_energy,
+                "total_water": total_water,
+                "monthly_consumption": monthly_consumption,
+                "total_carbon": total_carbon,
+                "total_waste": total_waste,
+                "recycled_waste": recycled_waste,
+                "recycling_rate": int((recycled_waste / total_waste * 100) if total_waste > 0 else 0)
+            },
+            "document_distribution": document_types,
+            "training_completion_rate": int((completed_trainings / total_trainings * 100) if total_trainings > 0 else 0),
+            "recent_activities": recent_activities[:10],
+            "top_clients": top_clients,
+            "system_health": {
+                "documents_last_24h": recent_documents,
+                "trainings_last_24h": recent_trainings_count,
+                "system_status": "operational"
+            }
+        }
+        
+    except Exception as e:
+        logging.error(f"Error in get_admin_dashboard_stats: {str(e)}")
+        raise HTTPException(status_code=500, detail="Admin dashboard verileri alınamadı")
+
 @api_router.get("/client-dashboard-stats")
 async def get_client_dashboard_stats(current_user: User = Depends(get_current_user)):
     """Get comprehensive dashboard statistics for client users"""
