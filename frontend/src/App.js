@@ -1061,7 +1061,7 @@ const SustainabilityTargets = () => {
       if (response.data.clients) {
         setClients(response.data.clients || []);
       } else if (Array.isArray(response.data)) {
-        setClients(response.data);
+        setClients(response.data.clients || []);
       } else {
         setClients([]);
       }
