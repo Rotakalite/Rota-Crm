@@ -2589,7 +2589,7 @@ const Dashboard = ({ onNavigate }) => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-semibold mb-2">📄 Toplam Doküman</h3>
-                    <p className="text-3xl font-bold">{dashboardData.total_documents || 0}</p>
+                    <p className="text-3xl font-bold">{adminDashboardData.overview?.total_documents || 0}</p>
                   </div>
                   <div className="text-4xl opacity-80">📄</div>
                 </div>
