@@ -5711,23 +5711,24 @@ const BulkOperations = ({ onNavigate }) => {
   );
 };
 
-// Client Management Component
-const ClientManagement = ({ onNavigate }) => {
-  console.log('🏨 ClientManagement component mounted!');
-  
+// Simple Client Management Component - Clean Implementation
+const SimpleClientManagement = ({ onNavigate }) => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showAddClient, setShowAddClient] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(50);  // Daha az müşteri
-  const [totalCount, setTotalCount] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [hasNext, setHasNext] = useState(false);
-  const [hasPrev, setHasPrev] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('hotel_name');
-  const [sortOrder, setSortOrder] = useState('asc');
-  const [clientTypeFilter, setClientTypeFilter] = useState('registered'); // Default to registered clients only
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [showAddForm, setShowAddForm] = useState(false);
+  
+  const [newClient, setNewClient] = useState({
+    name: '',
+    hotel_name: '',
+    email: '',
+    phone: '',
+    city: '',
+    address: ''
+  });
   
   const [showBulkEmail, setShowBulkEmail] = useState(false);
   const [bulkEmailLoading, setBulkEmailLoading] = useState(false);
