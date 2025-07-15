@@ -5722,6 +5722,7 @@ const SimpleClientManagement = ({ onNavigate }) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [sortBy, setSortBy] = useState('hotel_name');
   const [sortOrder, setSortOrder] = useState('asc');
+  const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
   
   const [newClientData, setNewClientData] = useState({
     name: '',
