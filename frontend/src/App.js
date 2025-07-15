@@ -5720,6 +5720,8 @@ const SimpleClientManagement = ({ onNavigate }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [sortBy, setSortBy] = useState('hotel_name');
+  const [sortOrder, setSortOrder] = useState('asc');
   
   const [newClientData, setNewClientData] = useState({
     name: '',
