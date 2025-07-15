@@ -3164,7 +3164,7 @@ const CarbonFootprint = () => {
       console.log('🏨 [DEBUG] Fetching clients for', userRole);
       console.log('🏨 [DEBUG] AuthToken:', authToken ? 'EXISTS' : 'MISSING');
       
-      const response = await axios.get(`${API}/clients`, {
+      const response = await axios.get(`${API}/api/clients`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       
