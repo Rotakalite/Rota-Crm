@@ -168,16 +168,16 @@ const useAuth = () => {
   // Auto-refresh token every 4 minutes to prevent 5-minute logout
   useEffect(() => {
     if (authToken && session) {
-      console.log('⏰ Setting up 4-minute token refresh interval...');
+      console.log('⏰ Setting up 23-hour token refresh interval...');
       const interval = setInterval(async () => {
         try {
-          console.log('⏰ Auto-refreshing token (4-minute interval)...');
+          console.log('⏰ Auto-refreshing token (23-hour interval)...');
           await refreshToken();
           console.log('✅ Auto-refresh successful');
         } catch (error) {
           console.error('❌ Auto-refresh failed:', error);
         }
-      }, 4 * 60 * 1000); // 4 minutes - before 5-minute logout
+      }, 23 * 60 * 60 * 1000); // 23 hours - refresh before 24-hour expiration
 
       return () => {
         console.log('🛑 Clearing token refresh interval');
