@@ -1890,7 +1890,7 @@ async def delete_belge_main_app(document_id: str, current_user: User = Depends(g
         logging.error(f"❌ BELGE DELETE ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Silme hatası: {str(e)}")
 
-@app.get("/api/clients")
+@app.get("/api/clients-simple")
 async def get_clients_main_app(current_user: User = Depends(get_current_user)):
     """📋 CLİENTS LİSTESİ - MAIN APP WITH RBAC"""
     try:
