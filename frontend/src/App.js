@@ -458,7 +458,7 @@ const ConsultantDashboard = ({ onNavigate }) => {
       });
       setDashboardData(statsResponse.data);
 
-      const clientsResponse = await axios.get(`${API}/api/clients`, {
+      const clientsResponse = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       console.log('🔍 CONSULTANT DEBUG - clients response:', clientsResponse.data);
@@ -483,7 +483,7 @@ const ConsultantDashboard = ({ onNavigate }) => {
             setDashboardData(retryStatsResponse.data);
             
             // Retry clients call
-            const retryClientsResponse = await axios.get(`${API}/api/clients`, {
+            const retryClientsResponse = await axios.get(`${API}/clients`, {
               headers: { Authorization: `Bearer ${newToken}` }
             });
             setClients(retryClientsResponse.data || []);
@@ -724,7 +724,7 @@ const ConsultantClientManagement = ({ onNavigate }) => {
         params.client_type = clientType;
       }
       
-      const response = await axios.get(`${API}/api/clients`, {
+      const response = await axios.get(`${API}/clients`, {
         params,
         headers: { Authorization: `Bearer ${authToken}` }
       });
@@ -1053,7 +1053,7 @@ const SustainabilityTargets = () => {
   const fetchClients = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/api/clients`, {
+      const response = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
@@ -1789,7 +1789,7 @@ const PersonnelManagement = () => {
   const fetchClients = async () => {
     if (!authToken) return;
     try {
-      const response = await axios.get(`${API}/api/clients`, {
+      const response = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
@@ -3164,7 +3164,7 @@ const CarbonFootprint = () => {
       console.log('🏨 [DEBUG] Fetching clients for', userRole);
       console.log('🏨 [DEBUG] AuthToken:', authToken ? 'EXISTS' : 'MISSING');
       
-      const response = await axios.get(`${API}/api/clients`, {
+      const response = await axios.get(`${API}/clients`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       
@@ -4249,7 +4249,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
     if (userRole !== 'admin' && userRole !== 'consultant') return;
     
     try {
-      const response = await axios.get(`${API}/api/clients`, {
+      const response = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setClients(response.data || []);
@@ -5243,7 +5243,7 @@ const BulkOperations = ({ onNavigate }) => {
         params.order = order;
       }
       
-      const response = await axios.get(`${API}/api/clients`, {
+      const response = await axios.get(`${API}/clients`, {
         params,
         headers: { Authorization: `Bearer ${authToken}` }
       });
@@ -5773,7 +5773,7 @@ const SimpleClientManagement = ({ onNavigate }) => {
         params.client_type = clientType;
       }
       
-      const response = await axios.get(`${API}/api/clients`, {
+      const response = await axios.get(`${API}/clients`, {
         params,
         headers: { Authorization: `Bearer ${authToken}` }
       });
@@ -5798,7 +5798,7 @@ const SimpleClientManagement = ({ onNavigate }) => {
       if (error.response?.status === 401 || error.response?.status === 403) {
         console.error('🔐 Authentication error:', error.response?.data?.detail);
         console.error('🔐 Token:', authToken ? 'EXISTS' : 'MISSING');
-        console.error('🔐 Request URL:', `${API}/api/clients`);
+        console.error('🔐 Request URL:', `${API}/clients`);
         console.error('🔐 Request params:', {client_type: clientType, page, limit});
         alert('Authentication hatası: Token geçersiz. Lütfen yeniden giriş yapın.');
       } else {
@@ -5943,7 +5943,7 @@ const SimpleClientManagement = ({ onNavigate }) => {
   // Add new client
   const handleAddClient = async () => {
     try {
-      await axios.post(`${API}/api/clients`, newClientData, {
+      await axios.post(`${API}/clients`, newClientData, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
@@ -5972,7 +5972,7 @@ const SimpleClientManagement = ({ onNavigate }) => {
     if (!confirmDelete) return;
     
     try {
-      await axios.delete(`${API}/api/clients/${clientId}`, {
+      await axios.delete(`${API}/clients/${clientId}`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
@@ -6748,7 +6748,7 @@ const ConsumptionAnalytics = () => {
     if (userRole !== 'admin' && userRole !== 'consultant') return;
     
     try {
-      const response = await axios.get(`${API}/api/clients`, {
+      const response = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setClients(response.data || []);
@@ -7954,7 +7954,7 @@ const ClientDocuments = () => {
   const fetchClients = async () => {
     try {
       const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
-      const response = await axios.get(`${API}/api/clients`, { headers });
+      const response = await axios.get(`${API}/clients`, { headers });
       setClients(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error("Error fetching clients:", error);
@@ -8950,7 +8950,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
       return; // Only admin and consultant need clients list
     }
     try {
-      const response = await axios.get(`${API}/api/clients`, {
+      const response = await axios.get(`${API}/clients`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       
@@ -9904,7 +9904,7 @@ const ProjectManagement = ({ client, onNavigate }) => {
       
       // Update client's carbon footprint value
       if (carbonReportData.total_emissions) {
-        await axios.put(`${API}/api/clients/${client.id}`, { 
+        await axios.put(`${API}/clients/${client.id}`, { 
           carbon_footprint: parseFloat(carbonReportData.total_emissions)
         }, {
           headers: { 'Authorization': `Bearer ${authToken}` }
@@ -10589,7 +10589,7 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
     
     try {
       console.log("👥 Admin fetching clients...");
-      const response = await axios.get(`${API}/api/clients`, {
+      const response = await axios.get(`${API}/clients`, {
         headers: { "Authorization": `Bearer ${authToken}` }
       });
       console.log("👥 Admin clients response:", response.data);
@@ -10997,7 +10997,7 @@ const ClientSetupForm = ({ onComplete, onSkip }) => {
 
     try {
       // Create client record
-      const clientResponse = await axios.post(`${API}/api/clients`, {
+      const clientResponse = await axios.post(`${API}/clients`, {
         ...formData,
         email: user.primaryEmailAddress?.emailAddress || formData.email
       }, {
@@ -11277,7 +11277,7 @@ const EmailManagement = ({ selectedClient: propSelectedClient }) => {
         }
       }
 
-      const response = await axios.get(`${API}/api/clients`, {
+      const response = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
       setClients(response.data || []);
@@ -12073,7 +12073,7 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
   const fetchClients = async () => {
     if (!authToken) return;
     try {
-      const response = await axios.get(`${API}/api/clients`, {
+      const response = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setClients(response.data || []);
@@ -12738,7 +12738,7 @@ const ConsultantManagement = () => {
     if (!authToken) return;
     
     try {
-      const response = await axios.get(`${API}/api/clients`, {
+      const response = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setClients(response.data || []);
@@ -12838,7 +12838,7 @@ const ConsultantManagement = () => {
     if (!assigningClient) return;
     
     try {
-      await axios.put(`${API}/api/clients/${assigningClient.id}/consultant`, {
+      await axios.put(`${API}/clients/${assigningClient.id}/consultant`, {
         consultant_id: consultantId
       }, {
         headers: { Authorization: `Bearer ${authToken}` }
@@ -13510,7 +13510,7 @@ const RoleSetup = ({ onComplete }) => {
       const token = await session?.getToken();
       
       // Use new endpoint that updates both client and user role
-      await axios.post(`${API}/api/clients/register-with-user`, {
+      await axios.post(`${API}/clients/register-with-user`, {
         client_data: {
           ...clientData,
           name: clientData.hotel_name,
