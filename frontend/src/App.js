@@ -447,8 +447,8 @@ const ConsultantDashboard = ({ onNavigate }) => {
       });
       console.log('🔍 CONSULTANT DEBUG - Debug endpoint response:', debugResponse.data);
       
-      // Fetch user info from /api/me for complete data
-      const userResponse = await axios.get(`${API}/api/me`, {
+      // Fetch user info from /me for complete data
+      const userResponse = await axios.get(`${API}/me`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       console.log('🔍 CONSULTANT DEBUG - API /api/me response:', userResponse.data);
