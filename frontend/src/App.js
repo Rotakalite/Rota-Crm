@@ -5782,7 +5782,10 @@ const ClientManagement = ({ onNavigate }) => {
       // Check if it's an authentication error
       if (error.response?.status === 401 || error.response?.status === 403) {
         console.error('🔐 Authentication error:', error.response?.data?.detail);
-        alert('Authentication hatası: Lütfen yeniden giriş yapın.');
+        console.error('🔐 Token:', authToken ? 'EXISTS' : 'MISSING');
+        console.error('🔐 Request URL:', `${API}/clients`);
+        console.error('🔐 Request params:', params);
+        alert('Authentication hatası: Token geçersiz. Lütfen yeniden giriş yapın.');
       } else {
         console.error('API error:', error.response?.data?.detail || error.message);
       }
