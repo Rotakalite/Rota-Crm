@@ -5935,7 +5935,7 @@ const SimpleClientManagement = ({ onNavigate }) => {
       
       alert('Müşteri başarıyla eklendi!');
       setShowAddClient(false);
-      setNewClient({
+      setNewClientData({
         name: '',
         hotel_name: '',
         email: '',
