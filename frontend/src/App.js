@@ -2422,8 +2422,15 @@ const Dashboard = ({ onNavigate }) => {
         });
         console.log('🏨 Client Dashboard Data:', response.data);
         setClientDashboardData(response.data);
+      } else if (userRole === 'admin') {
+        // Fetch admin-specific dashboard data
+        const response = await axios.get(`${API}/admin-dashboard-stats`, {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        console.log('🛡️ Admin Dashboard Data:', response.data);
+        setAdminDashboardData(response.data);
       } else {
-        // Fetch general dashboard data for admin/consultant
+        // Fetch general dashboard data for consultant
         const response = await axios.get(`${API}/stats`, {
           headers: { Authorization: `Bearer ${authToken}` }
         });
@@ -2441,6 +2448,14 @@ const Dashboard = ({ onNavigate }) => {
           sustainability_progress: { carbon_reduction: 0, energy_efficiency: 0, waste_reduction: 0, water_saving: 0 },
           recent_activities: [],
           recommendations: []
+        });
+      } else if (userRole === 'admin') {
+        setAdminDashboardData({
+          overview: { total_clients: 0, total_documents: 0, total_trainings: 0, completed_trainings: 0 },
+          consumption_analytics: { total_energy: 0, total_water: 0, total_carbon: 0, recycling_rate: 0 },
+          document_distribution: {},
+          recent_activities: [],
+          system_health: { documents_last_24h: 0, trainings_last_24h: 0 }
         });
       } else {
         setDashboardData({
