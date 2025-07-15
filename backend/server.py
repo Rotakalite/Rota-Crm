@@ -4549,6 +4549,11 @@ async def update_training_status(
         raise HTTPException(status_code=404, detail="Training not found")
     return {"message": "Training status updated"}
 
+@api_router.get("/test-admin-dashboard")
+async def test_admin_dashboard():
+    """Test endpoint to verify API router is working"""
+    return {"status": "working", "message": "API router is functional"}
+
 @api_router.get("/admin-dashboard-stats")
 async def get_admin_dashboard_stats(current_user: User = Depends(get_admin_user)):
     """Get comprehensive admin dashboard statistics"""
