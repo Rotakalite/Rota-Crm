@@ -5804,6 +5804,15 @@ const SimpleClientManagement = ({ onNavigate }) => {
     }
   };
 
+  // Handle sorting
+  const handleSort = (field) => {
+    const newOrder = sortBy === field && sortOrder === 'asc' ? 'desc' : 'asc';
+    setSortBy(field);
+    setSortOrder(newOrder);
+    setCurrentPage(1);
+    fetchClients(1, searchTerm, field, newOrder);
+  };
+
   // Search with debouncing
   const handleSearchDebounced = (term) => {
     setSearchTerm(term);
