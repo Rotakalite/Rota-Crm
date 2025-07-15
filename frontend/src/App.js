@@ -1049,6 +1049,30 @@ const SustainabilityTargets = () => {
   });
   const API = getApiUrl();
 
+  // Fetch clients
+  const fetchClients = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/clients`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      // Handle both old and new response formats
+      if (response.data.clients) {
+        setClients(response.data.clients || []);
+      } else if (Array.isArray(response.data)) {
+        setClients(response.data);
+      } else {
+        setClients([]);
+      }
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      setClients([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Predefined target types
   const targetTypes = {
     'Çevresel': [
