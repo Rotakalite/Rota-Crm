@@ -458,7 +458,7 @@ const ConsultantDashboard = ({ onNavigate }) => {
       });
       setDashboardData(statsResponse.data);
 
-      const clientsResponse = await axios.get(`${API}/clients`, {
+      const clientsResponse = await axios.get(`${API}/api/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       console.log('🔍 CONSULTANT DEBUG - clients response:', clientsResponse.data);
