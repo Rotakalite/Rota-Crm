@@ -462,6 +462,7 @@ const ConsultantDashboard = ({ onNavigate }) => {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       console.log('🔍 CONSULTANT DEBUG - clients response:', clientsResponse.data);
+      console.log('🔍 CONSULTANT DEBUG - clients count:', clientsResponse.data.clients?.length || 0);
       setClients(clientsResponse.data.clients || []);
 
     } catch (error) {
