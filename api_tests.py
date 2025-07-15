@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend API URL
-BACKEND_API_URL = "https://5d84c72f-46a8-441d-903f-729b5668f555.preview.emergentagent.com/api"
+BACKEND_API_URL = "https://7397d81a-245d-49b9-a61b-31977569672c.preview.emergentagent.com/api"
 
 class TestAPIEndpoints(unittest.TestCase):
     """Test class for API endpoints"""

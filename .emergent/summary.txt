@@ -1,62 +1,78 @@
 <analysis>
-The previous AI engineer demonstrated a systematic yet iterative approach, tackling both functional requirements and persistent technical debt. The work began with re-implementing and enhancing the bulk client import and email features, focusing heavily on performance and data segregation. Key challenges involved resolving recurring JavaScript syntax errors, handling inconsistent API response formats, and debugging authentication token persistence issues. A significant architectural decision was the refactoring to separate Client Management for registered users from a new Bulk Operations module. The engineer effectively utilized troubleshooting agents and detailed console logs for debugging. The trajectory shows a continuous loop of fixing, building, and refining UI components, with persistent issues around frontend state management and deployment-specific configurations (Railway/Vercel). The focus remained on delivering a robust, performant application while adapting to evolving user requirements.
+The previous AI engineer demonstrated an iterative and persistent problem-solving approach. The initial focus was on resolving numerous frontend  and  issues stemming from a prior refactoring that separated client management modules. A major recurring challenge involved inconsistent API URLs (Emergent vs. Railway), leading to constant debugging of  prefixes and endpoint conflicts between direct app routes and API router routes in FastAPI. The engineer also tackled data parsing inconsistencies where frontend components expected raw arrays but the backend returned paginated objects. Feature additions included enhancing client registration forms (admin and self-registration) with new fields and integrating real data into both client and admin dashboards. The work was characterized by deep dives into console logs, repeated file examinations, and strategic use of the  for complex issues like HTTP method mismatches and database role/ID discrepancies. The trajectory concludes with an ongoing debugging effort related to a 500 Internal Server Error in the admin dashboard, indicating a data structure mismatch or missing data from the backend.
 </analysis>
 
 <product_requirements>
-The Rota-CRM platform is a multi-role SaaS application managing client consumption data with interactive dashboards and Clerk authentication. It aims to provide tailored access for Admins, Clients, and Consultants. Initial feature development included enhanced email notifications, CRUD for supplier/personnel, RBAC, authentication persistence, sustainability targets, and consultant management.
+The Rota-CRM platform is a multi-role SaaS application designed for managing client consumption data, featuring interactive dashboards and Clerk authentication, with tailored access for Admins, Clients, and Consultants.
 
-During this trajectory, the user explicitly requested:
-1.  **Bulk Client Import & Email System**: An admin system to import 23,000+ hotel records via Excel, with robust column mapping, and a feature to send bulk emails specifically to these bulk clients.
-2.  **Performance Optimization**: Address frontend freezing and slow data loading through pagination, search, and sorting for large client lists.
-3.  **Client Type Segregation**: Distinguish bulk-imported clients () from manually registered ones () for module access and email targeting.
-4.  **2FA & Token Persistence Improvement**: Resolve issues where users were repeatedly prompted for 2FA codes and logged out on refresh or navigation, aiming for a 24-hour token validity and single daily 2FA.
-5.  **Module Separation (New Requirement)**: Split the client management into two distinct modules:
-    *   Müşteri Yönetimi (Client Management): Only for manually registered clients.
-    *   Bulk İşlemler (Bulk Operations): For bulk imported clients, bulk import, and bulk email functionality.
+Key requirements addressed during this development phase:
+1.  **Bulk Client Import & Email System**: An administrative system for importing large Excel datasets of hotel records and sending bulk emails specifically to these bulk clients.
+2.  **Performance Optimization**: Improve frontend responsiveness and data loading efficiency for large client lists through pagination, search, and sorting.
+3.  **Client Type Segregation**: Clearly differentiate bulk-imported clients () from manually registered clients () for distinct module access and email targeting.
+4.  **2FA & Token Persistence Improvement**: Enhance user authentication experience by resolving issues with repetitive 2FA prompts and token expiry, aiming for persistent login sessions.
+5.  **Module Separation**: Create two distinct client management modules: Müşteri Yönetimi (for registered clients) and Bulk İşlemler (for bulk-imported clients, including bulk import and email functionality).
+6.  **Enhanced Client Registration Forms**: Add fields for city, district, audit company, and certificate end date to both admin and self-registration forms.
+7.  **Display Certificate Validity in Bulk Operations**: Show certificate validity dates within the Bulk İşlemler client table.
+8.  **Consultant Module Client Filtering**: Ensure consultants only view clients assigned to them.
+9.  **Data-Driven Dashboards**: Populate both Client and Admin dashboards with real-time, aggregated data from various modules (documents, trainings, consumption, waste, sustainability targets) instead of hardcoded values.
 </product_requirements>
 
 <key_technical_concepts>
 -   **React**: Frontend UI development.
 -   **FastAPI**: Python backend for RESTful APIs.
--   **MongoDB Atlas**: NoSQL cloud database for data storage and indexing.
--   **Clerk**: JWT-based authentication system for user management.
--   **Axios**: Frontend HTTP client for API communication.
--   **Supervisorctl**: Process manager for service control (backend, frontend).
--   **Railway/Vercel**: Cloud platforms for application deployment.
--   **Pandas/Openpyxl**: Python libraries for Excel file processing.
--   **GZip Compression**: Backend response size optimization.
--   **Debouncing**: Frontend performance optimization for search input.
--   **LocalStorage/SessionStorage**: Browser APIs for client-side data persistence.
+-   **MongoDB Atlas**: NoSQL cloud database.
+-   **Clerk**: JWT-based authentication.
+-   **Axios**: Frontend HTTP client.
+-   **Supervisorctl**: Process manager.
+-   **Railway/Vercel**: Cloud deployment platforms.
+-   **Pandas/Openpyxl**: Excel processing.
+-   **Pydantic**: Data validation for Python models.
+-   **GZip Compression**: Backend optimization.
+-   **Debouncing**: Frontend search optimization.
+-   **LocalStorage**: Client-side data persistence.
 </key_technical_concepts>
 
 <code_architecture>
 
 
 -   ****:
-    -   **Summary**: The main FastAPI application handling API endpoints, authentication, and database interactions.
-    -   **Changes Made**: Backend bulk email endpoints (, ) were moved to the main API router and updated to exclusively target clients with . Authentication logic for these endpoints was confirmed. The  endpoint was verified to correctly handle  filtering, pagination, search, and sorting. Database  collection was updated to set  for all clients previously imported with , resolving a data inconsistency.
-
--   ****:
-    -   **Summary**: The central React component managing application state, routing, authentication, and integrating various UI components. This file has undergone extensive modifications and refactoring.
+    -   **Summary**: The core FastAPI application.
     -   **Changes Made**:
-        -   **Bulk Import/Email UI**: Initially, remnants causing  errors were removed. Later, the bulk email modal was re-integrated into the  component (around line 5990) and  was updated to be called correctly on pagination changes.
-        -   **Client Type Segregation & Module Separation**: This was a major refactor.  component was modified to *only* display  clients by default, and its UI was cleaned to remove bulk-related buttons and states. A new  component was introduced (around line 5110) which encapsulates all bulk import and bulk email functionality, states, and UI. This component handles  clients. Navigation was updated to include Bulk İşlemler as a new sidebar menu item for admins.
-        -   **Authentication & Token Persistence**: The  in  was repeatedly corrected to the Railway URL. Token management was significantly enhanced:  is now stored in  for persistence across refreshes, a 23-hour token refresh interval was implemented, and logic to load cached tokens on initial app load was added to reduce 2FA prompts.
-        -   **Response Format Consistency**: Multiple  functions across various components (, , , , ) were updated to correctly parse the backend's  response format instead of expecting  or raw arrays, resolving issues where clients were not visible.
-        -   **Error Handling & Cleanup**: Recurring  (e.g., , ) and  (e.g., , ) were addressed by removing duplicate function/variable declarations and ensuring states were correctly defined within their respective components (, ). Cleanup of orphaned code blocks was performed. , , ,  states/functions were explicitly defined in .
-        -   **New Client Form**:  state was renamed to  to resolve a duplicate declaration error, and all related form inputs and handlers were updated accordingly.
+        -   **Bulk Email/Client Endpoints**: Confirmed and aligned authentication to target .
+        -   **Client Type Segregation**: Ensured  endpoint correctly handles  filtering, pagination, search, and sorting.
+        -   **Client Data Consistency**: A data migration was performed on MongoDB to set  for old bulk imports.
+        -   **Endpoint Conflicts**: Renamed conflicting  (line 1893) to  and  (line 3026) to  to ensure the correct paginated endpoint ( at line 3864) is used.
+        -   **Pydantic Validation**: Modified the  Pydantic model to make  and  fields  to prevent 500 errors from incomplete database records.
+        -   **Consultant Access**: Implemented logic in  (around line 3960) to filter clients based on  for users with .
+        -   **Client Registration Fields**: Added , , ,  fields to the Client model.
+        -   **Admin/Client Dashboard Endpoints**: Created  (line 416, 479) and  (line 497) to provide real-time, aggregated data for the dashboards, including calculations for consumption, waste, sustainability progress, and client/document statistics.
+        -   **Consultant Stats Endpoint**: Created  (line 449) to provide accurate counts for unassigned clients and clients per consultant.
 
 -   ****:
-    -   **Summary**: Stores  for the frontend.
-    -   **Changes Made**: Repeatedly corrected to  due to external factors (likely environment resets or deployment configurations).
+    -   **Summary**: The main React component for application logic, routing, and UI. This file underwent the most significant changes due to its central role.
+    -   **Changes Made**:
+        -   **Bug Fixes**: Addressed multiple  (e.g., , , , , , ) by ensuring necessary states and functions were correctly declared and scoped within components like .
+        -   **URL Configuration**: Repeatedly corrected  in  to the Railway URL and fixed instances of double  in API calls (e.g., line 260, 451) to  to match backend router configuration.
+        -   **Client Type Segregation**: Refactored  to  (for  clients) and introduced a new  component (around line 5110) for  clients, including moving relevant UI, states, and logic.
+        -   **Authentication & Token Persistence**: Enhanced  storage in  and implemented a 23-hour refresh interval for improved user experience.
+        -   **API Response Parsing**: Updated numerous  functions across various components (e.g., , , , , , , , , , ) from  to  to correctly parse the backend's  format (e.g., lines 4255, 10792, and many others via  command across the trajectory).
+        -   **Enhanced Client Registration**: Integrated city/district cascade dropdowns, audit firm selection, and certificate end date picker into both admin (around line 6410) and self-registration forms (around line 13880). Updated  and  states accordingly.
+        -   **Bulk Operations Table**: Added Sertifika Geçerlilik column to the bulk clients table (around line 5440) with color-coded expiry indicators.
+        -   **Client Dashboard Enhancement**: Replaced hardcoded values with real data fetched from the new  endpoint (around line 2668), adding detailed KPIs, charts, and activity feeds.
+        -   **Admin Dashboard Enhancement**: Similar to client dashboard, replaced hardcoded values with real data from  endpoint (around line 2558), featuring system-wide analytics.
+        -   **Consultant Management Stats**: Updated components to fetch accurate client counts from the new  endpoint for unassigned clients and per-consultant client counts.
 
 -   ****:
-    -   **Summary**: Lists Python dependencies for the backend.
-    -   **Changes Made**:  and  were present for Excel processing. No new functional dependencies were added in this trajectory segment.
+    -   **Summary**: Stores .
+    -   **Changes Made**: Repeatedly corrected to  to resolve deployment and API access issues.
+
+-   ****:
+    -   **Summary**: Python dependencies.
+    -   **Changes Made**: No new functional dependencies were explicitly added, but  and  are noted for Excel processing.
 
 -   **MongoDB Atlas**:
-    -   **Summary**: The primary database.
-    -   **Changes Made**: A significant data update operation was performed to set the  field to  for all 22,877 clients that previously only had  and . This was crucial for the client type segregation feature.
+    -   **Summary**: Database.
+    -   **Changes Made**: Updated  for bulk-imported clients. Database user roles were explicitly updated () and  was assigned to a user for testing consultant-specific logic.
 </code_architecture>
 
 <pending_tasks>
@@ -66,19 +82,16 @@ During this trajectory, the user explicitly requested:
 -   Implement Advanced Reporting including PDF export.
 -   Full development of AI Analytics and Cultural Sustainability modules.
 -   General frontend styling enhancements.
--   Assign existing clients to ROTA consultant.
--   Resolve persistent Railway deployment issues (platform-specific).
--   Correct the  error in .
+-   Assign existing clients to ROTA consultant (done for 3 clients, but not a general task).
+-   Resolve persistent Railway/Vercel deployment issues (platform-specific).
 </pending_tasks>
 
 <current_work>
-Immediately prior to this summary, the AI engineer was engaged in an extensive refactoring effort to separate client management into two distinct modules: Müşteri Yönetimi (for registered clients) and Bulk İşlemler (for bulk-imported clients). This involved moving significant portions of code, states, and UI elements related to bulk operations out of the  component and into a newly created  component within .
+Immediately prior to this summary, the AI engineer was engaged in enhancing the **Admin Dashboard** to display real-time data instead of hardcoded values. This involved creating a new backend endpoint  in  to aggregate various system-wide statistics (total clients, documents, training completion, recycling rates, consumption data, etc.). On the frontend,  was updated to call this new endpoint and render the dashboard components with the fetched data.
 
-During this refactoring, several recurring  and  issues emerged due to variable/function scope and duplication from previous code. The last problem encountered and being actively debugged is an  error, specifically at . The AI engineer has identified that this error occurs in the  component (which is the new  module after refactoring) and is related to an  selector in the UI. The current understanding is that  should be a constant (e.g., 50), and the UI selector for it should be removed from this module, as it is no longer intended to be dynamic here. The AI engineer was attempting to locate and remove this problematic selector.
-
-Additionally, persistent deployment issues with Railway (and Vercel previously) regarding frontend serving and general Limited Access messages continue to be a concern, although the AI engineer has correctly identified these as platform-specific rather than code-related. The code itself, particularly the authentication flow, token persistence, and API response parsing, has been largely stabilized and confirmed as working correctly through backend tests, provided the environment and authentication tokens are valid.
+The very last interaction indicates a critical issue: the user reported a **500 Internal Server Error** when trying to access the Admin Dashboard. The accompanying frontend console log shows . This strongly suggests that the  object received from the  endpoint is  or an unexpected structure, causing a client-side error when trying to access properties like . The AI engineer's last action was attempting to inspect the backend logs to identify the specific cause of the 500 error in  for the newly created  endpoint, but was unable to retrieve logs successfully in the last message.
 </current_work>
 
 <optional_next_step>
-Remove the  selector and its related logic from the  component in .
+Inspect the backend logs for the  endpoint to diagnose the 500 Internal Server Error.
 </optional_next_step>

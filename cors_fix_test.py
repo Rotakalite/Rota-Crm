@@ -14,7 +14,7 @@ class TestCORSFix(unittest.TestCase):
     def setUp(self):
         """Set up test environment"""
         # Use the URL from the error message
-        self.api_url = "https://5d84c72f-46a8-441d-903f-729b5668f555.preview.emergentagent.com/api"
+        self.api_url = "https://7397d81a-245d-49b9-a61b-31977569672c.preview.emergentagent.com/api"
         # Use the origin from the error message
         self.origin = "https://portal.rotakalitedanismanlik.com"
         
