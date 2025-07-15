@@ -5724,6 +5724,7 @@ const SimpleClientManagement = ({ onNavigate }) => {
   const [sortOrder, setSortOrder] = useState('asc');
   const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
   const [itemsPerPage, setItemsPerPage] = useState(50);
+  const [clientTypeFilter, setClientTypeFilter] = useState('registered'); // Default to registered clients
   
   const [newClientData, setNewClientData] = useState({
     name: '',
