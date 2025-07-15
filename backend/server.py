@@ -3996,6 +3996,68 @@ async def get_clients(
             "order": order,
             "client_type": client_type
         }
+    elif current_user.role == UserRole.CONSULTANT:
+        print(f"🔍 CONSULTANT USER DETECTED - FETCHING ASSIGNED CLIENTS")
+        logging.info(f"🔍 CONSULTANT USER DETECTED - FETCHING ASSIGNED CLIENTS")
+        
+        # CONSULTANT SECURITY: Consultant users can ONLY see their assigned clients
+        if not current_user.consultant_id:
+            print(f"🚨🚨🚨 CONSULTANT USER WITHOUT CONSULTANT_ID: {current_user.name} - BLOCKING ACCESS")
+            logging.error(f"🚨🚨🚨 CONSULTANT USER WITHOUT CONSULTANT_ID: {current_user.name} - BLOCKING ACCESS")
+            raise HTTPException(status_code=403, detail="Consultant ID not found")
+        
+        # Find clients assigned to this consultant
+        consultant_filter = {"consultant_id": current_user.consultant_id}
+        
+        # Apply client_type filter if specified
+        if client_type != "all":
+            consultant_filter["client_type"] = client_type
+        
+        # Apply search filter if provided
+        if search and search.strip():
+            search_pattern = {"$regex": search.strip(), "$options": "i"}
+            consultant_filter["$or"] = [
+                {"name": search_pattern},
+                {"hotel_name": search_pattern},
+                {"email": search_pattern},
+                {"phone": search_pattern},
+                {"city": search_pattern},
+                {"district": search_pattern}
+            ]
+        
+        print(f"🔍 CONSULTANT FILTER: {consultant_filter}")
+        
+        # Get total count for pagination
+        total_count = await db.clients.count_documents(consultant_filter)
+        
+        # Get paginated clients
+        clients = await db.clients.find(
+            consultant_filter, 
+            projection
+        ).sort(sort_criteria).skip(skip).limit(limit).to_list(length=limit)
+        
+        # Calculate pagination info
+        total_pages = (total_count + limit - 1) // limit  # Ceiling division
+        
+        search_info = f" (search: '{search}')" if search else ""
+        print(f"🔍 CONSULTANT ASSIGNED CLIENTS: {len(clients)} clients found{search_info}")
+        logging.info(f"🔍 CONSULTANT ASSIGNED CLIENTS: {len(clients)} clients found{search_info}")
+        
+        return {
+            "clients": [Client(**client) for client in clients],
+            "pagination": {
+                "page": page,
+                "limit": limit,
+                "total_count": total_count,
+                "total_pages": total_pages,
+                "has_next": page < total_pages,
+                "has_prev": page > 1
+            },
+            "search": search,
+            "sort": sort,
+            "order": order,
+            "client_type": client_type
+        }
     else:
         print(f"🚨 CLIENT USER DETECTED - APPLYING SECURITY FILTER")
         logging.error(f"🚨 CLIENT USER DETECTED - APPLYING SECURITY FILTER")
