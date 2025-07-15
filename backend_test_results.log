@@ -1,5 +1,5 @@
 2025-07-10 19:20:58,663 - INFO - 🚀 Starting Comprehensive Backend Testing for Rota CRM
-2025-07-10 19:20:58,664 - INFO - Testing backend at: https://ecd50858-c16e-4cf1-bfa1-501728878062.preview.emergentagent.com/api
+2025-07-10 19:20:58,664 - INFO - Testing backend at: https://4ee1e29f-eceb-4966-ad56-8377a758d2bb.preview.emergentagent.com/api
 test_authentication_required_endpoints (__main__.TestCoreAuthentication.test_authentication_required_endpoints)
 Test that protected endpoints require authentication ... 2025-07-10 19:20:58,664 - INFO - 
 === Testing authentication requirements ===
