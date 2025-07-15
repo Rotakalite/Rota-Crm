@@ -13574,7 +13574,11 @@ const RoleSetup = ({ onComplete }) => {
     contact_person: '',
     email: '',
     phone: '',
-    address: ''
+    city: '',
+    district: '',
+    address: '',
+    audit_company: '',
+    certificate_end_date: ''
   });
   const API = getApiUrl();
   const { user, dbUser } = useAuth();
