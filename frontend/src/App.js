@@ -13180,6 +13180,7 @@ const ConsultantManagement = () => {
       setShowClientAssignment(false);
       fetchClients();
       fetchConsultants();
+      fetchConsultantStats();
       alert('Müşteri başarıyla danışmana atandı!');
     } catch (error) {
       console.error('Error assigning client:', error);
