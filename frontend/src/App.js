@@ -5744,14 +5744,6 @@ const SimpleClientManagement = ({ onNavigate }) => {
   });
   const [bulkEmailResult, setBulkEmailResult] = useState(null);
   
-  const [newClient, setNewClient] = useState({
-    name: '',
-    hotel_name: '',
-    email: '',
-    phone: '',
-    address: ''
-  });
-
   const { authToken, userRole } = useAuth();
   const API = getApiUrl();
 
