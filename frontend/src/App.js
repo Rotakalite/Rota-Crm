@@ -5721,7 +5721,7 @@ const SimpleClientManagement = ({ onNavigate }) => {
   const [totalCount, setTotalCount] = useState(0);
   const [showAddForm, setShowAddForm] = useState(false);
   
-  const [newClient, setNewClient] = useState({
+  const [newClientData, setNewClientData] = useState({
     name: '',
     hotel_name: '',
     email: '',
