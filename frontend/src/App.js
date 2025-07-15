@@ -13197,6 +13197,7 @@ const ConsultantManagement = () => {
       
       fetchClients();
       fetchConsultants();
+      fetchConsultantStats();
       alert(`${response.data.assigned_count} müşteri ROTA'ya atandı!`);
     } catch (error) {
       console.error('Error assigning unassigned clients:', error);
