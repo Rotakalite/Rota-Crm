@@ -10789,7 +10789,7 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
         headers: { "Authorization": `Bearer ${authToken}` }
       });
       console.log("👥 Admin clients response:", response.data);
-      setClients(response.data);
+      setClients(response.data.clients || []);
     } catch (error) {
       console.error("❌ Error fetching clients:", error);
       setClients([]);
