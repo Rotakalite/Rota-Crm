@@ -304,12 +304,35 @@ const useAuth = () => {
           }
           console.log('✅ Set role to:', directRole);
 
-          // Get token from session
+          // Get token from session or localStorage
           try {
-            const token = await session.getToken();
-            setAuthToken(token);
-            sessionStorage.setItem('authToken', token);
-            console.log('🎯 Token received successfully');
+            let token = localStorage.getItem('authToken');
+            const tokenTimestamp = localStorage.getItem('tokenTimestamp');
+            
+            // Check if token is less than 24 hours old
+            if (token && tokenTimestamp) {
+              const tokenAge = Date.now() - parseInt(tokenTimestamp);
+              const twentyFourHours = 24 * 60 * 60 * 1000;
+              
+              if (tokenAge < twentyFourHours) {
+                console.log('🎯 Using cached token (age:', Math.round(tokenAge / 1000 / 60), 'minutes)');
+                setAuthToken(token);
+              } else {
+                console.log('🔄 Token expired, getting fresh token');
+                token = await session.getToken();
+                setAuthToken(token);
+                localStorage.setItem('authToken', token);
+                localStorage.setItem('tokenTimestamp', Date.now().toString());
+              }
+            } else {
+              console.log('🆕 Getting fresh token');
+              token = await session.getToken();
+              setAuthToken(token);
+              localStorage.setItem('authToken', token);
+              localStorage.setItem('tokenTimestamp', Date.now().toString());
+            }
+            
+            console.log('🎯 Token set successfully');
             
             // Register/update user in our database
             const API = getApiUrl();
