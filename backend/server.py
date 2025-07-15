@@ -326,7 +326,11 @@ class Client(BaseModel):
     email: str
     phone: str
     phone_number: Optional[str] = None  # WhatsApp için ek telefon field
+    city: Optional[str] = None
+    district: Optional[str] = None
     address: Optional[str] = None  # Made optional for compatibility
+    audit_company: Optional[str] = None
+    certificate_end_date: Optional[str] = None
     consultant_id: Optional[str] = None  # Which consultant manages this client
     current_stage: ProjectStage = ProjectStage.STAGE_1
     services_completed: List[ServiceType] = []
