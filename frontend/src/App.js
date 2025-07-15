@@ -2674,11 +2674,11 @@ const Dashboard = ({ onNavigate }) => {
         )}
 
         {/* Enhanced Client Dashboard */}
-        {userRole === 'client' && dashboardData && (
+        {userRole === 'client' && clientDashboardData && (
           <>
             {/* Welcome Section */}
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 mb-8 text-white">
-              <h1 className="text-3xl font-bold mb-2">🏨 Hoş Geldiniz, {dbUser?.name}!</h1>
+              <h1 className="text-3xl font-bold mb-2">🏨 Hoş Geldiniz, {clientDashboardData.client_info?.hotel_name || dbUser?.name}!</h1>
               <p className="text-blue-100 text-lg">Sürdürülebilirlik yolculuğunuzdaki tüm verileri tek bir yerde görebilirsiniz.</p>
             </div>
 
@@ -2688,8 +2688,8 @@ const Dashboard = ({ onNavigate }) => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-gray-600 text-sm font-medium">Toplam Doküman</h3>
-                    <p className="text-3xl font-bold text-gray-900">{dashboardData.total_documents || 0}</p>
-                    <p className="text-sm text-green-600">+5% bu ay</p>
+                    <p className="text-3xl font-bold text-gray-900">{clientDashboardData.statistics?.total_documents || 0}</p>
+                    <p className="text-sm text-green-600">Yüklenen belgeler</p>
                   </div>
                   <div className="text-4xl">📄</div>
                 </div>
@@ -2699,8 +2699,8 @@ const Dashboard = ({ onNavigate }) => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-gray-600 text-sm font-medium">Tamamlanan Eğitim</h3>
-                    <p className="text-3xl font-bold text-gray-900">{dashboardData.total_trainings || 0}</p>
-                    <p className="text-sm text-blue-600">85% tamamlanma oranı</p>
+                    <p className="text-3xl font-bold text-gray-900">{clientDashboardData.statistics?.completed_trainings || 0}</p>
+                    <p className="text-sm text-blue-600">{clientDashboardData.statistics?.training_completion_rate || 0}% tamamlanma oranı</p>
                   </div>
                   <div className="text-4xl">🎓</div>
                 </div>
@@ -2710,7 +2710,7 @@ const Dashboard = ({ onNavigate }) => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-gray-600 text-sm font-medium">Karbon Tasarrufu</h3>
-                    <p className="text-3xl font-bold text-gray-900">-12%</p>
+                    <p className="text-3xl font-bold text-gray-900">-{clientDashboardData.sustainability_progress?.carbon_reduction || 0}%</p>
                     <p className="text-sm text-green-600">Geçen yıla göre</p>
                   </div>
                   <div className="text-4xl">🌱</div>
@@ -2721,8 +2721,8 @@ const Dashboard = ({ onNavigate }) => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-gray-600 text-sm font-medium">Sertifika Durumu</h3>
-                    <p className="text-3xl font-bold text-gray-900">Aktif</p>
-                    <p className="text-sm text-orange-600">180 gün kaldı</p>
+                    <p className="text-3xl font-bold text-gray-900">{clientDashboardData.client_info?.certificate_status || 'Aktif'}</p>
+                    <p className="text-sm text-orange-600">{clientDashboardData.client_info?.certificate_days_left || 0} gün kaldı</p>
                   </div>
                   <div className="text-4xl">🏆</div>
                 </div>
@@ -2735,21 +2735,18 @@ const Dashboard = ({ onNavigate }) => {
               <div className="bg-white p-6 rounded-xl shadow-lg">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">⚡ Enerji Tüketimi (kWh)</h3>
                 <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
+                  <div className="text-center w-full">
                     <div className="text-6xl mb-4">📊</div>
                     <div className="space-y-2">
-                      <div className="flex justify-between items-center bg-blue-50 p-3 rounded">
-                        <span className="text-sm font-medium">Ocak</span>
-                        <span className="text-lg font-bold text-blue-600">2,450</span>
-                      </div>
-                      <div className="flex justify-between items-center bg-green-50 p-3 rounded">
-                        <span className="text-sm font-medium">Şubat</span>
-                        <span className="text-lg font-bold text-green-600">2,180</span>
-                      </div>
-                      <div className="flex justify-between items-center bg-purple-50 p-3 rounded">
-                        <span className="text-sm font-medium">Mart</span>
-                        <span className="text-lg font-bold text-purple-600">2,350</span>
-                      </div>
+                      {Object.entries(clientDashboardData.consumption_data?.energy_by_month || {}).map(([month, value]) => (
+                        <div key={month} className="flex justify-between items-center bg-blue-50 p-3 rounded">
+                          <span className="text-sm font-medium">{month}</span>
+                          <span className="text-lg font-bold text-blue-600">{value.toLocaleString()}</span>
+                        </div>
+                      ))}
+                      {Object.keys(clientDashboardData.consumption_data?.energy_by_month || {}).length === 0 && (
+                        <p className="text-gray-500">Henüz enerji tüketim verisi bulunmamaktadır.</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -2759,21 +2756,18 @@ const Dashboard = ({ onNavigate }) => {
               <div className="bg-white p-6 rounded-xl shadow-lg">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">💧 Su Tüketimi (m³)</h3>
                 <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
+                  <div className="text-center w-full">
                     <div className="text-6xl mb-4">💧</div>
                     <div className="space-y-2">
-                      <div className="flex justify-between items-center bg-cyan-50 p-3 rounded">
-                        <span className="text-sm font-medium">Ocak</span>
-                        <span className="text-lg font-bold text-cyan-600">1,250</span>
-                      </div>
-                      <div className="flex justify-between items-center bg-blue-50 p-3 rounded">
-                        <span className="text-sm font-medium">Şubat</span>
-                        <span className="text-lg font-bold text-blue-600">1,180</span>
-                      </div>
-                      <div className="flex justify-between items-center bg-teal-50 p-3 rounded">
-                        <span className="text-sm font-medium">Mart</span>
-                        <span className="text-lg font-bold text-teal-600">1,320</span>
-                      </div>
+                      {Object.entries(clientDashboardData.consumption_data?.water_by_month || {}).map(([month, value]) => (
+                        <div key={month} className="flex justify-between items-center bg-cyan-50 p-3 rounded">
+                          <span className="text-sm font-medium">{month}</span>
+                          <span className="text-lg font-bold text-cyan-600">{value.toLocaleString()}</span>
+                        </div>
+                      ))}
+                      {Object.keys(clientDashboardData.consumption_data?.water_by_month || {}).length === 0 && (
+                        <p className="text-gray-500">Henüz su tüketim verisi bulunmamaktadır.</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -2787,40 +2781,40 @@ const Dashboard = ({ onNavigate }) => {
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="text-sm font-medium text-gray-700">Karbon Emisyon Azaltma</span>
-                    <span className="text-sm font-medium text-gray-700">65%</span>
+                    <span className="text-sm font-medium text-gray-700">{clientDashboardData.sustainability_progress?.carbon_reduction || 0}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-green-600 h-2 rounded-full" style={{width: '65%'}}></div>
+                    <div className="bg-green-600 h-2 rounded-full" style={{width: `${clientDashboardData.sustainability_progress?.carbon_reduction || 0}%`}}></div>
                   </div>
                 </div>
                 
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="text-sm font-medium text-gray-700">Enerji Verimliliği</span>
-                    <span className="text-sm font-medium text-gray-700">80%</span>
+                    <span className="text-sm font-medium text-gray-700">{clientDashboardData.sustainability_progress?.energy_efficiency || 0}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-600 h-2 rounded-full" style={{width: '80%'}}></div>
+                    <div className="bg-blue-600 h-2 rounded-full" style={{width: `${clientDashboardData.sustainability_progress?.energy_efficiency || 0}%`}}></div>
                   </div>
                 </div>
                 
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="text-sm font-medium text-gray-700">Atık Azaltma</span>
-                    <span className="text-sm font-medium text-gray-700">45%</span>
+                    <span className="text-sm font-medium text-gray-700">{clientDashboardData.sustainability_progress?.waste_reduction || 0}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-purple-600 h-2 rounded-full" style={{width: '45%'}}></div>
+                    <div className="bg-purple-600 h-2 rounded-full" style={{width: `${clientDashboardData.sustainability_progress?.waste_reduction || 0}%`}}></div>
                   </div>
                 </div>
                 
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="text-sm font-medium text-gray-700">Su Tasarrufu</span>
-                    <span className="text-sm font-medium text-gray-700">90%</span>
+                    <span className="text-sm font-medium text-gray-700">{clientDashboardData.sustainability_progress?.water_saving || 0}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-cyan-600 h-2 rounded-full" style={{width: '90%'}}></div>
+                    <div className="bg-cyan-600 h-2 rounded-full" style={{width: `${clientDashboardData.sustainability_progress?.water_saving || 0}%`}}></div>
                   </div>
                 </div>
               </div>
@@ -2831,62 +2825,49 @@ const Dashboard = ({ onNavigate }) => {
               <div className="bg-white p-6 rounded-xl shadow-lg">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">📋 Son Aktiviteler</h3>
                 <div className="space-y-4">
-                  <div className="flex items-center p-3 bg-green-50 rounded-lg">
-                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">✓</div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-900">Enerji Raporunuz onaylandı</p>
-                      <p className="text-xs text-gray-500">2 saat önce</p>
+                  {clientDashboardData.recent_activities?.length > 0 ? (
+                    clientDashboardData.recent_activities.map((activity, index) => (
+                      <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
+                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm">{activity.icon}</div>
+                        <div className="ml-3">
+                          <p className="text-sm font-medium text-gray-900">{activity.title}</p>
+                          <p className="text-xs text-gray-500">{activity.time ? new Date(activity.time).toLocaleDateString('tr-TR') : 'Tarih bilgisi yok'}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <div className="text-4xl mb-2">📋</div>
+                      <p className="text-sm">Henüz aktivite bulunmamaktadır.</p>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center p-3 bg-blue-50 rounded-lg">
-                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm">📄</div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-900">Yeni TR1 belgesi yüklendi</p>
-                      <p className="text-xs text-gray-500">1 gün önce</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center p-3 bg-purple-50 rounded-lg">
-                    <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm">🎓</div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-900">Sürdürülebilirlik eğitimi tamamlandı</p>
-                      <p className="text-xs text-gray-500">3 gün önce</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center p-3 bg-orange-50 rounded-lg">
-                    <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white text-sm">⚠️</div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-900">Sertifika süresi hatırlatması</p>
-                      <p className="text-xs text-gray-500">1 hafta önce</p>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
               <div className="bg-white p-6 rounded-xl shadow-lg">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">🎯 Öneriler</h3>
                 <div className="space-y-4">
-                  <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border-l-4 border-green-500">
-                    <h4 className="font-medium text-green-900 mb-1">Enerji Tasarrufu</h4>
-                    <p className="text-sm text-green-700">LED aydınlatmaya geçiş yaparak %15 tasarruf sağlayabilirsiniz.</p>
-                  </div>
-                  
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border-l-4 border-blue-500">
-                    <h4 className="font-medium text-blue-900 mb-1">Su Yönetimi</h4>
-                    <p className="text-sm text-blue-700">Akıllı sulama sistemi ile %20 su tasarrufu mümkün.</p>
-                  </div>
-                  
-                  <div className="p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg border-l-4 border-purple-500">
-                    <h4 className="font-medium text-purple-900 mb-1">Atık Azaltma</h4>
-                    <p className="text-sm text-purple-700">Geri dönüşüm programınızı genişletmeyi düşünün.</p>
-                  </div>
-                  
-                  <div className="p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border-l-4 border-orange-500">
-                    <h4 className="font-medium text-orange-900 mb-1">Eğitim</h4>
-                    <p className="text-sm text-orange-700">Personel sürdürülebilirlik eğitimleri planlanabilir.</p>
-                  </div>
+                  {clientDashboardData.recommendations?.map((recommendation, index) => (
+                    <div key={index} className={`p-4 rounded-lg border-l-4 ${
+                      recommendation.type === 'energy' ? 'bg-gradient-to-r from-green-50 to-green-100 border-green-500' :
+                      recommendation.type === 'water' ? 'bg-gradient-to-r from-blue-50 to-blue-100 border-blue-500' :
+                      recommendation.type === 'waste' ? 'bg-gradient-to-r from-purple-50 to-purple-100 border-purple-500' :
+                      'bg-gradient-to-r from-orange-50 to-orange-100 border-orange-500'
+                    }`}>
+                      <h4 className={`font-medium mb-1 ${
+                        recommendation.type === 'energy' ? 'text-green-900' :
+                        recommendation.type === 'water' ? 'text-blue-900' :
+                        recommendation.type === 'waste' ? 'text-purple-900' :
+                        'text-orange-900'
+                      }`}>{recommendation.title}</h4>
+                      <p className={`text-sm ${
+                        recommendation.type === 'energy' ? 'text-green-700' :
+                        recommendation.type === 'water' ? 'text-blue-700' :
+                        recommendation.type === 'waste' ? 'text-purple-700' :
+                        'text-orange-700'
+                      }`}>{recommendation.description}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
