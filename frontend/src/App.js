@@ -1785,7 +1785,16 @@ const PersonnelManagement = () => {
       const response = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      setClients(response.data || []);
+      
+      // Handle new backend response format { clients, pagination }
+      if (response.data.clients && Array.isArray(response.data.clients)) {
+        setClients(response.data.clients);
+      } else if (Array.isArray(response.data)) {
+        // Fallback for old format
+        setClients(response.data);
+      } else {
+        setClients([]);
+      }
     } catch (error) {
       console.error('Error fetching clients:', error);
       
