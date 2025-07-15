@@ -113,7 +113,7 @@ async def test_mongodb_client_data():
                 logger.info(f"   {i+1}. {client.get('name', 'Unknown')} / {client.get('hotel_name', 'Unknown')}")
         
         # Close connection
-        client.close()
+        await client.close()
         
         return {
             "total_clients": len(clients),
