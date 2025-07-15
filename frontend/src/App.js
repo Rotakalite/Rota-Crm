@@ -4252,9 +4252,9 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
       const response = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      setClients(response.data || []);
-      if (response.data?.length > 0 && !propSelectedClient) {
-        setSelectedClient(response.data[0].id);
+      setClients(response.data.clients || []);
+      if (response.data?.clients?.length > 0 && !propSelectedClient) {
+        setSelectedClient(response.data.clients[0].id);
       }
     } catch (error) {
       console.error('Error fetching clients:', error);
