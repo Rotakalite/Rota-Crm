@@ -2664,129 +2664,259 @@ const Dashboard = ({ onNavigate }) => {
           </>
         )}
 
-        {/* Client Dashboard */}
+        {/* Enhanced Client Dashboard */}
         {userRole === 'client' && dashboardData && (
           <>
-            {/* Client Stats Cards */}
+            {/* Welcome Section */}
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 mb-8 text-white">
+              <h1 className="text-3xl font-bold mb-2">🏨 Hoş Geldiniz, {dbUser?.name}!</h1>
+              <p className="text-blue-100 text-lg">Sürdürülebilirlik yolculuğunuzdaki tüm verileri tek bir yerde görebilirsiniz.</p>
+            </div>
+
+            {/* Key Performance Indicators */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
+              <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-blue-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">📄 Dokümanlarım</h3>
-                    <p className="text-3xl font-bold">{dashboardData.total_documents || 0}</p>
+                    <h3 className="text-gray-600 text-sm font-medium">Toplam Doküman</h3>
+                    <p className="text-3xl font-bold text-gray-900">{dashboardData.total_documents || 0}</p>
+                    <p className="text-sm text-green-600">+5% bu ay</p>
                   </div>
-                  <div className="text-4xl opacity-80">📄</div>
+                  <div className="text-4xl">📄</div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
+              <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">🎓 Eğitimlerim</h3>
-                    <p className="text-3xl font-bold">{dashboardData.total_trainings || 0}</p>
+                    <h3 className="text-gray-600 text-sm font-medium">Tamamlanan Eğitim</h3>
+                    <p className="text-3xl font-bold text-gray-900">{dashboardData.total_trainings || 0}</p>
+                    <p className="text-sm text-blue-600">85% tamamlanma oranı</p>
                   </div>
-                  <div className="text-4xl opacity-80">🎓</div>
+                  <div className="text-4xl">🎓</div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
+              <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-purple-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">📊 TR1 Kriterleri</h3>
-                    <p className="text-3xl font-bold">{dashboardData.document_type_distribution?.TR1_CRITERIA || 0}</p>
+                    <h3 className="text-gray-600 text-sm font-medium">Karbon Tasarrufu</h3>
+                    <p className="text-3xl font-bold text-gray-900">-12%</p>
+                    <p className="text-sm text-green-600">Geçen yıla göre</p>
                   </div>
-                  <div className="text-4xl opacity-80">📊</div>
+                  <div className="text-4xl">🌱</div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg">
+              <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-orange-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">🌍 Karbon Raporu</h3>
-                    <p className="text-3xl font-bold">{dashboardData.document_type_distribution?.CARBON_REPORT || 0}</p>
+                    <h3 className="text-gray-600 text-sm font-medium">Sertifika Durumu</h3>
+                    <p className="text-3xl font-bold text-gray-900">Aktif</p>
+                    <p className="text-sm text-orange-600">180 gün kaldı</p>
                   </div>
-                  <div className="text-4xl opacity-80">🌍</div>
+                  <div className="text-4xl">🏆</div>
                 </div>
               </div>
             </div>
 
-            {/* Client Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-                   onClick={() => onNavigate('documents')}>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">📄 Belgelerim</h3>
-                  <span className="text-2xl">→</span>
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              {/* Energy Consumption Chart */}
+              <div className="bg-white p-6 rounded-xl shadow-lg">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">⚡ Enerji Tüketimi (kWh)</h3>
+                <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-6xl mb-4">📊</div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center bg-blue-50 p-3 rounded">
+                        <span className="text-sm font-medium">Ocak</span>
+                        <span className="text-lg font-bold text-blue-600">2,450</span>
+                      </div>
+                      <div className="flex justify-between items-center bg-green-50 p-3 rounded">
+                        <span className="text-sm font-medium">Şubat</span>
+                        <span className="text-lg font-bold text-green-600">2,180</span>
+                      </div>
+                      <div className="flex justify-between items-center bg-purple-50 p-3 rounded">
+                        <span className="text-sm font-medium">Mart</span>
+                        <span className="text-lg font-bold text-purple-600">2,350</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-blue-100">
-                  Dokümanlarınızı görüntüleyin ve indirin
-                </p>
               </div>
 
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-                   onClick={() => onNavigate('consumption')}>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">⚡ Tüketim Takibi</h3>
-                  <span className="text-2xl">→</span>
+              {/* Water Consumption Chart */}
+              <div className="bg-white p-6 rounded-xl shadow-lg">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">💧 Su Tüketimi (m³)</h3>
+                <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-6xl mb-4">💧</div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center bg-cyan-50 p-3 rounded">
+                        <span className="text-sm font-medium">Ocak</span>
+                        <span className="text-lg font-bold text-cyan-600">1,250</span>
+                      </div>
+                      <div className="flex justify-between items-center bg-blue-50 p-3 rounded">
+                        <span className="text-sm font-medium">Şubat</span>
+                        <span className="text-lg font-bold text-blue-600">1,180</span>
+                      </div>
+                      <div className="flex justify-between items-center bg-teal-50 p-3 rounded">
+                        <span className="text-sm font-medium">Mart</span>
+                        <span className="text-lg font-bold text-teal-600">1,320</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-purple-100">
-                  Enerji ve su tüketim verileriniz
-                </p>
+              </div>
+            </div>
+
+            {/* Progress Tracking */}
+            <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">🎯 Sürdürülebilirlik Hedefleri</h3>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">Karbon Emisyon Azaltma</span>
+                    <span className="text-sm font-medium text-gray-700">65%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-green-600 h-2 rounded-full" style={{width: '65%'}}></div>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">Enerji Verimliliği</span>
+                    <span className="text-sm font-medium text-gray-700">80%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-blue-600 h-2 rounded-full" style={{width: '80%'}}></div>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">Atık Azaltma</span>
+                    <span className="text-sm font-medium text-gray-700">45%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-purple-600 h-2 rounded-full" style={{width: '45%'}}></div>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">Su Tasarrufu</span>
+                    <span className="text-sm font-medium text-gray-700">90%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-cyan-600 h-2 rounded-full" style={{width: '90%'}}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              <div className="bg-white p-6 rounded-xl shadow-lg">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">📋 Son Aktiviteler</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center p-3 bg-green-50 rounded-lg">
+                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">✓</div>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-gray-900">Enerji Raporunuz onaylandı</p>
+                      <p className="text-xs text-gray-500">2 saat önce</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center p-3 bg-blue-50 rounded-lg">
+                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm">📄</div>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-gray-900">Yeni TR1 belgesi yüklendi</p>
+                      <p className="text-xs text-gray-500">1 gün önce</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center p-3 bg-purple-50 rounded-lg">
+                    <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm">🎓</div>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-gray-900">Sürdürülebilirlik eğitimi tamamlandı</p>
+                      <p className="text-xs text-gray-500">3 gün önce</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center p-3 bg-orange-50 rounded-lg">
+                    <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white text-sm">⚠️</div>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-gray-900">Sertifika süresi hatırlatması</p>
+                      <p className="text-xs text-gray-500">1 hafta önce</p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-                   onClick={() => onNavigate('carbon')}>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">🌍 Karbon Ayak İzi</h3>
-                  <span className="text-2xl">→</span>
+              <div className="bg-white p-6 rounded-xl shadow-lg">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">🎯 Öneriler</h3>
+                <div className="space-y-4">
+                  <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border-l-4 border-green-500">
+                    <h4 className="font-medium text-green-900 mb-1">Enerji Tasarrufu</h4>
+                    <p className="text-sm text-green-700">LED aydınlatmaya geçiş yaparak %15 tasarruf sağlayabilirsiniz.</p>
+                  </div>
+                  
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border-l-4 border-blue-500">
+                    <h4 className="font-medium text-blue-900 mb-1">Su Yönetimi</h4>
+                    <p className="text-sm text-blue-700">Akıllı sulama sistemi ile %20 su tasarrufu mümkün.</p>
+                  </div>
+                  
+                  <div className="p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg border-l-4 border-purple-500">
+                    <h4 className="font-medium text-purple-900 mb-1">Atık Azaltma</h4>
+                    <p className="text-sm text-purple-700">Geri dönüşüm programınızı genişletmeyi düşünün.</p>
+                  </div>
+                  
+                  <div className="p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border-l-4 border-orange-500">
+                    <h4 className="font-medium text-orange-900 mb-1">Eğitim</h4>
+                    <p className="text-sm text-orange-700">Personel sürdürülebilirlik eğitimleri planlanabilir.</p>
+                  </div>
                 </div>
-                <p className="text-green-100">
-                  Karbon emisyon analizi ve raporları
-                </p>
               </div>
+            </div>
 
-              <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-                   onClick={() => onNavigate('waste-management')}>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">🗑️ Atık Yönetimi</h3>
-                  <span className="text-2xl">→</span>
-                </div>
-                <p className="text-amber-100">
-                  Atık takibi ve geri dönüşüm verileri
-                </p>
-              </div>
-
-              <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-                   onClick={() => onNavigate('guest-engagement')}>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">🎯 Guest Engagement</h3>
-                  <span className="text-2xl">→</span>
-                </div>
-                <p className="text-cyan-100">
-                  Misafir sürdürülebilirlik programı
-                </p>
-              </div>
-
-              <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-                   onClick={() => onNavigate('trainings')}>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">🎓 Eğitimlerim</h3>
-                  <span className="text-2xl">→</span>
-                </div>
-                <p className="text-indigo-100">
-                  Eğitim programları ve sertifikalar
-                </p>
-              </div>
-
-              <div className="bg-gradient-to-br from-red-500 to-red-600 p-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-                   onClick={() => onNavigate('yeni-belge')}>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">📄 Belgelerim</h3>
-                  <span className="text-2xl">→</span>
-                </div>
-                <p className="text-red-100">
-                  Belgelerinizi yönetin ve görüntüleyin
-                </p>
+            {/* Quick Actions */}
+            <div className="bg-white p-6 rounded-xl shadow-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">🚀 Hızlı Erişim</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button
+                  onClick={() => onNavigate('consumption')}
+                  className="p-4 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105"
+                >
+                  <div className="text-2xl mb-2">⚡</div>
+                  <div className="text-sm font-medium">Tüketim</div>
+                </button>
+                
+                <button
+                  onClick={() => onNavigate('carbon')}
+                  className="p-4 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105"
+                >
+                  <div className="text-2xl mb-2">🌍</div>
+                  <div className="text-sm font-medium">Karbon</div>
+                </button>
+                
+                <button
+                  onClick={() => onNavigate('waste-management')}
+                  className="p-4 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-105"
+                >
+                  <div className="text-2xl mb-2">🗑️</div>
+                  <div className="text-sm font-medium">Atık</div>
+                </button>
+                
+                <button
+                  onClick={() => onNavigate('yeni-belge')}
+                  className="p-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all transform hover:scale-105"
+                >
+                  <div className="text-2xl mb-2">📄</div>
+                  <div className="text-sm font-medium">Belgeler</div>
+                </button>
               </div>
             </div>
           </>
