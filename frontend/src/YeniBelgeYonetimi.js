@@ -29,7 +29,7 @@ const YeniBelgeYonetimi = () => {
   const loadClients = async () => {
     try {
       const response = await axios.get(`${API}/api/clients`);
-      setClients(response.data || []);
+      setClients(response.data.clients || []);
     } catch (error) {
       console.error('❌ Client load error:', error);
     }
