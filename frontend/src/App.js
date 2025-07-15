@@ -5850,6 +5850,15 @@ const SimpleClientManagement = ({ onNavigate }) => {
     fetchClients(1, limit, searchTerm, sortBy, sortOrder, clientTypeFilter);
   };
 
+  // Sort function
+  const handleSort = (field) => {
+    const newOrder = sortBy === field && sortOrder === 'asc' ? 'desc' : 'asc';
+    setSortBy(field);
+    setSortOrder(newOrder);
+    setCurrentPage(1);
+    fetchClients(1, itemsPerPage, searchTerm, field, newOrder, clientTypeFilter);
+  };
+
   // Bulk Email Functions
   const fetchBulkEmailStats = async () => {
     try {
