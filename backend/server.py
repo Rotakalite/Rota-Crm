@@ -3930,17 +3930,32 @@ async def get_clients(
     }
     
     if current_user.role == UserRole.ADMIN:
-        # Use text search for better performance when search is provided
+        # Build base filter
+        base_filter = {}
+        
+        # Add client type filter first
+        if client_type != "all":
+            base_filter["client_type"] = client_type
+            print(f"🏷️ CLIENT TYPE FILTER APPLIED: {client_type}")
+        
+        # Add search filter if provided
         if search and search.strip():
             # Use text search index
-            search_filter = {
+            text_search_filter = {
                 "$text": {"$search": search.strip()}
             }
+            # Combine with client_type filter
+            if base_filter:
+                search_filter = {"$and": [base_filter, text_search_filter]}
+            else:
+                search_filter = text_search_filter
             # Add text score for better sorting
             projection['score'] = {"$meta": "textScore"}
             sort_criteria = [("score", {"$meta": "textScore"})] + sort_criteria
         else:
-            search_filter = {}
+            search_filter = base_filter
+        
+        print(f"🔍 FINAL SEARCH FILTER: {search_filter}")
         
         # Get total count for pagination (optimized)
         total_count = await db.clients.count_documents(search_filter)
