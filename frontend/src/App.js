@@ -59,7 +59,8 @@ const useAuth = () => {
         
         if (newToken) {
           setAuthToken(newToken);
-          sessionStorage.setItem('authToken', newToken);
+          localStorage.setItem('authToken', newToken);
+          localStorage.setItem('tokenTimestamp', Date.now().toString());
           console.log('✅ Token refreshed successfully');
           return newToken;
         } else {
