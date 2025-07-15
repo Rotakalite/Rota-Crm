@@ -483,7 +483,7 @@ const ConsultantDashboard = ({ onNavigate }) => {
             setDashboardData(retryStatsResponse.data);
             
             // Retry clients call
-            const retryClientsResponse = await axios.get(`${API}/clients`, {
+            const retryClientsResponse = await axios.get(`${API}/api/clients`, {
               headers: { Authorization: `Bearer ${newToken}` }
             });
             setClients(retryClientsResponse.data || []);
