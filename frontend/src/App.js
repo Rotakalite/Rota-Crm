@@ -462,7 +462,7 @@ const ConsultantDashboard = ({ onNavigate }) => {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       console.log('🔍 CONSULTANT DEBUG - clients response:', clientsResponse.data);
-      setClients(clientsResponse.data || []);
+      setClients(clientsResponse.data.clients || []);
 
     } catch (error) {
       console.error('Error fetching consultant data:', error);
