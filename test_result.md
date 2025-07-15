@@ -63,6 +63,8 @@
 ##     -message: "2025-01-25: Bulk email sistemi frontend UI'sını tamamlamak için kaldığım yerden devam ediyorum. Analiz sonucu: Backend bulk email endpoints'leri tamamen implementte (/api/bulk-email/send, /api/bulk-email/stats). Frontend'de de bulk email modal'ı, form'lar, state management ve function'lar mevcut. Önce backend'i test edeceğim, sonra frontend'i."
 ##     -agent: "main"
 ##     -message: "2025-01-25: CRITICAL BUG FIXED - itemsPerPage is not defined error çözüldü! SimpleClientManagement component'inde eksik olan state'ler ve fonksiyonlar eklendi: itemsPerPage, clientTypeFilter, hasPrev, hasNext, showAddClient state'leri ve handleSort fonksiyonu. Frontend artık başarıyla build oluyor. Backend testine hazır."
+##     -agent: "main"
+##     -message: "2025-01-25: Admin Dashboard 500 Internal Server Error sorunu tespit edildi. Frontend: 'Cannot read properties of null (reading 'total_clients')' hatası alınıyor. Backend: /api/admin-dashboard-stats endpoint'i null data döndürüyor. Endpoint'i test edip sorunu çözmeye başlıyorum."
 
 # Protocol Guidelines for Main agent
 #
