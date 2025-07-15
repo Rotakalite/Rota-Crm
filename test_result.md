@@ -500,6 +500,7 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Admin Dashboard Stats API Fix"
     - "Document Management API endpoints test"
     - "Level 4 Folder Structure Implementation"
     - "Document Management Client Filtering"
