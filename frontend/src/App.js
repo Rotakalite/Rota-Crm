@@ -2441,26 +2441,6 @@ const Dashboard = ({ onNavigate }) => {
           total_trainings: 0
         });
       }
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      // Fallback data
-      if (userRole === 'client') {
-        setClientDashboardData({
-          client_info: { name: 'Test Client', certificate_status: 'Aktif', certificate_days_left: 180 },
-          statistics: { total_documents: 0, total_trainings: 0, completed_trainings: 0 },
-          consumption_data: { energy_by_month: {}, water_by_month: {} },
-          sustainability_progress: { carbon_reduction: 0, energy_efficiency: 0, waste_reduction: 0, water_saving: 0 },
-          recent_activities: [],
-          recommendations: []
-        });
-      } else {
-        setDashboardData({
-          total_clients: 0,
-          stage_distribution: { stage_1: 0, stage_2: 0, stage_3: 0 },
-          total_documents: 0,
-          total_trainings: 0
-        });
-      }
     } finally {
       setLoading(false);
     }
