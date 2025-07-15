@@ -1798,7 +1798,7 @@ const PersonnelManagement = () => {
         setClients(response.data.clients);
       } else if (Array.isArray(response.data)) {
         // Fallback for old format
-        setClients(response.data);
+        setClients(response.data.clients || []);
       } else {
         setClients([]);
       }
