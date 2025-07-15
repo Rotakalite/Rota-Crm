@@ -137,6 +137,21 @@ user_problem_statement: "Bulk olarak eklenen müşteriler ile kendi kaydolan mü
 
 backend:
 
+  - task: "Admin Dashboard Stats API Fix"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "Admin Dashboard 500 Internal Server Error hatası alınıyor. Frontend 'Cannot read properties of null (reading 'total_clients')' hatası gösteriyor. Backend /api/admin-dashboard-stats endpoint'i null data döndürüyor."
+        -working: "NA"
+        -agent: "main"
+        -comment: "Admin Dashboard 500 error'ı için backend test başlatıyorum. Endpoint /api/admin-dashboard-stats (line 4552) incelenecek ve sorun tespit edilecek."
+
   - task: "Level 4 Folder Structure Implementation"
     implemented: true
     working: true
