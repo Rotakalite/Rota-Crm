@@ -5778,8 +5778,13 @@ const SimpleClientManagement = ({ onNavigate }) => {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
+      console.log('🔍 SimpleClientManagement - API Response:', response.data);
+      
       // Handle response - backend returns { clients, pagination }
       const { clients, pagination } = response.data;
+      console.log('🔍 SimpleClientManagement - Parsed clients:', clients);
+      console.log('🔍 SimpleClientManagement - Parsed pagination:', pagination);
+      
       setClients(clients || []);
       setTotalPages(pagination?.total_pages || 1);
       setTotalCount(pagination?.total_count || 0);
