@@ -8929,11 +8929,18 @@ const ConsumptionManagement = ({ onNavigate }) => {
       const response = await axios.get(`${API}/clients`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
-      if (Array.isArray(response.data)) {
+      
+      // Handle new backend response format { clients, pagination }
+      if (response.data.clients && Array.isArray(response.data.clients)) {
+        setClients(response.data.clients);
+        console.log('✅ Clients fetched for consumption:', response.data.clients.length);
+      } else if (Array.isArray(response.data)) {
+        // Fallback for old format
         setClients(response.data);
-        console.log('✅ Clients fetched for consumption:', response.data.length);
+        console.log('✅ Clients fetched for consumption (old format):', response.data.length);
       } else {
         setClients([]);
+        console.log('⚠️ No clients found in response');
       }
     } catch (error) {
       console.error("Error fetching clients for consumption:", error);
