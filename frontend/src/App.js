@@ -276,9 +276,10 @@ const useAuth = () => {
         console.error('Error refreshing user:', error);
         // Clear invalid session data
         if (error.response?.status === 401) {
-          sessionStorage.removeItem('authToken');
-          sessionStorage.removeItem('userRole');
-          sessionStorage.removeItem('dbUser');
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('tokenTimestamp');
+          localStorage.removeItem('userRole');
+          localStorage.removeItem('dbUser');
           setAuthToken(null);
           setUserRole(null);
           setDbUser(null);
