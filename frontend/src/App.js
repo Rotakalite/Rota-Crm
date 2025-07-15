@@ -6947,7 +6947,7 @@ const ConsumptionAnalytics = () => {
       const response = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      setClients(response.data || []);
+      setClients(response.data.clients || []);
       if (response.data?.length > 0) {
         setSelectedClient(response.data[0].id);
       }
