@@ -4709,6 +4709,8 @@ async def get_client_dashboard_stats(current_user: User = Depends(get_current_us
                     "name": client.get("name", ""),
                     "hotel_name": client.get("hotel_name", ""),
                     "email": client.get("email", ""),
+                    "certificate_status": certificate_status,
+                    "certificate_days_left": certificate_days_left,
                     "audit_company": client.get("audit_company", "")
                 },
                 "statistics": {
