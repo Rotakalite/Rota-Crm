@@ -4668,6 +4668,16 @@ async def get_client_dashboard_stats(current_user: User = Depends(get_current_us
             except:
                 sustainability_progress["water_saving"] = 0
             
+            # Calculate certificate validity
+            certificate_status = "Aktif"
+            certificate_days_left = 180
+            if client.get("certificate_end_date"):
+                from datetime import datetime
+                cert_date = datetime.fromisoformat(client["certificate_end_date"].replace('Z', '+00:00'))
+                days_left = (cert_date - datetime.now()).days
+                certificate_days_left = max(0, days_left)
+                certificate_status = "Aktif" if days_left > 0 else "Süresi Dolmuş"
+            
             # Recent activities (last 10 activities)
             recent_activities = []
             
