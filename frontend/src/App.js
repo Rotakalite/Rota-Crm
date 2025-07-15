@@ -5784,7 +5784,7 @@ const ClientManagement = ({ onNavigate }) => {
         console.error('🔐 Authentication error:', error.response?.data?.detail);
         console.error('🔐 Token:', authToken ? 'EXISTS' : 'MISSING');
         console.error('🔐 Request URL:', `${API}/clients`);
-        console.error('🔐 Request params:', params);
+        console.error('🔐 Request params:', {client_type: clientType, page, limit});
         alert('Authentication hatası: Token geçersiz. Lütfen yeniden giriş yapın.');
       } else {
         console.error('API error:', error.response?.data?.detail || error.message);
