@@ -143,9 +143,10 @@ const useAuth = () => {
             console.error('❌ Refresh error:', refreshError);
             
             // Clear session and reload page
-            sessionStorage.removeItem('authToken');
-            sessionStorage.removeItem('userRole');
-            sessionStorage.removeItem('dbUser');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('tokenTimestamp');
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('dbUser');
             
             window.location.reload();
             return Promise.reject(refreshError);
