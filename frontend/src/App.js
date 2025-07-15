@@ -5723,6 +5723,7 @@ const SimpleClientManagement = ({ onNavigate }) => {
   const [sortBy, setSortBy] = useState('hotel_name');
   const [sortOrder, setSortOrder] = useState('asc');
   const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
   
   const [newClientData, setNewClientData] = useState({
     name: '',
