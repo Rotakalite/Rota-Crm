@@ -13697,7 +13697,8 @@ const ConsultantManagement = () => {
                           <h4 className="font-medium">{consultant.company_name}</h4>
                           <p className="text-sm text-gray-600">{consultant.authorized_person_name}</p>
                           <p className="text-xs text-gray-500">
-                            {clients.filter(c => c.consultant_id === consultant.id).length} müşteri
+                            {consultantStats?.consultant_stats?.find(s => s.id === consultant.id)?.client_count || 
+                             clients.filter(c => c.consultant_id === consultant.id).length} müşteri
                           </p>
                         </div>
                         <button
