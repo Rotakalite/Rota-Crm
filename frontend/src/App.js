@@ -1053,7 +1053,7 @@ const SustainabilityTargets = () => {
   const fetchClients = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/clients`, {
+      const response = await axios.get(`${API}/api/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
