@@ -5713,6 +5713,8 @@ const BulkOperations = ({ onNavigate }) => {
 
 // Client Management Component
 const ClientManagement = ({ onNavigate }) => {
+  console.log('🏨 ClientManagement component mounted!');
+  
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddClient, setShowAddClient] = useState(false);
