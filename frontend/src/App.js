@@ -13789,7 +13789,7 @@ const MainApp = () => {
 
   // STEP 1: Show 2FA for all users FIRST (highest priority)
   if (show2FA && !twoFACompleted) {
-    return <TwoFactorAuth onVerificationComplete={() => setTwoFACompleted(true)} />;
+    return <TwoFactorAuth onVerificationComplete={handle2FAComplete} />;
   }
 
   // STEP 2: Show role setup for new users (after 2FA is completed)
