@@ -451,10 +451,14 @@ class TrainingUpdate(BaseModel):
 class ClientCreate(BaseModel):
     name: str
     hotel_name: str
-    contact_person: str
+    contact_person: Optional[str] = None
     email: str
     phone: str
-    address: str
+    city: Optional[str] = None
+    district: Optional[str] = None
+    address: Optional[str] = None
+    audit_company: Optional[str] = None
+    certificate_end_date: Optional[str] = None
     client_type: str = "registered"  # Default to registered
 
 class ClientUpdate(BaseModel):
