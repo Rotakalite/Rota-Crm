@@ -5750,16 +5750,25 @@ const ClientManagement = ({ onNavigate }) => {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
-      // Handle response
-      const { data, meta } = response.data;
-      setClients(data || []);
-      setTotalPages(meta?.total_pages || 1);
-      setTotalCount(meta?.total_count || 0);
-      setHasPrev(page > 1);
-      setHasNext(page < (meta?.total_pages || 1));
+      // Handle response - backend returns { clients, pagination }
+      const { clients, pagination } = response.data;
+      setClients(clients || []);
+      setTotalPages(pagination?.total_pages || 1);
+      setTotalCount(pagination?.total_count || 0);
+      setHasPrev(pagination?.has_prev || false);
+      setHasNext(pagination?.has_next || false);
       
     } catch (error) {
       console.error('Error fetching clients:', error);
+      
+      // Check if it's an authentication error
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        console.error('🔐 Authentication error:', error.response?.data?.detail);
+        alert('Authentication hatası: Lütfen yeniden giriş yapın.');
+      } else {
+        console.error('API error:', error.response?.data?.detail || error.message);
+      }
+      
       setClients([]);
       setTotalPages(1);
       setTotalCount(0);
