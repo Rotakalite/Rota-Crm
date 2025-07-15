@@ -13317,7 +13317,7 @@ const ConsultantManagement = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Toplam Danışman</p>
-                <p className="text-2xl font-bold text-gray-900">{consultants.length}</p>
+                <p className="text-2xl font-bold text-gray-900">{consultantStats?.total_consultants || consultants.length}</p>
               </div>
               <div className="bg-blue-100 p-3 rounded-full">
                 <span className="text-blue-600 text-xl">👔</span>
@@ -13329,7 +13329,7 @@ const ConsultantManagement = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Toplam Müşteri</p>
-                <p className="text-2xl font-bold text-gray-900">{clients.length}</p>
+                <p className="text-2xl font-bold text-gray-900">{consultantStats?.total_clients || clients.length}</p>
               </div>
               <div className="bg-green-100 p-3 rounded-full">
                 <span className="text-green-600 text-xl">🏨</span>
@@ -13341,7 +13341,7 @@ const ConsultantManagement = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Atanmamış Müşteri</p>
-                <p className="text-2xl font-bold text-gray-900">{unassignedClients.length}</p>
+                <p className="text-2xl font-bold text-gray-900">{consultantStats?.unassigned_clients || unassignedClients.length}</p>
               </div>
               <div className="bg-orange-100 p-3 rounded-full">
                 <span className="text-orange-600 text-xl">⚠️</span>
