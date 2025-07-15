@@ -993,6 +993,42 @@ async def init_default_consultant():
         logging.error(f"Error creating default consultant: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+@app.get("/api/consultants/stats")
+async def get_consultant_stats(current_user: User = Depends(get_admin_user)):
+    """Get consultant statistics - ADMIN ONLY"""
+    try:
+        # Get all consultants
+        consultants = await db.consultants.find({}).to_list(None)
+        
+        # Get all clients with consultant info
+        clients = await db.clients.find({}, {"id": 1, "consultant_id": 1, "hotel_name": 1, "client_type": 1}).to_list(None)
+        
+        # Calculate stats
+        consultant_stats = []
+        for consultant in consultants:
+            assigned_clients = [c for c in clients if c.get("consultant_id") == consultant.get("id")]
+            consultant_stats.append({
+                "id": consultant.get("id"),
+                "company_name": consultant.get("company_name"),
+                "client_count": len(assigned_clients),
+                "registered_client_count": len([c for c in assigned_clients if c.get("client_type") == "registered"]),
+                "bulk_client_count": len([c for c in assigned_clients if c.get("client_type") == "bulk"])
+            })
+        
+        # Calculate unassigned clients
+        unassigned_clients = [c for c in clients if not c.get("consultant_id")]
+        
+        return {
+            "total_clients": len(clients),
+            "total_consultants": len(consultants),
+            "unassigned_clients": len(unassigned_clients),
+            "consultant_stats": consultant_stats
+        }
+        
+    except Exception as e:
+        logging.error(f"Error getting consultant stats: {str(e)}")
+        raise HTTPException(status_code=500, detail="Consultant statistics alınamadı")
+
 @app.get("/api/consultants")
 async def get_consultants():
     """Get all active consultants - NO AUTH for client signup"""
