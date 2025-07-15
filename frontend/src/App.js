@@ -606,26 +606,34 @@ const ConsultantDashboard = ({ onNavigate }) => {
           </div>
           
           <div className="space-y-4">
-            {clients.slice(0, 3).map((client) => (
-              <div key={client.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow">
-                <h3 className="font-bold text-gray-800">{client.hotel_name || client.name}</h3>
-                <p className="text-gray-600 text-sm">{client.email}</p>
-                <div className="mt-3 flex space-x-2">
-                  <button 
-                    onClick={() => onNavigate('yeni-belge')}
-                    className="flex-1 bg-blue-500 text-white py-2 px-3 rounded-lg text-sm hover:bg-blue-600 transition-colors"
-                  >
-                    📄 Belgeler
-                  </button>
-                  <button 
-                    onClick={() => onNavigate('carbon')}
-                    className="flex-1 bg-green-500 text-white py-2 px-3 rounded-lg text-sm hover:bg-green-600 transition-colors"
-                  >
-                    🌱 Analiz
-                  </button>
-                </div>
+            {clients.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <div className="text-4xl mb-2">🏨</div>
+                <p className="text-sm">Henüz size atanmış müşteri bulunmamaktadır.</p>
+                <p className="text-xs mt-1">Admin tarafından müşteri ataması yapılması gerekmektedir.</p>
               </div>
-            ))}
+            ) : (
+              clients.slice(0, 3).map((client) => (
+                <div key={client.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow">
+                  <h3 className="font-bold text-gray-800">{client.hotel_name || client.name}</h3>
+                  <p className="text-gray-600 text-sm">{client.email}</p>
+                  <div className="mt-3 flex space-x-2">
+                    <button 
+                      onClick={() => onNavigate('yeni-belge')}
+                      className="flex-1 bg-blue-500 text-white py-2 px-3 rounded-lg text-sm hover:bg-blue-600 transition-colors"
+                    >
+                      📄 Belgeler
+                    </button>
+                    <button 
+                      onClick={() => onNavigate('carbon')}
+                      className="flex-1 bg-green-500 text-white py-2 px-3 rounded-lg text-sm hover:bg-green-600 transition-colors"
+                    >
+                      🌱 Analiz
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
           
           {clients.length === 0 && (
