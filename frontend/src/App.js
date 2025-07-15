@@ -5929,7 +5929,7 @@ const SimpleClientManagement = ({ onNavigate }) => {
   // Add new client
   const handleAddClient = async () => {
     try {
-      await axios.post(`${API}/clients`, newClient, {
+      await axios.post(`${API}/clients`, newClientData, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
