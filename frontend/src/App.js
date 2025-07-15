@@ -11476,7 +11476,7 @@ const EmailManagement = ({ selectedClient: propSelectedClient }) => {
       const response = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
-      setClients(response.data || []);
+      setClients(response.data.clients || []);
     } catch (error) {
       console.error('Error fetching clients:', error);
       setClients([]);
