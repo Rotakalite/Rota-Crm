@@ -13402,7 +13402,8 @@ const ConsultantManagement = () => {
                     <div className="flex items-center gap-2">
                       <div className="text-right">
                         <p className="text-sm text-gray-500">
-                          {clients.filter(c => c.consultant_id === consultant.id).length} müşteri
+                          {consultantStats?.consultant_stats?.find(s => s.id === consultant.id)?.client_count || 
+                           clients.filter(c => c.consultant_id === consultant.id).length} müşteri
                         </p>
                         <p className="text-xs text-gray-400">
                           {consultant.is_active ? '🟢 Aktif' : '🔴 Pasif'}
