@@ -463,7 +463,11 @@ const ConsultantDashboard = ({ onNavigate }) => {
       });
       console.log('🔍 CONSULTANT DEBUG - clients response:', clientsResponse.data);
       console.log('🔍 CONSULTANT DEBUG - clients count:', clientsResponse.data.clients?.length || 0);
+      console.log('🔍 CONSULTANT DEBUG - clients array:', clientsResponse.data.clients);
       setClients(clientsResponse.data.clients || []);
+      
+      // Debug after setting clients
+      console.log('🔍 CONSULTANT DEBUG - clients state set to:', clientsResponse.data.clients || []);
 
     } catch (error) {
       console.error('Error fetching consultant data:', error);
