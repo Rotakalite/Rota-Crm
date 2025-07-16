@@ -5090,7 +5090,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                     <tr key={index} className="hover:bg-green-50 transition-colors duration-200">
                       {userRole === 'admin' && (
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {getClientName(record.client_id)}
+                          {effectiveSelectedClient ? getClientName(effectiveSelectedClient) : getClientName(record.client_id)}
                         </td>
                       )}
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
