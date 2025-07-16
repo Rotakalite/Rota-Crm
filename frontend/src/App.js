@@ -5472,6 +5472,84 @@ const BulkOperations = ({ onNavigate }) => {
     }
   };
 
+  // Delete client function
+  const handleDeleteClient = async (clientId, clientName) => {
+    if (!window.confirm(`"${clientName}" müşterisini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve müşteriye ait tüm belgeler, klasörler ve veriler silinecektir.`)) {
+      return;
+    }
+
+    try {
+      await axios.delete(`${API}/clients/${clientId}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      alert(`${clientName} müşterisi başarıyla silindi.`);
+      
+      // Refresh the client list
+      fetchBulkClients();
+      
+    } catch (error) {
+      console.error('Error deleting client:', error);
+      
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        alert('Bu işlem için yetkiniz yok.');
+      } else if (error.response?.status === 404) {
+        alert('Müşteri bulunamadı.');
+      } else {
+        alert('Müşteri silinirken bir hata oluştu: ' + (error.response?.data?.detail || error.message));
+      }
+    }
+  };
+
+  // Search with debouncing
+  const handleSearchDebounced = (term) => {
+    setSearchTerm(term);
+    setCurrentPage(1);
+    fetchBulkClients(1, itemsPerPage, term, sortBy, sortOrder);
+  };
+
+  // Handle filter changes
+  const handleFilterChange = () => {
+    setCurrentPage(1);
+    fetchBulkClients(1, itemsPerPage, searchTerm, sortBy, sortOrder);
+  };
+
+  // Clear filters
+  const clearFilters = () => {
+    setFilterCity('');
+    setFilterAuditCompany('');
+    setFilterCertificateStatus('');
+    setSearchTerm('');
+    setCurrentPage(1);
+    fetchBulkClients(1, itemsPerPage, '', sortBy, sortOrder);
+  };
+
+  // Sort function
+  const handleSort = (field) => {
+    const newOrder = sortBy === field && sortOrder === 'asc' ? 'desc' : 'asc';
+    setSortBy(field);
+    setSortOrder(newOrder);
+    setCurrentPage(1);
+    fetchBulkClients(1, itemsPerPage, searchTerm, field, newOrder);
+  };
+
+  // Calculate certificate status
+  const getCertificateStatus = (endDate) => {
+    if (!endDate) return { status: 'no_certificate', color: 'bg-gray-100 text-gray-800' };
+    
+    const certDate = new Date(endDate);
+    const today = new Date();
+    const oneMonthFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+    
+    if (certDate < today) {
+      return { status: 'expired', color: 'bg-red-100 text-red-800' };
+    } else if (certDate <= oneMonthFromNow) {
+      return { status: 'expiring_soon', color: 'bg-red-100 text-red-800' };
+    } else {
+      return { status: 'valid', color: 'bg-green-100 text-green-800' };
+    }
+  };
+
   // Load bulk clients on mount
   useEffect(() => {
     if (authToken) {
@@ -5485,6 +5563,13 @@ const BulkOperations = ({ onNavigate }) => {
       fetchBulkClients(currentPage);
     }
   }, [currentPage, authToken]);
+
+  // Refresh when filters change
+  useEffect(() => {
+    if (authToken) {
+      handleFilterChange();
+    }
+  }, [filterCity, filterAuditCompany, filterCertificateStatus]);
 
   // Handle bulk import
   const handleBulkImport = async () => {
