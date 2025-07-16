@@ -10896,6 +10896,10 @@ async def bulk_import_clients(
                 if index < 3:
                     logging.info(f"📊 BULK IMPORT - Satır {index+1} raw data: {dict(row)}")
                     logging.info(f"📊 BULK IMPORT - Satır {index+1} mapped data: {hotel_data}")
+                    if 'certificate_end_date' in hotel_data:
+                        logging.info(f"📊 BULK IMPORT - Satır {index+1} certificate_end_date: {hotel_data['certificate_end_date']}")
+                    else:
+                        logging.info(f"📊 BULK IMPORT - Satır {index+1} certificate_end_date: NOT FOUND")
                 
                 # Required fields check
                 if not hotel_data.get('hotel_name'):
