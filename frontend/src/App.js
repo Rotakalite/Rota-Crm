@@ -5033,6 +5033,11 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
             <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 📊 Elite Atık Kayıtları
+                {(userRole === 'admin' || userRole === 'consultant') && effectiveSelectedClient && (
+                  <span className="text-lg font-semibold text-blue-600">
+                    - {getClientName(effectiveSelectedClient)}
+                  </span>
+                )}
                 <span className="text-sm font-normal text-gray-600">({wasteRecords.length} kayıt)</span>
               </h3>
             </div>
