@@ -459,6 +459,7 @@ const ConsultantDashboard = ({ onNavigate }) => {
       setDashboardData(statsResponse.data);
 
       const clientsResponse = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" }, // Only registered clients
         headers: { Authorization: `Bearer ${authToken}` }
       });
       console.log('🔍 CONSULTANT DEBUG - clients response:', clientsResponse.data);
@@ -489,6 +490,7 @@ const ConsultantDashboard = ({ onNavigate }) => {
             
             // Retry clients call
             const retryClientsResponse = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" }, // Only registered clients
               headers: { Authorization: `Bearer ${newToken}` }
             });
             setClients(retryClientsResponse.data.clients || []);
@@ -742,6 +744,7 @@ const ConsultantClientManagement = ({ onNavigate }) => {
       }
       
       const response = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" }, // Only registered clients
         params,
         headers: { Authorization: `Bearer ${authToken}` }
       });
@@ -1071,6 +1074,7 @@ const SustainabilityTargets = () => {
     try {
       setLoading(true);
       const response = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" }, // Only registered clients
         params: { client_type: "registered" }, // Only registered clients
         headers: { Authorization: `Bearer ${authToken}` }
       });
@@ -1808,6 +1812,7 @@ const PersonnelManagement = () => {
     if (!authToken) return;
     try {
       const response = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" }, // Only registered clients
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
@@ -3311,6 +3316,7 @@ const CarbonFootprint = () => {
       console.log('🏨 [DEBUG] AuthToken:', authToken ? 'EXISTS' : 'MISSING');
       
       const response = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" }, // Only registered clients
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       
@@ -4396,6 +4402,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
     
     try {
       const response = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" }, // Only registered clients
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setClients(response.data.clients || []);
@@ -5395,6 +5402,7 @@ const BulkOperations = ({ onNavigate }) => {
       }
       
       const response = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" }, // Only registered clients
         params,
         headers: { Authorization: `Bearer ${authToken}` }
       });
@@ -6306,6 +6314,7 @@ const SimpleClientManagement = ({ onNavigate }) => {
       }
       
       const response = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" }, // Only registered clients
         params,
         headers: { Authorization: `Bearer ${authToken}` }
       });
@@ -7357,6 +7366,7 @@ const ConsumptionAnalytics = () => {
     
     try {
       const response = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" }, // Only registered clients
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setClients(response.data.clients || []);
@@ -8562,7 +8572,8 @@ const ClientDocuments = () => {
   const fetchClients = async () => {
     try {
       const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
-      const response = await axios.get(`${API}/clients`, { headers });
+      const response = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" }, // Only registered clients headers });
       setClients(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error("Error fetching clients:", error);
@@ -9559,6 +9570,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
     }
     try {
       const response = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" }, // Only registered clients
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       
@@ -11198,6 +11210,7 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
     try {
       console.log("👥 Admin fetching clients...");
       const response = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" }, // Only registered clients
         headers: { "Authorization": `Bearer ${authToken}` }
       });
       console.log("👥 Admin clients response:", response.data);
@@ -11886,6 +11899,7 @@ const EmailManagement = ({ selectedClient: propSelectedClient }) => {
       }
 
       const response = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" }, // Only registered clients
         headers: { Authorization: `Bearer ${currentToken}` }
       });
       setClients(response.data.clients || []);
@@ -12682,6 +12696,7 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
     if (!authToken) return;
     try {
       const response = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" }, // Only registered clients
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setClients(response.data.clients || []);
@@ -13362,6 +13377,7 @@ const ConsultantManagement = () => {
     
     try {
       const response = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" }, // Only registered clients
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setClients(response.data.clients || []);
