@@ -5547,17 +5547,27 @@ const BulkOperations = ({ onNavigate }) => {
 
   // Calculate certificate status
   const getCertificateStatus = (endDate) => {
-    if (!endDate) return { status: 'no_certificate', color: 'bg-gray-100 text-gray-800' };
+    console.log('🔍 getCertificateStatus called with:', endDate, 'Type:', typeof endDate);
+    
+    if (!endDate) {
+      console.log('🔍 No endDate, returning no_certificate');
+      return { status: 'no_certificate', color: 'bg-gray-100 text-gray-800' };
+    }
     
     const certDate = new Date(endDate);
     const today = new Date();
     const oneMonthFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
     
+    console.log('🔍 Dates:', { certDate, today, oneMonthFromNow });
+    
     if (certDate < today) {
+      console.log('🔍 Certificate expired, returning red');
       return { status: 'expired', color: 'bg-red-100 text-red-800' };
     } else if (certDate <= oneMonthFromNow) {
+      console.log('🔍 Certificate expiring soon, returning red');
       return { status: 'expiring_soon', color: 'bg-red-100 text-red-800' };
     } else {
+      console.log('🔍 Certificate valid, returning green');
       return { status: 'valid', color: 'bg-green-100 text-green-800' };
     }
   };
