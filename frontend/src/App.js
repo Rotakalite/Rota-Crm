@@ -1073,8 +1073,7 @@ const SustainabilityTargets = () => {
     try {
       setLoading(true);
       const response = await axios.get(`${API}/clients`, {
-        params: { client_type: "registered" }, // Only registered clients
-        params: { client_type: "registered" }, // Only registered clients
+        params: { ...params, client_type: "registered" }, // Only registered clients
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
