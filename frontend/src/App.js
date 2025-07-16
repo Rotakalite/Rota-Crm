@@ -5563,8 +5563,8 @@ const BulkOperations = ({ onNavigate }) => {
   const getCertificateStatus = (endDate) => {
     console.log('🔍 getCertificateStatus called with:', endDate, 'Type:', typeof endDate);
     
-    if (!endDate) {
-      console.log('🔍 No endDate, returning no_certificate');
+    if (!endDate || endDate === "" || endDate === null) {
+      console.log('🔍 No endDate or empty string, returning no_certificate');
       return { status: 'no_certificate', color: 'bg-gray-100 text-gray-800' };
     }
     
