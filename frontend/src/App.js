@@ -24,7 +24,9 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 // API URL Configuration
 const getApiUrl = () => {
   // Use environment variable for backend URL
-  return process.env.REACT_APP_BACKEND_URL + '/api';
+  const backendUrl = process.env.REACT_APP_BACKEND_URL + '/api';
+  console.log('🔗 Backend URL:', backendUrl);
+  return backendUrl;
 };
 
 // Authentication Hook - Working version from GitHub
