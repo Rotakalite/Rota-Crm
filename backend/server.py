@@ -10853,7 +10853,33 @@ async def bulk_import_clients(
                     if excel_col in df.columns:
                         value = row[excel_col]
                         if pd.notna(value):
-                            hotel_data[db_field] = str(value).strip()
+                            if db_field == 'certificate_end_date':
+                                # Handle certificate date parsing
+                                try:
+                                    if isinstance(value, str):
+                                        # Try different date formats
+                                        date_formats = ['%Y-%m-%d', '%d.%m.%Y', '%d/%m/%Y', '%m/%d/%Y']
+                                        parsed_date = None
+                                        for fmt in date_formats:
+                                            try:
+                                                parsed_date = datetime.strptime(value.strip(), fmt)
+                                                break
+                                            except ValueError:
+                                                continue
+                                        if parsed_date:
+                                            hotel_data[db_field] = parsed_date.strftime('%Y-%m-%d')
+                                        else:
+                                            hotel_data[db_field] = value.strip()
+                                    elif hasattr(value, 'strftime'):
+                                        # Already a datetime object
+                                        hotel_data[db_field] = value.strftime('%Y-%m-%d')
+                                    else:
+                                        hotel_data[db_field] = str(value).strip()
+                                except Exception as date_error:
+                                    logging.warning(f"Date parsing error for {value}: {date_error}")
+                                    hotel_data[db_field] = str(value).strip()
+                            else:
+                                hotel_data[db_field] = str(value).strip()
                 
                 # Debug log for first few rows
                 if index < 3:
