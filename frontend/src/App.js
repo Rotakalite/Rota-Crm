@@ -5337,8 +5337,8 @@ const BulkOperations = ({ onNavigate }) => {
   const [bulkClients, setBulkClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('hotel_name');
-  const [sortOrder, setSortOrder] = useState('asc');
+  const [sortBy, setSortBy] = useState('certificate_end_date'); // Default sort by certificate end date
+  const [sortOrder, setSortOrder] = useState('asc'); // Ascending = closest to far
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -5347,6 +5347,11 @@ const BulkOperations = ({ onNavigate }) => {
   const [totalCount, setTotalCount] = useState(0);
   const [hasPrev, setHasPrev] = useState(false);
   const [hasNext, setHasNext] = useState(false);
+  
+  // Filter states
+  const [filterCity, setFilterCity] = useState('');
+  const [filterAuditCompany, setFilterAuditCompany] = useState('');
+  const [filterCertificateStatus, setFilterCertificateStatus] = useState('');
   
   // Bulk Import States
   const [showBulkImport, setShowBulkImport] = useState(false);
