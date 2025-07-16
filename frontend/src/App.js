@@ -8572,7 +8572,9 @@ const ClientDocuments = () => {
     try {
       const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
       const response = await axios.get(`${API}/clients`, {
-        params: { client_type: "registered" }, // Only registered clients headers });
+        params: { client_type: "registered" }, // Only registered clients
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
       setClients(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error("Error fetching clients:", error);
