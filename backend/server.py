@@ -10866,28 +10866,39 @@ async def bulk_import_clients(
                         if pd.notna(value):
                             if db_field == 'certificate_end_date':
                                 # Handle certificate date parsing
+                                logging.info(f"📊 CERTIFICATE DATE - Raw value: {value}, Type: {type(value)}")
                                 try:
                                     if isinstance(value, str):
                                         # Try different date formats
-                                        date_formats = ['%Y-%m-%d', '%d.%m.%Y', '%d/%m/%Y', '%m/%d/%Y']
+                                        date_formats = ['%Y-%m-%d', '%d.%m.%Y', '%d/%m/%Y', '%m/%d/%Y', '%Y-%m-%d %H:%M:%S']
                                         parsed_date = None
                                         for fmt in date_formats:
                                             try:
                                                 parsed_date = datetime.strptime(value.strip(), fmt)
+                                                logging.info(f"📊 CERTIFICATE DATE - Parsed with format {fmt}: {parsed_date}")
                                                 break
                                             except ValueError:
                                                 continue
                                         if parsed_date:
                                             hotel_data[db_field] = parsed_date.strftime('%Y-%m-%d')
+                                            logging.info(f"📊 CERTIFICATE DATE - Final stored: {hotel_data[db_field]}")
                                         else:
+                                            logging.warning(f"📊 CERTIFICATE DATE - Could not parse: {value}")
+                                            # Still store the raw value
                                             hotel_data[db_field] = value.strip()
                                     elif hasattr(value, 'strftime'):
-                                        # Already a datetime object
+                                        # Already a datetime object (from Excel)
                                         hotel_data[db_field] = value.strftime('%Y-%m-%d')
+                                        logging.info(f"📊 CERTIFICATE DATE - From datetime object: {hotel_data[db_field]}")
+                                    elif hasattr(value, 'date'):
+                                        # Pandas Timestamp
+                                        hotel_data[db_field] = value.date().strftime('%Y-%m-%d')
+                                        logging.info(f"📊 CERTIFICATE DATE - From pandas timestamp: {hotel_data[db_field]}")
                                     else:
                                         hotel_data[db_field] = str(value).strip()
+                                        logging.info(f"📊 CERTIFICATE DATE - As string: {hotel_data[db_field]}")
                                 except Exception as date_error:
-                                    logging.warning(f"Date parsing error for {value}: {date_error}")
+                                    logging.error(f"📊 CERTIFICATE DATE - Error parsing {value}: {date_error}")
                                     hotel_data[db_field] = str(value).strip()
                             else:
                                 hotel_data[db_field] = str(value).strip()
