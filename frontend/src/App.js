@@ -5462,12 +5462,58 @@ const BulkOperations = ({ onNavigate }) => {
         });
       }
       
-      // Sort by certificate end date (closest to far)
+      // Sort by certificate end date (closest to far, invalid dates at the end)
       if (sort === 'certificate_end_date') {
         filteredClients.sort((a, b) => {
-          const dateA = a.certificate_end_date ? new Date(a.certificate_end_date) : new Date('9999-12-31');
-          const dateB = b.certificate_end_date ? new Date(b.certificate_end_date) : new Date('9999-12-31');
-          return order === 'asc' ? dateA - dateB : dateB - dateA;
+          // Helper function to safely parse dates
+          const parseDate = (dateStr) => {
+            if (!dateStr || dateStr === "" || dateStr === null) {
+              return { valid: false, date: null, priority: 1 }; // No date - medium priority
+            }
+            
+            try {
+              let parsedDate;
+              
+              // Try different date formats
+              if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                parsedDate = new Date(dateStr);
+              } else if (dateStr.match(/^\d{2}\.\d{2}\.\d{4}$/)) {
+                const parts = dateStr.split('.');
+                parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
+              } else if (dateStr.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+                const parts = dateStr.split('/');
+                parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
+              } else {
+                parsedDate = new Date(dateStr);
+              }
+              
+              // Check if date is valid
+              if (isNaN(parsedDate.getTime())) {
+                return { valid: false, date: null, priority: 2 }; // Invalid date - lowest priority
+              }
+              
+              return { valid: true, date: parsedDate, priority: 0 }; // Valid date - highest priority
+              
+            } catch (error) {
+              return { valid: false, date: null, priority: 2 }; // Invalid date - lowest priority
+            }
+          };
+          
+          const dateA = parseDate(a.certificate_end_date);
+          const dateB = parseDate(b.certificate_end_date);
+          
+          // First, sort by priority (valid dates first, then no dates, then invalid dates)
+          if (dateA.priority !== dateB.priority) {
+            return dateA.priority - dateB.priority;
+          }
+          
+          // If both have valid dates, sort by date (closest to farthest)
+          if (dateA.valid && dateB.valid) {
+            return order === 'asc' ? dateA.date - dateB.date : dateB.date - dateA.date;
+          }
+          
+          // If both are invalid or no dates, maintain original order
+          return 0;
         });
       }
       
