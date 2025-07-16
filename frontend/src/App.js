@@ -5401,6 +5401,18 @@ const BulkOperations = ({ onNavigate }) => {
       // Backend returns { clients, pagination } format
       const { clients, pagination } = response.data;
       
+      // Debug: Log certificate_end_date for first few clients
+      if (clients && clients.length > 0) {
+        console.log('🔍 BULK CLIENTS DEBUG - First 3 clients certificate_end_date:');
+        clients.slice(0, 3).forEach((client, index) => {
+          console.log(`  Client ${index + 1}:`, {
+            hotel_name: client.hotel_name,
+            certificate_end_date: client.certificate_end_date,
+            certificate_end_date_type: typeof client.certificate_end_date
+          });
+        });
+      }
+      
       // Apply local filters
       let filteredClients = clients || [];
       
