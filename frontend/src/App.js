@@ -5717,6 +5717,91 @@ const BulkOperations = ({ onNavigate }) => {
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900">Bulk Müşteri Listesi</h3>
           <p className="text-sm text-gray-500 mt-1">Toplam {totalCount} bulk müşteri</p>
+          
+          {/* Search and Filters */}
+          <div className="mt-4 flex flex-col md:flex-row gap-4 items-center">
+            {/* Search Input */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Otel adı, şehir, email ile ara..."
+                value={searchTerm}
+                onChange={(e) => handleSearchDebounced(e.target.value)}
+                className="w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              />
+              <span className="absolute right-3 top-2.5 text-gray-400">🔍</span>
+            </div>
+            
+            {/* City Filter */}
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-600">Şehir:</label>
+              <input
+                type="text"
+                placeholder="Şehir filtrele..."
+                value={filterCity}
+                onChange={(e) => setFilterCity(e.target.value)}
+                className="w-32 px-3 py-2 border border-gray-300 rounded text-sm"
+              />
+            </div>
+            
+            {/* Audit Company Filter */}
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-600">Denetim Firması:</label>
+              <input
+                type="text"
+                placeholder="Denetim firması..."
+                value={filterAuditCompany}
+                onChange={(e) => setFilterAuditCompany(e.target.value)}
+                className="w-32 px-3 py-2 border border-gray-300 rounded text-sm"
+              />
+            </div>
+            
+            {/* Certificate Status Filter */}
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-600">Sertifika Durumu:</label>
+              <select
+                value={filterCertificateStatus}
+                onChange={(e) => setFilterCertificateStatus(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded text-sm"
+              >
+                <option value="">Tümü</option>
+                <option value="expired">Süresi Dolmuş</option>
+                <option value="expiring_soon">Süresi Yaklaşan (1 ay)</option>
+                <option value="valid">Geçerli</option>
+                <option value="no_certificate">Sertifika Yok</option>
+              </select>
+            </div>
+            
+            {/* Sort Options */}
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-600">Sıralama:</label>
+              <select
+                value={sortBy}
+                onChange={(e) => handleSort(e.target.value)}
+                className="border border-gray-300 rounded px-2 py-1 text-sm"
+              >
+                <option value="certificate_end_date">Sertifika Süresi</option>
+                <option value="hotel_name">Otel Adı</option>
+                <option value="city">Şehir</option>
+                <option value="audit_company">Denetim Firması</option>
+              </select>
+              <button
+                onClick={() => handleSort(sortBy)}
+                className="px-2 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200"
+                title={sortOrder === 'asc' ? 'Yakından uzağa' : 'Uzaktan yakına'}
+              >
+                {sortOrder === 'asc' ? '🔼' : '🔽'}
+              </button>
+            </div>
+            
+            {/* Clear Filters Button */}
+            <button
+              onClick={clearFilters}
+              className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+            >
+              🗑️ Filtreleri Temizle
+            </button>
+          </div>
         </div>
         
         {loading ? (
