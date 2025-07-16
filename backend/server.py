@@ -10987,6 +10987,29 @@ async def download_import_template(current_user: User = Depends(get_admin_user))
             'DENETLEYEN FİRMA': ['ABC Belgelendirme A.Ş.', 'XYZ Denetim Ltd.', 'Kalite Kontrol Şirketi']
         }
         
+        # Add additional info sheet with supported column names
+        info_data = {
+            'KOLON ADI': ['TESİS ADI', 'İL', 'İLÇE', 'TELEFON', 'MAİL', 'SERTİFİKA BİTİŞ TARİHİ', 'DENETLEYEN FİRMA'],
+            'AÇIKLAMA': [
+                'Otel/Tesis adı (zorunlu)',
+                'Şehir adı',
+                'İlçe adı',
+                'Telefon numarası',
+                'Email adresi',
+                'Sertifika bitiş tarihi (YYYY-MM-DD formatında)',
+                'Denetleyen firma adı'
+            ],
+            'ALTERNATIF KOLON ADI': [
+                'OTEL ADI, HOTEL NAME, NAME',
+                'CITY, ŞEHIR, SEHIR',
+                'DISTRICT, COUNTY',
+                'PHONE, TEL, GSM',
+                'EMAIL, MAIL, E-MAIL',
+                'CERTIFICATE END DATE, GEÇERLILIK TARİHİ, BITIS TARIHI',
+                'AUDIT COMPANY, AUDITOR, BELGELENDIREN FİRMA'
+            ]
+        }
+        
         df = pd.DataFrame(template_data)
         
         # Create Excel file in memory
