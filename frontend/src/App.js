@@ -5811,7 +5811,18 @@ const BulkOperations = ({ onNavigate }) => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
+            {bulkClients.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-gray-400 text-lg mb-2">📦</div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Bulk müşteri bulunamadı</h3>
+                <p className="text-gray-500">
+                  {searchTerm || filterCity || filterAuditCompany || filterCertificateStatus
+                    ? 'Filtrelere uygun müşteri bulunamadı. Filtreleri temizleyerek tekrar deneyin.'
+                    : 'Henüz bulk müşteri bulunmamaktadır. Toplu müşteri yüklemesi yapabilirsiniz.'}
+                </p>
+              </div>
+            ) : (
+              <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
