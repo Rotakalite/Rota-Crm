@@ -5400,7 +5400,52 @@ const BulkOperations = ({ onNavigate }) => {
       
       // Backend returns { clients, pagination } format
       const { clients, pagination } = response.data;
-      setBulkClients(clients || []);
+      
+      // Apply local filters
+      let filteredClients = clients || [];
+      
+      if (filterCity) {
+        filteredClients = filteredClients.filter(client => 
+          client.city && client.city.toLowerCase().includes(filterCity.toLowerCase())
+        );
+      }
+      
+      if (filterAuditCompany) {
+        filteredClients = filteredClients.filter(client => 
+          client.audit_company && client.audit_company.toLowerCase().includes(filterAuditCompany.toLowerCase())
+        );
+      }
+      
+      if (filterCertificateStatus) {
+        filteredClients = filteredClients.filter(client => {
+          if (!client.certificate_end_date) return filterCertificateStatus === 'no_certificate';
+          
+          const certDate = new Date(client.certificate_end_date);
+          const today = new Date();
+          const oneMonthFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+          
+          if (filterCertificateStatus === 'expired') {
+            return certDate < today;
+          } else if (filterCertificateStatus === 'expiring_soon') {
+            return certDate >= today && certDate <= oneMonthFromNow;
+          } else if (filterCertificateStatus === 'valid') {
+            return certDate > oneMonthFromNow;
+          }
+          
+          return true;
+        });
+      }
+      
+      // Sort by certificate end date (closest to far)
+      if (sort === 'certificate_end_date') {
+        filteredClients.sort((a, b) => {
+          const dateA = a.certificate_end_date ? new Date(a.certificate_end_date) : new Date('9999-12-31');
+          const dateB = b.certificate_end_date ? new Date(b.certificate_end_date) : new Date('9999-12-31');
+          return order === 'asc' ? dateA - dateB : dateB - dateA;
+        });
+      }
+      
+      setBulkClients(filteredClients);
       setTotalPages(pagination?.total_pages || 1);
       setTotalCount(pagination?.total_count || 0);
       setHasPrev(pagination?.has_prev || false);
