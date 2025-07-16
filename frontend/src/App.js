@@ -5464,10 +5464,18 @@ const BulkOperations = ({ onNavigate }) => {
       
       // Sort by certificate end date (closest to far, invalid dates at the end)
       if (sort === 'certificate_end_date') {
+        console.log('🔄 Sorting by certificate_end_date, original order:', filteredClients.map(c => ({
+          name: c.hotel_name,
+          certificate_end_date: c.certificate_end_date
+        })));
+        
         filteredClients.sort((a, b) => {
           // Helper function to safely parse dates
-          const parseDate = (dateStr) => {
+          const parseDate = (dateStr, clientName) => {
+            console.log(`📅 Parsing date for ${clientName}:`, dateStr);
+            
             if (!dateStr || dateStr === "" || dateStr === null) {
+              console.log(`  ➜ No date for ${clientName}, priority: 1`);
               return { valid: false, date: null, priority: 1 }; // No date - medium priority
             }
             
@@ -5489,32 +5497,47 @@ const BulkOperations = ({ onNavigate }) => {
               
               // Check if date is valid
               if (isNaN(parsedDate.getTime())) {
+                console.log(`  ➜ Invalid date for ${clientName}, priority: 2`);
                 return { valid: false, date: null, priority: 2 }; // Invalid date - lowest priority
               }
               
+              console.log(`  ➜ Valid date for ${clientName}: ${parsedDate}, priority: 0`);
               return { valid: true, date: parsedDate, priority: 0 }; // Valid date - highest priority
               
             } catch (error) {
+              console.log(`  ➜ Date parsing error for ${clientName}:`, error, ', priority: 2');
               return { valid: false, date: null, priority: 2 }; // Invalid date - lowest priority
             }
           };
           
-          const dateA = parseDate(a.certificate_end_date);
-          const dateB = parseDate(b.certificate_end_date);
+          const dateA = parseDate(a.certificate_end_date, a.hotel_name);
+          const dateB = parseDate(b.certificate_end_date, b.hotel_name);
+          
+          console.log(`🔄 Comparing ${a.hotel_name} (priority: ${dateA.priority}) vs ${b.hotel_name} (priority: ${dateB.priority})`);
           
           // First, sort by priority (valid dates first, then no dates, then invalid dates)
           if (dateA.priority !== dateB.priority) {
-            return dateA.priority - dateB.priority;
+            const result = dateA.priority - dateB.priority;
+            console.log(`  ➜ Priority difference: ${result}`);
+            return result;
           }
           
           // If both have valid dates, sort by date (closest to farthest)
           if (dateA.valid && dateB.valid) {
-            return order === 'asc' ? dateA.date - dateB.date : dateB.date - dateA.date;
+            const result = order === 'asc' ? dateA.date - dateB.date : dateB.date - dateA.date;
+            console.log(`  ➜ Date comparison: ${result}`);
+            return result;
           }
           
           // If both are invalid or no dates, maintain original order
+          console.log(`  ➜ No comparison needed, maintaining order`);
           return 0;
         });
+        
+        console.log('🔄 After sorting:', filteredClients.map(c => ({
+          name: c.hotel_name,
+          certificate_end_date: c.certificate_end_date
+        })));
       }
       
       setBulkClients(filteredClients);
