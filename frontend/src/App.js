@@ -5568,7 +5568,54 @@ const BulkOperations = ({ onNavigate }) => {
       return { status: 'no_certificate', color: 'bg-gray-100 text-gray-800' };
     }
     
-    const certDate = new Date(endDate);
+    // Try to parse the date with different formats
+    let certDate;
+    try {
+      // If it's already a Date object
+      if (endDate instanceof Date) {
+        certDate = endDate;
+      } else {
+        // Try different date formats
+        const dateStr = endDate.toString().trim();
+        console.log('🔍 Trying to parse date string:', dateStr);
+        
+        // Try ISO format (YYYY-MM-DD)
+        if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          certDate = new Date(dateStr);
+        }
+        // Try DD.MM.YYYY format
+        else if (dateStr.match(/^\d{2}\.\d{2}\.\d{4}$/)) {
+          const parts = dateStr.split('.');
+          certDate = new Date(parts[2], parts[1] - 1, parts[0]); // month is 0-indexed
+        }
+        // Try DD/MM/YYYY format
+        else if (dateStr.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+          const parts = dateStr.split('/');
+          certDate = new Date(parts[2], parts[1] - 1, parts[0]); // month is 0-indexed
+        }
+        // Try MM/DD/YYYY format (American)
+        else if (dateStr.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+          certDate = new Date(dateStr);
+        }
+        // Default: try native Date parsing
+        else {
+          certDate = new Date(dateStr);
+        }
+      }
+      
+      // Check if the date is valid
+      if (isNaN(certDate.getTime())) {
+        console.error('🔍 Invalid date after parsing:', endDate);
+        return { status: 'invalid_date', color: 'bg-orange-100 text-orange-800' };
+      }
+      
+      console.log('🔍 Successfully parsed date:', certDate);
+      
+    } catch (error) {
+      console.error('🔍 Date parsing error:', error, 'Original value:', endDate);
+      return { status: 'invalid_date', color: 'bg-orange-100 text-orange-800' };
+    }
+    
     const today = new Date();
     const oneMonthFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
     
