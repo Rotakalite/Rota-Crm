@@ -1616,6 +1616,26 @@ async def api_health_check_direct():
         "api_direct": True
     }
 
+@app.post("/api/database/cleanup-empty-certificates")
+async def cleanup_empty_certificates(current_user: User = Depends(get_admin_user)):
+    """Clean up empty string certificate_end_date fields in database"""
+    try:
+        # Update all clients with empty string certificate_end_date to null
+        result = await db.clients.update_many(
+            {"certificate_end_date": ""},
+            {"$set": {"certificate_end_date": None}}
+        )
+        
+        logging.info(f"🧹 Database cleanup: Updated {result.modified_count} clients with empty certificate_end_date")
+        
+        return {
+            "message": "Database cleanup completed",
+            "updated_count": result.modified_count
+        }
+    except Exception as e:
+        logging.error(f"Database cleanup error: {e}")
+        raise HTTPException(status_code=500, detail=f"Database cleanup failed: {str(e)}")
+
 # ==========================================
 # YENİ BELGE YÖNETİMİ - MAIN APP ENDPOINTS
 # ==========================================
