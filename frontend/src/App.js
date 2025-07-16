@@ -4531,8 +4531,8 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
       
       // Add client_id for admin and consultant
       if (userRole === 'admin' || userRole === 'consultant') {
-        if (selectedClient) {
-          recordData.client_id = selectedClient;
+        if (effectiveSelectedClient) {
+          recordData.client_id = effectiveSelectedClient;
         } else {
           alert('Lütfen önce bir müşteri seçin!');
           setLoading(false);
