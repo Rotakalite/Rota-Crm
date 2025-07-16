@@ -4418,7 +4418,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
       setLoading(true);
       const params = new URLSearchParams();
       if (selectedYear) params.append('year', selectedYear);
-      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) params.append('client_id', selectedClient);
+      if ((userRole === 'admin' || userRole === 'consultant') && effectiveSelectedClient) params.append('client_id', effectiveSelectedClient);
 
       console.log('🔍 Fetching waste analytics with params:', params.toString());
       const response = await axios.get(`${API}/consumptions/waste/analytics?${params}`, {
