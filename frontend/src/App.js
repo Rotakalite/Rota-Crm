@@ -4587,13 +4587,13 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
   useEffect(() => {
     if (authToken) {
       // For consultant, don't fetch data until client is selected
-      if (userRole === 'consultant' && !selectedClient) {
+      if (userRole === 'consultant' && !effectiveSelectedClient) {
         console.log('🔍 Consultant user: waiting for client selection');
         return;
       }
       fetchWasteRecords();
     }
-  }, [authToken, selectedClient, selectedYear, userRole]);
+  }, [authToken, effectiveSelectedClient, selectedYear, userRole]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-indigo-50">
