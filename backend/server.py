@@ -10788,6 +10788,17 @@ async def bulk_import_clients(
             'CERT END DATE': 'certificate_end_date',
             'BITIŞ TARİHİ': 'certificate_end_date',
             'BITIS TARIHI': 'certificate_end_date',
+            'GEÇERLILIK TARİHİ': 'certificate_end_date',
+            'GECERLILIK TARIHI': 'certificate_end_date',
+            'GEÇERLILIK': 'certificate_end_date',
+            'GECERLILIK': 'certificate_end_date',
+            'EXPIRY DATE': 'certificate_end_date',
+            'EXPIRY': 'certificate_end_date',
+            'VALID UNTIL': 'certificate_end_date',
+            'VALIDITY': 'certificate_end_date',
+            'TARİH': 'certificate_end_date',
+            'TARIH': 'certificate_end_date',
+            'DATE': 'certificate_end_date',
             
             # Audit company variations
             'DENETLEYEN FİRMA': 'audit_company',
