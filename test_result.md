@@ -65,6 +65,8 @@
 ##     -message: "2025-01-25: CRITICAL BUG FIXED - itemsPerPage is not defined error çözüldü! SimpleClientManagement component'inde eksik olan state'ler ve fonksiyonlar eklendi: itemsPerPage, clientTypeFilter, hasPrev, hasNext, showAddClient state'leri ve handleSort fonksiyonu. Frontend artık başarıyla build oluyor. Backend testine hazır."
 ##     -agent: "main"
 ##     -message: "2025-01-25: Admin Dashboard 500 Internal Server Error sorunu tespit edildi. Frontend: 'Cannot read properties of null (reading 'total_clients')' hatası alınıyor. Backend: /api/admin-dashboard-stats endpoint'i null data döndürüyor. Endpoint'i test edip sorunu çözmeye başlıyorum."
+##     -agent: "main"
+##     -message: "2025-01-25: Bulk İşlemler modülü güncellendi! ✅ Yeni özellikler: 1) Müşteri silme butonu eklendi (🗑️ Sil) - tam client silme işlemi 2) Sertifika geçerlilik renk kodlaması: 1 ay kaldıysa/geçmişse KIRMIZI, 1 aydan fazla varsa YEŞİL 3) Sıralama: certificate_end_date default (en yakından uzağa) 4) Filtreleme sistemi: şehir, denetim firması, sertifika durumu filtreleri 5) Arama ve filtreleme debouncing ile optimize edildi. Tüm özellikler başarıyla implement edildi!"
 
 # Protocol Guidelines for Main agent
 #
