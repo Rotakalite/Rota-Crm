@@ -340,6 +340,12 @@ class Client(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
+    @validator('certificate_end_date', pre=True)
+    def empty_string_to_none(cls, v):
+        if v == "" or v is None:
+            return None
+        return v
+
 # Guest Engagement Models
 class GuestEngagementInput(BaseModel):
     guest_name: str
