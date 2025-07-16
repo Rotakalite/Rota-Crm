@@ -5462,83 +5462,55 @@ const BulkOperations = ({ onNavigate }) => {
         });
       }
       
-      // Sort by certificate end date (closest to far, invalid dates at the end)
-      if (sort === 'certificate_end_date') {
-        console.log('🔄 Sorting by certificate_end_date, original order:', filteredClients.map(c => ({
-          name: c.hotel_name,
-          certificate_end_date: c.certificate_end_date
-        })));
-        
-        filteredClients.sort((a, b) => {
-          // Helper function to safely parse dates
-          const parseDate = (dateStr, clientName) => {
-            console.log(`📅 Parsing date for ${clientName}:`, dateStr);
-            
-            if (!dateStr || dateStr === "" || dateStr === null) {
-              console.log(`  ➜ No date for ${clientName}, priority: 1`);
-              return { valid: false, date: null, priority: 1 }; // No date - medium priority
-            }
-            
-            try {
-              let parsedDate;
-              
-              // Try different date formats
-              if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                parsedDate = new Date(dateStr);
-              } else if (dateStr.match(/^\d{2}\.\d{2}\.\d{4}$/)) {
-                const parts = dateStr.split('.');
-                parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
-              } else if (dateStr.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-                const parts = dateStr.split('/');
-                parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
-              } else {
-                parsedDate = new Date(dateStr);
-              }
-              
-              // Check if date is valid
-              if (isNaN(parsedDate.getTime())) {
-                console.log(`  ➜ Invalid date for ${clientName}, priority: 2`);
-                return { valid: false, date: null, priority: 2 }; // Invalid date - lowest priority
-              }
-              
-              console.log(`  ➜ Valid date for ${clientName}: ${parsedDate}, priority: 0`);
-              return { valid: true, date: parsedDate, priority: 0 }; // Valid date - highest priority
-              
-            } catch (error) {
-              console.log(`  ➜ Date parsing error for ${clientName}:`, error, ', priority: 2');
-              return { valid: false, date: null, priority: 2 }; // Invalid date - lowest priority
-            }
-          };
-          
-          const dateA = parseDate(a.certificate_end_date, a.hotel_name);
-          const dateB = parseDate(b.certificate_end_date, b.hotel_name);
-          
-          console.log(`🔄 Comparing ${a.hotel_name} (priority: ${dateA.priority}) vs ${b.hotel_name} (priority: ${dateB.priority})`);
-          
-          // First, sort by priority (valid dates first, then no dates, then invalid dates)
-          if (dateA.priority !== dateB.priority) {
-            const result = dateA.priority - dateB.priority;
-            console.log(`  ➜ Priority difference: ${result}`);
-            return result;
+      // FORCE sort by certificate end date - always apply sorting
+      console.log('🔄 Applying certificate sorting - current sort:', sort, 'order:', order);
+      filteredClients.sort((a, b) => {
+        const getCertificateStatus = (dateStr) => {
+          if (!dateStr || dateStr === "" || dateStr === null) {
+            return { valid: false, priority: 2, date: null }; // No date - middle priority
           }
           
-          // If both have valid dates, sort by date (closest to farthest)
-          if (dateA.valid && dateB.valid) {
-            const result = order === 'asc' ? dateA.date - dateB.date : dateB.date - dateA.date;
-            console.log(`  ➜ Date comparison: ${result}`);
-            return result;
+          try {
+            let parsedDate;
+            if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+              parsedDate = new Date(dateStr);
+            } else if (dateStr.match(/^\d{2}\.\d{2}\.\d{4}$/)) {
+              const parts = dateStr.split('.');
+              parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
+            } else {
+              parsedDate = new Date(dateStr);
+            }
+            
+            if (isNaN(parsedDate.getTime())) {
+              return { valid: false, priority: 3, date: null }; // Invalid date - lowest priority
+            }
+            
+            return { valid: true, priority: 1, date: parsedDate }; // Valid date - highest priority
+          } catch (error) {
+            return { valid: false, priority: 3, date: null }; // Invalid date - lowest priority
           }
-          
-          // If both are invalid or no dates, maintain original order
-          console.log(`  ➜ No comparison needed, maintaining order`);
-          return 0;
-        });
+        };
         
-        console.log('🔄 After sorting:', filteredClients.map(c => ({
-          name: c.hotel_name,
-          certificate_end_date: c.certificate_end_date
-        })));
-      }
+        const statusA = getCertificateStatus(a.certificate_end_date);
+        const statusB = getCertificateStatus(b.certificate_end_date);
+        
+        // First sort by priority (1=valid, 2=empty, 3=invalid)
+        if (statusA.priority !== statusB.priority) {
+          return statusA.priority - statusB.priority;
+        }
+        
+        // If both have valid dates, sort by date
+        if (statusA.valid && statusB.valid) {
+          return statusA.date - statusB.date; // Closest first
+        }
+        
+        return 0; // Same priority, maintain order
+      });
+      
+      console.log('🔄 After sorting - first 5 clients:', filteredClients.slice(0, 5).map(c => ({
+        name: c.hotel_name,
+        certificate_end_date: c.certificate_end_date
+      })));
       
       setBulkClients(filteredClients);
       setTotalPages(pagination?.total_pages || 1);
