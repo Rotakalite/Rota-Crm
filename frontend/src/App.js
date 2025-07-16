@@ -5838,51 +5838,60 @@ const BulkOperations = ({ onNavigate }) => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {bulkClients.map((client) => (
-                  <tr key={client.id}>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                          <span className="text-orange-600 font-medium">📦</span>
-                        </div>
-                        <div className="ml-3">
-                          <div className="text-sm font-medium text-gray-900">
-                            {client.hotel_name || 'N/A'}
+                {bulkClients.map((client) => {
+                  const certificateStatus = getCertificateStatus(client.certificate_end_date);
+                  
+                  return (
+                    <tr key={client.id}>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                            <span className="text-orange-600 font-medium">📦</span>
+                          </div>
+                          <div className="ml-3">
+                            <div className="text-sm font-medium text-gray-900">
+                              {client.hotel_name || 'N/A'}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                      {client.city || 'N/A'}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                      {client.email || 'N/A'}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                      {client.phone || 'N/A'}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                      {client.audit_company || 'N/A'}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                      {client.certificate_end_date ? (
-                        <div className="flex items-center">
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                            new Date(client.certificate_end_date) < new Date() 
-                              ? 'bg-red-100 text-red-800' 
-                              : new Date(client.certificate_end_date) < new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-green-100 text-green-800'
-                          }`}>
-                            {new Date(client.certificate_end_date).toLocaleDateString('tr-TR')}
-                          </span>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                        {client.city || 'N/A'}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                        {client.email || 'N/A'}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                        {client.phone || 'N/A'}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                        {client.audit_company || 'N/A'}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                        {client.certificate_end_date ? (
+                          <div className="flex items-center">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${certificateStatus.color}`}>
+                              {new Date(client.certificate_end_date).toLocaleDateString('tr-TR')}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">Belirtilmemiş</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleDeleteClient(client.id, client.hotel_name || 'N/A')}
+                            className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-2 py-1 rounded text-xs font-medium transition-colors"
+                            title="Müşteriyi sil"
+                          >
+                            🗑️ Sil
+                          </button>
                         </div>
-                      ) : (
-                        <span className="text-gray-400">Belirtilmemiş</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
