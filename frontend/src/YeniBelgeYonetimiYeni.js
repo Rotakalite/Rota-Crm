@@ -186,6 +186,7 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
     try {
       const response = await apiCall(async () => 
         axios.get(`${API}/clients`, {
+          params: { client_type: "registered" }, // Only registered clients
           headers: { Authorization: `Bearer ${authToken}` }
         })
       );
