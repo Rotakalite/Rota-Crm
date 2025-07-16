@@ -11011,11 +11011,27 @@ async def download_import_template(current_user: User = Depends(get_admin_user))
         }
         
         df = pd.DataFrame(template_data)
+        info_df = pd.DataFrame(info_data)
         
-        # Create Excel file in memory
+        # Create Excel file with multiple sheets
         output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False, sheet_name='Müşteri Listesi')
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            df.to_excel(writer, sheet_name='Örnek Veriler', index=False)
+            info_df.to_excel(writer, sheet_name='Kolon Bilgileri', index=False)
+            
+            # Format the sheets
+            workbook = writer.book
+            worksheet = writer.sheets['Örnek Veriler']
+            header_format = workbook.add_format({'bold': True, 'bg_color': '#4472C4', 'font_color': 'white'})
+            
+            # Format headers
+            for col_num, value in enumerate(df.columns.values):
+                worksheet.write(0, col_num, value, header_format)
+                
+            # Auto-adjust column widths
+            for i, col in enumerate(df.columns):
+                max_len = max(df[col].astype(str).str.len().max(), len(col))
+                worksheet.set_column(i, i, max_len + 2)
         
         output.seek(0)
         
