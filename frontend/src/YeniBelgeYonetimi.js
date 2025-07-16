@@ -28,7 +28,9 @@ const YeniBelgeYonetimi = () => {
 
   const loadClients = async () => {
     try {
-      const response = await axios.get(`${API}/api/clients`);
+      const response = await axios.get(`${API}/api/clients`, {
+        params: { client_type: "registered" } // Only registered clients
+      });
       setClients(response.data.clients || []);
     } catch (error) {
       console.error('❌ Client load error:', error);
