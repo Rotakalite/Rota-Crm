@@ -744,7 +744,6 @@ const ConsultantClientManagement = ({ onNavigate }) => {
       }
       
       const response = await axios.get(`${API}/clients`, {
-        params: { client_type: "registered" }, // Only registered clients
         params,
         headers: { Authorization: `Bearer ${authToken}` }
       });
