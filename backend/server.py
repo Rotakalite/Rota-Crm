@@ -4236,6 +4236,52 @@ async def get_client_phone(
         logging.error(f"Get client phone error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/clients/{client_id}/personnel")
+async def get_client_personnel(client_id: str, current_user: User = Depends(get_current_user)):
+    """Belirli bir client'ın personellerini getir"""
+    try:
+        # Authorization kontrolü
+        if current_user.role not in ['admin', 'consultant']:
+            if current_user.role == 'client' and current_user.client_id != client_id:
+                raise HTTPException(status_code=403, detail="Bu müşterinin personellerine erişim yetkiniz yok")
+        
+        # Consultant sadece kendi müşterilerinin personellerine erişebilir
+        if current_user.role == 'consultant' and current_user.consultant_id:
+            client = await db.clients.find_one({"id": client_id})
+            if not client or client.get("consultant_id") != current_user.consultant_id:
+                raise HTTPException(status_code=403, detail="Bu müşterinin personellerine erişim yetkiniz yok")
+        
+        # Client'ın personellerini getir
+        personnel_cursor = db.personnel.find({"client_id": client_id})
+        personnel_list = await personnel_cursor.to_list(length=None)
+        
+        # Personnel listesini düzenle
+        formatted_personnel = []
+        for person in personnel_list:
+            formatted_personnel.append({
+                "id": person["id"],
+                "name": person["name"],
+                "surname": person["surname"],
+                "position": person.get("position", ""),
+                "email": person.get("email", ""),
+                "phone": person.get("phone", ""),
+                "department": person.get("department", ""),
+                "status": person.get("status", "active")
+            })
+        
+        logging.info(f"✅ Retrieved {len(formatted_personnel)} personnel for client {client_id}")
+        
+        return {
+            "personnel": formatted_personnel,
+            "total_count": len(formatted_personnel)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Get client personnel error: {e}")
+        raise HTTPException(status_code=500, detail=f"Personel listesi alınamadı: {str(e)}")
+
 @api_router.post("/admin/update-subfolders")
 async def update_existing_clients_subfolders(current_user: User = Depends(get_current_user)):
     """Admin-only endpoint to update existing clients with sub-folders"""
