@@ -11502,6 +11502,36 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
+  // Handle client change
+  const handleClientChange = (clientId) => {
+    setFormData(prev => ({
+      ...prev,
+      client_id: clientId,
+      attendees: []  // Reset attendees when client changes
+    }));
+    
+    // Fetch personnel for the selected client
+    fetchClientPersonnel(clientId);
+  };
+
+  // Handle personnel selection
+  const handlePersonnelSelection = (personnelId, isSelected) => {
+    setFormData(prev => ({
+      ...prev,
+      attendees: isSelected 
+        ? [...prev.attendees, personnelId]
+        : prev.attendees.filter(id => id !== personnelId)
+    }));
+  };
+
+  // Handle select all personnel
+  const handleSelectAllPersonnel = (selectAll) => {
+    setFormData(prev => ({
+      ...prev,
+      attendees: selectAll ? clientPersonnel.map(p => p.id) : []
+    }));
+  };
+
   // Auto complete expired trainings
   const autoCompleteTrainings = async () => {
     try {
