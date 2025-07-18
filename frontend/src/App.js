@@ -11762,7 +11762,7 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
                 </label>
                 <select
                   value={formData.client_id}
-                  onChange={(e) => setFormData({ ...formData, client_id: e.target.value })}
+                  onChange={(e) => handleClientChange(e.target.value)}
                   className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 >
@@ -11775,6 +11775,58 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
                 </select>
               </div>
               
+              {/* Personnel Selection */}
+              {formData.client_id && clientPersonnel.length > 0 && (
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Katılacak Personeller
+                  </label>
+                  <div className="border rounded-lg p-3 max-h-40 overflow-y-auto">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-gray-600">
+                        {formData.attendees.length} / {clientPersonnel.length} personel seçildi
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectAllPersonnel(formData.attendees.length !== clientPersonnel.length)}
+                        className="text-sm text-blue-600 hover:text-blue-800"
+                      >
+                        {formData.attendees.length === clientPersonnel.length ? 'Tümünü Kaldır' : 'Tümünü Seç'}
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      {clientPersonnel.map((person) => (
+                        <div key={person.id} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id={`person-${person.id}`}
+                            checked={formData.attendees.includes(person.id)}
+                            onChange={(e) => handlePersonnelSelection(person.id, e.target.checked)}
+                            className="mr-2"
+                          />
+                          <label htmlFor={`person-${person.id}`} className="text-sm text-gray-700 cursor-pointer flex-1">
+                            {person.name} {person.surname}
+                            {person.position && <span className="text-gray-500 ml-1">({person.position})</span>}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* No Personnel Message */}
+              {formData.client_id && clientPersonnel.length === 0 && (
+                <div className="md:col-span-2">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                    <p className="text-sm text-yellow-700">
+                      Bu müşteri için henüz personel kaydı bulunmamaktadır. 
+                      Önce Personel Yönetimi'nden personel ekleyin.
+                    </p>
+                  </div>
+                </div>
+              )}
+              
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -11782,7 +11834,7 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
                 </label>
                 <select
                   value={formData.client_id}
-                  onChange={(e) => setFormData({ ...formData, client_id: e.target.value })}
+                  onChange={(e) => handleClientChange(e.target.value)}
                   className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 >
