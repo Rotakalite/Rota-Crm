@@ -11597,7 +11597,8 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
         ...formData,
         participant_count: parseInt(formData.participant_count) || 0,
         training_date: formData.training_date ? new Date(formData.training_date + 'T00:00:00Z').toISOString() : null,
-        training_time: formData.training_time || '09:00'  // Add training time
+        training_time: formData.training_time || '09:00',  // Add training time
+        attendees: formData.attendees || []  // Include selected personnel
       };
       
       console.log('📚 Creating training:', trainingData);
@@ -11615,9 +11616,11 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
         trainer: '',
         training_date: '',
         training_time: '09:00',  // Reset training time
-        description: ''
+        description: '',
+        attendees: []  // Reset attendees
       });
       setShowAddForm(false);
+      setClientPersonnel([]);  // Clear personnel list
       fetchTrainings();
       
     } catch (error) {
