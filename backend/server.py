@@ -433,6 +433,8 @@ class Training(BaseModel):
     training_date: datetime  # Tarih
     description: str  # Açıklama
     status: str = "planned"  # planned, completed, cancelled
+    attendees: List[str] = []  # Personnel ID'leri listesi
+    completed_attendees: List[str] = []  # Tamamlayan personel ID'leri
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
