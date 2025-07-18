@@ -11462,6 +11462,7 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
   const [trainings, setTrainings] = useState([]);
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState(''); // Add client selection state
+  const [clientPersonnel, setClientPersonnel] = useState([]); // Personnel listesi
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
     client_id: '',
@@ -11471,7 +11472,8 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
     trainer: '',
     training_date: '',
     training_time: '09:00',  // Add training time field
-    description: ''
+    description: '',
+    attendees: []  // Seçilen personeller
   });
   const [loading, setLoading] = useState(false);
   const { authToken, userRole } = useAuth();
@@ -11479,7 +11481,7 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
   // Use selectedClient from props (for consultant) or manage locally (for admin/client)
   const effectiveSelectedClient = propSelectedClient;
 
-  // Delete training function
+  const API = getApiUrl();
   const deleteTraining = async (trainingId) => {
     if (!window.confirm('Bu eğitimi silmek istediğinizden emin misiniz?')) {
       return;
