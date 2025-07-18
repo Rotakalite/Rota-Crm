@@ -11756,7 +11756,9 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold mb-4">Yeni Eğitim Ekle</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="md:col-span-2">
+            {/* Client Selection - Only show when no client is selected at top level */}
+            {!selectedClient && (
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Müşteri Seçin *
                 </label>
@@ -11774,6 +11776,21 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
                   ))}
                 </select>
               </div>
+            )}
+            
+            {/* Selected Client Display - Show when client is selected at top level */}
+            {selectedClient && (
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Seçili Müşteri
+                </label>
+                <div className="w-full p-2 bg-gray-50 border rounded-lg text-gray-700">
+                  {clients.find(c => c.id === selectedClient)?.hotel_name || 
+                   clients.find(c => c.id === selectedClient)?.name || 
+                   'Bilinmeyen Müşteri'}
+                </div>
+              </div>
+            )}
               
               {/* Personnel Selection */}
               {formData.client_id && clientPersonnel.length > 0 && (
