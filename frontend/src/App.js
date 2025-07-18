@@ -6008,6 +6008,8 @@ const BulkOperations = ({ onNavigate }) => {
                               <span className={`px-2 py-1 text-xs font-medium rounded-full ${certificateStatus.color}`}>
                                 {certificateStatus.status === 'invalid_date' 
                                   ? 'Geçersiz Tarih' 
+                                  : certificateStatus.status === 'no_certificate'
+                                  ? 'Tarih Yok'
                                   : new Date(client.certificate_end_date).toLocaleDateString('tr-TR')}
                               </span>
                             </div>
