@@ -855,6 +855,11 @@ async def health_check():
         "api_router_mounted": True
     }
 
+@app.get("/test-simple-endpoint")
+async def test_simple_endpoint():
+    """Test endpoint to check if app works"""
+    return {"message": "Simple test endpoint working"}
+
 # Root path for testing
 @app.get("/")
 async def root():
