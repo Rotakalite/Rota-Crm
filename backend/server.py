@@ -4236,7 +4236,7 @@ async def get_client_phone(
         logging.error(f"Get client phone error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/clients/{client_id}/personnel")
+@app.get("/api/clients/{client_id}/personnel")
 async def get_client_personnel(client_id: str, current_user: User = Depends(get_current_user)):
     """Belirli bir client'ın personellerini getir"""
     try:
