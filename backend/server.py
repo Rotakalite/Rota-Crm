@@ -446,6 +446,7 @@ class TrainingCreate(BaseModel):
     trainer: str
     training_date: datetime
     description: str
+    attendees: List[str] = []  # Personnel ID'leri listesi
 
 class TrainingUpdate(BaseModel):
     name: Optional[str] = None
