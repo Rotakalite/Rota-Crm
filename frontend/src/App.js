@@ -15305,6 +15305,33 @@ const App = () => {
       </SignedIn>
     </ClerkProvider>
   );
+  
+  // useEffect hooks
+  useEffect(() => {
+    if (authToken) {
+      fetchTrainings();
+      fetchClients();
+      
+      // Auto-complete expired trainings on component mount
+      autoCompleteTrainings();
+    }
+  }, [authToken]);
+  
+  // Effect for client selection - fetch personnel when client is selected
+  useEffect(() => {
+    if (formData.client_id) {
+      fetchClientPersonnel(formData.client_id);
+    } else {
+      setClientPersonnel([]);
+    }
+  }, [formData.client_id]);
+  
+  // Effect for prop changes (consultant role)
+  useEffect(() => {
+    if (effectiveSelectedClient && !formData.client_id) {
+      setFormData(prev => ({ ...prev, client_id: effectiveSelectedClient }));
+    }
+  }, [effectiveSelectedClient]);
 };
 
 export default App;
