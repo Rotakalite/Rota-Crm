@@ -2450,26 +2450,29 @@ const Dashboard = ({ onNavigate }) => {
       console.error('❌ Error fetching dashboard data:', error);
       
       // Set fallback data to prevent null state
-      if (userRole === 'admin') {
+      if (userRole === 'client') {
+        setClientDashboardData({
+          client_info: { name: 'Test Client', certificate_status: 'Aktif', certificate_days_left: 180 },
+          statistics: { total_documents: 0, total_trainings: 0, completed_trainings: 0 },
+          consumption_data: { energy_by_month: {}, water_by_month: {} },
+          sustainability_progress: { carbon_reduction: 0, energy_efficiency: 0, waste_reduction: 0, water_saving: 0 },
+          recent_activities: [],
+          recommendations: []
+        });
+      } else if (userRole === 'admin') {
         setAdminDashboardData({
-          overview: {
-            total_clients: 0,
-            total_documents: 0,
-            total_trainings: 0,
-            assigned_clients: 0,
-            registered_clients: 0,
-            bulk_clients: 0,
-            monthly_documents: 0,
-            monthly_registrations: 0
-          },
-          consumption_analytics: {
-            carbon_footprint_reduction: 0,
-            recycling_rate: 0
-          },
-          training_analytics: {
-            completion_rate: 0
-          },
-          recent_activities: []
+          overview: { total_clients: 0, total_documents: 0, total_trainings: 0, completed_trainings: 0 },
+          consumption_analytics: { total_energy: 0, total_water: 0, total_carbon: 0, recycling_rate: 0 },
+          document_distribution: {},
+          recent_activities: [],
+          system_health: { documents_last_24h: 0, trainings_last_24h: 0 }
+        });
+      } else {
+        setDashboardData({
+          total_clients: 0,
+          stage_distribution: { stage_1: 0, stage_2: 0, stage_3: 0 },
+          total_documents: 0,
+          total_trainings: 0
         });
       }
     } finally {
