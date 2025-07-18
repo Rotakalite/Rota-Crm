@@ -119,11 +119,11 @@ user_problem_statement: "Bulk olarak eklenen müşteriler ile kendi kaydolan mü
 backend:
   - task: "Training Management Personnel Selection and Auto-Complete"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: "NA"
         -agent: "main"
@@ -131,6 +131,9 @@ backend:
         -working: true
         -agent: "main"
         -comment: "2025-01-25: DUPLICATE CLIENT SELECTION FIXED! Training Management form now has intelligent client selection: 1) When client selected at top level -> form shows read-only selected client display 2) When no client selected -> form shows client selection dropdown 3) Added automatic sync between selectedClient and formData.client_id 4) Added automatic personnel fetching when client selected 5) Eliminated confusion of dual client selection dropdowns. The Training Management module now has clean, intuitive client and personnel selection flow."
+        -working: false
+        -agent: "testing"
+        -comment: "2025-01-25: COMPREHENSIVE TRAINING MANAGEMENT BACKEND TESTING COMPLETED! ❌ CRITICAL ISSUES FOUND: 1) Personnel Selection Endpoint: GET /api/clients/{client_id}/personnel returns 404 Not Found - endpoint not accessible or not properly registered. 2) Auto-Complete Endpoint: POST /api/trainings/auto-complete returns 405 Method Not Allowed - endpoint exists but HTTP method may be incorrect. 3) Authentication Issues: All training endpoints return 401 'Invalid token' with test tokens, indicating JWT validation problems. ✅ POSITIVE FINDINGS: 1) Authentication Security: Endpoints properly require authentication (403 without auth, 401 with invalid tokens). 2) Training Model Structure: Backend code shows correct Training model with client_id and attendees (personnel_ids) fields. 3) CRUD Endpoints: All training CRUD endpoints are defined in backend code. 4) Client Type Filtering: Backend supports client_type='registered' filtering. ❌ MAIN ISSUES: Personnel selection endpoint not accessible, auto-complete endpoint method mismatch, and authentication token validation failures prevent full functionality testing."
 
 frontend:
   - task: "Training Management Duplicate Client Selection Fix"
