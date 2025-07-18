@@ -5482,26 +5482,26 @@ const BulkOperations = ({ onNavigate }) => {
             }
             
             if (isNaN(parsedDate.getTime())) {
-              return { valid: false, priority: 3, date: null }; // Invalid date - lowest priority
+              return { valid: false, priority: 3, date: null }; // Invalid date - lowest priority (EN ARKADA)
             }
             
-            return { valid: true, priority: 1, date: parsedDate }; // Valid date - highest priority
+            return { valid: true, priority: 1, date: parsedDate }; // Valid date - highest priority (EN ÖNDE)
           } catch (error) {
-            return { valid: false, priority: 3, date: null }; // Invalid date - lowest priority
+            return { valid: false, priority: 3, date: null }; // Invalid date - lowest priority (EN ARKADA)
           }
         };
         
         const statusA = getCertificateStatus(a.certificate_end_date);
         const statusB = getCertificateStatus(b.certificate_end_date);
         
-        // First sort by priority (1=valid, 2=empty, 3=invalid)
+        // First sort by priority (1=valid EN ÖNDE, 2=empty ORTADA, 3=invalid EN ARKADA)
         if (statusA.priority !== statusB.priority) {
-          return statusA.priority - statusB.priority;
+          return statusA.priority - statusB.priority; // Küçük numara önde gelir
         }
         
-        // If both have valid dates, sort by date
+        // If both have valid dates, sort by date (closest first)
         if (statusA.valid && statusB.valid) {
-          return statusA.date - statusB.date; // Closest first
+          return statusA.date - statusB.date; // Yakın tarih önde
         }
         
         return 0; // Same priority, maintain order
