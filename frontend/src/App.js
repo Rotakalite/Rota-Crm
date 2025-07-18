@@ -11482,6 +11482,26 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
   const effectiveSelectedClient = propSelectedClient;
 
   const API = getApiUrl();
+  
+  // Fetch client personnel when client is selected
+  const fetchClientPersonnel = async (clientId) => {
+    if (!clientId) {
+      setClientPersonnel([]);
+      return;
+    }
+    
+    try {
+      const response = await axios.get(`${API}/clients/${clientId}/personnel`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      console.log('🧑‍💼 Client Personnel:', response.data);
+      setClientPersonnel(response.data.personnel || []);
+    } catch (error) {
+      console.error('Error fetching client personnel:', error);
+      setClientPersonnel([]);
+    }
+  };
+
   const deleteTraining = async (trainingId) => {
     if (!window.confirm('Bu eğitimi silmek istediğinizden emin misiniz?')) {
       return;
