@@ -875,7 +875,8 @@ async def health_check_main():
         "service": "Rota CRM Backend",
         "timestamp": datetime.utcnow().isoformat(),
         "version": "1.0.0",
-        "main_app": True
+        "main_app": True,
+        "test_update": "NEW_ENDPOINT_TEST"
     }
 
 # ==========================================
