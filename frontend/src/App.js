@@ -11502,6 +11502,24 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
+  // Auto complete expired trainings
+  const autoCompleteTrainings = async () => {
+    try {
+      const response = await axios.post(`${API}/trainings/auto-complete`, {}, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      console.log('🔄 Auto-complete result:', response.data);
+      
+      if (response.data.updated_count > 0) {
+        alert(`${response.data.updated_count} eğitim otomatik olarak tamamlandı!`);
+        fetchTrainings(); // Refresh the list
+      }
+    } catch (error) {
+      console.error('Error auto-completing trainings:', error);
+    }
+  };
+
+  // Delete training function
   const deleteTraining = async (trainingId) => {
     if (!window.confirm('Bu eğitimi silmek istediğinizden emin misiniz?')) {
       return;
