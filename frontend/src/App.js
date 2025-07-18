@@ -2421,6 +2421,9 @@ const Dashboard = ({ onNavigate }) => {
   // Fetch dashboard data
   const fetchDashboardData = async () => {
     try {
+      setLoading(true);
+      console.log('🔄 Fetching dashboard data for role:', userRole);
+      
       if (userRole === 'client') {
         // Fetch client-specific dashboard data
         const response = await axios.get(`${API}/client-dashboard-stats`, {
@@ -2444,7 +2447,35 @@ const Dashboard = ({ onNavigate }) => {
         setDashboardData(response.data);
       }
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      console.error('❌ Error fetching dashboard data:', error);
+      
+      // Set fallback data to prevent null state
+      if (userRole === 'admin') {
+        setAdminDashboardData({
+          overview: {
+            total_clients: 0,
+            total_documents: 0,
+            total_trainings: 0,
+            assigned_clients: 0,
+            registered_clients: 0,
+            bulk_clients: 0,
+            monthly_documents: 0,
+            monthly_registrations: 0
+          },
+          consumption_analytics: {
+            carbon_footprint_reduction: 0,
+            recycling_rate: 0
+          },
+          training_analytics: {
+            completion_rate: 0
+          },
+          recent_activities: []
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
       // Fallback data
       if (userRole === 'client') {
         setClientDashboardData({
