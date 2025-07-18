@@ -69,6 +69,8 @@
 ##     -message: "2025-01-25: Bulk İşlemler modülü güncellendi! ✅ Yeni özellikler: 1) Müşteri silme butonu eklendi (🗑️ Sil) - tam client silme işlemi 2) Sertifika geçerlilik renk kodlaması: 1 ay kaldıysa/geçmişse KIRMIZI, 1 aydan fazla varsa YEŞİL 3) Sıralama: certificate_end_date default (en yakından uzağa) 4) Filtreleme sistemi: şehir, denetim firması, sertifika durumu filtreleri 5) Arama ve filtreleme debouncing ile optimize edildi. Tüm özellikler başarıyla implement edildi!"
 ##     -agent: "main"
 ##     -message: "2025-01-25: ✅ BULK MÜŞTERİ AYRIMLANMASI TAMAMEN ÇÖZÜLDÜ! Tüm modüllerde client_type='registered' parametresi eklendi: ConsumptionManagement, PersonnelManagement, TrainingManagement, WasteManagement, CarbonFootprint, SustainabilityTargets, ConsultantDashboard, EmailManagement, SupplierManagement, SimpleClientManagement, YeniBelgeYonetimiYeni.js ve YeniBelgeYonetimi.js. Bulk müşteriler artık sadece 'Bulk İşlemler' modülünde görünür, diğer tüm modüllerde sadece registered müşteriler görünür!"
+##     -agent: "main"
+##     -message: "2025-01-25: ✅ TRAINING MANAGEMENT DUPLICATE CLIENT SELECTION FIXED! Training Management modülündeki duplicate client selection sorunu çözüldü. Artık: 1) Üst seviye client seçimi yapıldığında form read-only client display gösteriyor 2) Hiç client seçilmediğinde form client selection dropdown gösteriyor 3) selectedClient ile formData.client_id otomatik senkronize 4) Client seçildiğinde personnel otomatik fetch ediliyor 5) Karışıklık yaratan duplicate dropdown'lar kaldırıldı. Training Management artık temiz ve mantıklı client selection flow'una sahip."
 
 # Protocol Guidelines for Main agent
 #
