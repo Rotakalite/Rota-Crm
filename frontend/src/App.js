@@ -2814,7 +2814,10 @@ const Dashboard = ({ onNavigate }) => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Hızlı İşlemler</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <button
-                    onClick={() => onNavigate('bulkOperations')}
+                    onClick={() => {
+                      console.log('🎯 Navigating to bulkOperations');
+                      onNavigate('bulkOperations');
+                    }}
                     className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-left group"
                   >
                     <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">📦</div>
@@ -2823,7 +2826,10 @@ const Dashboard = ({ onNavigate }) => {
                   </button>
                   
                   <button
-                    onClick={() => onNavigate('simpleClientManagement')}
+                    onClick={() => {
+                      console.log('🎯 Navigating to simpleClientManagement');
+                      onNavigate('simpleClientManagement');
+                    }}
                     className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-left group"
                   >
                     <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">👥</div>
@@ -2832,7 +2838,10 @@ const Dashboard = ({ onNavigate }) => {
                   </button>
                   
                   <button
-                    onClick={() => onNavigate('consultantDashboard')}
+                    onClick={() => {
+                      console.log('🎯 Navigating to consultantDashboard');
+                      onNavigate('consultantDashboard');
+                    }}
                     className="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors text-left group"
                   >
                     <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">👨‍💼</div>
@@ -2841,7 +2850,10 @@ const Dashboard = ({ onNavigate }) => {
                   </button>
                   
                   <button
-                    onClick={() => onNavigate('yeni-belge')}
+                    onClick={() => {
+                      console.log('🎯 Navigating to yeni-belge');
+                      onNavigate('yeni-belge');
+                    }}
                     className="p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors text-left group"
                   >
                     <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">📄</div>
@@ -2850,7 +2862,10 @@ const Dashboard = ({ onNavigate }) => {
                   </button>
                   
                   <button
-                    onClick={() => onNavigate('trainings')}
+                    onClick={() => {
+                      console.log('🎯 Navigating to trainings');
+                      onNavigate('trainings');
+                    }}
                     className="p-4 bg-teal-50 rounded-lg hover:bg-teal-100 transition-colors text-left group"
                   >
                     <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">🎓</div>
@@ -2859,7 +2874,10 @@ const Dashboard = ({ onNavigate }) => {
                   </button>
                   
                   <button
-                    onClick={() => onNavigate('wasteManagement')}
+                    onClick={() => {
+                      console.log('🎯 Navigating to wasteManagement');
+                      onNavigate('wasteManagement');
+                    }}
                     className="p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-colors text-left group"
                   >
                     <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">♻️</div>
