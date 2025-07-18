@@ -7507,6 +7507,42 @@ async def delete_training(training_id: str, current_user: User = Depends(get_cur
     logging.info(f"✅ Training deleted: {training['name']}")
     return {"message": "Training deleted successfully"}
 
+@api_router.post("/trainings/auto-complete")
+async def auto_complete_trainings():
+    """Otomatik olarak süresi dolan eğitimleri tamamlandı olarak işaretle"""
+    try:
+        current_time = datetime.utcnow()
+        
+        # Süresi dolmuş ve henüz tamamlanmamış eğitimleri bul
+        expired_trainings = await db.trainings.find({
+            "training_date": {"$lt": current_time},
+            "status": "planned"
+        }).to_list(length=None)
+        
+        updated_count = 0
+        for training in expired_trainings:
+            # Eğitimi tamamlandı olarak işaretle
+            await db.trainings.update_one(
+                {"id": training["id"]},
+                {
+                    "$set": {
+                        "status": "completed",
+                        "updated_at": current_time
+                    }
+                }
+            )
+            updated_count += 1
+            
+        logging.info(f"✅ Auto-completed {updated_count} trainings")
+        
+        return {
+            "message": f"{updated_count} eğitim otomatik olarak tamamlandı",
+            "updated_count": updated_count
+        }
+    except Exception as e:
+        logging.error(f"Auto-complete trainings error: {e}")
+        raise HTTPException(status_code=500, detail=f"Otomatik tamamlama hatası: {str(e)}")
+
 # Include the router in the main app
 # EMAIL NOTIFICATION ENDPOINTS
 # EMAIL NOTIFICATION MODELS
