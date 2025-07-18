@@ -456,6 +456,8 @@ class TrainingUpdate(BaseModel):
     training_date: Optional[datetime] = None
     description: Optional[str] = None
     status: Optional[str] = None
+    attendees: Optional[List[str]] = None
+    completed_attendees: Optional[List[str]] = None
 
 class ClientCreate(BaseModel):
     name: str
