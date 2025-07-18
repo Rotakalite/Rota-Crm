@@ -114,6 +114,38 @@
 
 user_problem_statement: "Bulk olarak eklenen müşteriler ile kendi kaydolan müşterilerin ayrılıp birbirine karışmaması lazım. Bulk müşteriler sadece toplu tanıtım mailleri için, kayıtlı müşteriler tüm modüller için kullanılacak."
 
+backend:
+  - task: "Training Management Personnel Selection and Auto-Complete"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "2025-01-25: Training Management module enhanced with personnel selection and auto-complete functionality. Backend updates: 1) Training models updated with client_id and personnel_ids fields 2) New endpoint /api/trainings/complete-expired for automatic completion 3) New endpoint /api/clients/{client_id}/personnel for client-specific personnel retrieval. Frontend updates: 1) Added personnel selection UI with checkbox interface 2) Integrated client selection with personnel fetching 3) Added auto-complete functionality. Duplicate client selection issue identified and needs fixing."
+        -working: true
+        -agent: "main"
+        -comment: "2025-01-25: DUPLICATE CLIENT SELECTION FIXED! Training Management form now has intelligent client selection: 1) When client selected at top level -> form shows read-only selected client display 2) When no client selected -> form shows client selection dropdown 3) Added automatic sync between selectedClient and formData.client_id 4) Added automatic personnel fetching when client selected 5) Eliminated confusion of dual client selection dropdowns. The Training Management module now has clean, intuitive client and personnel selection flow."
+
+frontend:
+  - task: "Training Management Duplicate Client Selection Fix"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: false
+        -agent: "main"
+        -comment: "2025-01-25: Training Management component had duplicate client selection components causing confusion. Two dropdowns: 1) Top-level client selection for filtering trainings 2) Form client selection for creating new training. This created redundancy and poor UX."
+        -working: true
+        -agent: "main"
+        -comment: "2025-01-25: FIXED! Implemented intelligent client selection logic: 1) Form client selection only shows when no client selected at top level 2) When client selected at top, form shows read-only selected client display 3) Added useEffect to sync selectedClient with formData.client_id 4) Added automatic personnel fetching when client changes 5) Eliminated duplicate client selection confusion. Training Management now has clean, logical client selection flow."
+
   - task: "Client Type Separation - Bulk vs Registered Clients"
     implemented: true
     working: true
