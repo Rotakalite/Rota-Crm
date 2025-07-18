@@ -11575,7 +11575,7 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
     }
   }, [authToken, userRole]);
 
-  // Set effective client_id in formData when propSelectedClient changes
+  // Set effective client_id in formData when propSelectedClient or selectedClient changes
   useEffect(() => {
     if (propSelectedClient && propSelectedClient.id) {
       setFormData(prev => ({
@@ -11584,6 +11584,18 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
       }));
     }
   }, [propSelectedClient]);
+
+  // Sync selectedClient with formData and fetch personnel
+  useEffect(() => {
+    if (selectedClient) {
+      setFormData(prev => ({
+        ...prev,
+        client_id: selectedClient,
+        attendees: [] // Reset attendees when client changes
+      }));
+      fetchClientPersonnel(selectedClient);
+    }
+  }, [selectedClient]);
 
   const fetchTrainings = async () => {
     if (!authToken) return;
