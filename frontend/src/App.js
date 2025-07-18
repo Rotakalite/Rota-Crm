@@ -11828,25 +11828,6 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
               )}
               
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Müşteri Seçin *
-                </label>
-                <select
-                  value={formData.client_id}
-                  onChange={(e) => handleClientChange(e.target.value)}
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Bir müşteri seçin...</option>
-                  {clients.map((client) => (
-                    <option key={client.id} value={client.id}>
-                      {client.hotel_name || client.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Eğitimin Adı *
