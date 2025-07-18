@@ -7553,8 +7553,8 @@ async def delete_training(training_id: str, current_user: User = Depends(get_cur
     logging.info(f"✅ Training deleted: {training['name']}")
     return {"message": "Training deleted successfully"}
 
-@api_router.post("/trainings/auto-complete")
-async def auto_complete_trainings():
+@app.post("/api/trainings/auto-complete")
+async def auto_complete_trainings(current_user: User = Depends(get_current_user)):
     """Otomatik olarak süresi dolan eğitimleri tamamlandı olarak işaretle"""
     try:
         current_time = datetime.utcnow()
