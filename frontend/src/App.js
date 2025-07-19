@@ -11636,6 +11636,30 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
+  const completeTraining = async (trainingId) => {
+    if (!window.confirm('Bu eğitimi tamamlandı olarak işaretlemek istediğinizden emin misiniz?')) {
+      return;
+    }
+    
+    try {
+      const headers = authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+      await axios.put(`${API}/trainings/${trainingId}`, {
+        status: 'completed'
+      }, { headers });
+      
+      // Update local state
+      setTrainings(prev => prev.map(t => 
+        t.id === trainingId 
+          ? { ...t, status: 'completed' }
+          : t
+      ));
+      alert('✅ Eğitim tamamlandı olarak işaretlendi!');
+    } catch (error) {
+      console.error('❌ Error completing training:', error);
+      alert(`❌ Eğitim tamamlanırken hata: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
   useEffect(() => {
     if (authToken && (userRole === 'admin' || userRole === 'consultant')) {
       fetchTrainings();
