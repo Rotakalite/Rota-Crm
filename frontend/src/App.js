@@ -2759,8 +2759,8 @@ const Dashboard = ({ onNavigate }) => {
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Karbon Ayak İzi Analizi</span>
                     <div className="flex items-center space-x-2">
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div className="bg-green-500 h-2 rounded-full" style={{width: `${(adminDashboardData?.consumption_analytics?.carbon_footprint_reduction || 0) * 10}%`}}></div>
+                      <div className="w-32 bg-gray-200 rounded-full h-2 overflow-hidden">
+                        <div className="bg-green-500 h-2 rounded-full transition-all duration-300" style={{width: `${Math.min(adminDashboardData?.consumption_analytics?.carbon_footprint_reduction || 0, 100)}%`}}></div>
                       </div>
                       <span className="text-sm font-medium text-green-600">-{adminDashboardData?.consumption_analytics?.carbon_footprint_reduction || 0}%</span>
                     </div>
@@ -2768,8 +2768,8 @@ const Dashboard = ({ onNavigate }) => {
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Geri Dönüşüm Oranı</span>
                     <div className="flex items-center space-x-2">
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div className="bg-blue-500 h-2 rounded-full" style={{width: `${(adminDashboardData?.consumption_analytics?.recycling_rate || 0) * 10}%`}}></div>
+                      <div className="w-32 bg-gray-200 rounded-full h-2 overflow-hidden">
+                        <div className="bg-blue-500 h-2 rounded-full transition-all duration-300" style={{width: `${Math.min(adminDashboardData?.consumption_analytics?.recycling_rate || 0, 100)}%`}}></div>
                       </div>
                       <span className="text-sm font-medium text-blue-600">{adminDashboardData?.consumption_analytics?.recycling_rate || 0}%</span>
                     </div>
@@ -2777,8 +2777,8 @@ const Dashboard = ({ onNavigate }) => {
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Eğitim Tamamlanma</span>
                     <div className="flex items-center space-x-2">
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div className="bg-purple-500 h-2 rounded-full" style={{width: `${adminDashboardData?.training_analytics?.completion_rate || 0}%`}}></div>
+                      <div className="w-32 bg-gray-200 rounded-full h-2 overflow-hidden">
+                        <div className="bg-purple-500 h-2 rounded-full transition-all duration-300" style={{width: `${Math.min(adminDashboardData?.training_analytics?.completion_rate || 0, 100)}%`}}></div>
                       </div>
                       <span className="text-sm font-medium text-purple-600">{adminDashboardData?.training_analytics?.completion_rate || 0}%</span>
                     </div>
