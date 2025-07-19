@@ -625,37 +625,65 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
             logging.error(f"❌ Invalid token format: {len(token.split('.'))} segments")
             raise HTTPException(status_code=401, detail="Invalid token format")
         
-        # Get the signing key from Clerk with retry logic
-        signing_key = None
-        for attempt in range(3):  # Retry up to 3 times
+        # Get JWKS from Clerk
+        async def get_jwks():
             try:
-                signing_key = jwks_client.get_signing_key_from_jwt(token)
-                logging.info(f"✅ Got signing key from Clerk (attempt {attempt + 1})")
-                break
-            except Exception as key_error:
-                logging.warning(f"⚠️ Attempt {attempt + 1} failed to get signing key: {str(key_error)}")
-                if attempt == 2:  # Last attempt
-                    logging.error(f"❌ All attempts failed to get signing key")
-                    raise HTTPException(status_code=401, detail="Invalid token: could not get signing key")
-                import time
-                time.sleep(0.1)  # Brief delay before retry
+                import httpx
+                async with httpx.AsyncClient() as client:
+                    response = await client.get(CLERK_JWKS_URL)
+                    if response.status_code != 200:
+                        logging.error(f"❌ Failed to fetch JWKS: {response.status_code}")
+                        raise HTTPException(status_code=500, detail="Could not fetch JWKS")
+                    return response.json()
+            except Exception as e:
+                logging.error(f"❌ Error fetching JWKS: {str(e)}")
+                raise HTTPException(status_code=500, detail="JWKS fetch error")
         
-        # Decode and verify the token
+        # Verify JWT using python-jose
         try:
-            payload = jwt.decode(
+            from jose import jwt as jose_jwt
+            from jose.exceptions import JWTError
+            
+            # Get unverified header to find the key ID
+            unverified_header = jose_jwt.get_unverified_header(token)
+            
+            # Get JWKS
+            jwks = await get_jwks()
+            
+            # Find the matching key
+            rsa_key = {}
+            for key in jwks['keys']:
+                if key['kid'] == unverified_header['kid']:
+                    rsa_key = {
+                        'kty': key['kty'],
+                        'kid': key['kid'],
+                        'use': key['use'],
+                        'n': key['n'],
+                        'e': key['e']
+                    }
+                    break
+            
+            if not rsa_key:
+                logging.error("❌ No matching key found in JWKS")
+                raise HTTPException(status_code=401, detail="Invalid token: no matching key")
+            
+            # Decode and verify the token
+            payload = jose_jwt.decode(
                 token,
-                signing_key.key,
+                rsa_key,
                 algorithms=["RS256"],
-                audience=None,  # Clerk doesn't use audience
+                audience=None,  # Clerk doesn't use audience typically
                 options={"verify_aud": False}
             )
+            
             logging.info(f"✅ JWT decode successful for user: {payload.get('sub', 'unknown')}")
-        except jwt.ExpiredSignatureError:
-            logging.error("❌ Token has expired")
-            raise HTTPException(status_code=401, detail="Token has expired")
-        except jwt.InvalidTokenError as e:
-            logging.error(f"❌ Invalid token during decode: {str(e)}")
+            
+        except JWTError as e:
+            logging.error(f"❌ JWT Error: {str(e)}")
             raise HTTPException(status_code=401, detail="Invalid token")
+        except Exception as e:
+            logging.error(f"❌ Token decode error: {str(e)}")
+            raise HTTPException(status_code=401, detail="Token verification failed")
         
         # Validate payload has required fields
         if not payload.get('sub'):
