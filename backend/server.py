@@ -890,6 +890,72 @@ async def fix_personnel_names():
         logging.error(f"Fix personnel names error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.put("/api/trainings/{training_id}")
+async def update_training_main(
+    training_id: str, 
+    training_update: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Update a training - MAIN APP VERSION"""
+    logging.info(f"📚 PUT /api/trainings/{training_id} called by user: {current_user.name}, role: {current_user.role}")
+    
+    try:
+        # Check if training exists
+        existing_training = await db.trainings.find_one({"id": training_id})
+        if not existing_training:
+            raise HTTPException(status_code=404, detail="Training not found")
+        
+        # Authorization check
+        if current_user.role not in ['admin', 'consultant']:
+            raise HTTPException(status_code=403, detail="Only admin and consultant can update trainings")
+        
+        # For consultant, check if they have access to this training's client
+        if current_user.role == 'consultant':
+            client_id = existing_training.get("client_id")
+            if client_id:
+                client = await db.clients.find_one({"id": client_id})
+                if not client or client.get("consultant_id") != current_user.consultant_id:
+                    raise HTTPException(status_code=403, detail="Access denied: Training not assigned to consultant")
+        
+        # Prepare update data - handle simple status update
+        update_data = {}
+        if "status" in training_update:
+            update_data["status"] = training_update["status"]
+        
+        # Add other fields if provided
+        for field in ["name", "subject", "participant_count", "trainer", "training_date", "description", "attendees"]:
+            if field in training_update:
+                update_data[field] = training_update[field]
+                
+        update_data["updated_at"] = datetime.utcnow()
+        
+        # Update training
+        result = await db.trainings.update_one(
+            {"id": training_id},
+            {"$set": update_data}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Training not found")
+        
+        # Return updated training
+        updated_training = await db.trainings.find_one({"id": training_id})
+        if not updated_training:
+            raise HTTPException(status_code=404, detail="Training not found after update")
+            
+        # Convert ObjectId to string for JSON serialization
+        if "_id" in updated_training:
+            del updated_training["_id"]
+            
+        logging.info(f"✅ Training {training_id} updated successfully")
+        return updated_training
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ Error updating training {training_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Training update failed: {str(e)}")
+
 @app.get("/api/admin-dashboard-stats")
 async def get_admin_dashboard_stats_main():
     """Get comprehensive admin dashboard statistics - MAIN APP VERSION"""
