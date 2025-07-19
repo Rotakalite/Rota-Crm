@@ -2778,9 +2778,9 @@ const Dashboard = ({ onNavigate }) => {
                     <span className="text-sm text-gray-600">Eğitim Tamamlanma</span>
                     <div className="flex items-center space-x-2">
                       <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div className="bg-purple-500 h-2 rounded-full" style={{width: `${adminDashboardData.training_analytics?.completion_rate || 0}%`}}></div>
+                        <div className="bg-purple-500 h-2 rounded-full" style={{width: `${adminDashboardData?.training_analytics?.completion_rate || 0}%`}}></div>
                       </div>
-                      <span className="text-sm font-medium text-purple-600">{adminDashboardData.training_analytics?.completion_rate || 0}%</span>
+                      <span className="text-sm font-medium text-purple-600">{adminDashboardData?.training_analytics?.completion_rate || 0}%</span>
                     </div>
                   </div>
                 </div>
