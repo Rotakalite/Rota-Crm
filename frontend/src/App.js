@@ -2871,7 +2871,7 @@ const Dashboard = ({ onNavigate }) => {
                   <button
                     onClick={() => {
                       console.log('🎯 Navigating to consultantDashboard');
-                      onNavigate('consultantDashboard');
+                      onNavigate('consultants');
                     }}
                     className="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors text-left group"
                   >
