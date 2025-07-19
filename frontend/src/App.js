@@ -2744,9 +2744,9 @@ const Dashboard = ({ onNavigate }) => {
                     <span className="text-sm text-gray-600">Consultant Atanmış</span>
                     <div className="flex items-center space-x-2">
                       <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div className="bg-purple-600 h-2 rounded-full" style={{width: `${((adminDashboardData.overview?.assigned_clients || 0) / (adminDashboardData.overview?.total_clients || 1)) * 100}%`}}></div>
+                        <div className="bg-purple-600 h-2 rounded-full" style={{width: `${((adminDashboardData?.overview?.assigned_clients || 0) / (adminDashboardData?.overview?.total_clients || 1)) * 100}%`}}></div>
                       </div>
-                      <span className="text-sm font-medium w-8">{adminDashboardData.overview?.assigned_clients || 0}</span>
+                      <span className="text-sm font-medium w-8">{adminDashboardData?.overview?.assigned_clients || 0}</span>
                     </div>
                   </div>
                 </div>
