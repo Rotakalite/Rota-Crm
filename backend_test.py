@@ -7252,40 +7252,51 @@ def run_railway_security_tests():
         return False
 
 if __name__ == "__main__":
-    import requests  # Import here to avoid issues with mocking
-    from critical_api_tests import run_critical_api_endpoints_tests
+    # Configure logging for test execution
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler('/app/training_management_test.log')
+        ]
+    )
     
-    # Update API URL in all test classes to use the correct URL from frontend/.env
-    TestAnalyticsEndpoints.api_url = "https://9ef171d3-ce2f-48b5-9bdc-59bfb459ed67.preview.emergentagent.com/api"
-    TestDocumentEndpoints.api_url = "https://9ef171d3-ce2f-48b5-9bdc-59bfb459ed67.preview.emergentagent.com/api"
-    TestSimplifiedUploadSystem.api_url = "https://9ef171d3-ce2f-48b5-9bdc-59bfb459ed67.preview.emergentagent.com/api"
-    TestTrainingEndpoints.api_url = "https://9ef171d3-ce2f-48b5-9bdc-59bfb459ed67.preview.emergentagent.com/api"
-    TestClientDashboardStats.api_url = "https://9ef171d3-ce2f-48b5-9bdc-59bfb459ed67.preview.emergentagent.com/api"
-    TestFolderSystem.api_url = "https://9ef171d3-ce2f-48b5-9bdc-59bfb459ed67.preview.emergentagent.com/api"
-    TestHierarchicalSubFolderSystem.api_url = "https://9ef171d3-ce2f-48b5-9bdc-59bfb459ed67.preview.emergentagent.com/api"
+    logger.info("="*80)
+    logger.info("TRAINING MANAGEMENT BACKEND TESTING STARTED")
+    logger.info("="*80)
     
-    # Run the Railway backend security tests
-    run_railway_security_tests()
+    # Create test suite focusing on training management
+    suite = unittest.TestSuite()
     
-    # Run the new health check and CORS tests
-    run_health_and_cors_tests()
+    # Add training management tests (main focus)
+    suite.addTest(TestTrainingManagement('test_training_list_endpoint'))
+    suite.addTest(TestTrainingManagement('test_training_creation_endpoint'))
+    suite.addTest(TestTrainingManagement('test_training_update_endpoint'))  # MAIN TEST
+    suite.addTest(TestTrainingManagement('test_personnel_endpoint_for_training'))
+    suite.addTest(TestTrainingManagement('test_client_personnel_endpoint'))
     
-    # Run critical API endpoints tests
-    run_critical_api_endpoints_tests()
+    # Run the tests
+    runner = unittest.TextTestRunner(verbosity=2)
+    result = runner.run(suite)
     
-    # Run client management tests
-    from client_management_test import TestClientManagementEndpoints
+    logger.info("="*80)
+    logger.info("TRAINING MANAGEMENT BACKEND TESTING COMPLETED")
+    logger.info(f"Tests run: {result.testsRun}")
+    logger.info(f"Failures: {len(result.failures)}")
+    logger.info(f"Errors: {len(result.errors)}")
+    logger.info("="*80)
     
-    # Create a test suite for client management
-    client_suite = unittest.TestSuite()
-    client_suite.addTest(TestClientManagementEndpoints("test_1_client_creation"))
-    client_suite.addTest(TestClientManagementEndpoints("test_2_client_listing"))
-    client_suite.addTest(TestClientManagementEndpoints("test_3_client_deletion"))
-    client_suite.addTest(TestClientManagementEndpoints("test_4_client_deletion_invalid_id"))
+    # Print summary
+    if result.failures:
+        logger.error("FAILURES:")
+        for test, traceback in result.failures:
+            logger.error(f"- {test}: {traceback}")
     
-    # Run the client management tests
-    print("\n=== Running Client Management Tests ===")
-    unittest.TextTestRunner().run(client_suite)
+    if result.errors:
+        logger.error("ERRORS:")
+        for test, traceback in result.errors:
+            logger.error(f"- {test}: {traceback}")
     
-    # Run other tests as needed
-    # run_level3_subfolder_tests()
+    # Exit with appropriate code
+    sys.exit(0 if result.wasSuccessful() else 1)
