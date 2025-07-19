@@ -2814,7 +2814,7 @@ const Dashboard = ({ onNavigate }) => {
                         <span className="text-sm">👤</span>
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm text-gray-900">Yeni müşteri kaydı: {adminDashboardData.overview?.total_clients ? "Son kayıt tamamlandı" : "Veri yükleniyor..."}</p>
+                        <p className="text-sm text-gray-900">Yeni müşteri kaydı: {adminDashboardData?.overview?.total_clients ? "Son kayıt tamamlandı" : "Veri yükleniyor..."}</p>
                         <p className="text-xs text-gray-500">Az önce</p>
                       </div>
                     </div>,
