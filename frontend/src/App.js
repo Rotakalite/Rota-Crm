@@ -11997,7 +11997,7 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
           </div>
         </div>
       ) : (
-        <>
+        
           {/* Header - Only show when client selected or admin */}
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold text-gray-800">
