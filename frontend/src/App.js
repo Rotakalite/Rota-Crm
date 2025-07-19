@@ -11540,12 +11540,12 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
     }
     
     try {
-      const response = await axios.get(`${API}/clients/${clientId}/personnel`, {
+      // Use the same endpoint as Personnel Management
+      const response = await axios.get(`${API}/personnel?client_id=${clientId}`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       console.log('🧑‍💼 Client Personnel Response:', response.data);
-      console.log('🧑‍💼 Personnel Array:', response.data.personnel);
-      setClientPersonnel(response.data.personnel || []);
+      setClientPersonnel(response.data || []);
     } catch (error) {
       console.error('Error fetching client personnel:', error);
       setClientPersonnel([]);
