@@ -2632,28 +2632,6 @@ const Dashboard = ({ onNavigate }) => {
         {/* Enhanced Admin Dashboard */}
         {userRole === 'admin' && (
           <div className="space-y-8">
-            {/* Debug Info */}
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <h4 className="font-medium text-yellow-800">Debug Info:</h4>
-              <p className="text-sm text-yellow-700">
-                adminDashboardData: {adminDashboardData ? 'Loaded' : 'NULL/Missing'}
-              </p>
-              <p className="text-sm text-yellow-700">
-                userRole: {userRole}
-              </p>
-              <p className="text-sm text-yellow-700">
-                authToken: {authToken ? 'Present' : 'Missing'}
-              </p>
-              <p className="text-sm text-yellow-700">
-                loading: {loading ? 'True' : 'False'}
-              </p>
-              {adminDashboardData && (
-                <pre className="text-xs text-yellow-700 mt-2 overflow-x-auto">
-                  {JSON.stringify(adminDashboardData, null, 2)}
-                </pre>
-              )}
-            </div>
-
             {/* Header Section */}
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
               <div className="flex justify-between items-center">
