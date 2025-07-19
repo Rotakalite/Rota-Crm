@@ -11946,330 +11946,35 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
 
   return (
     <div className="space-y-6">
-      {/* Client Selection - For Admin and Consultant */}
+      {/* Client Selection */}
       {(userRole === 'admin' || userRole === 'consultant') && (
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">1. Müşteri Seçimi</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Müşteri Seçin
-              </label>
-              <select
-                value={selectedClient}
-                onChange={(e) => {
-                  setSelectedClient(e.target.value);
-                  // Auto-fill form client_id when selected
-                  setFormData(prev => ({ ...prev, client_id: e.target.value }));
-                }}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">-- Tüm Müşteriler --</option>
-                {Array.isArray(clients) && clients.map((client) => (
-                  <option key={client.id} value={client.id}>
-                    {client.name || client.hotel_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {(selectedClient || userRole === 'admin') && (
-              <div className="flex items-end">
-                <button
-                  onClick={() => setShowAddForm(!showAddForm)}
-                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center"
-                >
-                  <span className="mr-2">+</span>
-                  {showAddForm ? 'İptal' : 'Yeni Eğitim Ekle'}
-                </button>
-              </div>
-            )}
-          </div>
+          <h3 className="text-lg font-semibold mb-4">Müşteri Seçimi</h3>
+          <select
+            value={selectedClient}
+            onChange={(e) => setSelectedClient(e.target.value)}
+            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Bir müşteri seçin...</option>
+            {clients.map((client) => (
+              <option key={client.id} value={client.id}>
+                {client.hotel_name || client.name}
+              </option>
+            ))}
+          </select>
         </div>
       )}
 
-      {/* Show message if consultant hasn't selected client yet */}
-      <div>
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">📚</div>
-            <p className="text-gray-500 text-lg mb-2">Eğitim yönetimi için önce bir müşteri seçin.</p>
-            <p className="text-gray-400 text-sm">Yukarıdaki dropdown'dan müşteri seçerek başlayabilirsiniz.</p>
-          </div>
-        </div>
-      ) : (
-        <div>
-          {/* Header - Only show when client selected or admin */}
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-gray-800">
-              Eğitim Yönetimi 
-              {selectedClient && (
-                <span className="text-lg text-gray-600 font-normal ml-2">
-                  - {clients.find(c => c.id === selectedClient)?.hotel_name || clients.find(c => c.id === selectedClient)?.name}
-                </span>
-              )}
-            </h2>
-            {userRole === 'admin' && !selectedClient && (
-              <button
-                onClick={() => setShowAddForm(!showAddForm)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-              >
-                <span className="mr-2">+</span>
-                Yeni Eğitim Ekle
-              </button>
-            )}
-          </div>
-
-      {/* Add Training Form */}
-      {showAddForm && (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold mb-4">Yeni Eğitim Ekle</h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Client Selection - Only show when no client is selected at top level */}
-            {!selectedClient && (
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Müşteri Seçin *
-                </label>
-                <select
-                  value={formData.client_id}
-                  onChange={(e) => handleClientChange(e.target.value)}
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Bir müşteri seçin...</option>
-                  {clients.map((client) => (
-                    <option key={client.id} value={client.id}>
-                      {client.hotel_name || client.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-            
-            {/* Selected Client Display - Show when client is selected at top level */}
-            {selectedClient && (
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Seçili Müşteri
-                </label>
-                <div className="w-full p-2 bg-gray-50 border rounded-lg text-gray-700">
-                  {clients.find(c => c.id === selectedClient)?.hotel_name || 
-                   clients.find(c => c.id === selectedClient)?.name || 
-                   'Bilinmeyen Müşteri'}
-                </div>
-              </div>
-            )}
-              
-              {/* Personnel Selection */}
-              {formData.client_id && clientPersonnel.length > 0 && (
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Katılacak Personeller
-                  </label>
-                  <div className="border rounded-lg p-3 max-h-40 overflow-y-auto">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-gray-600">
-                        {formData.attendees.length} / {clientPersonnel.length} personel seçildi
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleSelectAllPersonnel(formData.attendees.length !== clientPersonnel.length)}
-                        className="text-sm text-blue-600 hover:text-blue-800"
-                      >
-                        {formData.attendees.length === clientPersonnel.length ? 'Tümünü Kaldır' : 'Tümünü Seç'}
-                      </button>
-                    </div>
-                    <div className="space-y-2">
-                      {clientPersonnel.map((person) => {
-                        console.log('🧑‍💼 Personnel Item:', person);
-                        
-                        // full_name field'ını kullan
-                        const displayName = person.full_name || 
-                                          `${person.name || ''} ${person.surname || ''}`.trim() || 
-                                          person.position || 
-                                          'İsim Belirtilmemiş';
-                        
-                        return (
-                          <div key={person.id} className="flex items-center p-2 rounded hover:bg-gray-50">
-                            <input
-                              type="checkbox"
-                              id={`person-${person.id}`}
-                              checked={formData.attendees.includes(person.id)}
-                              onChange={(e) => handlePersonnelSelection(person.id, e.target.checked)}
-                              className="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                            />
-                            <label htmlFor={`person-${person.id}`} className="text-sm cursor-pointer flex-1">
-                              <div className="flex flex-col">
-                                <span className="font-semibold text-gray-800">{displayName}</span>
-                                {person.position && (
-                                  <span className="text-xs text-gray-500">{person.position}</span>
-                                )}
-                                {person.location && (
-                                  <span className="text-xs text-gray-400">{person.location}</span>
-                                )}
-                              </div>
-                            </label>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {/* No Personnel Message */}
-              {formData.client_id && clientPersonnel.length === 0 && (
-                <div className="md:col-span-2">
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                    <p className="text-sm text-yellow-700">
-                      Bu müşteri için henüz personel kaydı bulunmamaktadır. 
-                      Önce Personel Yönetimi'nden personel ekleyin.
-                    </p>
-                  </div>
-                </div>
-              )}
-              
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Eğitimin Adı *
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Konusu *
-                </label>
-                <input
-                  type="text"
-                  value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Katılımcı Sayısı
-                </label>
-                <input
-                  type="number"
-                  value={formData.participant_count}
-                  onChange={(e) => setFormData({ ...formData, participant_count: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  min="0"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Eğitimi Kimin Vereceği *
-                </label>
-                <input
-                  type="text"
-                  value={formData.trainer}
-                  onChange={(e) => setFormData({ ...formData, trainer: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tarih *
-                </label>
-                <input
-                  type="date"
-                  value={formData.training_date}
-                  onChange={(e) => setFormData({ ...formData, training_date: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Saat *
-                </label>
-                <input
-                  type="time"
-                  value={formData.training_time}
-                  onChange={(e) => setFormData({ ...formData, training_time: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Açıklama
-              </label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows="3"
-              />
-            </div>
-            
-            {/* Eğitim Durumu */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Eğitim Durumu
-              </label>
-              <select
-                value={formData.status || 'planned'}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="planned">📅 Planlandı</option>
-                <option value="completed">✅ Tamamlandı</option>
-                <option value="cancelled">❌ İptal Edildi</option>
-              </select>
-            </div>
-            
-            <div className="flex space-x-4">
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
-              >
-                {loading ? 'Ekleniyor...' : 'Eğitimi Ekle'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowAddForm(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                İptal
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* View Mode Toggle */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-800">📚 Eğitim Yönetimi</h2>
-          <div className="flex items-center space-x-2">
-            {/* View Mode Buttons */}
+      {/* View Toggle & Training List */}
+      <div className="bg-white rounded-lg shadow-md">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-800">📚 Eğitim Yönetimi</h2>
             <div className="flex bg-gray-100 rounded-lg p-1">
               <button
                 onClick={() => setViewMode('list')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  viewMode === 'list'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:bg-gray-200'
+                  viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 📋 Liste
@@ -12277,258 +11982,57 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
               <button
                 onClick={() => setViewMode('calendar')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  viewMode === 'calendar'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:bg-gray-200'
+                  viewMode === 'calendar' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 📅 Takvim
               </button>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Conditional View Rendering */}
-      {viewMode === 'calendar' ? (
-        <TrainingCalendar 
-          trainings={(() => {
-            // Apply same filtering logic as list view
-            const filteredTrainings = userRole === 'consultant' && selectedClient 
-              ? trainings.filter(training => training.client_id === selectedClient)
-              : selectedClient 
-                ? trainings.filter(training => training.client_id === selectedClient)
-                : trainings;
-            return filteredTrainings;
-          })()} 
-          clients={clients} 
-        />
-      ) : (
-        /* Trainings List */
-        <div className="bg-white rounded-lg shadow-md">
-          <div className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Eğitimler</h3>
-            
-            {(() => {
-              // Filter trainings based on selected client for consultant
-              const filteredTrainings = userRole === 'consultant' && selectedClient 
-                ? trainings.filter(training => training.client_id === selectedClient)
-                : selectedClient 
-                  ? trainings.filter(training => training.client_id === selectedClient)
-                  : trainings;
-              
-              return filteredTrainings.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
+          {viewMode === 'calendar' ? (
+            <TrainingCalendar trainings={trainings} clients={clients} />
+          ) : (
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Eğitim Listesi</h3>
+              {trainings.length === 0 ? (
+                <div className="text-center py-8">
                   <span className="text-6xl mb-4 block">📚</span>
-                  <h4 className="text-xl font-semibold mb-2">
-                    {selectedClient ? 'Bu müşteri için henüz eğitim yok' : 'Henüz eğitim yok'}
-                  </h4>
-                  <p>
-                    {selectedClient 
-                      ? 'Bu müşteri için ilk eğitimi eklemek için yukarıdaki butonu kullanın.'
-                      : 'İlk eğitimi eklemek için önce müşteri seçin.'
-                    }
-                  </p>
+                  <p className="text-gray-500">Henüz eğitim eklenmemiş</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {filteredTrainings.map((training) => (
-                  <div key={training.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center mb-2">
-                          <span className="text-2xl mr-3">📚</span>
-                          <div>
-                            <h4 className="font-semibold text-lg">{training.name}</h4>
-                            <p className="text-sm text-gray-600">{training.subject}</p>
-                            <p className="text-xs text-blue-600 font-medium">🏨 {getClientName(training.client_id)}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
-                          <div>
-                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Eğitmen</span>
-                            <p className="text-sm font-medium">{training.trainer}</p>
-                          </div>
-                          <div>
-                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tarih</span>
-                            <p className="text-sm font-medium">{formatDate(training.training_date)}</p>
-                          </div>
-                          <div>
-                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Katılımcı Sayısı</span>
-                            <p className="text-sm font-medium">{training.participant_count || 0}</p>
-                          </div>
-                        </div>
-                        
-                        {training.description && (
-                          <div className="mt-3">
-                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Açıklama</span>
-                            <p className="text-sm text-gray-700 mt-1">{training.description}</p>
-                          </div>
-                        )}
-                        
-                        {/* Katılımcılar listesi */}
-                        {training.attendees && training.attendees.length > 0 && (
-                          <div className="mt-3">
-                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Katılımcılar ({training.attendees.length})</span>
-                            <div className="mt-2">
-                              <AttendeesList 
-                                attendeeIds={training.attendees} 
-                                clientId={training.client_id}
-                                authToken={authToken}
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex items-center ml-4 space-x-2">
-                        {/* Status Badge */}
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          training.status === 'completed' 
-                            ? 'bg-green-100 text-green-800' 
-                            : training.status === 'planned'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {training.status === 'completed' ? '✅ Tamamlandı' : 
-                           training.status === 'planned' ? '📅 Planlandı' : '⏳ Bekliyor'}
-                        </span>
-                        
-                        {/* Complete Button - Only show for non-completed trainings */}
-                        {training.status !== 'completed' && (
+                  {trainings.map((training) => (
+                    <div key={training.id} className="border rounded-lg p-4">
+                      <h4 className="font-semibold">{training.name}</h4>
+                      <p className="text-sm text-gray-600">{training.subject}</p>
+                      <div className="flex justify-between items-center mt-2">
+                        <span className="text-sm">{formatDate(training.training_date)}</span>
+                        <div className="space-x-2">
+                          {training.status !== 'completed' && (
+                            <button
+                              onClick={() => completeTraining(training.id)}
+                              className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+                            >
+                              ✅ Tamamla
+                            </button>
+                          )}
                           <button
-                            onClick={() => completeTraining(training.id)}
-                            className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition-colors"
-                            title="Eğitimi tamamla"
+                            onClick={() => deleteTraining(training.id)}
+                            className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
                           >
-                            ✅ Tamamla
+                            🗑️ Sil
                           </button>
-                        )}
-                        
-                        <button
-                          onClick={() => deleteTraining(training.id)}
-                          className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors"
-                          title="Eğitimi sil"
-                        >
-                          🗑️ Sil
-                        </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
                   ))}
                 </div>
-              );
-            })()}
-          </div>
+              )}
+            </div>
+          )}
         </div>
-      )}
-            
-            return filteredTrainings.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <span className="text-6xl mb-4 block">📚</span>
-                <h4 className="text-xl font-semibold mb-2">
-                  {selectedClient ? 'Bu müşteri için henüz eğitim yok' : 'Henüz eğitim yok'}
-                </h4>
-                <p>
-                  {selectedClient 
-                    ? 'Bu müşteri için ilk eğitimi eklemek için yukarıdaki butonu kullanın.'
-                    : 'İlk eğitimi eklemek için önce müşteri seçin.'
-                  }
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {filteredTrainings.map((training) => (
-                <div key={training.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center mb-2">
-                        <span className="text-2xl mr-3">📚</span>
-                        <div>
-                          <h4 className="font-semibold text-lg">{training.name}</h4>
-                          <p className="text-sm text-gray-600">{training.subject}</p>
-                          <p className="text-xs text-blue-600 font-medium">🏨 {getClientName(training.client_id)}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
-                        <div>
-                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Eğitmen</span>
-                          <p className="text-sm font-medium">{training.trainer}</p>
-                        </div>
-                        <div>
-                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tarih</span>
-                          <p className="text-sm font-medium">{formatDate(training.training_date)}</p>
-                        </div>
-                        <div>
-                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Katılımcı Sayısı</span>
-                          <p className="text-sm font-medium">{training.participant_count || 0}</p>
-                        </div>
-                      </div>
-                      
-                      {training.description && (
-                        <div className="mt-3">
-                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Açıklama</span>
-                          <p className="text-sm text-gray-700 mt-1">{training.description}</p>
-                        </div>
-                      )}
-                      
-                      {/* Katılımcılar listesi */}
-                      {training.attendees && training.attendees.length > 0 && (
-                        <div className="mt-3">
-                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Katılımcılar ({training.attendees.length})</span>
-                          <div className="mt-2">
-                            <AttendeesList 
-                              attendeeIds={training.attendees} 
-                              clientId={training.client_id}
-                              authToken={authToken}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center ml-4 space-x-2">
-                      {/* Status Badge */}
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        training.status === 'completed' 
-                          ? 'bg-green-100 text-green-800' 
-                          : training.status === 'planned'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {training.status === 'completed' ? '✅ Tamamlandı' : 
-                         training.status === 'planned' ? '📅 Planlandı' : '⏳ Bekliyor'}
-                      </span>
-                      
-                      {/* Complete Button - Only show for non-completed trainings */}
-                      {training.status !== 'completed' && (
-                        <button
-                          onClick={() => completeTraining(training.id)}
-                          className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition-colors"
-                          title="Eğitimi tamamla"
-                        >
-                          ✅ Tamamla
-                        </button>
-                      )}
-                      
-                      <button
-                        onClick={() => deleteTraining(training.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors"
-                        title="Eğitimi sil"
-                      >
-                        🗑️ Sil
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              </div>
-            );
-          })()}
-        </div>
-      )}
+      </div>
     </div>
   );
 };
