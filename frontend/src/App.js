@@ -47,11 +47,11 @@ const useAuth = () => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  // Enhanced token refresh with better error handling
-  const refreshToken = async () => {
+  // Enhanced token refresh with better error handling and proactive refresh
+  const refreshToken = async (force = false) => {
     try {
       if (session) {
-        console.log('🔄 Refreshing token...');
+        console.log('🔄 Refreshing token...', force ? '(forced)' : '');
         console.log('🔄 Session available:', !!session);
         console.log('🔄 Session status:', session.status);
         console.log('🔄 Session lastActiveAt:', session.lastActiveAt);
@@ -62,6 +62,7 @@ const useAuth = () => {
         if (newToken) {
           setAuthToken(newToken);
           localStorage.setItem('authToken', newToken);
+          sessionStorage.setItem('authToken', newToken);
           localStorage.setItem('tokenTimestamp', Date.now().toString());
           console.log('✅ Token refreshed successfully');
           return newToken;
@@ -89,11 +90,32 @@ const useAuth = () => {
         localStorage.removeItem('tokenTimestamp');
         sessionStorage.removeItem('userRole');
         sessionStorage.removeItem('dbUser');
+        sessionStorage.removeItem('authToken');
         setAuthToken(null);
         setUserRole(null);
         setDbUser(null);
       }
       throw error;
+    }
+  };
+
+  // Proactive token refresh function - refresh every 15 minutes
+  const ensureFreshToken = async () => {
+    try {
+      const tokenTimestamp = localStorage.getItem('tokenTimestamp');
+      const currentTime = Date.now();
+      const fifteenMinutes = 15 * 60 * 1000; // 15 minutes in milliseconds
+      
+      // If no timestamp or token is older than 15 minutes, refresh
+      if (!tokenTimestamp || (currentTime - parseInt(tokenTimestamp)) > fifteenMinutes) {
+        console.log('🔄 Token is older than 15 minutes, proactive refresh...');
+        return await refreshToken(true);
+      }
+      
+      return authToken;
+    } catch (error) {
+      console.error('❌ Proactive token refresh failed:', error);
+      return authToken; // Return existing token if refresh fails
     }
   };
 
