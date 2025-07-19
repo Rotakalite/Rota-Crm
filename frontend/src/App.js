@@ -12291,7 +12291,18 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
 
       {/* Conditional View Rendering */}
       {viewMode === 'calendar' ? (
-        <TrainingCalendar trainings={trainings} clients={clients} />
+        <TrainingCalendar 
+          trainings={(() => {
+            // Apply same filtering logic as list view
+            const filteredTrainings = userRole === 'consultant' && selectedClient 
+              ? trainings.filter(training => training.client_id === selectedClient)
+              : selectedClient 
+                ? trainings.filter(training => training.client_id === selectedClient)
+                : trainings;
+            return filteredTrainings;
+          })()} 
+          clients={clients} 
+        />
       ) : (
         /* Trainings List */
         <div className="bg-white rounded-lg shadow-md">
