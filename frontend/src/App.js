@@ -2693,8 +2693,8 @@ const Dashboard = ({ onNavigate }) => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Tamamlanan Eğitim</p>
-                    <p className="text-3xl font-bold text-gray-900">{adminDashboardData.overview?.total_trainings || 0}</p>
-                    <p className="text-sm text-purple-600 mt-1">↗ %{adminDashboardData.training_analytics?.completion_rate || 0} tamamlanma</p>
+                    <p className="text-3xl font-bold text-gray-900">{adminDashboardData?.overview?.total_trainings || 0}</p>
+                    <p className="text-sm text-purple-600 mt-1">↗ %{adminDashboardData?.training_analytics?.completion_rate || 0} tamamlanma</p>
                   </div>
                   <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                     <span className="text-2xl">🎓</span>
