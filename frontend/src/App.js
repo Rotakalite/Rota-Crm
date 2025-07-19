@@ -11525,6 +11525,168 @@ const AttendeesList = ({ attendeeIds, clientId, authToken }) => {
   );
 };
 
+// Training Calendar Component
+const TrainingCalendar = ({ trainings, clients }) => {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null);
+
+  // Helper functions for calendar
+  const getDaysInMonth = (date) => {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  };
+
+  const getFirstDayOfMonth = (date) => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  };
+
+  const getMonthName = (date) => {
+    return date.toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
+  };
+
+  const getTrainingsForDate = (day) => {
+    const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return trainings.filter(training => training.training_date?.startsWith(dateStr));
+  };
+
+  const getClientName = (clientId) => {
+    const client = clients.find(c => c.id === clientId);
+    return client ? (client.hotel_name || client.name) : 'Bilinmeyen Müşteri';
+  };
+
+  const renderCalendarDay = (day) => {
+    const dayTrainings = getTrainingsForDate(day);
+    const hasTrainings = dayTrainings.length > 0;
+    const today = new Date();
+    const isToday = today.getDate() === day && 
+                   today.getMonth() === currentDate.getMonth() && 
+                   today.getFullYear() === currentDate.getFullYear();
+
+    return (
+      <div
+        key={day}
+        onClick={() => setSelectedDate(day)}
+        className={`min-h-[80px] p-2 border border-gray-200 cursor-pointer hover:bg-gray-50 ${
+          isToday ? 'bg-blue-50 border-blue-300' : ''
+        } ${selectedDate === day ? 'bg-blue-100 border-blue-500' : ''}`}
+      >
+        <div className={`text-sm font-medium mb-1 ${isToday ? 'text-blue-600' : 'text-gray-900'}`}>
+          {day}
+        </div>
+        
+        {hasTrainings && (
+          <div className="space-y-1">
+            {dayTrainings.slice(0, 2).map((training, idx) => (
+              <div
+                key={idx}
+                className={`text-xs p-1 rounded truncate ${
+                  training.status === 'completed' 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-blue-100 text-blue-800'
+                }`}
+                title={`${training.name} - ${getClientName(training.client_id)}`}
+              >
+                {training.status === 'completed' ? '✅' : '📚'} {training.name}
+              </div>
+            ))}
+            
+            {dayTrainings.length > 2 && (
+              <div className="text-xs text-gray-500">
+                +{dayTrainings.length - 2} daha...
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const daysInMonth = getDaysInMonth(currentDate);
+  const firstDay = getFirstDayOfMonth(currentDate);
+  const calendarDays = [];
+
+  // Empty cells for days before month starts
+  for (let i = 0; i < firstDay; i++) {
+    calendarDays.push(<div key={`empty-${i}`} className="min-h-[80px] p-2 border border-gray-200 bg-gray-50"></div>);
+  }
+
+  // Days of the month
+  for (let day = 1; day <= daysInMonth; day++) {
+    calendarDays.push(renderCalendarDay(day));
+  }
+
+  const selectedDateTrainings = selectedDate ? getTrainingsForDate(selectedDate) : [];
+
+  return (
+    <div className="bg-white rounded-lg shadow-md">
+      <div className="p-6">
+        {/* Calendar Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold text-gray-900">Eğitim Takvimi</h3>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              ←
+            </button>
+            <span className="text-lg font-medium min-w-[200px] text-center">
+              {getMonthName(currentDate)}
+            </span>
+            <button
+              onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              →
+            </button>
+          </div>
+        </div>
+
+        {/* Calendar Grid */}
+        <div className="grid grid-cols-7 gap-0 border border-gray-200 rounded-lg overflow-hidden">
+          {/* Day headers */}
+          {['Pz', 'Pt', 'Sl', 'Çr', 'Pr', 'Cm', 'Ct'].map(day => (
+            <div key={day} className="p-3 bg-gray-50 border-b border-gray-200 text-center font-medium text-sm text-gray-700">
+              {day}
+            </div>
+          ))}
+          
+          {/* Calendar days */}
+          {calendarDays}
+        </div>
+
+        {/* Selected Date Details */}
+        {selectedDate && selectedDateTrainings.length > 0 && (
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+            <h4 className="font-medium text-blue-900 mb-3">
+              {selectedDate} {getMonthName(currentDate)} - Eğitimler ({selectedDateTrainings.length})
+            </h4>
+            <div className="space-y-2">
+              {selectedDateTrainings.map((training, idx) => (
+                <div key={idx} className="flex items-center justify-between p-2 bg-white rounded border">
+                  <div>
+                    <span className="font-medium">{training.name}</span>
+                    <span className="text-sm text-gray-600 ml-2">({training.subject})</span>
+                    <div className="text-xs text-gray-500">
+                      🏨 {getClientName(training.client_id)} | 👨‍🏫 {training.trainer}
+                    </div>
+                  </div>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    training.status === 'completed' 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    {training.status === 'completed' ? '✅ Tamamlandı' : '📅 Planlandı'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
   const [trainings, setTrainings] = useState([]);
   const [clients, setClients] = useState([]);
