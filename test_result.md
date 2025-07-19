@@ -139,6 +139,9 @@ backend:
         -working: false
         -agent: "main"
         -comment: "2025-01-25: DEPLOYMENT ISSUE IDENTIFIED! ❌ ROOT CAUSE: Backend code changes are not being deployed to the live Railway server. Evidence: 1) Modified existing /health endpoint with new field 'test_update' 2) New test endpoints added to server.py 3) Supervisor restarts show successful local server updates 4) Railway server responses show old code without modifications 5) Live server at rota-crm-production.up.railway.app is running outdated code. ✅ CONCLUSION: The Training Management backend endpoints are correctly implemented in the local codebase but not deployed to production. The endpoints would work correctly if deployed. This is an infrastructure/deployment issue, not a code issue."
+        -working: false
+        -agent: "testing"
+        -comment: "2025-01-25: TRAINING EDITING ISSUE CONFIRMED! ❌ CRITICAL FINDINGS: 1) PUT /api/trainings/{training_id} endpoint returns 401 'Invalid token: could not get signing key' - authentication system blocking training updates. 2) GET /api/trainings endpoint returns 404 Not Found - training list endpoint not accessible. 3) POST /api/trainings endpoint returns 405 Method Not Allowed - training creation endpoint has method issues. 4) GET /api/personnel endpoint returns 404 Not Found - personnel selection not working. 5) GET /api/clients/{client_id}/personnel endpoint returns 401 authentication error. ✅ POSITIVE: PUT endpoint exists and properly requires authentication (403 without auth). ❌ ROOT CAUSE: User complaint 'bir kere eğitim kaydettikten sonra düzenleme yapamıyorum' is caused by authentication token issues preventing access to training update functionality. The backend endpoints are implemented but authentication system is blocking legitimate update requests."
 
 frontend:
   - task: "Training Management Duplicate Client Selection Fix"
