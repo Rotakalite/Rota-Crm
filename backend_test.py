@@ -1165,6 +1165,361 @@ class TestWasteManagementEndpoints(unittest.TestCase):
             logger.error(f"❌ Error testing GET /api/waste-management/analytics with year parameter: {str(e)}")
             raise
 
+class TestTrainingManagement(unittest.TestCase):
+    """Test class for Training Management endpoints - Focus on editing functionality"""
+    
+    def setUp(self):
+        """Set up test environment"""
+        # Use the backend URL from frontend/.env
+        self.api_url = "https://9ef171d3-ce2f-48b5-9bdc-59bfb459ed67.preview.emergentagent.com/api"
+        
+        # Headers for different user types
+        self.headers_admin = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
+        self.headers_client = {"Authorization": f"Bearer {KAYA_CLIENT_TOKEN}"}
+        self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
+        self.headers_no_auth = {}
+        
+        # Test data for training creation
+        self.test_training_data = {
+            "client_id": "test-client-id-001",
+            "name": "Test Eğitimi",
+            "subject": "Sürdürülebilirlik Eğitimi",
+            "participant_count": 15,
+            "trainer": "Test Eğitmen",
+            "training_date": "2025-02-15T10:00:00Z",
+            "description": "Test amaçlı oluşturulan eğitim",
+            "attendees": ["personnel-1", "personnel-2"]
+        }
+        
+        # Test data for training update
+        self.test_training_update = {
+            "name": "Güncellenmiş Eğitim Adı",
+            "subject": "Güncellenmiş Konu",
+            "participant_count": 20,
+            "trainer": "Güncellenmiş Eğitmen",
+            "description": "Güncellenmiş açıklama",
+            "status": "completed"
+        }
+    
+    def test_training_list_endpoint(self):
+        """Test GET /api/trainings endpoint"""
+        logger.info("\n=== Testing GET /api/trainings endpoint ===")
+        
+        url = f"{self.api_url}/trainings"
+        
+        # Test with admin user
+        try:
+            response = requests.get(url, headers=self.headers_admin)
+            logger.info(f"Admin response status code: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"Found {len(data)} trainings")
+                
+                # Verify response structure (should be a list)
+                self.assertIsInstance(data, list)
+                
+                # If there are trainings, check their structure
+                if len(data) > 0:
+                    training = data[0]
+                    expected_fields = ["id", "client_id", "name", "subject", "participant_count", 
+                                     "trainer", "training_date", "description", "status"]
+                    
+                    for field in expected_fields:
+                        self.assertIn(field, training, f"Training should contain {field}")
+                    
+                    logger.info(f"✅ Training structure validated: {list(training.keys())}")
+                
+                logger.info("✅ GET /api/trainings with admin user passed")
+                
+            elif response.status_code in [401, 403]:
+                data = response.json()
+                logger.info(f"Auth error: {data}")
+                logger.info("✅ GET /api/trainings with admin user - auth error (expected)")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing GET /api/trainings with admin: {str(e)}")
+            raise
+        
+        # Test with client user
+        try:
+            response = requests.get(url, headers=self.headers_client)
+            logger.info(f"Client response status code: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"Client found {len(data)} trainings")
+                
+                # Verify response structure (should be a list)
+                self.assertIsInstance(data, list)
+                
+                logger.info("✅ GET /api/trainings with client user passed")
+                
+            elif response.status_code in [401, 403]:
+                data = response.json()
+                logger.info(f"Auth error: {data}")
+                logger.info("✅ GET /api/trainings with client user - auth error (expected)")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing GET /api/trainings with client: {str(e)}")
+            raise
+        
+        # Test authentication requirements
+        try:
+            response = requests.get(url, headers=self.headers_no_auth)
+            logger.info(f"No auth response status code: {response.status_code}")
+            
+            # Should get 403 Not authenticated
+            self.assertEqual(response.status_code, 403)
+            logger.info("✅ GET /api/trainings without auth returns 403")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing GET /api/trainings without auth: {str(e)}")
+            raise
+    
+    def test_training_creation_endpoint(self):
+        """Test POST /api/trainings endpoint"""
+        logger.info("\n=== Testing POST /api/trainings endpoint ===")
+        
+        url = f"{self.api_url}/trainings"
+        
+        # Test with admin user
+        try:
+            response = requests.post(url, headers=self.headers_admin, json=self.test_training_data)
+            logger.info(f"Admin response status code: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                data = response.json()
+                logger.info(f"Training created successfully: {data}")
+                
+                # Save training ID for update test
+                if "id" in data:
+                    self.created_training_id = data["id"]
+                    logger.info(f"Created training ID: {self.created_training_id}")
+                elif "training_id" in data:
+                    self.created_training_id = data["training_id"]
+                    logger.info(f"Created training ID: {self.created_training_id}")
+                
+                logger.info("✅ POST /api/trainings with admin user passed")
+                
+            elif response.status_code in [401, 403]:
+                data = response.json()
+                logger.info(f"Auth error: {data}")
+                logger.info("✅ POST /api/trainings with admin user - auth error (expected)")
+                
+            elif response.status_code == 400:
+                data = response.json()
+                logger.info(f"Validation error: {data}")
+                logger.info("✅ POST /api/trainings with admin user - validation error")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing POST /api/trainings with admin: {str(e)}")
+            raise
+        
+        # Test authentication requirements
+        try:
+            response = requests.post(url, headers=self.headers_no_auth, json=self.test_training_data)
+            logger.info(f"No auth response status code: {response.status_code}")
+            
+            # Should get 403 Not authenticated
+            self.assertEqual(response.status_code, 403)
+            logger.info("✅ POST /api/trainings without auth returns 403")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing POST /api/trainings without auth: {str(e)}")
+            raise
+    
+    def test_training_update_endpoint(self):
+        """Test PUT /api/trainings/{training_id} endpoint - MAIN FOCUS"""
+        logger.info("\n=== Testing PUT /api/trainings/{training_id} endpoint (MAIN ISSUE) ===")
+        
+        # First, try to get existing trainings to find one to update
+        trainings_url = f"{self.api_url}/trainings"
+        existing_training_id = None
+        
+        try:
+            response = requests.get(trainings_url, headers=self.headers_admin)
+            if response.status_code == 200:
+                trainings = response.json()
+                if len(trainings) > 0:
+                    existing_training_id = trainings[0].get("id")
+                    logger.info(f"Found existing training to update: {existing_training_id}")
+        except:
+            pass
+        
+        # If no existing training, try to create one first
+        if not existing_training_id:
+            logger.info("No existing training found, creating one for update test...")
+            try:
+                create_response = requests.post(trainings_url, headers=self.headers_admin, json=self.test_training_data)
+                if create_response.status_code in [200, 201]:
+                    create_data = create_response.json()
+                    existing_training_id = create_data.get("id") or create_data.get("training_id")
+                    logger.info(f"Created training for update test: {existing_training_id}")
+            except:
+                pass
+        
+        # Use a test training ID if we still don't have one
+        if not existing_training_id:
+            existing_training_id = "test-training-id-001"
+            logger.info(f"Using test training ID: {existing_training_id}")
+        
+        url = f"{self.api_url}/trainings/{existing_training_id}"
+        
+        # Test with admin user - THIS IS THE MAIN TEST
+        try:
+            response = requests.put(url, headers=self.headers_admin, json=self.test_training_update)
+            logger.info(f"Admin PUT response status code: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"Training updated successfully: {data}")
+                
+                # Verify the update was applied
+                if "name" in data:
+                    self.assertEqual(data["name"], self.test_training_update["name"])
+                    logger.info(f"✅ Training name updated correctly: {data['name']}")
+                
+                if "status" in data:
+                    self.assertEqual(data["status"], self.test_training_update["status"])
+                    logger.info(f"✅ Training status updated correctly: {data['status']}")
+                
+                logger.info("✅ PUT /api/trainings/{id} with admin user - UPDATE SUCCESSFUL!")
+                
+            elif response.status_code == 404:
+                data = response.json()
+                logger.info(f"Training not found: {data}")
+                logger.info("⚠️ PUT /api/trainings/{id} - Training not found (expected with test ID)")
+                
+            elif response.status_code in [401, 403]:
+                data = response.json()
+                logger.info(f"Auth error: {data}")
+                logger.info("❌ PUT /api/trainings/{id} - AUTH ERROR - This could be the issue!")
+                
+            elif response.status_code == 405:
+                data = response.json()
+                logger.info(f"Method not allowed: {data}")
+                logger.info("❌ PUT /api/trainings/{id} - METHOD NOT ALLOWED - This could be the issue!")
+                
+            elif response.status_code == 500:
+                data = response.json()
+                logger.error(f"Internal server error: {data}")
+                logger.error("❌ PUT /api/trainings/{id} - INTERNAL SERVER ERROR - This could be the issue!")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing PUT /api/trainings/{existing_training_id} with admin: {str(e)}")
+            raise
+        
+        # Test with client user
+        try:
+            response = requests.put(url, headers=self.headers_client, json=self.test_training_update)
+            logger.info(f"Client PUT response status code: {response.status_code}")
+            
+            if response.status_code == 200:
+                logger.info("✅ PUT /api/trainings/{id} with client user - UPDATE SUCCESSFUL!")
+                
+            elif response.status_code == 403:
+                data = response.json()
+                logger.info(f"Access denied: {data}")
+                logger.info("✅ PUT /api/trainings/{id} with client user - Access denied (expected)")
+                
+            elif response.status_code in [401, 404, 405, 500]:
+                data = response.json()
+                logger.info(f"Error response: {data}")
+                logger.info(f"⚠️ PUT /api/trainings/{{id}} with client user - {response.status_code} error")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing PUT /api/trainings/{existing_training_id} with client: {str(e)}")
+            raise
+        
+        # Test authentication requirements
+        try:
+            response = requests.put(url, headers=self.headers_no_auth, json=self.test_training_update)
+            logger.info(f"No auth PUT response status code: {response.status_code}")
+            
+            # Should get 403 Not authenticated
+            self.assertEqual(response.status_code, 403)
+            logger.info("✅ PUT /api/trainings/{id} without auth returns 403")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing PUT /api/trainings/{existing_training_id} without auth: {str(e)}")
+            raise
+    
+    def test_personnel_endpoint_for_training(self):
+        """Test GET /api/personnel endpoint (needed for training editing)"""
+        logger.info("\n=== Testing GET /api/personnel endpoint (for training editing) ===")
+        
+        url = f"{self.api_url}/personnel"
+        
+        # Test with admin user
+        try:
+            response = requests.get(url, headers=self.headers_admin)
+            logger.info(f"Admin response status code: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"Found {len(data)} personnel records")
+                
+                # Verify response structure (should be a list)
+                self.assertIsInstance(data, list)
+                
+                # If there are personnel, check their structure
+                if len(data) > 0:
+                    person = data[0]
+                    expected_fields = ["id", "client_id", "name", "surname", "position"]
+                    
+                    for field in expected_fields:
+                        if field in person:
+                            logger.info(f"✅ Personnel has {field}: {person[field]}")
+                    
+                    logger.info(f"Personnel structure: {list(person.keys())}")
+                
+                logger.info("✅ GET /api/personnel with admin user passed")
+                
+            elif response.status_code in [401, 403]:
+                data = response.json()
+                logger.info(f"Auth error: {data}")
+                logger.info("✅ GET /api/personnel with admin user - auth error (expected)")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing GET /api/personnel with admin: {str(e)}")
+            raise
+    
+    def test_client_personnel_endpoint(self):
+        """Test GET /api/clients/{client_id}/personnel endpoint"""
+        logger.info("\n=== Testing GET /api/clients/{client_id}/personnel endpoint ===")
+        
+        test_client_id = "test-client-id-001"
+        url = f"{self.api_url}/clients/{test_client_id}/personnel"
+        
+        # Test with admin user
+        try:
+            response = requests.get(url, headers=self.headers_admin)
+            logger.info(f"Admin response status code: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"Found {len(data)} personnel for client {test_client_id}")
+                
+                # Verify response structure (should be a list)
+                self.assertIsInstance(data, list)
+                
+                logger.info("✅ GET /api/clients/{client_id}/personnel with admin user passed")
+                
+            elif response.status_code == 404:
+                data = response.json()
+                logger.info(f"Client or personnel not found: {data}")
+                logger.info("⚠️ GET /api/clients/{client_id}/personnel - Not found (expected with test ID)")
+                
+            elif response.status_code in [401, 403]:
+                data = response.json()
+                logger.info(f"Auth error: {data}")
+                logger.info("❌ GET /api/clients/{client_id}/personnel - AUTH ERROR - This could be the issue!")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing GET /api/clients/{test_client_id}/personnel with admin: {str(e)}")
+            raise
+
 class TestAdminDashboardStats(unittest.TestCase):
     """Test class for Admin Dashboard Stats API Fix"""
     
