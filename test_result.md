@@ -121,7 +121,7 @@ user_problem_statement: "Bulk olarak eklenen müşteriler ile kendi kaydolan mü
 backend:
   - task: "Training Management Personnel Selection and Auto-Complete"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 2
     priority: "high"
