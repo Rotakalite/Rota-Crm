@@ -123,7 +123,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -142,6 +142,9 @@ backend:
         -working: false
         -agent: "testing"
         -comment: "2025-01-25: TRAINING EDITING ISSUE CONFIRMED! ❌ CRITICAL FINDINGS: 1) PUT /api/trainings/{training_id} endpoint returns 401 'Invalid token: could not get signing key' - authentication system blocking training updates. 2) GET /api/trainings endpoint returns 404 Not Found - training list endpoint not accessible. 3) POST /api/trainings endpoint returns 405 Method Not Allowed - training creation endpoint has method issues. 4) GET /api/personnel endpoint returns 404 Not Found - personnel selection not working. 5) GET /api/clients/{client_id}/personnel endpoint returns 401 authentication error. ✅ POSITIVE: PUT endpoint exists and properly requires authentication (403 without auth). ❌ ROOT CAUSE: User complaint 'bir kere eğitim kaydettikten sonra düzenleme yapamıyorum' is caused by authentication token issues preventing access to training update functionality. The backend endpoints are implemented but authentication system is blocking legitimate update requests."
+        -working: false
+        -agent: "testing"
+        -comment: "2025-01-25: JWT FIX TESTING COMPLETED - FIX NOT WORKING! ❌ CRITICAL FINDINGS: 1) PyJWT downgrade from 2.8.0 → 2.6.0 and cryptography dependency addition DID NOT resolve the JWT issue. 2) Backend logs still show 'Invalid crypto padding' errors during JWT signing key retrieval. 3) PUT /api/trainings/{training_id} still returns 401 'Invalid token: could not get signing key' error. 4) The exact same JWT authentication failure persists after the supposed fix. 5) User issue 'bir kere kaydettikten sonra düzenleme yapamıyorum' remains UNRESOLVED. ✅ POSITIVE: Backend is accessible, endpoints exist, and error messages are consistent. ❌ ROOT CAUSE: The JWT signing key retrieval process is still failing with crypto padding errors, indicating the PyJWT version downgrade did not address the underlying cryptographic compatibility issue. The troubleshoot agent's diagnosis was correct, but the proposed solution (PyJWT downgrade) was insufficient to resolve the problem."
 
 frontend:
   - task: "Training Management Duplicate Client Selection Fix"
