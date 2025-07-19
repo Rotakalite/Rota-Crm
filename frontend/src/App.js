@@ -2847,7 +2847,7 @@ const Dashboard = ({ onNavigate }) => {
                   <button
                     onClick={() => {
                       console.log('🎯 Navigating to bulkOperations');
-                      onNavigate('bulkOperations');
+                      onNavigate('bulk-operations');
                     }}
                     className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-left group"
                   >
@@ -2858,8 +2858,8 @@ const Dashboard = ({ onNavigate }) => {
                   
                   <button
                     onClick={() => {
-                      console.log('🎯 Navigating to simpleClientManagement');
-                      onNavigate('simpleClientManagement');
+                      console.log('🎯 Navigating to clients');
+                      onNavigate('clients');
                     }}
                     className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-left group"
                   >
