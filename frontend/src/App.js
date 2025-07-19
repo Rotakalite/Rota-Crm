@@ -12097,6 +12097,20 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
                           <p className="text-sm text-gray-700 mt-1">{training.description}</p>
                         </div>
                       )}
+                      
+                      {/* Katılımcılar listesi */}
+                      {training.attendees && training.attendees.length > 0 && (
+                        <div className="mt-3">
+                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Katılımcılar ({training.attendees.length})</span>
+                          <div className="mt-2">
+                            <AttendeesList 
+                              attendeeIds={training.attendees} 
+                              clientId={training.client_id}
+                              authToken={authToken}
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
                     
                     <div className="flex items-center ml-4 space-x-2">
