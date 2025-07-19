@@ -12518,40 +12518,6 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
           })()}
         </div>
       </div>
-
-      {/* View Mode Toggle */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-800">📚 Eğitim Yönetimi</h2>
-          <div className="flex items-center space-x-2">
-            {/* View Mode Buttons */}
-            <div className="flex bg-gray-100 rounded-lg p-1">
-              <button
-                onClick={() => setViewMode('list')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  viewMode === 'list'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                📋 Liste
-              </button>
-              <button
-                onClick={() => setViewMode('calendar')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  viewMode === 'calendar'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                📅 Takvim
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-        </>
-      )}
     </div>
   );
 };
