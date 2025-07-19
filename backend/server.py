@@ -4689,8 +4689,6 @@ async def test_admin_dashboard():
 
 @api_router.get("/admin-dashboard-stats")
 async def get_admin_dashboard_stats():
-    """Get comprehensive admin dashboard statistics - SIMPLIFIED FOR TESTING"""
-    return {"test": "working", "message": "Endpoint is accessible"}
     """Get comprehensive admin dashboard statistics"""
     try:
         # Get all clients
@@ -4715,6 +4713,7 @@ async def get_admin_dashboard_stats():
         trainings = await db.trainings.find({}).to_list(None)
         total_trainings = len(trainings)
         completed_trainings = len([t for t in trainings if t.get("status") == "completed"])
+        completion_rate = round((completed_trainings / total_trainings) * 100) if total_trainings > 0 else 0
         
         # Get consultants
         consultants = await db.consultants.find({}).to_list(None)
