@@ -7629,15 +7629,27 @@ async def get_training(training_id: str, current_user: User = Depends(get_curren
 async def update_training(
     training_id: str, 
     training_update: TrainingUpdate,
-    current_user: User = Depends(get_admin_user)
+    current_user: User = Depends(get_current_user)
 ):
-    """Update a training (Admin only)"""
-    logging.info(f"📚 PUT /trainings/{training_id} called by admin: {current_user.name}")
+    """Update a training (Admin and Consultant can update)"""
+    logging.info(f"📚 PUT /trainings/{training_id} called by user: {current_user.name}, role: {current_user.role}")
     
     # Check if training exists
     existing_training = await db.trainings.find_one({"id": training_id})
     if not existing_training:
         raise HTTPException(status_code=404, detail="Training not found")
+    
+    # Authorization check
+    if current_user.role not in ['admin', 'consultant']:
+        raise HTTPException(status_code=403, detail="Only admin and consultant can update trainings")
+    
+    # For consultant, check if they have access to this training's client
+    if current_user.role == 'consultant':
+        client_id = existing_training.get("client_id")
+        if client_id:
+            client = await db.clients.find_one({"id": client_id})
+            if not client or client.get("consultant_id") != current_user.consultant_id:
+                raise HTTPException(status_code=403, detail="Access denied: Training not assigned to consultant")
     
     # Prepare update data
     update_data = training_update.dict(exclude_unset=True)
