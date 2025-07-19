@@ -269,6 +269,23 @@ const useAuth = () => {
     }
   }, [authToken, session]);
 
+  // Periyodik token yenileme - her 10 dakikada bir
+  useEffect(() => {
+    if (authToken && session) {
+      const refreshInterval = setInterval(async () => {
+        try {
+          console.log('🔄 Periyodik token yenileme...');
+          await refreshToken(true);
+          console.log('✅ Periyodik yenileme başarılı');
+        } catch (error) {
+          console.error('❌ Periyodik yenileme hatası:', error);
+        }
+      }, 10 * 60 * 1000); // Her 10 dakikada bir
+
+      return () => clearInterval(refreshInterval);
+    }
+  }, [authToken, session]);
+
   // Check token expiry on page focus
   useEffect(() => {
     const handleFocus = async () => {
