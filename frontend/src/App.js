@@ -2769,9 +2769,9 @@ const Dashboard = ({ onNavigate }) => {
                     <span className="text-sm text-gray-600">Geri Dönüşüm Oranı</span>
                     <div className="flex items-center space-x-2">
                       <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div className="bg-blue-500 h-2 rounded-full" style={{width: `${(adminDashboardData.consumption_analytics?.recycling_rate || 0) * 10}%`}}></div>
+                        <div className="bg-blue-500 h-2 rounded-full" style={{width: `${(adminDashboardData?.consumption_analytics?.recycling_rate || 0) * 10}%`}}></div>
                       </div>
-                      <span className="text-sm font-medium text-blue-600">{adminDashboardData.consumption_analytics?.recycling_rate || 0}%</span>
+                      <span className="text-sm font-medium text-blue-600">{adminDashboardData?.consumption_analytics?.recycling_rate || 0}%</span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center">
