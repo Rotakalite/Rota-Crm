@@ -12257,18 +12257,22 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
         </div>
       )}
 
-      {/* Trainings List */}
-      <div className="bg-white rounded-lg shadow-md">
-        <div className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Eğitimler</h3>
-          
-          {(() => {
-            // Filter trainings based on selected client for consultant
-            const filteredTrainings = userRole === 'consultant' && selectedClient 
-              ? trainings.filter(training => training.client_id === selectedClient)
-              : selectedClient 
+      {/* Conditional View Rendering */}
+      {viewMode === 'calendar' ? (
+        <TrainingCalendar trainings={trainings} clients={clients} />
+      ) : (
+        /* Trainings List */
+        <div className="bg-white rounded-lg shadow-md">
+          <div className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Eğitimler</h3>
+            
+            {(() => {
+              // Filter trainings based on selected client for consultant
+              const filteredTrainings = userRole === 'consultant' && selectedClient 
                 ? trainings.filter(training => training.client_id === selectedClient)
-                : trainings;
+                : selectedClient 
+                  ? trainings.filter(training => training.client_id === selectedClient)
+                  : trainings;
             
             return filteredTrainings.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
