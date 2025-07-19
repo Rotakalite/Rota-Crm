@@ -11988,7 +11988,7 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
       )}
 
       {/* Show message if consultant hasn't selected client yet */}
-      {userRole === 'consultant' && !selectedClient ? (
+      <div>
         <div className="bg-white rounded-xl shadow-lg p-6">
           <div className="text-center py-12">
             <div className="text-6xl mb-4">📚</div>
