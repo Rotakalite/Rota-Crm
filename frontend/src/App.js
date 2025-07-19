@@ -2811,13 +2811,14 @@ const Dashboard = ({ onNavigate }) => {
                       </div>
                     ))
                   ) : (
+                    // Fallback activities
                     [
                       <div key="1" className="flex items-start space-x-3">
                         <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                           <span className="text-sm">👤</span>
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm text-gray-900">Yeni müşteri kaydı: {adminDashboardData?.overview?.total_clients ? "Son kayıt tamamlandı" : "Veri yükleniyor..."}</p>
+                          <p className="text-sm text-gray-900">Sistem aktif ve çalışıyor</p>
                           <p className="text-xs text-gray-500">Az önce</p>
                         </div>
                       </div>,
@@ -2826,6 +2827,12 @@ const Dashboard = ({ onNavigate }) => {
                           <span className="text-sm">📄</span>
                         </div>
                         <div className="flex-1">
+                          <p className="text-sm text-gray-900">Veriler yükleniyor...</p>
+                          <p className="text-xs text-gray-500">Az önce</p>
+                        </div>
+                      </div>
+                    ]
+                  )}
                         <p className="text-sm text-gray-900">Doküman yüklendi: Çevre Belgesi</p>
                         <p className="text-xs text-gray-500">1 saat önce</p>
                       </div>
