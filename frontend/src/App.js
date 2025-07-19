@@ -11876,8 +11876,19 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
                     <div className="space-y-2">
                       {clientPersonnel.map((person) => {
                         console.log('🧑‍💼 Personnel Item:', person);
-                        const displayName = `${person.name || ''} ${person.surname || ''}`.trim();
-                        const finalDisplay = displayName || 'İsim Belirtilmemiş';
+                        
+                        // İsim boşsa position'ı isim olarak kullan
+                        const hasName = person.name && person.name.trim();
+                        const hasSurname = person.surname && person.surname.trim();
+                        
+                        let displayName;
+                        if (hasName || hasSurname) {
+                          displayName = `${person.name || ''} ${person.surname || ''}`.trim();
+                        } else if (person.position) {
+                          displayName = person.position; // Position'ı isim olarak kullan
+                        } else {
+                          displayName = 'İsim Belirtilmemiş';
+                        }
                         
                         return (
                           <div key={person.id} className="flex items-center">
@@ -11889,8 +11900,11 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
                               className="mr-2"
                             />
                             <label htmlFor={`person-${person.id}`} className="text-sm text-gray-700 cursor-pointer flex-1">
-                              <span className="font-medium">{finalDisplay}</span>
-                              {person.position && <span className="text-gray-500 ml-2">- {person.position}</span>}
+                              <span className="font-medium">{displayName}</span>
+                              {/* Eğer position'ı isim olarak kullanmadıysak ve position varsa göster */}
+                              {(hasName || hasSurname) && person.position && (
+                                <span className="text-gray-500 ml-2">- {person.position}</span>
+                              )}
                               {person.department && <span className="text-gray-400 ml-1">({person.department})</span>}
                             </label>
                           </div>
