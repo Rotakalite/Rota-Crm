@@ -11877,35 +11877,34 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
                       {clientPersonnel.map((person) => {
                         console.log('🧑‍💼 Personnel Item:', person);
                         
-                        // İsim boşsa position'ı isim olarak kullan
+                        // İsim ve pozisyon gösterimi
                         const hasName = person.name && person.name.trim();
                         const hasSurname = person.surname && person.surname.trim();
                         
                         let displayName;
                         if (hasName || hasSurname) {
                           displayName = `${person.name || ''} ${person.surname || ''}`.trim();
-                        } else if (person.position) {
-                          displayName = person.position; // Position'ı isim olarak kullan
                         } else {
-                          displayName = 'İsim Belirtilmemiş';
+                          displayName = person.position || 'İsim Belirtilmemiş';
                         }
                         
                         return (
-                          <div key={person.id} className="flex items-center">
+                          <div key={person.id} className="flex items-center p-2 rounded hover:bg-gray-50">
                             <input
                               type="checkbox"
                               id={`person-${person.id}`}
                               checked={formData.attendees.includes(person.id)}
                               onChange={(e) => handlePersonnelSelection(person.id, e.target.checked)}
-                              className="mr-2"
+                              className="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                             />
-                            <label htmlFor={`person-${person.id}`} className="text-sm text-gray-700 cursor-pointer flex-1">
-                              <span className="font-medium">{displayName}</span>
-                              {/* Eğer position'ı isim olarak kullanmadıysak ve position varsa göster */}
-                              {(hasName || hasSurname) && person.position && (
-                                <span className="text-gray-500 ml-2">- {person.position}</span>
-                              )}
-                              {person.department && <span className="text-gray-400 ml-1">({person.department})</span>}
+                            <label htmlFor={`person-${person.id}`} className="text-sm cursor-pointer flex-1">
+                              <div className="flex flex-col">
+                                <span className="font-semibold text-gray-800">{displayName}</span>
+                                <span className="text-xs text-gray-500">{person.position}</span>
+                                {person.department && (
+                                  <span className="text-xs text-gray-400">{person.department} Departmanı</span>
+                                )}
+                              </div>
                             </label>
                           </div>
                         );
