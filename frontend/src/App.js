@@ -15056,10 +15056,13 @@ const MainApp = () => {
   const [showClientSetup, setShowClientSetup] = useState(false);
   const [show2FA, setShow2FA] = useState(true);
   const [twoFACompleted, setTwoFACompleted] = useState(() => {
-    // Check if 2FA was completed today
+    // Check if 2FA was completed today for THIS SPECIFIC USER
+    const { user } = useUser();
+    if (!user?.id) return false;
+    
     const today = new Date().toDateString();
-    const last2FADate = localStorage.getItem('rota_2fa_completed_date');
-    return last2FADate === today;
+    const last2FADate = localStorage.getItem(`rota_2fa_completed_${user.id}_${today}`);
+    return !!last2FADate;
   });
   const [showRoleSetup, setShowRoleSetup] = useState(false);
   const { userRole, isLoaded, dbUser, refreshUser } = useAuth();
