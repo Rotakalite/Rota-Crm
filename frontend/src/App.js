@@ -12263,17 +12263,7 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
   );
 };
 
-const ClientSetupForm = ({ onComplete, onSkip }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    hotel_name: '',
-    contact_person: '',
-    email: '',
-    phone: '',
-    address: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const { user, authToken, refreshUser } = useAuth();
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
