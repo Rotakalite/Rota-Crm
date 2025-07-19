@@ -2793,60 +2793,19 @@ const Dashboard = ({ onNavigate }) => {
               <div className="bg-white rounded-xl shadow-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Son Aktiviteler</h3>
                 <div className="space-y-4">
-                  {(adminDashboardData?.recent_activities || []).length > 0 ? (
-                    (adminDashboardData.recent_activities || []).slice(0, 6).map((activity, index) => (
-                      <div key={index} className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                          <span className="text-sm">
-                            {activity.icon || (activity.type === 'client' ? '👥' : 
-                             activity.type === 'document' ? '📄' : 
-                             activity.type === 'training' ? '🎓' : 
-                             activity.type === 'waste' ? '♻️' : '🎯')}
-                          </span>
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm text-gray-900">{activity.title || activity.description || 'Aktivite'}</p>
-                          <p className="text-xs text-gray-500">{activity.time}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    // Fallback activities
-                    [
-                      <div key="1" className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                          <span className="text-sm">👤</span>
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm text-gray-900">Sistem aktif ve çalışıyor</p>
-                          <p className="text-xs text-gray-500">Az önce</p>
-                        </div>
-                      </div>,
-                      <div key="2" className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                          <span className="text-sm">📄</span>
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm text-gray-900">Veriler yükleniyor...</p>
-                          <p className="text-xs text-gray-500">Az önce</p>
-                        </div>
-                      </div>
-                    ]
-                  )}
-                        <p className="text-sm text-gray-900">Doküman yüklendi: Çevre Belgesi</p>
-                        <p className="text-xs text-gray-500">1 saat önce</p>
-                      </div>
-                    </div>,
-                    <div key="3" className="flex items-start space-x-3">
-                      <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                        <span className="text-sm">🎓</span>
+                  {(adminDashboardData?.recent_activities || []).map((activity, index) => (
+                    <div key={index} className="flex items-start space-x-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <span className="text-sm">
+                          {activity.icon || '🎯'}
+                        </span>
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm text-gray-900">Eğitim tamamlandı: Sürdürülebilirlik</p>
-                        <p className="text-xs text-gray-500">3 saat önce</p>
+                        <p className="text-sm text-gray-900">{activity.title}</p>
+                        <p className="text-xs text-gray-500">{activity.time}</p>
                       </div>
                     </div>
-                  ]}
+                  ))}
                 </div>
               </div>
 
