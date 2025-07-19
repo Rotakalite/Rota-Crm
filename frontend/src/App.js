@@ -11801,6 +11801,42 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
+  const editTraining = (training) => {
+    setEditingTraining(training);
+    setFormData({
+      client_id: training.client_id,
+      name: training.name,
+      subject: training.subject,
+      participant_count: training.participant_count,
+      trainer: training.trainer,
+      training_date: training.training_date?.split('T')[0] || '',
+      training_time: training.training_time || '09:00',
+      description: training.description || '',
+      attendees: training.attendees || [],
+      status: training.status || 'planned'
+    });
+    setSelectedClient(training.client_id);
+    fetchClientPersonnel(training.client_id);
+    setShowAddForm(true);
+  };
+
+  const cancelEdit = () => {
+    setEditingTraining(null);
+    setFormData({
+      client_id: '',
+      name: '',
+      subject: '',
+      participant_count: '',
+      trainer: '',
+      training_date: '',
+      training_time: '09:00',
+      description: '',
+      attendees: [],
+      status: 'planned'
+    });
+    setShowAddForm(false);
+  };
+
   const completeTraining = async (trainingId) => {
     if (!window.confirm('Bu eğitimi tamamlandı olarak işaretlemek istediğinizden emin misiniz?')) {
       return;
