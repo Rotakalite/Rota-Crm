@@ -11540,7 +11540,8 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
     training_date: '',
     training_time: '09:00',  // Add training time field
     description: '',
-    attendees: []  // Seçilen personeller
+    attendees: [],  // Seçilen personeller
+    status: 'planned'  // Default status
   });
   const [loading, setLoading] = useState(false);
   const { authToken, userRole } = useAuth();
