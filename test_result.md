@@ -2163,7 +2163,8 @@ test_plan:
     - "DEFRA Carbon Calculation System"
     - "DEFRA F-Gas Carbon Calculation"
     - "Waste Management Backend APIs"
-  stuck_tasks: []
+  stuck_tasks: 
+    - "Training Management Personnel Selection and Auto-Complete"
   test_all: false
   test_priority: "high_first"
 
