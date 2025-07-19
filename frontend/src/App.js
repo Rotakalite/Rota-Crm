@@ -2735,9 +2735,9 @@ const Dashboard = ({ onNavigate }) => {
                     <span className="text-sm text-gray-600">Bulk Müşteriler</span>
                     <div className="flex items-center space-x-2">
                       <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div className="bg-green-600 h-2 rounded-full" style={{width: `${((adminDashboardData.overview?.bulk_clients || 0) / (adminDashboardData.overview?.total_clients || 1)) * 100}%`}}></div>
+                        <div className="bg-green-600 h-2 rounded-full" style={{width: `${((adminDashboardData?.overview?.bulk_clients || 0) / (adminDashboardData?.overview?.total_clients || 1)) * 100}%`}}></div>
                       </div>
-                      <span className="text-sm font-medium w-8">{adminDashboardData.overview?.bulk_clients || 0}</span>
+                      <span className="text-sm font-medium w-8">{adminDashboardData?.overview?.bulk_clients || 0}</span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center">
