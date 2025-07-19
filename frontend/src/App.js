@@ -12219,6 +12219,67 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
                 </div>
               </div>
 
+              {/* Personnel Selection Section */}
+              {clientPersonnel.length > 0 && (
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Katılımcı Seçimi ({clientPersonnel.length} kişi mevcut)
+                    </label>
+                    <div className="flex space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => handleSelectAllPersonnel(true)}
+                        className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded hover:bg-green-200"
+                      >
+                        Tümünü Seç
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectAllPersonnel(false)}
+                        className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded hover:bg-red-200"
+                      >
+                        Tümünü Kaldır
+                      </button>
+                    </div>
+                  </div>
+                  <div className="max-h-40 overflow-y-auto border rounded-lg p-3 bg-gray-50">
+                    <div className="grid grid-cols-1 gap-2">
+                      {clientPersonnel.map((person) => {
+                        const displayName = person.full_name || 
+                                          `${person.name || ''} ${person.surname || ''}`.trim() || 
+                                          person.position || 
+                                          'İsimsiz';
+                        const isSelected = formData.attendees.includes(person.id);
+                        
+                        return (
+                          <label key={person.id} className="flex items-center space-x-2 cursor-pointer hover:bg-white rounded p-2">
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={(e) => handlePersonnelSelection(person.id, e.target.checked)}
+                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-sm text-gray-900">{displayName}</div>
+                              {person.position && (
+                                <div className="text-xs text-gray-500">{person.position}</div>
+                              )}
+                              {person.department && (
+                                <div className="text-xs text-gray-400">{person.department}</div>
+                              )}
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="mt-2 text-xs text-gray-600">
+                    Seçilen katılımcı sayısı: <span className="font-medium text-blue-600">{formData.attendees.length}</span>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Açıklama
