@@ -4263,22 +4263,32 @@ async def get_client_personnel(client_id: str, current_user: User = Depends(get_
                 raise HTTPException(status_code=403, detail="Bu müşterinin personellerine erişim yetkiniz yok")
         
         # Client'ın personellerini getir
-        personnel_cursor = db.personnel.find({"client_id": client_id})
-        personnel_list = await personnel_cursor.to_list(length=None)
+        try:
+            personnel_cursor = db.personnel.find({"client_id": client_id})
+            personnel_list = await personnel_cursor.to_list(length=None)
+        except Exception as db_error:
+            logging.error(f"Database error fetching personnel for client {client_id}: {db_error}")
+            raise HTTPException(status_code=500, detail="Veritabanı hatası")
         
         # Personnel listesini düzenle
         formatted_personnel = []
         for person in personnel_list:
-            formatted_personnel.append({
-                "id": person.get("id", ""),
-                "name": person.get("name", ""),
-                "surname": person.get("surname", ""),
-                "position": person.get("position", ""),
-                "email": person.get("email", ""),
-                "phone": person.get("phone", ""),
-                "department": person.get("department", ""),
-                "status": person.get("status", "active")
-            })
+            try:
+                formatted_personnel.append({
+                    "id": person.get("id", ""),
+                    "name": person.get("name", ""),
+                    "surname": person.get("surname", ""),
+                    "position": person.get("position", ""),
+                    "email": person.get("email", ""),
+                    "phone": person.get("phone", ""),
+                    "department": person.get("department", ""),
+                    "status": person.get("status", "active")
+                })
+            except Exception as format_error:
+                logging.error(f"Error formatting personnel record: {format_error}")
+                logging.error(f"Personnel data: {person}")
+                # Skip malformed records
+                continue
         
         logging.info(f"✅ Retrieved {len(formatted_personnel)} personnel for client {client_id}")
         
