@@ -11877,16 +11877,11 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
                       {clientPersonnel.map((person) => {
                         console.log('🧑‍💼 Personnel Item:', person);
                         
-                        // İsim ve pozisyon gösterimi
-                        const hasName = person.name && person.name.trim();
-                        const hasSurname = person.surname && person.surname.trim();
-                        
-                        let displayName;
-                        if (hasName || hasSurname) {
-                          displayName = `${person.name || ''} ${person.surname || ''}`.trim();
-                        } else {
-                          displayName = person.position || 'İsim Belirtilmemiş';
-                        }
+                        // full_name field'ını kullan
+                        const displayName = person.full_name || 
+                                          `${person.name || ''} ${person.surname || ''}`.trim() || 
+                                          person.position || 
+                                          'İsim Belirtilmemiş';
                         
                         return (
                           <div key={person.id} className="flex items-center p-2 rounded hover:bg-gray-50">
@@ -11900,9 +11895,11 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
                             <label htmlFor={`person-${person.id}`} className="text-sm cursor-pointer flex-1">
                               <div className="flex flex-col">
                                 <span className="font-semibold text-gray-800">{displayName}</span>
-                                <span className="text-xs text-gray-500">{person.position}</span>
-                                {person.department && (
-                                  <span className="text-xs text-gray-400">{person.department} Departmanı</span>
+                                {person.position && (
+                                  <span className="text-xs text-gray-500">{person.position}</span>
+                                )}
+                                {person.location && (
+                                  <span className="text-xs text-gray-400">{person.location}</span>
                                 )}
                               </div>
                             </label>
