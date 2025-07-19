@@ -12258,7 +12258,7 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
 
 
 // Email Management Component - NEW IMPLEMENTATION
-// const EmailManagement = ({ selectedClient: propSelectedClient }) => {
+const EmailManagement = ({ selectedClient: propSelectedClient }) => {
   const { authToken, user, userRole, dbUser } = useAuth();
   const { session } = useClerk();
   const [loading, setLoading] = useState(true);
