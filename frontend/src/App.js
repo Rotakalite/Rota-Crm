@@ -11874,21 +11874,28 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
                       </button>
                     </div>
                     <div className="space-y-2">
-                      {clientPersonnel.map((person) => (
-                        <div key={person.id} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            id={`person-${person.id}`}
-                            checked={formData.attendees.includes(person.id)}
-                            onChange={(e) => handlePersonnelSelection(person.id, e.target.checked)}
-                            className="mr-2"
-                          />
-                          <label htmlFor={`person-${person.id}`} className="text-sm text-gray-700 cursor-pointer flex-1">
-                            {person.name} {person.surname}
-                            {person.position && <span className="text-gray-500 ml-1">({person.position})</span>}
-                          </label>
-                        </div>
-                      ))}
+                      {clientPersonnel.map((person) => {
+                        console.log('🧑‍💼 Personnel Item:', person);
+                        const displayName = `${person.name || ''} ${person.surname || ''}`.trim();
+                        const finalDisplay = displayName || 'İsim Belirtilmemiş';
+                        
+                        return (
+                          <div key={person.id} className="flex items-center">
+                            <input
+                              type="checkbox"
+                              id={`person-${person.id}`}
+                              checked={formData.attendees.includes(person.id)}
+                              onChange={(e) => handlePersonnelSelection(person.id, e.target.checked)}
+                              className="mr-2"
+                            />
+                            <label htmlFor={`person-${person.id}`} className="text-sm text-gray-700 cursor-pointer flex-1">
+                              <span className="font-medium">{finalDisplay}</span>
+                              {person.position && <span className="text-gray-500 ml-2">- {person.position}</span>}
+                              {person.department && <span className="text-gray-400 ml-1">({person.department})</span>}
+                            </label>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
