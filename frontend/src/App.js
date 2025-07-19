@@ -2907,7 +2907,7 @@ const Dashboard = ({ onNavigate }) => {
                   <button
                     onClick={() => {
                       console.log('🎯 Navigating to wasteManagement');
-                      onNavigate('wasteManagement');
+                      onNavigate('waste-management');
                     }}
                     className="p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-colors text-left group"
                   >
