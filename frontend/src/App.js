@@ -15068,12 +15068,14 @@ const MainApp = () => {
   const { userRole, isLoaded, dbUser, refreshUser } = useAuth();
   const { user } = useUser();
 
-  // Handle 2FA completion with localStorage persistence
+  // Handle 2FA completion with user-specific localStorage persistence
   const handle2FAComplete = () => {
+    if (!user?.id) return;
+    
     const today = new Date().toDateString();
-    localStorage.setItem('rota_2fa_completed_date', today);
+    localStorage.setItem(`rota_2fa_completed_${user.id}_${today}`, 'true');
     setTwoFACompleted(true);
-    console.log('✅ 2FA completed for today:', today);
+    console.log('✅ 2FA completed for user:', user.id, 'on:', today);
   };
 
   // Check if user needs role setup (after Clerk registration AND 2FA completion)
