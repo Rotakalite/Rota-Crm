@@ -11531,6 +11531,7 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
   const [selectedClient, setSelectedClient] = useState(''); // Add client selection state
   const [clientPersonnel, setClientPersonnel] = useState([]); // Personnel listesi
   const [showAddForm, setShowAddForm] = useState(false);
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'calendar'
   const [formData, setFormData] = useState({
     client_id: '',
     name: '',
