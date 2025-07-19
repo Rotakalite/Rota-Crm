@@ -2895,7 +2895,7 @@ const Dashboard = ({ onNavigate }) => {
                   <button
                     onClick={() => {
                       console.log('🎯 Navigating to trainings');
-                      onNavigate('trainings');
+                      onNavigate('training');
                     }}
                     className="p-4 bg-teal-50 rounded-lg hover:bg-teal-100 transition-colors text-left group"
                   >
