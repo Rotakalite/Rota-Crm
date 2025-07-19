@@ -12118,6 +12118,28 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Client Selection for Admin/Consultant */}
+              {(userRole === 'admin' || userRole === 'consultant') && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Müşteri *
+                  </label>
+                  <select
+                    value={formData.client_id}
+                    onChange={(e) => handleClientChange(e.target.value)}
+                    className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Müşteri seçin...</option>
+                    {clients.map((client) => (
+                      <option key={client.id} value={client.id}>
+                        {client.hotel_name || client.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
