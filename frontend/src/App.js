@@ -12067,8 +12067,63 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
                     <div key={training.id} className="border rounded-lg p-4">
                       <h4 className="font-semibold">{training.name}</h4>
                       <p className="text-sm text-gray-600">{training.subject}</p>
-                      <div className="flex justify-between items-center mt-2">
-                        <span className="text-sm">{formatDate(training.training_date)}</span>
+                      
+                      {/* Training Details */}
+                      <div className="grid grid-cols-2 gap-4 mt-3 mb-3 text-sm">
+                        <div>
+                          <span className="text-gray-500">📅 Tarih:</span>
+                          <span className="ml-1">{formatDate(training.training_date)}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">👨‍🏫 Eğitmen:</span>
+                          <span className="ml-1">{training.trainer || 'Belirtilmemiş'}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">📊 Katılımcı Sayısı:</span>
+                          <span className="ml-1">{training.participant_count || 0} kişi</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">📋 Durum:</span>
+                          <span className={`ml-1 px-2 py-1 rounded-full text-xs font-medium ${
+                            training.status === 'completed' 
+                              ? 'bg-green-100 text-green-800' 
+                              : training.status === 'cancelled'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {training.status === 'completed' ? '✅ Tamamlandı' : 
+                             training.status === 'cancelled' ? '❌ İptal' : '📅 Planlandı'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Attendees Section */}
+                      {training.attendees && training.attendees.length > 0 && (
+                        <div className="mb-3">
+                          <div className="text-sm text-gray-600 mb-2">
+                            👥 Katılımcılar ({training.attendees.length}):
+                          </div>
+                          <AttendeesList 
+                            attendeeIds={training.attendees}
+                            clientId={training.client_id}
+                            authToken={authToken}
+                          />
+                        </div>
+                      )}
+
+                      {/* Description */}
+                      {training.description && (
+                        <div className="mb-3">
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium">📝 Açıklama:</span> {training.description}
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between items-center mt-3 pt-3 border-t">
+                        <span className="text-xs text-gray-500">
+                          ID: {training.id}
+                        </span>
                         <div className="space-x-2">
                           <button
                             onClick={() => editTraining(training)}
