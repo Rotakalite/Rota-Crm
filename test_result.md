@@ -572,6 +572,7 @@ test_plan:
   test_priority: "high_first"
   completed_tasks:
     - "Personnel Management Consultant Access Fix"
+    - "Training Management Personnel Selection and Auto-Complete"
 
   - task: "Multiple Modules Consultant Access Fix Backend Testing"
     implemented: true
