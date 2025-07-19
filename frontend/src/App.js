@@ -2760,9 +2760,9 @@ const Dashboard = ({ onNavigate }) => {
                     <span className="text-sm text-gray-600">Karbon Ayak İzi Analizi</span>
                     <div className="flex items-center space-x-2">
                       <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div className="bg-green-500 h-2 rounded-full" style={{width: `${(adminDashboardData.consumption_analytics?.carbon_footprint_reduction || 0) * 10}%`}}></div>
+                        <div className="bg-green-500 h-2 rounded-full" style={{width: `${(adminDashboardData?.consumption_analytics?.carbon_footprint_reduction || 0) * 10}%`}}></div>
                       </div>
-                      <span className="text-sm font-medium text-green-600">-{adminDashboardData.consumption_analytics?.carbon_footprint_reduction || 0}%</span>
+                      <span className="text-sm font-medium text-green-600">-{adminDashboardData?.consumption_analytics?.carbon_footprint_reduction || 0}%</span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center">
