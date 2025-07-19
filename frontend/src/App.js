@@ -12528,7 +12528,8 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
             );
           })()}
         </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };
