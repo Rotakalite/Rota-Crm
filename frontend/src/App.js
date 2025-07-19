@@ -11932,17 +11932,30 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
         ...formData,
         participant_count: parseInt(formData.participant_count) || 0,
         training_date: formData.training_date ? new Date(formData.training_date + 'T00:00:00Z').toISOString() : null,
-        training_time: formData.training_time || '09:00',  // Add training time
-        attendees: formData.attendees || []  // Include selected personnel
+        training_time: formData.training_time || '09:00',
+        attendees: formData.attendees || []
       };
       
-      console.log('📚 Creating training:', trainingData);
+      let response;
+      if (editingTraining) {
+        // Update existing training
+        console.log('📚 Updating training:', editingTraining.id, trainingData);
+        response = await axios.put(`${API}/trainings/${editingTraining.id}`, trainingData, {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        console.log('✅ Training updated:', response.data);
+        alert('✅ Eğitim başarıyla güncellendi!');
+      } else {
+        // Create new training
+        console.log('📚 Creating training:', trainingData);
+        response = await axios.post(`${API}/trainings`, trainingData, {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        console.log('✅ Training created:', response.data);
+        alert('✅ Eğitim başarıyla oluşturuldu!');
+      }
       
-      const response = await axios.post(`${API}/trainings`, trainingData, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      });
-      
-      console.log('✅ Training created:', response.data);
+      // Reset form
       setFormData({
         client_id: '',
         name: '',
@@ -11950,17 +11963,19 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
         participant_count: '',
         trainer: '',
         training_date: '',
-        training_time: '09:00',  // Reset training time
+        training_time: '09:00',
         description: '',
-        attendees: []  // Reset attendees
+        attendees: [],
+        status: 'planned'
       });
       setShowAddForm(false);
-      setClientPersonnel([]);  // Clear personnel list
+      setEditingTraining(null);
+      setClientPersonnel([]);
       fetchTrainings();
       
     } catch (error) {
-      console.error('❌ Error creating training:', error);
-      alert('Eğitim oluşturma hatası: ' + (error.response?.data?.detail || error.message));
+      console.error('❌ Error saving training:', error);
+      alert(`❌ Eğitim kaydetme hatası: ${error.response?.data?.detail || error.message}`);
     } finally {
       setLoading(false);
     }
