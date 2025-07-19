@@ -15055,18 +15055,19 @@ const MainApp = () => {
   const [selectedClient, setSelectedClient] = useState(null);
   const [showClientSetup, setShowClientSetup] = useState(false);
   const [show2FA, setShow2FA] = useState(true);
-  const [twoFACompleted, setTwoFACompleted] = useState(() => {
-    // Check if 2FA was completed today for THIS SPECIFIC USER
-    const { user } = useUser();
-    if (!user?.id) return false;
-    
-    const today = new Date().toDateString();
-    const last2FADate = localStorage.getItem(`rota_2fa_completed_${user.id}_${today}`);
-    return !!last2FADate;
-  });
+  const [twoFACompleted, setTwoFACompleted] = useState(false);
   const [showRoleSetup, setShowRoleSetup] = useState(false);
   const { userRole, isLoaded, dbUser, refreshUser } = useAuth();
   const { user } = useUser();
+
+  // Check 2FA completion status when user loads
+  useEffect(() => {
+    if (user?.id) {
+      const today = new Date().toDateString();
+      const last2FADate = localStorage.getItem(`rota_2fa_completed_${user.id}_${today}`);
+      setTwoFACompleted(!!last2FADate);
+    }
+  }, [user?.id]);
 
   // Handle 2FA completion with user-specific localStorage persistence
   const handle2FAComplete = () => {
