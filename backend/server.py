@@ -4270,9 +4270,9 @@ async def get_client_personnel(client_id: str, current_user: User = Depends(get_
         formatted_personnel = []
         for person in personnel_list:
             formatted_personnel.append({
-                "id": person["id"],
-                "name": person["name"],
-                "surname": person["surname"],
+                "id": person.get("id", ""),
+                "name": person.get("name", ""),
+                "surname": person.get("surname", ""),
                 "position": person.get("position", ""),
                 "email": person.get("email", ""),
                 "phone": person.get("phone", ""),
