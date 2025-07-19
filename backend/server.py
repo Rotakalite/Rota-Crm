@@ -855,6 +855,41 @@ async def health_check():
         "api_router_mounted": True
     }
 
+@app.post("/api/debug/fix-personnel-names")
+async def fix_personnel_names():
+    """Debug endpoint to fix personnel names from positions"""
+    try:
+        # Position'ı isim olarak ayarla
+        personnel_list = await db.personnel.find({"$or": [{"name": ""}, {"name": None}, {"surname": ""}, {"surname": None}]}).to_list(length=None)
+        
+        updated_count = 0
+        for person in personnel_list:
+            if person.get("position"):
+                # Position'dan isim oluştur
+                position_parts = person["position"].split()
+                if len(position_parts) >= 2:
+                    name = position_parts[0]
+                    surname = " ".join(position_parts[1:])
+                else:
+                    name = person["position"]
+                    surname = "Personeli"
+                
+                # Güncelle
+                await db.personnel.update_one(
+                    {"id": person["id"]},
+                    {"$set": {
+                        "name": name,
+                        "surname": surname
+                    }}
+                )
+                updated_count += 1
+        
+        return {"message": f"{updated_count} personel kaydı güncellendi"}
+        
+    except Exception as e:
+        logging.error(f"Fix personnel names error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/test-simple-endpoint")
 async def test_simple_endpoint():
     """Test endpoint to check if app works"""
