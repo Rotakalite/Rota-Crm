@@ -12132,6 +12132,29 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
                     </div>
                     
                     <div className="flex items-center ml-4 space-x-2">
+                      {/* Status Badge */}
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        training.status === 'completed' 
+                          ? 'bg-green-100 text-green-800' 
+                          : training.status === 'planned'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {training.status === 'completed' ? '✅ Tamamlandı' : 
+                         training.status === 'planned' ? '📅 Planlandı' : '⏳ Bekliyor'}
+                      </span>
+                      
+                      {/* Complete Button - Only show for non-completed trainings */}
+                      {training.status !== 'completed' && (
+                        <button
+                          onClick={() => completeTraining(training.id)}
+                          className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition-colors"
+                          title="Eğitimi tamamla"
+                        >
+                          ✅ Tamamla
+                        </button>
+                      )}
+                      
                       <button
                         onClick={() => deleteTraining(training.id)}
                         className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors"
@@ -12139,13 +12162,6 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
                       >
                         🗑️ Sil
                       </button>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        isUpcoming(training.training_date) 
-                          ? 'bg-blue-100 text-blue-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {isUpcoming(training.training_date) ? 'Yaklaşan' : 'Geçmiş'}
-                      </span>
                     </div>
                   </div>
                 </div>
