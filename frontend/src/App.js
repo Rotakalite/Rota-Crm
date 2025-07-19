@@ -11507,6 +11507,77 @@ const ClientTrainings = () => {
   );
 };
 
+// Attendees List Component - Katılımcıları göstermek için
+const AttendeesList = ({ attendeeIds, clientId, authToken }) => {
+  const [attendees, setAttendees] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const API = getApiUrl();
+
+  useEffect(() => {
+    const fetchAttendees = async () => {
+      if (!attendeeIds || attendeeIds.length === 0) {
+        setAttendees([]);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Personnel listesini getir
+        const response = await axios.get(`${API}/personnel?client_id=${clientId}`, {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        
+        const allPersonnel = response.data || [];
+        
+        // Sadece seçilenleri filtrele
+        const selectedAttendees = allPersonnel.filter(person => 
+          attendeeIds.includes(person.id)
+        );
+        
+        setAttendees(selectedAttendees);
+      } catch (error) {
+        console.error('Error fetching attendees:', error);
+        setAttendees([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAttendees();
+  }, [attendeeIds, clientId, authToken]);
+
+  if (loading) {
+    return <div className="text-xs text-gray-400">Katılımcılar yükleniyor...</div>;
+  }
+
+  if (attendees.length === 0) {
+    return <div className="text-xs text-gray-400">Katılımcı bilgisi bulunamadı</div>;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-1">
+      {attendees.map((person) => {
+        const displayName = person.full_name || 
+                          `${person.name || ''} ${person.surname || ''}`.trim() || 
+                          person.position || 
+                          'İsimsiz';
+        
+        return (
+          <span
+            key={person.id}
+            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+          >
+            👤 {displayName}
+            {person.position && person.full_name && (
+              <span className="ml-1 text-blue-600">({person.position})</span>
+            )}
+          </span>
+        );
+      })}
+    </div>
+  );
+};
+
 const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
   const [trainings, setTrainings] = useState([]);
   const [clients, setClients] = useState([]);
