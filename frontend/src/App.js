@@ -12057,6 +12057,22 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
               />
             </div>
             
+            {/* Eğitim Durumu */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Eğitim Durumu
+              </label>
+              <select
+                value={formData.status || 'planned'}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="planned">📅 Planlandı</option>
+                <option value="completed">✅ Tamamlandı</option>
+                <option value="cancelled">❌ İptal Edildi</option>
+              </select>
+            </div>
+            
             <div className="flex space-x-4">
               <button
                 type="submit"
