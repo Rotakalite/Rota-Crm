@@ -122,10 +122,20 @@ const useAuth = () => {
   // Setup axios interceptor for automatic token refresh
   useEffect(() => {
     const requestInterceptor = axios.interceptors.request.use(
-      (config) => {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+      async (config) => {
+        // Proactively refresh token before each request
+        try {
+          const freshToken = await ensureFreshToken();
+          if (freshToken) {
+            config.headers.Authorization = `Bearer ${freshToken}`;
+          }
+        } catch (error) {
+          console.error('❌ Failed to ensure fresh token:', error);
+          // Use existing token as fallback
+          const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
         }
         return config;
       },
