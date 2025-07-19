@@ -430,7 +430,7 @@ const useAuth = () => {
     initAuth();
   }, [user, isLoaded, session]);
 
-  return { user, authToken, userRole, dbUser, isLoaded, refreshUser, refreshToken };
+  return { user, authToken, userRole, dbUser, isLoaded, refreshUser, refreshToken, ensureFreshToken };
 };
 
 // Global utility function for file icons
