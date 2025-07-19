@@ -15821,7 +15821,6 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
           {renderContent()}
         </main>
       </div>
-      </>
     </div>
   );
 };
