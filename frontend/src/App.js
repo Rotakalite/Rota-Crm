@@ -12061,6 +12061,12 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
                       <div className="flex justify-between items-center mt-2">
                         <span className="text-sm">{formatDate(training.training_date)}</span>
                         <div className="space-x-2">
+                          <button
+                            onClick={() => editTraining(training)}
+                            className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+                          >
+                            ✏️ Düzenle
+                          </button>
                           {training.status !== 'completed' && (
                             <button
                               onClick={() => completeTraining(training.id)}
