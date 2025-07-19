@@ -11694,6 +11694,7 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
   const [clientPersonnel, setClientPersonnel] = useState([]); // Personnel listesi
   const [showAddForm, setShowAddForm] = useState(false);
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'calendar'
+  const [editingTraining, setEditingTraining] = useState(null); // Düzenlenen eğitim
   const [formData, setFormData] = useState({
     client_id: '',
     name: '',
