@@ -3190,7 +3190,6 @@ const Dashboard = ({ onNavigate }) => {
           </div>
         </div>
       </div>
-      </>
     </div>
   );
 };
