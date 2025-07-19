@@ -12022,23 +12022,32 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-gray-800">📚 Eğitim Yönetimi</h2>
-            <div className="flex bg-gray-100 rounded-lg p-1">
+            <div className="flex items-center space-x-4">
               <button
-                onClick={() => setViewMode('list')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-200'
-                }`}
+                onClick={() => setShowAddForm(true)}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center space-x-2"
               >
-                📋 Liste
+                <span>➕</span>
+                <span>Yeni Eğitim</span>
               </button>
-              <button
-                onClick={() => setViewMode('calendar')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  viewMode === 'calendar' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                📅 Takvim
-              </button>
+              <div className="flex bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  📋 Liste
+                </button>
+                <button
+                  onClick={() => setViewMode('calendar')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    viewMode === 'calendar' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  📅 Takvim
+                </button>
+              </div>
             </div>
           </div>
 
