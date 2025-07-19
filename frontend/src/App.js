@@ -12257,6 +12257,38 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
         </div>
       )}
 
+      {/* View Mode Toggle */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-800">📚 Eğitim Yönetimi</h2>
+          <div className="flex items-center space-x-2">
+            {/* View Mode Buttons */}
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  viewMode === 'list'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                📋 Liste
+              </button>
+              <button
+                onClick={() => setViewMode('calendar')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  viewMode === 'calendar'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                📅 Takvim
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Conditional View Rendering */}
       {viewMode === 'calendar' ? (
         <TrainingCalendar trainings={trainings} clients={clients} />
@@ -12273,6 +12305,113 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
                 : selectedClient 
                   ? trainings.filter(training => training.client_id === selectedClient)
                   : trainings;
+              
+              return filteredTrainings.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <span className="text-6xl mb-4 block">📚</span>
+                  <h4 className="text-xl font-semibold mb-2">
+                    {selectedClient ? 'Bu müşteri için henüz eğitim yok' : 'Henüz eğitim yok'}
+                  </h4>
+                  <p>
+                    {selectedClient 
+                      ? 'Bu müşteri için ilk eğitimi eklemek için yukarıdaki butonu kullanın.'
+                      : 'İlk eğitimi eklemek için önce müşteri seçin.'
+                    }
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredTrainings.map((training) => (
+                  <div key={training.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center mb-2">
+                          <span className="text-2xl mr-3">📚</span>
+                          <div>
+                            <h4 className="font-semibold text-lg">{training.name}</h4>
+                            <p className="text-sm text-gray-600">{training.subject}</p>
+                            <p className="text-xs text-blue-600 font-medium">🏨 {getClientName(training.client_id)}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                          <div>
+                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Eğitmen</span>
+                            <p className="text-sm font-medium">{training.trainer}</p>
+                          </div>
+                          <div>
+                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tarih</span>
+                            <p className="text-sm font-medium">{formatDate(training.training_date)}</p>
+                          </div>
+                          <div>
+                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Katılımcı Sayısı</span>
+                            <p className="text-sm font-medium">{training.participant_count || 0}</p>
+                          </div>
+                        </div>
+                        
+                        {training.description && (
+                          <div className="mt-3">
+                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Açıklama</span>
+                            <p className="text-sm text-gray-700 mt-1">{training.description}</p>
+                          </div>
+                        )}
+                        
+                        {/* Katılımcılar listesi */}
+                        {training.attendees && training.attendees.length > 0 && (
+                          <div className="mt-3">
+                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Katılımcılar ({training.attendees.length})</span>
+                            <div className="mt-2">
+                              <AttendeesList 
+                                attendeeIds={training.attendees} 
+                                clientId={training.client_id}
+                                authToken={authToken}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center ml-4 space-x-2">
+                        {/* Status Badge */}
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          training.status === 'completed' 
+                            ? 'bg-green-100 text-green-800' 
+                            : training.status === 'planned'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {training.status === 'completed' ? '✅ Tamamlandı' : 
+                           training.status === 'planned' ? '📅 Planlandı' : '⏳ Bekliyor'}
+                        </span>
+                        
+                        {/* Complete Button - Only show for non-completed trainings */}
+                        {training.status !== 'completed' && (
+                          <button
+                            onClick={() => completeTraining(training.id)}
+                            className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition-colors"
+                            title="Eğitimi tamamla"
+                          >
+                            ✅ Tamamla
+                          </button>
+                        )}
+                        
+                        <button
+                          onClick={() => deleteTraining(training.id)}
+                          className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors"
+                          title="Eğitimi sil"
+                        >
+                          🗑️ Sil
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  ))}
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      )}
             
             return filteredTrainings.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
