@@ -1,0 +1,239 @@
+{
+  "api_tests": {
+    "health_check": {
+      "status_code": 200,
+      "response": {
+        "status": "healthy",
+        "service": "Rota CRM Backend",
+        "timestamp": "2025-07-21T14:15:27.959069",
+        "version": "1.0.0",
+        "main_app": true,
+        "test_update": "NEW_ENDPOINT_TEST"
+      },
+      "success": true
+    },
+    "clients_no_auth": {
+      "status_code": 403,
+      "response": "{\"detail\":\"Not authenticated\"}",
+      "success": true
+    },
+    "clients_invalid_auth": {
+      "status_code": 401,
+      "response": "{\"detail\":\"Invalid token format\"}",
+      "success": true
+    },
+    "bulk_api_params_no_params": {
+      "url": "https://rota-crm-production.up.railway.app/api/clients",
+      "status_code": 403,
+      "response_preview": "{\"detail\":\"Not authenticated\"}",
+      "requires_auth": true
+    },
+    "bulk_api_params_client_type=bulk": {
+      "url": "https://rota-crm-production.up.railway.app/api/clients?client_type=bulk",
+      "status_code": 403,
+      "response_preview": "{\"detail\":\"Not authenticated\"}",
+      "requires_auth": true
+    },
+    "bulk_api_params_client_type=registered": {
+      "url": "https://rota-crm-production.up.railway.app/api/clients?client_type=registered",
+      "status_code": 403,
+      "response_preview": "{\"detail\":\"Not authenticated\"}",
+      "requires_auth": true
+    },
+    "bulk_api_params_page=1&limit=10": {
+      "url": "https://rota-crm-production.up.railway.app/api/clients?page=1&limit=10",
+      "status_code": 403,
+      "response_preview": "{\"detail\":\"Not authenticated\"}",
+      "requires_auth": true
+    }
+  },
+  "database_analysis": {
+    "client_type_distribution": [
+      {
+        "_id": "registered",
+        "count": 8
+      },
+      {
+        "_id": "bulk",
+        "count": 22877
+      }
+    ],
+    "top_bulk_cities": [
+      {
+        "_id": "\u0130STANBUL",
+        "count": 3252
+      },
+      {
+        "_id": "ANTALYA",
+        "count": 2862
+      },
+      {
+        "_id": "MU\u011eLA",
+        "count": 2664
+      },
+      {
+        "_id": "\u0130ZM\u0130R",
+        "count": 1956
+      },
+      {
+        "_id": "BALIKES\u0130R",
+        "count": 1160
+      },
+      {
+        "_id": "\u00c7ANAKKALE",
+        "count": 1001
+      },
+      {
+        "_id": "NEV\u015eEH\u0130R",
+        "count": 862
+      },
+      {
+        "_id": "SAKARYA",
+        "count": 764
+      },
+      {
+        "_id": "MERS\u0130N",
+        "count": 592
+      },
+      {
+        "_id": "AYDIN",
+        "count": 443
+      }
+    ],
+    "top_audit_companies": [
+      {
+        "_id": "ROYALCERT BELGELEND\u0130RME VE G\u00d6ZET\u0130M H\u0130ZMETLER\u0130 A.\u015e",
+        "count": 5543
+      },
+      {
+        "_id": "ALBERK QA ULUSLARARASI TEKN\u0130K KONTROL VE BELGELEND\u0130RME A.\u015e.",
+        "count": 2820
+      },
+      {
+        "_id": "T\u00dcV AUSTR\u0130A TURK BELGELEND\u0130RME E\u011e\u0130T\u0130M VE G\u00d6ZET\u0130M H\u0130ZMETLER\u0130 LTD. \u015eT\u0130.",
+        "count": 1672
+      },
+      {
+        "_id": "RoyalCert Belgelendirme ve G\u00f6zetim Hizmetleri A.\u015e",
+        "count": 1502
+      },
+      {
+        "_id": "TRB ULUSLARARASI BELGELEND\u0130RME TEKN\u0130K KONTROL VE G\u00d6ZET\u0130M H\u0130ZMETLER\u0130 T\u0130C. LTD.\u015eT\u0130.",
+        "count": 1325
+      },
+      {
+        "_id": "CONTROL UN\u0130ON G\u00d6ZET\u0130M VE BELGELEND\u0130RME LTD. \u015eT\u0130.",
+        "count": 1202
+      },
+      {
+        "_id": "ISOQAR BELGELEND\u0130RME LTD.ST\u0130. (V\u0130REO T\u00dcRK\u0130YE YETK\u0130L\u0130 F\u0130RMASI)",
+        "count": 1156
+      },
+      {
+        "_id": "T\u00dcRK STANDARDLARI ENST\u0130T\u00dcS\u00dc S\u0130STEM BELGELEND\u0130RME GRUP BA\u015eKANLI\u011eI",
+        "count": 996
+      },
+      {
+        "_id": "Alberk QA Uluslararas\u0131 Teknik Kontrol ve Belgelendirme A.\u015e.",
+        "count": 861
+      },
+      {
+        "_id": "K\u0130WA BELGELEND\u0130RME H\u0130ZMETLER\u0130 A.\u015e.",
+        "count": 813
+      }
+    ]
+  },
+  "certificate_date_analysis": {
+    "total_clients": 22885,
+    "with_certificate_date": 22881,
+    "with_dash_value": 3379,
+    "with_null_value": 4,
+    "with_empty_string": 0,
+    "with_valid_date": 19502,
+    "dash_examples": [
+      {
+        "id": "078e7cd8-b7ec-459a-8d01-988e9a35b5be",
+        "name": "KAYHAN CITY HOTEL",
+        "hotel_name": "KAYHAN CITY HOTEL",
+        "city": "BURSA",
+        "client_type": "bulk",
+        "certificate_end_date": "-"
+      },
+      {
+        "id": "a93ab609-a7e7-4c13-b6de-bd838688d87d",
+        "name": "D\u0130LA HOTEL",
+        "hotel_name": "D\u0130LA HOTEL",
+        "city": "\u0130STANBUL",
+        "client_type": "bulk",
+        "certificate_end_date": "-"
+      },
+      {
+        "id": "1944ad98-65ae-46c4-9492-552f4ee55070",
+        "name": "ACE ERC\u0130YES",
+        "hotel_name": "ACE ERC\u0130YES",
+        "city": "KAYSER\u0130",
+        "client_type": "bulk",
+        "certificate_end_date": "-"
+      },
+      {
+        "id": "25092864-74fe-4c12-9825-e88553a7481d",
+        "name": "Nevizade Otel",
+        "hotel_name": "Nevizade Otel",
+        "city": "AMASYA",
+        "client_type": "bulk",
+        "certificate_end_date": "-"
+      },
+      {
+        "id": "a7d1a6a6-b5cc-4b5c-994d-6c3a89afd819",
+        "name": "GAYAS\u0130S RESORT OTEL",
+        "hotel_name": "GAYAS\u0130S RESORT OTEL",
+        "city": "G\u0130RESUN",
+        "client_type": "bulk",
+        "certificate_end_date": "-"
+      }
+    ],
+    "valid_date_examples": [
+      {
+        "id": "0a42e291-a60a-42fa-b2b7-b9b4fae252cc",
+        "name": "BELL\u0130S OTEL",
+        "hotel_name": "BELL\u0130S OTEL",
+        "city": "ANTALYA",
+        "client_type": "registered",
+        "certificate_end_date": "2025-08-02"
+      },
+      {
+        "id": "94927a77-edc3-45ec-8329-795feae35771",
+        "name": "CANO OTEL",
+        "hotel_name": "CANO OTEL",
+        "city": "ISPARTA",
+        "client_type": "registered",
+        "certificate_end_date": "2025-09-01"
+      },
+      {
+        "id": "12c537d3-5ae0-4535-942f-b2d30bda0ba0",
+        "name": "\u015eATO OTEL",
+        "hotel_name": "\u015eATO OTEL",
+        "city": "\u0130STANBUL",
+        "client_type": "bulk",
+        "certificate_end_date": "2025-08-20"
+      }
+    ],
+    "other_values": []
+  },
+  "summary": {
+    "certificate_date_issue": {
+      "total_clients_analyzed": 22885,
+      "clients_with_dash_value": 3379,
+      "percentage_with_dash": 14.77,
+      "issue_confirmed": true
+    },
+    "api_security": {
+      "properly_secured": true,
+      "requires_authentication": true
+    },
+    "backend_accessibility": {
+      "health_endpoint_working": true,
+      "api_endpoints_secured": true
+    }
+  }
+}
