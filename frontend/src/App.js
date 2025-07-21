@@ -6574,6 +6574,14 @@ const BulkOperations = ({ onNavigate }) => {
                       <div className="font-medium text-gray-700">Seçili Şablon:</div>
                       <div className="text-gray-800">{selectedTemplate.name}</div>
                       <div className="text-xs text-gray-600 mt-1">📧 {selectedTemplate.subject}</div>
+                      {selectedTemplate.id === 'certificate_reminder' && (
+                        <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded">
+                          <div className="text-xs text-orange-800">
+                            🏨 <strong>Akıllı Filtreleme:</strong> Sadece geçerli sertifika tarihi olan müşterilere gönderilir.
+                            <br/>❌ Sertifikası olmayan ("-" değerli) müşteriler hariç tutulur.
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
