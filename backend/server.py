@@ -4781,124 +4781,140 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                         padding: 40px 20px;
                     }}
                     .email-container {{
-                        max-width: 800px;
+                        max-width: 1000px;
                         margin: 0 auto;
                         background: #ffffff;
-                        border-radius: 20px;
+                        border-radius: 25px;
                         overflow: hidden;
-                        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+                        box-shadow: 0 25px 50px rgba(102, 126, 234, 0.4);
                     }}
                     .test-banner {{
                         background: linear-gradient(135deg, #ff6b6b, #ffa500);
-                        padding: 20px 40px;
+                        padding: 25px 50px;
                         text-align: center;
                         color: white;
                     }}
                     .test-banner h2 {{
-                        font-size: 22px;
+                        font-size: 26px;
                         font-weight: 600;
                         margin: 0;
                     }}
                     .header {{
                         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        padding: 50px 40px;
+                        padding: 60px 50px;
                         text-align: center;
                         color: white;
                     }}
-                    .logo {{
-                        width: 80px;
-                        height: 80px;
-                        background: white;
-                        border-radius: 50%;
-                        margin: 0 auto 30px;
+                    .logo-container {{
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        font-size: 32px;
-                        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+                        gap: 20px;
+                        margin-bottom: 30px;
+                    }}
+                    .logo {{
+                        width: 100px;
+                        height: 100px;
+                        background: white;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 40px;
+                        box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+                    }}
+                    .company-logo {{
+                        width: 120px;
+                        height: auto;
+                        filter: brightness(0) invert(1);
+                        opacity: 0.9;
                     }}
                     .header h1 {{
-                        font-size: 36px;
+                        font-size: 42px;
                         font-weight: 600;
-                        margin: 15px 0;
-                        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        margin: 20px 0;
+                        text-shadow: 0 3px 6px rgba(0,0,0,0.15);
+                        letter-spacing: 1px;
                     }}
                     .header p {{
-                        font-size: 18px;
+                        font-size: 20px;
                         opacity: 0.9;
                         font-weight: 400;
                     }}
                     .content {{
-                        padding: 50px 40px;
+                        padding: 60px 50px;
                         background: white;
                     }}
                     .greeting {{
-                        font-size: 28px;
+                        font-size: 32px;
                         color: #333;
-                        margin-bottom: 15px;
+                        margin-bottom: 20px;
                         font-weight: 600;
                         text-align: center;
                     }}
                     .test-info {{
                         background: linear-gradient(135deg, #74b9ff, #0984e3);
                         color: white;
-                        padding: 25px;
-                        border-radius: 15px;
-                        margin: 30px 0;
+                        padding: 35px;
+                        border-radius: 20px;
+                        margin: 40px 0;
                         text-align: center;
+                        box-shadow: 0 8px 20px rgba(116, 185, 255, 0.3);
                     }}
                     .test-info h3 {{
-                        margin: 0 0 15px 0;
-                        font-size: 22px;
+                        margin: 0 0 20px 0;
+                        font-size: 26px;
                     }}
                     .test-details {{
-                        font-size: 16px;
+                        font-size: 18px;
                         opacity: 0.9;
                         line-height: 1.5;
                     }}
                     .content-box {{
                         background: #f8f9ff;
-                        border: 2px solid #e6e8f8;
-                        border-radius: 15px;
-                        padding: 35px;
-                        margin: 30px 0;
-                        font-size: 18px;
+                        border: 3px solid #e6e8f8;
+                        border-radius: 20px;
+                        padding: 45px;
+                        margin: 40px 0;
+                        font-size: 20px;
                         line-height: 1.8;
                         color: #444;
+                        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
                     }}
                     .warning-box {{
                         background: linear-gradient(135deg, #d4edda, #c3e6cb);
-                        border: 2px solid #28a745;
-                        border-radius: 15px;
-                        padding: 25px;
-                        margin: 30px 0;
+                        border: 3px solid #28a745;
+                        border-radius: 20px;
+                        padding: 35px;
+                        margin: 40px 0;
+                        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2);
                     }}
                     .warning-icon {{
-                        font-size: 24px;
-                        margin-bottom: 15px;
+                        font-size: 28px;
+                        margin-bottom: 20px;
                     }}
                     .warning-title {{
                         font-weight: 600;
                         color: #155724;
-                        margin-bottom: 15px;
-                        font-size: 18px;
+                        margin-bottom: 20px;
+                        font-size: 22px;
                     }}
                     .warning-text {{
                         color: #155724;
-                        font-size: 16px;
+                        font-size: 18px;
                         line-height: 1.6;
                     }}
                     .footer {{
                         background: #f8f9ff;
-                        padding: 40px;
+                        padding: 50px;
                         text-align: center;
-                        border-top: 1px solid #e6e8f8;
+                        border-top: 2px solid #e6e8f8;
                     }}
                     .footer-text {{
-                        font-size: 15px;
+                        font-size: 17px;
                         color: #888;
                         line-height: 1.6;
-                        margin-bottom: 15px;
+                        margin-bottom: 20px;
                     }}
                     .company-name {{
                         font-weight: 600;
@@ -4918,6 +4934,9 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                         .content-box {{ padding: 25px; font-size: 16px; }}
                         .test-info {{ padding: 20px; }}
                         .test-banner h2 {{ font-size: 18px; }}
+                        .logo {{ width: 70px; height: 70px; font-size: 28px; }}
+                        .company-logo {{ width: 80px; }}
+                        .logo-container {{ flex-direction: column; gap: 15px; }}
                     }}
                 </style>
             </head>
