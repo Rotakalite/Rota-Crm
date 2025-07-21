@@ -4494,6 +4494,12 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
     
     return templates[template_id]
 
+# Test endpoint for email templates
+@api_router.get("/email-templates-test")
+async def test_email_templates_endpoint():
+    """Test endpoint to verify email template routes are working"""
+    return {"message": "Email templates endpoint test working", "status": "ok"}
+
 # Routes
 @api_router.get("/status")
 async def api_status():
