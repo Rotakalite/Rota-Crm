@@ -4133,8 +4133,8 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                     <body>
                         <div class="container">
                             <div class="header">
-                                <h1>🌿 ROTA Sürdürülebilir Turizm</h1>
-                                <p>Profesyonel Sürdürülebilirlik Danışmanlığı</p>
+                                <h1>🌿 Rota Kalite & Danışmanlık</h1>
+                                <p>Profesyonel Sürdürülebilir Turizm Danışmanlığı</p>
                                 <span class="sustainability-badge">🏨 Sürdürülebilir Turizm Uzmanı</span>
                             </div>
                             <div class="content">
