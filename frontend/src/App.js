@@ -2002,8 +2002,8 @@ const PersonnelManagement = () => {
       console.error('Error adding personnel:', error);
       
       if (error.response?.status === 401) {
-        alert('Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.');
-        window.location.reload();
+        console.log('🔄 401 error detected, auth system will handle this silently');
+        // Let the main auth system handle re-authentication silently - no page reload
         return;
       }
       
