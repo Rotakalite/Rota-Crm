@@ -3244,7 +3244,7 @@ class ErrorBoundary extends React.Component {
             <div className="text-center">
               <h1 className="text-2xl font-bold text-red-600 mb-4">⚠️ Bir Hata Oluştu</h1>
               <p className="text-gray-600 mb-4">
-                Sistemde beklenmeyen bir hata oluştu. Lütfen sayfayı yenileyin.
+                Sistemde beklenmeyen bir hata oluştu. Sadece gerekiyorsa sayfayı yenileyin.
               </p>
               <button
                 onClick={() => window.location.reload()}
