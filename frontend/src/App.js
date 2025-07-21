@@ -234,16 +234,16 @@ const useAuth = () => {
           clearTimeout(refreshTimeout);
         }
         
-        // Set new timeout for 3 minutes of inactivity
+        // Set new timeout for 30 seconds of inactivity - MUCH more aggressive
         refreshTimeout = setTimeout(async () => {
           try {
-            console.log('🔄 Proactive token refresh due to inactivity...');
+            console.log('🔄 Proactive token refresh due to 30s inactivity...');
             await refreshToken();
             console.log('✅ Proactive refresh successful');
           } catch (error) {
             console.error('❌ Proactive refresh failed:', error);
           }
-        }, 3 * 60 * 1000); // 3 minutes
+        }, 30 * 1000); // 30 seconds - ultra-aggressive refresh
       };
 
       // Activity events to monitor
