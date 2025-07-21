@@ -91,46 +91,28 @@ class EmailService:
     async def send_email(self, to_email: str, subject: str, html_content: str, from_email: str = None, from_name: str = None):
         """Send email with HTML content"""
         try:
-            # Use custom from_email if provided, otherwise use configured default
-            sender_email = from_email if from_email else gmail_user
+            # Choose the right FastMail instance based on from_name
+            if from_name:
+                # Use bulk FastMail with display name for bulk emails
+                fastmail_instance = self.fastmail_bulk
+                logging.info(f"📧 Using bulk email config with display name")
+            else:
+                # Use regular FastMail for normal emails (2FA etc)
+                fastmail_instance = self.fastmail
+                logging.info(f"📧 Using regular email config")
             
             # Create message
-            if from_name:
-                # For bulk emails with custom sender name
-                message = MessageSchema(
-                    subject=subject,
-                    recipients=[to_email],
-                    body=html_content,
-                    subtype="html",
-                    reply_to=sender_email
-                )
-                # Try different ways to set sender name
-                try:
-                    # Method 1: Set sender field
-                    message.sender = f"{from_name} <{sender_email}>"
-                except:
-                    try:
-                        # Method 2: Set from_ field  
-                        message.from_ = f"{from_name} <{sender_email}>"
-                    except:
-                        # Method 3: Set mail_from
-                        try:
-                            message.mail_from = f"{from_name} <{sender_email}>"
-                        except:
-                            logging.warning("⚠️ Could not set custom sender name")
-            else:
-                # For regular emails like 2FA
-                message = MessageSchema(
-                    subject=subject,
-                    recipients=[to_email],
-                    body=html_content,
-                    subtype="html"
-                )
+            message = MessageSchema(
+                subject=subject,
+                recipients=[to_email],
+                body=html_content,
+                subtype="html"
+            )
                 
-            await self.fastmail.send_message(message)
+            await fastmail_instance.send_message(message)
             
             # Log with sender info
-            sender_info = f"from {from_name} <{sender_email}>" if from_name else f"from {sender_email}"
+            sender_info = f"from {from_name}" if from_name else f"from {gmail_user}"
             logging.info(f"📧 Email sent to {to_email} {sender_info} with subject: {subject}")
             return True
             
