@@ -6006,8 +6006,23 @@ const BulkOperations = ({ onNavigate }) => {
 
   const fetchEmailTemplates = async () => {
     try {
+      let currentToken = authToken;
+      if (!currentToken && session) {
+        try {
+          currentToken = await session.getToken();
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+          return;
+        }
+      }
+
+      if (!currentToken) {
+        console.error('No authentication token available');
+        return;
+      }
+
       const response = await axios.get(`${API}/api/email-templates`, {
-        headers: { Authorization: `Bearer ${authToken}` }
+        headers: { Authorization: `Bearer ${currentToken}` }
       });
       setEmailTemplates(response.data.templates || []);
     } catch (error) {
