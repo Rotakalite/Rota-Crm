@@ -12806,6 +12806,52 @@ const EmailNotificationManagement = () => {
     }
   };
 
+  // Fetch documents
+  const fetchDocuments = async (clientId) => {
+    try {
+      let currentToken = authToken;
+      if (!currentToken && session) {
+        try {
+          currentToken = await session.getToken();
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      const response = await axios.get(`${API}/documents`, {
+        params: { client_id: clientId },
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+      setDocuments(response.data.map(doc => ({ ...doc, selected: false })));
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+      setDocuments([]);
+    }
+  };
+
+  // Fetch trainings
+  const fetchTrainings = async (clientId) => {
+    try {
+      let currentToken = authToken;
+      if (!currentToken && session) {
+        try {
+          currentToken = await session.getToken();
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      const response = await axios.get(`${API}/trainings`, {
+        params: { client_id: clientId },
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+      setTrainings(response.data.map(training => ({ ...training, selected: false })));
+    } catch (error) {
+      console.error('Error fetching trainings:', error);
+      setTrainings([]);
+    }
+  };
+
   // Toggle document selection
   const toggleDocumentSelection = (docId) => {
     setDocuments(prev => prev.map(doc => 
