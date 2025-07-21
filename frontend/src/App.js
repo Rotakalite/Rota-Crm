@@ -13454,9 +13454,8 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
       
       // Handle authentication errors
       if (error.response?.status === 401) {
-        alert('Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.');
-        // Redirect to login or refresh page
-        window.location.reload();
+        console.log('🔄 401 error detected, auth system will handle this silently');
+        // Let the main auth system handle re-authentication silently - no page reload
         return;
       }
       
