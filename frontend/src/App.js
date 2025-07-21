@@ -6618,10 +6618,10 @@ const BulkOperations = ({ onNavigate }) => {
             <div className="flex gap-3 pt-6">
               <button
                 onClick={handleBulkEmailSend}
-                disabled={!bulkEmailForm.subject || !bulkEmailForm.content || bulkEmailLoading}
+                disabled={(!selectedTemplate && (!bulkEmailForm.subject || !bulkEmailForm.content)) || bulkEmailLoading}
                 className="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 disabled:opacity-50 font-medium"
               >
-                {bulkEmailLoading ? 'Gönderiliyor...' : '📧 Email Gönder'}
+                {bulkEmailLoading ? 'Gönderiliyor...' : selectedTemplate ? `📧 ${selectedTemplate.name} Gönder` : '📧 Email Gönder'}
               </button>
               <button
                 onClick={() => setShowBulkEmail(false)}
