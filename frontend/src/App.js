@@ -5634,7 +5634,8 @@ const BulkOperations = ({ onNavigate }) => {
     target_filters: {
       city: '',
       audit_company: '',
-      has_email: true
+      has_email: true,
+      certificate_filter: '' // New: certificate-specific filter
     }
   });
   const [bulkEmailResult, setBulkEmailResult] = useState(null);
