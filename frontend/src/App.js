@@ -12769,6 +12769,20 @@ const EmailManagement = ({ selectedClient: propSelectedClient }) => {
   );
 };
 
+// Email Notification Management Component
+const EmailNotificationManagement = () => {
+  const { authToken, user, userRole, dbUser } = useAuth();
+  const { session } = useClerk();
+  const [loading, setLoading] = useState(false);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [documents, setDocuments] = useState([]);
+  const [trainings, setTrainings] = useState([]);
+  const [selectedDocuments, setSelectedDocuments] = useState([]);
+  const [selectedTrainings, setSelectedTrainings] = useState([]);
+  const [activeTab, setActiveTab] = useState('documents');
+  const API = getApiUrl();
+
   // Fetch clients
   const fetchClients = async () => {
     try {
