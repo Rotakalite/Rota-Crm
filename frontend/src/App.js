@@ -12768,12 +12768,6 @@ const EmailManagement = ({ selectedClient: propSelectedClient }) => {
     </div>
   );
 };
-      
-    } catch (error) {
-      console.error('Error fetching trainings:', error);
-      setTrainings([]);
-    }
-  };
 
   // Fetch clients
   const fetchClients = async () => {
