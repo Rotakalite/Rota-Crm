@@ -4947,7 +4947,13 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                     </div>
                     
                     <div class="header">
-                        <div class="logo">🌿</div>
+                        <div class="logo-container">
+                            <div class="logo">🌿</div>
+                            <svg class="company-logo" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+                                <text x="100" y="35" text-anchor="middle" font-family="Arial Black, Arial" font-size="24" font-weight="bold" fill="white">ROTA</text>
+                                <text x="100" y="55" text-anchor="middle" font-family="Arial" font-size="10" font-weight="normal" fill="white" opacity="0.8">KALİTE & DANIŞMANLIK</text>
+                            </svg>
+                        </div>
                         <h1>Rota Kalite & Danışmanlık</h1>
                         <p>Profesyonel Sürdürülebilir Turizm Danışmanlığı</p>
                     </div>
