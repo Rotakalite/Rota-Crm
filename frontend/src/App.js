@@ -5996,7 +5996,7 @@ const BulkOperations = ({ onNavigate }) => {
   // Bulk Email Functions
   const fetchBulkEmailStats = async () => {
     try {
-      const response = await axios.get(`${API}/api/bulk-email/stats`, {
+      const response = await axios.get(`${API}/bulk-email/stats`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setBulkEmailStats(response.data);
