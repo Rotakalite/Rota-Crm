@@ -4626,7 +4626,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
     mixed_waste: 0,
     accommodation_count: 1
   });
-  const { authToken, userRole } = useAuth();
+  const { authToken, userRole, ensureTokenForOperation } = useAuth();
   const API = getApiUrl();
 
   // Use selectedClient from props (for consultant) or manage locally (for admin/client)
