@@ -4507,6 +4507,282 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
     
     return templates[template_id]
 
+# Test Email Endpoint - ADMIN ONLY
+@api_router.post("/email-templates/test")
+async def send_test_email(
+    request: dict,
+    current_user: User = Depends(get_admin_user)
+):
+    """Send test email with template - ADMIN ONLY"""
+    try:
+        template_id = request.get("template_id")
+        test_email = request.get("test_email", "")
+        custom_content = request.get("custom_content", "")
+        
+        if not template_id:
+            raise HTTPException(status_code=400, detail="Template ID gereklidir")
+        
+        if not test_email or "@" not in test_email:
+            raise HTTPException(status_code=400, detail="Geçerli bir test email adresi gereklidir")
+        
+        # Get template
+        templates = {
+            "certificate_reminder": {
+                "subject": "🏨 Sertifika Yenileme Hatırlatması - {{hotel_name}}",
+                "content": """Değerli {{contact_person}},
+
+{{hotel_name}} işletmenizin sürdürülebilirlik sertifikasının geçerlilik süresinin {{certificate_end_date}} tarihinde sona ermesi planlanmaktadır.
+
+Sertifikanızın sürekli geçerli kalabilmesi için lütfen yenileme sürecinizi başlatınız.
+
+🔹 Yenileme süreci hakkında bilgi almak
+🔹 Denetim randevusu oluşturmak  
+🔹 Gerekli evrak hazırlığı konusunda destek almak
+
+için bizimle iletişime geçebilirsiniz.
+
+Sürdürülebilir turizm yolculuğunuzda yanınızda olmaktan memnuniyet duyuyoruz.
+
+Saygılarımızla,
+ROTA Sürdürülebilir Turizm Danışmanlık"""
+            },
+            "general_announcement": {
+                "subject": "🌿 ROTA Sürdürülebilir Turizm Danışmanlık - Önemli Duyuru",
+                "content": """Değerli İş Ortaklarımız,
+
+Sürdürülebilir turizm konusunda sizlere daha iyi hizmet verebilmek amacıyla önemli gelişmelerimizi paylaşmak istiyoruz.
+
+{content}
+
+Herhangi bir sorunuz olması durumunda bizimle iletişime geçmekten çekinmeyiniz.
+
+Sürdürülebilir turizm yolculuğunda yanınızda olmaktan gurur duyuyoruz.
+
+İyi çalışmalar,
+ROTA Sürdürülebilir turizm Danışmanlık Ekibi"""
+            },
+            "sustainability_tips": {
+                "subject": "🌱 Bu Ay İçin Sürdürülebilirlik İpuçları - {{hotel_name}}",
+                "content": """Merhaba {{contact_person}},
+
+{{hotel_name}} için bu ayın sürdürülebilirlik ipuçlarını paylaşıyoruz:
+
+🌿 **Enerji Verimliliği:**
+• LED aydınlatma sistemlerini tercih edin
+• Odalarda hareket sensörlü sistemler kullanın
+• Klima ayarlarını optimize edin
+
+💧 **Su Tasarrufu:**
+• Düşük akışlı duş başlıkları kullanın  
+• Havlu ve çarşaf değişim politikaları uygulayın
+• Drip sulama sistemlerini tercih edin
+
+♻️ **Atık Azaltma:**
+• Geri dönüşüm kutularını arttırın
+• Tek kullanımlık ürünleri azaltın
+• Compost sistemi kurun
+
+Bu önerileri hayata geçirmek için destek almak istiyorsanız, bizimle iletişime geçin.
+
+Saygılarımızla,
+ROTA Sürdürülebilir Turizm Danışmanlık"""
+            },
+            "training_invitation": {
+                "subject": "🎓 Ücretsiz Sürdürülebilirlik Eğitimi Davetiyesi - {{hotel_name}}",
+                "content": """Sayın {{contact_person}},
+
+{{hotel_name}} ekibiniz için düzenlediğimiz **ücretsiz sürdürülebilirlik eğitimlerimize** davet ediyoruz!
+
+📅 **Eğitim Konuları:**
+• Sürdürülebilir turizm temelleri
+• Enerji ve su tasarrufu teknikleri  
+• Atık yönetimi stratejileri
+• Misafir farkındalığı oluşturma
+• Sertifika süreçleri
+
+🎯 **Kimler Katılabilir:**
+• Otel yöneticileri
+• Housekeeping departmanı
+• Food & Beverage personeli
+• Teknik servis ekibi
+
+📞 **Kayıt ve Bilgi:**
+Eğitim tarih ve saatleri için bizimle iletişime geçiniz.
+
+Sürdürülebilir turizm yolculuğunda bilgi en değerli silahımızdır.
+
+Katılımınızı bekliyoruz,
+ROTA Sürdürülebilir Turizm Danışmanlık Eğitim Ekibi"""
+            },
+            "survey_request": {
+                "subject": "📋 Hizmet Kalitesi Anketi - Görüşünüz Bizim İçin Değerli",
+                "content": """Değerli {{contact_person}},
+
+{{hotel_name}} ile sürdürülebilirlik yolculuğunda birlikte olduğumuz süre zarfında aldığınız hizmet kalitesi hakkındaki düşüncelerinizi öğrenmek istiyoruz.
+
+🔹 **Neden Bu Anket Önemli?**
+• Hizmetlerimizi geliştirmek için
+• Size daha iyi destek verebilmek için  
+• Sürdürülebilirlik hedeflerinize daha uygun çözümler sunabilmek için
+
+⏱️ **Süre:** Sadece 3-5 dakika
+🎁 **Hediye:** Anket sonrası özel sürdürülebilirlik raporu
+
+[ANKET LİNKİ BURAYA EKLENECEKTİR]
+
+Zaman ayırdığınız için şimdiden teşekkür ederiz.
+
+Sürdürülebilir turizm yolculuğunda her zaman yanınızdayız.
+
+Saygılarımızla,
+ROTA Sürdürülebilir Turizm Danışmanlık"""
+            }
+        }
+        
+        if template_id not in templates:
+            raise HTTPException(status_code=404, detail="Template bulunamadı")
+        
+        template = templates[template_id]
+        
+        # Sample data for template testing
+        sample_data = {
+            "hotel_name": "ÖRNEK OTEL TEST SUITE",
+            "contact_person": "Test Kullanıcısı",
+            "city": "İstanbul",
+            "certificate_end_date": "15.03.2025"
+        }
+        
+        # Personalize template content with sample data
+        personalized_subject = template["subject"]
+        personalized_content = template["content"]
+        
+        # Replace template variables with sample data
+        for key, value in sample_data.items():
+            personalized_subject = personalized_subject.replace(f"{{{{{key}}}}}", value)
+            personalized_content = personalized_content.replace(f"{{{{{key}}}}}", value)
+        
+        # Handle custom content for general announcement
+        if template_id == "general_announcement" and custom_content.strip():
+            personalized_content = personalized_content.replace("{content}", custom_content)
+        elif template_id == "general_announcement":
+            personalized_content = personalized_content.replace("{content}", "Bu bir test email'idir. Gerçek duyuru içeriği burada yer alacaktır.")
+        
+        # Add test email header
+        personalized_content = f"""🧪 **TEST EMAİL - GERÇEK GÖNDERİM DEĞİL**
+📧 Template: {template_id}
+📅 Test Tarihi: {datetime.now().strftime('%d.%m.%Y %H:%M')}
+👤 Test Eden: {current_user.email}
+
+---
+
+{personalized_content}
+
+---
+
+✅ Bu bir test email'idir. Template'iniz yukarıdaki gibi görünecektir."""
+        
+        # Convert line breaks to HTML
+        personalized_content = personalized_content.replace('\n', '<br>')
+        
+        # Import email service
+        from services.email_service import email_service
+        
+        # Send test email
+        await email_service.send_email(
+            to_email=test_email,
+            subject=f"🧪 TEST - {personalized_subject}",
+            html_content=f"""
+            <html>
+            <head>
+                <style>
+                    body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f7fa; }}
+                    .container {{ max-width: 600px; margin: 20px auto; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }}
+                    .test-header {{ 
+                        background: linear-gradient(135deg, #f59e0b, #d97706); 
+                        color: white; 
+                        padding: 20px 30px; 
+                        text-align: center;
+                    }}
+                    .test-header h1 {{ 
+                        margin: 0 0 10px 0; 
+                        font-size: 24px; 
+                        font-weight: 700;
+                    }}
+                    .header {{ 
+                        background: linear-gradient(135deg, #0ea5e9, #0284c7, #0369a1); 
+                        color: white; 
+                        padding: 40px 30px; 
+                        text-align: center;
+                        position: relative;
+                    }}
+                    .header h1 {{ 
+                        margin: 0 0 10px 0; 
+                        font-size: 28px; 
+                        font-weight: 700;
+                        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                    }}
+                    .header p {{ 
+                        margin: 0; 
+                        font-size: 16px; 
+                        opacity: 0.95;
+                    }}
+                    .content {{ 
+                        padding: 40px 30px; 
+                        background: white;
+                        font-size: 16px;
+                        line-height: 1.8;
+                    }}
+                    .footer {{ 
+                        background: linear-gradient(135deg, #f8fafc, #e2e8f0); 
+                        padding: 25px 30px; 
+                        text-align: center; 
+                        color: #64748b;
+                        border-top: 1px solid #e2e8f0;
+                    }}
+                    .footer p {{ margin: 5px 0; font-size: 14px; }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="test-header">
+                        <h1>🧪 TEST EMAIL</h1>
+                        <p>Bu gerçek bir gönderim değil, sadece template testi</p>
+                    </div>
+                    <div class="header">
+                        <h1>🌿 ROTA Sürdürülebilir Turizm</h1>
+                        <p>Profesyonel Sürdürülebilirlik Danışmanlığı</p>
+                    </div>
+                    <div class="content">
+                        {personalized_content}
+                    </div>
+                    <div class="footer">
+                        <p><strong>📞 İletişim:</strong> info@rotakalite.com | +90 (xxx) xxx xx xx</p>
+                        <p><strong>🌐 Web:</strong> www.rotakalite.com</p>
+                        <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
+                            Bu email ROTA Sürdürülebilir Turizm Danışmanlık tarafından gönderilmiştir.
+                        </p>
+                        <p>© 2025 ROTA Sürdürülebilir Turizm Danışmanlık Ltd. Şti.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+        )
+        
+        logging.info(f"📧 TEST EMAIL sent to: {test_email} for template: {template_id}")
+        
+        return {
+            "success": True,
+            "message": f"Test email başarıyla gönderildi: {test_email}",
+            "template_id": template_id,
+            "test_email": test_email,
+            "sample_data": sample_data
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Test email error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Test email gönderim hatası: {str(e)}")
+
 # Test endpoint for email templates
 @api_router.get("/email-templates-test")
 async def test_email_templates_endpoint():
