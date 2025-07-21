@@ -173,16 +173,22 @@ const useAuth = () => {
             
             return retryResponse;
           } catch (refreshError) {
-            console.error('❌ Token refresh failed, redirecting to login');
+            console.error('❌ Token refresh failed, clearing session silently');
             console.error('❌ Refresh error:', refreshError);
             
-            // Clear session and reload page
+            // Clear session silently WITHOUT page reload
             localStorage.removeItem('authToken');
             localStorage.removeItem('tokenTimestamp');
-            localStorage.removeItem('userRole');
-            localStorage.removeItem('dbUser');
+            sessionStorage.removeItem('userRole');
+            sessionStorage.removeItem('dbUser');
+            sessionStorage.removeItem('authToken');
             
-            window.location.reload();
+            // Set auth states to null to trigger re-auth WITHOUT reload
+            setAuthToken(null);
+            setUserRole(null);
+            setDbUser(null);
+            
+            console.log('🔄 Session cleared, user will see login without page refresh');
             return Promise.reject(refreshError);
           }
         }
