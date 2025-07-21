@@ -6630,7 +6630,7 @@ const SimpleClientManagement = ({ onNavigate }) => {
   });
   const [bulkEmailResult, setBulkEmailResult] = useState(null);
   
-  const { authToken, userRole } = useAuth();
+  const { authToken, userRole, ensureTokenForOperation } = useAuth();
   const API = getApiUrl();
 
   // Fetch clients
