@@ -50,10 +50,13 @@ else:
 
 class EmailService:
     def __init__(self):
-        self.fastmail = FastMail(conf)
+        self.fastmail = FastMail(conf)  # For regular emails (2FA)
+        self.fastmail_bulk = FastMail(conf_bulk)  # For bulk emails with display name
         template_dir = Path(__file__).parent.parent / "templates"
         self.jinja_env = Environment(loader=FileSystemLoader(str(template_dir)))
         logging.info(f"📧 Email service initialized with template dir: {template_dir}")
+        logging.info(f"📧 Bulk email sender: ROTA KALİTE & DANIŞMANLIK <{gmail_user}>")
+        logging.info(f"📧 Regular email sender: {gmail_user}")
         
         # Log template files for debugging
         try:
