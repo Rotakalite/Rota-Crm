@@ -6028,8 +6028,8 @@ const BulkOperations = ({ onNavigate }) => {
   };
 
   const handleBulkEmailSend = async () => {
-    if (!bulkEmailForm.subject || !bulkEmailForm.content) {
-      alert('Lütfen konu ve içerik alanlarını doldurun!');
+    if (!selectedTemplate && (!bulkEmailForm.subject || !bulkEmailForm.content)) {
+      alert('Lütfen bir template seçin veya konu ve içerik alanlarını doldurun!');
       return;
     }
 
@@ -6043,20 +6043,39 @@ const BulkOperations = ({ onNavigate }) => {
       setBulkEmailLoading(true);
       setBulkEmailResult(null);
 
-      const response = await axios.post(`${API}/bulk-email/send`, {
-        subject: bulkEmailForm.subject,
-        content: bulkEmailForm.content,
-        target_filters: bulkEmailForm.target_filters
-      }, {
+      const emailData = {
+        filters: bulkEmailForm.target_filters
+      };
+
+      // Use template if selected
+      if (selectedTemplate) {
+        emailData.template_id = selectedTemplate.id;
+        emailData.email_type = 'bulk';
+        
+        // Add custom content for general announcement
+        if (selectedTemplate.id === 'general_announcement' && bulkEmailForm.custom_content.trim()) {
+          emailData.custom_content = bulkEmailForm.custom_content;
+        }
+      } else {
+        // Use custom content
+        emailData.subject = bulkEmailForm.subject;
+        emailData.content = bulkEmailForm.content;
+        emailData.email_type = 'custom';
+      }
+
+      const response = await axios.post(`${API}/api/bulk-email/send`, emailData, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
 
       setBulkEmailResult(response.data);
       
       // Reset form
+      setSelectedTemplate(null);
       setBulkEmailForm({
+        template_id: '',
         subject: '',
         content: '',
+        custom_content: '',
         target_filters: {
           city: '',
           audit_company: '',
