@@ -5639,6 +5639,8 @@ const BulkOperations = ({ onNavigate }) => {
     }
   });
   const [bulkEmailResult, setBulkEmailResult] = useState(null);
+  const [testEmail, setTestEmail] = useState('');
+  const [sendingTestEmail, setSendingTestEmail] = useState(false);
   
   const API = getApiUrl();
 
