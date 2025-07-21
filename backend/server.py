@@ -4401,19 +4401,8 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
             "id": "general_announcement", 
             "name": "Genel Duyuru",
             "description": "Tüm müşteriler için genel bilgilendirme",
-            "subject": "🌿 ROTA Sürdürülebilir Turizm Danışmanlık - Önemli Duyuru",
-            "content": """Değerli İş Ortaklarımız,
-
-Sürdürülebilir turizm konusunda sizlere daha iyi hizmet verebilmek amacıyla önemli gelişmelerimizi paylaşmak istiyoruz.
-
-[Buraya duyuru içeriği yazılacak]
-
-Herhangi bir sorunuz olması durumunda bizimle iletişime geçmekten çekinmeyiniz.
-
-Sürdürülebilir turizm yolculuğunda yanınızda olmaktan gurur duyuyoruz.
-
-İyi çalışmalar,
-ROTA Sürdürülebilir turizm Danışmanlık Ekibi"""
+            "subject": "Sürdürülebilir Turizm Danışmanlığı Hk.",
+            "content": """{content}"""
         },
         "sustainability_tips": {
             "id": "sustainability_tips",
