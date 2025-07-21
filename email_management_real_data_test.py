@@ -23,7 +23,7 @@ class TestEmailManagementRealDataEndpoints(unittest.TestCase):
     def setUp(self):
         """Set up test environment"""
         # Use the correct backend URL from frontend/.env
-        self.api_url = "https://9ef171d3-ce2f-48b5-9bdc-59bfb459ed67.preview.emergentagent.com/api"
+        self.api_url = "https://22f0c157-e8c8-48be-b2c9-2be7c8880541.preview.emergentagent.com/api"
         
         # Headers for different user types
         self.headers_admin = {"Authorization": f"Bearer {ADMIN_TOKEN}"}

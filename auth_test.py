@@ -24,12 +24,12 @@ def get_backend_url():
         
         if not backend_url:
             logger.error("REACT_APP_BACKEND_URL not found in .env file")
-            return "https://9ef171d3-ce2f-48b5-9bdc-59bfb459ed67.preview.emergentagent.com"
+            return "https://22f0c157-e8c8-48be-b2c9-2be7c8880541.preview.emergentagent.com"
         
         return backend_url
     except Exception as e:
         logger.error(f"Error reading .env file: {str(e)}")
-        return "https://9ef171d3-ce2f-48b5-9bdc-59bfb459ed67.preview.emergentagent.com"
+        return "https://22f0c157-e8c8-48be-b2c9-2be7c8880541.preview.emergentagent.com"
 
 # Mock response class
 class MockResponse:

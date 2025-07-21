@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL - use the same URL as in the frontend .env file
-BACKEND_URL = "https://9ef171d3-ce2f-48b5-9bdc-59bfb459ed67.preview.emergentagent.com"
+BACKEND_URL = "https://22f0c157-e8c8-48be-b2c9-2be7c8880541.preview.emergentagent.com"
 API_URL = f"{BACKEND_URL}/api"
 
 # MongoDB connection
