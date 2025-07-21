@@ -6665,6 +6665,46 @@ const BulkOperations = ({ onNavigate }) => {
                     </div>
                   </div>
                 )}
+
+                {/* Test Email Section */}
+                {selectedTemplate && (
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h4 className="font-medium text-blue-800 mb-3">🧪 Test Email Gönder</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-blue-700 mb-1">
+                          Test Email Adresi:
+                        </label>
+                        <input
+                          type="email"
+                          value={testEmail}
+                          onChange={(e) => setTestEmail(e.target.value)}
+                          placeholder="test@example.com"
+                          className="w-full border border-blue-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 text-sm"
+                        />
+                      </div>
+                      
+                      <div className="text-xs text-blue-600">
+                        💡 Template örnek verilerle doldurularak test adresine gönderilecek
+                      </div>
+                      
+                      <button
+                        onClick={sendTestEmail}
+                        disabled={sendingTestEmail || !testEmail}
+                        className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                      >
+                        {sendingTestEmail ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            Test Email Gönderiliyor...
+                          </span>
+                        ) : (
+                          '🧪 Test Email Gönder'
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
