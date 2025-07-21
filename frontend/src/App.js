@@ -6850,6 +6850,8 @@ const SimpleClientManagement = ({ onNavigate }) => {
     }
   });
   const [bulkEmailResult, setBulkEmailResult] = useState(null);
+  const [testEmail, setTestEmail] = useState('');
+  const [sendingTestEmail, setSendingTestEmail] = useState(false);
   
   const { authToken, userRole, ensureTokenForOperation } = useAuth();
   const API = getApiUrl();
