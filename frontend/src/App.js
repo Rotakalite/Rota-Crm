@@ -5711,8 +5711,8 @@ const BulkOperations = ({ onNavigate }) => {
       console.log('🔄 Applying certificate sorting - current sort:', sort, 'order:', order);
       filteredClients.sort((a, b) => {
         const getCertificateStatus = (dateStr) => {
-          if (!dateStr || dateStr === "" || dateStr === null) {
-            return { valid: false, priority: 2, date: null }; // No date - middle priority
+          if (!dateStr || dateStr === "" || dateStr === null || dateStr === "-") {
+            return { valid: false, priority: 3, date: null }; // No date or dash - lowest priority (EN ARKADA)
           }
           
           try {
@@ -5739,14 +5739,14 @@ const BulkOperations = ({ onNavigate }) => {
         const statusA = getCertificateStatus(a.certificate_end_date);
         const statusB = getCertificateStatus(b.certificate_end_date);
         
-        // First sort by priority (1=valid EN ÖNDE, 2=empty ORTADA, 3=invalid EN ARKADA)
+        // First sort by priority (1=valid EN ÖNDE, 3=empty/invalid EN ARKADA)
         if (statusA.priority !== statusB.priority) {
           return statusA.priority - statusB.priority; // Küçük numara önde gelir
         }
         
-        // If both have valid dates, sort by date (closest first)
+        // If both have valid dates, sort by date (closest first - sertifikası en yakında bitecek olanlar önde)
         if (statusA.valid && statusB.valid) {
-          return statusA.date - statusB.date; // Yakın tarih önde
+          return statusA.date - statusB.date; // En yakın tarih önde
         }
         
         return 0; // Same priority, maintain order
