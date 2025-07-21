@@ -12768,12 +12768,6 @@ const EmailManagement = ({ selectedClient: propSelectedClient }) => {
     </div>
   );
 };
-        trainingDate: training.date || training.training_date || training.created_at || new Date().toISOString(),
-        trainer: training.trainer || training.instructor || training.instructor_name || 'Unknown Trainer',
-        hours: training.hours || training.duration || '2 saat' // Eğitim saati
-      })));
-      
-      console.log(`✅ Trainings loaded: ${trainingsArray.length} items`);
       
     } catch (error) {
       console.error('Error fetching trainings:', error);
