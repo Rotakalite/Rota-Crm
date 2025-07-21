@@ -6041,6 +6041,50 @@ const BulkOperations = ({ onNavigate }) => {
       content: template.content,
       custom_content: ''
     }));
+
+    // Special handling for certificate reminder template
+    if (template.id === 'certificate_reminder') {
+      // Show info about automatic filtering
+      const confirmCertificateFilter = window.confirm(
+        '🏨 Sertifika Hatırlatması Template\'i seçildi!\n\n' +
+        '📅 Bu template sadece sertifikası olan müşterilere gönderilir.\n' +
+        '⚠️ Sertifikası olmayan ("-" değerli) müşteriler hariç tutulur.\n\n' +
+        'Devam etmek istiyor musunuz?'
+      );
+      
+      if (!confirmCertificateFilter) {
+        setSelectedTemplate(null);
+        setBulkEmailForm(prev => ({
+          ...prev,
+          template_id: '',
+          subject: '',
+          content: '',
+          custom_content: ''
+        }));
+        return;
+      }
+
+      // Set certificate-specific filters
+      setBulkEmailForm(prev => ({
+        ...prev,
+        target_filters: {
+          ...prev.target_filters,
+          certificate_filter: 'has_certificate' // Special filter for certificates
+        }
+      }));
+      
+      alert('✅ Sertifika filtresi etkinleştirildi!\n\n' +
+            '📋 Sadece geçerli sertifika tarihi olan müşterilere gönderilecek.');
+    } else {
+      // Reset certificate filter for other templates
+      setBulkEmailForm(prev => ({
+        ...prev,
+        target_filters: {
+          ...prev.target_filters,
+          certificate_filter: '' // Clear certificate filter
+        }
+      }));
+    }
   };
 
   const handleBulkEmailSend = async () => {
