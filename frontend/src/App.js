@@ -12805,53 +12805,6 @@ const EmailManagement = ({ selectedClient: propSelectedClient }) => {
       };
 
       // Add custom content for general announcement
-      if (selectedTemplate.id === 'general_announcement' && bulkEmailForm.custom_content.trim()) {
-        testEmailData.custom_content = bulkEmailForm.custom_content;
-      }
-
-      const response = await axios.post(`${API}/email-templates/test`, testEmailData, {
-        headers: { Authorization: `Bearer ${currentToken}` }
-      });
-
-      alert(`✅ Test email başarıyla gönderildi!\n\n📧 Gönderilen Adres: ${testEmail}\n🎨 Template: ${selectedTemplate.name}\n\nEmail kutunuzu kontrol ediniz.`);
-      
-    } catch (error) {
-      console.error('Test email error:', error);
-      alert('❌ Test email gönderim hatası: ' + (error.response?.data?.detail || error.message));
-    } finally {
-      setSendingTestEmail(false);
-    }
-  };
-
-  const sendTestEmail = async () => {
-    if (!selectedTemplate) {
-      alert('Lütfen önce bir template seçiniz!');
-      return;
-    }
-
-    if (!testEmail || !testEmail.includes('@')) {
-      alert('Lütfen geçerli bir test email adresi giriniz!');
-      return;
-    }
-
-    setSendingTestEmail(true);
-    try {
-      let currentToken = authToken;
-      if (!currentToken && session) {
-        try {
-          currentToken = await session.getToken();
-        } catch (tokenError) {
-          console.error('Failed to get fresh token:', tokenError);
-          return;
-        }
-      }
-
-      const testEmailData = {
-        template_id: selectedTemplate.id,
-        test_email: testEmail
-      };
-
-      // Add custom content for general announcement
       if (selectedTemplate.id === 'general_announcement' && customContent.trim()) {
         testEmailData.custom_content = customContent;
       }
