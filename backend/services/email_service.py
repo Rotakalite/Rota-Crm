@@ -24,7 +24,19 @@ if not gmail_user or not gmail_password:
     logging.warning("⚠️ Gmail credentials not found, email service will be disabled")
     email_service = None
 else:
-    # Gmail SMTP Configuration
+    # Gmail SMTP Configuration for bulk emails with display name
+    conf_bulk = ConnectionConfig(
+        MAIL_USERNAME=gmail_user,
+        MAIL_PASSWORD=gmail_password,
+        MAIL_FROM=f"ROTA KALİTE & DANIŞMANLIK <{gmail_user}>",
+        MAIL_PORT=587,
+        MAIL_SERVER="smtp.gmail.com",
+        MAIL_STARTTLS=True,
+        MAIL_SSL_TLS=False,
+        TEMPLATE_FOLDER=str(Path(__file__).parent.parent / "templates")
+    )
+    
+    # Gmail SMTP Configuration for regular emails (2FA etc)
     conf = ConnectionConfig(
         MAIL_USERNAME=gmail_user,
         MAIL_PASSWORD=gmail_password,
