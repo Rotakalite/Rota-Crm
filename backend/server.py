@@ -4151,7 +4151,8 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                         </div>
                     </body>
                     </html>
-                    """
+                    """,
+                    from_name="ROTA KALİTE & DANIŞMANLIK"
                 )
                 
                 sent_count += 1
