@@ -199,19 +199,19 @@ const useAuth = () => {
     };
   }, [session, refreshToken]); // Add refreshToken to dependencies
 
-  // Auto-refresh token every 4 minutes to prevent 5-minute logout
+  // Ultra-frequent token refresh - refresh every 90 seconds to prevent expiry
   useEffect(() => {
     if (authToken && session) {
-      console.log('⏰ Setting up 23-hour token refresh interval...');
+      console.log('⏰ Setting up 90-second token refresh interval...');
       const interval = setInterval(async () => {
         try {
-          console.log('⏰ Auto-refreshing token (23-hour interval)...');
+          console.log('⏰ Auto-refreshing token (90-second interval)...');
           await refreshToken();
           console.log('✅ Auto-refresh successful');
         } catch (error) {
           console.error('❌ Auto-refresh failed:', error);
         }
-      }, 23 * 60 * 60 * 1000); // 23 hours - refresh before 24-hour expiration
+      }, 90 * 1000); // 90 seconds - ultra-frequent refresh to prevent any expiry
 
       return () => {
         console.log('🛑 Clearing token refresh interval');
