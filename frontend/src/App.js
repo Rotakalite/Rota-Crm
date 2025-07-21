@@ -12636,6 +12636,8 @@ const EmailManagement = ({ selectedClient: propSelectedClient }) => {
   });
   const [showPreview, setShowPreview] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [testEmail, setTestEmail] = useState('');
+  const [sendingTestEmail, setSendingTestEmail] = useState(false);
   
   const API = getApiUrl();
 
