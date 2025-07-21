@@ -6470,33 +6470,129 @@ const BulkOperations = ({ onNavigate }) => {
                 )}
               </div>
 
+              {/* Email Templates */}
+              <div className="space-y-4">
+                <h4 className="font-semibold text-gray-800 mb-3">🎨 Email Şablonları</h4>
+                {emailTemplates.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto">
+                    {emailTemplates.map((template) => (
+                      <div 
+                        key={template.id}
+                        className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                          selectedTemplate?.id === template.id 
+                            ? 'border-purple-500 bg-purple-50' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        onClick={() => handleTemplateSelect(template)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <h5 className="font-medium text-gray-800 text-sm">{template.name}</h5>
+                            <p className="text-xs text-gray-600 mt-1">{template.description}</p>
+                          </div>
+                          <div className="ml-2">
+                            {selectedTemplate?.id === template.id ? (
+                              <div className="w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center">
+                                <span className="text-white text-xs">✓</span>
+                              </div>
+                            ) : (
+                              <div className="w-5 h-5 border-2 border-gray-300 rounded-full"></div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-sm">Şablonlar yükleniyor...</p>
+                )}
+                
+                {selectedTemplate && (
+                  <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                    <div className="text-sm">
+                      <div className="font-medium text-gray-700">Seçili Şablon:</div>
+                      <div className="text-gray-800">{selectedTemplate.name}</div>
+                      <div className="text-xs text-gray-600 mt-1">📧 {selectedTemplate.subject}</div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="border-t pt-4">
+                  <button
+                    onClick={() => {
+                      setSelectedTemplate(null);
+                      setBulkEmailForm({
+                        ...bulkEmailForm,
+                        template_id: '',
+                        subject: '',
+                        content: ''
+                      });
+                    }}
+                    className="text-sm text-purple-600 hover:text-purple-700"
+                  >
+                    📝 Özel Email Yaz
+                  </button>
+                </div>
+              </div>
+
               {/* Email Form */}
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Konusu:
-                  </label>
-                  <input
-                    type="text"
-                    value={bulkEmailForm.subject}
-                    onChange={(e) => setBulkEmailForm({...bulkEmailForm, subject: e.target.value})}
-                    placeholder="Email konusunu girin..."
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
-                  />
-                </div>
+                {selectedTemplate && selectedTemplate.id === 'general_announcement' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      📝 Özel Duyuru İçeriği:
+                    </label>
+                    <textarea
+                      value={bulkEmailForm.custom_content}
+                      onChange={(e) => setBulkEmailForm({...bulkEmailForm, custom_content: e.target.value})}
+                      placeholder="Duyuru metninizi buraya yazın..."
+                      rows={3}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                )}
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email İçeriği:
-                  </label>
-                  <textarea
-                    value={bulkEmailForm.content}
-                    onChange={(e) => setBulkEmailForm({...bulkEmailForm, content: e.target.value})}
-                    placeholder="Email içeriğini girin..."
-                    rows={6}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
-                  />
-                </div>
+                {!selectedTemplate && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Email Konusu:
+                      </label>
+                      <input
+                        type="text"
+                        value={bulkEmailForm.subject}
+                        onChange={(e) => setBulkEmailForm({...bulkEmailForm, subject: e.target.value})}
+                        placeholder="Email konusunu girin..."
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Email İçeriği:
+                      </label>
+                      <textarea
+                        value={bulkEmailForm.content}
+                        onChange={(e) => setBulkEmailForm({...bulkEmailForm, content: e.target.value})}
+                        placeholder="Email içeriğini girin..."
+                        rows={6}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                  </>
+                )}
+
+                {selectedTemplate && selectedTemplate.id !== 'general_announcement' && (
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <div className="text-sm text-gray-600">
+                      <div><strong>📧 Konu:</strong> {selectedTemplate.subject}</div>
+                      <div className="mt-2 max-h-32 overflow-y-auto">
+                        <strong>📝 İçerik Önizleme:</strong>
+                        <div className="text-xs mt-1 whitespace-pre-line">{selectedTemplate.content}</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
