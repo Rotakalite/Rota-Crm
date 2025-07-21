@@ -12922,6 +12922,9 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'consumption', name: 'Tüketim Takibi', icon: '⚡' },
     { id: 'analytics', name: 'Tüketim Analizi', icon: '📈' },
     { id: 'carbon', name: 'Karbon Ayak İzi', icon: '🌍' },
+    { id: 'waste-management', name: 'Atık Yönetimi', icon: '🗑️' },
+    { id: 'suppliers', name: 'Tedarikçi Yönetimi', icon: '🏢' },
+    { id: 'personnel', name: 'Personel Yönetimi', icon: '👥' },
     { id: 'sustainability-targets', name: 'Sürdürülebilirlik Hedefleri', icon: '🎯' },
     { id: 'yeni-belge', name: 'Belge Yönetimi', icon: '📋' },
     { id: 'training', name: 'Eğitimlerim', icon: '🎓' }
