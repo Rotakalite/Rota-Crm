@@ -80,22 +80,37 @@ class EmailService:
             sender_email = from_email if from_email else gmail_user
             
             # Create message
-            message = MessageSchema(
-                subject=subject,
-                recipients=[to_email],
-                body=html_content,
-                subtype="html"
-            )
-            
-            # Only set custom sender for bulk emails (when from_name is provided)
             if from_name:
+                # For bulk emails with custom sender name
+                message = MessageSchema(
+                    subject=subject,
+                    recipients=[to_email],
+                    body=html_content,
+                    subtype="html",
+                    reply_to=sender_email
+                )
+                # Try different ways to set sender name
                 try:
-                    # Try to set sender with name for bulk emails
+                    # Method 1: Set sender field
                     message.sender = f"{from_name} <{sender_email}>"
                 except:
-                    # Fallback to regular email if sender field fails
-                    logging.warning("⚠️ Could not set custom sender, using default")
-                    pass
+                    try:
+                        # Method 2: Set from_ field  
+                        message.from_ = f"{from_name} <{sender_email}>"
+                    except:
+                        # Method 3: Set mail_from
+                        try:
+                            message.mail_from = f"{from_name} <{sender_email}>"
+                        except:
+                            logging.warning("⚠️ Could not set custom sender name")
+            else:
+                # For regular emails like 2FA
+                message = MessageSchema(
+                    subject=subject,
+                    recipients=[to_email],
+                    body=html_content,
+                    subtype="html"
+                )
                 
             await self.fastmail.send_message(message)
             
