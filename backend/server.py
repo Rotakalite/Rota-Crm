@@ -4723,7 +4723,8 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                 </div>
             </body>
             </html>
-            """
+            """,
+            from_name="ROTA KALİTE & DANIŞMANLIK"
         )
         
         logging.info(f"📧 TEST EMAIL sent to: {test_email} for template: {template_id}")
