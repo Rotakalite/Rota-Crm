@@ -3365,8 +3365,8 @@ axios.interceptors.response.use(
         console.log('✅ Token refresh handled by auth hook, no page reload needed');
         
       } catch (refreshError) {
-        console.error('❌ Token refresh failed:', refreshError);
-        window.location.reload();
+        console.error('❌ Token refresh failed, will be handled by main auth system');
+        // DO NOT reload page - let the main auth hook handle this silently
       }
     }
     
