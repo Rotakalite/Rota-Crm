@@ -133,7 +133,7 @@ class CertificateDateParsingTest:
         """Analyze certificate_end_date values directly in MongoDB"""
         logger.info("🔍 Analyzing certificate_end_date values in database...")
         
-        if not self.db:
+        if self.db is None:
             logger.error("❌ Database connection not available")
             return False
         
