@@ -215,7 +215,7 @@ class CertificateDateParsingTest:
         """Analyze client types and their distribution"""
         logger.info("🔍 Analyzing client types and distribution...")
         
-        if not self.db:
+        if self.db is None:
             logger.error("❌ Database connection not available")
             return False
         
