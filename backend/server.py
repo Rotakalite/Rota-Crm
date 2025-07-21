@@ -4032,38 +4032,119 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
         
         for client in valid_email_clients:
             try:
-                # Personalize content
-                personalized_content = content.replace("{hotel_name}", client.get("hotel_name", ""))
-                personalized_content = personalized_content.replace("{city}", client.get("city", ""))
-                personalized_content = personalized_content.replace("{contact_person}", client.get("contact_person", ""))
+                # Personalize content with template variables
+                personalized_subject = subject
+                personalized_content = content
+                
+                # Replace template variables with client data
+                client_data = {
+                    "hotel_name": client.get("hotel_name", client.get("name", "")),
+                    "contact_person": client.get("contact_person", ""),
+                    "city": client.get("city", ""),
+                    "certificate_end_date": client.get("certificate_end_date", "")
+                }
+                
+                # Replace variables in subject
+                for key, value in client_data.items():
+                    personalized_subject = personalized_subject.replace(f"{{{{{key}}}}}", str(value) if value else "")
+                
+                # Replace variables in content  
+                for key, value in client_data.items():
+                    personalized_content = personalized_content.replace(f"{{{{{key}}}}}", str(value) if value else "")
+                
+                # Legacy replacements for backward compatibility
+                personalized_content = personalized_content.replace("{hotel_name}", client_data["hotel_name"])
+                personalized_content = personalized_content.replace("{city}", client_data["city"]) 
+                personalized_content = personalized_content.replace("{contact_person}", client_data["contact_person"])
+                
+                # Convert line breaks to HTML
+                personalized_content = personalized_content.replace('\n', '<br>')
                 
                 # Send email
                 await email_service.send_email(
                     to_email=client["email"],
-                    subject=subject,
+                    subject=personalized_subject,
                     html_content=f"""
                     <html>
                     <head>
                         <style>
-                            body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-                            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                            .header {{ background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }}
-                            .content {{ background: white; padding: 30px; border: 1px solid #e1e5e9; }}
-                            .footer {{ background: #f8f9fa; padding: 20px; border-radius: 0 0 10px 10px; text-align: center; color: #666; }}
+                            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f7fa; }}
+                            .container {{ max-width: 600px; margin: 20px auto; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }}
+                            .header {{ 
+                                background: linear-gradient(135deg, #0ea5e9, #0284c7, #0369a1); 
+                                color: white; 
+                                padding: 40px 30px; 
+                                text-align: center;
+                                position: relative;
+                            }}
+                            .header::before {{
+                                content: '';
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                right: 0;
+                                bottom: 0;
+                                background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+                                pointer-events: none;
+                            }}
+                            .header h1 {{ 
+                                margin: 0 0 10px 0; 
+                                font-size: 28px; 
+                                font-weight: 700;
+                                text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                                position: relative;
+                                z-index: 1;
+                            }}
+                            .header p {{ 
+                                margin: 0; 
+                                font-size: 16px; 
+                                opacity: 0.95;
+                                position: relative;
+                                z-index: 1;
+                            }}
+                            .content {{ 
+                                padding: 40px 30px; 
+                                background: white;
+                                font-size: 16px;
+                                line-height: 1.8;
+                            }}
+                            .footer {{ 
+                                background: linear-gradient(135deg, #f8fafc, #e2e8f0); 
+                                padding: 25px 30px; 
+                                text-align: center; 
+                                color: #64748b;
+                                border-top: 1px solid #e2e8f0;
+                            }}
+                            .footer p {{ margin: 5px 0; font-size: 14px; }}
+                            .sustainability-badge {{
+                                display: inline-block;
+                                background: linear-gradient(135deg, #10b981, #059669);
+                                color: white;
+                                padding: 8px 16px;
+                                border-radius: 25px;
+                                font-size: 14px;
+                                font-weight: 600;
+                                margin-top: 10px;
+                            }}
                         </style>
                     </head>
                     <body>
                         <div class="container">
                             <div class="header">
-                                <h1>🏨 ROTA Kalite Danışmanlık</h1>
-                                <p>Profesyonel Kalite ve Çevre Danışmanlığı</p>
+                                <h1>🌿 ROTA Sürdürülebilir Turizm</h1>
+                                <p>Profesyonel Sürdürülebilirlik Danışmanlığı</p>
+                                <span class="sustainability-badge">🏨 Sürdürülebilir Turizm Uzmanı</span>
                             </div>
                             <div class="content">
                                 {personalized_content}
                             </div>
                             <div class="footer">
-                                <p>Bu email ROTA Kalite Danışmanlık tarafından gönderilmiştir.</p>
-                                <p>© 2024 ROTA Kalite Danışmanlık Ltd. Şti.</p>
+                                <p><strong>📞 İletişim:</strong> info@rotakalite.com | +90 (xxx) xxx xx xx</p>
+                                <p><strong>🌐 Web:</strong> www.rotakalite.com</p>
+                                <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
+                                    Bu email ROTA Sürdürülebilir Turizm Danışmanlık tarafından gönderilmiştir.
+                                </p>
+                                <p>© 2025 ROTA Sürdürülebilir Turizm Danışmanlık Ltd. Şti.</p>
                             </div>
                         </div>
                     </body>
