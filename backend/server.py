@@ -4744,7 +4744,6 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
             <html lang="tr">
             <head>
                 <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>🧪 TEST - {personalized_subject}</title>
                 <style>
                     * {{ margin: 0; padding: 0; box-sizing: border-box; }}
@@ -4752,10 +4751,10 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
                         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                         min-height: 100vh;
-                        padding: 20px;
+                        padding: 40px 20px;
                     }}
                     .email-container {{
-                        max-width: 600px;
+                        max-width: 800px;
                         margin: 0 auto;
                         background: #ffffff;
                         border-radius: 20px;
@@ -4764,118 +4763,134 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                     }}
                     .test-banner {{
                         background: linear-gradient(135deg, #ff6b6b, #ffa500);
-                        padding: 15px 30px;
+                        padding: 20px 40px;
                         text-align: center;
                         color: white;
                     }}
                     .test-banner h2 {{
-                        font-size: 18px;
+                        font-size: 22px;
                         font-weight: 600;
                         margin: 0;
                     }}
                     .header {{
                         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        padding: 40px 30px;
+                        padding: 50px 40px;
                         text-align: center;
                         color: white;
                     }}
                     .logo {{
-                        width: 60px;
-                        height: 60px;
+                        width: 80px;
+                        height: 80px;
                         background: white;
                         border-radius: 50%;
-                        margin: 0 auto 20px;
+                        margin: 0 auto 30px;
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        font-size: 24px;
+                        font-size: 32px;
                         box-shadow: 0 8px 16px rgba(0,0,0,0.1);
                     }}
                     .header h1 {{
-                        font-size: 28px;
+                        font-size: 36px;
                         font-weight: 600;
-                        margin: 10px 0;
+                        margin: 15px 0;
                         text-shadow: 0 2px 4px rgba(0,0,0,0.1);
                     }}
                     .header p {{
-                        font-size: 16px;
+                        font-size: 18px;
                         opacity: 0.9;
                         font-weight: 400;
                     }}
                     .content {{
-                        padding: 40px 30px;
+                        padding: 50px 40px;
                         background: white;
                     }}
                     .greeting {{
-                        font-size: 24px;
+                        font-size: 28px;
                         color: #333;
-                        margin-bottom: 10px;
+                        margin-bottom: 15px;
                         font-weight: 600;
+                        text-align: center;
                     }}
                     .test-info {{
                         background: linear-gradient(135deg, #74b9ff, #0984e3);
                         color: white;
-                        padding: 20px;
-                        border-radius: 12px;
-                        margin: 20px 0;
+                        padding: 25px;
+                        border-radius: 15px;
+                        margin: 30px 0;
                         text-align: center;
                     }}
                     .test-info h3 {{
-                        margin: 0 0 10px 0;
-                        font-size: 18px;
+                        margin: 0 0 15px 0;
+                        font-size: 22px;
                     }}
                     .test-details {{
-                        font-size: 14px;
+                        font-size: 16px;
                         opacity: 0.9;
-                        line-height: 1.4;
+                        line-height: 1.5;
                     }}
                     .content-box {{
                         background: #f8f9ff;
                         border: 2px solid #e6e8f8;
-                        border-radius: 12px;
-                        padding: 25px;
-                        margin: 20px 0;
-                        font-size: 16px;
-                        line-height: 1.7;
+                        border-radius: 15px;
+                        padding: 35px;
+                        margin: 30px 0;
+                        font-size: 18px;
+                        line-height: 1.8;
                         color: #444;
                     }}
                     .warning-box {{
-                        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-                        border: 2px solid #f0ad4e;
-                        border-radius: 12px;
-                        padding: 20px;
-                        margin: 25px 0;
+                        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+                        border: 2px solid #28a745;
+                        border-radius: 15px;
+                        padding: 25px;
+                        margin: 30px 0;
                     }}
                     .warning-icon {{
-                        font-size: 20px;
-                        margin-bottom: 10px;
+                        font-size: 24px;
+                        margin-bottom: 15px;
                     }}
                     .warning-title {{
                         font-weight: 600;
-                        color: #8a6d3b;
-                        margin-bottom: 10px;
-                        font-size: 16px;
+                        color: #155724;
+                        margin-bottom: 15px;
+                        font-size: 18px;
                     }}
                     .warning-text {{
-                        color: #8a6d3b;
-                        font-size: 14px;
-                        line-height: 1.5;
+                        color: #155724;
+                        font-size: 16px;
+                        line-height: 1.6;
                     }}
                     .footer {{
                         background: #f8f9ff;
-                        padding: 30px;
+                        padding: 40px;
                         text-align: center;
                         border-top: 1px solid #e6e8f8;
                     }}
                     .footer-text {{
-                        font-size: 13px;
+                        font-size: 15px;
                         color: #888;
-                        line-height: 1.5;
-                        margin-bottom: 10px;
+                        line-height: 1.6;
+                        margin-bottom: 15px;
                     }}
                     .company-name {{
                         font-weight: 600;
                         color: #667eea;
+                    }}
+                    
+                    /* Mobile Responsive */
+                    @media only screen and (max-width: 600px) {{
+                        body {{ padding: 20px 10px; }}
+                        .email-container {{ max-width: 100%; }}
+                        .test-banner {{ padding: 15px 20px; }}
+                        .header {{ padding: 40px 20px; }}
+                        .content {{ padding: 30px 20px; }}
+                        .footer {{ padding: 30px 20px; }}
+                        .header h1 {{ font-size: 28px; }}
+                        .greeting {{ font-size: 24px; }}
+                        .content-box {{ padding: 25px; font-size: 16px; }}
+                        .test-info {{ padding: 20px; }}
+                        .test-banner h2 {{ font-size: 18px; }}
                     }}
                 </style>
             </head>
@@ -4926,7 +4941,7 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                             <strong>📞 İletişim:</strong> bilgi@rotakalitedanismanlik.com | +90 (546) 149 00 32<br>
                             <strong>🌐 Web:</strong> www.rotakalitedanismanlik.com
                         </div>
-                        <div class="footer-text" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e6e8f8;">
+                        <div class="footer-text" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e6e8f8;">
                             © 2025 Rota Kalite & Danışmanlık Ltd. Şti. Tüm hakları saklıdır.
                         </div>
                     </div>
