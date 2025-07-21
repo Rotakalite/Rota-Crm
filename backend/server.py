@@ -4917,8 +4917,8 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                     <div class="footer">
                         <div class="footer-text">
                             Bu test email'i <span class="company-name">Rota Kalite & Danışmanlık</span> tarafından gönderilmiştir.<br>
-                            <strong>📞 İletişim:</strong> info@rotakalite.com | +90 (xxx) xxx xx xx<br>
-                            <strong>🌐 Web:</strong> www.rotakalite.com
+                            <strong>📞 İletişim:</strong> bilgi@rotakalitedanismanlik.com | +90 (546) 149 00 32<br>
+                            <strong>🌐 Web:</strong> www.rotakalitedanismanlik.com
                         </div>
                         <div class="footer-text" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e6e8f8;">
                             © 2025 Rota Kalite & Danışmanlık Ltd. Şti. Tüm hakları saklıdır.
