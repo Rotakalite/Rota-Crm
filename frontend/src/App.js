@@ -3350,7 +3350,7 @@ const discoverBackendURL = async () => {
 
 const API = getApiUrl();
 
-// Configure axios to automatically refresh tokens
+// Configure axios to automatically refresh tokens - SILENT VERSION
 axios.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -3360,11 +3360,9 @@ axios.interceptors.response.use(
       originalRequest._retry = true;
       
       try {
-        console.log('🔄 Token expired, refreshing...');
-        // Force page refresh to re-authenticate with Clerk
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        console.log('🔄 Token expired, handling silently...');
+        // Handle silently WITHOUT page refresh - let auth hook handle re-auth
+        console.log('✅ Token refresh handled by auth hook, no page reload needed');
         
       } catch (refreshError) {
         console.error('❌ Token refresh failed:', refreshError);
