@@ -304,6 +304,18 @@ const useAuth = () => {
     return () => window.removeEventListener('focus', handleFocus);
   }, [authToken, session]);
 
+  // Utility function to ensure fresh token before important operations
+  const ensureTokenForOperation = async () => {
+    try {
+      console.log('🔄 Ensuring fresh token for operation...');
+      await ensureFreshToken();
+      console.log('✅ Token ready for operation');
+    } catch (error) {
+      console.error('❌ Failed to ensure fresh token:', error);
+      throw error;
+    }
+  };
+
   const refreshUser = async () => {
     if (authToken) {
       try {
