@@ -5995,13 +5995,36 @@ const BulkOperations = ({ onNavigate }) => {
   // Bulk Email Functions
   const fetchBulkEmailStats = async () => {
     try {
-      const response = await axios.get(`${API}/bulk-email/stats`, {
+      const response = await axios.get(`${API}/api/bulk-email/stats`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setBulkEmailStats(response.data);
     } catch (error) {
       console.error('Error fetching bulk email stats:', error);
     }
+  };
+
+  const fetchEmailTemplates = async () => {
+    try {
+      const response = await axios.get(`${API}/api/email-templates`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setEmailTemplates(response.data.templates || []);
+    } catch (error) {
+      console.error('Error fetching email templates:', error);
+      setEmailTemplates([]);
+    }
+  };
+
+  const handleTemplateSelect = (template) => {
+    setSelectedTemplate(template);
+    setBulkEmailForm(prev => ({
+      ...prev,
+      template_id: template.id,
+      subject: template.subject,
+      content: template.content,
+      custom_content: ''
+    }));
   };
 
   const handleBulkEmailSend = async () => {
