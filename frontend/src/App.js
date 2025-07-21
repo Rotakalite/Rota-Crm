@@ -6022,7 +6022,7 @@ const BulkOperations = ({ onNavigate }) => {
         return;
       }
 
-      const response = await axios.get(`${API}/api/email-templates`, {
+      const response = await axios.get(`${API}/email-templates`, {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
       setEmailTemplates(response.data.templates || []);
