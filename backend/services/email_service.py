@@ -76,8 +76,12 @@ class EmailService:
     async def send_email(self, to_email: str, subject: str, html_content: str, from_email: str = None, from_name: str = None):
         """Send email with HTML content"""
         try:
-            # For now, ignore custom sender and use default
-            # TODO: Implement proper custom sender support
+            # Use custom from_name if provided, otherwise use default
+            if not from_name:
+                from_name = "ROTA KALİTE & DANIŞMANLIK"
+            
+            # Use custom from_email if provided, otherwise use configured default
+            sender_email = from_email if from_email else gmail_user
             
             message = MessageSchema(
                 subject=subject,
@@ -86,10 +90,16 @@ class EmailService:
                 subtype="html"
             )
             
+            # Set the sender with display name
+            if from_name:
+                message.sender = f"{from_name} <{sender_email}>"
+            else:
+                message.sender = sender_email
+                
             await self.fastmail.send_message(message)
             
-            # Log with sender info if provided
-            sender_info = f"from {from_name} <{from_email}>" if from_email else "with default sender"
+            # Log with sender info
+            sender_info = f"from {from_name} <{sender_email}>"
             logging.info(f"📧 Email sent to {to_email} {sender_info} with subject: {subject}")
             return True
             
