@@ -9806,7 +9806,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
     fm200_fire: '',
     accommodation_count: ''
   });
-  const { authToken, userRole } = useAuth();
+  const { authToken, userRole, ensureTokenForOperation } = useAuth();
 
   useEffect(() => {
     console.log('🔍 ConsumptionManagement useEffect triggered:', {
