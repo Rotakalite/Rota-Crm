@@ -6099,6 +6099,7 @@ const BulkOperations = ({ onNavigate }) => {
   useEffect(() => {
     if (showBulkEmail) {
       fetchBulkEmailStats();
+      fetchEmailTemplates();
     }
   }, [showBulkEmail]);
 
