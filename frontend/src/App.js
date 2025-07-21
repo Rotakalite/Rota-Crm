@@ -4765,6 +4765,11 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
   const handleSubmitRecord = async () => {
     try {
       setLoading(true);
+      
+      // 🔄 ENSURE FRESH TOKEN BEFORE IMPORTANT OPERATION
+      await ensureTokenForOperation();
+      console.log('✅ Token refreshed before waste record submission');
+      
       const recordData = { ...newRecord };
       
       // Add client_id for admin and consultant
