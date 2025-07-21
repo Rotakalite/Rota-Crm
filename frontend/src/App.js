@@ -11945,6 +11945,10 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
     setLoading(true);
     
     try {
+      // 🔄 ENSURE FRESH TOKEN BEFORE IMPORTANT OPERATION
+      await ensureTokenForOperation();
+      console.log('✅ Token refreshed before training submission');
+      
       const trainingData = {
         ...formData,
         participant_count: parseInt(formData.participant_count) || 0,
