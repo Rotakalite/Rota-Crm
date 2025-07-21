@@ -12047,3 +12047,17 @@ async def download_import_template(current_user: User = Depends(get_admin_user))
 # API ROUTER REGISTRATION - MUST BE AT END
 # ==========================================
 app.include_router(api_router, prefix="/api")
+
+# Debug endpoint to list all routes
+@app.get("/debug/routes")
+async def debug_routes():
+    """Debug endpoint to list all registered routes"""
+    routes = []
+    for route in app.routes:
+        if hasattr(route, 'path') and hasattr(route, 'methods'):
+            routes.append({
+                "path": route.path,
+                "methods": list(route.methods) if route.methods else [],
+                "name": getattr(route, 'name', 'unknown')
+            })
+    return {"routes": routes, "total": len(routes)}
