@@ -4525,19 +4525,8 @@ Saygılarımızla,
 ROTA Sürdürülebilir Turizm Danışmanlık"""
             },
             "general_announcement": {
-                "subject": "🌿 ROTA Sürdürülebilir Turizm Danışmanlık - Önemli Duyuru",
-                "content": """Değerli İş Ortaklarımız,
-
-Sürdürülebilir turizm konusunda sizlere daha iyi hizmet verebilmek amacıyla önemli gelişmelerimizi paylaşmak istiyoruz.
-
-{content}
-
-Herhangi bir sorunuz olması durumunda bizimle iletişime geçmekten çekinmeyiniz.
-
-Sürdürülebilir turizm yolculuğunda yanınızda olmaktan gurur duyuyoruz.
-
-İyi çalışmalar,
-ROTA Sürdürülebilir turizm Danışmanlık Ekibi"""
+                "subject": "Sürdürülebilir Turizm Danışmanlığı Hk.",
+                "content": """{content}"""
             },
             "sustainability_tips": {
                 "subject": "🌱 Bu Ay İçin Sürdürülebilirlik İpuçları - {{hotel_name}}",
