@@ -14863,16 +14863,14 @@ const RoleSetup = ({ onComplete }) => {
         // Complete role setup
         onComplete();
         
-        // Small delay then reload to ensure state is updated
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
+        // Let React state handle the update - no page reload needed
+        console.log('✅ Role setup completed, state will update automatically');
         
       } catch (refreshError) {
         console.error('Error refreshing user data:', refreshError);
-        alert('Kayıt başarılı ama sayfa yenilenecek.');
+        console.log('⚠️ Role setup completed with minor refresh error');
         onComplete();
-        window.location.reload();
+        // Let the state handle the update naturally
       }
       
     } catch (error) {
