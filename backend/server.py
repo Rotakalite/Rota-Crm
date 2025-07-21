@@ -4067,86 +4067,171 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                     to_email=client["email"],
                     subject=personalized_subject,
                     html_content=f"""
-                    <html>
+                    <!DOCTYPE html>
+                    <html lang="tr">
                     <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>{personalized_subject}</title>
                         <style>
-                            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f7fa; }}
-                            .container {{ max-width: 600px; margin: 20px auto; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }}
-                            .header {{ 
-                                background: linear-gradient(135deg, #0ea5e9, #0284c7, #0369a1); 
-                                color: white; 
-                                padding: 40px 30px; 
+                            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+                            body {{ 
+                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                min-height: 100vh;
+                                padding: 20px;
+                            }}
+                            .email-container {{
+                                max-width: 600px;
+                                margin: 0 auto;
+                                background: #ffffff;
+                                border-radius: 20px;
+                                overflow: hidden;
+                                box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+                            }}
+                            .header {{
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                padding: 40px 30px;
                                 text-align: center;
-                                position: relative;
+                                color: white;
                             }}
-                            .header::before {{
-                                content: '';
-                                position: absolute;
-                                top: 0;
-                                left: 0;
-                                right: 0;
-                                bottom: 0;
-                                background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
-                                pointer-events: none;
-                            }}
-                            .header h1 {{ 
-                                margin: 0 0 10px 0; 
-                                font-size: 28px; 
-                                font-weight: 700;
-                                text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                                position: relative;
-                                z-index: 1;
-                            }}
-                            .header p {{ 
-                                margin: 0; 
-                                font-size: 16px; 
-                                opacity: 0.95;
-                                position: relative;
-                                z-index: 1;
-                            }}
-                            .content {{ 
-                                padding: 40px 30px; 
+                            .logo {{
+                                width: 60px;
+                                height: 60px;
                                 background: white;
+                                border-radius: 50%;
+                                margin: 0 auto 20px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-size: 24px;
+                                box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+                            }}
+                            .header h1 {{
+                                font-size: 28px;
+                                font-weight: 600;
+                                margin: 10px 0;
+                                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            }}
+                            .header p {{
                                 font-size: 16px;
-                                line-height: 1.8;
+                                opacity: 0.9;
+                                font-weight: 400;
                             }}
-                            .footer {{ 
-                                background: linear-gradient(135deg, #f8fafc, #e2e8f0); 
-                                padding: 25px 30px; 
-                                text-align: center; 
-                                color: #64748b;
-                                border-top: 1px solid #e2e8f0;
+                            .content {{
+                                padding: 40px 30px;
+                                background: white;
                             }}
-                            .footer p {{ margin: 5px 0; font-size: 14px; }}
-                            .sustainability-badge {{
+                            .greeting {{
+                                font-size: 24px;
+                                color: #333;
+                                margin-bottom: 10px;
+                                font-weight: 600;
+                            }}
+                            .message {{
+                                font-size: 16px;
+                                line-height: 1.6;
+                                color: #666;
+                                margin-bottom: 30px;
+                            }}
+                            .content-box {{
+                                background: #f8f9ff;
+                                border: 2px solid #e6e8f8;
+                                border-radius: 12px;
+                                padding: 25px;
+                                margin: 20px 0;
+                                font-size: 16px;
+                                line-height: 1.7;
+                                color: #444;
+                            }}
+                            .warning-box {{
+                                background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+                                border: 2px solid #f0ad4e;
+                                border-radius: 12px;
+                                padding: 20px;
+                                margin: 25px 0;
+                            }}
+                            .warning-icon {{
+                                font-size: 20px;
+                                margin-bottom: 10px;
+                            }}
+                            .warning-title {{
+                                font-weight: 600;
+                                color: #8a6d3b;
+                                margin-bottom: 10px;
+                                font-size: 16px;
+                            }}
+                            .warning-text {{
+                                color: #8a6d3b;
+                                font-size: 14px;
+                                line-height: 1.5;
+                            }}
+                            .footer {{
+                                background: #f8f9ff;
+                                padding: 30px;
+                                text-align: center;
+                                border-top: 1px solid #e6e8f8;
+                            }}
+                            .footer-text {{
+                                font-size: 13px;
+                                color: #888;
+                                line-height: 1.5;
+                                margin-bottom: 10px;
+                            }}
+                            .company-name {{
+                                font-weight: 600;
+                                color: #667eea;
+                            }}
+                            .certificate-badge {{
                                 display: inline-block;
-                                background: linear-gradient(135deg, #10b981, #059669);
+                                background: linear-gradient(135deg, #00b894, #00cec9);
                                 color: white;
                                 padding: 8px 16px;
-                                border-radius: 25px;
+                                border-radius: 20px;
                                 font-size: 14px;
                                 font-weight: 600;
-                                margin-top: 10px;
+                                margin: 10px 0;
                             }}
                         </style>
                     </head>
                     <body>
-                        <div class="container">
+                        <div class="email-container">
                             <div class="header">
-                                <h1>🌿 Rota Kalite & Danışmanlık</h1>
+                                <div class="logo">🌿</div>
+                                <h1>Rota Kalite & Danışmanlık</h1>
                                 <p>Profesyonel Sürdürülebilir Turizm Danışmanlığı</p>
-                                <span class="sustainability-badge">🏨 Sürdürülebilir Turizm Uzmanı</span>
+                                <div class="certificate-badge">🏨 Sürdürülebilir Turizm Uzmanı</div>
                             </div>
+                            
                             <div class="content">
-                                {personalized_content}
+                                <div class="greeting">
+                                    Merhaba! 👋
+                                </div>
+                                
+                                <div class="content-box">
+                                    {personalized_content}
+                                </div>
+                                
+                                <div class="warning-box">
+                                    <div class="warning-icon">⚠️</div>
+                                    <div class="warning-title">Önemli Bilgilendirme</div>
+                                    <div class="warning-text">
+                                        • Bu email otomatik olarak gönderilmiştir<br>
+                                        • Herhangi bir sorunuz için bizimle iletişime geçebilirsiniz<br>
+                                        • Sürdürülebilir turizm yolculuğunuzda yanınızdayız
+                                    </div>
+                                </div>
                             </div>
+                            
                             <div class="footer">
-                                <p><strong>📞 İletişim:</strong> info@rotakalite.com | +90 (xxx) xxx xx xx</p>
-                                <p><strong>🌐 Web:</strong> www.rotakalite.com</p>
-                                <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
-                                    Bu email ROTA Sürdürülebilir Turizm Danışmanlık tarafından gönderilmiştir.
-                                </p>
-                                <p>© 2025 ROTA Sürdürülebilir Turizm Danışmanlık Ltd. Şti.</p>
+                                <div class="footer-text">
+                                    Bu email <span class="company-name">Rota Kalite & Danışmanlık</span> tarafından gönderilmiştir.<br>
+                                    <strong>📞 İletişim:</strong> info@rotakalite.com | +90 (xxx) xxx xx xx<br>
+                                    <strong>🌐 Web:</strong> www.rotakalite.com
+                                </div>
+                                <div class="footer-text" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e6e8f8;">
+                                    © 2025 Rota Kalite & Danışmanlık Ltd. Şti. Tüm hakları saklıdır.
+                                </div>
                             </div>
                         </div>
                     </body>
