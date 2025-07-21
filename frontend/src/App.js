@@ -269,18 +269,18 @@ const useAuth = () => {
     }
   }, [authToken, session]);
 
-  // Periyodik token yenileme - her 10 dakikada bir
+  // Periyodik token yenileme - her 1 dakikada bir (ultra-aggressive)
   useEffect(() => {
     if (authToken && session) {
       const refreshInterval = setInterval(async () => {
         try {
-          console.log('🔄 Periyodik token yenileme...');
+          console.log('🔄 Periyodik token yenileme (1 dakika)...');
           await refreshToken(true);
           console.log('✅ Periyodik yenileme başarılı');
         } catch (error) {
           console.error('❌ Periyodik yenileme hatası:', error);
         }
-      }, 10 * 60 * 1000); // Her 10 dakikada bir
+      }, 60 * 1000); // Her 1 dakikada bir - ultra-frequent
 
       return () => clearInterval(refreshInterval);
     }
