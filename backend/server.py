@@ -4705,8 +4705,8 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                         <p>Bu gerçek bir gönderim değil, sadece template testi</p>
                     </div>
                     <div class="header">
-                        <h1>🌿 ROTA Sürdürülebilir Turizm</h1>
-                        <p>Profesyonel Sürdürülebilirlik Danışmanlığı</p>
+                        <h1>🌿 Rota Kalite & Danışmanlık</h1>
+                        <p>Profesyonel Sürdürülebilir Turizm Danışmanlığı</p>
                     </div>
                     <div class="content">
                         {personalized_content}
