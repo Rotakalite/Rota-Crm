@@ -4001,6 +4001,19 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
         if target_filters.get("has_email"):
             query["email"] = {"$ne": "", "$exists": True}
         
+        # Special certificate filtering for certificate reminder template
+        if target_filters.get("certificate_filter") == "has_certificate":
+            # Exclude clients with "-", null, empty certificate dates
+            query["certificate_end_date"] = {
+                "$ne": "-",  # Not dash
+                "$ne": "",   # Not empty
+                "$ne": None, # Not null
+                "$exists": True,  # Field exists
+                "$regex": r"^\d{2}\.\d{2}\.\d{4}$|^\d{4}-\d{2}-\d{2}$"  # Valid date format
+            }
+            print(f"🏨 CERTIFICATE FILTER: Only clients with valid certificate dates")
+            logging.info(f"🏨 CERTIFICATE FILTER: Only clients with valid certificate dates")
+        
         print(f"📧 BULK EMAIL - Query: {query}")
         logging.info(f"📧 BULK EMAIL - Query: {query}")
         
