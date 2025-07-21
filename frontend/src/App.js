@@ -12627,7 +12627,8 @@ const EmailManagement = ({ selectedClient: propSelectedClient }) => {
   const [emailFilters, setEmailFilters] = useState({
     city: '',
     audit_company: '',
-    has_email: true
+    has_email: true,
+    certificate_filter: ''
   });
   const [showPreview, setShowPreview] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
