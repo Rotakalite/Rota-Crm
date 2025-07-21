@@ -12399,105 +12399,348 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
 
 
 
-// Email Management Component - NEW IMPLEMENTATION
+// Email Management Component - BULK EMAIL WITH TEMPLATES
 const EmailManagement = ({ selectedClient: propSelectedClient }) => {
   const { authToken, user, userRole, dbUser } = useAuth();
   const { session } = useClerk();
-  const [loading, setLoading] = useState(true);
-  const [documents, setDocuments] = useState([]);
-  const [trainings, setTrainings] = useState([]);
-  const [clients, setClients] = useState([]);
-  const [selectedClient, setSelectedClient] = useState('');
-  const [selectedDocuments, setSelectedDocuments] = useState([]);
-  const [selectedTrainings, setSelectedTrainings] = useState([]);
-  const [activeTab, setActiveTab] = useState('documents');
-  const [emailContent, setEmailContent] = useState({
-    subject: '',
-    message: '',
-    type: 'document'
+  const [loading, setLoading] = useState(false);
+  const [templates, setTemplates] = useState([]);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [customContent, setCustomContent] = useState('');
+  const [bulkEmailStats, setBulkEmailStats] = useState(null);
+  const [emailFilters, setEmailFilters] = useState({
+    city: '',
+    audit_company: '',
+    has_email: true
   });
+  const [showPreview, setShowPreview] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
   
   const API = getApiUrl();
 
-  // Use selectedClient from props (for consultant) or manage locally (for admin/client)
-  const effectiveSelectedClient = propSelectedClient?.id || selectedClient;
-
-  // Auto-select client when propSelectedClient changes
+  // Fetch email templates
   useEffect(() => {
-    if (propSelectedClient && propSelectedClient.id) {
-      setSelectedClient(propSelectedClient.id);
-      // Auto-fetch data for selected client
-      fetchDocuments(propSelectedClient.id);
-      fetchTrainings(propSelectedClient.id);
+    if (userRole === 'admin') {
+      fetchTemplates();
+      fetchBulkEmailStats();
     }
-  }, [propSelectedClient]);
+  }, [userRole]);
 
-  // Fetch documents for email notifications
-  const fetchDocuments = async (clientId) => {
+  const fetchTemplates = async () => {
     try {
       let currentToken = authToken;
       if (!currentToken && session) {
-        try {
-          currentToken = await session.getToken();
-        } catch (tokenError) {
-          console.error('Failed to get fresh token:', tokenError);
-        }
+        currentToken = await session.getToken();
       }
 
-      const response = await axios.get(`${API}/belge/list?client_id=${clientId}`, {
+      const response = await axios.get(`${API}/api/email-templates`, {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
       
-      // Backend returns: { success: true, documents: [...], count: 5 }
-      const responseData = response.data || {};
-      const fetchedDocuments = responseData.documents || responseData.data || responseData || [];
-      
-      // Ensure it's an array
-      const documentsArray = Array.isArray(fetchedDocuments) ? fetchedDocuments : [];
-      
-      setDocuments(documentsArray.map(doc => ({
-        ...doc,
-        selected: false,
-        displayName: doc.file_name || doc.document_name || doc.original_filename || 'Unknown Document',
-        uploadDate: doc.uploaded_at || doc.created_at || new Date().toISOString(),
-        folderPath: doc.folder_path || doc.folder_name || 'Unknown Folder'
-      })));
-      
-      console.log(`✅ Documents loaded: ${documentsArray.length} items`);
-      
+      setTemplates(response.data.templates || []);
     } catch (error) {
-      console.error('Error fetching documents:', error);
-      setDocuments([]);
+      console.error('Error fetching templates:', error);
+      setTemplates([]);
     }
   };
 
-  // Fetch trainings for email notifications  
-  const fetchTrainings = async (clientId) => {
+  const fetchBulkEmailStats = async () => {
     try {
       let currentToken = authToken;
       if (!currentToken && session) {
-        try {
-          currentToken = await session.getToken();
-        } catch (tokenError) {
-          console.error('Failed to get fresh token:', tokenError);
-        }
+        currentToken = await session.getToken();
       }
 
-      const response = await axios.get(`${API}/trainings?client_id=${clientId}`, {
+      const response = await axios.get(`${API}/api/bulk-email/stats`, {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
       
-      // Backend might return direct array or wrapped object
-      const responseData = response.data || {};
-      const fetchedTrainings = responseData.trainings || responseData.data || responseData || [];
+      setBulkEmailStats(response.data);
+    } catch (error) {
+      console.error('Error fetching bulk email stats:', error);
+    }
+  };
+
+  const handleTemplateSelect = (template) => {
+    setSelectedTemplate(template);
+    setCustomContent(''); // Reset custom content
+    setShowPreview(true);
+  };
+
+  const sendBulkEmail = async () => {
+    if (!selectedTemplate) {
+      alert('Lütfen bir template seçiniz!');
+      return;
+    }
+
+    setSendingEmail(true);
+    try {
+      let currentToken = authToken;
+      if (!currentToken && session) {
+        currentToken = await session.getToken();
+      }
+
+      const emailData = {
+        template_id: selectedTemplate.id,
+        email_type: 'bulk',
+        filters: emailFilters
+      };
+
+      // Add custom content for general announcement
+      if (selectedTemplate.id === 'general_announcement' && customContent.trim()) {
+        emailData.custom_content = customContent;
+      }
+
+      const response = await axios.post(`${API}/api/bulk-email/send`, emailData, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+
+      alert(`✅ Toplu email başarıyla gönderildi!\n\n📊 İstatistikler:\n• Gönderilen: ${response.data.sent_count} email\n• Başarısız: ${response.data.failed_count} email\n• Toplam süre: ${response.data.duration_seconds} saniye`);
       
-      // Ensure it's an array
-      const trainingsArray = Array.isArray(fetchedTrainings) ? fetchedTrainings : [];
+      // Reset form
+      setSelectedTemplate(null);
+      setCustomContent('');
+      setShowPreview(false);
       
-      setTrainings(trainingsArray.map(training => ({
-        ...training,
-        selected: false,
-        displayName: training.name || training.training_name || training.title || 'Unknown Training',
+      // Refresh stats
+      fetchBulkEmailStats();
+      
+    } catch (error) {
+      console.error('Bulk email error:', error);
+      alert('❌ Toplu email gönderim hatası: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
+  if (userRole !== 'admin') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+            <div className="text-6xl mb-4">🚫</div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">Erişim Engellendi</h1>
+            <p className="text-gray-600">Bu özellik sadece admin kullanıcıları için mevcuttur.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">📧 Toplu Email Yönetimi</h1>
+              <p className="text-gray-600">Müşterilerinize profesyonel email şablonları ile ulaşın</p>
+            </div>
+            {bulkEmailStats && (
+              <div className="text-right">
+                <div className="text-2xl font-bold text-blue-600">{bulkEmailStats.total_bulk_clients}</div>
+                <div className="text-sm text-gray-500">Toplam Bulk Müşteri</div>
+                <div className="text-sm text-green-600">{bulkEmailStats.bulk_clients_with_email} email adresi</div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Email Templates */}
+          <div className="bg-white rounded-2xl shadow-xl p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">🎨 Email Şablonları</h2>
+            
+            <div className="space-y-4">
+              {templates.map((template) => (
+                <div 
+                  key={template.id}
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    selectedTemplate?.id === template.id 
+                      ? 'border-blue-500 bg-blue-50' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => handleTemplateSelect(template)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-bold text-gray-800">{template.name}</h3>
+                      <p className="text-sm text-gray-600 mt-1">{template.description}</p>
+                      <div className="text-xs text-gray-500 mt-2 truncate">
+                        📧 {template.subject}
+                      </div>
+                    </div>
+                    <div className="ml-4">
+                      {selectedTemplate?.id === template.id ? (
+                        <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs">✓</span>
+                        </div>
+                      ) : (
+                        <div className="w-6 h-6 border-2 border-gray-300 rounded-full"></div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Filters */}
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              <h3 className="font-bold text-gray-800 mb-3">🎯 Hedef Müşteri Filtreleri</h3>
+              <div className="grid grid-cols-1 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Şehir</label>
+                  <input
+                    type="text"
+                    placeholder="Şehir filtresi (örn: İstanbul)"
+                    value={emailFilters.city}
+                    onChange={(e) => setEmailFilters({...emailFilters, city: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Denetim Firması</label>
+                  <input
+                    type="text"
+                    placeholder="Denetim firması filtresi"
+                    value={emailFilters.audit_company}
+                    onChange={(e) => setEmailFilters({...emailFilters, audit_company: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={emailFilters.has_email}
+                    onChange={(e) => setEmailFilters({...emailFilters, has_email: e.target.checked})}
+                    className="mr-2"
+                  />
+                  <label className="text-sm text-gray-700">Sadece email adresi olanlar</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Preview & Send */}
+          <div className="bg-white rounded-2xl shadow-xl p-6">
+            {selectedTemplate ? (
+              <>
+                <h2 className="text-xl font-bold text-gray-800 mb-4">👁️ Email Önizleme</h2>
+                
+                <div className="mb-4">
+                  <div className="bg-gray-50 p-3 rounded-lg mb-3">
+                    <div className="text-sm font-medium text-gray-700">📧 Konu:</div>
+                    <div className="text-gray-800">{selectedTemplate.subject}</div>
+                  </div>
+                  
+                  {selectedTemplate.id === 'general_announcement' && (
+                    <div className="mb-3">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        📝 Özel İçerik (Duyuru metni):
+                      </label>
+                      <textarea
+                        value={customContent}
+                        onChange={(e) => setCustomContent(e.target.value)}
+                        placeholder="Buraya duyuru içeriğinizi yazın..."
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        rows={4}
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="bg-gray-50 p-3 rounded-lg max-h-60 overflow-y-auto">
+                    <div className="text-sm font-medium text-gray-700 mb-2">📝 İçerik Önizleme:</div>
+                    <div className="text-gray-800 whitespace-pre-line text-sm">
+                      {selectedTemplate.id === 'general_announcement' && customContent
+                        ? selectedTemplate.content.replace('{content}', customContent)
+                        : selectedTemplate.content}
+                    </div>
+                  </div>
+                </div>
+
+                {bulkEmailStats && (
+                  <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                    <div className="text-sm text-blue-800">
+                      <div className="font-bold mb-2">📊 Gönderim Özeti:</div>
+                      <div>• Toplam Bulk Müşteri: {bulkEmailStats.total_bulk_clients}</div>
+                      <div>• Email Adresi Olan: {bulkEmailStats.bulk_clients_with_email}</div>
+                      <div>• Filtreli Gönderim: {emailFilters.city || emailFilters.audit_company ? 'Evet' : 'Tüm müşteriler'}</div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={sendBulkEmail}
+                    disabled={sendingEmail}
+                    className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-6 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all font-medium disabled:opacity-50"
+                  >
+                    {sendingEmail ? '📤 Gönderiliyor...' : '📧 Toplu Email Gönder'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedTemplate(null);
+                      setCustomContent('');
+                      setShowPreview(false);
+                    }}
+                    className="px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                  >
+                    ❌
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">📧</div>
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Template Seçin</h3>
+                <p className="text-gray-600">Email gönderebilmek için bir template seçiniz</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Statistics */}
+        {bulkEmailStats && (
+          <div className="bg-white rounded-2xl shadow-xl p-6 mt-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">📈 Email İstatistikleri</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">{bulkEmailStats.total_bulk_clients}</div>
+                <div className="text-sm text-gray-600">Toplam Bulk Müşteri</div>
+              </div>
+              
+              <div className="bg-green-50 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">{bulkEmailStats.bulk_clients_with_email}</div>
+                <div className="text-sm text-gray-600">Email Adresi Olan</div>
+              </div>
+              
+              <div className="bg-orange-50 p-4 rounded-lg">
+                <div className="text-2xl font-bold text-orange-600">{bulkEmailStats.email_coverage_percentage}%</div>
+                <div className="text-sm text-gray-600">Email Kapsamı</div>
+              </div>
+            </div>
+
+            {bulkEmailStats.city_distribution && bulkEmailStats.city_distribution.length > 0 && (
+              <div className="mt-6">
+                <h3 className="font-bold text-gray-800 mb-3">🏙️ Şehir Dağılımı (Top 5)</h3>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                  {bulkEmailStats.city_distribution.slice(0, 5).map((city, index) => (
+                    <div key={index} className="bg-gray-50 p-3 rounded-lg text-center">
+                      <div className="font-bold text-gray-800">{city.count}</div>
+                      <div className="text-xs text-gray-600">{city._id || 'Bilinmiyor'}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
         trainingDate: training.date || training.training_date || training.created_at || new Date().toISOString(),
         trainer: training.trainer || training.instructor || training.instructor_name || 'Unknown Trainer',
         hours: training.hours || training.duration || '2 saat' // Eğitim saati
