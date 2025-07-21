@@ -76,30 +76,34 @@ class EmailService:
     async def send_email(self, to_email: str, subject: str, html_content: str, from_email: str = None, from_name: str = None):
         """Send email with HTML content"""
         try:
-            # Use custom from_name if provided, otherwise use default
-            if not from_name:
-                from_name = "ROTA KALİTE & DANIŞMANLIK"
-            
             # Use custom from_email if provided, otherwise use configured default
             sender_email = from_email if from_email else gmail_user
             
-            message = MessageSchema(
-                subject=subject,
-                recipients=[to_email],
-                body=html_content,
-                subtype="html"
-            )
-            
-            # Set the sender with display name
+            # Create message with proper sender format for bulk emails only
             if from_name:
-                message.sender = f"{from_name} <{sender_email}>"
+                # For bulk emails with custom sender name
+                sender_formatted = f"{from_name} <{sender_email}>"
+                message = MessageSchema(
+                    subject=subject,
+                    recipients=[to_email],
+                    body=html_content,
+                    subtype="html"
+                )
+                # Set the from field properly
+                message.sender = sender_formatted
             else:
-                message.sender = sender_email
+                # For regular emails like 2FA (keep original format)
+                message = MessageSchema(
+                    subject=subject,
+                    recipients=[to_email],
+                    body=html_content,
+                    subtype="html"
+                )
                 
             await self.fastmail.send_message(message)
             
             # Log with sender info
-            sender_info = f"from {from_name} <{sender_email}>"
+            sender_info = f"from {from_name} <{sender_email}>" if from_name else f"from {sender_email}"
             logging.info(f"📧 Email sent to {to_email} {sender_info} with subject: {subject}")
             return True
             
