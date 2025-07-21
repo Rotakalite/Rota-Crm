@@ -5623,9 +5623,13 @@ const BulkOperations = ({ onNavigate }) => {
   const [showBulkEmail, setShowBulkEmail] = useState(false);
   const [bulkEmailLoading, setBulkEmailLoading] = useState(false);
   const [bulkEmailStats, setBulkEmailStats] = useState(null);
+  const [emailTemplates, setEmailTemplates] = useState([]);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [bulkEmailForm, setBulkEmailForm] = useState({
+    template_id: '',
     subject: '',
     content: '',
+    custom_content: '',
     target_filters: {
       city: '',
       audit_company: '',
