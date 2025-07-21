@@ -4263,7 +4263,7 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                                     <strong>🌐 Web:</strong> www.rotakalitedanismanlik.com
                                 </div>
                                 <div class="footer-text" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e6e8f8;">
-                                    © 2025 Rota Kalite & Danışmanlık Ltd. Şti. Tüm hakları saklıdır.
+                                    © 2025 Rota Kalite & Danışmanlık. Tüm hakları saklıdır.
                                 </div>
                             </div>
                         </div>
