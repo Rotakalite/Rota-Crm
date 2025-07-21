@@ -6079,7 +6079,7 @@ const BulkOperations = ({ onNavigate }) => {
         emailData.email_type = 'custom';
       }
 
-      const response = await axios.post(`${API}/api/bulk-email/send`, emailData, {
+      const response = await axios.post(`${API}/bulk-email/send`, emailData, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
 
