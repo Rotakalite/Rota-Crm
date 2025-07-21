@@ -99,16 +99,16 @@ const useAuth = () => {
     }
   };
 
-  // Proactive token refresh function - refresh every 15 minutes
+  // Ultra-aggressive token refresh function - refresh every 2 minutes
   const ensureFreshToken = async () => {
     try {
       const tokenTimestamp = localStorage.getItem('tokenTimestamp');
       const currentTime = Date.now();
-      const fifteenMinutes = 15 * 60 * 1000; // 15 minutes in milliseconds
+      const twoMinutes = 2 * 60 * 1000; // 2 minutes in milliseconds - MUCH more aggressive
       
-      // If no timestamp or token is older than 15 minutes, refresh
-      if (!tokenTimestamp || (currentTime - parseInt(tokenTimestamp)) > fifteenMinutes) {
-        console.log('🔄 Token is older than 15 minutes, proactive refresh...');
+      // If no timestamp or token is older than 2 minutes, refresh
+      if (!tokenTimestamp || (currentTime - parseInt(tokenTimestamp)) > twoMinutes) {
+        console.log('🔄 Token is older than 2 minutes, proactive refresh...');
         return await refreshToken(true);
       }
       
