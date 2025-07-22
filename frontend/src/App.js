@@ -1997,9 +1997,14 @@ const PersonnelManagement = () => {
       }
 
       const personnelData = {
-        ...formData,
-        client_id: selectedClient
+        ...formData
       };
+      
+      // Admin/consultant için client_id ekle
+      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
+        personnelData.client_id = selectedClient;
+      }
+      // Client için backend otomatik olarak kendi client_id'sini ekler
 
       console.log('📤 Creating personnel with data:', personnelData);
       const response = await axios.post(`${API}/personnel`, personnelData, {
