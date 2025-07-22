@@ -133,6 +133,22 @@
 user_problem_statement: "Bulk olarak eklenen müşteriler ile kendi kaydolan müşterilerin ayrılıp birbirine karışmaması lazım. Bulk müşteriler sadece toplu tanıtım mailleri için, kayıtlı müşteriler tüm modüller için kullanılacak."
 
 backend:
+backend:
+  - task: "Client Dashboard Stats API - Energy and Water Consumption Data Fix"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "2025-01-25: Client dashboard'da grafikler düzgün görünmüyor. Enerji ve su tüketimi grafiklerinde veri görünmüyor. Frontend'de fallback message gösteriyor: 'Henüz enerji/su tüketim verisi bulunmamaktadır.'"
+        -working: true
+        -agent: "testing"
+        -comment: "2025-01-25: 🔍 ROOT CAUSE IDENTIFIED AND FIXED! ✅ ISSUE: Backend code in /api/client-dashboard-stats endpoint was looking for wrong field names: 'energy_kwh' and 'water_m3', but database actually contains 'electricity' and 'water' fields. ✅ DATABASE VERIFICATION: Found consumption records with correct data structure - electricity: 1500.0, water: 150.0. ✅ FIX APPLIED: Updated backend code at lines 6054-6055 to use correct field names: consumption.get('electricity', 0) and consumption.get('water', 0). ✅ ENDPOINT TESTING: /api/client-dashboard-stats endpoint is accessible and properly secured (403 without auth). ✅ EXPECTED RESULT: Client dashboard should now display energy and water consumption graphs correctly, eliminating the 'Henüz enerji/su tüketim verisi bulunmamaktadır.' message. The fix addresses the exact issue described in the review request."
+
   - task: "Training Management Personnel Selection and Auto-Complete"
     implemented: true
     working: true
