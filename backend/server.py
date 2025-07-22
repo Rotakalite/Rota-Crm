@@ -12626,7 +12626,7 @@ async def generate_comprehensive_report(
         logging.error(f"❌ Error generating comprehensive report: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Rapor oluşturma hatası: {str(e)}")
 
-@app.get("/api/reports/training")
+@api_router.get("/reports/training")
 async def generate_training_report(
     client_id: str = None,
     current_user: User = Depends(get_current_user)
