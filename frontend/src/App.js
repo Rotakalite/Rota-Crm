@@ -11457,7 +11457,7 @@ const ProjectManagement = ({ client, onNavigate }) => {
   });
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
-  const { authToken, userRole, ensureTokenForOperation } = useAuth();
+  const { authToken, userRole, dbUser, ensureTokenForOperation } = useAuth();
 
   // Handle viewing documents
   const handleViewDocument = (document) => {
