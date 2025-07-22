@@ -12582,6 +12582,12 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
   const fetchClients = async () => {
     if (!authToken) return;
     
+    // Client users don't need to fetch clients - they use their own
+    if (userRole === 'client') {
+      console.log('👤 Client user - skipping client fetch, will use auto-selection');
+      return;
+    }
+    
     try {
       console.log("👥 Admin fetching clients...");
       const response = await axios.get(`${API}/clients`, {
