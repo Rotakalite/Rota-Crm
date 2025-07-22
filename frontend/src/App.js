@@ -14669,6 +14669,14 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
                             🗑️ Sil
                           </button>
                         )}
+                        {userRole === 'client' && (
+                          <button
+                            onClick={() => deleteSupplier(supplier.id)}
+                            className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                          >
+                            🗑️ Sil
+                          </button>
+                        )}
                       </div>
                     </div>
                     <div className="space-y-2 text-sm text-gray-600">
