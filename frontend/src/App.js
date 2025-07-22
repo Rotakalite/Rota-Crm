@@ -13668,47 +13668,77 @@ const ReportsManagement = ({ selectedClient: propSelectedClient }) => {
                 <div className="text-4xl mb-4">🌱</div>
                 <h3 className="text-lg font-bold text-gray-800 mb-2">Sürdürülebilirlik Raporu</h3>
                 <p className="text-gray-600 text-sm mb-4">
-                  Karbon ayak izi, enerji tüketimi ve çevresel etki analizi
+                  Tüm veriler, hedefler, tüketim analizi ve öneriler
                 </p>
                 <button 
-                  disabled={!selectedClient}
-                  className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  onClick={downloadComprehensiveReport}
+                  disabled={!selectedClient || downloadingReport === 'comprehensive'}
+                  className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  Rapor Oluştur
+                  {downloadingReport === 'comprehensive' ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      İndiriliyor...
+                    </>
+                  ) : (
+                    <>
+                      📥 PDF İndir
+                    </>
+                  )}
                 </button>
               </div>
             </div>
 
-            {/* Performance Report */}
+            {/* Training Report */}
             <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
               <div className="text-center">
-                <div className="text-4xl mb-4">📊</div>
-                <h3 className="text-lg font-bold text-gray-800 mb-2">Performans Raporu</h3>
+                <div className="text-4xl mb-4">🎓</div>
+                <h3 className="text-lg font-bold text-gray-800 mb-2">Eğitim Raporu</h3>
                 <p className="text-gray-600 text-sm mb-4">
-                  Hedef gerçekleşme oranları ve performans metrikleri
+                  Tüm eğitimler, katılımcılar ve tamamlanma oranları
                 </p>
                 <button 
-                  disabled={!selectedClient}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  onClick={downloadTrainingReport}
+                  disabled={!selectedClient || downloadingReport === 'training'}
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  Rapor Oluştur
+                  {downloadingReport === 'training' ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      İndiriliyor...
+                    </>
+                  ) : (
+                    <>
+                      📥 PDF İndir
+                    </>
+                  )}
                 </button>
               </div>
             </div>
 
-            {/* Compliance Report */}
+            {/* Consumption Report */}
             <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
               <div className="text-center">
-                <div className="text-4xl mb-4">✅</div>
-                <h3 className="text-lg font-bold text-gray-800 mb-2">Uygunluk Raporu</h3>
+                <div className="text-4xl mb-4">⚡</div>
+                <h3 className="text-lg font-bold text-gray-800 mb-2">Tüketim Raporu</h3>
                 <p className="text-gray-600 text-sm mb-4">
-                  Sertifikasyon durumu ve uygunluk değerlendirmesi
+                  Enerji, su, gaz tüketimi ve trend analizleri
                 </p>
                 <button 
-                  disabled={!selectedClient}
-                  className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  onClick={downloadConsumptionReport}
+                  disabled={!selectedClient || downloadingReport === 'consumption'}
+                  className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  Rapor Oluştur
+                  {downloadingReport === 'consumption' ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      İndiriliyor...
+                    </>
+                  ) : (
+                    <>
+                      📥 PDF İndir
+                    </>
+                  )}
                 </button>
               </div>
             </div>
