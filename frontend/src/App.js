@@ -16688,6 +16688,8 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
         return <TrainingManagement />;
       case 'email-management':
         return <EmailManagement />;
+      case 'reports':
+        return <ReportsManagement />;
       default:
         return <Dashboard onNavigate={handleNavigate} />;
     }
