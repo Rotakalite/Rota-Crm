@@ -12373,7 +12373,7 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
     status: 'planned'  // Default status
   });
   const [loading, setLoading] = useState(false);
-  const { authToken, userRole, ensureTokenForOperation } = useAuth();
+  const { authToken, userRole, dbUser, ensureTokenForOperation } = useAuth();
 
   // Use selectedClient from props (for consultant) or manage locally (for admin/client)
   const effectiveSelectedClient = propSelectedClient;
