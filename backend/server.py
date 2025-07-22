@@ -12580,7 +12580,7 @@ async def download_import_template(current_user: User = Depends(get_admin_user))
 # PDF REPORT ENDPOINTS
 # ==========================================
 
-@api_router.get("/reports/comprehensive")
+@app.get("/api/reports/comprehensive")
 async def generate_comprehensive_report(
     client_id: str = None,
     current_user: User = Depends(get_current_user)
@@ -12626,7 +12626,7 @@ async def generate_comprehensive_report(
         logging.error(f"❌ Error generating comprehensive report: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Rapor oluşturma hatası: {str(e)}")
 
-@api_router.get("/reports/training")
+@app.get("/api/reports/training")
 async def generate_training_report(
     client_id: str = None,
     current_user: User = Depends(get_current_user)
@@ -12669,7 +12669,7 @@ async def generate_training_report(
         logging.error(f"❌ Error generating training report: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Eğitim raporu oluşturma hatası: {str(e)}")
 
-@api_router.get("/reports/consumption")
+@app.get("/api/reports/consumption")
 async def generate_consumption_report(
     client_id: str = None,
     current_user: User = Depends(get_current_user)
