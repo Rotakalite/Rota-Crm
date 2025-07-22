@@ -13639,7 +13639,7 @@ const ReportsManagement = ({ selectedClient: propSelectedClient }) => {
             </div>
             
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 font-semibold text-gray-800 mb-2">🔄 Karşılaştırmalı Analiz</h3>
+              <h3 className="font-semibold text-gray-800 mb-2">🔄 Karşılaştırmalı Analiz</h3>
               <p className="text-gray-600 text-sm">Dönemsel karşılaştırma raporları</p>
             </div>
           </div>
