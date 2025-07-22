@@ -14826,13 +14826,24 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
           </div>
         )}
 
-        {/* No Client Selected */}
-        {!selectedClient && (
+        {/* No Client Selected - Admin and Consultant only */}
+        {!selectedClient && (userRole === 'admin' || userRole === 'consultant') && (
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="text-center py-12">
               <div className="text-6xl mb-4">🏢</div>
               <p className="text-gray-500 text-lg mb-2">Tedarikçi yönetimi için önce bir müşteri seçin.</p>
               <p className="text-gray-400 text-sm">Yukarıdaki dropdown'dan müşteri seçerek başlayabilirsiniz.</p>
+            </div>
+          </div>
+        )}
+
+        {/* No Client Data for Client Users */}
+        {!selectedClient && userRole === 'client' && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">⏳</div>
+              <p className="text-gray-500 text-lg mb-2">Hesap bilgileriniz yükleniyor...</p>
+              <p className="text-gray-400 text-sm">Lütfen birkaç saniye bekleyiniz.</p>
             </div>
           </div>
         )}
