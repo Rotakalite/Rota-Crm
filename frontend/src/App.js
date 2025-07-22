@@ -12388,6 +12388,25 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
 
   return (
     <div className="space-y-6">
+      {/* Client Section - Only Client Role */}
+      {userRole === 'client' && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800">👤 Kendi Eğitimleriniz</h3>
+              <p className="text-gray-600 text-sm mt-1">Eğitim planlarınızı yönetebilir ve takip edebilirsiniz</p>
+            </div>
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center space-x-2"
+            >
+              <span>➕</span>
+              <span>Yeni Eğitim</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Client Selection */}
       {(userRole === 'admin' || userRole === 'consultant') && (
         <div className="bg-white rounded-xl shadow-lg p-6">
