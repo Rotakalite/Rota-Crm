@@ -36,15 +36,8 @@ class PDFReportService:
     def _register_turkish_fonts(self):
         """Register Turkish-compatible fonts"""
         try:
-            # Try to register DejaVu Sans (supports Turkish characters)
-            from reportlab.lib.fonts import addMapping
-            
-            # Use built-in Helvetica for now, with proper encoding
-            # Register font mappings for Turkish characters
-            addMapping('Helvetica', 0, 0, 'Helvetica')
-            addMapping('Helvetica', 1, 0, 'Helvetica-Bold')
-            addMapping('Helvetica', 0, 1, 'Helvetica-Oblique')
-            addMapping('Helvetica', 1, 1, 'Helvetica-BoldOblique')
+            # For Turkish characters, let's use a simpler approach
+            # Instead of complex font registration, we'll ensure proper UTF-8 handling
             
             self.default_font = 'Helvetica'
             self.bold_font = 'Helvetica-Bold'
