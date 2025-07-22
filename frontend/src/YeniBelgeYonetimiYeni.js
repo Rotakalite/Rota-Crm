@@ -397,11 +397,13 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
       return;
     }
     
-    if (!selectedClient) {
+    // Admin/consultant için client seçimi zorunlu
+    if ((userRole === 'admin' || userRole === 'consultant') && !selectedClient) {
       alert('Lütfen müşteri seçin!');
       return;
     }
     
+    // Client kullanıcılar için folder zorunlu
     if (!selectedFolder) {
       alert('Lütfen klasör seçin!');
       return;
@@ -424,7 +426,16 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
         const documentNameWithIndex = finalDocumentName + (selectedFiles.length > 1 ? ` (${i + 1})` : '');
         
         formData.append('file', file);
-        formData.append('client_id', selectedClient.id);
+        
+        // Client ID - Admin/consultant için selectedClient, client için otomatik
+        if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
+          formData.append('client_id', selectedClient.id);
+        } else if (userRole === 'client' && dbUser?.client_id) {
+          formData.append('client_id', dbUser.client_id);
+        } else if (userRole === 'client' && selectedClient) {
+          formData.append('client_id', selectedClient.id);
+        }
+        
         formData.append('folder_id', selectedFolder.id);
         formData.append('document_name', documentNameWithIndex);
         formData.append('document_type', documentType);
