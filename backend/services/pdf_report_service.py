@@ -95,29 +95,48 @@ class PDFReportService:
         return custom_styles
     
     def _encode_turkish_text(self, text):
-        """Ensure Turkish characters are properly encoded"""
+        """Ensure Turkish characters are properly encoded for PDF"""
         if not text:
             return ""
         
-        # Handle Turkish characters mapping for PDF
-        turkish_chars = {
-            'ğ': 'g', 'Ğ': 'G',
-            'ü': 'u', 'Ü': 'U', 
-            'ö': 'o', 'Ö': 'O',
-            'ş': 's', 'Ş': 'S',
-            'ç': 'c', 'Ç': 'C',
-            'ı': 'i', 'İ': 'I'
-        }
-        
-        # For now, let's keep Turkish characters as-is
-        # ReportLab should handle them with proper font
         try:
-            return str(text)
-        except:
-            # Fallback: replace Turkish characters
+            # Convert to string and ensure UTF-8 encoding
+            text_str = str(text)
+            
+            # For ReportLab, we need to handle Turkish characters specially
+            # Use HTML entities for problematic characters
+            char_map = {
+                'ğ': '&#287;',   'Ğ': '&#286;',
+                'ü': '&#252;',   'Ü': '&#220;', 
+                'ö': '&#246;',   'Ö': '&#214;',
+                'ş': '&#351;',   'Ş': '&#350;',
+                'ç': '&#231;',   'Ç': '&#199;',
+                'ı': '&#305;',   'İ': '&#304;'
+            }
+            
+            # Replace Turkish characters with HTML entities
+            result = text_str
+            for turkish_char, html_entity in char_map.items():
+                result = result.replace(turkish_char, html_entity)
+            
+            return result
+            
+        except Exception as e:
+            print(f"Error encoding Turkish text: {e}")
+            # Fallback: replace with ASCII equivalents
+            char_map = {
+                'ğ': 'g', 'Ğ': 'G',
+                'ü': 'u', 'Ü': 'U', 
+                'ö': 'o', 'Ö': 'O',
+                'ş': 's', 'Ş': 'S',
+                'ç': 'c', 'Ç': 'C',
+                'ı': 'i', 'İ': 'I'
+            }
+            
             result = str(text)
-            for tr_char, en_char in turkish_chars.items():
-                result = result.replace(tr_char, en_char)
+            for turkish_char, ascii_char in char_map.items():
+                result = result.replace(turkish_char, ascii_char)
+            
             return result
     
     def _add_header_footer(self, canvas, doc):
