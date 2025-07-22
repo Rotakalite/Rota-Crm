@@ -16525,6 +16525,8 @@ const ConsultantApp = () => {
         return <TrainingManagement />;
       case 'email-management':
         return <EmailManagement />;
+      case 'reports':
+        return <ReportsManagement />;
       default:
         return <ConsultantDashboard onNavigate={handleNavigate} />;
     }
