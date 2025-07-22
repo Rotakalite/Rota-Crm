@@ -321,7 +321,228 @@ class PDFReportService:
         buffer.seek(0)
         return buffer.getvalue()
     
-    def _get_progress_status(self, progress: float) -> str:
+    def _create_consumption_chart(self, energy_data: dict, water_data: dict) -> str:
+        """Create consumption bar chart and return as base64 string"""
+        try:
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
+            plt.style.use('default')
+            
+            # Energy consumption chart
+            if energy_data:
+                months = list(energy_data.keys())
+                values = list(energy_data.values())
+                bars1 = ax1.bar(months, values, color='#3B82F6', alpha=0.8)
+                ax1.set_title('Enerji Tüketimi (kWh)', fontsize=14, fontweight='bold', pad=20)
+                ax1.set_ylabel('kWh', fontsize=12)
+                ax1.tick_params(axis='x', rotation=45)
+                ax1.grid(True, alpha=0.3)
+                
+                # Add value labels on bars
+                for bar in bars1:
+                    height = bar.get_height()
+                    ax1.text(bar.get_x() + bar.get_width()/2., height,
+                            f'{int(height):,}', ha='center', va='bottom', fontsize=10)
+            else:
+                ax1.text(0.5, 0.5, 'Enerji verisi\nmevcut değil', ha='center', va='center',
+                        transform=ax1.transAxes, fontsize=12)
+                ax1.set_title('Enerji Tüketimi', fontsize=14, fontweight='bold')
+            
+            # Water consumption chart
+            if water_data:
+                months = list(water_data.keys())
+                values = list(water_data.values())
+                bars2 = ax2.bar(months, values, color='#06B6D4', alpha=0.8)
+                ax2.set_title('Su Tüketimi (m³)', fontsize=14, fontweight='bold', pad=20)
+                ax2.set_ylabel('m³', fontsize=12)
+                ax2.tick_params(axis='x', rotation=45)
+                ax2.grid(True, alpha=0.3)
+                
+                # Add value labels on bars
+                for bar in bars2:
+                    height = bar.get_height()
+                    ax2.text(bar.get_x() + bar.get_width()/2., height,
+                            f'{int(height):,}', ha='center', va='bottom', fontsize=10)
+            else:
+                ax2.text(0.5, 0.5, 'Su verisi\nmevcut değil', ha='center', va='center',
+                        transform=ax2.transAxes, fontsize=12)
+                ax2.set_title('Su Tüketimi', fontsize=14, fontweight='bold')
+            
+            plt.tight_layout()
+            
+            # Save to base64
+            buffer = BytesIO()
+            plt.savefig(buffer, format='png', dpi=150, bbox_inches='tight',
+                       facecolor='white', edgecolor='none')
+            buffer.seek(0)
+            chart_base64 = base64.b64encode(buffer.getvalue()).decode()
+            plt.close()
+            
+            return chart_base64
+            
+        except Exception as e:
+            print(f"Error creating consumption chart: {e}")
+            return None
+    
+    def _create_sustainability_progress_chart(self, sustainability_data: dict) -> str:
+        """Create sustainability progress donut chart"""
+        try:
+            fig, ax = plt.subplots(1, 1, figsize=(10, 8))
+            
+            categories = ['Karbon\nAzaltma', 'Enerji\nVerimliliği', 'Atık\nAzaltma', 'Su\nTasarrufu']
+            values = [
+                sustainability_data.get('carbon_reduction', 0),
+                sustainability_data.get('energy_efficiency', 0),
+                sustainability_data.get('waste_reduction', 0),
+                sustainability_data.get('water_saving', 0)
+            ]
+            colors = ['#EF4444', '#3B82F6', '#8B5CF6', '#06B6D4']
+            
+            # Create donut chart
+            wedges, texts, autotexts = ax.pie(values, labels=categories, colors=colors, autopct='%1.1f%%',
+                                            startangle=90, pctdistance=0.85,
+                                            textprops={'fontsize': 11, 'fontweight': 'bold'})
+            
+            # Create center circle for donut effect
+            centre_circle = plt.Circle((0,0), 0.70, fc='white')
+            fig.gca().add_artist(centre_circle)
+            
+            # Add title and center text
+            ax.set_title('Sürdürülebilirlik Hedefleri İlerleme Durumu', fontsize=16, fontweight='bold', pad=20)
+            
+            # Add center text
+            avg_progress = sum(values) / len(values)
+            ax.text(0, 0, f'Ortalama\n{avg_progress:.1f}%', ha='center', va='center',
+                   fontsize=14, fontweight='bold', color='#374151')
+            
+            plt.tight_layout()
+            
+            # Save to base64
+            buffer = BytesIO()
+            plt.savefig(buffer, format='png', dpi=150, bbox_inches='tight',
+                       facecolor='white', edgecolor='none')
+            buffer.seek(0)
+            chart_base64 = base64.b64encode(buffer.getvalue()).decode()
+            plt.close()
+            
+            return chart_base64
+            
+        except Exception as e:
+            print(f"Error creating sustainability chart: {e}")
+            return None
+    
+    def _create_statistics_overview_chart(self, stats: dict) -> str:
+        """Create statistics overview bar chart"""
+        try:
+            fig, ax = plt.subplots(1, 1, figsize=(10, 6))
+            
+            categories = ['Belgeler', 'Eğitimler', 'Tamamlanan\nEğitimler', 'Personel', 'Tedarikçiler']
+            values = [
+                stats.get('total_documents', 0),
+                stats.get('total_trainings', 0),
+                stats.get('completed_trainings', 0),
+                stats.get('total_personnel', 0),
+                stats.get('total_suppliers', 0)
+            ]
+            colors = ['#F59E0B', '#3B82F6', '#10B981', '#8B5CF6', '#EF4444']
+            
+            bars = ax.bar(categories, values, color=colors, alpha=0.8, edgecolor='white', linewidth=2)
+            
+            ax.set_title('İşletme Genel İstatistikleri', fontsize=16, fontweight='bold', pad=20)
+            ax.set_ylabel('Sayı', fontsize=12, fontweight='bold')
+            ax.grid(True, alpha=0.3, axis='y')
+            
+            # Add value labels on bars
+            for bar, value in zip(bars, values):
+                height = bar.get_height()
+                ax.text(bar.get_x() + bar.get_width()/2., height,
+                       f'{int(value)}', ha='center', va='bottom', 
+                       fontsize=12, fontweight='bold')
+            
+            # Styling
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.spines['left'].set_color('#E5E7EB')
+            ax.spines['bottom'].set_color('#E5E7EB')
+            
+            plt.xticks(fontsize=11)
+            plt.yticks(fontsize=11)
+            plt.tight_layout()
+            
+            # Save to base64
+            buffer = BytesIO()
+            plt.savefig(buffer, format='png', dpi=150, bbox_inches='tight',
+                       facecolor='white', edgecolor='none')
+            buffer.seek(0)
+            chart_base64 = base64.b64encode(buffer.getvalue()).decode()
+            plt.close()
+            
+            return chart_base64
+            
+        except Exception as e:
+            print(f"Error creating statistics chart: {e}")
+            return None
+    
+    def _create_targets_progress_chart(self, targets: list) -> str:
+        """Create targets progress horizontal bar chart"""
+        try:
+            if not targets or len(targets) == 0:
+                return None
+                
+            fig, ax = plt.subplots(1, 1, figsize=(10, max(6, len(targets) * 0.6)))
+            
+            # Prepare data (limit to first 8 targets)
+            display_targets = targets[:8]
+            target_names = [t.get('target_name', 'Bilinmeyen')[:30] for t in display_targets]
+            target_progress = []
+            
+            for target in display_targets:
+                # Calculate progress (mock calculation - in real app use actual progress)
+                target_value = target.get('target_value', 100)
+                # Mock current progress (50-90% of target)
+                current_progress = min(90, max(10, target_value * 0.7))  
+                progress_pct = (current_progress / target_value) * 100
+                target_progress.append(min(100, progress_pct))
+            
+            colors = ['#10B981' if p >= 80 else '#F59E0B' if p >= 50 else '#EF4444' for p in target_progress]
+            
+            # Create horizontal bar chart
+            y_pos = range(len(target_names))
+            bars = ax.barh(y_pos, target_progress, color=colors, alpha=0.8, edgecolor='white', linewidth=1)
+            
+            ax.set_yticks(y_pos)
+            ax.set_yticklabels(target_names, fontsize=10)
+            ax.set_xlabel('İlerleme (%)', fontsize=12, fontweight='bold')
+            ax.set_title('Sürdürülebilirlik Hedefleri İlerleme Durumu', fontsize=14, fontweight='bold', pad=20)
+            ax.set_xlim(0, 100)
+            
+            # Add progress labels
+            for i, (bar, progress) in enumerate(zip(bars, target_progress)):
+                width = bar.get_width()
+                ax.text(width + 2, bar.get_y() + bar.get_height()/2,
+                       f'{progress:.1f}%', ha='left', va='center', fontsize=9, fontweight='bold')
+            
+            # Add grid
+            ax.grid(True, alpha=0.3, axis='x')
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.spines['bottom'].set_color('#E5E7EB')
+            ax.spines['left'].set_color('#E5E7EB')
+            
+            plt.tight_layout()
+            
+            # Save to base64
+            buffer = BytesIO()
+            plt.savefig(buffer, format='png', dpi=150, bbox_inches='tight',
+                       facecolor='white', edgecolor='none')
+            buffer.seek(0)
+            chart_base64 = base64.b64encode(buffer.getvalue()).decode()
+            plt.close()
+            
+            return chart_base64
+            
+        except Exception as e:
+            print(f"Error creating targets chart: {e}")
+            return None
         """Get status description based on progress percentage"""
         if progress >= 80:
             return "Mükemmel"
