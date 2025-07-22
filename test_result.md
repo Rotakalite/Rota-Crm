@@ -2220,6 +2220,7 @@ metadata:
 
 test_plan:
   current_focus:
+    - "PDF Report Endpoints Testing"
     - "DEFRA Fuel Types Expansion"
     - "DEFRA Carbon Calculation System"
     - "DEFRA F-Gas Carbon Calculation"
