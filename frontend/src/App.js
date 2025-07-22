@@ -14398,15 +14398,23 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
           </div>
         )}
 
-        {/* Client Info - For Client Users */}
-        {userRole === 'client' && selectedClient && Array.isArray(clients) && (
+        {/* Client Info and Add Button - For Client Users */}
+        {userRole === 'client' && (
           <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">📋 Tedarikçi Listesi</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-800">📋 Tedarikçilerim</h2>
+              <button
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2"
+              >
+                {showAddForm ? '❌ İptal' : '➕ Tedarikçi Ekle'}
+              </button>
+            </div>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-blue-800">
-                <strong>🏢 İşletme:</strong> {clients.find(c => c.id === selectedClient)?.name || clients.find(c => c.id === selectedClient)?.hotel_name}
+                <strong>🏢 İşletme:</strong> {dbUser?.client_name || 'Otel Adı'}
               </p>
-              <p className="text-blue-600 text-sm mt-1">Sadece kendi tedarikçilerinizi görüntüleyebilirsiniz.</p>
+              <p className="text-blue-600 text-sm mt-1">Kendi tedarikçilerinizi ekleyebilir ve yönetebilirsiniz.</p>
             </div>
           </div>
         )}
