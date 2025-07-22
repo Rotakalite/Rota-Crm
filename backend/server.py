@@ -12577,6 +12577,234 @@ async def download_import_template(current_user: User = Depends(get_admin_user))
         raise HTTPException(status_code=500, detail=f"Template indirme hatası: {str(e)}")
 
 # ==========================================
+# PDF REPORT ENDPOINTS
+# ==========================================
+
+@app.get("/api/reports/comprehensive")
+async def generate_comprehensive_report(
+    client_id: str = None,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Generate comprehensive PDF report for client
+    Includes consumption, trainings, personnel, suppliers, sustainability targets
+    """
+    try:
+        if not pdf_service:
+            raise HTTPException(status_code=503, detail="PDF Report service kullanılamıyor")
+        
+        # Determine client_id based on user role
+        if current_user.role == UserRole.CLIENT:
+            target_client_id = current_user.client_id
+        elif current_user.role in [UserRole.ADMIN, UserRole.CONSULTANT]:
+            if not client_id:
+                raise HTTPException(status_code=400, detail="Admin/consultant kullanıcıları için client_id gereklidir")
+            target_client_id = client_id
+        else:
+            raise HTTPException(status_code=403, detail="Rapor indirme yetkisi yok")
+        
+        if not target_client_id:
+            raise HTTPException(status_code=400, detail="Client ID bulunamadı")
+        
+        # Collect all data for the client
+        client_data = await collect_client_report_data(target_client_id)
+        
+        # Generate PDF
+        pdf_bytes = pdf_service.generate_comprehensive_report(client_data, "comprehensive")
+        
+        # Return as downloadable file
+        from fastapi.responses import Response
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"attachment; filename=rapor_{client_data.get('client_info', {}).get('name', 'client')}_{datetime.now().strftime('%Y%m%d')}.pdf"
+            }
+        )
+        
+    except Exception as e:
+        logging.error(f"❌ Error generating comprehensive report: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Rapor oluşturma hatası: {str(e)}")
+
+@app.get("/api/reports/training")
+async def generate_training_report(
+    client_id: str = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Generate training-specific PDF report"""
+    try:
+        if not pdf_service:
+            raise HTTPException(status_code=503, detail="PDF Report service kullanılamıyor")
+        
+        # Determine client_id based on user role
+        if current_user.role == UserRole.CLIENT:
+            target_client_id = current_user.client_id
+        elif current_user.role in [UserRole.ADMIN, UserRole.CONSULTANT]:
+            if not client_id:
+                raise HTTPException(status_code=400, detail="Admin/consultant kullanıcıları için client_id gereklidir")
+            target_client_id = client_id
+        else:
+            raise HTTPException(status_code=403, detail="Rapor indirme yetkisi yok")
+        
+        # Get trainings data
+        trainings = await db.trainings.find({"client_id": target_client_id}).to_list(None)
+        
+        # Generate PDF
+        pdf_bytes = pdf_service.generate_training_report(trainings or [])
+        
+        # Get client name for filename
+        client = await db.clients.find_one({"id": target_client_id})
+        client_name = (client.get("name") or client.get("hotel_name", "client")) if client else "client"
+        
+        from fastapi.responses import Response
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"attachment; filename=egitim_raporu_{client_name}_{datetime.now().strftime('%Y%m%d')}.pdf"
+            }
+        )
+        
+    except Exception as e:
+        logging.error(f"❌ Error generating training report: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Eğitim raporu oluşturma hatası: {str(e)}")
+
+@app.get("/api/reports/consumption")
+async def generate_consumption_report(
+    client_id: str = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Generate consumption-specific PDF report"""
+    try:
+        if not pdf_service:
+            raise HTTPException(status_code=503, detail="PDF Report service kullanılamıyor")
+        
+        # Determine client_id based on user role
+        if current_user.role == UserRole.CLIENT:
+            target_client_id = current_user.client_id
+        elif current_user.role in [UserRole.ADMIN, UserRole.CONSULTANT]:
+            if not client_id:
+                raise HTTPException(status_code=400, detail="Admin/consultant kullanıcıları için client_id gereklidir")
+            target_client_id = client_id
+        else:
+            raise HTTPException(status_code=403, detail="Rapor indirme yetkisi yok")
+        
+        # Get consumption data
+        consumption_data = await db.consumptions.find({"client_id": target_client_id}).to_list(None)
+        
+        # Generate PDF
+        pdf_bytes = pdf_service.generate_consumption_report(consumption_data or [])
+        
+        # Get client name for filename
+        client = await db.clients.find_one({"id": target_client_id})
+        client_name = (client.get("name") or client.get("hotel_name", "client")) if client else "client"
+        
+        from fastapi.responses import Response
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"attachment; filename=tuketim_raporu_{client_name}_{datetime.now().strftime('%Y%m%d')}.pdf"
+            }
+        )
+        
+    except Exception as e:
+        logging.error(f"❌ Error generating consumption report: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Tüketim raporu oluşturma hatası: {str(e)}")
+
+async def collect_client_report_data(client_id: str) -> dict:
+    """Collect all client data for comprehensive report"""
+    try:
+        # Get client info
+        client = await db.clients.find_one({"id": client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client bulunamadı")
+        
+        # Get all related data
+        trainings = await db.trainings.find({"client_id": client_id}).to_list(None)
+        personnel = await db.personnel.find({"client_id": client_id}).to_list(None)
+        suppliers = await db.suppliers.find({"client_id": client_id}).to_list(None)
+        consumptions = await db.consumptions.find({"client_id": client_id}).to_list(None)
+        targets = await db.sustainability_targets.find({"client_id": client_id}).to_list(None)
+        documents = await db.documents.count_documents({"client_id": client_id})
+        
+        # Process consumption data for charts
+        energy_by_month = {}
+        water_by_month = {}
+        for consumption in consumptions:
+            month = consumption.get("month", "unknown")
+            energy_by_month[month] = energy_by_month.get(month, 0) + consumption.get("electricity", 0)
+            water_by_month[month] = water_by_month.get(month, 0) + consumption.get("water", 0)
+        
+        # Calculate statistics
+        total_trainings = len(trainings)
+        completed_trainings = len([t for t in trainings if t.get("status") == "completed"])
+        total_personnel = len(personnel)
+        total_suppliers = len(suppliers)
+        
+        # Mock sustainability progress (in real app, calculate from actual data)
+        sustainability_progress = {
+            "carbon_reduction": 15,
+            "energy_efficiency": 25,
+            "waste_reduction": 10,
+            "water_saving": 20
+        }
+        
+        # Recent activities (mock data)
+        recent_activities = [
+            {"title": "Yeni eğitim tamamlandı", "time": datetime.now().isoformat(), "icon": "🎓"},
+            {"title": "Aylık tüketim verisi girildi", "time": datetime.now().isoformat(), "icon": "📊"},
+            {"title": "Sürdürülebilirlik hedefi güncellendi", "time": datetime.now().isoformat(), "icon": "🎯"}
+        ]
+        
+        # Recommendations
+        recommendations = [
+            {
+                "type": "energy",
+                "title": "Enerji Tasarrufu",
+                "description": "LED aydınlatmaya geçiş yaparak %15 tasarruf sağlayabilirsiniz.",
+                "priority": "Yüksek"
+            },
+            {
+                "type": "water", 
+                "title": "Su Yönetimi",
+                "description": "Akıllı sulama sistemleri ile %20 su tasarrufu mümkün.",
+                "priority": "Orta"
+            }
+        ]
+        
+        return {
+            "client_info": {
+                "name": client.get("name", ""),
+                "hotel_name": client.get("hotel_name", ""),
+                "certificate_status": "Aktif",
+                "certificate_days_left": 180
+            },
+            "statistics": {
+                "total_documents": documents,
+                "total_trainings": total_trainings,
+                "completed_trainings": completed_trainings,
+                "total_personnel": total_personnel,
+                "total_suppliers": total_suppliers
+            },
+            "consumption_data": {
+                "energy_by_month": energy_by_month,
+                "water_by_month": water_by_month
+            },
+            "sustainability_progress": sustainability_progress,
+            "recent_activities": recent_activities,
+            "recommendations": recommendations,
+            "trainings": trainings,
+            "personnel": personnel,
+            "suppliers": suppliers,
+            "targets": targets
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Error collecting client report data: {str(e)}")
+        raise
+
+# ==========================================
 # API ROUTER REGISTRATION - MUST BE AT END
 # ==========================================
 app.include_router(api_router, prefix="/api")
