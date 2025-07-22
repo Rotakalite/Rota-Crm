@@ -10153,6 +10153,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
       if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
         url += `&client_id=${selectedClient}`;
       }
+      // Client için kendi verilerini getir (backend otomatik olarak kendi verisini döndürür)
       
       console.log('🔍 Fetching consumptions:', {
         year: selectedYear,
