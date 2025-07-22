@@ -6051,8 +6051,9 @@ async def get_client_dashboard_stats(current_user: User = Depends(get_current_us
             water_by_month = {}
             for consumption in consumptions:
                 month = consumption.get("month", "unknown")
-                energy_by_month[month] = energy_by_month.get(month, 0) + consumption.get("energy_kwh", 0)
-                water_by_month[month] = water_by_month.get(month, 0) + consumption.get("water_m3", 0)
+                # Use correct field names from database: 'electricity' and 'water'
+                energy_by_month[month] = energy_by_month.get(month, 0) + consumption.get("electricity", 0)
+                water_by_month[month] = water_by_month.get(month, 0) + consumption.get("water", 0)
             
             # Get waste management data
             waste_data = await db.waste_management.find({"client_id": current_user.client_id}).to_list(None)
