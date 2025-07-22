@@ -761,17 +761,105 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
           </div>
           )}
 
-          {/* CLIENT ROLE - READ ONLY MESSAGE */}
+          {/* CLIENT ROLE - UPLOAD ENABLED */}
           {userRole === 'client' && (
-            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg">
-              <div className="flex">
-                <div className="ml-3">
-                  <p className="text-sm text-blue-700">
-                    <strong>Müşteri Görünümü:</strong> Belgelerinizi görüntüleyebilirsiniz. Yeni belge yüklemek için yöneticiniz ile iletişime geçin.
-                  </p>
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <h3 className="text-xl font-semibold mb-4">📤 Yeni Belge Yükle</h3>
+              <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg mb-6">
+                <p className="text-sm text-blue-700">
+                  <strong>Client Kullanıcısı:</strong> Kendi belgelerinizi yükleyebilir ve yönetebilirsiniz.
+                </p>
+              </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left Column */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Belge Adı</label>
+                  <input
+                    type="text"
+                    value={documentName}
+                    onChange={(e) => setDocumentName(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Belge adını girin"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Belge Türü</label>
+                  <select
+                    value={documentType}
+                    onChange={(e) => setDocumentType(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="PROCEDURE">Prosedür</option>
+                    <option value="POLICY">Politika</option>
+                    <option value="FORM">Form</option>
+                    <option value="LIST">Liste</option>
+                    <option value="RECORD">Kayıt</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Aşama</label>
+                  <select
+                    value={stage}
+                    onChange={(e) => setStage(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="I.Aşama">I.Aşama</option>
+                    <option value="II.Aşama">II.Aşama</option>
+                    <option value="III.Aşama">III.Aşama</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Açıklama</label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={3}
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Belge açıklaması (opsiyonel)"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Dosya Seç</label>
+                  <input
+                    type="file"
+                    multiple
+                    onChange={handleFileSelect}
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx"
+                  />
+                  {selectedFiles.length > 0 && (
+                    <div className="mt-2 text-sm text-gray-600">
+                      {selectedFiles.length} dosya seçildi: {selectedFiles.map(f => f.name).join(', ')}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
+
+            {/* Upload Button */}
+            <div className="mt-6">
+              <button
+                onClick={uploadDocuments}
+                disabled={uploading}
+                className={`w-full py-3 px-6 rounded-lg font-semibold text-white ${
+                  uploading 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
+                }`}
+              >
+                {uploading ? '📤 Yükleniyor...' : '🚀 Belgeleri Yükle'}
+              </button>
+            </div>
+          </div>
           )}
 
           {/* Documents List */}
