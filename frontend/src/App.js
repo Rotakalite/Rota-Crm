@@ -14419,6 +14419,118 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
           </div>
         )}
 
+        {/* Add Supplier Form - For Client Users */}
+        {userRole === 'client' && showAddForm && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">➕ Yeni Tedarikçi Ekle</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Şirket Adı</label>
+                <input
+                  type="text"
+                  value={formData.company_name}
+                  onChange={(e) => setFormData({...formData, company_name: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Şirket adını girin"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({...formData, category: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">-- Kategori Seçin --</option>
+                  {Array.isArray(categories) && categories.map((category) => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Sertifikalar</label>
+                <input
+                  type="text"
+                  value={formData.certifications.join(', ')}
+                  onChange={(e) => setFormData({...formData, certifications: e.target.value.split(',').map(s => s.trim()).filter(s => s)})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Organic, ISO 14001, Fair Trade (virgülle ayırın)"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Aylık Satın Alım Miktarı</label>
+                <div className="flex space-x-2">
+                  <input
+                    type="number"
+                    value={formData.monthly_purchase_amount}
+                    onChange={(e) => setFormData({...formData, monthly_purchase_amount: e.target.value})}
+                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="Miktar girin"
+                    min="0"
+                    step="0.1"
+                  />
+                  <select
+                    value={formData.monthly_purchase_unit}
+                    onChange={(e) => setFormData({...formData, monthly_purchase_unit: e.target.value})}
+                    className="w-24 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="KG">KG</option>
+                    <option value="Litre">Litre</option>
+                    <option value="Adet">Adet</option>
+                    <option value="Gün">Gün</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="client_local_supplier"
+                  checked={formData.local_supplier}
+                  onChange={(e) => setFormData({...formData, local_supplier: e.target.checked})}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="client_local_supplier" className="ml-2 block text-sm text-gray-700">
+                  🏠 Yerel Tedarikçi
+                </label>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Adres</label>
+                <textarea
+                  value={formData.address}
+                  onChange={(e) => setFormData({...formData, address: e.target.value})}
+                  rows="3"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Tam adres bilgisi"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Açıklama</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  rows="2"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Tedarikçi hakkında ek bilgiler"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-4">
+              <button
+                onClick={() => setShowAddForm(false)}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                İptal
+              </button>
+              <button
+                onClick={addSupplier}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                Tedarikçi Ekle
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Add Supplier Form - Admin and Consultant */}
         {(userRole === 'admin' || userRole === 'consultant') && showAddForm && selectedClient && (
           <div className="bg-white rounded-xl shadow-lg p-6">
