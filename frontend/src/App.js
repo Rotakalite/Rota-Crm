@@ -13475,7 +13475,111 @@ const ReportsManagement = ({ selectedClient: propSelectedClient }) => {
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState(propSelectedClient || '');
   const [reports, setReports] = useState([]);
+  const [downloadingReport, setDownloadingReport] = useState('');
   const API = getApiUrl();
+
+  // Download comprehensive report
+  const downloadComprehensiveReport = async () => {
+    try {
+      setDownloadingReport('comprehensive');
+      
+      let url = `${API}/reports/comprehensive`;
+      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
+        url += `?client_id=${selectedClient}`;
+      }
+      
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${authToken}` },
+        responseType: 'blob'
+      });
+
+      // Create download link
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `suruduurulebilirlik_raporu_${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+      
+      alert('Sürdürülebilirlik raporu başarıyla indirildi!');
+    } catch (error) {
+      console.error('Error downloading comprehensive report:', error);
+      alert('Rapor indirme sırasında hata oluştu: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setDownloadingReport('');
+    }
+  };
+
+  // Download training report
+  const downloadTrainingReport = async () => {
+    try {
+      setDownloadingReport('training');
+      
+      let url = `${API}/reports/training`;
+      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
+        url += `?client_id=${selectedClient}`;
+      }
+      
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${authToken}` },
+        responseType: 'blob'
+      });
+
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `egitim_raporu_${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+      
+      alert('Eğitim raporu başarıyla indirildi!');
+    } catch (error) {
+      console.error('Error downloading training report:', error);
+      alert('Rapor indirme sırasında hata oluştu: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setDownloadingReport('');
+    }
+  };
+
+  // Download consumption report
+  const downloadConsumptionReport = async () => {
+    try {
+      setDownloadingReport('consumption');
+      
+      let url = `${API}/reports/consumption`;
+      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
+        url += `?client_id=${selectedClient}`;
+      }
+      
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${authToken}` },
+        responseType: 'blob'
+      });
+
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `tuketim_raporu_${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+      
+      alert('Tüketim raporu başarıyla indirildi!');
+    } catch (error) {
+      console.error('Error downloading consumption report:', error);
+      alert('Rapor indirme sırasında hata oluştu: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setDownloadingReport('');
+    }
+  };
 
   // Fetch clients for selection
   const fetchClients = async () => {
