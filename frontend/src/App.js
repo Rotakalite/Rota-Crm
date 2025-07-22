@@ -2380,8 +2380,8 @@ const PersonnelManagement = () => {
         {selectedClient && (
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4">
-              3. Personel Listesi 
-              {Array.isArray(clients) && clients.find(c => c.id === selectedClient) && (
+              {userRole === 'client' ? '👥 Personellerim' : '3. Personel Listesi'}
+              {(userRole === 'admin' || userRole === 'consultant') && Array.isArray(clients) && clients.find(c => c.id === selectedClient) && (
                 <span className="text-purple-600 font-normal">
                   - {clients.find(c => c.id === selectedClient)?.name || clients.find(c => c.id === selectedClient)?.hotel_name}
                 </span>
