@@ -684,6 +684,8 @@ class PDFReportService:
         except Exception as e:
             print(f"Error creating targets chart: {e}")
             return None
+    
+    def _get_progress_status(self, progress: float) -> str:
         """Get status description based on progress percentage"""
         if progress >= 80:
             return "Mükemmel"
