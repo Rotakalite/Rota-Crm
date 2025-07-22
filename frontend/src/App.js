@@ -1464,6 +1464,30 @@ const SustainabilityTargets = () => {
       {/* Content */}
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         
+        {/* Client Section - For Client Role */}
+        {userRole === 'client' && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-gray-800 mb-2">🏢 Tedarikçileriniz</h2>
+                <p className="text-gray-600">Tedarikçilerinizi ekleyebilir, düzenleyebilir ve yönetebilirsiniz</p>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-medium">
+                  ✓ Client Kullanıcısı
+                </div>
+                <button
+                  onClick={() => setShowAddForm(true)}
+                  className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium flex items-center space-x-2"
+                >
+                  <span>➕</span>
+                  <span>Yeni Tedarikçi Ekle</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Client Selection - Only for Admin and Consultant */}
         {(userRole === 'admin' || userRole === 'consultant') && (
           <div className="bg-white rounded-xl shadow-lg p-6">
