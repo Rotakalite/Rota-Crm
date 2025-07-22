@@ -14117,14 +14117,23 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
 
   // Fetch suppliers for selected client
   const fetchSuppliers = async (clientId) => {
-    if (!authToken || !clientId) {
+    if (!authToken) {
       setSuppliers([]);
       return;
     }
     
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/suppliers?client_id=${clientId}`, {
+      const params = {};
+      
+      // Admin ve consultant için client_id gerekli, client için otomatik
+      if ((userRole === 'admin' || userRole === 'consultant') && clientId) {
+        params.client_id = clientId;
+      }
+      // Client için backend otomatik olarak kendi verilerini döndürür
+      
+      const response = await axios.get(`${API}/suppliers`, {
+        params,
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setSuppliers(response.data || []);
@@ -14134,7 +14143,6 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
       // Handle authentication errors
       if (error.response?.status === 401) {
         console.log('Token expired while fetching suppliers');
-        // Don't reload here, just set empty suppliers
         setSuppliers([]);
         return;
       }
