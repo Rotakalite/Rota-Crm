@@ -12555,6 +12555,14 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
     }
   }, [selectedClient]);
 
+  // Auto-select client for CLIENT role users
+  useEffect(() => {
+    if (userRole === 'client' && dbUser?.client_id && !selectedClient) {
+      setSelectedClient(dbUser.client_id);
+      console.log('🔄 Auto-selected client for CLIENT user in Training:', dbUser.client_id);
+    }
+  }, [userRole, dbUser, selectedClient]);
+
   const fetchTrainings = async () => {
     if (!authToken) return;
     
