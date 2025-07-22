@@ -180,6 +180,18 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
     }
   }, [authToken]);
 
+  // Auto-select client for CLIENT role users
+  useEffect(() => {
+    if (userRole === 'client' && dbUser?.client_id && !selectedClient) {
+      // Find the client in clients array
+      const clientObj = clients.find(c => c.id === dbUser.client_id);
+      if (clientObj) {
+        setSelectedClient(clientObj);
+        console.log('🔄 Auto-selected client for CLIENT user:', clientObj);
+      }
+    }
+  }, [userRole, dbUser, clients]);
+
   const loadClients = async () => {
     if (!authToken) return;
     
