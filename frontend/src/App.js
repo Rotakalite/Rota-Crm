@@ -14257,11 +14257,6 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
 
   // Fetch suppliers with fresh token
   const fetchSuppliersWithFreshToken = async (clientId) => {
-    if (!clientId) {
-      setSuppliers([]);
-      return;
-    }
-    
     try {
       setLoading(true);
       
@@ -14279,7 +14274,16 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
         }
       }
 
-      const response = await axios.get(`${API}/suppliers?client_id=${clientId}`, {
+      const params = {};
+      
+      // Admin/consultant için client_id gerekli
+      if ((userRole === 'admin' || userRole === 'consultant') && clientId) {
+        params.client_id = clientId;
+      }
+      // Client için backend otomatik client_id ekler
+
+      const response = await axios.get(`${API}/suppliers`, {
+        params,
         headers: { Authorization: `Bearer ${currentToken}` }
       });
       setSuppliers(response.data || []);
