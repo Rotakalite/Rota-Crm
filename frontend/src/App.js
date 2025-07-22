@@ -14155,10 +14155,13 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
 
   // Add new supplier
   const addSupplier = async () => {
-    if (!selectedClient) {
+    // Admin/consultant için client seçimi zorunlu
+    if ((userRole === 'admin' || userRole === 'consultant') && !selectedClient) {
       alert('Lütfen önce bir müşteri seçin!');
       return;
     }
+    
+    // Client için doğrulama yok, backend otomatik client_id ekler
 
     try {
       // Get fresh token from session
@@ -14176,8 +14179,12 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
       }
 
       const supplierData = {
-        ...formData,
-        client_id: selectedClient
+        ...formData
+      };
+      
+      // Admin/consultant için client_id ekle
+      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
+        supplierData.client_id = selectedClient;
       };
 
       console.log('📤 Creating supplier with data:', supplierData);
