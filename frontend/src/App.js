@@ -10217,9 +10217,19 @@ const ConsumptionManagement = ({ onNavigate }) => {
   };
 
   const fetchClients = async () => {
-    if (!authToken || (userRole !== 'admin' && userRole !== 'consultant')) {
-      return; // Only admin and consultant need clients list
+    if (!authToken) return;
+    
+    // For clients, no need to fetch clients list - they only work with their own data
+    if (userRole === 'client') {
+      console.log('👤 Client user - using own data only');
+      return;
     }
+    
+    // Admin and consultant can see all clients
+    if (userRole !== 'admin' && userRole !== 'consultant') {
+      return;
+    }
+    
     try {
       const response = await axios.get(`${API}/clients`, {
         params: { client_type: "registered" }, // Only registered clients
