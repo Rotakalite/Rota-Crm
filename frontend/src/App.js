@@ -2121,8 +2121,16 @@ const PersonnelManagement = () => {
                 <h2 className="text-xl font-bold text-blue-800 mb-2">👤 Personel Yönetiminiz</h2>
                 <p className="text-blue-700">Personelinizi ekleyebilir, düzenleyebilir ve sertifika durumlarını takip edebilirsiniz.</p>
               </div>
-              <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium">
-                ✓ Client Kullanıcısı
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2"
+                >
+                  {showAddForm ? '❌ İptal' : '➕ Personel Ekle'}
+                </button>
+                <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium">
+                  ✓ Client Kullanıcısı
+                </div>
               </div>
             </div>
           </div>
