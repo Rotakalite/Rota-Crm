@@ -2185,6 +2185,101 @@ const PersonnelManagement = () => {
           </div>
         )}
 
+        {/* Add Personnel Form - For Client Users */}
+        {userRole === 'client' && showAddForm && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">➕ Yeni Personel Ekle</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Ad Soyad</label>
+                <input
+                  type="text"
+                  value={formData.full_name}
+                  onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  placeholder="Tam adını girin"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Pozisyon</label>
+                <input
+                  type="text"
+                  value={formData.position}
+                  onChange={(e) => setFormData({...formData, position: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  placeholder="Meslek/pozisyon girin"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Çalışma Yeri</label>
+                <input
+                  type="text"
+                  value={formData.location}
+                  onChange={(e) => setFormData({...formData, location: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  placeholder="Departman/çalışma yeri"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Cinsiyet</label>
+                <select
+                  value={formData.gender}
+                  onChange={(e) => setFormData({...formData, gender: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="Erkek">Erkek</option>
+                  <option value="Kadın">Kadın</option>
+                </select>
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="client_is_local"
+                  checked={formData.is_local}
+                  onChange={(e) => setFormData({...formData, is_local: e.target.checked})}
+                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                />
+                <label htmlFor="client_is_local" className="ml-2 block text-sm text-gray-700">
+                  🏠 Yerel Personel
+                </label>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Sertifikalar</label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {availableCertifications.map((cert) => (
+                    <div key={cert} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id={`client_cert_${cert}`}
+                        checked={formData.certifications.includes(cert)}
+                        onChange={(e) => handleCertificationChange(cert, e.target.checked)}
+                        className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                      />
+                      <label htmlFor={`client_cert_${cert}`} className="ml-2 text-sm text-gray-700">
+                        {cert}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-4">
+              <button
+                onClick={() => setShowAddForm(false)}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                İptal
+              </button>
+              <button
+                onClick={addPersonnel}
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+              >
+                Personel Ekle
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Add Personnel Form - Admin and Consultant */}
         {(userRole === 'admin' || userRole === 'consultant') && showAddForm && selectedClient && (
           <div className="bg-white rounded-xl shadow-lg p-6">
