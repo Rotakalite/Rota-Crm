@@ -16729,7 +16729,8 @@ const ConsultantApp = () => {
     { id: 'suppliers', name: 'Tedarikçi Yönetimi', icon: '🏢' },
     { id: 'yeni-belge', name: 'Belge Yönetimi', icon: '📋' },
     { id: 'training', name: 'Eğitim Yönetimi', icon: '🎓' },
-    { id: 'email-management', name: 'Email Yönetimi', icon: '📧' }
+    { id: 'email-management', name: 'Email Yönetimi', icon: '📧' },
+    { id: 'reports', name: 'Raporlar', icon: '📊' }
   ];
 
   return (
