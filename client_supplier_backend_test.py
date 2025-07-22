@@ -22,8 +22,8 @@ import sys
 import os
 from datetime import datetime
 
-# Backend URL from environment
-BACKEND_URL = "https://89835fb3-21c8-4236-a6dd-07b1bbd2cf30.preview.emergentagent.com"
+# Backend URL from environment - Using Railway backend
+BACKEND_URL = "https://rota-crm-production.up.railway.app"
 
 def test_endpoint(method, endpoint, headers=None, data=None, json_data=None):
     """Test an API endpoint and return response details"""
