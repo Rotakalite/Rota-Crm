@@ -1279,7 +1279,8 @@ const SustainabilityTargets = () => {
 
   // Add new target
   const addTarget = async () => {
-    if (!selectedClient) {
+    // Admin/consultant için client seçimi zorunlu
+    if ((userRole === 'admin' || userRole === 'consultant') && !selectedClient) {
       alert('Lütfen önce bir müşteri seçin!');
       return;
     }
@@ -1300,16 +1301,25 @@ const SustainabilityTargets = () => {
       const targetData = {
         ...formData,
         target_value: parseFloat(formData.target_value),
-        deadline: new Date(formData.deadline).toISOString(),
-        client_id: selectedClient
+        deadline: new Date(formData.deadline).toISOString()
       };
+      
+      // Admin/consultant için client_id ekle
+      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
+        targetData.client_id = selectedClient;
+      }
+      // Client için backend otomatik olarak kendi client_id'sini ekler
 
       const response = await axios.post(`${API}/sustainability-targets`, targetData, {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
 
-      await fetchTargetsWithFreshToken(selectedClient);
-      await fetchAnalytics(selectedClient);
+      // Client için kendi data'sını yenile
+      const clientIdToRefresh = selectedClient || dbUser?.client_id;
+      if (clientIdToRefresh) {
+        await fetchTargetsWithFreshToken(clientIdToRefresh);
+        await fetchAnalytics(clientIdToRefresh);
+      }
       
       setFormData({
         target_name: '',
