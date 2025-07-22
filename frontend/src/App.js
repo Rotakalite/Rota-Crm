@@ -1975,7 +1975,8 @@ const PersonnelManagement = () => {
 
   // Add new personnel
   const addPersonnel = async () => {
-    if (!selectedClient) {
+    // Admin/consultant için client seçimi zorunlu
+    if ((userRole === 'admin' || userRole === 'consultant') && !selectedClient) {
       alert('Lütfen önce bir müşteri seçin!');
       return;
     }
