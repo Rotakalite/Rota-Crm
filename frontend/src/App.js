@@ -14060,6 +14060,14 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
   // Fetch clients first
   const fetchClients = async () => {
     if (!authToken) return;
+    
+    // For client users, no need to fetch clients - they work with their own data
+    if (userRole === 'client') {
+      console.log('👤 Client user - using own data for suppliers');
+      return;
+    }
+    
+    // Admin and consultant can see client list
     try {
       const response = await axios.get(`${API}/clients`, {
         params: { client_type: "registered" }, // Only registered clients
