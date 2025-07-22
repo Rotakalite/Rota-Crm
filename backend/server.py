@@ -41,6 +41,14 @@ except Exception as e:
     logging.error(f"❌ Failed to import Email service: {e}")
     email_service = None
 
+# PDF Report service
+try:
+    from services.pdf_report_service import pdf_service
+    logging.info("✅ PDF Report service imported successfully")
+except Exception as e:
+    logging.error(f"❌ Failed to import PDF Report service: {e}")
+    pdf_service = None
+
 # WhatsApp service - DISABLED
 whatsapp_service = None  # WhatsApp service deactivated
 
