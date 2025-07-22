@@ -14637,8 +14637,8 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
         {selectedClient && (
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4">
-              3. Tedarikçi Listesi 
-              {clients.find(c => c.id === selectedClient) && (
+              {userRole === 'client' ? '📋 Tedarikçilerim' : '3. Tedarikçi Listesi'}
+              {(userRole === 'admin' || userRole === 'consultant') && clients.find(c => c.id === selectedClient) && (
                 <span className="text-blue-600 font-normal">
                   - {Array.isArray(clients) && clients.find(c => c.id === selectedClient)?.name || clients.find(c => c.id === selectedClient)?.hotel_name}
                 </span>
