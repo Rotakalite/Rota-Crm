@@ -13468,6 +13468,187 @@ const EmailManagement = ({ selectedClient: propSelectedClient }) => {
   );
 };
 
+// Reports Management Component
+const ReportsManagement = ({ selectedClient: propSelectedClient }) => {
+  const { authToken, user, userRole, dbUser } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState(propSelectedClient || '');
+  const [reports, setReports] = useState([]);
+  const API = getApiUrl();
+
+  // Fetch clients for selection
+  const fetchClients = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" },
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      if (response.data.clients) {
+        setClients(response.data.clients || []);
+      } else if (Array.isArray(response.data)) {
+        setClients(response.data || []);
+      } else {
+        setClients([]);
+      }
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      setClients([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (authToken) {
+      fetchClients();
+    }
+  }, [authToken]);
+
+  // Auto-select client for CLIENT role users
+  useEffect(() => {
+    if (userRole === 'client' && dbUser?.client_id && !selectedClient) {
+      setSelectedClient(dbUser.client_id);
+    }
+  }, [userRole, dbUser, selectedClient]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700 text-white p-6 shadow-xl">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-bold mb-2">📊 Raporlar</h1>
+          <p className="text-purple-100 text-lg">Sürdürülebilirlik ve performans raporları</p>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        
+        {/* Client Selection - Only for Admin and Consultant */}
+        {(userRole === 'admin' || userRole === 'consultant') && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">1. Müşteri Seçimi</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Müşteri Seçin
+                </label>
+                <select
+                  value={selectedClient}
+                  onChange={(e) => setSelectedClient(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="">-- Müşteri Seçin --</option>
+                  {Array.isArray(clients) && clients.map((client) => (
+                    <option key={client.id} value={client.id}>
+                      {client.name || client.hotel_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Reports Section */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-6">📈 Mevcut Raporlar</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Sustainability Report */}
+            <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+              <div className="text-center">
+                <div className="text-4xl mb-4">🌱</div>
+                <h3 className="text-lg font-bold text-gray-800 mb-2">Sürdürülebilirlik Raporu</h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Karbon ayak izi, enerji tüketimi ve çevresel etki analizi
+                </p>
+                <button 
+                  disabled={!selectedClient}
+                  className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  Rapor Oluştur
+                </button>
+              </div>
+            </div>
+
+            {/* Performance Report */}
+            <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+              <div className="text-center">
+                <div className="text-4xl mb-4">📊</div>
+                <h3 className="text-lg font-bold text-gray-800 mb-2">Performans Raporu</h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Hedef gerçekleşme oranları ve performans metrikleri
+                </p>
+                <button 
+                  disabled={!selectedClient}
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  Rapor Oluştur
+                </button>
+              </div>
+            </div>
+
+            {/* Compliance Report */}
+            <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+              <div className="text-center">
+                <div className="text-4xl mb-4">✅</div>
+                <h3 className="text-lg font-bold text-gray-800 mb-2">Uygunluk Raporu</h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Sertifikasyon durumu ve uygunluk değerlendirmesi
+                </p>
+                <button 
+                  disabled={!selectedClient}
+                  className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  Rapor Oluştur
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {!selectedClient && (userRole === 'admin' || userRole === 'consultant') && (
+            <div className="text-center py-8 text-gray-500">
+              <div className="text-4xl mb-2">📊</div>
+              <p className="text-sm">Rapor oluşturmak için önce bir müşteri seçin.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Coming Soon Features */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-6">🚀 Yakında Gelecek Özellikler</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-800 mb-2">📈 Otomatik Raporlama</h3>
+              <p className="text-gray-600 text-sm">Belirli aralıklarla otomatik rapor oluşturma</p>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-800 mb-2">📧 Email Gönderimi</h3>
+              <p className="text-gray-600 text-sm">Raporları otomatik email ile gönderme</p>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-800 mb-2">📋 Özel Şablonlar</h3>
+              <p className="text-gray-600 text-sm">Müşteri özel rapor şablonları</p>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 font-semibold text-gray-800 mb-2">🔄 Karşılaştırmalı Analiz</h3>
+              <p className="text-gray-600 text-sm">Dönemsel karşılaştırma raporları</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Email Notification Management Component
 const EmailNotificationManagement = () => {
   const { authToken, user, userRole, dbUser } = useAuth();
