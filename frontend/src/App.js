@@ -10899,6 +10899,52 @@ const ConsumptionManagement = ({ onNavigate }) => {
       </div>
       )}
 
+      {/* Client Section - Only Client Role */}
+      {userRole === 'client' && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium text-green-800">👤 Kendi Verileriniz</h3>
+            <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+              ✓ Client Kullanıcısı
+            </span>
+          </div>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => {
+                console.log('🆕 Creating new consumption for client user');
+                setEditingConsumption(null);
+                setConsumptionData({
+                  year: selectedYear,
+                  month: new Date().getMonth() + 1,
+                  electricity: '',
+                  water: '',
+                  natural_gas: '',
+                  coal: '',
+                  // DEFRA Additional Fuel Types
+                  diesel: '',
+                  gasoline: '',
+                  lpg: '',
+                  fuel_oil: '',
+                  // DEFRA F-Gases
+                  r134a_gas: '',
+                  r600a_gas: '',
+                  r410a_gas: '',
+                  r32_gas: '',
+                  co2_fire: '',
+                  fm200_fire: '',
+                  accommodation_count: ''
+                });
+                setShowConsumptionForm(true);
+              }}
+              className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+            >
+              <span>➕</span>
+              <span>Yeni Tüketim Verisi Ekle</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Analytics Section - Admin and Consultant Client Selection */}
       {(userRole === 'admin' || userRole === 'consultant') && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
