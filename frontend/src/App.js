@@ -10876,26 +10876,25 @@ const ConsumptionManagement = ({ onNavigate }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex space-x-2">
-                      {userRole === 'admin' && (
+                      {(userRole === 'admin' || userRole === 'client') && (
                         <>
                           <button
                             onClick={() => handleEdit(consumption)}
-                            className="text-blue-600 hover:text-blue-900 font-medium"
+                            className="text-blue-600 hover:text-blue-900 font-medium flex items-center space-x-1"
                           >
-                            ✏️ Düzenle
+                            <span>✏️</span>
+                            <span>Düzenle</span>
                           </button>
                           <button
                             onClick={() => handleDelete(consumption.id)}
-                            className="text-red-600 hover:text-red-900 font-medium"
+                            className="text-red-600 hover:text-red-900 font-medium flex items-center space-x-1"
                           >
-                            🗑️ Sil
+                            <span>🗑️</span>
+                            <span>Sil</span>
                           </button>
                         </>
                       )}
-                      {userRole === 'client' && (
-                        <span className="text-gray-500 text-sm">Sadece görüntüleme</span>
-                      )}
-                      {userRole === 'client' && (
+                      {userRole === 'consultant' && (
                         <span className="text-gray-500 text-sm">Sadece görüntüleme</span>
                       )}
                     </div>
