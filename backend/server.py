@@ -895,6 +895,132 @@ async def health_check():
         "api_router_mounted": True
     }
 
+# EMAIL TEMPLATE ENDPOINTS - ADMIN ONLY (MOVED TO TOP FOR PRIORITY)
+@api_router.get("/email-templates")
+async def get_email_templates_priority(current_user: User = Depends(get_admin_user)):
+    """Get all predefined email templates - ADMIN ONLY"""
+    templates = [
+        {
+            "id": "certificate_reminder",
+            "name": "Sertifika Hatırlatması",
+            "description": "Sertifika geçerlilik süresi bitecek müşteriler için",
+            "subject": "🏨 Sertifika Yenileme Hatırlatması - {{hotel_name}}",
+            "content": """Değerli {{contact_person}},
+
+{{hotel_name}} işletmenizin sürdürülebilirlik sertifikasının geçerlilik süresinin {{certificate_end_date}} tarihinde sona ermesi planlanmaktadır.
+
+Sertifikanızın sürekli geçerli kalabilmesi için lütfen yenileme sürecinizi başlatınız.
+
+🔹 Yenileme süreci hakkında bilgi almak
+🔹 Denetim randevusu oluşturmak  
+🔹 Gerekli evrak hazırlığı konusunda destek almak
+
+için bizimle iletişime geçebilirsiniz.
+
+Sürdürülebilir turizm yolculuğunuzda yanınızda olmaktan memnuniyet duyuyoruz.
+
+Saygılarımızla,
+ROTA Sürdürülebilir Turizm Danışmanlık"""
+        },
+        {
+            "id": "general_announcement", 
+            "name": "Genel Duyuru",
+            "description": "Genel müşteri duyuruları için",
+            "subject": "Sürdürülebilir Turizm Danışmanlığı Hk.",
+            "content": """{content}"""
+        },
+        {
+            "id": "sustainability_tips",
+            "name": "Sürdürülebilirlik İpuçları",
+            "description": "Aylık sürdürülebilirlik önerileri",
+            "subject": "🌱 Bu Ay İçin Sürdürülebilirlik İpuçları - {{hotel_name}}",
+            "content": """Merhaba {{contact_person}},
+
+{{hotel_name}} için bu ayın sürdürülebilirlik ipuçlarını paylaşıyoruz:
+
+🌿 **Enerji Verimliliği:**
+• LED aydınlatma sistemlerini tercih edin
+• Odalarda hareket sensörlü sistemler kullanın
+• Klima ayarlarını optimize edin
+
+💧 **Su Tasarrufu:**
+• Düşük akışlı duş başlıkları kullanın  
+• Havlu ve çarşaf değişim politikaları uygulayın
+• Drip sulama sistemlerini tercih edin
+
+♻️ **Atık Azaltma:**
+• Geri dönüşüm kutularını arttırın
+• Tek kullanımlık ürünleri azaltın
+• Compost sistemi kurun
+
+Bu önerileri hayata geçirmek için destek almak istiyorsanız, bizimle iletişime geçin.
+
+Saygılarımızla,
+ROTA Sürdürülebilir Turizm Danışmanlık"""
+        },
+        {
+            "id": "training_invitation",
+            "name": "Eğitim Davetiyesi",
+            "description": "Sürdürülebilirlik eğitimleri için davet",
+            "subject": "🎓 Ücretsiz Sürdürülebilirlik Eğitimi Davetiyesi - {{hotel_name}}",
+            "content": """Sayın {{contact_person}},
+
+{{hotel_name}} ekibiniz için düzenlediğimiz **ücretsiz sürdürülebilirlik eğitimlerimize** davet ediyoruz!
+
+📅 **Eğitim Konuları:**
+• Sürdürülebilir turizm temelleri
+• Enerji ve su tasarrufu teknikleri  
+• Atık yönetimi stratejileri
+• Misafir farkındalığı oluşturma
+• Sertifika süreçleri
+
+🎯 **Kimler Katılabilir:**
+• Otel yöneticileri
+• Housekeeping departmanı
+• Food & Beverage personeli
+• Teknik servis ekibi
+
+📞 **Kayıt ve Bilgi:**
+Eğitim tarih ve saatleri için bizimle iletişime geçiniz.
+
+Sürdürülebilir turizm yolculuğunda bilgi en değerli silahımızdır.
+
+Katılımınızı bekliyoruz,
+ROTA Sürdürülebilir Turizm Danışmanlık Eğitim Ekibi"""
+        },
+        {
+            "id": "survey_request",
+            "name": "Anket Talebi", 
+            "description": "Müşteri geri bildirim anketi",
+            "subject": "📋 Hizmet Kalitesi Anketi - Görüşünüz Bizim İçin Değerli",
+            "content": """Değerli {{contact_person}},
+
+{{hotel_name}} ile sürdürülebilirlik yolculuğunda birlikte olduğumuz süre zarfında aldığınız hizmet kalitesi hakkındaki düşüncelerinizi öğrenmek istiyoruz.
+
+🔹 **Neden Bu Anket Önemli?**
+• Hizmetlerimizi geliştirmek için
+• Size daha iyi destek verebilmek için  
+• Sürdürülebilirlik hedeflerinize daha uygun çözümler sunabilmek için
+
+⏱️ **Süre:** Sadece 3-5 dakika
+🎁 **Hediye:** Anket sonrası özel sürdürülebilirlik raporu
+
+[ANKET LİNKİ BURAYA EKLENECEKTİR]
+
+Zaman ayırdığınız için şimdiden teşekkür ederiz.
+
+Sürdürülebilir turizm yolculuğunuzda her zaman yanınızdayız.
+
+Saygılarımızla,
+ROTA Sürdürülebilir Turizm Danışmanlık"""
+        }
+    ]
+    
+    return {
+        "templates": templates,
+        "count": len(templates)
+    }
+
 @app.post("/api/debug/fix-personnel-names")
 async def fix_personnel_names():
     """Debug endpoint to fix personnel names from positions"""
