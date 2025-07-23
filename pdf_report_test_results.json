@@ -1,158 +1,158 @@
 {
   "total_tests": 25,
-  "passed_tests": 16,
-  "failed_tests": 9,
-  "success_rate": 64.0,
+  "passed_tests": 25,
+  "failed_tests": 0,
+  "success_rate": 100.0,
   "test_results": [
     {
       "test": "Endpoint Accessibility - /api/reports/comprehensive",
-      "status": "FAIL",
-      "details": "Endpoint returns 404 Not Found - Endpoint not registered or not accessible",
-      "timestamp": "2025-07-22T21:46:41.312876"
+      "status": "PASS",
+      "details": "Endpoint accessible, returns 403 Forbidden (authentication required) - Expected behavior",
+      "timestamp": "2025-07-23T12:16:03.306420"
     },
     {
       "test": "Endpoint Accessibility - /api/reports/training",
-      "status": "FAIL",
-      "details": "Endpoint returns 404 Not Found - Endpoint not registered or not accessible",
-      "timestamp": "2025-07-22T21:46:41.498981"
+      "status": "PASS",
+      "details": "Endpoint accessible, returns 403 Forbidden (authentication required) - Expected behavior",
+      "timestamp": "2025-07-23T12:16:03.492858"
     },
     {
       "test": "Endpoint Accessibility - /api/reports/consumption",
-      "status": "FAIL",
-      "details": "Endpoint returns 404 Not Found - Endpoint not registered or not accessible",
-      "timestamp": "2025-07-22T21:46:41.690282"
+      "status": "PASS",
+      "details": "Endpoint accessible, returns 403 Forbidden (authentication required) - Expected behavior",
+      "timestamp": "2025-07-23T12:16:03.679643"
     },
     {
       "test": "Auth Required - /api/reports/comprehensive",
-      "status": "FAIL",
-      "details": "Does not require authentication (returns 404) - Security issue",
-      "timestamp": "2025-07-22T21:46:42.169018"
+      "status": "PASS",
+      "details": "Properly requires authentication (returns 403)",
+      "timestamp": "2025-07-23T12:16:04.160177"
     },
     {
       "test": "Auth Required - /api/reports/training",
-      "status": "FAIL",
-      "details": "Does not require authentication (returns 404) - Security issue",
-      "timestamp": "2025-07-22T21:46:42.349818"
+      "status": "PASS",
+      "details": "Properly requires authentication (returns 403)",
+      "timestamp": "2025-07-23T12:16:04.345964"
     },
     {
       "test": "Auth Required - /api/reports/consumption",
-      "status": "FAIL",
-      "details": "Does not require authentication (returns 404) - Security issue",
-      "timestamp": "2025-07-22T21:46:42.530699"
+      "status": "PASS",
+      "details": "Properly requires authentication (returns 403)",
+      "timestamp": "2025-07-23T12:16:04.530864"
     },
     {
       "test": "Invalid Token - /api/reports/comprehensive",
-      "status": "FAIL",
-      "details": "Does not properly validate tokens (returns 404)",
-      "timestamp": "2025-07-22T21:46:42.711382"
+      "status": "PASS",
+      "details": "Properly rejects invalid tokens (returns 401)",
+      "timestamp": "2025-07-23T12:16:04.716098"
     },
     {
       "test": "Invalid Token - /api/reports/training",
-      "status": "FAIL",
-      "details": "Does not properly validate tokens (returns 404)",
-      "timestamp": "2025-07-22T21:46:42.892074"
+      "status": "PASS",
+      "details": "Properly rejects invalid tokens (returns 401)",
+      "timestamp": "2025-07-23T12:16:04.913227"
     },
     {
       "test": "Invalid Token - /api/reports/consumption",
-      "status": "FAIL",
-      "details": "Does not properly validate tokens (returns 404)",
-      "timestamp": "2025-07-22T21:46:43.072507"
+      "status": "PASS",
+      "details": "Properly rejects invalid tokens (returns 401)",
+      "timestamp": "2025-07-23T12:16:05.098206"
     },
     {
       "test": "Client ID Parameter - /api/reports/comprehensive",
       "status": "PASS",
-      "details": "Endpoint accepts client_id parameter (returns 404)",
-      "timestamp": "2025-07-22T21:46:43.384205"
+      "details": "Endpoint accepts client_id parameter, requires authentication (returns 403)",
+      "timestamp": "2025-07-23T12:16:05.421099"
     },
     {
       "test": "Client ID Parameter - /api/reports/training",
       "status": "PASS",
-      "details": "Endpoint accepts client_id parameter (returns 404)",
-      "timestamp": "2025-07-22T21:46:43.566931"
+      "details": "Endpoint accepts client_id parameter, requires authentication (returns 403)",
+      "timestamp": "2025-07-23T12:16:05.610954"
     },
     {
       "test": "Client ID Parameter - /api/reports/consumption",
       "status": "PASS",
-      "details": "Endpoint accepts client_id parameter (returns 404)",
-      "timestamp": "2025-07-22T21:46:43.749652"
+      "details": "Endpoint accepts client_id parameter, requires authentication (returns 403)",
+      "timestamp": "2025-07-23T12:16:05.795400"
     },
     {
       "test": "PDF Service Health Check",
       "status": "PASS",
       "details": "Backend is accessible and healthy",
-      "timestamp": "2025-07-22T21:46:44.076324"
+      "timestamp": "2025-07-23T12:16:06.289944"
     },
     {
       "test": "PDF Service Availability - /api/reports/comprehensive",
       "status": "PASS",
-      "details": "PDF service appears to be available (returns 404)",
-      "timestamp": "2025-07-22T21:46:44.546794"
+      "details": "PDF service appears to be available (authentication required)",
+      "timestamp": "2025-07-23T12:16:06.619220"
     },
     {
       "test": "PDF Service Availability - /api/reports/training",
       "status": "PASS",
-      "details": "PDF service appears to be available (returns 404)",
-      "timestamp": "2025-07-22T21:46:44.727554"
+      "details": "PDF service appears to be available (authentication required)",
+      "timestamp": "2025-07-23T12:16:06.803294"
     },
     {
       "test": "PDF Service Availability - /api/reports/consumption",
       "status": "PASS",
-      "details": "PDF service appears to be available (returns 404)",
-      "timestamp": "2025-07-22T21:46:44.908436"
+      "details": "PDF service appears to be available (authentication required)",
+      "timestamp": "2025-07-23T12:16:06.995355"
     },
     {
       "test": "Response Format - /api/reports/comprehensive",
       "status": "PASS",
-      "details": "Endpoint configured (returns 404)",
-      "timestamp": "2025-07-22T21:46:45.227588"
+      "details": "Endpoint properly secured, would return PDF with authentication",
+      "timestamp": "2025-07-23T12:16:07.308429"
     },
     {
       "test": "Response Format - /api/reports/training",
       "status": "PASS",
-      "details": "Endpoint configured (returns 404)",
-      "timestamp": "2025-07-22T21:46:45.409606"
+      "details": "Endpoint properly secured, would return PDF with authentication",
+      "timestamp": "2025-07-23T12:16:07.502032"
     },
     {
       "test": "Response Format - /api/reports/consumption",
       "status": "PASS",
-      "details": "Endpoint configured (returns 404)",
-      "timestamp": "2025-07-22T21:46:45.592168"
+      "details": "Endpoint properly secured, would return PDF with authentication",
+      "timestamp": "2025-07-23T12:16:07.687608"
     },
     {
       "test": "Role Logic (No client_id) - /api/reports/comprehensive",
       "status": "PASS",
-      "details": "Endpoint accessible without client_id parameter (client user scenario)",
-      "timestamp": "2025-07-22T21:46:45.919733"
+      "details": "Endpoint properly requires authentication for client users",
+      "timestamp": "2025-07-23T12:16:08.005029"
     },
     {
       "test": "Role Logic (No client_id) - /api/reports/training",
       "status": "PASS",
-      "details": "Endpoint accessible without client_id parameter (client user scenario)",
-      "timestamp": "2025-07-22T21:46:46.106075"
+      "details": "Endpoint properly requires authentication for client users",
+      "timestamp": "2025-07-23T12:16:08.189914"
     },
     {
       "test": "Role Logic (No client_id) - /api/reports/consumption",
       "status": "PASS",
-      "details": "Endpoint accessible without client_id parameter (client user scenario)",
-      "timestamp": "2025-07-22T21:46:46.292728"
+      "details": "Endpoint properly requires authentication for client users",
+      "timestamp": "2025-07-23T12:16:08.373780"
     },
     {
       "test": "Role Logic (With client_id) - /api/reports/comprehensive",
       "status": "PASS",
-      "details": "Endpoint accepts client_id parameter (admin/consultant user scenario)",
-      "timestamp": "2025-07-22T21:46:46.492549"
+      "details": "Endpoint properly requires authentication for admin/consultant users",
+      "timestamp": "2025-07-23T12:16:08.559225"
     },
     {
       "test": "Role Logic (With client_id) - /api/reports/training",
       "status": "PASS",
-      "details": "Endpoint accepts client_id parameter (admin/consultant user scenario)",
-      "timestamp": "2025-07-22T21:46:46.678747"
+      "details": "Endpoint properly requires authentication for admin/consultant users",
+      "timestamp": "2025-07-23T12:16:08.744592"
     },
     {
       "test": "Role Logic (With client_id) - /api/reports/consumption",
       "status": "PASS",
-      "details": "Endpoint accepts client_id parameter (admin/consultant user scenario)",
-      "timestamp": "2025-07-22T21:46:46.865801"
+      "details": "Endpoint properly requires authentication for admin/consultant users",
+      "timestamp": "2025-07-23T12:16:08.931080"
     }
   ]
 }
