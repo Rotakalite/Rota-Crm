@@ -3662,7 +3662,7 @@ console.log('🔧 All REACT_APP env vars:', Object.keys(process.env).filter(key 
 // Add cache busting and request interceptor
 axios.defaults.headers.common['Cache-Control'] = 'no-cache';
 axios.defaults.headers.common['Pragma'] = 'no-cache';
-axios.defaults.timeout = 30000; // 30 second timeout
+axios.defaults.timeout = 7200000; // 120 minutes (7200 seconds) for bulk operations
 
 // Add request interceptor for debugging
 axios.interceptors.request.use(
