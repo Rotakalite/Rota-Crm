@@ -30,8 +30,8 @@ class PDFReportService:
     
     def __init__(self):
         self.styles = getSampleStyleSheet()
-        self.custom_styles = self._create_custom_styles()
         self._register_turkish_fonts()
+        self.custom_styles = self._create_custom_styles()
     
     def _register_turkish_fonts(self):
         """Register Turkish-compatible DejaVu fonts"""
