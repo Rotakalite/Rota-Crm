@@ -4585,25 +4585,116 @@ async def get_bulk_email_stats(current_user: User = Depends(get_admin_user)):
         ]
         city_stats = await db.clients.aggregate(city_pipeline).to_list(length=None)
         
-        # Get audit company distribution for BULK clients
-        audit_pipeline = [
-            {"$match": {"client_type": "bulk"}},
-            {"$group": {"_id": "$audit_company", "count": {"$sum": 1}}},
-            {"$sort": {"count": -1}}
-        ]
-        audit_stats = await db.clients.aggregate(audit_pipeline).to_list(length=None)
+        # Success rate calculation
+        total_attempted = total_emails_sent + total_emails_failed
+        success_rate = (total_emails_sent / total_attempted * 100) if total_attempted > 0 else 0
         
         return {
+            "success": True,
             "total_bulk_clients": total_bulk_clients,
             "bulk_clients_with_email": bulk_clients_with_email,
             "email_coverage_percentage": round((bulk_clients_with_email / total_bulk_clients * 100), 2) if total_bulk_clients > 0 else 0,
-            "city_distribution": city_stats[:10],  # Top 10 cities
-            "audit_company_distribution": audit_stats[:10]  # Top 10 audit companies
+            
+            # Campaign statistics (last 30 days)
+            "campaign_stats": {
+                "total_campaigns": len(recent_campaigns),
+                "total_emails_sent": total_emails_sent,
+                "total_emails_failed": total_emails_failed,
+                "overall_success_rate": round(success_rate, 2)
+            },
+            
+            # Today's statistics
+            "today_stats": {
+                "emails_sent": today_successful,
+                "emails_failed": today_failed,
+                "success_rate": round((today_successful / (today_successful + today_failed) * 100), 2) if (today_successful + today_failed) > 0 else 0
+            },
+            
+            # Recent campaigns details
+            "recent_campaigns": [
+                {
+                    "id": campaign.get("id"),
+                    "template_id": campaign.get("template_id"),
+                    "subject": campaign.get("subject", "")[:50],  # First 50 chars
+                    "sent_count": campaign.get("sent_count", 0),
+                    "failed_count": campaign.get("failed_count", 0),
+                    "success_rate": campaign.get("success_rate", 0),
+                    "started_at": campaign.get("started_at").strftime("%Y-%m-%d %H:%M"),
+                    "status": campaign.get("status", "unknown"),
+                    "sent_by": campaign.get("sent_by", "Unknown")
+                }
+                for campaign in recent_campaigns
+            ],
+            
+            # Recent failures for troubleshooting
+            "recent_failures": failed_summary,
+            
+            # Geographic distribution
+            "city_distribution": [
+                {"city": stat["_id"] or "Belirtilmemiş", "count": stat["count"]}
+                for stat in city_stats
+            ]
         }
         
     except Exception as e:
-        logging.error(f"❌ Bulk email stats error: {str(e)}")
+        logging.error(f"❌ BULK EMAIL STATS ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Email istatistik hatası: {str(e)}")
+
+@app.get("/api/bulk-email/campaign/{campaign_id}")
+async def get_campaign_details(
+    campaign_id: str,
+    current_user: User = Depends(get_admin_user)
+):
+    """Get detailed information about a specific email campaign"""
+    try:
+        # Get campaign info
+        campaign = await db.email_campaigns.find_one({"id": campaign_id})
+        if not campaign:
+            raise HTTPException(status_code=404, detail="Kampanya bulunamadı")
+        
+        # Get delivery logs for this campaign
+        delivery_logs = await db.email_delivery_logs.find({
+            "campaign_id": campaign_id
+        }).sort("sent_at", -1).to_list(length=None)
+        
+        # Separate successful and failed deliveries
+        successful_deliveries = [log for log in delivery_logs if log.get("status") == "sent"]
+        failed_deliveries = [log for log in delivery_logs if log.get("status") == "failed"]
+        
+        # Format failed deliveries for display
+        failed_details = []
+        for failure in failed_deliveries:
+            failed_details.append({
+                "client_name": failure.get("client_name", "Bilinmeyen"),
+                "client_email": failure.get("client_email", ""),
+                "error": failure.get("error", "Bilinmeyen hata"),
+                "timestamp": failure.get("sent_at").strftime("%Y-%m-%d %H:%M:%S")
+            })
+        
+        return {
+            "success": True,
+            "campaign": {
+                "id": campaign.get("id"),
+                "template_id": campaign.get("template_id"),
+                "subject": campaign.get("subject"),
+                "total_recipients": campaign.get("total_recipients", 0),
+                "sent_count": campaign.get("sent_count", 0),
+                "failed_count": campaign.get("failed_count", 0),
+                "success_rate": campaign.get("success_rate", 0),
+                "started_at": campaign.get("started_at").strftime("%Y-%m-%d %H:%M:%S"),
+                "completed_at": campaign.get("completed_at").strftime("%Y-%m-%d %H:%M:%S") if campaign.get("completed_at") else None,
+                "status": campaign.get("status"),
+                "sent_by": campaign.get("sent_by"),
+                "filters": campaign.get("filters", {})
+            },
+            "successful_count": len(successful_deliveries),
+            "failed_count": len(failed_deliveries),
+            "failed_deliveries": failed_details
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ CAMPAIGN DETAILS ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Kampanya detay hatası: {str(e)}")
 
 # EMAIL TEMPLATE ENDPOINTS - ADMIN ONLY
 @api_router.get("/email-templates")
