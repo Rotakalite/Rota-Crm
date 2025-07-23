@@ -4706,6 +4706,35 @@ async def get_campaign_details(
         logging.error(f"❌ CAMPAIGN DETAILS ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Kampanya detay hatası: {str(e)}")
 
+@app.get("/api/bulk-email/progress/{campaign_id}")
+async def get_campaign_progress(
+    campaign_id: str,
+    current_user: User = Depends(get_admin_user)
+):
+    """Get real-time progress of a bulk email campaign"""
+    try:
+        # Get campaign progress
+        campaign = await db.email_campaigns.find_one({"id": campaign_id})
+        if not campaign:
+            raise HTTPException(status_code=404, detail="Kampanya bulunamadı")
+        
+        return {
+            "success": True,
+            "campaign_id": campaign_id,
+            "status": campaign.get("status", "unknown"),
+            "sent_count": campaign.get("sent_count", 0),
+            "failed_count": campaign.get("failed_count", 0),
+            "total_recipients": campaign.get("total_recipients", 0),
+            "progress_percentage": campaign.get("progress_percentage", 0),
+            "last_updated": campaign.get("last_updated", campaign.get("started_at")),
+            "estimated_remaining": None if campaign.get("status") != "in_progress" else 
+                max(0, campaign.get("total_recipients", 0) - campaign.get("sent_count", 0) - campaign.get("failed_count", 0))
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ CAMPAIGN PROGRESS ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Kampanya ilerleme hatası: {str(e)}")
+
 # Include API router
 app.include_router(api_router, prefix="/api")
 async def get_email_templates(current_user: User = Depends(get_admin_user)):
