@@ -47,7 +47,7 @@ try:
     logging.info("✅ PDF Report service imported successfully")
 except Exception as e:
     logging.error(f"❌ Failed to import PDF Report service: {e}")
-    pdf_service = None
+    elite_pdf_service = None
 
 # WhatsApp service - DISABLED
 whatsapp_service = None  # WhatsApp service deactivated
