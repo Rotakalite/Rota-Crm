@@ -4735,8 +4735,8 @@ async def get_campaign_progress(
         logging.error(f"❌ CAMPAIGN PROGRESS ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Kampanya ilerleme hatası: {str(e)}")
 
-# Include API router
-app.include_router(api_router, prefix="/api")
+# EMAIL TEMPLATE ENDPOINTS - ADMIN ONLY
+@api_router.get("/email-templates")
 async def get_email_templates(current_user: User = Depends(get_admin_user)):
     """Get all predefined email templates - ADMIN ONLY"""
     templates = [
