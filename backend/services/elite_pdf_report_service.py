@@ -55,42 +55,32 @@ class ElitePDFReportService:
     
     def _register_turkish_fonts(self):
         """Register Turkish-compatible DejaVu fonts with proper path"""
-        try:
-            import os
+        import os
+        
+        # Define font paths
+        dejavu_regular = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
+        dejavu_bold = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+        
+        # Check if fonts exist
+        if os.path.exists(dejavu_regular) and os.path.exists(dejavu_bold):
+            # Register fonts with explicit paths
+            pdfmetrics.registerFont(TTFont('DejaVuSans', dejavu_regular))
+            pdfmetrics.registerFont(TTFont('DejaVuSans-Bold', dejavu_bold))
             
-            # Define font paths
-            dejavu_regular = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
-            dejavu_bold = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+            # Register font family mappings
+            from reportlab.lib.fonts import addMapping
+            addMapping('DejaVuSans', 0, 0, 'DejaVuSans')       # normal
+            addMapping('DejaVuSans', 1, 0, 'DejaVuSans-Bold')  # bold
+            addMapping('DejaVuSans', 0, 1, 'DejaVuSans')       # italic (use regular)
+            addMapping('DejaVuSans', 1, 1, 'DejaVuSans-Bold')  # bold+italic
             
-            # Check if fonts exist
-            if os.path.exists(dejavu_regular) and os.path.exists(dejavu_bold):
-                # Register fonts with explicit paths
-                pdfmetrics.registerFont(TTFont('DejaVuSans', dejavu_regular))
-                pdfmetrics.registerFont(TTFont('DejaVuSans-Bold', dejavu_bold))
-                
-                # Register font family mappings
-                from reportlab.lib.fonts import addMapping
-                addMapping('DejaVuSans', 0, 0, 'DejaVuSans')       # normal
-                addMapping('DejaVuSans', 1, 0, 'DejaVuSans-Bold')  # bold
-                addMapping('DejaVuSans', 0, 1, 'DejaVuSans')       # italic (use regular)
-                addMapping('DejaVuSans', 1, 1, 'DejaVuSans-Bold')  # bold+italic
-                
-                self.default_font = 'DejaVuSans'
-                self.bold_font = 'DejaVuSans-Bold'
-                
-                print("✅ Elite PDF: DejaVu fonts registered successfully")
-                
-            else:
-                raise Exception(f"DejaVu fonts not found at expected paths")
-                
-        except Exception as e:
-            print(f"❌ Elite PDF: Font registration failed: {e}")
-            print("🔄 Falling back to Helvetica with character replacement")
+            self.default_font = 'DejaVuSans'
+            self.bold_font = 'DejaVuSans-Bold'
             
-            # Fallback to Helvetica
-            self.default_font = 'Helvetica'
-            self.bold_font = 'Helvetica-Bold'
-            self.use_character_replacement = True
+            print("✅ Elite PDF: DejaVu fonts registered successfully")
+            
+        else:
+            raise Exception(f"DejaVu fonts not found at expected paths")
     
     def _create_elite_styles(self):
         """Create elite custom styles for premium reporting"""
