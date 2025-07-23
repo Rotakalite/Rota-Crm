@@ -4522,9 +4522,9 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
         logging.error(f"❌ BULK EMAIL ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Toplu email gönderme hatası: {str(e)}")
 
-@api_router.get("/bulk-email/stats")
+@app.get("/api/bulk-email/stats")
 async def get_bulk_email_stats(current_user: User = Depends(get_admin_user)):
-    """Get email statistics for bulk email - ADMIN ONLY"""
+    """Get enhanced email statistics with campaign history - ADMIN ONLY"""
     try:
         # Get total BULK clients
         total_bulk_clients = await db.clients.count_documents({"client_type": "bulk"})
@@ -4532,14 +4532,56 @@ async def get_bulk_email_stats(current_user: User = Depends(get_admin_user)):
         # Get BULK clients with email
         bulk_clients_with_email = await db.clients.count_documents({
             "client_type": "bulk",
-            "email": {"$ne": "", "$exists": True}
+            "email": {"$ne": "", "$exists": True, "$regex": "@"}
         })
+        
+        # Get recent email campaigns (last 30 days)
+        thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+        recent_campaigns = await db.email_campaigns.find({
+            "started_at": {"$gte": thirty_days_ago}
+        }).sort("started_at", -1).limit(10).to_list(length=None)
+        
+        # Calculate campaign statistics
+        total_emails_sent = 0
+        total_emails_failed = 0
+        
+        for campaign in recent_campaigns:
+            total_emails_sent += campaign.get("sent_count", 0)
+            total_emails_failed += campaign.get("failed_count", 0)
+        
+        # Get delivery statistics for today
+        today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        today_successful = await db.email_delivery_logs.count_documents({
+            "status": "sent",
+            "sent_at": {"$gte": today}
+        })
+        
+        today_failed = await db.email_delivery_logs.count_documents({
+            "status": "failed", 
+            "sent_at": {"$gte": today}
+        })
+        
+        # Get most recent failed emails for troubleshooting
+        recent_failures = await db.email_delivery_logs.find({
+            "status": "failed"
+        }).sort("sent_at", -1).limit(5).to_list(length=None)
+        
+        failed_summary = []
+        for failure in recent_failures:
+            failed_summary.append({
+                "email": failure.get("client_email"),
+                "name": failure.get("client_name"), 
+                "error": failure.get("error", "")[:100],  # First 100 chars
+                "timestamp": failure.get("sent_at").strftime("%Y-%m-%d %H:%M")
+            })
         
         # Get city distribution for BULK clients
         city_pipeline = [
             {"$match": {"client_type": "bulk"}},
             {"$group": {"_id": "$city", "count": {"$sum": 1}}},
-            {"$sort": {"count": -1}}
+            {"$sort": {"count": -1}},
+            {"$limit": 10}
         ]
         city_stats = await db.clients.aggregate(city_pipeline).to_list(length=None)
         
