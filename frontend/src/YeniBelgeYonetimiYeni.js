@@ -515,6 +515,105 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
+  const bulkDownloadDocuments = async () => {
+    if (!authToken) return;
+    
+    try {
+      console.log('📦 Starting bulk download...');
+      
+      // Show loading state
+      const loadingMsg = document.createElement('div');
+      loadingMsg.innerHTML = '📦 ZIP dosyası hazırlanıyor, lütfen bekleyin...';
+      loadingMsg.style.cssText = 'position:fixed;top:20px;right:20px;background:#059669;color:white;padding:15px;border-radius:8px;z-index:9999;';
+      document.body.appendChild(loadingMsg);
+      
+      // Build URL with parameters
+      let url = `${API}/documents/bulk-download`;
+      const params = new URLSearchParams();
+      
+      // Add client_id for admin/consultant users
+      if (userRole === 'ADMIN' || userRole === 'CONSULTANT') {
+        if (selectedClient) {
+          params.append('client_id', selectedClient.id);
+        } else {
+          alert('Lütfen bir müşteri seçin');
+          document.body.removeChild(loadingMsg);
+          return;
+        }
+      }
+      
+      // Add folder filter if browsing specific folder
+      if (currentFolder && currentFolder.id) {
+        params.append('folder_id', currentFolder.id);
+      }
+      
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+      
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${authToken}` },
+        responseType: 'blob',
+        timeout: 120000 // 2 minutes timeout for ZIP creation
+      });
+      
+      // Remove loading message
+      document.body.removeChild(loadingMsg);
+      
+      // Create download link
+      const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      
+      // Generate filename
+      const clientName = selectedClient?.hotel_name || selectedClient?.name || 'Belgeler';
+      const safeName = clientName.replace(/[<>:"/\\|?*]/g, '_');
+      const timestamp = new Date().toISOString().slice(0, 16).replace(/[-:]/g, '');
+      const filename = `${safeName}_belgeler_${timestamp}.zip`;
+      
+      link.setAttribute('download', filename);
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+      
+      console.log('✅ Bulk download completed');
+      
+      // Show success message
+      const successMsg = document.createElement('div');
+      successMsg.innerHTML = '✅ ZIP dosyası başarıyla indirildi!';
+      successMsg.style.cssText = 'position:fixed;top:20px;right:20px;background:#10b981;color:white;padding:15px;border-radius:8px;z-index:9999;';
+      document.body.appendChild(successMsg);
+      setTimeout(() => {
+        if (document.body.contains(successMsg)) {
+          document.body.removeChild(successMsg);
+        }
+      }, 3000);
+      
+    } catch (error) {
+      console.error('❌ Bulk download error:', error);
+      
+      // Remove loading message if still present
+      const loadingMsg = document.querySelector('div[style*="ZIP dosyası hazırlanıyor"]');
+      if (loadingMsg) {
+        document.body.removeChild(loadingMsg);
+      }
+      
+      let errorMsg = 'Toplu indirme hatası';
+      if (error.response?.status === 404) {
+        errorMsg = 'İndirilecek belge bulunamadı';
+      } else if (error.response?.data?.detail) {
+        errorMsg = error.response.data.detail;
+      }
+      
+      alert(errorMsg);
+    }
+  };
+
   const deleteDocument = async (documentId) => {
     if (!authToken) return;
     
