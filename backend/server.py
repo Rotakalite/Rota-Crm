@@ -12650,7 +12650,7 @@ async def generate_training_report(
         trainings = await db.trainings.find({"client_id": target_client_id}).to_list(None)
         
         # Generate PDF
-        pdf_bytes = pdf_service.generate_training_report(trainings or [])
+        pdf_bytes = elite_pdf_service.generate_training_report(trainings or [])
         
         # Get client name for filename
         client = await db.clients.find_one({"id": target_client_id})
