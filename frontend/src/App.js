@@ -7044,13 +7044,79 @@ const BulkOperations = ({ onNavigate }) => {
                 <h4 className={`font-semibold mb-2 ${
                   bulkEmailResult.success ? 'text-green-800' : 'text-red-800'
                 }`}>
-                  {bulkEmailResult.success ? '✅ Email Gönderildi!' : '❌ Gönderim Başarısız!'}
-                </h4>
-                {bulkEmailResult.success && (
-                  <p className="text-green-700 text-sm">
-                    📧 <strong>{bulkEmailResult.sent_count}</strong> müşteriye gönderildi
-                  </p>
-                )}
+                {bulkEmailResult.success ? '✅ Email Gönderim Raporu' : '❌ Gönderim Başarısız!'}
+              </h4>
+              
+              {bulkEmailResult.success ? (
+                <div className="space-y-3 text-sm">
+                  {/* Success Summary */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-green-100 p-3 rounded-lg">
+                      <div className="text-green-800 font-semibold">✅ Başarılı Gönderiler</div>
+                      <div className="text-green-900 text-lg font-bold">{bulkEmailResult.sent_count}</div>
+                    </div>
+                    <div className="bg-red-100 p-3 rounded-lg">
+                      <div className="text-red-800 font-semibold">❌ Başarısız Gönderiler</div>
+                      <div className="text-red-900 text-lg font-bold">{bulkEmailResult.failed_count}</div>
+                    </div>
+                  </div>
+                  
+                  {/* Detailed Stats */}
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <div className="text-blue-800 font-semibold mb-2">📊 Detaylı İstatistikler</div>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>📧 <strong>Toplam Alıcı:</strong> {bulkEmailResult.total_clients}</div>
+                      <div>✉️ <strong>Geçerli Email:</strong> {bulkEmailResult.valid_email_count}</div>
+                      <div>📈 <strong>Başarı Oranı:</strong> {bulkEmailResult.success_rate}%</div>
+                      <div>🎯 <strong>Kampanya ID:</strong> {bulkEmailResult.campaign_id?.substr(0, 8)}...</div>
+                    </div>
+                  </div>
+                  
+                  {/* Failed Emails Section */}
+                  {bulkEmailResult.failed_count > 0 && bulkEmailResult.failed_emails && (
+                    <div className="bg-orange-50 p-3 rounded-lg">
+                      <div className="text-orange-800 font-semibold mb-2">
+                        ⚠️ Başarısız Gönderiler ({bulkEmailResult.total_failed_emails} toplam)
+                      </div>
+                      <div className="max-h-24 overflow-y-auto text-xs space-y-1">
+                        {bulkEmailResult.failed_emails.map((failure, index) => (
+                          <div key={index} className="text-orange-900 border-b border-orange-200 pb-1">
+                            <div className="font-medium">{failure.name}</div>
+                            <div className="text-orange-700">{failure.email}</div>
+                            {failure.error && (
+                              <div className="text-orange-600 italic">{failure.error.substring(0, 50)}...</div>
+                            )}
+                          </div>
+                        ))}
+                        {bulkEmailResult.total_failed_emails > bulkEmailResult.failed_emails.length && (
+                          <div className="text-orange-700 italic">
+                            +{bulkEmailResult.total_failed_emails - bulkEmailResult.failed_emails.length} daha fazla...
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Campaign Link */}
+                  {bulkEmailResult.campaign_id && (
+                    <div className="bg-purple-50 p-2 rounded text-center">
+                      <button 
+                        onClick={() => window.open(`/campaign-details/${bulkEmailResult.campaign_id}`, '_blank')}
+                        className="text-purple-600 hover:text-purple-800 text-xs underline"
+                      >
+                        📋 Kampanya Detaylarını Görüntüle
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-red-700 text-sm">
+                  <p><strong>Hata:</strong> {bulkEmailResult.error || bulkEmailResult.message}</p>
+                  {bulkEmailResult.failed_count && (
+                    <p className="mt-2">❌ <strong>{bulkEmailResult.failed_count}</strong> email gönderilemedi</p>
+                  )}
+                </div>
+              )}
               </div>
             )}
 
