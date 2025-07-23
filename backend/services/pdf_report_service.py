@@ -393,6 +393,91 @@ class PDFReportService:
                 
         story.append(PageBreak())
         
+        # PAGE 7: SUPPLIER AND PERSONNEL ANALYSIS
+        story.append(Paragraph(self._encode_turkish_text("TEDARİKÇİ ve PERSONEL ANALİZİ"), self.custom_styles['Header']))
+        
+        # Add supplier and personnel distribution chart
+        if ('suppliers' in client_data and len(client_data['suppliers']) > 0) or ('personnel' in client_data and len(client_data['personnel']) > 0):
+            supplier_personnel_chart = self._create_supplier_personnel_chart(
+                client_data.get('suppliers', []), 
+                client_data.get('personnel', [])
+            )
+            if supplier_personnel_chart:
+                from reportlab.platypus import Image
+                chart_img = Image(io.BytesIO(base64.b64decode(supplier_personnel_chart)), width=6.5*inch, height=3.25*inch)
+                story.append(chart_img)
+                story.append(Spacer(1, 20))
+        
+        # Supplier analysis table
+        if 'suppliers' in client_data and len(client_data['suppliers']) > 0:
+            story.append(Paragraph(self._encode_turkish_text("Tedarikçi Detay Analizi"), self.custom_styles['Header']))
+            
+            suppliers = client_data['suppliers']
+            local_suppliers = len([s for s in suppliers if s.get('local_supplier', False)])
+            certified_suppliers = len([s for s in suppliers if s.get('certifications') and len(s.get('certifications', [])) > 0])
+            
+            supplier_analysis = [
+                [self._encode_turkish_text('Tedarikçi Metrikleri'), self._encode_turkish_text('Değer'), self._encode_turkish_text('Oran'), self._encode_turkish_text('Durum')],
+                [self._encode_turkish_text('Toplam Tedarikçi'), str(len(suppliers)), '100%', self._encode_turkish_text('Aktif')],
+                [self._encode_turkish_text('Yerel Tedarikçi'), str(local_suppliers), f"{(local_suppliers/len(suppliers)*100):.1f}%", self._encode_turkish_text('İyi' if local_suppliers/len(suppliers) > 0.3 else 'Düşük')],
+                [self._encode_turkish_text('Sertifikalı Tedarikçi'), str(certified_suppliers), f"{(certified_suppliers/len(suppliers)*100):.1f}%", self._encode_turkish_text('Mükemmel' if certified_suppliers/len(suppliers) > 0.5 else 'Orta')],
+                [self._encode_turkish_text('Tedarikçi Çeşitliliği'), str(len(set([s.get('category', 'Diğer') for s in suppliers]))), f"{(len(set([s.get('category', 'Diğer') for s in suppliers]))/len(suppliers)*100):.1f}%", self._encode_turkish_text('İyi')]
+            ]
+            
+            supplier_table = Table(supplier_analysis, colWidths=[2.2*inch, 1*inch, 1*inch, 1.8*inch])
+            supplier_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#EF4444')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), self.bold_font),
+                ('FONTSIZE', (0, 0), (-1, -1), 9),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.mistyrose),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ]))
+            story.append(supplier_table)
+            story.append(Spacer(1, 20))
+        
+        # Personnel certification analysis
+        if 'personnel' in client_data and len(client_data['personnel']) > 0:
+            story.append(Paragraph(self._encode_turkish_text("Personel Sertifika Analizi"), self.custom_styles['Header']))
+            
+            # Add certification distribution chart
+            cert_chart = self._create_certification_distribution_chart(client_data['personnel'])
+            if cert_chart:
+                from reportlab.platypus import Image
+                chart_img = Image(io.BytesIO(base64.b64decode(cert_chart)), width=6*inch, height=4.8*inch)
+                story.append(chart_img)
+                story.append(Spacer(1, 20))
+            
+            # Personnel analysis table
+            personnel = client_data['personnel']
+            local_personnel = len([p for p in personnel if p.get('is_local', False)])
+            certified_personnel = len([p for p in personnel if p.get('certifications') and len(p.get('certifications', [])) > 0])
+            
+            personnel_analysis = [
+                [self._encode_turkish_text('Personel Metrikleri'), self._encode_turkish_text('Değer'), self._encode_turkish_text('Oran'), self._encode_turkish_text('Hedef')],
+                [self._encode_turkish_text('Toplam Personel'), str(len(personnel)), '100%', str(len(personnel))],
+                [self._encode_turkish_text('Yerel Personel'), str(local_personnel), f"{(local_personnel/len(personnel)*100):.1f}%", '>60%'],
+                [self._encode_turkish_text('Sertifikalı Personel'), str(certified_personnel), f"{(certified_personnel/len(personnel)*100):.1f}%", '>80%'],
+                [self._encode_turkish_text('Eğitim Katılımı'), str(stats.get('completed_trainings', 0)), f"{(stats.get('completed_trainings', 0)/max(1, len(personnel))*100):.1f}%", '100%']
+            ]
+            
+            personnel_table = Table(personnel_analysis, colWidths=[2.2*inch, 1*inch, 1*inch, 1.8*inch])
+            personnel_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#06B6D4')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), self.bold_font),
+                ('FONTSIZE', (0, 0), (-1, -1), 9),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.lightcyan),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ]))
+            story.append(personnel_table)
+        
+        story.append(PageBreak())
+        
         # PAGE 6: RECOMMENDATIONS AND ACTION PLAN
         story.append(Paragraph(self._encode_turkish_text("ÖNERİLER ve AKSİYON PLANI"), self.custom_styles['Header']))
         
