@@ -133,6 +133,101 @@ class PDFReportService:
         
         return custom_styles
     
+    def _create_elite_styles(self):
+        """Create elite custom styles for premium reporting"""
+        elite_styles = {}
+        
+        # Elite Title style with gradient effect simulation
+        elite_styles['Title'] = ParagraphStyle(
+            'EliteTitle',
+            parent=self.styles['Title'],
+            fontSize=28,
+            spaceAfter=35,
+            alignment=TA_CENTER,
+            textColor=colors.HexColor('#1a365d'),
+            fontName=self.bold_font,
+            borderWidth=2,
+            borderColor=colors.HexColor('#059669'),
+            borderPadding=10
+        )
+        
+        # Elite Subtitle with enhanced styling
+        elite_styles['Subtitle'] = ParagraphStyle(
+            'EliteSubtitle',
+            parent=self.styles['Heading2'],
+            fontSize=18,
+            spaceAfter=25,
+            textColor=colors.HexColor('#2d3748'),
+            fontName=self.bold_font,
+            leftIndent=10,
+            borderWidth=1,
+            borderColor=colors.HexColor('#e2e8f0'),
+            borderPadding=8
+        )
+        
+        # Elite Header with premium styling
+        elite_styles['Header'] = ParagraphStyle(
+            'EliteHeader',
+            parent=self.styles['Heading3'],
+            fontSize=16,
+            spaceAfter=18,
+            textColor=colors.HexColor('#059669'),
+            fontName=self.bold_font,
+            leftIndent=5,
+            borderWidth=1,
+            borderColor=colors.HexColor('#059669'),
+            borderPadding=6
+        )
+        
+        # Elite Body with enhanced readability
+        elite_styles['Body'] = ParagraphStyle(
+            'EliteBody',
+            parent=self.styles['Normal'],
+            fontSize=11,
+            spaceAfter=12,
+            leading=16,
+            fontName=self.default_font,
+            textColor=colors.HexColor('#2d3748'),
+            leftIndent=8,
+            rightIndent=8
+        )
+        
+        # Elite Highlight style for important information
+        elite_styles['Highlight'] = ParagraphStyle(
+            'EliteHighlight',
+            parent=self.styles['Normal'],
+            fontSize=12,
+            spaceAfter=15,
+            leading=18,
+            fontName=self.bold_font,
+            textColor=colors.HexColor('#1a365d'),
+            backColor=colors.HexColor('#f7fafc'),
+            leftIndent=15,
+            rightIndent=15,
+            borderWidth=1,
+            borderColor=colors.HexColor('#cbd5e0'),
+            borderPadding=10
+        )
+        
+        return elite_styles
+    
+    def _define_brand_colors(self):
+        """Define elite brand color palette"""
+        return {
+            'primary': colors.HexColor('#059669'),      # Emerald green
+            'secondary': colors.HexColor('#1a365d'),    # Dark blue
+            'accent': colors.HexColor('#3182ce'),       # Blue
+            'success': colors.HexColor('#38a169'),      # Green
+            'warning': colors.HexColor('#d69e2e'),      # Orange
+            'danger': colors.HexColor('#e53e3e'),       # Red
+            'info': colors.HexColor('#3182ce'),         # Blue
+            'light': colors.HexColor('#f7fafc'),        # Light gray
+            'dark': colors.HexColor('#2d3748'),         # Dark gray
+            'muted': colors.HexColor('#718096'),        # Muted gray
+            'background': colors.HexColor('#ffffff'),   # White
+            'border': colors.HexColor('#e2e8f0')        # Light border
+        }
+    
     def _encode_turkish_text(self, text):
         """Handle Turkish characters based on font availability"""
         if not text:
