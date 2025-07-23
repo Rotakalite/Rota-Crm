@@ -6377,7 +6377,7 @@ const BulkOperations = ({ onNavigate }) => {
     }
 
     const confirmSend = window.confirm(
-      'Bulk email gönderimini başlatmak istediğinizden emin misiniz?\\n\\nBu işlem geri alınamaz.'
+      'Bulk email gönderimini başlatmak istediğinizden emin misiniz?\\n\\nBu işlem uzun sürebilir (120 dakikaya kadar).'
     );
 
     if (!confirmSend) return;
@@ -6385,6 +6385,13 @@ const BulkOperations = ({ onNavigate }) => {
     try {
       setBulkEmailLoading(true);
       setBulkEmailResult(null);
+
+      // Show initial progress message
+      const progressMsg = document.createElement('div');
+      progressMsg.id = 'bulk-email-progress';
+      progressMsg.innerHTML = '📧 Bulk email gönderimi başlatılıyor...';
+      progressMsg.style.cssText = 'position:fixed;top:20px;right:20px;background:#059669;color:white;padding:15px;border-radius:8px;z-index:9999;max-width:300px;';
+      document.body.appendChild(progressMsg);
 
       const emailData = {
         filters: bulkEmailForm.target_filters
@@ -6411,6 +6418,12 @@ const BulkOperations = ({ onNavigate }) => {
         timeout: 7200000 // 120 minutes for bulk email
       });
 
+      // Remove progress message
+      const existingProgress = document.getElementById('bulk-email-progress');
+      if (existingProgress) {
+        document.body.removeChild(existingProgress);
+      }
+
       setBulkEmailResult(response.data);
       
       // Reset form
@@ -6430,10 +6443,26 @@ const BulkOperations = ({ onNavigate }) => {
 
     } catch (error) {
       console.error('Error sending bulk email:', error);
-      const errorMessage = error.response?.data?.detail || error.message;
+      
+      // Remove progress message if exists
+      const existingProgress = document.getElementById('bulk-email-progress');
+      if (existingProgress) {
+        document.body.removeChild(existingProgress);
+      }
+      
+      let errorMessage = 'Bulk email gönderme hatası';
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = 'İşlem çok uzun sürdü. Lütfen kampanya geçmişinden sonucu kontrol edin.';
+      } else if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       setBulkEmailResult({
         success: false,
-        error: errorMessage
+        error: errorMessage,
+        timeout: error.code === 'ECONNABORTED'
       });
     } finally {
       setBulkEmailLoading(false);
