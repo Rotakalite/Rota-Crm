@@ -12590,8 +12590,8 @@ async def generate_comprehensive_report(
     Includes consumption, trainings, personnel, suppliers, sustainability targets
     """
     try:
-        if not pdf_service:
-            raise HTTPException(status_code=503, detail="PDF Report service kullanılamıyor")
+        if not elite_pdf_service:
+            raise HTTPException(status_code=503, detail="Elite PDF Report service kullanılamıyor")
         
         # Determine client_id based on user role
         if current_user.role == UserRole.CLIENT:
