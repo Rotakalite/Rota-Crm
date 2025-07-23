@@ -228,7 +228,7 @@ async def test_database_connection():
             "error": str(e)
         }
     finally:
-        if 'client' in locals():
+        if 'client' in locals() and hasattr(client, 'close'):
             client.close()
 
 async def main():
