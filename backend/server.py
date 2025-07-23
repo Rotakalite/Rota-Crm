@@ -4490,15 +4490,32 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                 failed_count += 1
                 continue
         
+        # Update final campaign status
+        campaign_end = datetime.utcnow()
+        await db.email_campaigns.update_one(
+            {"id": campaign_id},
+            {"$set": {
+                "sent_count": sent_count,
+                "failed_count": failed_count,
+                "completed_at": campaign_end,
+                "status": "completed",
+                "success_rate": (sent_count / len(valid_email_clients) * 100) if valid_email_clients else 0
+            }}
+        )
+        
         logging.info(f"📧 BULK EMAIL - Tamamlandı: {sent_count} başarılı, {failed_count} başarısız")
         
         return {
             "success": True,
+            "campaign_id": campaign_id,
             "sent_count": sent_count,
             "failed_count": failed_count,
             "total_clients": len(clients),
             "valid_email_count": len(valid_email_clients),
-            "message": f"Toplu email gönderimi tamamlandı! {sent_count} email başarıyla gönderildi."
+            "success_rate": round((sent_count / len(valid_email_clients) * 100), 2),
+            "failed_emails": failed_emails[:10],  # Return first 10 failed emails
+            "total_failed_emails": len(failed_emails),
+            "message": f"Toplu email gönderimi tamamlandı! {sent_count} email başarıyla gönderildi, {failed_count} email gönderilemedi."
         }
         
     except Exception as e:
