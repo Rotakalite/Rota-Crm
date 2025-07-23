@@ -5,6 +5,8 @@ import shutil
 import re
 import secrets
 import asyncio
+import zipfile
+import tempfile
 from pymongo import MongoClient
 from datetime import datetime, timedelta
 from typing import List, Optional
