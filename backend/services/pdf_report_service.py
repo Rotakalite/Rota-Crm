@@ -34,16 +34,25 @@ class PDFReportService:
         self._register_turkish_fonts()
     
     def _register_turkish_fonts(self):
-        """Register Turkish-compatible fonts"""
+        """Register Turkish-compatible DejaVu fonts"""
         try:
-            # For Turkish characters, let's use a simpler approach
-            # Instead of complex font registration, we'll ensure proper UTF-8 handling
+            # Register DejaVu Sans fonts (full Turkish support)
+            pdfmetrics.registerFont(TTFont('DejaVu', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'))
+            pdfmetrics.registerFont(TTFont('DejaVu-Bold', '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'))
             
-            self.default_font = 'Helvetica'
-            self.bold_font = 'Helvetica-Bold'
+            # Register font family
+            from reportlab.lib.fonts import addMapping
+            addMapping('DejaVu', 0, 0, 'DejaVu')
+            addMapping('DejaVu', 1, 0, 'DejaVu-Bold')
+            
+            self.default_font = 'DejaVu'
+            self.bold_font = 'DejaVu-Bold'
+            
+            print("✅ Turkish fonts registered successfully: DejaVu Sans")
             
         except Exception as e:
-            print(f"Font registration warning: {e}")
+            print(f"❌ Turkish font registration failed: {e}")
+            # Fallback to Helvetica
             self.default_font = 'Helvetica'
             self.bold_font = 'Helvetica-Bold'
     
@@ -59,7 +68,7 @@ class PDFReportService:
             spaceAfter=30,
             alignment=TA_CENTER,
             textColor=colors.HexColor('#1f2937'),
-            fontName='Helvetica-Bold'
+            fontName=self.bold_font
         )
         
         # Subtitle style
@@ -69,7 +78,7 @@ class PDFReportService:
             fontSize=16,
             spaceAfter=20,
             textColor=colors.HexColor('#374151'),
-            fontName='Helvetica-Bold'
+            fontName=self.bold_font
         )
         
         # Header style
@@ -79,7 +88,7 @@ class PDFReportService:
             fontSize=14,
             spaceAfter=15,
             textColor=colors.HexColor('#059669'),
-            fontName='Helvetica-Bold'
+            fontName=self.bold_font
         )
         
         # Body style
@@ -89,33 +98,21 @@ class PDFReportService:
             fontSize=10,
             spaceAfter=10,
             leading=14,
-            fontName='Helvetica'
+            fontName=self.default_font
         )
         
         return custom_styles
     
     def _encode_turkish_text(self, text):
-        """Convert Turkish characters to ASCII equivalents for PDF compatibility"""
+        """Keep Turkish characters as-is with proper font support"""
         if not text:
             return ""
         
-        # Simple and effective: Replace Turkish characters with ASCII equivalents
-        char_map = {
-            'ğ': 'g', 'Ğ': 'G',
-            'ü': 'u', 'Ü': 'U', 
-            'ö': 'o', 'Ö': 'O',
-            'ş': 's', 'Ş': 'S',
-            'ç': 'c', 'Ç': 'C',
-            'ı': 'i', 'İ': 'I'
-        }
-        
         try:
-            result = str(text)
-            for turkish_char, ascii_char in char_map.items():
-                result = result.replace(turkish_char, ascii_char)
-            return result
+            # With DejaVu font, we can keep Turkish characters as-is
+            return str(text)
         except Exception as e:
-            print(f"Error encoding Turkish text: {e}")
+            print(f"Error handling Turkish text: {e}")
             return str(text)
     
     def _add_header_footer(self, canvas, doc):
