@@ -12693,7 +12693,7 @@ async def generate_consumption_report(
         consumption_data = await db.consumptions.find({"client_id": target_client_id}).to_list(None)
         
         # Generate PDF
-        pdf_bytes = pdf_service.generate_consumption_report(consumption_data or [])
+        pdf_bytes = elite_pdf_service.generate_consumption_report(consumption_data or [])
         
         # Get client name for filename
         client = await db.clients.find_one({"id": target_client_id})
