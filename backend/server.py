@@ -43,7 +43,7 @@ except Exception as e:
 
 # PDF Report service
 try:
-    from services.pdf_report_service import pdf_service
+    from services.elite_pdf_report_service import elite_pdf_service
     logging.info("✅ PDF Report service imported successfully")
 except Exception as e:
     logging.error(f"❌ Failed to import PDF Report service: {e}")
