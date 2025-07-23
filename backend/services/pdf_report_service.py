@@ -671,6 +671,159 @@ class PDFReportService:
             
         except Exception as e:
             print(f"Error creating targets chart: {e}")
+    def _create_supplier_personnel_chart(self, suppliers: list, personnel: list) -> str:
+        """Create suppliers and personnel comparison chart"""
+        try:
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
+            
+            # Suppliers by category chart
+            if suppliers and len(suppliers) > 0:
+                # Count suppliers by category
+                supplier_categories = {}
+                for supplier in suppliers:
+                    category = supplier.get('category', 'Diğer')
+                    supplier_categories[category] = supplier_categories.get(category, 0) + 1
+                
+                if supplier_categories:
+                    categories = list(supplier_categories.keys())
+                    counts = list(supplier_categories.values())
+                    colors_suppliers = ['#EF4444', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6'][:len(categories)]
+                    
+                    bars1 = ax1.bar(categories, counts, color=colors_suppliers, alpha=0.8)
+                    ax1.set_title('Tedarikçi Dağılımı', fontsize=14, fontweight='bold', pad=20)
+                    ax1.set_ylabel('Tedarikçi Sayısı', fontsize=12)
+                    ax1.tick_params(axis='x', rotation=45)
+                    ax1.grid(True, alpha=0.3, axis='y')
+                    
+                    # Add value labels on bars
+                    for bar in bars1:
+                        height = bar.get_height()
+                        ax1.text(bar.get_x() + bar.get_width()/2., height,
+                                f'{int(height)}', ha='center', va='bottom', fontsize=10, fontweight='bold')
+                else:
+                    ax1.text(0.5, 0.5, 'Tedarikçi\nverisi yok', ha='center', va='center',
+                            transform=ax1.transAxes, fontsize=12)
+                    ax1.set_title('Tedarikçi Dağılımı', fontsize=14, fontweight='bold')
+            else:
+                ax1.text(0.5, 0.5, 'Tedarikçi\nverisi yok', ha='center', va='center',
+                        transform=ax1.transAxes, fontsize=12)
+                ax1.set_title('Tedarikçi Dağılımı', fontsize=14, fontweight='bold')
+            
+            # Personnel by position chart
+            if personnel and len(personnel) > 0:
+                # Count personnel by position
+                personnel_positions = {}
+                for person in personnel:
+                    position = person.get('position', 'Belirtilmemiş')
+                    # Group similar positions
+                    if 'müdür' in position.lower() or 'manager' in position.lower():
+                        position = 'Yönetim'
+                    elif 'tekniker' in position.lower() or 'teknik' in position.lower():
+                        position = 'Teknik'
+                    elif 'servis' in position.lower() or 'hizmet' in position.lower():
+                        position = 'Hizmet'
+                    elif 'temizlik' in position.lower():
+                        position = 'Temizlik'
+                    else:
+                        position = 'Diğer'
+                    
+                    personnel_positions[position] = personnel_positions.get(position, 0) + 1
+                
+                if personnel_positions:
+                    positions = list(personnel_positions.keys())
+                    counts = list(personnel_positions.values())
+                    colors_personnel = ['#06B6D4', '#F59E0B', '#10B981', '#8B5CF6', '#EF4444'][:len(positions)]
+                    
+                    bars2 = ax2.bar(positions, counts, color=colors_personnel, alpha=0.8)
+                    ax2.set_title('Personel Dağılımı', fontsize=14, fontweight='bold', pad=20)
+                    ax2.set_ylabel('Personel Sayısı', fontsize=12)
+                    ax2.tick_params(axis='x', rotation=45)
+                    ax2.grid(True, alpha=0.3, axis='y')
+                    
+                    # Add value labels on bars
+                    for bar in bars2:
+                        height = bar.get_height()
+                        ax2.text(bar.get_x() + bar.get_width()/2., height,
+                                f'{int(height)}', ha='center', va='bottom', fontsize=10, fontweight='bold')
+                else:
+                    ax2.text(0.5, 0.5, 'Personel\nverisi yok', ha='center', va='center',
+                            transform=ax2.transAxes, fontsize=12)
+                    ax2.set_title('Personel Dağılımı', fontsize=14, fontweight='bold')
+            else:
+                ax2.text(0.5, 0.5, 'Personel\nverisi yok', ha='center', va='center',
+                        transform=ax2.transAxes, fontsize=12)
+                ax2.set_title('Personel Dağılımı', fontsize=14, fontweight='bold')
+            
+            plt.tight_layout()
+            
+            # Save to base64
+            buffer = BytesIO()
+            plt.savefig(buffer, format='png', dpi=150, bbox_inches='tight',
+                       facecolor='white', edgecolor='none')
+            buffer.seek(0)
+            chart_base64 = base64.b64encode(buffer.getvalue()).decode()
+            plt.close()
+            
+            return chart_base64
+            
+        except Exception as e:
+            print(f"Error creating supplier/personnel chart: {e}")
+            return None
+    
+    def _create_certification_distribution_chart(self, personnel: list) -> str:
+        """Create personnel certification distribution pie chart"""
+        try:
+            if not personnel or len(personnel) == 0:
+                return None
+                
+            fig, ax = plt.subplots(1, 1, figsize=(10, 8))
+            
+            # Count certifications
+            certification_counts = {}
+            total_personnel = len(personnel)
+            
+            for person in personnel:
+                certs = person.get('certifications', [])
+                if not certs or len(certs) == 0:
+                    certification_counts['Sertifikasız'] = certification_counts.get('Sertifikasız', 0) + 1
+                else:
+                    for cert in certs:
+                        cert_name = cert.strip()
+                        if cert_name:
+                            certification_counts[cert_name] = certification_counts.get(cert_name, 0) + 1
+            
+            if certification_counts:
+                labels = list(certification_counts.keys())
+                sizes = list(certification_counts.values())
+                colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899'][:len(labels)]
+                
+                # Create pie chart
+                wedges, texts, autotexts = ax.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%',
+                                                startangle=90, textprops={'fontsize': 10})
+                
+                ax.set_title('Personel Sertifika Dağılımı', fontsize=16, fontweight='bold', pad=20)
+                
+                # Add total in center
+                ax.text(0, 0, f'Toplam\n{total_personnel}\nPersonel', ha='center', va='center',
+                       fontsize=12, fontweight='bold', color='#374151',
+                       bbox=dict(boxstyle="round,pad=0.3", facecolor='white', edgecolor='gray', alpha=0.8))
+                
+                plt.tight_layout()
+                
+                # Save to base64
+                buffer = BytesIO()
+                plt.savefig(buffer, format='png', dpi=150, bbox_inches='tight',
+                           facecolor='white', edgecolor='none')
+                buffer.seek(0)
+                chart_base64 = base64.b64encode(buffer.getvalue()).decode()
+                plt.close()
+                
+                return chart_base64
+            else:
+                return None
+                
+        except Exception as e:
+            print(f"Error creating certification chart: {e}")
             return None
     
     def _get_progress_status(self, progress: float) -> str:
