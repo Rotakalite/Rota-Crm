@@ -34,27 +34,53 @@ class PDFReportService:
         self.custom_styles = self._create_custom_styles()
     
     def _register_turkish_fonts(self):
-        """Register Turkish-compatible DejaVu fonts"""
+        """Register Turkish-compatible DejaVu fonts with proper path"""
         try:
-            # Register DejaVu Sans fonts (full Turkish support)
-            pdfmetrics.registerFont(TTFont('DejaVu', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'))
-            pdfmetrics.registerFont(TTFont('DejaVu-Bold', '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'))
+            import os
             
-            # Register font family
-            from reportlab.lib.fonts import addMapping
-            addMapping('DejaVu', 0, 0, 'DejaVu')
-            addMapping('DejaVu', 1, 0, 'DejaVu-Bold')
+            # Define font paths
+            dejavu_regular = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
+            dejavu_bold = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
             
-            self.default_font = 'DejaVu'
-            self.bold_font = 'DejaVu-Bold'
-            
-            print("✅ Turkish fonts registered successfully: DejaVu Sans")
-            
+            # Check if fonts exist
+            if os.path.exists(dejavu_regular) and os.path.exists(dejavu_bold):
+                # Register fonts with explicit paths
+                pdfmetrics.registerFont(TTFont('DejaVuSans', dejavu_regular))
+                pdfmetrics.registerFont(TTFont('DejaVuSans-Bold', dejavu_bold))
+                
+                # Register font family mappings
+                from reportlab.lib.fonts import addMapping
+                addMapping('DejaVuSans', 0, 0, 'DejaVuSans')       # normal
+                addMapping('DejaVuSans', 1, 0, 'DejaVuSans-Bold')  # bold
+                addMapping('DejaVuSans', 0, 1, 'DejaVuSans')       # italic (use regular)
+                addMapping('DejaVuSans', 1, 1, 'DejaVuSans-Bold')  # bold+italic
+                
+                self.default_font = 'DejaVuSans'
+                self.bold_font = 'DejaVuSans-Bold'
+                
+                print("✅ DejaVu fonts registered successfully with proper paths")
+                
+                # Test font by creating a simple text
+                from reportlab.pdfgen import canvas
+                from io import BytesIO
+                test_buffer = BytesIO()
+                test_canvas = canvas.Canvas(test_buffer)
+                test_canvas.setFont('DejaVuSans', 12)
+                test_canvas.drawString(100, 100, "Test: ğüşıöçĞÜŞİÖÇ")
+                test_canvas.save()
+                print("✅ Font test passed - Turkish characters supported")
+                
+            else:
+                raise Exception(f"DejaVu fonts not found at expected paths")
+                
         except Exception as e:
-            print(f"❌ Turkish font registration failed: {e}")
+            print(f"❌ DejaVu font registration failed: {e}")
+            print("🔄 Falling back to Helvetica with character replacement")
+            
             # Fallback to Helvetica
             self.default_font = 'Helvetica'
             self.bold_font = 'Helvetica-Bold'
+            self.use_character_replacement = True
     
     def _create_custom_styles(self):
         """Create custom styles for Turkish content"""
@@ -104,13 +130,31 @@ class PDFReportService:
         return custom_styles
     
     def _encode_turkish_text(self, text):
-        """Keep Turkish characters as-is with proper font support"""
+        """Handle Turkish characters based on font availability"""
         if not text:
             return ""
         
         try:
-            # With DejaVu font, we can keep Turkish characters as-is
-            return str(text)
+            # If we have proper font support, keep Turkish characters
+            if hasattr(self, 'use_character_replacement') and self.use_character_replacement:
+                # Replace Turkish characters with closest ASCII equivalents
+                char_map = {
+                    'ğ': 'g', 'Ğ': 'G',
+                    'ü': 'u', 'Ü': 'U', 
+                    'ö': 'o', 'Ö': 'O',
+                    'ş': 's', 'Ş': 'S',
+                    'ç': 'c', 'Ç': 'C',
+                    'ı': 'i', 'İ': 'I'
+                }
+                
+                result = str(text)
+                for turkish_char, ascii_char in char_map.items():
+                    result = result.replace(turkish_char, ascii_char)
+                return result
+            else:
+                # With DejaVu font, keep Turkish characters as-is
+                return str(text)
+                
         except Exception as e:
             print(f"Error handling Turkish text: {e}")
             return str(text)
