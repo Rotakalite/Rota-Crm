@@ -247,14 +247,15 @@ class ElitePDFReportService:
         }
     
     def _encode_turkish_text(self, text):
-        """Handle Turkish characters based on font availability"""
+        """Handle Turkish characters - NO CONVERSION NEEDED with Liberation/DejaVu fonts"""
         if not text:
             return ""
         
         try:
-            # If we have proper font support, keep Turkish characters
+            # With proper Unicode fonts (Liberation/DejaVu), keep ALL Turkish characters as-is
+            # Liberation Sans has FULL Unicode support for Turkish: ğüşıöçĞÜŞİÖÇ
             if hasattr(self, 'use_character_replacement') and self.use_character_replacement:
-                # Replace Turkish characters with closest ASCII equivalents
+                # Only use replacement if we fell back to Helvetica
                 char_map = {
                     'ğ': 'g', 'Ğ': 'G',
                     'ü': 'u', 'Ü': 'U', 
@@ -269,7 +270,8 @@ class ElitePDFReportService:
                     result = result.replace(turkish_char, ascii_char)
                 return result
             else:
-                # With DejaVu font, keep Turkish characters as-is
+                # With Liberation/DejaVu font, keep Turkish characters exactly as-is
+                # Full Unicode support - no conversion needed!
                 return str(text)
                 
         except Exception as e:
