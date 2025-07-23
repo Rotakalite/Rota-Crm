@@ -4861,9 +4861,6 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
         "count": len(templates)
     }
 
-# Include API router
-app.include_router(api_router, prefix="/api")
-
 @api_router.get("/email-templates/{template_id}")
 async def get_email_template(
     template_id: str, 
