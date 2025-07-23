@@ -4447,13 +4447,23 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                 
                 sent_count += 1
                 
-                # Update campaign progress every 10 emails
-                if sent_count % 10 == 0:
-                    logging.info(f"📧 BULK EMAIL - İlerleme: {sent_count}/{len(valid_email_clients)} email gönderildi")
+                # Update campaign progress more frequently for large campaigns
+                if sent_count % 5 == 0 or sent_count in [1, 10, 25, 50]:
+                    progress_percentage = (i + 1) / len(valid_email_clients) * 100
+                    logging.info(f"📧 BULK EMAIL - İlerleme: {sent_count}/{len(valid_email_clients)} email gönderildi ({progress_percentage:.1f}%)")
                     await db.email_campaigns.update_one(
                         {"id": campaign_id},
-                        {"$set": {"sent_count": sent_count, "failed_count": failed_count}}
+                        {"$set": {
+                            "sent_count": sent_count, 
+                            "failed_count": failed_count,
+                            "progress_percentage": progress_percentage,
+                            "last_updated": datetime.utcnow()
+                        }}
                     )
+                    
+                # Add small delay between emails to prevent overwhelming SMTP server
+                if sent_count % 10 == 0 and i < len(valid_email_clients) - 1:
+                    await asyncio.sleep(1)  # 1 second pause every 10 emails
                 
             except Exception as email_error:
                 error_msg = str(email_error)
