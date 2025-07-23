@@ -1,26 +1,30 @@
 """
-PDF Report Generation Service for Rota-CRM
-Comprehensive reporting system for clients, admins and consultants
+Elite PDF Report Generation Service for Rota-CRM
+Premium professional reporting system with advanced design and analytics
 """
 
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
+from reportlab.lib.units import inch, cm
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
-from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, KeepTogether, Image as RLImage
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT, TA_JUSTIFY
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.graphics.shapes import Drawing, Rect, String
+from reportlab.graphics import renderPDF
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 import io
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import matplotlib
 matplotlib.use('Agg')  # Use non-GUI backend
 import base64
 from io import BytesIO
 import pandas as pd
+import numpy as np
 
 class PDFReportService:
     """
