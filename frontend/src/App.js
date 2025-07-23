@@ -6407,7 +6407,8 @@ const BulkOperations = ({ onNavigate }) => {
       }
 
       const response = await axios.post(`${API}/bulk-email/send`, emailData, {
-        headers: { Authorization: `Bearer ${authToken}` }
+        headers: { Authorization: `Bearer ${authToken}` },
+        timeout: 7200000 // 120 minutes for bulk email
       });
 
       setBulkEmailResult(response.data);
