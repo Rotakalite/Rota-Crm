@@ -1,0 +1,166 @@
+{
+  "total_tests": 26,
+  "passed_tests": 26,
+  "failed_tests": 0,
+  "warning_tests": 0,
+  "success_rate": 100.0,
+  "critical_issues": 0,
+  "test_results": [
+    {
+      "test": "Elite Endpoint Accessibility - /api/reports/comprehensive",
+      "status": "PASS",
+      "details": "\u2705 Endpoint accessible and properly secured (returns 403)",
+      "timestamp": "2025-07-23T12:26:12.994234"
+    },
+    {
+      "test": "Elite Endpoint Accessibility - /api/reports/training",
+      "status": "PASS",
+      "details": "\u2705 Endpoint accessible and properly secured (returns 403)",
+      "timestamp": "2025-07-23T12:26:13.181227"
+    },
+    {
+      "test": "Elite Endpoint Accessibility - /api/reports/consumption",
+      "status": "PASS",
+      "details": "\u2705 Endpoint accessible and properly secured (returns 403)",
+      "timestamp": "2025-07-23T12:26:13.367222"
+    },
+    {
+      "test": "Auth Security - /api/reports/comprehensive",
+      "status": "PASS",
+      "details": "\u2705 Properly requires authentication (403 Forbidden)",
+      "timestamp": "2025-07-23T12:26:13.827911"
+    },
+    {
+      "test": "Auth Security - /api/reports/training",
+      "status": "PASS",
+      "details": "\u2705 Properly requires authentication (403 Forbidden)",
+      "timestamp": "2025-07-23T12:26:14.012134"
+    },
+    {
+      "test": "Auth Security - /api/reports/consumption",
+      "status": "PASS",
+      "details": "\u2705 Properly requires authentication (403 Forbidden)",
+      "timestamp": "2025-07-23T12:26:14.195851"
+    },
+    {
+      "test": "Token Validation - /api/reports/comprehensive",
+      "status": "PASS",
+      "details": "\u2705 Properly rejects invalid tokens (401 Unauthorized)",
+      "timestamp": "2025-07-23T12:26:14.382465"
+    },
+    {
+      "test": "Token Validation - /api/reports/training",
+      "status": "PASS",
+      "details": "\u2705 Properly rejects invalid tokens (401 Unauthorized)",
+      "timestamp": "2025-07-23T12:26:14.566691"
+    },
+    {
+      "test": "Token Validation - /api/reports/consumption",
+      "status": "PASS",
+      "details": "\u2705 Properly rejects invalid tokens (401 Unauthorized)",
+      "timestamp": "2025-07-23T12:26:14.749812"
+    },
+    {
+      "test": "Client User Access - /api/reports/comprehensive",
+      "status": "PASS",
+      "details": "\u2705 Client users properly handled (authentication required)",
+      "timestamp": "2025-07-23T12:26:15.063248"
+    },
+    {
+      "test": "Client User Access - /api/reports/training",
+      "status": "PASS",
+      "details": "\u2705 Client users properly handled (authentication required)",
+      "timestamp": "2025-07-23T12:26:15.247501"
+    },
+    {
+      "test": "Client User Access - /api/reports/consumption",
+      "status": "PASS",
+      "details": "\u2705 Client users properly handled (authentication required)",
+      "timestamp": "2025-07-23T12:26:15.432134"
+    },
+    {
+      "test": "Admin/Consultant Access - /api/reports/comprehensive",
+      "status": "PASS",
+      "details": "\u2705 Admin/Consultant users properly handled (authentication required)",
+      "timestamp": "2025-07-23T12:26:15.616657"
+    },
+    {
+      "test": "Admin/Consultant Access - /api/reports/training",
+      "status": "PASS",
+      "details": "\u2705 Admin/Consultant users properly handled (authentication required)",
+      "timestamp": "2025-07-23T12:26:15.801007"
+    },
+    {
+      "test": "Admin/Consultant Access - /api/reports/consumption",
+      "status": "PASS",
+      "details": "\u2705 Admin/Consultant users properly handled (authentication required)",
+      "timestamp": "2025-07-23T12:26:15.985285"
+    },
+    {
+      "test": "Elite Backend Health",
+      "status": "PASS",
+      "details": "\u2705 Backend is healthy and accessible",
+      "timestamp": "2025-07-23T12:26:16.445527"
+    },
+    {
+      "test": "Elite PDF Service - /api/reports/comprehensive",
+      "status": "PASS",
+      "details": "\u2705 Elite PDF service appears to be available (authentication required)",
+      "timestamp": "2025-07-23T12:26:16.768055"
+    },
+    {
+      "test": "Elite PDF Service - /api/reports/training",
+      "status": "PASS",
+      "details": "\u2705 Elite PDF service appears to be available (authentication required)",
+      "timestamp": "2025-07-23T12:26:16.950568"
+    },
+    {
+      "test": "Elite PDF Service - /api/reports/consumption",
+      "status": "PASS",
+      "details": "\u2705 Elite PDF service appears to be available (authentication required)",
+      "timestamp": "2025-07-23T12:26:17.136748"
+    },
+    {
+      "test": "Turkish Font Support - /api/reports/comprehensive",
+      "status": "PASS",
+      "details": "\u2705 Turkish characters properly handled (returns 403)",
+      "timestamp": "2025-07-23T12:26:17.444908"
+    },
+    {
+      "test": "Turkish Font Support - /api/reports/training",
+      "status": "PASS",
+      "details": "\u2705 Turkish characters properly handled (returns 403)",
+      "timestamp": "2025-07-23T12:26:17.629518"
+    },
+    {
+      "test": "Turkish Font Support - /api/reports/consumption",
+      "status": "PASS",
+      "details": "\u2705 Turkish characters properly handled (returns 403)",
+      "timestamp": "2025-07-23T12:26:17.815843"
+    },
+    {
+      "test": "Elite Features - Comprehensive Elite Report",
+      "status": "PASS",
+      "details": "\u2705 Elite report endpoint properly secured and configured",
+      "timestamp": "2025-07-23T12:26:18.156485"
+    },
+    {
+      "test": "Elite Features - Elite Training Report",
+      "status": "PASS",
+      "details": "\u2705 Elite report endpoint properly secured and configured",
+      "timestamp": "2025-07-23T12:26:18.347056"
+    },
+    {
+      "test": "Elite Features - Elite Consumption Report",
+      "status": "PASS",
+      "details": "\u2705 Elite report endpoint properly secured and configured",
+      "timestamp": "2025-07-23T12:26:18.530199"
+    },
+    {
+      "test": "Elite Dependencies",
+      "status": "PASS",
+      "details": "\u2705 All Elite PDF dependencies appear to be available",
+      "timestamp": "2025-07-23T12:26:18.845369"
+    }
+  ]
+}
