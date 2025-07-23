@@ -543,8 +543,8 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
       }
       
       // Add folder filter if browsing specific folder
-      if (currentFolder && currentFolder.id) {
-        params.append('folder_id', currentFolder.id);
+      if (selectedFolder && selectedFolder.id) {
+        params.append('folder_id', selectedFolder.id);
       }
       
       if (params.toString()) {
