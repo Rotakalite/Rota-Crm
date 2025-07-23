@@ -4209,10 +4209,32 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
         if not email_service:
             raise HTTPException(status_code=500, detail="Email servisi mevcut değil")
         
+        # CREATE EMAIL CAMPAIGN RECORD for tracking
+        campaign_id = str(uuid.uuid4())
+        campaign_start = datetime.utcnow()
+        
+        email_campaign = {
+            "id": campaign_id,
+            "template_id": template_id or "custom",
+            "subject": subject,
+            "total_recipients": len(valid_email_clients),
+            "sent_count": 0,
+            "failed_count": 0,
+            "started_at": campaign_start,
+            "completed_at": None,
+            "filters": target_filters,
+            "sent_by": current_user.email,
+            "status": "in_progress"
+        }
+        
+        # Save campaign to database
+        await db.email_campaigns.insert_one(email_campaign)
+        
         sent_count = 0
         failed_count = 0
+        failed_emails = []  # Track failed email addresses
         
-        for client in valid_email_clients:
+        for i, client in enumerate(valid_email_clients):
             try:
                 # Personalize content with template variables
                 personalized_subject = subject
