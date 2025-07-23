@@ -120,12 +120,12 @@ class PDFReportService:
         canvas.saveState()
         
         # Header
-        canvas.setFont('Helvetica-Bold', 16)
+        canvas.setFont(self.bold_font, 16)
         canvas.setFillColor(colors.HexColor('#059669'))
         canvas.drawString(50, A4[1] - 50, self._encode_turkish_text("ROTA KALİTE & DANIŞMANLIK"))
         
         # Date
-        canvas.setFont('Helvetica', 10)
+        canvas.setFont(self.default_font, 10)
         canvas.setFillColor(colors.black)
         canvas.drawRightString(A4[0] - 50, A4[1] - 50, f"Rapor Tarihi: {datetime.now().strftime('%d.%m.%Y %H:%M')}")
         
