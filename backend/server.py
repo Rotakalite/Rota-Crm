@@ -4261,9 +4261,6 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                 personalized_content = personalized_content.replace("{city}", client_data["city"]) 
                 personalized_content = personalized_content.replace("{contact_person}", client_data["contact_person"])
                 
-                # Convert line breaks to HTML
-                personalized_content = personalized_content.replace('\n', '<br>')
-                
                 # Send email
                 await email_service.send_email(
                     to_email=client["email"],
