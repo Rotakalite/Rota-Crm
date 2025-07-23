@@ -780,13 +780,13 @@ class PDFReportService:
                 ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#059669')),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTNAME', (0, 0), (-1, 0), self.bold_font),
                 ('FONTSIZE', (0, 0), (-1, -1), 9),
                 ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
                 ('BACKGROUND', (0, 1), (-1, -2), colors.lightgreen),
                 ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#16A34A')),
                 ('TEXTCOLOR', (0, -1), (-1, -1), colors.whitesmoke),
-                ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+                ('FONTNAME', (0, -1), (-1, -1), self.bold_font),
                 ('GRID', (0, 0), (-1, -1), 1, colors.black)
             ]))
             story.append(consumption_table)
