@@ -34,9 +34,22 @@ class ElitePDFReportService:
     
     def __init__(self):
         self.styles = getSampleStyleSheet()
-        self._register_turkish_fonts()
-        self.custom_styles = self._create_elite_styles()
+        
+        # Initialize brand colors FIRST - before font registration that might fail
         self.brand_colors = self._define_brand_colors()
+        
+        # Safe font registration with fallback
+        try:
+            self._register_turkish_fonts()
+        except Exception as e:
+            print(f"❌ Elite PDF: Font registration failed: {e}")
+            print("🔄 Using Helvetica fallback")
+            self.default_font = 'Helvetica'
+            self.bold_font = 'Helvetica-Bold'
+            self.use_character_replacement = True
+        
+        # Initialize styles after fonts are ready
+        self.custom_styles = self._create_elite_styles()
         self.page_width = A4[0]
         self.page_height = A4[1]
     
