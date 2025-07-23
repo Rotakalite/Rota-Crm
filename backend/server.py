@@ -15,7 +15,7 @@ from typing import List, Optional
 from fastapi import FastAPI, APIRouter, HTTPException, status, Depends, UploadFile, File, Form, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, Response, StreamingResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.middleware import Middleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.gzip import GZipMiddleware
@@ -893,132 +893,6 @@ async def health_check():
         "timestamp": datetime.utcnow().isoformat(),
         "version": "1.0.0",
         "api_router_mounted": True
-    }
-
-# EMAIL TEMPLATE ENDPOINTS - ADMIN ONLY (MOVED TO TOP FOR PRIORITY)
-@api_router.get("/email-templates")
-async def get_email_templates_priority(current_user: User = Depends(get_admin_user)):
-    """Get all predefined email templates - ADMIN ONLY"""
-    templates = [
-        {
-            "id": "certificate_reminder",
-            "name": "Sertifika Hatırlatması",
-            "description": "Sertifika geçerlilik süresi bitecek müşteriler için",
-            "subject": "🏨 Sertifika Yenileme Hatırlatması - {{hotel_name}}",
-            "content": """Değerli {{contact_person}},
-
-{{hotel_name}} işletmenizin sürdürülebilirlik sertifikasının geçerlilik süresinin {{certificate_end_date}} tarihinde sona ermesi planlanmaktadır.
-
-Sertifikanızın sürekli geçerli kalabilmesi için lütfen yenileme sürecinizi başlatınız.
-
-🔹 Yenileme süreci hakkında bilgi almak
-🔹 Denetim randevusu oluşturmak  
-🔹 Gerekli evrak hazırlığı konusunda destek almak
-
-için bizimle iletişime geçebilirsiniz.
-
-Sürdürülebilir turizm yolculuğunuzda yanınızda olmaktan memnuniyet duyuyoruz.
-
-Saygılarımızla,
-ROTA Sürdürülebilir Turizm Danışmanlık"""
-        },
-        {
-            "id": "general_announcement", 
-            "name": "Genel Duyuru",
-            "description": "Genel müşteri duyuruları için",
-            "subject": "Sürdürülebilir Turizm Danışmanlığı Hk.",
-            "content": """{content}"""
-        },
-        {
-            "id": "sustainability_tips",
-            "name": "Sürdürülebilirlik İpuçları",
-            "description": "Aylık sürdürülebilirlik önerileri",
-            "subject": "🌱 Bu Ay İçin Sürdürülebilirlik İpuçları - {{hotel_name}}",
-            "content": """Merhaba {{contact_person}},
-
-{{hotel_name}} için bu ayın sürdürülebilirlik ipuçlarını paylaşıyoruz:
-
-🌿 **Enerji Verimliliği:**
-• LED aydınlatma sistemlerini tercih edin
-• Odalarda hareket sensörlü sistemler kullanın
-• Klima ayarlarını optimize edin
-
-💧 **Su Tasarrufu:**
-• Düşük akışlı duş başlıkları kullanın  
-• Havlu ve çarşaf değişim politikaları uygulayın
-• Drip sulama sistemlerini tercih edin
-
-♻️ **Atık Azaltma:**
-• Geri dönüşüm kutularını arttırın
-• Tek kullanımlık ürünleri azaltın
-• Compost sistemi kurun
-
-Bu önerileri hayata geçirmek için destek almak istiyorsanız, bizimle iletişime geçin.
-
-Saygılarımızla,
-ROTA Sürdürülebilir Turizm Danışmanlık"""
-        },
-        {
-            "id": "training_invitation",
-            "name": "Eğitim Davetiyesi",
-            "description": "Sürdürülebilirlik eğitimleri için davet",
-            "subject": "🎓 Ücretsiz Sürdürülebilirlik Eğitimi Davetiyesi - {{hotel_name}}",
-            "content": """Sayın {{contact_person}},
-
-{{hotel_name}} ekibiniz için düzenlediğimiz **ücretsiz sürdürülebilirlik eğitimlerimize** davet ediyoruz!
-
-📅 **Eğitim Konuları:**
-• Sürdürülebilir turizm temelleri
-• Enerji ve su tasarrufu teknikleri  
-• Atık yönetimi stratejileri
-• Misafir farkındalığı oluşturma
-• Sertifika süreçleri
-
-🎯 **Kimler Katılabilir:**
-• Otel yöneticileri
-• Housekeeping departmanı
-• Food & Beverage personeli
-• Teknik servis ekibi
-
-📞 **Kayıt ve Bilgi:**
-Eğitim tarih ve saatleri için bizimle iletişime geçiniz.
-
-Sürdürülebilir turizm yolculuğunda bilgi en değerli silahımızdır.
-
-Katılımınızı bekliyoruz,
-ROTA Sürdürülebilir Turizm Danışmanlık Eğitim Ekibi"""
-        },
-        {
-            "id": "survey_request",
-            "name": "Anket Talebi", 
-            "description": "Müşteri geri bildirim anketi",
-            "subject": "📋 Hizmet Kalitesi Anketi - Görüşünüz Bizim İçin Değerli",
-            "content": """Değerli {{contact_person}},
-
-{{hotel_name}} ile sürdürülebilirlik yolculuğunda birlikte olduğumuz süre zarfında aldığınız hizmet kalitesi hakkındaki düşüncelerinizi öğrenmek istiyoruz.
-
-🔹 **Neden Bu Anket Önemli?**
-• Hizmetlerimizi geliştirmek için
-• Size daha iyi destek verebilmek için  
-• Sürdürülebilirlik hedeflerinize daha uygun çözümler sunabilmek için
-
-⏱️ **Süre:** Sadece 3-5 dakika
-🎁 **Hediye:** Anket sonrası özel sürdürülebilirlik raporu
-
-[ANKET LİNKİ BURAYA EKLENECEKTİR]
-
-Zaman ayırdığınız için şimdiden teşekkür ederiz.
-
-Sürdürülebilir turizm yolculuğunuzda her zaman yanınızdayız.
-
-Saygılarımızla,
-ROTA Sürdürülebilir Turizm Danışmanlık"""
-        }
-    ]
-    
-    return {
-        "templates": templates,
-        "count": len(templates)
     }
 
 @app.post("/api/debug/fix-personnel-names")
@@ -4335,32 +4209,10 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
         if not email_service:
             raise HTTPException(status_code=500, detail="Email servisi mevcut değil")
         
-        # CREATE EMAIL CAMPAIGN RECORD for tracking
-        campaign_id = str(uuid.uuid4())
-        campaign_start = datetime.utcnow()
-        
-        email_campaign = {
-            "id": campaign_id,
-            "template_id": template_id or "custom",
-            "subject": subject,
-            "total_recipients": len(valid_email_clients),
-            "sent_count": 0,
-            "failed_count": 0,
-            "started_at": campaign_start,
-            "completed_at": None,
-            "filters": target_filters,
-            "sent_by": current_user.email,
-            "status": "in_progress"
-        }
-        
-        # Save campaign to database
-        await db.email_campaigns.insert_one(email_campaign)
-        
         sent_count = 0
         failed_count = 0
-        failed_emails = []  # Track failed email addresses
         
-        for i, client in enumerate(valid_email_clients):
+        for client in valid_email_clients:
             try:
                 # Personalize content with template variables
                 personalized_subject = subject
@@ -4387,6 +4239,9 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                 personalized_content = personalized_content.replace("{city}", client_data["city"]) 
                 personalized_content = personalized_content.replace("{contact_person}", client_data["contact_person"])
                 
+                # Convert line breaks to HTML
+                personalized_content = personalized_content.replace('\n', '<br>')
+                
                 # Send email
                 await email_service.send_email(
                     to_email=client["email"],
@@ -4396,29 +4251,22 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                     <html lang="tr">
                     <head>
                         <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <title>{personalized_subject}</title>
                         <style>
-                            * {{
-                                margin: 0;
-                                padding: 0;
-                                box-sizing: border-box;
-                            }}
-                            body {{
-                                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                                line-height: 1.8;
-                                color: #333;
-                                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-                                margin: 0;
+                            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+                            body {{ 
+                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                min-height: 100vh;
                                 padding: 40px 20px;
                             }}
                             .email-container {{
-                                max-width: 700px;
+                                max-width: 1000px;
                                 margin: 0 auto;
-                                background: white;
-                                border-radius: 20px;
+                                background: #ffffff;
+                                border-radius: 25px;
                                 overflow: hidden;
-                                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+                                box-shadow: 0 25px 50px rgba(102, 126, 234, 0.4);
                             }}
                             .header {{
                                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -4470,62 +4318,86 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                             }}
                             .greeting {{
                                 font-size: 32px;
-                                color: #2c3e50;
-                                margin-bottom: 30px;
+                                color: #333;
+                                margin-bottom: 20px;
                                 font-weight: 600;
-                            }}
-                            .message {{
-                                font-size: 18px;
-                                line-height: 1.8;
-                                color: #34495e;
-                                margin-bottom: 40px;
-                                white-space: pre-line;
-                            }}
-                            .cta-section {{
                                 text-align: center;
+                            }}
+                            .content-box {{
+                                background: #f8f9ff;
+                                border: 3px solid #e6e8f8;
+                                border-radius: 20px;
+                                padding: 45px;
                                 margin: 40px 0;
+                                font-size: 20px;
+                                line-height: 1.8;
+                                color: #444;
+                                box-shadow: 0 5px 15px rgba(0,0,0,0.05);
                             }}
-                            .cta-button {{
-                                display: inline-block;
-                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                color: white;
-                                padding: 15px 40px;
-                                border-radius: 50px;
-                                text-decoration: none;
-                                font-size: 18px;
+                            .warning-box {{
+                                background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+                                border: 3px solid #f0ad4e;
+                                border-radius: 20px;
+                                padding: 35px;
+                                margin: 40px 0;
+                                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                            }}
+                            .warning-icon {{
+                                font-size: 28px;
+                                margin-bottom: 20px;
+                            }}
+                            .warning-title {{
                                 font-weight: 600;
-                                transition: transform 0.3s ease;
-                                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+                                color: #8a6d3b;
+                                margin-bottom: 20px;
+                                font-size: 22px;
                             }}
-                            .cta-button:hover {{
-                                transform: translateY(-2px);
+                            .warning-text {{
+                                color: #8a6d3b;
+                                font-size: 18px;
+                                line-height: 1.6;
                             }}
                             .footer {{
-                                background: #f8f9fa;
-                                padding: 40px 50px;
+                                background: #f8f9ff;
+                                padding: 50px;
                                 text-align: center;
-                                border-top: 1px solid #e9ecef;
+                                border-top: 2px solid #e6e8f8;
                             }}
-                            .footer p {{
-                                color: #6c757d;
-                                font-size: 16px;
-                                margin-bottom: 10px;
+                            .footer-text {{
+                                font-size: 17px;
+                                color: #888;
+                                line-height: 1.6;
+                                margin-bottom: 20px;
                             }}
-                            .social-links {{
-                                margin-top: 20px;
-                            }}
-                            .social-links a {{
-                                display: inline-block;
-                                margin: 0 10px;
+                            .company-name {{
+                                font-weight: 600;
                                 color: #667eea;
-                                font-size: 24px;
-                                text-decoration: none;
                             }}
-                            .divider {{
-                                height: 4px;
-                                background: linear-gradient(90deg, #667eea, #764ba2);
-                                margin: 30px 0;
-                                border-radius: 2px;
+                            .certificate-badge {{
+                                display: inline-block;
+                                background: linear-gradient(135deg, #00b894, #00cec9);
+                                color: white;
+                                padding: 15px 30px;
+                                border-radius: 30px;
+                                font-size: 18px;
+                                font-weight: 600;
+                                margin: 20px 0;
+                                box-shadow: 0 5px 15px rgba(0,184,148,0.3);
+                            }}
+                            
+                            /* Mobile Responsive */
+                            @media only screen and (max-width: 600px) {{
+                                body {{ padding: 20px 10px; }}
+                                .email-container {{ max-width: 100%; }}
+                                .header {{ padding: 40px 20px; }}
+                                .content {{ padding: 30px 20px; }}
+                                .footer {{ padding: 30px 20px; }}
+                                .header h1 {{ font-size: 28px; }}
+                                .greeting {{ font-size: 24px; }}
+                                .content-box {{ padding: 25px; font-size: 16px; }}
+                                .logo {{ width: 70px; height: 70px; font-size: 28px; }}
+                                .company-logo {{ width: 80px; }}
+                                .logo-container {{ flex-direction: column; gap: 15px; }}
                             }}
                         </style>
                     </head>
@@ -4533,23 +4405,46 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                         <div class="email-container">
                             <div class="header">
                                 <div class="logo-container">
-                                    <div class="logo">🏨</div>
+                                    <div class="logo">🌿</div>
+                                    <svg class="company-logo" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+                                        <text x="100" y="35" text-anchor="middle" font-family="Arial Black, Arial" font-size="24" font-weight="bold" fill="white">ROTA</text>
+                                        <text x="100" y="55" text-anchor="middle" font-family="Arial" font-size="10" font-weight="normal" fill="white" opacity="0.8">KALİTE & DANIŞMANLIK</text>
+                                    </svg>
                                 </div>
-                                <h1>ROTA KALİTE & DANIŞMANLIK</h1>
-                                <p>Sürdürülebilir Turizm Uzmanınız</p>
+                                <h1>Rota Kalite & Danışmanlık</h1>
+                                <p>Profesyonel Sürdürülebilir Turizm Danışmanlığı</p>
+                                <div class="certificate-badge">🏨 Sürdürülebilir Turizm Uzmanı</div>
                             </div>
+                            
                             <div class="content">
-                                <div class="greeting">Merhaba!</div>
-                                <div class="message">{personalized_content}</div>
-                                <div class="divider"></div>
-                                <div class="cta-section">
-                                    <p style="color: #6c757d; margin-bottom: 20px;">Bizimle İletişime Geçin</p>
+                                <div class="greeting">
+                                    Merhaba! 👋
+                                </div>
+                                
+                                <div class="content-box">
+                                    {personalized_content}
+                                </div>
+                                
+                                <div class="warning-box">
+                                    <div class="warning-icon">⚠️</div>
+                                    <div class="warning-title">Önemli Bilgilendirme</div>
+                                    <div class="warning-text">
+                                        • Bu email otomatik olarak gönderilmiştir<br>
+                                        • Herhangi bir sorunuz için bizimle iletişime geçebilirsiniz<br>
+                                        • Sürdürülebilir turizm yolculuğunuzda yanınızdayız
+                                    </div>
                                 </div>
                             </div>
+                            
                             <div class="footer">
-                                <p><strong>ROTA KALİTE & DANIŞMANLIK</strong></p>
-                                <p>Sürdürülebilir Turizm Danışmanlık Hizmetleri</p>
-                                <p style="font-size: 14px; color: #868e96;">Bu email otomatik olarak gönderilmiştir.</p>
+                                <div class="footer-text">
+                                    Bu email <span class="company-name">Rota Kalite & Danışmanlık</span> tarafından gönderilmiştir.<br>
+                                    <strong>📞 İletişim:</strong> bilgi@rotakalitedanismanlik.com | +90 (546) 149 00 32<br>
+                                    <strong>🌐 Web:</strong> www.rotakalitedanismanlik.com
+                                </div>
+                                <div class="footer-text" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e6e8f8;">
+                                    © 2025 Rota Kalite & Danışmanlık. Tüm hakları saklıdır.
+                                </div>
                             </div>
                         </div>
                     </body>
@@ -4557,64 +4452,6 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                     """,
                     from_name="ROTA KALİTE & DANIŞMANLIK"
                 )
-                
-                # LOG EMAIL DELIVERY SUCCESS
-                email_log = {
-                    "id": str(uuid.uuid4()),
-                    "campaign_id": campaign_id,
-                    "client_id": client.get("id"),
-                    "client_email": client["email"],
-                    "client_name": client_data["hotel_name"],
-                    "status": "sent",
-                    "sent_at": datetime.utcnow(),
-                    "error": None
-                }
-                await db.email_delivery_logs.insert_one(email_log)
-                
-                sent_count += 1
-                
-                # Update campaign progress more frequently for large campaigns
-                if sent_count % 5 == 0 or sent_count in [1, 10, 25, 50]:
-                    progress_percentage = (i + 1) / len(valid_email_clients) * 100
-                    logging.info(f"📧 BULK EMAIL - İlerleme: {sent_count}/{len(valid_email_clients)} email gönderildi ({progress_percentage:.1f}%)")
-                    await db.email_campaigns.update_one(
-                        {"id": campaign_id},
-                        {"$set": {
-                            "sent_count": sent_count, 
-                            "failed_count": failed_count,
-                            "progress_percentage": progress_percentage,
-                            "last_updated": datetime.utcnow()
-                        }}
-                    )
-                    
-                # Add small delay between emails to prevent overwhelming SMTP server
-                if sent_count % 10 == 0 and i < len(valid_email_clients) - 1:
-                    await asyncio.sleep(1)  # 1 second pause every 10 emails
-                
-            except Exception as email_error:
-                error_msg = str(email_error)
-                logging.error(f"❌ Email gönderme hatası - {client.get('email', 'Unknown')}: {error_msg}")
-                
-                # LOG EMAIL DELIVERY FAILURE
-                email_log = {
-                    "id": str(uuid.uuid4()),
-                    "campaign_id": campaign_id,
-                    "client_id": client.get("id"),
-                    "client_email": client.get("email", "Unknown"),
-                    "client_name": client.get("hotel_name", client.get("name", "Unknown")),
-                    "status": "failed",
-                    "sent_at": datetime.utcnow(),
-                    "error": error_msg
-                }
-                await db.email_delivery_logs.insert_one(email_log)
-                
-                failed_count += 1
-                failed_emails.append({
-                    "email": client.get("email", "Unknown"),
-                    "name": client.get("hotel_name", client.get("name", "Unknown")),
-                    "error": error_msg
-                })
-                continue
                 
                 sent_count += 1
                 
@@ -4626,41 +4463,24 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                 failed_count += 1
                 continue
         
-        # Update final campaign status
-        campaign_end = datetime.utcnow()
-        await db.email_campaigns.update_one(
-            {"id": campaign_id},
-            {"$set": {
-                "sent_count": sent_count,
-                "failed_count": failed_count,
-                "completed_at": campaign_end,
-                "status": "completed",
-                "success_rate": (sent_count / len(valid_email_clients) * 100) if valid_email_clients else 0
-            }}
-        )
-        
         logging.info(f"📧 BULK EMAIL - Tamamlandı: {sent_count} başarılı, {failed_count} başarısız")
         
         return {
             "success": True,
-            "campaign_id": campaign_id,
             "sent_count": sent_count,
             "failed_count": failed_count,
             "total_clients": len(clients),
             "valid_email_count": len(valid_email_clients),
-            "success_rate": round((sent_count / len(valid_email_clients) * 100), 2),
-            "failed_emails": failed_emails[:10],  # Return first 10 failed emails
-            "total_failed_emails": len(failed_emails),
-            "message": f"Toplu email gönderimi tamamlandı! {sent_count} email başarıyla gönderildi, {failed_count} email gönderilemedi."
+            "message": f"Toplu email gönderimi tamamlandı! {sent_count} email başarıyla gönderildi."
         }
         
     except Exception as e:
         logging.error(f"❌ BULK EMAIL ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Toplu email gönderme hatası: {str(e)}")
 
-@app.get("/api/bulk-email/stats")
+@api_router.get("/bulk-email/stats")
 async def get_bulk_email_stats(current_user: User = Depends(get_admin_user)):
-    """Get enhanced email statistics with campaign history - ADMIN ONLY"""
+    """Get email statistics for bulk email - ADMIN ONLY"""
     try:
         # Get total BULK clients
         total_bulk_clients = await db.clients.count_documents({"client_type": "bulk"})
@@ -4668,324 +4488,36 @@ async def get_bulk_email_stats(current_user: User = Depends(get_admin_user)):
         # Get BULK clients with email
         bulk_clients_with_email = await db.clients.count_documents({
             "client_type": "bulk",
-            "email": {"$ne": "", "$exists": True, "$regex": "@"}
+            "email": {"$ne": "", "$exists": True}
         })
-        
-        # Get recent email campaigns (last 30 days)
-        thirty_days_ago = datetime.utcnow() - timedelta(days=30)
-        recent_campaigns = await db.email_campaigns.find({
-            "started_at": {"$gte": thirty_days_ago}
-        }).sort("started_at", -1).limit(10).to_list(length=None)
-        
-        # Calculate campaign statistics
-        total_emails_sent = 0
-        total_emails_failed = 0
-        
-        for campaign in recent_campaigns:
-            total_emails_sent += campaign.get("sent_count", 0)
-            total_emails_failed += campaign.get("failed_count", 0)
-        
-        # Get delivery statistics for today
-        today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
-        
-        today_successful = await db.email_delivery_logs.count_documents({
-            "status": "sent",
-            "sent_at": {"$gte": today}
-        })
-        
-        today_failed = await db.email_delivery_logs.count_documents({
-            "status": "failed", 
-            "sent_at": {"$gte": today}
-        })
-        
-        # Get most recent failed emails for troubleshooting
-        recent_failures = await db.email_delivery_logs.find({
-            "status": "failed"
-        }).sort("sent_at", -1).limit(5).to_list(length=None)
-        
-        failed_summary = []
-        for failure in recent_failures:
-            failed_summary.append({
-                "email": failure.get("client_email"),
-                "name": failure.get("client_name"), 
-                "error": failure.get("error", "")[:100],  # First 100 chars
-                "timestamp": failure.get("sent_at").strftime("%Y-%m-%d %H:%M")
-            })
         
         # Get city distribution for BULK clients
         city_pipeline = [
             {"$match": {"client_type": "bulk"}},
             {"$group": {"_id": "$city", "count": {"$sum": 1}}},
-            {"$sort": {"count": -1}},
-            {"$limit": 10}
+            {"$sort": {"count": -1}}
         ]
         city_stats = await db.clients.aggregate(city_pipeline).to_list(length=None)
         
-        # Success rate calculation
-        total_attempted = total_emails_sent + total_emails_failed
-        success_rate = (total_emails_sent / total_attempted * 100) if total_attempted > 0 else 0
+        # Get audit company distribution for BULK clients
+        audit_pipeline = [
+            {"$match": {"client_type": "bulk"}},
+            {"$group": {"_id": "$audit_company", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}}
+        ]
+        audit_stats = await db.clients.aggregate(audit_pipeline).to_list(length=None)
         
         return {
-            "success": True,
             "total_bulk_clients": total_bulk_clients,
             "bulk_clients_with_email": bulk_clients_with_email,
             "email_coverage_percentage": round((bulk_clients_with_email / total_bulk_clients * 100), 2) if total_bulk_clients > 0 else 0,
-            
-            # Campaign statistics (last 30 days)
-            "campaign_stats": {
-                "total_campaigns": len(recent_campaigns),
-                "total_emails_sent": total_emails_sent,
-                "total_emails_failed": total_emails_failed,
-                "overall_success_rate": round(success_rate, 2)
-            },
-            
-            # Today's statistics
-            "today_stats": {
-                "emails_sent": today_successful,
-                "emails_failed": today_failed,
-                "success_rate": round((today_successful / (today_successful + today_failed) * 100), 2) if (today_successful + today_failed) > 0 else 0
-            },
-            
-            # Recent campaigns details
-            "recent_campaigns": [
-                {
-                    "id": campaign.get("id"),
-                    "template_id": campaign.get("template_id"),
-                    "subject": campaign.get("subject", "")[:50],  # First 50 chars
-                    "sent_count": campaign.get("sent_count", 0),
-                    "failed_count": campaign.get("failed_count", 0),
-                    "success_rate": campaign.get("success_rate", 0),
-                    "started_at": campaign.get("started_at").strftime("%Y-%m-%d %H:%M"),
-                    "status": campaign.get("status", "unknown"),
-                    "sent_by": campaign.get("sent_by", "Unknown")
-                }
-                for campaign in recent_campaigns
-            ],
-            
-            # Recent failures for troubleshooting
-            "recent_failures": failed_summary,
-            
-            # Geographic distribution
-            "city_distribution": [
-                {"city": stat["_id"] or "Belirtilmemiş", "count": stat["count"]}
-                for stat in city_stats
-            ]
+            "city_distribution": city_stats[:10],  # Top 10 cities
+            "audit_company_distribution": audit_stats[:10]  # Top 10 audit companies
         }
         
     except Exception as e:
-        logging.error(f"❌ BULK EMAIL STATS ERROR: {str(e)}")
+        logging.error(f"❌ Bulk email stats error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Email istatistik hatası: {str(e)}")
-
-@app.get("/api/bulk-email/campaign/{campaign_id}")
-async def get_campaign_details(
-    campaign_id: str,
-    current_user: User = Depends(get_admin_user)
-):
-    """Get detailed information about a specific email campaign"""
-    try:
-        # Get campaign info
-        campaign = await db.email_campaigns.find_one({"id": campaign_id})
-        if not campaign:
-            raise HTTPException(status_code=404, detail="Kampanya bulunamadı")
-        
-        # Get delivery logs for this campaign
-        delivery_logs = await db.email_delivery_logs.find({
-            "campaign_id": campaign_id
-        }).sort("sent_at", -1).to_list(length=None)
-        
-        # Separate successful and failed deliveries
-        successful_deliveries = [log for log in delivery_logs if log.get("status") == "sent"]
-        failed_deliveries = [log for log in delivery_logs if log.get("status") == "failed"]
-        
-        # Format failed deliveries for display
-        failed_details = []
-        for failure in failed_deliveries:
-            failed_details.append({
-                "client_name": failure.get("client_name", "Bilinmeyen"),
-                "client_email": failure.get("client_email", ""),
-                "error": failure.get("error", "Bilinmeyen hata"),
-                "timestamp": failure.get("sent_at").strftime("%Y-%m-%d %H:%M:%S")
-            })
-        
-        return {
-            "success": True,
-            "campaign": {
-                "id": campaign.get("id"),
-                "template_id": campaign.get("template_id"),
-                "subject": campaign.get("subject"),
-                "total_recipients": campaign.get("total_recipients", 0),
-                "sent_count": campaign.get("sent_count", 0),
-                "failed_count": campaign.get("failed_count", 0),
-                "success_rate": campaign.get("success_rate", 0),
-                "started_at": campaign.get("started_at").strftime("%Y-%m-%d %H:%M:%S"),
-                "completed_at": campaign.get("completed_at").strftime("%Y-%m-%d %H:%M:%S") if campaign.get("completed_at") else None,
-                "status": campaign.get("status"),
-                "sent_by": campaign.get("sent_by"),
-                "filters": campaign.get("filters", {})
-            },
-            "successful_count": len(successful_deliveries),
-            "failed_count": len(failed_deliveries),
-            "failed_deliveries": failed_details
-        }
-        
-    except Exception as e:
-        logging.error(f"❌ CAMPAIGN DETAILS ERROR: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Kampanya detay hatası: {str(e)}")
-
-@app.get("/api/bulk-email/progress/{campaign_id}")
-async def get_campaign_progress(
-    campaign_id: str,
-    current_user: User = Depends(get_admin_user)
-):
-    """Get real-time progress of a bulk email campaign"""
-    try:
-        # Get campaign progress
-        campaign = await db.email_campaigns.find_one({"id": campaign_id})
-        if not campaign:
-            raise HTTPException(status_code=404, detail="Kampanya bulunamadı")
-        
-        return {
-            "success": True,
-            "campaign_id": campaign_id,
-            "status": campaign.get("status", "unknown"),
-            "sent_count": campaign.get("sent_count", 0),
-            "failed_count": campaign.get("failed_count", 0),
-            "total_recipients": campaign.get("total_recipients", 0),
-            "progress_percentage": campaign.get("progress_percentage", 0),
-            "last_updated": campaign.get("last_updated", campaign.get("started_at")),
-            "estimated_remaining": None if campaign.get("status") != "in_progress" else 
-                max(0, campaign.get("total_recipients", 0) - campaign.get("sent_count", 0) - campaign.get("failed_count", 0))
-        }
-        
-    except Exception as e:
-        logging.error(f"❌ CAMPAIGN PROGRESS ERROR: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Kampanya ilerleme hatası: {str(e)}")
-
-# EMAIL TEMPLATE ENDPOINTS - ADMIN ONLY (MOVED TO APP LEVEL)
-@app.get("/api/email-templates")
-async def get_email_templates(current_user: User = Depends(get_admin_user)):
-    """Get all predefined email templates - ADMIN ONLY"""
-    templates = [
-        {
-            "id": "certificate_reminder",
-            "name": "Sertifika Hatırlatması",
-            "description": "Sertifika geçerlilik süresi bitecek müşteriler için",
-            "subject": "🏨 Sertifika Yenileme Hatırlatması - {{hotel_name}}",
-            "content": """Değerli {{contact_person}},
-
-{{hotel_name}} işletmenizin sürdürülebilirlik sertifikasının geçerlilik süresinin {{certificate_end_date}} tarihinde sona ermesi planlanmaktadır.
-
-Sertifikanızın sürekli geçerli kalabilmesi için lütfen yenileme sürecinizi başlatınız.
-
-🔹 Yenileme süreci hakkında bilgi almak
-🔹 Denetim randevusu oluşturmak  
-🔹 Gerekli evrak hazırlığı konusunda destek almak
-
-için bizimle iletişime geçebilirsiniz.
-
-Sürdürülebilir turizm yolculuğunuzda yanınızda olmaktan memnuniyet duyuyoruz.
-
-Saygılarımızla,
-ROTA Sürdürülebilir Turizm Danışmanlık"""
-        },
-        {
-            "id": "general_announcement", 
-            "name": "Genel Duyuru",
-            "description": "Genel müşteri duyuruları için",
-            "subject": "Sürdürülebilir Turizm Danışmanlığı Hk.",
-            "content": """{content}"""
-        },
-        {
-            "id": "sustainability_tips",
-            "name": "Sürdürülebilirlik İpuçları",
-            "description": "Aylık sürdürülebilirlik önerileri",
-            "subject": "🌱 Bu Ay İçin Sürdürülebilirlik İpuçları - {{hotel_name}}",
-            "content": """Merhaba {{contact_person}},
-
-{{hotel_name}} için bu ayın sürdürülebilirlik ipuçlarını paylaşıyoruz:
-
-🌿 **Enerji Verimliliği:**
-• LED aydınlatma sistemlerini tercih edin
-• Odalarda hareket sensörlü sistemler kullanın
-• Klima ayarlarını optimize edin
-
-💧 **Su Tasarrufu:**
-• Düşük akışlı duş başlıkları kullanın  
-• Havlu ve çarşaf değişim politikaları uygulayın
-• Drip sulama sistemlerini tercih edin
-
-♻️ **Atık Azaltma:**
-• Geri dönüşüm kutularını arttırın
-• Tek kullanımlık ürünleri azaltın
-• Compost sistemi kurun
-
-Bu önerileri hayata geçirmek için destek almak istiyorsanız, bizimle iletişime geçin.
-
-Saygılarımızla,
-ROTA Sürdürülebilir Turizm Danışmanlık"""
-        },
-        {
-            "id": "training_invitation",
-            "name": "Eğitim Davetiyesi",
-            "description": "Sürdürülebilirlik eğitimleri için davet",
-            "subject": "🎓 Ücretsiz Sürdürülebilirlik Eğitimi Davetiyesi - {{hotel_name}}",
-            "content": """Sayın {{contact_person}},
-
-{{hotel_name}} ekibiniz için düzenlediğimiz **ücretsiz sürdürülebilirlik eğitimlerimize** davet ediyoruz!
-
-📅 **Eğitim Konuları:**
-• Sürdürülebilir turizm temelleri
-• Enerji ve su tasarrufu teknikleri  
-• Atık yönetimi stratejileri
-• Misafir farkındalığı oluşturma
-• Sertifika süreçleri
-
-🎯 **Kimler Katılabilir:**
-• Otel yöneticileri
-• Housekeeping departmanı
-• Food & Beverage personeli
-• Teknik servis ekibi
-
-📞 **Kayıt ve Bilgi:**
-Eğitim tarih ve saatleri için bizimle iletişime geçiniz.
-
-Sürdürülebilir turizm yolculuğunda bilgi en değerli silahımızdır.
-
-Katılımınızı bekliyoruz,
-ROTA Sürdürülebilir Turizm Danışmanlık Eğitim Ekibi"""
-        },
-        {
-            "id": "survey_request",
-            "name": "Anket Talebi", 
-            "description": "Müşteri geri bildirim anketi",
-            "subject": "📋 Hizmet Kalitesi Anketi - Görüşünüz Bizim İçin Değerli",
-            "content": """Değerli {{contact_person}},
-
-{{hotel_name}} ile sürdürülebilirlik yolculuğunda birlikte olduğumuz süre zarfında aldığınız hizmet kalitesi hakkındaki düşüncelerinizi öğrenmek istiyoruz.
-
-🔹 **Neden Bu Anket Önemli?**
-• Hizmetlerimizi geliştirmek için
-• Size daha iyi destek verebilmek için  
-• Sürdürülebilirlik hedeflerinize daha uygun çözümler sunabilmek için
-
-⏱️ **Süre:** Sadece 3-5 dakika
-🎁 **Hediye:** Anket sonrası özel sürdürülebilirlik raporu
-
-[ANKET LİNKİ BURAYA EKLENECEKTİR]
-
-Zaman ayırdığınız için şimdiden teşekkür ederiz.
-
-Sürdürülebilir turizm yolculuğunuzda her zaman yanınızdayız.
-
-Saygılarımızla,
-ROTA Sürdürülebilir Turizm Danışmanlık"""
-        }
-    ]
-    
-    return {
-        "templates": templates,
-        "count": len(templates)
-    }
 
 # EMAIL TEMPLATE ENDPOINTS - ADMIN ONLY
 @api_router.get("/email-templates")
