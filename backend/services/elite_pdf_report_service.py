@@ -54,33 +54,56 @@ class ElitePDFReportService:
         self.page_height = A4[1]
     
     def _register_turkish_fonts(self):
-        """Register Turkish-compatible DejaVu fonts with proper path"""
+        """Register Turkish-compatible Liberation fonts with full Unicode support"""
         import os
         
-        # Define font paths
-        dejavu_regular = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
-        dejavu_bold = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+        # Liberation fonts - much more reliable than DejaVu for Turkish
+        liberation_regular = '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf'
+        liberation_bold = '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf'
         
-        # Check if fonts exist
-        if os.path.exists(dejavu_regular) and os.path.exists(dejavu_bold):
-            # Register fonts with explicit paths
-            pdfmetrics.registerFont(TTFont('DejaVuSans', dejavu_regular))
-            pdfmetrics.registerFont(TTFont('DejaVuSans-Bold', dejavu_bold))
+        # Check Liberation fonts first (preferred)
+        if os.path.exists(liberation_regular) and os.path.exists(liberation_bold):
+            # Register Liberation fonts
+            pdfmetrics.registerFont(TTFont('LiberationSans', liberation_regular))
+            pdfmetrics.registerFont(TTFont('LiberationSans-Bold', liberation_bold))
             
             # Register font family mappings
             from reportlab.lib.fonts import addMapping
-            addMapping('DejaVuSans', 0, 0, 'DejaVuSans')       # normal
-            addMapping('DejaVuSans', 1, 0, 'DejaVuSans-Bold')  # bold
-            addMapping('DejaVuSans', 0, 1, 'DejaVuSans')       # italic (use regular)
-            addMapping('DejaVuSans', 1, 1, 'DejaVuSans-Bold')  # bold+italic
+            addMapping('LiberationSans', 0, 0, 'LiberationSans')        # normal
+            addMapping('LiberationSans', 1, 0, 'LiberationSans-Bold')  # bold
+            addMapping('LiberationSans', 0, 1, 'LiberationSans')       # italic (use regular)
+            addMapping('LiberationSans', 1, 1, 'LiberationSans-Bold')  # bold+italic
             
-            self.default_font = 'DejaVuSans'
-            self.bold_font = 'DejaVuSans-Bold'
+            self.default_font = 'LiberationSans'
+            self.bold_font = 'LiberationSans-Bold'
             
-            print("✅ Elite PDF: DejaVu fonts registered successfully")
+            print("✅ Elite PDF: Liberation Sans fonts registered - FULL Turkish Unicode support")
+            
+            # Test Turkish characters
+            test_chars = "ğüşıöçĞÜŞİÖÇ"
+            print(f"✅ Turkish character test: {test_chars}")
             
         else:
-            raise Exception(f"DejaVu fonts not found at expected paths")
+            # Fallback to DejaVu if available
+            dejavu_regular = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
+            dejavu_bold = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+            
+            if os.path.exists(dejavu_regular) and os.path.exists(dejavu_bold):
+                pdfmetrics.registerFont(TTFont('DejaVuSans', dejavu_regular))
+                pdfmetrics.registerFont(TTFont('DejaVuSans-Bold', dejavu_bold))
+                
+                from reportlab.lib.fonts import addMapping
+                addMapping('DejaVuSans', 0, 0, 'DejaVuSans')       
+                addMapping('DejaVuSans', 1, 0, 'DejaVuSans-Bold')  
+                addMapping('DejaVuSans', 0, 1, 'DejaVuSans')       
+                addMapping('DejaVuSans', 1, 1, 'DejaVuSans-Bold')  
+                
+                self.default_font = 'DejaVuSans'
+                self.bold_font = 'DejaVuSans-Bold'
+                
+                print("✅ Elite PDF: DejaVu fonts registered as fallback")
+            else:
+                raise Exception(f"Neither Liberation nor DejaVu fonts found - Turkish characters may not render correctly")
     
     def _create_elite_styles(self):
         """Create elite custom styles for premium reporting"""
