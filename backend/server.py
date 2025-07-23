@@ -2145,6 +2145,174 @@ async def download_belge_main_app(document_id: str, current_user: User = Depends
         logging.error(f"❌ BELGE DOWNLOAD ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"İndirme hatası: {str(e)}")
 
+@app.get("/api/documents/bulk-download")
+async def bulk_download_documents(
+    client_id: str = None,
+    folder_id: str = None,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    📦 TOPLU BELGE İNDİRME - Klasör yapısını koruyarak ZIP dosyası oluştur
+    """
+    try:
+        logging.info(f"📦 BULK DOWNLOAD: client_id={client_id}, folder_id={folder_id}, user={current_user.email}")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
+        
+        # Determine target client_id based on user role
+        if current_user.role == UserRole.CLIENT:
+            target_client_id = current_user.client_id
+        elif current_user.role in [UserRole.ADMIN, UserRole.CONSULTANT]:
+            if not client_id:
+                raise HTTPException(status_code=400, detail="Admin/consultant kullanıcıları için client_id gereklidir")
+            target_client_id = client_id
+        else:
+            raise HTTPException(status_code=403, detail="Belge indirme yetkisi yok")
+        
+        # Security check for consultant
+        if current_user.role == UserRole.CONSULTANT:
+            consultant_id = getattr(current_user, 'consultant_id', None)
+            if consultant_id:
+                client = await asyncio.to_thread(db.clients.find_one, {"id": target_client_id})
+                if not client or client.get("consultant_id") != consultant_id:
+                    raise HTTPException(status_code=403, detail="Bu müşterinin belgelerine erişim yetkiniz yok")
+        
+        # Get client info for naming
+        client = await asyncio.to_thread(db.clients.find_one, {"id": target_client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Müşteri bulunamadı")
+        
+        client_name = client.get("hotel_name") or client.get("name", "Bilinmeyen_Musteri")
+        safe_client_name = "".join(c for c in client_name if c.isalnum() or c in (' ', '-', '_')).strip()
+        
+        # Build document query
+        doc_query = {"client_id": target_client_id}
+        if folder_id:
+            doc_query["folder_id"] = folder_id
+            
+        # Get documents
+        documents = await asyncio.to_thread(
+            lambda: list(db.documents.find(doc_query))
+        )
+        
+        if not documents:
+            raise HTTPException(status_code=404, detail="İndirilecek belge bulunamadı")
+            
+        logging.info(f"📄 Found {len(documents)} documents for bulk download")
+        
+        # Get all folders for path reconstruction
+        folders = await asyncio.to_thread(
+            lambda: list(db.folders.find({"client_id": target_client_id}))
+        )
+        
+        # Create folder mapping for path reconstruction
+        folder_map = {f["id"]: f for f in folders}
+        
+        def get_folder_path(folder_id):
+            """Reconstruct full folder path"""
+            if not folder_id or folder_id not in folder_map:
+                return ""
+            
+            folder = folder_map[folder_id]
+            path_parts = [folder["name"]]
+            
+            # Walk up the parent chain
+            parent_id = folder.get("parent_folder_id")
+            while parent_id and parent_id in folder_map:
+                parent = folder_map[parent_id]
+                path_parts.insert(0, parent["name"])
+                parent_id = parent.get("parent_folder_id")
+            
+            return "/".join(path_parts)
+        
+        # Create temporary ZIP file
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.zip') as temp_zip:
+            temp_zip_path = temp_zip.name
+        
+        try:
+            with zipfile.ZipFile(temp_zip_path, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                successfully_added = 0
+                
+                for doc in documents:
+                    try:
+                        # Get document data
+                        if doc.get("binary_storage", False) and doc.get("file_content"):
+                            # From MongoDB binary storage
+                            file_data = doc["file_content"]
+                        elif doc.get("gridfs_id"):
+                            # From GridFS (legacy)
+                            fs = gridfs.GridFS(db)
+                            try:
+                                grid_file = fs.get(ObjectId(doc["gridfs_id"]))
+                                file_data = grid_file.read()
+                            except gridfs.NoFile:
+                                logging.warning(f"GridFS file not found: {doc['gridfs_id']}")
+                                continue
+                        else:
+                            logging.warning(f"No file data found for document: {doc['id']}")
+                            continue
+                        
+                        # Construct file path within ZIP
+                        folder_path = get_folder_path(doc.get("folder_id"))
+                        original_filename = doc.get("original_filename", f"document_{doc['id']}.pdf")
+                        
+                        # Clean filename for ZIP
+                        safe_filename = "".join(c for c in original_filename if c not in ['<', '>', ':', '"', '|', '?', '*'])
+                        
+                        if folder_path:
+                            zip_path = f"{folder_path}/{safe_filename}"
+                        else:
+                            zip_path = safe_filename
+                        
+                        # Add to ZIP
+                        zip_file.writestr(zip_path, file_data)
+                        successfully_added += 1
+                        
+                        logging.info(f"✅ Added to ZIP: {zip_path}")
+                        
+                    except Exception as doc_error:
+                        logging.error(f"❌ Error processing document {doc.get('id')}: {str(doc_error)}")
+                        continue
+                
+                if successfully_added == 0:
+                    raise HTTPException(status_code=500, detail="Hiçbir belge ZIP dosyasına eklenemedi")
+                
+                logging.info(f"✅ ZIP created successfully with {successfully_added} documents")
+            
+            # Return ZIP file
+            zip_filename = f"{safe_client_name}_belgeler_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+            
+            # Read ZIP file
+            with open(temp_zip_path, 'rb') as zip_file:
+                zip_data = zip_file.read()
+            
+            # Clean up temporary file
+            os.unlink(temp_zip_path)
+            
+            # Return ZIP as download
+            import urllib.parse
+            encoded_filename = urllib.parse.quote(zip_filename, safe='')
+            
+            return Response(
+                content=zip_data,
+                media_type="application/zip",
+                headers={
+                    "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}",
+                    "Content-Length": str(len(zip_data))
+                }
+            )
+            
+        except Exception as zip_error:
+            # Clean up temporary file on error
+            if os.path.exists(temp_zip_path):
+                os.unlink(temp_zip_path)
+            raise zip_error
+            
+    except Exception as e:
+        logging.error(f"❌ BULK DOWNLOAD ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Toplu indirme hatası: {str(e)}")
 @app.delete("/api/belge/delete/{document_id}")
 async def delete_belge_main_app(document_id: str, current_user: User = Depends(get_current_user)):
     """🗑️ BELGE SİLME - MAIN APP - GERÇEK SİLME"""
