@@ -1181,4 +1181,4 @@ class PDFReportService:
 
 
 # Global instance
-pdf_service = PDFReportService()
+elite_pdf_service = PDFReportService()
