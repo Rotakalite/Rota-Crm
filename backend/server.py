@@ -4270,22 +4270,29 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                     <html lang="tr">
                     <head>
                         <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <title>{personalized_subject}</title>
                         <style>
-                            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-                            body {{ 
-                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                min-height: 100vh;
+                            * {{
+                                margin: 0;
+                                padding: 0;
+                                box-sizing: border-box;
+                            }}
+                            body {{
+                                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                                line-height: 1.8;
+                                color: #333;
+                                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                                margin: 0;
                                 padding: 40px 20px;
                             }}
                             .email-container {{
-                                max-width: 1000px;
+                                max-width: 700px;
                                 margin: 0 auto;
-                                background: #ffffff;
-                                border-radius: 25px;
+                                background: white;
+                                border-radius: 20px;
                                 overflow: hidden;
-                                box-shadow: 0 25px 50px rgba(102, 126, 234, 0.4);
+                                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
                             }}
                             .header {{
                                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -4337,86 +4344,62 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                             }}
                             .greeting {{
                                 font-size: 32px;
-                                color: #333;
-                                margin-bottom: 20px;
+                                color: #2c3e50;
+                                margin-bottom: 30px;
                                 font-weight: 600;
-                                text-align: center;
                             }}
-                            .content-box {{
-                                background: #f8f9ff;
-                                border: 3px solid #e6e8f8;
-                                border-radius: 20px;
-                                padding: 45px;
-                                margin: 40px 0;
-                                font-size: 20px;
-                                line-height: 1.8;
-                                color: #444;
-                                box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-                            }}
-                            .warning-box {{
-                                background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-                                border: 3px solid #f0ad4e;
-                                border-radius: 20px;
-                                padding: 35px;
-                                margin: 40px 0;
-                                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-                            }}
-                            .warning-icon {{
-                                font-size: 28px;
-                                margin-bottom: 20px;
-                            }}
-                            .warning-title {{
-                                font-weight: 600;
-                                color: #8a6d3b;
-                                margin-bottom: 20px;
-                                font-size: 22px;
-                            }}
-                            .warning-text {{
-                                color: #8a6d3b;
+                            .message {{
                                 font-size: 18px;
-                                line-height: 1.6;
+                                line-height: 1.8;
+                                color: #34495e;
+                                margin-bottom: 40px;
+                                white-space: pre-line;
+                            }}
+                            .cta-section {{
+                                text-align: center;
+                                margin: 40px 0;
+                            }}
+                            .cta-button {{
+                                display: inline-block;
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white;
+                                padding: 15px 40px;
+                                border-radius: 50px;
+                                text-decoration: none;
+                                font-size: 18px;
+                                font-weight: 600;
+                                transition: transform 0.3s ease;
+                                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+                            }}
+                            .cta-button:hover {{
+                                transform: translateY(-2px);
                             }}
                             .footer {{
-                                background: #f8f9ff;
-                                padding: 50px;
+                                background: #f8f9fa;
+                                padding: 40px 50px;
                                 text-align: center;
-                                border-top: 2px solid #e6e8f8;
+                                border-top: 1px solid #e9ecef;
                             }}
-                            .footer-text {{
-                                font-size: 17px;
-                                color: #888;
-                                line-height: 1.6;
-                                margin-bottom: 20px;
+                            .footer p {{
+                                color: #6c757d;
+                                font-size: 16px;
+                                margin-bottom: 10px;
                             }}
-                            .company-name {{
-                                font-weight: 600;
-                                color: #667eea;
+                            .social-links {{
+                                margin-top: 20px;
                             }}
-                            .certificate-badge {{
+                            .social-links a {{
                                 display: inline-block;
-                                background: linear-gradient(135deg, #00b894, #00cec9);
-                                color: white;
-                                padding: 15px 30px;
-                                border-radius: 30px;
-                                font-size: 18px;
-                                font-weight: 600;
-                                margin: 20px 0;
-                                box-shadow: 0 5px 15px rgba(0,184,148,0.3);
+                                margin: 0 10px;
+                                color: #667eea;
+                                font-size: 24px;
+                                text-decoration: none;
                             }}
-                            
-                            /* Mobile Responsive */
-                            @media only screen and (max-width: 600px) {{
-                                body {{ padding: 20px 10px; }}
-                                .email-container {{ max-width: 100%; }}
-                                .header {{ padding: 40px 20px; }}
-                                .content {{ padding: 30px 20px; }}
-                                .footer {{ padding: 30px 20px; }}
-                                .header h1 {{ font-size: 28px; }}
-                                .greeting {{ font-size: 24px; }}
-                                .content-box {{ padding: 25px; font-size: 16px; }}
-                                .logo {{ width: 70px; height: 70px; font-size: 28px; }}
-                                .company-logo {{ width: 80px; }}
-                                .logo-container {{ flex-direction: column; gap: 15px; }}
+                            .divider {{
+                                height: 4px;
+                                background: linear-gradient(90deg, #667eea, #764ba2);
+                                margin: 30px 0;
+                                border-radius: 2px;
                             }}
                         </style>
                     </head>
@@ -4424,46 +4407,23 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                         <div class="email-container">
                             <div class="header">
                                 <div class="logo-container">
-                                    <div class="logo">🌿</div>
-                                    <svg class="company-logo" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                                        <text x="100" y="35" text-anchor="middle" font-family="Arial Black, Arial" font-size="24" font-weight="bold" fill="white">ROTA</text>
-                                        <text x="100" y="55" text-anchor="middle" font-family="Arial" font-size="10" font-weight="normal" fill="white" opacity="0.8">KALİTE & DANIŞMANLIK</text>
-                                    </svg>
+                                    <div class="logo">🏨</div>
                                 </div>
-                                <h1>Rota Kalite & Danışmanlık</h1>
-                                <p>Profesyonel Sürdürülebilir Turizm Danışmanlığı</p>
-                                <div class="certificate-badge">🏨 Sürdürülebilir Turizm Uzmanı</div>
+                                <h1>ROTA KALİTE & DANIŞMANLIK</h1>
+                                <p>Sürdürülebilir Turizm Uzmanınız</p>
                             </div>
-                            
                             <div class="content">
-                                <div class="greeting">
-                                    Merhaba! 👋
-                                </div>
-                                
-                                <div class="content-box">
-                                    {personalized_content}
-                                </div>
-                                
-                                <div class="warning-box">
-                                    <div class="warning-icon">⚠️</div>
-                                    <div class="warning-title">Önemli Bilgilendirme</div>
-                                    <div class="warning-text">
-                                        • Bu email otomatik olarak gönderilmiştir<br>
-                                        • Herhangi bir sorunuz için bizimle iletişime geçebilirsiniz<br>
-                                        • Sürdürülebilir turizm yolculuğunuzda yanınızdayız
-                                    </div>
+                                <div class="greeting">Merhaba!</div>
+                                <div class="message">{personalized_content}</div>
+                                <div class="divider"></div>
+                                <div class="cta-section">
+                                    <p style="color: #6c757d; margin-bottom: 20px;">Bizimle İletişime Geçin</p>
                                 </div>
                             </div>
-                            
                             <div class="footer">
-                                <div class="footer-text">
-                                    Bu email <span class="company-name">Rota Kalite & Danışmanlık</span> tarafından gönderilmiştir.<br>
-                                    <strong>📞 İletişim:</strong> bilgi@rotakalitedanismanlik.com | +90 (546) 149 00 32<br>
-                                    <strong>🌐 Web:</strong> www.rotakalitedanismanlik.com
-                                </div>
-                                <div class="footer-text" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e6e8f8;">
-                                    © 2025 Rota Kalite & Danışmanlık. Tüm hakları saklıdır.
-                                </div>
+                                <p><strong>ROTA KALİTE & DANIŞMANLIK</strong></p>
+                                <p>Sürdürülebilir Turizm Danışmanlık Hizmetleri</p>
+                                <p style="font-size: 14px; color: #868e96;">Bu email otomatik olarak gönderilmiştir.</p>
                             </div>
                         </div>
                     </body>
@@ -4471,6 +4431,54 @@ ROTA Sürdürülebilir Turizm Danışmanlık"""
                     """,
                     from_name="ROTA KALİTE & DANIŞMANLIK"
                 )
+                
+                # LOG EMAIL DELIVERY SUCCESS
+                email_log = {
+                    "id": str(uuid.uuid4()),
+                    "campaign_id": campaign_id,
+                    "client_id": client.get("id"),
+                    "client_email": client["email"],
+                    "client_name": client_data["hotel_name"],
+                    "status": "sent",
+                    "sent_at": datetime.utcnow(),
+                    "error": None
+                }
+                await db.email_delivery_logs.insert_one(email_log)
+                
+                sent_count += 1
+                
+                # Update campaign progress every 10 emails
+                if sent_count % 10 == 0:
+                    logging.info(f"📧 BULK EMAIL - İlerleme: {sent_count}/{len(valid_email_clients)} email gönderildi")
+                    await db.email_campaigns.update_one(
+                        {"id": campaign_id},
+                        {"$set": {"sent_count": sent_count, "failed_count": failed_count}}
+                    )
+                
+            except Exception as email_error:
+                error_msg = str(email_error)
+                logging.error(f"❌ Email gönderme hatası - {client.get('email', 'Unknown')}: {error_msg}")
+                
+                # LOG EMAIL DELIVERY FAILURE
+                email_log = {
+                    "id": str(uuid.uuid4()),
+                    "campaign_id": campaign_id,
+                    "client_id": client.get("id"),
+                    "client_email": client.get("email", "Unknown"),
+                    "client_name": client.get("hotel_name", client.get("name", "Unknown")),
+                    "status": "failed",
+                    "sent_at": datetime.utcnow(),
+                    "error": error_msg
+                }
+                await db.email_delivery_logs.insert_one(email_log)
+                
+                failed_count += 1
+                failed_emails.append({
+                    "email": client.get("email", "Unknown"),
+                    "name": client.get("hotel_name", client.get("name", "Unknown")),
+                    "error": error_msg
+                })
+                continue
                 
                 sent_count += 1
                 
