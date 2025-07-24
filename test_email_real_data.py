@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Railway backend URL
-RAILWAY_API_URL = "https://694e2ff8-2569-4688-9c7a-7c3b6cd0dd67.preview.emergentagent.com/api"
+RAILWAY_API_URL = "https://1f309c92-8df7-4097-a0b5-d853044d5c38.preview.emergentagent.com/api"
 RAILWAY_MONGO_URL = "mongodb://mongo:LbwPeZMoFflpreeQGSoEnUATtNpFRXRG@turntable.proxy.rlwy.net:14941"
 DB_NAME = "sustainable_tourism_crm"
 

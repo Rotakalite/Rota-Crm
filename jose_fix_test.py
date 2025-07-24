@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL from frontend .env
-BACKEND_URL = "https://694e2ff8-2569-4688-9c7a-7c3b6cd0dd67.preview.emergentagent.com"
+BACKEND_URL = "https://1f309c92-8df7-4097-a0b5-d853044d5c38.preview.emergentagent.com"
 
 # Test tokens - these will likely fail but we want to see the specific error messages
 TEST_TOKENS = {

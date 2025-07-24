@@ -52,7 +52,7 @@ class TestEmailManagementEndpoints(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://694e2ff8-2569-4688-9c7a-7c3b6cd0dd67.preview.emergentagent.com/api"
+        self.api_url = "https://1f309c92-8df7-4097-a0b5-d853044d5c38.preview.emergentagent.com/api"
         self.headers = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
         
         # Get client data

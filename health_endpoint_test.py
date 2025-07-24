@@ -21,7 +21,7 @@ class TestHealthEndpoint(unittest.TestCase):
         self.origins = [
             "https://portal.rotakalitedanismanlik.com",
             "https://rota-r4invvuue-rotas-projects-62181e6e.vercel.app",
-            "https://694e2ff8-2569-4688-9c7a-7c3b6cd0dd67.preview.emergentagent.com"
+            "https://1f309c92-8df7-4097-a0b5-d853044d5c38.preview.emergentagent.com"
         ]
         
     def test_health_endpoint_basic(self):
