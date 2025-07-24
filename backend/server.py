@@ -2365,8 +2365,20 @@ async def bulk_download_documents(
             raise zip_error
             
     except Exception as e:
-        logging.error(f"❌ BULK DOWNLOAD ERROR: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Toplu indirme hatası: {str(e)}")
+        error_msg = str(e)
+        logging.error(f"❌ BULK DOWNLOAD ERROR: {error_msg}")
+        logging.error(f"❌ BULK DOWNLOAD ERROR TYPE: {type(e).__name__}")
+        logging.error(f"❌ BULK DOWNLOAD ERROR DETAILS: client_id={target_client_id}, folder_id={folder_id}")
+        import traceback
+        logging.error(f"❌ BULK DOWNLOAD TRACEBACK: {traceback.format_exc()}")
+        
+        # Return more specific error messages
+        if "memory" in error_msg.lower() or "memoryerror" in str(type(e)).lower():
+            raise HTTPException(status_code=413, detail="Dosyalar çok büyük - toplu indirme yapılamıyor")
+        elif "timeout" in error_msg.lower():
+            raise HTTPException(status_code=408, detail="İşlem zaman aşımına uğradı - daha küçük gruplar halinde deneyin")
+        else:
+            raise HTTPException(status_code=500, detail=f"Toplu indirme hatası: {error_msg}")
 @app.delete("/api/belge/delete/{document_id}")
 async def delete_belge_main_app(document_id: str, current_user: User = Depends(get_current_user)):
     """🗑️ BELGE SİLME - MAIN APP - GERÇEK SİLME"""
