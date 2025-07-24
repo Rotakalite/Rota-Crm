@@ -2154,6 +2154,8 @@ async def bulk_download_documents(
     """
     📦 TOPLU BELGE İNDİRME - Klasör yapısını koruyarak ZIP dosyası oluştur
     """
+    target_client_id = None  # Initialize to avoid UnboundLocalError
+    
     try:
         logging.info(f"📦 BULK DOWNLOAD: client_id={client_id}, folder_id={folder_id}, user={current_user.email}")
         
