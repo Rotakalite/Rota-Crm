@@ -51,7 +51,7 @@ try:
     logging.info("✅ Elite PDF Report service imported successfully")
 except Exception as e:
     try:
-        from services.pdf_report_service import pdf_service as elite_pdf_service
+        from services.pdf_report_service import elite_pdf_service
         logging.info("✅ PDF Report service imported successfully (fallback)")
     except Exception as e2:
         logging.error(f"❌ Failed to import PDF Report service: {e} | Fallback error: {e2}")
