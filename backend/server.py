@@ -2187,6 +2187,9 @@ async def bulk_download_documents(
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
         db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
+        
+        # Get client info for naming
+        client = await asyncio.to_thread(db.clients.find_one, {"id": target_client_id})
         if not client:
             raise HTTPException(status_code=404, detail="Müşteri bulunamadı")
         
