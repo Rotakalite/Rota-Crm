@@ -2370,7 +2370,7 @@ async def bulk_download_documents(
         error_msg = str(e)
         logging.error(f"❌ BULK DOWNLOAD ERROR: {error_msg}")
         logging.error(f"❌ BULK DOWNLOAD ERROR TYPE: {type(e).__name__}")
-        logging.error(f"❌ BULK DOWNLOAD ERROR DETAILS: client_id={target_client_id}, folder_id={folder_id}")
+        logging.error(f"❌ BULK DOWNLOAD ERROR DETAILS: client_id={target_client_id or 'None'}, folder_id={folder_id or 'None'}")
         import traceback
         logging.error(f"❌ BULK DOWNLOAD TRACEBACK: {traceback.format_exc()}")
         
