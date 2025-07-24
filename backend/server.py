@@ -48,10 +48,14 @@ except Exception as e:
 # PDF Report service
 try:
     from services.elite_pdf_report_service import elite_pdf_service
-    logging.info("✅ PDF Report service imported successfully")
+    logging.info("✅ Elite PDF Report service imported successfully")
 except Exception as e:
-    logging.error(f"❌ Failed to import PDF Report service: {e}")
-    elite_pdf_service = None
+    try:
+        from services.pdf_report_service import pdf_service as elite_pdf_service
+        logging.info("✅ PDF Report service imported successfully (fallback)")
+    except Exception as e2:
+        logging.error(f"❌ Failed to import PDF Report service: {e} | Fallback error: {e2}")
+        elite_pdf_service = None
 
 # WhatsApp service - DISABLED
 whatsapp_service = None  # WhatsApp service deactivated
