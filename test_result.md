@@ -145,7 +145,6 @@
 user_problem_statement: "Bulk olarak eklenen müşteriler ile kendi kaydolan müşterilerin ayrılıp birbirine karışmaması lazım. Bulk müşteriler sadece toplu tanıtım mailleri için, kayıtlı müşteriler tüm modüller için kullanılacak."
 
 backend:
-backend:
   - task: "Client Dashboard Stats API - Energy and Water Consumption Data Fix"
     implemented: true
     working: true
