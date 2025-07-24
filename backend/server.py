@@ -2237,47 +2237,101 @@ async def bulk_download_documents(
                 
                 for doc in documents:
                     try:
-                        # Get document data
+                        # Memory-efficient document processing
+                        file_data = None
+                        
+                        # Get document data with error handling
                         if doc.get("binary_storage", False) and doc.get("file_content"):
-                            # From MongoDB binary storage
-                            file_data = doc["file_content"]
+                            # From MongoDB binary storage - check file size first
+                            file_size = doc.get("file_size", 0)
+                            if file_size > 50 * 1024 * 1024:  # Skip files larger than 50MB for now
+                                logging.warning(f"Skipping large file (>{file_size} bytes): {doc['id']}")
+                                continue
+                            
+                            # Safely get file content
+                            try:
+                                file_data = doc["file_content"]
+                                if not file_data:
+                                    logging.warning(f"Empty file content for document: {doc['id']}")
+                                    continue
+                            except Exception as content_error:
+                                logging.error(f"❌ Error reading file content for {doc['id']}: {str(content_error)}")
+                                continue
+                                
                         elif doc.get("gridfs_id"):
-                            # From GridFS (legacy)
+                            # From GridFS (legacy) - stream processing
                             fs = gridfs.GridFS(db)
                             try:
                                 grid_file = fs.get(ObjectId(doc["gridfs_id"]))
+                                file_size = grid_file.length
+                                
+                                if file_size > 50 * 1024 * 1024:  # Skip files larger than 50MB
+                                    logging.warning(f"Skipping large GridFS file (>{file_size} bytes): {doc['gridfs_id']}")
+                                    continue
+                                
                                 file_data = grid_file.read()
+                                grid_file.close()
+                                
                             except gridfs.NoFile:
                                 logging.warning(f"GridFS file not found: {doc['gridfs_id']}")
                                 continue
+                            except Exception as gridfs_error:
+                                logging.error(f"❌ GridFS error for {doc['gridfs_id']}: {str(gridfs_error)}")
+                                continue
                         else:
                             logging.warning(f"No file data found for document: {doc['id']}")
+                            continue
+                        
+                        # Verify we have valid file data
+                        if not file_data or len(file_data) == 0:
+                            logging.warning(f"Invalid or empty file data for document: {doc['id']}")
                             continue
                         
                         # Construct file path within ZIP
                         folder_path = get_folder_path(doc.get("folder_id"))
                         original_filename = doc.get("original_filename", f"document_{doc['id']}.pdf")
                         
-                        # Clean filename for ZIP
-                        safe_filename = "".join(c for c in original_filename if c not in ['<', '>', ':', '"', '|', '?', '*'])
+                        # Clean filename for ZIP - more comprehensive cleaning
+                        safe_filename = "".join(c for c in original_filename if c not in ['<', '>', ':', '"', '|', '?', '*', '\0'])
+                        if not safe_filename or safe_filename.strip() == "":
+                            safe_filename = f"document_{doc['id'][:8]}.pdf"
                         
+                        # Build ZIP path
                         if folder_path:
                             zip_path = f"{folder_path}/{safe_filename}"
                         else:
                             zip_path = safe_filename
                         
-                        # Add to ZIP
-                        zip_file.writestr(zip_path, file_data)
-                        successfully_added += 1
+                        # Ensure unique path in ZIP (handle duplicates)
+                        original_zip_path = zip_path
+                        counter = 1
+                        while zip_path in [info.filename for info in zip_file.infolist()]:
+                            name_parts = original_zip_path.rsplit('.', 1)
+                            if len(name_parts) == 2:
+                                zip_path = f"{name_parts[0]}_{counter}.{name_parts[1]}"
+                            else:
+                                zip_path = f"{original_zip_path}_{counter}"
+                            counter += 1
                         
-                        logging.info(f"✅ Added to ZIP: {zip_path}")
+                        # Add to ZIP with memory cleanup
+                        try:
+                            zip_file.writestr(zip_path, file_data)
+                            successfully_added += 1
+                            logging.info(f"✅ Added to ZIP ({len(file_data)} bytes): {zip_path}")
+                            
+                            # Clear file_data from memory immediately after writing
+                            file_data = None
+                            
+                        except Exception as zip_error:
+                            logging.error(f"❌ Error adding to ZIP {zip_path}: {str(zip_error)}")
+                            continue
                         
                     except Exception as doc_error:
                         logging.error(f"❌ Error processing document {doc.get('id')}: {str(doc_error)}")
                         continue
                 
                 if successfully_added == 0:
-                    raise HTTPException(status_code=500, detail="Hiçbir belge ZIP dosyasına eklenemedi")
+                    raise HTTPException(status_code=404, detail="İndirilecek belge bulunamadı veya dosyalar çok büyük")
                 
                 logging.info(f"✅ ZIP created successfully with {successfully_added} documents")
             
