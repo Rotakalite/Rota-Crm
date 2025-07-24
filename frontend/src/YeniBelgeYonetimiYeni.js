@@ -789,18 +789,6 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
                   </p>
                 </div>
               </div>
-              
-              {/* ZIP Download Button */}
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={bulkDownloadDocuments}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
-                  title="Tüm belgeleri klasör yapısıyla ZIP olarak indir"
-                >
-                  <span>📦</span>
-                  <span>ZIP İndir</span>
-                </button>
-              </div>
             </div>
           </div>
 
