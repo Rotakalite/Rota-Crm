@@ -532,14 +532,19 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
       const params = new URLSearchParams();
       
       // Add client_id for admin/consultant users
-      if (userRole === 'ADMIN' || userRole === 'CONSULTANT') {
+      if (userRole === 'admin' || userRole === 'consultant' || userRole === 'ADMIN' || userRole === 'CONSULTANT') {
+        console.log('🔍 ZIP DOWNLOAD DEBUG - userRole:', userRole, 'selectedClient:', selectedClient?.id);
         if (selectedClient) {
           params.append('client_id', selectedClient.id);
+          console.log('✅ client_id added to params:', selectedClient.id);
         } else {
+          console.log('❌ No selectedClient found');
           alert('Lütfen bir müşteri seçin');
           document.body.removeChild(loadingMsg);
           return;
         }
+      } else {
+        console.log('🔍 ZIP DOWNLOAD DEBUG - CLIENT role, userRole:', userRole);
       }
       
       // Add folder filter if browsing specific folder
