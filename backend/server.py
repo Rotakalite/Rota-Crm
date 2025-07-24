@@ -2154,35 +2154,39 @@ async def bulk_download_documents(
     """
     📦 TOPLU BELGE İNDİRME - Klasör yapısını koruyarak ZIP dosyası oluştur
     """
-    target_client_id = None  # Initialize to avoid UnboundLocalError
+    logging.info(f"📦 BULK DOWNLOAD: client_id={client_id}, folder_id={folder_id}, user={current_user.email}")
     
-    try:
-        logging.info(f"📦 BULK DOWNLOAD: client_id={client_id}, folder_id={folder_id}, user={current_user.email}")
-        
-        # Get MongoDB connection
-        mongo_client = MongoClient(mongo_url)
-        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
-        
-        # Determine target client_id based on user role
-        if current_user.role == UserRole.CLIENT:
-            target_client_id = current_user.client_id
-        elif current_user.role in [UserRole.ADMIN, UserRole.CONSULTANT]:
-            if not client_id:
-                raise HTTPException(status_code=400, detail="Admin/consultant kullanıcıları için client_id gereklidir")
-            target_client_id = client_id
-        else:
-            raise HTTPException(status_code=403, detail="Belge indirme yetkisi yok")
-        
-        # Security check for consultant
-        if current_user.role == UserRole.CONSULTANT:
-            consultant_id = getattr(current_user, 'consultant_id', None)
-            if consultant_id:
+    # Determine target client_id based on user role - BEFORE try block
+    target_client_id = None
+    if current_user.role == UserRole.CLIENT:
+        target_client_id = current_user.client_id
+    elif current_user.role in [UserRole.ADMIN, UserRole.CONSULTANT]:
+        if not client_id:
+            raise HTTPException(status_code=400, detail="Admin/consultant kullanıcıları için client_id gereklidir")
+        target_client_id = client_id
+    else:
+        raise HTTPException(status_code=403, detail="Belge indirme yetkisi yok")
+    
+    # Security check for consultant - BEFORE try block
+    if current_user.role == UserRole.CONSULTANT:
+        consultant_id = getattr(current_user, 'consultant_id', None)
+        if consultant_id:
+            try:
+                mongo_client = MongoClient(mongo_url)
+                db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
                 client = await asyncio.to_thread(db.clients.find_one, {"id": target_client_id})
                 if not client or client.get("consultant_id") != consultant_id:
                     raise HTTPException(status_code=403, detail="Bu müşterinin belgelerine erişim yetkiniz yok")
-        
-        # Get client info for naming
-        client = await asyncio.to_thread(db.clients.find_one, {"id": target_client_id})
+            except Exception as security_error:
+                if isinstance(security_error, HTTPException):
+                    raise security_error
+                raise HTTPException(status_code=500, detail="Erişim kontrolü hatası")
+    
+    # Main processing in try block
+    try:
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
         if not client:
             raise HTTPException(status_code=404, detail="Müşteri bulunamadı")
         
