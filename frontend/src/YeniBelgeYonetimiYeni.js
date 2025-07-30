@@ -547,10 +547,7 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
         console.log('🔍 ZIP DOWNLOAD DEBUG - CLIENT role, userRole:', userRole);
       }
       
-      // Add folder filter if browsing specific folder
-      if (selectedFolder && selectedFolder.id) {
-        params.append('folder_id', selectedFolder.id);
-      }
+      // Note: folder_id parametresi kaldırıldı - tüm klasörler indirilecek
       
       if (params.toString()) {
         url += `?${params.toString()}`;
