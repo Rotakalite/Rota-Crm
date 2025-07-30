@@ -2526,6 +2526,75 @@ const PersonnelManagement = () => {
           </div>
         )}
 
+        {/* Excel Personnel Import Form */}
+        {showExcelImport && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">📊 Excel Personel İmport</h2>
+            
+            <div className="mb-6">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                <h3 className="font-medium text-green-800 mb-2">📋 Excel Dosyası Formatı:</h3>
+                <div className="text-sm text-green-700">
+                  <p className="mb-2"><strong>Kolon Sırası:</strong> Ad Soyad, Pozisyon, Lokasyon, Sertifikalar, Yerel, Cinsiyet</p>
+                  <p><strong>Örnek:</strong></p>
+                  <div className="bg-white border rounded p-2 mt-2 font-mono text-xs">
+                    Ad Soyad,Pozisyon,Lokasyon,Sertifikalar,Yerel,Cinsiyet<br/>
+                    Ahmet Yılmaz,Garson,İstanbul,İlk Yardım;Hijyen,Evet,Erkek<br/>
+                    Fatma Kaya,Temizlik,Ankara,Hijyen,Evet,Kadın<br/>
+                    Mehmet Demir,Resepsiyon,İzmir,,Hayır,Erkek
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Excel Dosyası Seçin (.csv, .xlsx)
+                </label>
+                <input
+                  type="file"
+                  accept=".csv,.xlsx,.xls"
+                  onChange={(e) => setExcelFile(e.target.files[0])}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                {excelFile && (
+                  <p className="text-sm text-green-600 mt-2">
+                    ✅ Seçilen dosya: {excelFile.name}
+                  </p>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => {
+                  setShowExcelImport(false);
+                  setExcelFile(null);
+                }}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                İptal
+              </button>
+              <button
+                onClick={processExcelPersonnel}
+                disabled={excelProcessing || !excelFile}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {excelProcessing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>İşleniyor...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>📊</span>
+                    <span>Excel İmport</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Client Info - For Client Users */}
         {userRole === 'client' && selectedClient && Array.isArray(clients) && (
           <div className="bg-white rounded-xl shadow-lg p-6">
