@@ -2354,6 +2354,12 @@ const PersonnelManagement = () => {
                 >
                   {showAddForm ? '❌ İptal' : '➕ Personel Ekle'}
                 </button>
+                <button
+                  onClick={() => setShowBulkForm(!showBulkForm)}
+                  className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium flex items-center gap-2"
+                >
+                  {showBulkForm ? '❌ İptal' : '📋 Toplu Ekle'}
+                </button>
                 <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium">
                   ✓ Client Kullanıcısı
                 </div>
