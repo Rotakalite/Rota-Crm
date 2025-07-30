@@ -15021,6 +15021,102 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
+  // Bulk Suppliers Import Function
+  const processBulkSuppliers = async () => {
+    if (!bulkSuppliersText.trim()) {
+      alert('Lütfen tedarikçi listesini girin!');
+      return;
+    }
+
+    if ((userRole === 'admin' || userRole === 'consultant') && !selectedClient) {
+      alert('Lütfen önce bir müşteri seçin!');
+      return;
+    }
+
+    setBulkProcessing(true);
+    
+    try {
+      // Parse the text input
+      const lines = bulkSuppliersText.trim().split('\n').filter(line => line.trim());
+      const suppliersList = [];
+      
+      for (const line of lines) {
+        const parts = line.split(',').map(part => part.trim());
+        if (parts.length >= 2) {
+          const supplierItem = {
+            company_name: parts[0] || '',
+            contact_person: parts[1] || '',
+            email: parts[2] || '',
+            phone: parts[3] || '',
+            category: parts[4] || 'Diğer',
+            services: parts[5] ? parts[5].split(';').map(s => s.trim()).filter(s => s) : [],
+            certifications: parts[6] ? parts[6].split(';').map(c => c.trim()).filter(c => c) : [],
+            sustainability_score: parseInt(parts[7]) || 0,
+            local_supplier: parts[8] ? parts[8].toLowerCase() === 'evet' || parts[8].toLowerCase() === 'true' : false
+          };
+          
+          if (supplierItem.company_name && supplierItem.category) {
+            suppliersList.push(supplierItem);
+          }
+        }
+      }
+      
+      if (suppliersList.length === 0) {
+        alert('Geçerli tedarikçi bulunamadı! Format: Şirket Adı, İletişim Kişisi, Email, Telefon, Kategori, Hizmetler, Sertifikalar, Sürdürülebilirlik Skoru, Yerel');
+        return;
+      }
+
+      // Get fresh token
+      let currentToken = authToken;
+      if (session) {
+        try {
+          const freshToken = await session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      // Send bulk request
+      const payload = {
+        suppliers_list: suppliersList
+      };
+      
+      // Add client_id for admin/consultant
+      const params = new URLSearchParams();
+      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
+        params.append('client_id', selectedClient);
+      }
+      
+      const url = `${API}/suppliers/bulk${params.toString() ? `?${params.toString()}` : ''}`;
+      
+      const response = await axios.post(url, payload, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+
+      const result = response.data;
+      alert(`Bulk tedarikçi ekleme tamamlandı!\n${result.success_count}/${result.total_count} tedarikçi eklendi (${result.success_rate})`);
+      
+      // Refresh suppliers list
+      const clientIdToRefresh = selectedClient || dbUser?.client_id;
+      if (clientIdToRefresh) {
+        await fetchSuppliersWithFreshToken(clientIdToRefresh);
+      }
+      
+      // Clear form
+      setBulkSuppliersText('');
+      setShowBulkForm(false);
+      
+    } catch (error) {
+      console.error('Error processing bulk suppliers:', error);
+      alert('Bulk tedarikçi ekleme hatası: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setBulkProcessing(false);
+    }
+  };
+
   // Fetch suppliers with fresh token
   const fetchSuppliersWithFreshToken = async (clientId) => {
     try {
