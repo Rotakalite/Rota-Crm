@@ -15317,6 +15317,115 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
+  // Excel Suppliers Import Function
+  const processExcelSuppliers = async () => {
+    if (!excelFile) {
+      alert('Lütfen bir Excel dosyası seçin!');
+      return;
+    }
+
+    if ((userRole === 'admin' || userRole === 'consultant') && !selectedClient) {
+      alert('Lütfen önce bir müşteri seçin!');
+      return;
+    }
+
+    setExcelProcessing(true);
+    
+    try {
+      // Import XLSX library
+      const XLSX = await import('xlsx');
+      
+      // Read Excel file as ArrayBuffer
+      const arrayBuffer = await excelFile.arrayBuffer();
+      
+      // Parse Excel file
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      
+      // Convert to JSON
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      
+      // Skip header row and process data
+      const dataRows = jsonData.slice(1);
+      const suppliersList = [];
+      
+      for (const row of dataRows) {
+        if (row.length >= 2 && row[0] && row[1]) {
+          const supplierItem = {
+            company_name: String(row[0] || '').trim(),
+            contact_person: String(row[1] || '').trim(),
+            email: String(row[2] || '').trim(),
+            phone: String(row[3] || '').trim(),
+            category: String(row[4] || 'Diğer').trim(),
+            services: row[5] ? String(row[5]).split(';').map(s => s.trim()).filter(s => s) : [],
+            certifications: row[6] ? String(row[6]).split(';').map(c => c.trim()).filter(c => c) : [],
+            sustainability_score: parseInt(row[7]) || 0,
+            local_supplier: row[8] ? (String(row[8]).toLowerCase() === 'evet' || String(row[8]).toLowerCase() === 'true' || String(row[8]).toLowerCase() === 'yes') : false
+          };
+          
+          if (supplierItem.company_name && supplierItem.category) {
+            suppliersList.push(supplierItem);
+          }
+        }
+      }
+      
+      if (suppliersList.length === 0) {
+        alert('Excel dosyasında geçerli tedarikçi bulunamadı!\n\nBeklenen format:\nŞirket Adı | İletişim Kişisi | Email | Telefon | Kategori | Hizmetler | Sertifikalar | Sürdürülebilirlik Skoru | Yerel');
+        return;
+      }
+
+      // Get fresh token
+      let currentToken = authToken;
+      if (session) {
+        try {
+          const freshToken = await session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      // Send bulk request
+      const payload = {
+        suppliers_list: suppliersList
+      };
+      
+      // Add client_id for admin/consultant
+      const params = new URLSearchParams();
+      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
+        params.append('client_id', selectedClient);
+      }
+      
+      const url = `${API}/suppliers/bulk${params.toString() ? `?${params.toString()}` : ''}`;
+      
+      const response = await axios.post(url, payload, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+
+      const result = response.data;
+      alert(`Excel tedarikçi import tamamlandı!\n${result.success_count}/${result.total_count} tedarikçi eklendi (${result.success_rate})`);
+      
+      // Refresh suppliers list
+      const clientIdToRefresh = selectedClient || dbUser?.client_id;
+      if (clientIdToRefresh) {
+        await fetchSuppliersWithFreshToken(clientIdToRefresh);
+      }
+      
+      // Clear form
+      setExcelFile(null);
+      setShowExcelImport(false);
+      
+    } catch (error) {
+      console.error('Error processing Excel suppliers:', error);
+      alert('Excel tedarikçi import hatası: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setExcelProcessing(false);
+    }
+  };
+
   // Fetch suppliers with fresh token
   const fetchSuppliersWithFreshToken = async (clientId) => {
     try {
