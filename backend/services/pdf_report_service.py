@@ -328,13 +328,19 @@ class PDFReportService:
             story.append(chart_img)
             story.append(Spacer(1, 20))
         
+        # Calculate actual counts from data
+        actual_personnel_count = len(client_data.get('personnel', []))
+        actual_supplier_count = len(client_data.get('suppliers', []))
+        actual_training_count = len(client_data.get('trainings', []))
+        completed_training_count = len([t for t in client_data.get('trainings', []) if t.get('status') == 'completed'])
+        
         # Summary table
         summary_data = [
             [self._encode_turkish_text('Metrik'), self._encode_turkish_text('Değer'), self._encode_turkish_text('Önceki Dönem'), self._encode_turkish_text('Değişim')],
             [self._encode_turkish_text('Toplam Belge Sayısı'), str(stats.get('total_documents', 0)), '15', '+25%'],
-            [self._encode_turkish_text('Tamamlanan Eğitim'), str(stats.get('completed_trainings', 0)), '8', '+50%'],
-            [self._encode_turkish_text('Personel Sayısı'), str(stats.get('total_personnel', 0)), '28', '+7%'],
-            [self._encode_turkish_text('Tedarikçi Sayısı'), str(stats.get('total_suppliers', 0)), '12', '+25%']
+            [self._encode_turkish_text('Tamamlanan Eğitim'), str(completed_training_count), '8', '+50%'],
+            [self._encode_turkish_text('Personel Sayısı'), str(actual_personnel_count), '28', '+7%'],
+            [self._encode_turkish_text('Tedarikçi Sayısı'), str(actual_supplier_count), '12', '+25%']
         ]
         
         summary_table = Table(summary_data, colWidths=[2.2*inch, 1*inch, 1*inch, 1*inch])
