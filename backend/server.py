@@ -5845,6 +5845,9 @@ class BulkPersonnelItem(BaseModel):
     is_local: bool = False
     gender: str = "Erkek"
 
+class BulkPersonnelRequest(BaseModel):
+    personnel_list: List[BulkPersonnelItem]
+
 @api_router.post("/personnel/bulk")
 async def add_bulk_personnel(
     personnel_list: List[BulkPersonnelItem],
