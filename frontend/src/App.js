@@ -14804,6 +14804,9 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showBulkForm, setShowBulkForm] = useState(false);
+  const [bulkSuppliersText, setBulkSuppliersText] = useState('');
+  const [bulkProcessing, setBulkProcessing] = useState(false);
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     company_name: '',
