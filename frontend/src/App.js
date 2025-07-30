@@ -16229,11 +16229,60 @@ DEF Tekstil San., Mehmet Demir, mehmet@deftekstil.com, 0212-333-4444, Tekstil, ,
                     </div>
                     <div className="space-y-2 text-sm text-gray-600">
                       <p><strong>🏷️ Kategori:</strong> {supplier.category}</p>
-                      {supplier.monthly_purchase_amount && (
-                        <p><strong>📊 Aylık Miktar:</strong> {supplier.monthly_purchase_amount} {supplier.monthly_purchase_unit}</p>
+                      
+                      {/* Contact Information */}
+                      {supplier.contact_person && (
+                        <p><strong>👤 İletişim:</strong> {supplier.contact_person}</p>
                       )}
+                      {supplier.email && (
+                        <p><strong>📧 Email:</strong> {supplier.email}</p>
+                      )}
+                      {supplier.phone && (
+                        <p><strong>📞 Telefon:</strong> {supplier.phone}</p>
+                      )}
+                      
+                      {/* Purchase Information - NEW FIELDS */}
+                      {supplier.purchase_amount && supplier.purchase_amount > 0 && (
+                        <p><strong>📦 Satın Alım:</strong> {supplier.purchase_amount} {supplier.purchase_unit || 'ADET'}</p>
+                      )}
+                      
+                      {/* Monthly Payment - NEW FIELD */}
+                      {supplier.monthly_payment && supplier.monthly_payment > 0 && (
+                        <p><strong>💰 Aylık Ödeme:</strong> {supplier.monthly_payment.toLocaleString('tr-TR')} TL</p>
+                      )}
+                      
+                      {/* Services */}
+                      {supplier.services && supplier.services.length > 0 && (
+                        <p><strong>🛠️ Hizmetler:</strong> {supplier.services.join(', ')}</p>
+                      )}
+                      
+                      {/* Certifications */}
                       {supplier.certifications && supplier.certifications.length > 0 && (
                         <p><strong>🏆 Sertifikalar:</strong> {supplier.certifications.join(', ')}</p>
+                      )}
+                      
+                      {/* Sustainability Score */}
+                      {supplier.sustainability_score && supplier.sustainability_score > 0 && (
+                        <div className="flex items-center gap-2">
+                          <strong>🌱 Sürdürülebilirlik:</strong>
+                          <div className="flex items-center">
+                            <div className="w-16 bg-gray-200 rounded-full h-2">
+                              <div 
+                                className={`h-2 rounded-full ${
+                                  supplier.sustainability_score >= 80 ? 'bg-green-500' :
+                                  supplier.sustainability_score >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                                }`}
+                                style={{width: `${supplier.sustainability_score}%`}}
+                              ></div>
+                            </div>
+                            <span className="ml-2 text-xs font-medium">{supplier.sustainability_score}/100</span>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Legacy fields for backward compatibility */}
+                      {supplier.monthly_purchase_amount && (
+                        <p><strong>📊 Aylık Miktar:</strong> {supplier.monthly_purchase_amount} {supplier.monthly_purchase_unit}</p>
                       )}
                       {supplier.address && (
                         <p><strong>📍 Adres:</strong> {supplier.address}</p>
