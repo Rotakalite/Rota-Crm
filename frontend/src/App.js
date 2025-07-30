@@ -2006,6 +2006,9 @@ const PersonnelManagement = () => {
   const [showBulkForm, setShowBulkForm] = useState(false);
   const [bulkPersonnelText, setBulkPersonnelText] = useState('');
   const [bulkProcessing, setBulkProcessing] = useState(false);
+  const [showExcelImport, setShowExcelImport] = useState(false);
+  const [excelFile, setExcelFile] = useState(null);
+  const [excelProcessing, setExcelProcessing] = useState(false);
   const [formData, setFormData] = useState({
     full_name: '',
     position: '',
