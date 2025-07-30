@@ -10841,9 +10841,12 @@ class BulkSupplierItem(BaseModel):
     sustainability_score: int = 0
     local_supplier: bool = False
 
+class BulkSupplierRequest(BaseModel):
+    suppliers_list: List[BulkSupplierItem]
+
 @api_router.post("/suppliers/bulk")
 async def add_bulk_suppliers(
-    suppliers_list: List[BulkSupplierItem],
+    request: BulkSupplierRequest,
     client_id: str = None,
     current_user: User = Depends(get_current_user)
 ):
@@ -10851,7 +10854,7 @@ async def add_bulk_suppliers(
     🏪 BULK TEDARİKÇİ EKLEME - Toplu tedarikçi ekleme endpoint'i
     """
     try:
-        logging.info(f"🏪 BULK SUPPLIERS: Adding {len(suppliers_list)} suppliers for user: {current_user.email}")
+        logging.info(f"🏪 BULK SUPPLIERS: Adding {len(request.suppliers_list)} suppliers for user: {current_user.email}")
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
@@ -10875,7 +10878,7 @@ async def add_bulk_suppliers(
         
         # Add each supplier to database
         added_suppliers = []
-        for supplier_data in suppliers_list:
+        for supplier_data in request.suppliers_list:
             supplier_doc = {
                 "id": str(uuid.uuid4()),
                 "client_id": target_client_id,
@@ -10901,7 +10904,7 @@ async def add_bulk_suppliers(
                 continue
         
         success_count = len(added_suppliers)
-        total_count = len(suppliers_list)
+        total_count = len(request.suppliers_list)
         
         logging.info(f"🏪 BULK SUPPLIERS COMPLETED: {success_count}/{total_count} suppliers added successfully")
         
