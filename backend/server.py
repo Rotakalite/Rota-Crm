@@ -10840,6 +10840,9 @@ class BulkSupplierItem(BaseModel):
     certifications: List[str] = []
     sustainability_score: int = 0
     local_supplier: bool = False
+    purchase_amount: float = 0.0
+    purchase_unit: str = "ADET"  # KG, LİTRE, ADET, GÜN, M², M³, etc.
+    monthly_payment: float = 0.0  # Optional monthly payment amount in TL
 
 class BulkSupplierRequest(BaseModel):
     suppliers_list: List[BulkSupplierItem]
