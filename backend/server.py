@@ -5835,6 +5835,91 @@ async def get_client_personnel(client_id: str, current_user: User = Depends(get_
         logging.error(f"Get client personnel error: {e}")
         raise HTTPException(status_code=500, detail=f"Personel listesi alınamadı: {str(e)}")
 
+# BULK PERSONNEL MANAGEMENT ENDPOINTS
+
+class BulkPersonnelItem(BaseModel):
+    full_name: str
+    position: str
+    location: str = ""
+    certifications: List[str] = []
+    is_local: bool = False
+    gender: str = "Erkek"
+
+@api_router.post("/personnel/bulk")
+async def add_bulk_personnel(
+    personnel_list: List[BulkPersonnelItem],
+    client_id: str = None,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    📋 BULK PERSONEL EKLEME - Toplu personel ekleme endpoint'i
+    """
+    try:
+        logging.info(f"📋 BULK PERSONNEL: Adding {len(personnel_list)} personnel for user: {current_user.email}")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
+        
+        # Determine target client_id based on user role
+        target_client_id = None
+        if current_user.role == UserRole.CLIENT:
+            target_client_id = current_user.client_id
+        elif current_user.role in [UserRole.ADMIN, UserRole.CONSULTANT]:
+            if not client_id:
+                raise HTTPException(status_code=400, detail="Admin/consultant kullanıcıları için client_id gereklidir")
+            target_client_id = client_id
+        else:
+            raise HTTPException(status_code=403, detail="Bulk personel ekleme yetkisi yok")
+        
+        # Verify client exists
+        client = await asyncio.to_thread(db.clients.find_one, {"id": target_client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Müşteri bulunamadı")
+        
+        # Add each personnel to database
+        added_personnel = []
+        for person_data in personnel_list:
+            personnel_doc = {
+                "id": str(uuid.uuid4()),
+                "client_id": target_client_id,
+                "full_name": person_data.full_name.strip(),
+                "position": person_data.position.strip(),
+                "location": person_data.location.strip() if person_data.location else "",
+                "certifications": person_data.certifications,
+                "is_local": person_data.is_local,
+                "gender": person_data.gender,
+                "created_at": datetime.now().isoformat(),
+                "updated_at": datetime.now().isoformat()
+            }
+            
+            try:
+                await asyncio.to_thread(db.personnel.insert_one, personnel_doc)
+                added_personnel.append(person_data.full_name)
+                logging.info(f"✅ Added personnel: {person_data.full_name}")
+            except Exception as insert_error:
+                logging.error(f"❌ Failed to add personnel {person_data.full_name}: {str(insert_error)}")
+                continue
+        
+        success_count = len(added_personnel)
+        total_count = len(personnel_list)
+        
+        logging.info(f"📋 BULK PERSONNEL COMPLETED: {success_count}/{total_count} personnel added successfully")
+        
+        return {
+            "message": f"Bulk personel ekleme tamamlandı",
+            "success_count": success_count,
+            "total_count": total_count,
+            "added_personnel": added_personnel,
+            "success_rate": f"{(success_count/total_count)*100:.1f}%"
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ BULK PERSONNEL ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Bulk personel ekleme hatası: {str(e)}")
+
+# EXISTING CODE CONTINUES...
+
 @api_router.post("/admin/update-subfolders")
 async def update_existing_clients_subfolders(current_user: User = Depends(get_current_user)):
     """Admin-only endpoint to update existing clients with sub-folders"""
