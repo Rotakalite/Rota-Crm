@@ -2614,6 +2614,66 @@ const PersonnelManagement = () => {
           </div>
         )}
 
+        {/* Bulk Personnel Form */}
+        {showBulkForm && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">📋 Toplu Personel Ekleme</h2>
+            <div className="mb-4">
+              <p className="text-gray-600 mb-2">Format: Ad Soyad, Pozisyon, Lokasyon, Sertifikalar, Yerel, Cinsiyet</p>
+              <p className="text-sm text-gray-500 mb-4">
+                Örnek: Ahmet Yılmaz, Garson, İstanbul, İlk Yardım;Hijyen, Evet, Erkek
+              </p>
+              <textarea
+                value={bulkPersonnelText}
+                onChange={(e) => setBulkPersonnelText(e.target.value)}
+                placeholder="Ahmet Yılmaz, Garson, İstanbul, İlk Yardım;Hijyen, Evet, Erkek
+Fatma Kaya, Temizlik, Ankara, Hijyen, Evet, Kadın
+Mehmet Demir, Resepsiyon, İzmir, , Hayır, Erkek"
+                className="w-full h-40 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                rows="10"
+              />
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <h3 className="font-medium text-blue-800 mb-2">📝 Format Açıklaması:</h3>
+              <ul className="text-sm text-blue-700 space-y-1">
+                <li>• <strong>Ad Soyad:</strong> Zorunlu - Personelin tam adı</li>
+                <li>• <strong>Pozisyon:</strong> Zorunlu - İş pozisyonu</li>
+                <li>• <strong>Lokasyon:</strong> Opsiyonel - Çalıştığı şehir</li>
+                <li>• <strong>Sertifikalar:</strong> Opsiyonel - Noktalı virgülle ayrılmış</li>
+                <li>• <strong>Yerel:</strong> Opsiyonel - "Evet" veya "Hayır"</li>
+                <li>• <strong>Cinsiyet:</strong> Opsiyonel - "Erkek" veya "Kadın"</li>
+              </ul>
+            </div>
+            
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setShowBulkForm(false)}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                İptal
+              </button>
+              <button
+                onClick={processBulkPersonnel}
+                disabled={bulkProcessing}
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {bulkProcessing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>İşleniyor...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>📋</span>
+                    <span>Toplu Ekle</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Personnel List */}
         {selectedClient && (
           <div className="bg-white rounded-xl shadow-lg p-6">
