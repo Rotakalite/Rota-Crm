@@ -422,8 +422,8 @@ class PDFReportService:
                 [self._encode_turkish_text('Tüketim Türü'), self._encode_turkish_text('Toplam'), self._encode_turkish_text('Aylık Ortalama'), self._encode_turkish_text('Birim')],
                 [self._encode_turkish_text('Elektrik Tüketimi'), f"{total_energy:,.0f}", f"{avg_energy:,.0f}", 'kWh'],
                 [self._encode_turkish_text('Su Tüketimi'), f"{total_water:,.0f}", f"{avg_water:,.0f}", 'm³'],
-                [self._encode_turkish_text('Kişi Başı Enerji'), f"{(total_energy/max(1, stats.get('total_personnel', 1))):,.0f}", f"{(avg_energy/max(1, stats.get('total_personnel', 1))):,.0f}", 'kWh/kişi'],
-                [self._encode_turkish_text('Kişi Başı Su'), f"{(total_water/max(1, stats.get('total_personnel', 1))):,.0f}", f"{(avg_water/max(1, stats.get('total_personnel', 1))):,.0f}", 'm³/kişi']
+                [self._encode_turkish_text('Kişi Başı Enerji'), f"{(total_energy/max(1, actual_personnel_count)):,.0f}", f"{(avg_energy/max(1, actual_personnel_count)):,.0f}", 'kWh/kişi'],
+                [self._encode_turkish_text('Kişi Başı Su'), f"{(total_water/max(1, actual_personnel_count)):,.0f}", f"{(avg_water/max(1, actual_personnel_count)):,.0f}", 'm³/kişi']
             ]
             
             consumption_table = Table(consumption_summary, colWidths=[2*inch, 1.5*inch, 1.5*inch, 1*inch])
