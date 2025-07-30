@@ -15469,7 +15469,10 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
             services: row[5] ? String(row[5]).split(';').map(s => s.trim()).filter(s => s) : [],
             certifications: row[6] ? String(row[6]).split(';').map(c => c.trim()).filter(c => c) : [],
             sustainability_score: parseInt(row[7]) || 0,
-            local_supplier: row[8] ? (String(row[8]).toLowerCase() === 'evet' || String(row[8]).toLowerCase() === 'true' || String(row[8]).toLowerCase() === 'yes') : false
+            local_supplier: row[8] ? (String(row[8]).toLowerCase() === 'evet' || String(row[8]).toLowerCase() === 'true' || String(row[8]).toLowerCase() === 'yes') : false,
+            purchase_amount: parseFloat(row[9]) || 0.0,
+            purchase_unit: String(row[10] || 'ADET').trim(),
+            monthly_payment: parseFloat(row[11]) || 0.0
           };
           
           if (supplierItem.company_name && supplierItem.category) {
