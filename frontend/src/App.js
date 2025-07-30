@@ -15485,6 +15485,69 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
           </div>
         )}
 
+        {/* Bulk Suppliers Form */}
+        {showBulkForm && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">📋 Toplu Tedarikçi Ekleme</h2>
+            <div className="mb-4">
+              <p className="text-gray-600 mb-2">Format: Şirket Adı, İletişim Kişisi, Email, Telefon, Kategori, Hizmetler, Sertifikalar, Sürdürülebilirlik Skoru, Yerel</p>
+              <p className="text-sm text-gray-500 mb-4">
+                Örnek: ABC Gıda Ltd., Ahmet Yılmaz, ahmet@abcgida.com, 0212-555-0123, Gıda, Organik Ürünler;Et Ürünleri, ISO 14001;HACCP, 85, Evet
+              </p>
+              <textarea
+                value={bulkSuppliersText}
+                onChange={(e) => setBulkSuppliersText(e.target.value)}
+                placeholder="ABC Gıda Ltd., Ahmet Yılmaz, ahmet@abcgida.com, 0212-555-0123, Gıda, Organik Ürünler;Et Ürünleri, ISO 14001;HACCP, 85, Evet
+XYZ Temizlik A.Ş., Fatma Kaya, fatma@xyztemizlik.com, 0212-444-5555, Temizlik, Çevre Dostu Ürünler, ISO 9001, 75, Hayır
+DEF Tekstil San., Mehmet Demir, mehmet@deftekstil.com, 0212-333-4444, Tekstil, , , 60, Evet"
+                className="w-full h-40 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                rows="10"
+              />
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <h3 className="font-medium text-blue-800 mb-2">📝 Format Açıklaması:</h3>
+              <ul className="text-sm text-blue-700 space-y-1">
+                <li>• <strong>Şirket Adı:</strong> Zorunlu - Tedarikçi firma adı</li>
+                <li>• <strong>İletişim Kişisi:</strong> Opsiyonel - Sorumlu kişi adı</li>
+                <li>• <strong>Email:</strong> Opsiyonel - İletişim email adresi</li>
+                <li>• <strong>Telefon:</strong> Opsiyonel - İletişim telefonu</li>
+                <li>• <strong>Kategori:</strong> Zorunlu - Gıda, Temizlik, Tekstil vb.</li>
+                <li>• <strong>Hizmetler:</strong> Opsiyonel - Noktalı virgülle ayrılmış</li>
+                <li>• <strong>Sertifikalar:</strong> Opsiyonel - Noktalı virgülle ayrılmış</li>
+                <li>• <strong>Sürdürülebilirlik Skoru:</strong> Opsiyonel - 0-100 arası sayı</li>
+                <li>• <strong>Yerel:</strong> Opsiyonel - "Evet" veya "Hayır"</li>
+              </ul>
+            </div>
+            
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setShowBulkForm(false)}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                İptal
+              </button>
+              <button
+                onClick={processBulkSuppliers}
+                disabled={bulkProcessing}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {bulkProcessing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>İşleniyor...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>📋</span>
+                    <span>Toplu Ekle</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Suppliers List */}
         {selectedClient && (
           <div className="bg-white rounded-xl shadow-lg p-6">
