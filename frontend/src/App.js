@@ -2213,6 +2213,99 @@ const PersonnelManagement = () => {
     }
   };
 
+  // Bulk Personnel Import Function
+  const processBulkPersonnel = async () => {
+    if (!bulkPersonnelText.trim()) {
+      alert('Lütfen personel listesini girin!');
+      return;
+    }
+
+    if ((userRole === 'admin' || userRole === 'consultant') && !selectedClient) {
+      alert('Lütfen önce bir müşteri seçin!');
+      return;
+    }
+
+    setBulkProcessing(true);
+    
+    try {
+      // Parse the text input
+      const lines = bulkPersonnelText.trim().split('\n').filter(line => line.trim());
+      const personnelList = [];
+      
+      for (const line of lines) {
+        const parts = line.split(',').map(part => part.trim());
+        if (parts.length >= 2) {
+          const personnelItem = {
+            full_name: parts[0] || '',
+            position: parts[1] || '',
+            location: parts[2] || '',
+            certifications: parts[3] ? parts[3].split(';').map(c => c.trim()).filter(c => c) : [],
+            is_local: parts[4] ? parts[4].toLowerCase() === 'evet' || parts[4].toLowerCase() === 'true' : false,
+            gender: parts[5] || 'Erkek'
+          };
+          
+          if (personnelItem.full_name && personnelItem.position) {
+            personnelList.push(personnelItem);
+          }
+        }
+      }
+      
+      if (personnelList.length === 0) {
+        alert('Geçerli personel bulunamadı! Format: Ad Soyad, Pozisyon, Lokasyon, Sertifikalar, Yerel, Cinsiyet');
+        return;
+      }
+
+      // Get fresh token
+      let currentToken = authToken;
+      if (session) {
+        try {
+          const freshToken = await session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      // Send bulk request
+      const payload = {
+        personnel_list: personnelList
+      };
+      
+      // Add client_id for admin/consultant
+      const params = new URLSearchParams();
+      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
+        params.append('client_id', selectedClient);
+      }
+      
+      const url = `${API}/personnel/bulk${params.toString() ? `?${params.toString()}` : ''}`;
+      
+      const response = await axios.post(url, payload, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+
+      const result = response.data;
+      alert(`Bulk personel ekleme tamamlandı!\n${result.success_count}/${result.total_count} personel eklendi (${result.success_rate})`);
+      
+      // Refresh personnel list
+      const clientIdToRefresh = selectedClient || dbUser?.client_id;
+      if (clientIdToRefresh) {
+        await fetchPersonnelWithFreshToken(clientIdToRefresh);
+      }
+      
+      // Clear form
+      setBulkPersonnelText('');
+      setShowBulkForm(false);
+      
+    } catch (error) {
+      console.error('Error processing bulk personnel:', error);
+      alert('Bulk personel ekleme hatası: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setBulkProcessing(false);
+    }
+  };
+
   useEffect(() => {
     if (authToken) {
       fetchClients();
