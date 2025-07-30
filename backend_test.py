@@ -428,8 +428,8 @@ class TemplateDownloadBackendTester:
         print("="*80)
         
         # Categorize results
-        passed_tests = [r for r in self.test_results if r['success']]
-        failed_tests = [r for r in self.test_results if not r['success']]
+        passed_tests = [r for r in self.test_results if r['passed']]
+        failed_tests = [r for r in self.test_results if not r['passed']]
         
         if passed_tests:
             print("✅ PASSED TESTS:")
