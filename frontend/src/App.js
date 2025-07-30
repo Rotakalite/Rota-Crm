@@ -15118,11 +15118,19 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     company_name: '',
+    contact_person: '',
+    email: '',
+    phone: '',
     address: '',
     category: '',
+    services: [],
     certifications: [],
+    sustainability_score: 0,
     monthly_purchase_amount: '',
     monthly_purchase_unit: 'KG',
+    purchase_amount: '',
+    purchase_unit: 'ADET',
+    monthly_payment: '',
     local_supplier: false,
     description: ''
   });
