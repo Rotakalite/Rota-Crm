@@ -341,12 +341,6 @@ class PDFReportService:
             story.append(chart_img)
             story.append(Spacer(1, 20))
         
-        # Calculate actual counts from data
-        actual_personnel_count = len(client_data.get('personnel', []))
-        actual_supplier_count = len(client_data.get('suppliers', []))
-        actual_training_count = len(client_data.get('trainings', []))
-        completed_training_count = len([t for t in client_data.get('trainings', []) if t.get('status') == 'completed'])
-        
         # Summary table
         summary_data = [
             [self._encode_turkish_text('Metrik'), self._encode_turkish_text('Değer'), self._encode_turkish_text('Önceki Dönem'), self._encode_turkish_text('Değişim')],
