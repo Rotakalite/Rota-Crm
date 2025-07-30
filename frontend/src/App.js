@@ -2309,6 +2309,107 @@ const PersonnelManagement = () => {
     }
   };
 
+  // Excel Personnel Import Function
+  const processExcelPersonnel = async () => {
+    if (!excelFile) {
+      alert('Lütfen bir Excel dosyası seçin!');
+      return;
+    }
+
+    if ((userRole === 'admin' || userRole === 'consultant') && !selectedClient) {
+      alert('Lütfen önce bir müşteri seçin!');
+      return;
+    }
+
+    setExcelProcessing(true);
+    
+    try {
+      // Read Excel file
+      const formData = new FormData();
+      formData.append('file', excelFile);
+      
+      // Parse Excel file using file reader and simple CSV-like processing
+      const text = await excelFile.text();
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      // Skip header if exists
+      const dataLines = lines.slice(1);
+      const personnelList = [];
+      
+      for (const line of dataLines) {
+        const parts = line.split(',').map(part => part.trim().replace(/"/g, ''));
+        if (parts.length >= 2) {
+          const personnelItem = {
+            full_name: parts[0] || '',
+            position: parts[1] || '',
+            location: parts[2] || '',
+            certifications: parts[3] ? parts[3].split(';').map(c => c.trim()).filter(c => c) : [],
+            is_local: parts[4] ? parts[4].toLowerCase() === 'evet' || parts[4].toLowerCase() === 'true' : false,
+            gender: parts[5] || 'Erkek'
+          };
+          
+          if (personnelItem.full_name && personnelItem.position) {
+            personnelList.push(personnelItem);
+          }
+        }
+      }
+      
+      if (personnelList.length === 0) {
+        alert('Excel dosyasında geçerli personel bulunamadı!');
+        return;
+      }
+
+      // Get fresh token
+      let currentToken = authToken;
+      if (session) {
+        try {
+          const freshToken = await session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      // Send bulk request
+      const payload = {
+        personnel_list: personnelList
+      };
+      
+      // Add client_id for admin/consultant
+      const params = new URLSearchParams();
+      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
+        params.append('client_id', selectedClient);
+      }
+      
+      const url = `${API}/personnel/bulk${params.toString() ? `?${params.toString()}` : ''}`;
+      
+      const response = await axios.post(url, payload, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+
+      const result = response.data;
+      alert(`Excel personel import tamamlandı!\n${result.success_count}/${result.total_count} personel eklendi (${result.success_rate})`);
+      
+      // Refresh personnel list
+      const clientIdToRefresh = selectedClient || dbUser?.client_id;
+      if (clientIdToRefresh) {
+        await fetchPersonnelWithFreshToken(clientIdToRefresh);
+      }
+      
+      // Clear form
+      setExcelFile(null);
+      setShowExcelImport(false);
+      
+    } catch (error) {
+      console.error('Error processing Excel personnel:', error);
+      alert('Excel personel import hatası: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setExcelProcessing(false);
+    }
+  };
+
   useEffect(() => {
     if (authToken) {
       fetchClients();
