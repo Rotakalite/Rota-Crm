@@ -1347,6 +1347,325 @@ class TestClientDashboardStats(unittest.TestCase):
             logger.error(f"❌ Error checking consumption data: {str(e)}")
             logger.info("⚠️ Could not verify consumption data in database")
 
+class Test422ErrorFixVerification(unittest.TestCase):
+    """Test class for 422 Error Fix Verification - Railway Production Test"""
+    
+    def setUp(self):
+        """Set up test environment"""
+        self.api_url = RAILWAY_API_URL
+        
+        # Test client ID from review request
+        self.test_client_id = "94927a77-edc3-45ec-8329-795feae35771"
+        
+        # Headers for different user types
+        self.headers_admin = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
+        self.headers_client = {"Authorization": f"Bearer {CANO_CLIENT_TOKEN}"}
+        self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
+        self.headers_no_auth = {}
+        
+        # Test data for bulk personnel (from review request)
+        self.bulk_personnel_payload = {
+            "personnel_list": [
+                {
+                    "full_name": "Test Personel",
+                    "position": "Test Pozisyon",
+                    "location": "İstanbul",
+                    "certifications": ["Test Sertifika"],
+                    "is_local": True,
+                    "gender": "Erkek"
+                }
+            ]
+        }
+        
+        # Test data for bulk supplier (from review request)
+        self.bulk_supplier_payload = {
+            "suppliers_list": [
+                {
+                    "company_name": "Test Şirket",
+                    "contact_person": "Test Kişi",
+                    "category": "Test Kategori",
+                    "local_supplier": True
+                }
+            ]
+        }
+    
+    def test_bulk_personnel_endpoint_422_fix(self):
+        """Test POST /api/personnel/bulk endpoint - 422 Error Fix Verification"""
+        logger.info("\n=== Testing POST /api/personnel/bulk endpoint - 422 Error Fix ===")
+        
+        url = f"{self.api_url}/personnel/bulk"
+        
+        # Test with admin user
+        try:
+            response = requests.post(url, headers=self.headers_admin, json=self.bulk_personnel_payload)
+            logger.info(f"Admin response status code: {response.status_code}")
+            logger.info(f"Response headers: {dict(response.headers)}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"✅ SUCCESS: Bulk personnel endpoint returned 200 OK")
+                logger.info(f"Response data: {data}")
+                
+                # Verify response structure
+                expected_keys = ["message", "created_count", "failed_count"]
+                for key in expected_keys:
+                    if key in data:
+                        logger.info(f"✅ Response contains {key}: {data[key]}")
+                
+                # Check if personnel was actually created
+                if data.get("created_count", 0) > 0:
+                    logger.info(f"✅ {data['created_count']} personnel records created successfully")
+                else:
+                    logger.warning(f"⚠️ No personnel records created: {data}")
+                
+                logger.info("✅ POST /api/personnel/bulk with admin user - 422 ERROR FIXED!")
+                
+            elif response.status_code == 422:
+                data = response.json()
+                logger.error(f"❌ CRITICAL: Still getting 422 Unprocessable Entity!")
+                logger.error(f"422 Error details: {data}")
+                logger.error("❌ 422 ERROR NOT FIXED - BulkPersonnelRequest wrapper model issue persists")
+                
+            elif response.status_code == 405:
+                logger.error(f"❌ DEPLOYMENT ISSUE: 405 Method Not Allowed - endpoint not deployed")
+                logger.error("❌ Bulk personnel endpoint not available on Railway production")
+                
+            elif response.status_code in [401, 403]:
+                data = response.json()
+                logger.info(f"Auth error (expected): {data}")
+                logger.info("✅ Authentication working correctly")
+                
+            else:
+                data = response.json() if response.headers.get('content-type', '').startswith('application/json') else response.text
+                logger.warning(f"⚠️ Unexpected status code {response.status_code}: {data}")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing POST /api/personnel/bulk with admin: {str(e)}")
+            raise
+        
+        # Test with client user (should use their own client_id)
+        try:
+            response = requests.post(url, headers=self.headers_client, json=self.bulk_personnel_payload)
+            logger.info(f"Client response status code: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"✅ SUCCESS: Client can use bulk personnel endpoint")
+                logger.info(f"Client response data: {data}")
+                logger.info("✅ POST /api/personnel/bulk with client user - 422 ERROR FIXED!")
+                
+            elif response.status_code == 422:
+                data = response.json()
+                logger.error(f"❌ CRITICAL: Client still getting 422 error!")
+                logger.error(f"422 Error details: {data}")
+                
+            elif response.status_code == 405:
+                logger.error(f"❌ DEPLOYMENT ISSUE: 405 Method Not Allowed for client")
+                
+            elif response.status_code in [401, 403]:
+                data = response.json()
+                logger.info(f"Client auth error (may be expected): {data}")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing POST /api/personnel/bulk with client: {str(e)}")
+            raise
+        
+        # Test authentication requirements
+        try:
+            response = requests.post(url, headers=self.headers_no_auth, json=self.bulk_personnel_payload)
+            logger.info(f"No auth response status code: {response.status_code}")
+            
+            # Should get 403 Not authenticated
+            self.assertEqual(response.status_code, 403)
+            logger.info("✅ POST /api/personnel/bulk without auth returns 403")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing POST /api/personnel/bulk without auth: {str(e)}")
+            raise
+    
+    def test_bulk_supplier_endpoint_422_fix(self):
+        """Test POST /api/suppliers/bulk endpoint - 422 Error Fix Verification"""
+        logger.info("\n=== Testing POST /api/suppliers/bulk endpoint - 422 Error Fix ===")
+        
+        url = f"{self.api_url}/suppliers/bulk"
+        
+        # Test with admin user
+        try:
+            response = requests.post(url, headers=self.headers_admin, json=self.bulk_supplier_payload)
+            logger.info(f"Admin response status code: {response.status_code}")
+            logger.info(f"Response headers: {dict(response.headers)}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"✅ SUCCESS: Bulk supplier endpoint returned 200 OK")
+                logger.info(f"Response data: {data}")
+                
+                # Verify response structure
+                expected_keys = ["message", "created_count", "failed_count"]
+                for key in expected_keys:
+                    if key in data:
+                        logger.info(f"✅ Response contains {key}: {data[key]}")
+                
+                # Check if suppliers were actually created
+                if data.get("created_count", 0) > 0:
+                    logger.info(f"✅ {data['created_count']} supplier records created successfully")
+                else:
+                    logger.warning(f"⚠️ No supplier records created: {data}")
+                
+                logger.info("✅ POST /api/suppliers/bulk with admin user - 422 ERROR FIXED!")
+                
+            elif response.status_code == 422:
+                data = response.json()
+                logger.error(f"❌ CRITICAL: Still getting 422 Unprocessable Entity!")
+                logger.error(f"422 Error details: {data}")
+                logger.error("❌ 422 ERROR NOT FIXED - BulkSupplierRequest wrapper model issue persists")
+                
+            elif response.status_code == 405:
+                logger.error(f"❌ DEPLOYMENT ISSUE: 405 Method Not Allowed - endpoint not deployed")
+                logger.error("❌ Bulk supplier endpoint not available on Railway production")
+                
+            elif response.status_code in [401, 403]:
+                data = response.json()
+                logger.info(f"Auth error (expected): {data}")
+                logger.info("✅ Authentication working correctly")
+                
+            else:
+                data = response.json() if response.headers.get('content-type', '').startswith('application/json') else response.text
+                logger.warning(f"⚠️ Unexpected status code {response.status_code}: {data}")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing POST /api/suppliers/bulk with admin: {str(e)}")
+            raise
+        
+        # Test with client user (should use their own client_id)
+        try:
+            response = requests.post(url, headers=self.headers_client, json=self.bulk_supplier_payload)
+            logger.info(f"Client response status code: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"✅ SUCCESS: Client can use bulk supplier endpoint")
+                logger.info(f"Client response data: {data}")
+                logger.info("✅ POST /api/suppliers/bulk with client user - 422 ERROR FIXED!")
+                
+            elif response.status_code == 422:
+                data = response.json()
+                logger.error(f"❌ CRITICAL: Client still getting 422 error!")
+                logger.error(f"422 Error details: {data}")
+                
+            elif response.status_code == 405:
+                logger.error(f"❌ DEPLOYMENT ISSUE: 405 Method Not Allowed for client")
+                
+            elif response.status_code in [401, 403]:
+                data = response.json()
+                logger.info(f"Client auth error (may be expected): {data}")
+                
+        except Exception as e:
+            logger.error(f"❌ Error testing POST /api/suppliers/bulk with client: {str(e)}")
+            raise
+        
+        # Test authentication requirements
+        try:
+            response = requests.post(url, headers=self.headers_no_auth, json=self.bulk_supplier_payload)
+            logger.info(f"No auth response status code: {response.status_code}")
+            
+            # Should get 403 Not authenticated
+            self.assertEqual(response.status_code, 403)
+            logger.info("✅ POST /api/suppliers/bulk without auth returns 403")
+            
+        except Exception as e:
+            logger.error(f"❌ Error testing POST /api/suppliers/bulk without auth: {str(e)}")
+            raise
+    
+    def test_database_integration_verification(self):
+        """Test database integration for bulk operations"""
+        logger.info("\n=== Testing Database Integration for Bulk Operations ===")
+        
+        try:
+            # Connect to MongoDB directly to verify records
+            from motor.motor_asyncio import AsyncIOMotorClient
+            import asyncio
+            
+            async def check_database_records():
+                client = AsyncIOMotorClient(MONGO_URL)
+                db = client[DB_NAME]
+                
+                # Check personnel collection
+                personnel_count = await db.personnel.count_documents({"client_id": self.test_client_id})
+                logger.info(f"Personnel records for test client {self.test_client_id}: {personnel_count}")
+                
+                # Check suppliers collection
+                supplier_count = await db.suppliers.count_documents({"client_id": self.test_client_id})
+                logger.info(f"Supplier records for test client {self.test_client_id}: {supplier_count}")
+                
+                # Check if test client exists
+                test_client = await db.clients.find_one({"id": self.test_client_id})
+                if test_client:
+                    logger.info(f"✅ Test client found: {test_client.get('name', 'Unknown')} - {test_client.get('hotel_name', 'Unknown')}")
+                    logger.info(f"Client type: {test_client.get('client_type', 'Unknown')}")
+                else:
+                    logger.warning(f"⚠️ Test client {self.test_client_id} not found in database")
+                
+                # Get sample personnel records
+                if personnel_count > 0:
+                    sample_personnel = await db.personnel.find({"client_id": self.test_client_id}).limit(3).to_list(length=3)
+                    logger.info(f"Sample personnel records: {[p.get('full_name', 'Unknown') for p in sample_personnel]}")
+                
+                # Get sample supplier records
+                if supplier_count > 0:
+                    sample_suppliers = await db.suppliers.find({"client_id": self.test_client_id}).limit(3).to_list(length=3)
+                    logger.info(f"Sample supplier records: {[s.get('company_name', 'Unknown') for s in sample_suppliers]}")
+                
+                client.close()
+                
+                return personnel_count, supplier_count
+            
+            # Run the async function
+            personnel_count, supplier_count = asyncio.run(check_database_records())
+            
+            # Verify client isolation
+            if personnel_count > 0 or supplier_count > 0:
+                logger.info("✅ Database integration working - records found for test client")
+                logger.info("✅ Client isolation appears to be working")
+            else:
+                logger.warning("⚠️ No records found for test client - may need to create test data first")
+            
+        except Exception as e:
+            logger.error(f"❌ Error checking database integration: {str(e)}")
+            logger.info("⚠️ Could not verify database integration")
+    
+    def test_railway_backend_accessibility(self):
+        """Test Railway backend accessibility and health"""
+        logger.info("\n=== Testing Railway Backend Accessibility ===")
+        
+        # Test root endpoint
+        try:
+            response = requests.get("https://rota-crm-production.up.railway.app")
+            logger.info(f"Root endpoint status code: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"✅ Railway backend accessible: {data}")
+            else:
+                logger.warning(f"⚠️ Root endpoint returned {response.status_code}")
+                
+        except Exception as e:
+            logger.error(f"❌ Error accessing root endpoint: {str(e)}")
+        
+        # Test health endpoint
+        try:
+            response = requests.get(f"{self.api_url}/health")
+            logger.info(f"Health endpoint status code: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"✅ Health endpoint working: {data}")
+            else:
+                logger.warning(f"⚠️ Health endpoint returned {response.status_code}")
+                
+        except Exception as e:
+            logger.error(f"❌ Error accessing health endpoint: {str(e)}")
+
 class TestTrainingManagement(unittest.TestCase):
     """Test class for Training Management endpoints - Focus on editing functionality"""
     
