@@ -2415,34 +2415,100 @@ const PersonnelManagement = () => {
     }
   };
 
-  // Download Personnel Template Function
-  const downloadPersonnelTemplate = () => {
-    const templateData = [
-      ['Ad Soyad', 'Pozisyon', 'Lokasyon', 'Sertifikalar', 'Yerel', 'Cinsiyet'],
-      ['Ahmet Yılmaz', 'Garson', 'İstanbul', 'İlk Yardım;Hijyen', 'Evet', 'Erkek'],
-      ['Fatma Kaya', 'Temizlik', 'Ankara', 'Hijyen', 'Evet', 'Kadın'],
-      ['Mehmet Demir', 'Resepsiyon', 'İzmir', '', 'Hayır', 'Erkek'],
-      ['Ayşe Öztürk', 'Müdür', 'Bursa', 'Yönetim;İnsan Kaynakları', 'Evet', 'Kadın'],
-      ['Murat Kaya', 'Güvenlik', 'Antalya', 'Güvenlik;İlk Yardım', 'Evet', 'Erkek']
-    ];
+  // Download Personnel Template Function (XLSX Format)
+  const downloadPersonnelTemplate = async () => {
+    try {
+      // Import XLSX library
+      const XLSX = await import('xlsx');
+      
+      // Create template data with proper structure
+      const templateData = [
+        // Header row
+        ['Ad Soyad', 'Pozisyon', 'Lokasyon', 'Sertifikalar', 'Yerel', 'Cinsiyet'],
+        // Example rows with proper formatting
+        ['Ahmet Yılmaz', 'Garson', 'İstanbul', 'İlk Yardım;Hijyen', 'Evet', 'Erkek'],
+        ['Fatma Kaya', 'Temizlik', 'Ankara', 'Hijyen', 'Evet', 'Kadın'],
+        ['Mehmet Demir', 'Resepsiyon', 'İzmir', '', 'Hayır', 'Erkek'],
+        ['Ayşe Öztürk', 'Müdür', 'Bursa', 'Yönetim;İnsan Kaynakları', 'Evet', 'Kadın'],
+        ['Murat Kaya', 'Güvenlik', 'Antalya', 'Güvenlik;İlk Yardım', 'Evet', 'Erkek'],
+        // Empty rows for user input
+        ['', '', '', '', '', ''],
+        ['', '', '', '', '', ''],
+        ['', '', '', '', '', ''],
+        ['', '', '', '', '', '']
+      ];
 
-    // Convert to CSV
-    const csvContent = templateData.map(row => 
-      row.map(cell => `"${cell}"`).join(',')
-    ).join('\n');
+      // Create workbook and worksheet
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.aoa_to_sheet(templateData);
+      
+      // Set column widths for better formatting
+      worksheet['!cols'] = [
+        { width: 20 }, // Ad Soyad
+        { width: 15 }, // Pozisyon
+        { width: 12 }, // Lokasyon
+        { width: 25 }, // Sertifikalar
+        { width: 8 },  // Yerel
+        { width: 10 }  // Cinsiyet
+      ];
+      
+      // Style the header row
+      const headerStyle = {
+        font: { bold: true, color: { rgb: "FFFFFF" } },
+        fill: { fgColor: { rgb: "4472C4" } },
+        alignment: { horizontal: "center", vertical: "center" }
+      };
+      
+      // Apply header styling
+      for (let col = 0; col < 6; col++) {
+        const cellRef = XLSX.utils.encode_cell({ r: 0, c: col });
+        if (!worksheet[cellRef]) worksheet[cellRef] = { t: 's', v: '' };
+        worksheet[cellRef].s = headerStyle;
+      }
+      
+      // Add data validation for Yerel column (E column)
+      if (!worksheet['!dataValidations']) worksheet['!dataValidations'] = [];
+      worksheet['!dataValidations'].push({
+        type: 'list',
+        allowBlank: false,
+        showInputMessage: true,
+        showErrorMessage: true,
+        sqref: 'E2:E1000',
+        formula1: '"Evet,Hayır"'
+      });
+      
+      // Add data validation for Cinsiyet column (F column)
+      worksheet['!dataValidations'].push({
+        type: 'list',
+        allowBlank: false,
+        showInputMessage: true,
+        showErrorMessage: true,
+        sqref: 'F2:F1000',
+        formula1: '"Erkek,Kadın"'
+      });
 
-    // Create and download file
-    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'personel_taslak.csv');
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    alert('📊 Personel taslak Excel dosyası indirildi!\n\nDosyayı açın, kendi personel verilerinizi girin ve Excel İmport ile yükleyin.');
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Personel');
+      
+      // Generate and download XLSX file
+      const xlsxBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([xlsxBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'personel_taslak.xlsx');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      alert('📊 Personel taslak Excel dosyası indirildi!\n\n✅ XLSX formatında\n✅ Düzenli sütun yapısı\n✅ Açılır listeler\n✅ Boş satırlar eklendi\n\nDosyayı açın, kendi personel verilerinizi girin ve Excel İmport ile yükleyin.');
+      
+    } catch (error) {
+      console.error('Error creating personnel template:', error);
+      alert('Template oluşturma hatası: ' + error.message);
+    }
   };
 
   useEffect(() => {
