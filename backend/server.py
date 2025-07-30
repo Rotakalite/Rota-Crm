@@ -5850,7 +5850,7 @@ class BulkPersonnelRequest(BaseModel):
 
 @api_router.post("/personnel/bulk")
 async def add_bulk_personnel(
-    personnel_list: List[BulkPersonnelItem],
+    request: BulkPersonnelRequest,
     client_id: str = None,
     current_user: User = Depends(get_current_user)
 ):
@@ -5858,7 +5858,7 @@ async def add_bulk_personnel(
     📋 BULK PERSONEL EKLEME - Toplu personel ekleme endpoint'i
     """
     try:
-        logging.info(f"📋 BULK PERSONNEL: Adding {len(personnel_list)} personnel for user: {current_user.email}")
+        logging.info(f"📋 BULK PERSONNEL: Adding {len(request.personnel_list)} personnel for user: {current_user.email}")
         
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
@@ -5882,7 +5882,7 @@ async def add_bulk_personnel(
         
         # Add each personnel to database
         added_personnel = []
-        for person_data in personnel_list:
+        for person_data in request.personnel_list:
             personnel_doc = {
                 "id": str(uuid.uuid4()),
                 "client_id": target_client_id,
@@ -5905,7 +5905,7 @@ async def add_bulk_personnel(
                 continue
         
         success_count = len(added_personnel)
-        total_count = len(personnel_list)
+        total_count = len(request.personnel_list)
         
         logging.info(f"📋 BULK PERSONNEL COMPLETED: {success_count}/{total_count} personnel added successfully")
         
