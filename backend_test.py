@@ -434,12 +434,12 @@ class TemplateDownloadBackendTester:
         if passed_tests:
             print("✅ PASSED TESTS:")
             for test in passed_tests:
-                print(f"   • {test['test_name']}: {test['details']}")
+                print(f"   • {test['test']}: {test['details']}")
                 
         if failed_tests:
             print("\n❌ FAILED TESTS:")
             for test in failed_tests:
-                print(f"   • {test['test_name']}: {test['details']}")
+                print(f"   • {test['test']}: {test['details']}")
                 
         print("\n🎯 TEMPLATE DOWNLOAD FEATURE ANALYSIS:")
         print("   • Template download functions are implemented on FRONTEND only")
