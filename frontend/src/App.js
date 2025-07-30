@@ -2003,6 +2003,9 @@ const PersonnelManagement = () => {
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showBulkForm, setShowBulkForm] = useState(false);
+  const [bulkPersonnelText, setBulkPersonnelText] = useState('');
+  const [bulkProcessing, setBulkProcessing] = useState(false);
   const [formData, setFormData] = useState({
     full_name: '',
     position: '',
