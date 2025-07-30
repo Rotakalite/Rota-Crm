@@ -2390,7 +2390,7 @@ async def bulk_download_documents(
                 if successfully_added == 0 and empty_folders_added == 0:
                     raise HTTPException(status_code=404, detail="İndirilecek belge bulunamadı veya dosyalar çok büyük")
                 
-                logging.info(f"✅ ZIP created successfully with {successfully_added} documents")
+                logging.info(f"✅ ZIP created successfully with {successfully_added} documents and {empty_folders_added} empty folders")
             
             # Return ZIP file
             zip_filename = f"{safe_client_name}_belgeler_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
