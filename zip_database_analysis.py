@@ -70,7 +70,7 @@ class ZipDatabaseAnalysisTest:
         """Analyze client data for the test client"""
         print("\n🔍 CLIENT DATA ANALYSIS")
         
-        if not self.db:
+        if self.db is None:
             self.log_result("Client Data Analysis", False, "No database connection")
             return
         
