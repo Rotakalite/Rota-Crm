@@ -281,6 +281,21 @@ frontend:
 
 
 backend:
+  - task: "Bulk Personnel ve Tedarikçi Ekleme Test - Railway Production"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "user"
+        -comment: "2025-01-25: Railway production'da yeni bulk import özelliklerini test et: 1. POST /api/personnel/bulk endpoint'i çalışıyor mu? 2. Bulk personnel data parsing doğru mu? 3. Client ID handling (CLIENT/ADMIN/CONSULTANT) çalışıyor mu? 4. Database'e personel kayıtları eklenebiliyor mu? 5. POST /api/suppliers/bulk endpoint'i çalışıyor mu? 6. Bulk supplier data parsing doğru mu? 7. Authentication gerekliliği kontrol ediliyor mu? 8. Role-based access control çalışıyor mu? 9. Client isolation korunuyor mu? Test Data: Personnel: [{'full_name':'Ahmet Test','position':'Garson','location':'İstanbul','certifications':['İlk Yardım'],'is_local':true,'gender':'Erkek'}], Suppliers: [{'company_name':'Test Tedarikçi','contact_person':'Mehmet Bey','category':'Gıda','local_supplier':true}]"
+        -working: false
+        -agent: "testing"
+        -comment: "2025-01-25: 🚨 BULK PERSONNEL VE TEDARİKÇİ EKLEME TEST COMPLETED - CRITICAL DEPLOYMENT ISSUE FOUND! ❌ MAJOR FINDING: Bulk endpoints are NOT deployed to Railway production. POST /api/personnel/bulk and POST /api/suppliers/bulk return 405 Method Not Allowed, indicating endpoints are not registered. ✅ CODE ANALYSIS: Both endpoints are correctly implemented in server.py (lines 5848 and 10841) with proper authentication, role-based access control, and data validation. ✅ BACKEND ACCESSIBILITY: Railway backend is fully accessible (200 OK health check). ✅ SECURITY IMPLEMENTATION: Code shows proper JWT authentication, client ID handling for different user roles (CLIENT/ADMIN/CONSULTANT), and database validation. ✅ DATA STRUCTURE: BulkPersonnelItem and BulkSupplierItem models are correctly defined with all required fields. ❌ ROOT CAUSE: This appears to be a deployment issue where the latest server.py code containing the bulk endpoints has not been deployed to Railway production. The /debug/routes endpoint shows 207 registered routes but bulk endpoints are missing. 🚂 RAILWAY STATUS: Backend infrastructure is working, but bulk import features are not available due to deployment lag. URGENT: Main agent needs to ensure latest code is deployed to Railway production."
+
   - task: "Boş Klasörler Dahil ZIP İndirme Test - Railway Production"
     implemented: true
     working: true
