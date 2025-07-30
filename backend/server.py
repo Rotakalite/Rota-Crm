@@ -2348,7 +2348,46 @@ async def bulk_download_documents(
                         logging.error(f"❌ Error processing document {doc.get('id')}: {str(doc_error)}")
                         continue
                 
-                if successfully_added == 0:
+                # BOŞ KLASÖRLERI DE DAHIL ET - TÜM KLASÖR YAPISINI GÖSTER
+                logging.info(f"📁 Adding empty folders to ZIP structure...")
+                empty_folders_added = 0
+                
+                # Get all folders for this client
+                all_folders = [f for f in folders if f.get("client_id") == target_client_id]
+                
+                # Keep track of folders that already have documents
+                folders_with_documents = set()
+                for doc in documents:
+                    if doc.get("folder_id"):
+                        folders_with_documents.add(doc["folder_id"])
+                
+                # Add empty folders to ZIP
+                for folder in all_folders:
+                    folder_id = folder.get("id")
+                    
+                    # Skip folders that already have documents
+                    if folder_id in folders_with_documents:
+                        continue
+                    
+                    # Get full folder path
+                    folder_path = get_folder_path(folder_id)
+                    if folder_path:
+                        try:
+                            # Create empty folder in ZIP with a placeholder file
+                            placeholder_path = f"{folder_path}/README.txt"
+                            placeholder_content = f"Bu klasör boş - {folder.get('name', 'Klasör')}\nOluşturulma tarihi: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                            
+                            # Add placeholder file to create the folder structure
+                            zip_file.writestr(placeholder_path, placeholder_content.encode('utf-8'))
+                            empty_folders_added += 1
+                            
+                        except Exception as folder_error:
+                            logging.warning(f"⚠️ Could not add empty folder {folder_path}: {str(folder_error)}")
+                            continue
+                
+                logging.info(f"📁 Added {empty_folders_added} empty folders to ZIP")
+                
+                if successfully_added == 0 and empty_folders_added == 0:
                     raise HTTPException(status_code=404, detail="İndirilecek belge bulunamadı veya dosyalar çok büyük")
                 
                 logging.info(f"✅ ZIP created successfully with {successfully_added} documents")
