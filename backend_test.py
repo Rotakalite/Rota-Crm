@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-🎯 TEDARIKÇI EXCEL IMPORT TEST - Railway Production
-Comprehensive testing of Supplier Excel Import functionality
-Test client_id: 94927a77-edc3-45ec-8329-795feae35771
+🎯 TEMPLATE DOWNLOAD FEATURE BACKEND TEST - Railway Production
+Comprehensive testing of Template Download functionality and supporting backend endpoints
+Focus: Personnel and Supplier template download features
 """
 
 import requests
