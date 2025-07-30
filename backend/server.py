@@ -2200,10 +2200,15 @@ async def bulk_download_documents(
         client_name = client.get("hotel_name") or client.get("name", "Bilinmeyen_Musteri")
         safe_client_name = "".join(c for c in client_name if c.isalnum() or c in (' ', '-', '_')).strip()
         
-        # Build document query
+        # Build document query - TÜM KLASÖRLER İÇİN
         doc_query = {"client_id": target_client_id}
         if folder_id:
+            logging.info(f"📁 FOLDER FILTER: Only downloading from folder_id={folder_id}")
             doc_query["folder_id"] = folder_id
+        else:
+            logging.info(f"📁 NO FOLDER FILTER: Downloading from ALL folders for client_id={target_client_id}")
+            
+        logging.info(f"📁 DOCUMENT QUERY: {doc_query}")
             
         # Get documents
         documents = await asyncio.to_thread(
