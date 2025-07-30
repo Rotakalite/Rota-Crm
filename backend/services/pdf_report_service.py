@@ -493,7 +493,7 @@ class PDFReportService:
                 [self._encode_turkish_text('Eğitim Metrikleri'), self._encode_turkish_text('Değer'), self._encode_turkish_text('Hedef'), self._encode_turkish_text('Başarı Oranı')],
                 [self._encode_turkish_text('Toplam Eğitim'), str(total_trainings), '15', f"{min(100, (total_trainings/15)*100):.1f}%"],
                 [self._encode_turkish_text('Tamamlanan Eğitim'), str(completed_trainings), str(total_trainings), f"{completion_rate:.1f}%"],
-                [self._encode_turkish_text('Personel Katılımı'), str(stats.get('total_personnel', 0)), str(stats.get('total_personnel', 0)), '100%'],
+                [self._encode_turkish_text('Personel Katılımı'), str(actual_personnel_count), str(actual_personnel_count), '100%'],
                 [self._encode_turkish_text('Sertifika Alımı'), str(int(completed_trainings * 0.8)), str(completed_trainings), f"{80:.1f}%"]
             ]
             
