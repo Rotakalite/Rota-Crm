@@ -2586,6 +2586,18 @@ const PersonnelManagement = () => {
                     Mehmet Demir,Resepsiyon,İzmir,,Hayır,Erkek
                   </div>
                 </div>
+                
+                {/* Template Download Button */}
+                <div className="mt-4 pt-3 border-t border-green-200">
+                  <button
+                    onClick={downloadPersonnelTemplate}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center gap-2"
+                  >
+                    <span>📁</span>
+                    <span>Taslak Excel İndir</span>
+                  </button>
+                  <p className="text-xs text-green-600 mt-1">💡 Hazır template'i indirin, düzenleyin ve yükleyin!</p>
+                </div>
               </div>
               
               <div>
