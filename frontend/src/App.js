@@ -15223,12 +15223,18 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
                 </select>
               </div>
               {selectedClient && (
-                <div className="flex items-end">
+                <div className="flex items-end gap-3">
                   <button
                     onClick={() => setShowAddForm(!showAddForm)}
                     className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
                   >
                     {showAddForm ? '❌ İptal' : '➕ Tedarikçi Ekle'}
+                  </button>
+                  <button
+                    onClick={() => setShowBulkForm(!showBulkForm)}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  >
+                    {showBulkForm ? '❌ İptal' : '📋 Toplu Ekle'}
                   </button>
                 </div>
               )}
