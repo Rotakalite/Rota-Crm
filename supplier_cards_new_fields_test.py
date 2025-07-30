@@ -100,11 +100,16 @@ class SupplierCardsNewFieldsTester:
                 elif method == "DELETE":
                     response = requests.delete(f"{self.backend_url}{endpoint}", timeout=10)
                 
-                # Should return 401/403 for authentication required
+                # Should return 401/403 for authentication required, or 200 for public endpoints
                 if response.status_code in [401, 403]:
                     self.log_test(f"{name} Security", 
                                  True,
                                  f"Properly secured (HTTP {response.status_code})")
+                elif response.status_code == 200 and endpoint in ["/api/suppliers/categories/list", "/api/suppliers/certifications/list"]:
+                    # These endpoints are public for form dropdowns
+                    self.log_test(f"{name} Security", 
+                                 True,
+                                 f"Public endpoint working (HTTP {response.status_code})")
                 else:
                     self.log_test(f"{name} Security", 
                                  False,
