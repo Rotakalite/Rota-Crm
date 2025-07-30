@@ -15828,29 +15828,138 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4">➕ Yeni Tedarikçi Ekle</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Basic Info */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Şirket Adı</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Şirket Adı *</label>
                 <input
                   type="text"
                   value={formData.company_name}
                   onChange={(e) => setFormData({...formData, company_name: e.target.value})}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   placeholder="Şirket adını girin"
+                  required
                 />
               </div>
+              
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Kategori *</label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  required
                 >
                   <option value="">-- Kategori Seçin --</option>
-                  {Array.isArray(categories) && categories.map((category) => (
-                    <option key={category} value={category}>{category}</option>
-                  ))}
+                  <option value="Gıda">Gıda</option>
+                  <option value="Temizlik">Temizlik</option>
+                  <option value="Tekstil">Tekstil</option>
+                  <option value="Elektronik">Elektronik</option>
+                  <option value="İnşaat">İnşaat</option>
+                  <option value="Kimyasal">Kimyasal</option>
+                  <option value="Kozmetik">Kozmetik</option>
+                  <option value="Mobilya">Mobilya</option>
+                  <option value="Otomotiv">Otomotiv</option>
+                  <option value="Teknoloji">Teknoloji</option>
+                  <option value="Hizmet">Hizmet</option>
+                  <option value="Diğer">Diğer</option>
                 </select>
               </div>
+              
+              {/* Contact Info */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">İletişim Kişisi</label>
+                <input
+                  type="text"
+                  value={formData.contact_person}
+                  onChange={(e) => setFormData({...formData, contact_person: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Sorumlu kişi adı"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="email@domain.com"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Telefon</label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="0212-555-0123"
+                />
+              </div>
+              
+              {/* Services */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Hizmetler</label>
+                <input
+                  type="text"
+                  value={formData.services.join(', ')}
+                  onChange={(e) => setFormData({...formData, services: e.target.value.split(',').map(s => s.trim()).filter(s => s)})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Hizmet 1, Hizmet 2 (virgülle ayırın)"
+                />
+              </div>
+              
+              {/* Purchase Info - NEW FIELDS */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Satın Alım Miktarı</label>
+                <div className="flex space-x-2">
+                  <input
+                    type="number"
+                    value={formData.purchase_amount}
+                    onChange={(e) => setFormData({...formData, purchase_amount: e.target.value})}
+                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="Miktar"
+                    min="0"
+                    step="0.1"
+                  />
+                  <select
+                    value={formData.purchase_unit}
+                    onChange={(e) => setFormData({...formData, purchase_unit: e.target.value})}
+                    className="w-20 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="KG">KG</option>
+                    <option value="LİTRE">LİTRE</option>
+                    <option value="ADET">ADET</option>
+                    <option value="GÜN">GÜN</option>
+                    <option value="SAAT">SAAT</option>
+                    <option value="M²">M²</option>
+                    <option value="M³">M³</option>
+                    <option value="TON">TON</option>
+                    <option value="GRAM">GRAM</option>
+                    <option value="PAKET">PAKET</option>
+                    <option value="KUTU">KUTU</option>
+                    <option value="KASA">KASA</option>
+                  </select>
+                </div>
+              </div>
+              
+              {/* Monthly Payment - NEW FIELD */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Aylık Ödenen Tutar (TL)</label>
+                <input
+                  type="number"
+                  value={formData.monthly_payment}
+                  onChange={(e) => setFormData({...formData, monthly_payment: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              
+              {/* Certifications */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Sertifikalar</label>
                 <input
@@ -15858,11 +15967,27 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
                   value={formData.certifications.join(', ')}
                   onChange={(e) => setFormData({...formData, certifications: e.target.value.split(',').map(s => s.trim()).filter(s => s)})}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="Organic, ISO 14001, Fair Trade (virgülle ayırın)"
+                  placeholder="ISO 14001, HACCP (virgülle ayırın)"
                 />
               </div>
+              
+              {/* Sustainability Score */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Aylık Satın Alım Miktarı</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Sürdürülebilirlik Skoru (0-100)</label>
+                <input
+                  type="number"
+                  value={formData.sustainability_score}
+                  onChange={(e) => setFormData({...formData, sustainability_score: Math.max(0, Math.min(100, parseInt(e.target.value) || 0))})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="85"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              
+              {/* Legacy Fields */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Aylık Satın Alım Miktarı (Legacy)</label>
                 <div className="flex space-x-2">
                   <input
                     type="number"
@@ -15885,6 +16010,8 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
                   </select>
                 </div>
               </div>
+              
+              {/* Local Supplier Checkbox */}
               <div className="flex items-center">
                 <input
                   type="checkbox"
@@ -15897,6 +16024,8 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
                   🏠 Yerel Tedarikçi
                 </label>
               </div>
+              
+              {/* Address */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Adres</label>
                 <textarea
@@ -15907,6 +16036,8 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
                   placeholder="Tam adres bilgisi"
                 />
               </div>
+              
+              {/* Description */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Açıklama</label>
                 <textarea
@@ -15918,6 +16049,7 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
                 />
               </div>
             </div>
+            
             <div className="mt-6 flex justify-end space-x-4">
               <button
                 onClick={() => setShowAddForm(false)}
@@ -15929,7 +16061,7 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
                 onClick={addSupplier}
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
               >
-                Tedarikçi Ekle
+                ➕ Tedarikçi Ekle
               </button>
             </div>
           </div>
