@@ -15869,6 +15869,83 @@ DEF Tekstil San., Mehmet Demir, mehmet@deftekstil.com, 0212-333-4444, Tekstil, ,
           </div>
         )}
 
+        {/* Excel Suppliers Import Form */}
+        {showExcelImport && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">📊 Excel Tedarikçi İmport</h2>
+            
+            <div className="mb-6">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                <h3 className="font-medium text-green-800 mb-2">📋 Excel Dosyası Formatı:</h3>
+                <div className="text-sm text-green-700">
+                  <p className="mb-2"><strong>Kolon Sırası:</strong> Şirket Adı, İletişim Kişisi, Email, Telefon, Kategori, Hizmetler, Sertifikalar, Sürdürülebilirlik Skoru, Yerel</p>
+                  <p className="mb-2"><strong>Önemli Notlar:</strong></p>
+                  <ul className="list-disc list-inside mb-2 space-y-1">
+                    <li>İlk satır başlık satırı olarak atlanır</li>
+                    <li>Hizmetler ve Sertifikalar noktalı virgül (;) ile ayrılır</li>
+                    <li>Sürdürülebilirlik Skoru 0-100 arası sayı olmalıdır</li>
+                    <li>Yerel sütunu: "Evet", "Hayır", "True", "False" değerleri alabilir</li>
+                    <li>Kategori: Gıda, Temizlik, Tekstil vb. değerler alabilir</li>
+                  </ul>
+                  <p><strong>Örnek:</strong></p>
+                  <div className="bg-white border rounded p-2 mt-2 font-mono text-xs">
+                    Şirket Adı,İletişim Kişisi,Email,Telefon,Kategori,Hizmetler,Sertifikalar,Sürdürülebilirlik Skoru,Yerel<br/>
+                    ABC Gıda Ltd.,Ahmet Yılmaz,ahmet@abcgida.com,0212-555-0123,Gıda,Organik Ürünler;Et Ürünleri,ISO 14001;HACCP,85,Evet<br/>
+                    XYZ Temizlik A.Ş.,Fatma Kaya,fatma@xyztemizlik.com,0212-444-5555,Temizlik,Çevre Dostu Ürünler,ISO 9001,75,Hayır<br/>
+                    DEF Tekstil San.,Mehmet Demir,mehmet@deftekstil.com,0212-333-4444,Tekstil,,,60,Evet
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Excel Dosyası Seçin (.csv, .xlsx)
+                </label>
+                <input
+                  type="file"
+                  accept=".csv,.xlsx,.xls"
+                  onChange={(e) => setExcelFile(e.target.files[0])}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                {excelFile && (
+                  <p className="text-sm text-green-600 mt-2">
+                    ✅ Seçilen dosya: {excelFile.name}
+                  </p>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => {
+                  setShowExcelImport(false);
+                  setExcelFile(null);
+                }}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                İptal
+              </button>
+              <button
+                onClick={processExcelSuppliers}
+                disabled={excelProcessing || !excelFile}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {excelProcessing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>İşleniyor...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>📊</span>
+                    <span>Excel İmport</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Suppliers List */}
         {selectedClient && (
           <div className="bg-white rounded-xl shadow-lg p-6">
