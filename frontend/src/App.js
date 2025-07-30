@@ -2415,6 +2415,36 @@ const PersonnelManagement = () => {
     }
   };
 
+  // Download Personnel Template Function
+  const downloadPersonnelTemplate = () => {
+    const templateData = [
+      ['Ad Soyad', 'Pozisyon', 'Lokasyon', 'Sertifikalar', 'Yerel', 'Cinsiyet'],
+      ['Ahmet Yılmaz', 'Garson', 'İstanbul', 'İlk Yardım;Hijyen', 'Evet', 'Erkek'],
+      ['Fatma Kaya', 'Temizlik', 'Ankara', 'Hijyen', 'Evet', 'Kadın'],
+      ['Mehmet Demir', 'Resepsiyon', 'İzmir', '', 'Hayır', 'Erkek'],
+      ['Ayşe Öztürk', 'Müdür', 'Bursa', 'Yönetim;İnsan Kaynakları', 'Evet', 'Kadın'],
+      ['Murat Kaya', 'Güvenlik', 'Antalya', 'Güvenlik;İlk Yardım', 'Evet', 'Erkek']
+    ];
+
+    // Convert to CSV
+    const csvContent = templateData.map(row => 
+      row.map(cell => `"${cell}"`).join(',')
+    ).join('\n');
+
+    // Create and download file
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'personel_taslak.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    alert('📊 Personel taslak Excel dosyası indirildi!\n\nDosyayı açın, kendi personel verilerinizi girin ve Excel İmport ile yükleyin.');
+  };
+
   useEffect(() => {
     if (authToken) {
       fetchClients();
