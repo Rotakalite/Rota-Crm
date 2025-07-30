@@ -15468,6 +15468,36 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
+  // Download Suppliers Template Function
+  const downloadSuppliersTemplate = () => {
+    const templateData = [
+      ['Şirket Adı', 'İletişim Kişisi', 'Email', 'Telefon', 'Kategori', 'Hizmetler', 'Sertifikalar', 'Sürdürülebilirlik Skoru', 'Yerel'],
+      ['ABC Gıda Ltd.', 'Ahmet Yılmaz', 'ahmet@abcgida.com', '0212-555-0123', 'Gıda', 'Organik Ürünler;Et Ürünleri', 'ISO 14001;HACCP', '85', 'Evet'],
+      ['XYZ Temizlik A.Ş.', 'Fatma Kaya', 'fatma@xyztemizlik.com', '0212-444-5555', 'Temizlik', 'Çevre Dostu Ürünler', 'ISO 9001', '75', 'Hayır'],
+      ['DEF Tekstil San.', 'Mehmet Demir', 'mehmet@deftekstil.com', '0212-333-4444', 'Tekstil', '', '', '60', 'Evet'],
+      ['GHI Elektronik Ltd.', 'Ayşe Öztürk', 'ayse@ghielektronik.com', '0212-777-8888', 'Elektronik', 'Bilgisayar;Telefon', 'ISO 27001', '90', 'Evet'],
+      ['JKL İnşaat A.Ş.', 'Murat Kaya', 'murat@jklinsaat.com', '0212-999-1111', 'İnşaat', 'Yapı Malzemeleri;Çimento', 'ISO 45001', '70', 'Hayır']
+    ];
+
+    // Convert to CSV
+    const csvContent = templateData.map(row => 
+      row.map(cell => `"${cell}"`).join(',')
+    ).join('\n');
+
+    // Create and download file
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'tedarikci_taslak.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    alert('📊 Tedarikçi taslak Excel dosyası indirildi!\n\nDosyayı açın, kendi tedarikçi verilerinizi girin ve Excel İmport ile yükleyin.');
+  };
+
   // Fetch suppliers with fresh token
   const fetchSuppliersWithFreshToken = async (clientId) => {
     try {
