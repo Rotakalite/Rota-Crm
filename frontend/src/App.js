@@ -2324,28 +2324,33 @@ const PersonnelManagement = () => {
     setExcelProcessing(true);
     
     try {
-      // Read Excel file
-      const formData = new FormData();
-      formData.append('file', excelFile);
+      // Import XLSX library dynamically
+      const XLSX = await import('https://cdn.skypack.dev/xlsx');
       
-      // Parse Excel file using file reader and simple CSV-like processing
-      const text = await excelFile.text();
-      const lines = text.split('\n').filter(line => line.trim());
+      // Read Excel file as ArrayBuffer
+      const arrayBuffer = await excelFile.arrayBuffer();
       
-      // Skip header if exists
-      const dataLines = lines.slice(1);
+      // Parse Excel file
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      
+      // Convert to JSON
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      
+      // Skip header row and process data
+      const dataRows = jsonData.slice(1);
       const personnelList = [];
       
-      for (const line of dataLines) {
-        const parts = line.split(',').map(part => part.trim().replace(/"/g, ''));
-        if (parts.length >= 2) {
+      for (const row of dataRows) {
+        if (row.length >= 2 && row[0] && row[1]) {
           const personnelItem = {
-            full_name: parts[0] || '',
-            position: parts[1] || '',
-            location: parts[2] || '',
-            certifications: parts[3] ? parts[3].split(';').map(c => c.trim()).filter(c => c) : [],
-            is_local: parts[4] ? parts[4].toLowerCase() === 'evet' || parts[4].toLowerCase() === 'true' : false,
-            gender: parts[5] || 'Erkek'
+            full_name: String(row[0] || '').trim(),
+            position: String(row[1] || '').trim(),
+            location: String(row[2] || '').trim(),
+            certifications: row[3] ? String(row[3]).split(';').map(c => c.trim()).filter(c => c) : [],
+            is_local: row[4] ? (String(row[4]).toLowerCase() === 'evet' || String(row[4]).toLowerCase() === 'true' || String(row[4]).toLowerCase() === 'yes') : false,
+            gender: String(row[5] || 'Erkek').trim()
           };
           
           if (personnelItem.full_name && personnelItem.position) {
@@ -2355,7 +2360,7 @@ const PersonnelManagement = () => {
       }
       
       if (personnelList.length === 0) {
-        alert('Excel dosyasında geçerli personel bulunamadı!');
+        alert('Excel dosyasında geçerli personel bulunamadı!\n\nBeklenen format:\nAd Soyad | Pozisyon | Lokasyon | Sertifikalar | Yerel | Cinsiyet');
         return;
       }
 
