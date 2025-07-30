@@ -616,7 +616,7 @@ class PDFReportService:
                 [self._encode_turkish_text('Toplam Personel'), str(len(personnel)), '100%', str(len(personnel))],
                 [self._encode_turkish_text('Yerel Personel'), str(local_personnel), f"{(local_personnel/len(personnel)*100):.1f}%", '>60%'],
                 [self._encode_turkish_text('Sertifikalı Personel'), str(certified_personnel), f"{(certified_personnel/len(personnel)*100):.1f}%", '>80%'],
-                [self._encode_turkish_text('Eğitim Katılımı'), str(stats.get('completed_trainings', 0)), f"{(stats.get('completed_trainings', 0)/max(1, len(personnel))*100):.1f}%", '100%']
+                [self._encode_turkish_text('Eğitim Katılımı'), str(completed_training_count), f"{(completed_training_count/max(1, len(personnel))*100):.1f}%", '100%']
             ]
             
             personnel_table = Table(personnel_analysis, colWidths=[2.2*inch, 1*inch, 1*inch, 1.8*inch])
