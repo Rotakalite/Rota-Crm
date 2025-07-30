@@ -143,7 +143,8 @@ class SupplierCardsNewFieldsTester:
                              True,
                              f"Properly secured (HTTP {response.status_code})")
             elif response.status_code == 200:
-                certifications = response.json()
+                data = response.json()
+                certifications = data.get("certifications", [])
                 self.log_test("Certifications Endpoint Working", 
                              isinstance(certifications, list) and len(certifications) > 0,
                              f"Found {len(certifications)} certifications")
