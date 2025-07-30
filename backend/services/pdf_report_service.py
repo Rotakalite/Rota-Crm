@@ -319,9 +319,22 @@ class PDFReportService:
         # PAGE 1: EXECUTIVE SUMMARY WITH STATISTICS CHART
         story.append(Paragraph(self._encode_turkish_text("YÖNETİCİ ÖZETİ ve GENEL İSTATİSTİKLER"), self.custom_styles['Header']))
         
-        # Add statistics overview chart
+        # Calculate actual counts from data first
+        actual_personnel_count = len(client_data.get('personnel', []))
+        actual_supplier_count = len(client_data.get('suppliers', []))
+        actual_training_count = len(client_data.get('trainings', []))
+        completed_training_count = len([t for t in client_data.get('trainings', []) if t.get('status') == 'completed'])
+        
+        # Add statistics overview chart with actual data
         stats = client_data.get('statistics', {})
-        stats_chart = self._create_statistics_overview_chart(stats)
+        chart_stats = {
+            'total_documents': stats.get('total_documents', 0),
+            'total_trainings': actual_training_count,
+            'completed_trainings': completed_training_count,
+            'total_personnel': actual_personnel_count,
+            'total_suppliers': actual_supplier_count
+        }
+        stats_chart = self._create_statistics_overview_chart(chart_stats)
         if stats_chart:
             from reportlab.platypus import Image
             chart_img = Image(io.BytesIO(base64.b64decode(stats_chart)), width=6*inch, height=3.6*inch)
