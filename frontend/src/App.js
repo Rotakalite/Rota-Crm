@@ -2541,6 +2541,13 @@ const PersonnelManagement = () => {
                 <h3 className="font-medium text-green-800 mb-2">📋 Excel Dosyası Formatı:</h3>
                 <div className="text-sm text-green-700">
                   <p className="mb-2"><strong>Kolon Sırası:</strong> Ad Soyad, Pozisyon, Lokasyon, Sertifikalar, Yerel, Cinsiyet</p>
+                  <p className="mb-2"><strong>Önemli Notlar:</strong></p>
+                  <ul className="list-disc list-inside mb-2 space-y-1">
+                    <li>İlk satır başlık satırı olarak atlanır</li>
+                    <li>Sertifikalar noktalı virgül (;) ile ayrılır</li>
+                    <li>Yerel sütunu: "Evet", "Hayır", "True", "False" değerleri alabilir</li>
+                    <li>Cinsiyet: "Erkek" veya "Kadın" olmalıdır</li>
+                  </ul>
                   <p><strong>Örnek:</strong></p>
                   <div className="bg-white border rounded p-2 mt-2 font-mono text-xs">
                     Ad Soyad,Pozisyon,Lokasyon,Sertifikalar,Yerel,Cinsiyet<br/>
