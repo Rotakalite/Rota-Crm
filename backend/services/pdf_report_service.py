@@ -799,7 +799,7 @@ class PDFReportService:
             
             # Save to base64
             buffer = BytesIO()
-            plt.savefig(buffer, format='png', dpi=150, bbox_inches='tight',
+            plt.savefig(buffer, format='png', dpi=300, bbox_inches='tight',
                        facecolor='white', edgecolor='none')
             buffer.seek(0)
             chart_base64 = base64.b64encode(buffer.getvalue()).decode()
