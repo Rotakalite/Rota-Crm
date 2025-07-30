@@ -10894,6 +10894,9 @@ async def add_bulk_suppliers(
                 "certifications": supplier_data.certifications,
                 "sustainability_score": max(0, min(100, supplier_data.sustainability_score)),  # 0-100 range
                 "local_supplier": supplier_data.local_supplier,
+                "purchase_amount": max(0, supplier_data.purchase_amount),  # Non-negative
+                "purchase_unit": supplier_data.purchase_unit,
+                "monthly_payment": max(0, supplier_data.monthly_payment),  # Non-negative, optional
                 "created_at": datetime.now().isoformat(),
                 "updated_at": datetime.now().isoformat()
             }
