@@ -16201,6 +16201,9 @@ DEF Tekstil San., Mehmet Demir, mehmet@deftekstil.com, 0212-333-4444, Tekstil, ,
                 <li>• <strong>Sertifikalar:</strong> Opsiyonel - Noktalı virgülle ayrılmış</li>
                 <li>• <strong>Sürdürülebilirlik Skoru:</strong> Opsiyonel - 0-100 arası sayı</li>
                 <li>• <strong>Yerel:</strong> Opsiyonel - "Evet" veya "Hayır"</li>
+                <li>• <strong>Satın Alım Miktarı:</strong> YENİ - Sayısal değer</li>
+                <li>• <strong>Satın Alım Cinsi:</strong> YENİ - KG, LİTRE, ADET, GÜN vb.</li>
+                <li>• <strong>Aylık Ödenen Tutar:</strong> YENİ - TL cinsinden (isteğe bağlı)</li>
               </ul>
             </div>
             
