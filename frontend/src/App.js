@@ -15545,6 +15545,12 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
                   >
                     {showBulkForm ? '❌ İptal' : '📋 Toplu Ekle'}
                   </button>
+                  <button
+                    onClick={() => setShowExcelImport(!showExcelImport)}
+                    className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium"
+                  >
+                    {showExcelImport ? '❌ İptal' : '📊 Excel İmport'}
+                  </button>
                 </div>
               )}
             </div>
