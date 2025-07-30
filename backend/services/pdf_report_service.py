@@ -234,6 +234,9 @@ class PDFReportService:
             return ""
         
         try:
+            # Convert to string and ensure proper encoding
+            text_str = str(text)
+            
             # If we have proper font support, keep Turkish characters
             if hasattr(self, 'use_character_replacement') and self.use_character_replacement:
                 # Replace Turkish characters with closest ASCII equivalents
@@ -246,17 +249,25 @@ class PDFReportService:
                     'ı': 'i', 'İ': 'I'
                 }
                 
-                result = str(text)
+                result = text_str
                 for turkish_char, ascii_char in char_map.items():
                     result = result.replace(turkish_char, ascii_char)
                 return result
             else:
                 # With DejaVu font, keep Turkish characters as-is
-                return str(text)
+                # Ensure proper UTF-8 encoding
+                if isinstance(text_str, bytes):
+                    text_str = text_str.decode('utf-8', errors='replace')
+                return text_str
                 
         except Exception as e:
             print(f"Error handling Turkish text: {e}")
-            return str(text)
+            # Fallback: replace problematic characters
+            try:
+                fallback_text = str(text).encode('ascii', errors='replace').decode('ascii')
+                return fallback_text
+            except:
+                return "Metin Hatasi"
     
     def _add_header_footer(self, canvas, doc):
         """Add header and footer to each page"""
