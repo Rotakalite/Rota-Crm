@@ -2324,8 +2324,8 @@ const PersonnelManagement = () => {
     setExcelProcessing(true);
     
     try {
-      // Import XLSX library dynamically
-      const XLSX = await import('https://cdn.skypack.dev/xlsx');
+      // Import XLSX library
+      const XLSX = await import('xlsx');
       
       // Read Excel file as ArrayBuffer
       const arrayBuffer = await excelFile.arrayBuffer();
