@@ -15534,34 +15534,116 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
-  // Download Suppliers Template Function
-  const downloadSuppliersTemplate = () => {
-    const templateData = [
-      ['Şirket Adı', 'İletişim Kişisi', 'Email', 'Telefon', 'Kategori', 'Hizmetler', 'Sertifikalar', 'Sürdürülebilirlik Skoru', 'Yerel'],
-      ['ABC Gıda Ltd.', 'Ahmet Yılmaz', 'ahmet@abcgida.com', '0212-555-0123', 'Gıda', 'Organik Ürünler;Et Ürünleri', 'ISO 14001;HACCP', '85', 'Evet'],
-      ['XYZ Temizlik A.Ş.', 'Fatma Kaya', 'fatma@xyztemizlik.com', '0212-444-5555', 'Temizlik', 'Çevre Dostu Ürünler', 'ISO 9001', '75', 'Hayır'],
-      ['DEF Tekstil San.', 'Mehmet Demir', 'mehmet@deftekstil.com', '0212-333-4444', 'Tekstil', '', '', '60', 'Evet'],
-      ['GHI Elektronik Ltd.', 'Ayşe Öztürk', 'ayse@ghielektronik.com', '0212-777-8888', 'Elektronik', 'Bilgisayar;Telefon', 'ISO 27001', '90', 'Evet'],
-      ['JKL İnşaat A.Ş.', 'Murat Kaya', 'murat@jklinsaat.com', '0212-999-1111', 'İnşaat', 'Yapı Malzemeleri;Çimento', 'ISO 45001', '70', 'Hayır']
-    ];
+  // Download Suppliers Template Function (XLSX Format with New Fields)
+  const downloadSuppliersTemplate = async () => {
+    try {
+      // Import XLSX library
+      const XLSX = await import('xlsx');
+      
+      // Create template data with new fields
+      const templateData = [
+        // Header row
+        ['Şirket Adı', 'İletişim Kişisi', 'Email', 'Telefon', 'Kategori', 'Hizmetler', 'Sertifikalar', 'Sürdürülebilirlik Skoru', 'Yerel', 'Satın Alım Miktarı', 'Satın Alım Cinsi', 'Aylık Ödenen Tutar (TL)'],
+        // Example rows with proper formatting
+        ['ABC Gıda Ltd.', 'Ahmet Yılmaz', 'ahmet@abcgida.com', '0212-555-0123', 'Gıda', 'Organik Ürünler;Et Ürünleri', 'ISO 14001;HACCP', '85', 'Evet', '500', 'KG', '15000'],
+        ['XYZ Temizlik A.Ş.', 'Fatma Kaya', 'fatma@xyztemizlik.com', '0212-444-5555', 'Temizlik', 'Çevre Dostu Ürünler', 'ISO 9001', '75', 'Hayır', '1000', 'LİTRE', '8500'],
+        ['DEF Tekstil San.', 'Mehmet Demir', 'mehmet@deftekstil.com', '0212-333-4444', 'Tekstil', '', '', '60', 'Evet', '200', 'ADET', '12000'],
+        ['GHI Elektronik Ltd.', 'Ayşe Öztürk', 'ayse@ghielektronik.com', '0212-777-8888', 'Elektronik', 'Bilgisayar;Telefon', 'ISO 27001', '90', 'Evet', '50', 'ADET', '25000'],
+        ['JKL İnşaat A.Ş.', 'Murat Kaya', 'murat@jklinsaat.com', '0212-999-1111', 'İnşaat', 'Yapı Malzemeleri;Çimento', 'ISO 45001', '70', 'Hayır', '1500', 'M³', '35000'],
+        // Empty rows for user input
+        ['', '', '', '', '', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', '', '', '', '', '']
+      ];
 
-    // Convert to CSV
-    const csvContent = templateData.map(row => 
-      row.map(cell => `"${cell}"`).join(',')
-    ).join('\n');
+      // Create workbook and worksheet
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.aoa_to_sheet(templateData);
+      
+      // Set column widths for better formatting
+      worksheet['!cols'] = [
+        { width: 18 }, // Şirket Adı
+        { width: 15 }, // İletişim Kişisi
+        { width: 25 }, // Email
+        { width: 15 }, // Telefon
+        { width: 12 }, // Kategori
+        { width: 20 }, // Hizmetler
+        { width: 20 }, // Sertifikalar
+        { width: 12 }, // Sürdürülebilirlik Skoru
+        { width: 8 },  // Yerel
+        { width: 15 }, // Satın Alım Miktarı
+        { width: 15 }, // Satın Alım Cinsi
+        { width: 18 }  // Aylık Ödenen Tutar
+      ];
+      
+      // Style the header row
+      const headerStyle = {
+        font: { bold: true, color: { rgb: "FFFFFF" } },
+        fill: { fgColor: { rgb: "228B22" } }, // Forest Green for suppliers
+        alignment: { horizontal: "center", vertical: "center" }
+      };
+      
+      // Apply header styling
+      for (let col = 0; col < 12; col++) {
+        const cellRef = XLSX.utils.encode_cell({ r: 0, c: col });
+        if (!worksheet[cellRef]) worksheet[cellRef] = { t: 's', v: '' };
+        worksheet[cellRef].s = headerStyle;
+      }
+      
+      // Add data validation for Kategori column (E column)
+      if (!worksheet['!dataValidations']) worksheet['!dataValidations'] = [];
+      worksheet['!dataValidations'].push({
+        type: 'list',
+        allowBlank: false,
+        showInputMessage: true,
+        showErrorMessage: true,
+        sqref: 'E2:E1000',
+        formula1: '"Gıda,Temizlik,Tekstil,Elektronik,İnşaat,Kimyasal,Kozmetik,Mobilya,Otomotiv,Teknoloji,Hizmet,Diğer"'
+      });
+      
+      // Add data validation for Yerel column (I column)
+      worksheet['!dataValidations'].push({
+        type: 'list',
+        allowBlank: false,
+        showInputMessage: true,
+        showErrorMessage: true,
+        sqref: 'I2:I1000',
+        formula1: '"Evet,Hayır"'
+      });
+      
+      // Add data validation for Satın Alım Cinsi column (K column)
+      worksheet['!dataValidations'].push({
+        type: 'list',
+        allowBlank: false,
+        showInputMessage: true,
+        showErrorMessage: true,
+        sqref: 'K2:K1000',
+        formula1: '"KG,LİTRE,ADET,GÜN,SAAT,M²,M³,TON,GRAM,PAKET,KUTU,KASA"'
+      });
 
-    // Create and download file
-    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'tedarikci_taslak.csv');
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    alert('📊 Tedarikçi taslak Excel dosyası indirildi!\n\nDosyayı açın, kendi tedarikçi verilerinizi girin ve Excel İmport ile yükleyin.');
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Tedarikçiler');
+      
+      // Generate and download XLSX file
+      const xlsxBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([xlsxBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'tedarikci_taslak.xlsx');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      alert('📊 Tedarikçi taslak Excel dosyası indirildi!\n\n✅ XLSX formatında\n✅ Yeni alanlar eklendi\n✅ Açılır listeler (Kategori, Yerel, Satın Alım Cinsi)\n✅ Düzenli sütun yapısı\n✅ Boş satırlar eklendi\n\nDosyayı açın, kendi tedarikçi verilerinizi girin ve Excel İmport ile yükleyin.');
+      
+    } catch (error) {
+      console.error('Error creating suppliers template:', error);
+      alert('Template oluşturma hatası: ' + error.message);
+    }
   };
 
   // Fetch suppliers with fresh token
