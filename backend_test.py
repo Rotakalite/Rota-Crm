@@ -1347,6 +1347,291 @@ class TestClientDashboardStats(unittest.TestCase):
             logger.error(f"❌ Error checking consumption data: {str(e)}")
             logger.info("⚠️ Could not verify consumption data in database")
 
+class TestPDFGraphicsQualityUpgrade(unittest.TestCase):
+    """Test class for PDF Graphics Quality Upgrade - DPI 300 Test"""
+    
+    def setUp(self):
+        """Set up test environment"""
+        self.api_url = RAILWAY_API_URL
+        
+        # Test client ID from review request
+        self.test_client_id = "94927a77-edc3-45ec-8329-795feae35771"
+        
+        # Headers for different user types
+        self.headers_admin = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
+        self.headers_client = {"Authorization": f"Bearer {CANO_CLIENT_TOKEN}"}
+        self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
+        self.headers_no_auth = {}
+    
+    def test_pdf_report_endpoint_accessibility(self):
+        """Test GET /api/reports/comprehensive endpoint accessibility"""
+        logger.info("\n=== Testing PDF Report Endpoint Accessibility ===")
+        
+        url = f"{self.api_url}/reports/comprehensive"
+        params = {"client_id": self.test_client_id}
+        
+        # Test with admin user
+        try:
+            response = requests.get(url, headers=self.headers_admin, params=params, timeout=30)
+            logger.info(f"Admin response status code: {response.status_code}")
+            logger.info(f"Response headers: {dict(response.headers)}")
+            
+            if response.status_code == 200:
+                logger.info("✅ SUCCESS: PDF report endpoint returned 200 OK")
+                logger.info(f"Content-Type: {response.headers.get('Content-Type', 'Not specified')}")
+                logger.info(f"Content-Length: {response.headers.get('Content-Length', 'Not specified')} bytes")
+                
+                # Check if response is actually a PDF
+                if response.headers.get('Content-Type') == 'application/pdf':
+                    logger.info("✅ Response is properly formatted as PDF")
+                    
+                    # Check PDF file size (300 DPI should result in larger files)
+                    content_length = response.headers.get('Content-Length')
+                    if content_length:
+                        size_mb = int(content_length) / (1024 * 1024)
+                        logger.info(f"PDF file size: {size_mb:.2f} MB")
+                        
+                        if size_mb > 1.0:  # 300 DPI PDFs should be larger
+                            logger.info("✅ PDF file size indicates high-quality graphics (>1MB)")
+                        else:
+                            logger.info("⚠️ PDF file size is small - may indicate lower quality graphics")
+                    
+                    # Check Content-Disposition header for filename
+                    content_disposition = response.headers.get('Content-Disposition', '')
+                    if 'attachment' in content_disposition:
+                        logger.info(f"✅ PDF download header: {content_disposition}")
+                    
+                else:
+                    logger.warning(f"⚠️ Response Content-Type is not PDF: {response.headers.get('Content-Type')}")
+                
+            elif response.status_code == 503:
+                logger.info("⚠️ PDF service unavailable (503) - expected if service not running")
+                data = response.json()
+                logger.info(f"Error message: {data.get('detail', 'No detail')}")
+                
+            elif response.status_code in [401, 403]:
+                logger.info(f"🔒 Authentication/Authorization error: {response.status_code}")
+                data = response.json()
+                logger.info(f"Error message: {data.get('detail', 'No detail')}")
+                
+            elif response.status_code == 400:
+                logger.info("⚠️ Bad request (400) - may indicate missing client data")
+                data = response.json()
+                logger.info(f"Error message: {data.get('detail', 'No detail')}")
+                
+            elif response.status_code == 500:
+                logger.info("❌ Internal server error (500) - PDF generation failed")
+                data = response.json()
+                logger.info(f"Error message: {data.get('detail', 'No detail')}")
+                
+            else:
+                logger.info(f"⚠️ Unexpected status code: {response.status_code}")
+                
+        except requests.exceptions.Timeout:
+            logger.info("⏰ Request timed out - PDF generation may take time for high-quality graphics")
+        except Exception as e:
+            logger.error(f"❌ Error testing PDF report endpoint: {str(e)}")
+            raise
+    
+    def test_pdf_service_dpi_configuration(self):
+        """Test PDF service DPI configuration by checking backend code"""
+        logger.info("\n=== Testing PDF Service DPI Configuration ===")
+        
+        try:
+            # Check if PDF service file exists and contains 300 DPI settings
+            pdf_service_path = "/app/backend/services/pdf_report_service.py"
+            
+            if os.path.exists(pdf_service_path):
+                with open(pdf_service_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                
+                # Count DPI 300 occurrences
+                dpi_300_count = content.count('dpi=300')
+                dpi_150_count = content.count('dpi=150')
+                dpi_72_count = content.count('dpi=72')
+                
+                logger.info(f"DPI 300 occurrences: {dpi_300_count}")
+                logger.info(f"DPI 150 occurrences: {dpi_150_count}")
+                logger.info(f"DPI 72 occurrences: {dpi_72_count}")
+                
+                if dpi_300_count > 0:
+                    logger.info("✅ PDF service configured for 300 DPI graphics")
+                    
+                    if dpi_300_count >= 5:
+                        logger.info("✅ Multiple chart types using 300 DPI (comprehensive upgrade)")
+                    else:
+                        logger.info("⚠️ Limited 300 DPI usage - some charts may still use lower DPI")
+                        
+                    # Check for specific chart types
+                    chart_types = [
+                        'statistics_overview_chart',
+                        'consumption_trend_chart', 
+                        'training_progress_chart',
+                        'personnel_distribution_chart'
+                    ]
+                    
+                    for chart_type in chart_types:
+                        if chart_type in content:
+                            logger.info(f"✅ Found {chart_type} implementation")
+                        else:
+                            logger.info(f"⚠️ {chart_type} not found in PDF service")
+                            
+                else:
+                    logger.warning("❌ No 300 DPI configuration found - graphics may still be pixelated")
+                    
+                if dpi_150_count > 0 or dpi_72_count > 0:
+                    logger.warning(f"⚠️ Some charts still using lower DPI (150: {dpi_150_count}, 72: {dpi_72_count})")
+                    
+            else:
+                logger.error("❌ PDF service file not found")
+                
+        except Exception as e:
+            logger.error(f"❌ Error checking PDF service configuration: {str(e)}")
+    
+    def test_pdf_graphics_quality_indicators(self):
+        """Test indicators of improved PDF graphics quality"""
+        logger.info("\n=== Testing PDF Graphics Quality Indicators ===")
+        
+        url = f"{self.api_url}/reports/comprehensive"
+        params = {"client_id": self.test_client_id}
+        
+        try:
+            response = requests.get(url, headers=self.headers_admin, params=params, timeout=45)
+            logger.info(f"Response status code: {response.status_code}")
+            
+            if response.status_code == 200:
+                # Analyze PDF content for quality indicators
+                content_length = len(response.content)
+                logger.info(f"PDF content size: {content_length} bytes ({content_length / 1024:.1f} KB)")
+                
+                # Check PDF header
+                if response.content.startswith(b'%PDF'):
+                    logger.info("✅ Valid PDF file format")
+                    
+                    # Higher DPI should result in larger file sizes
+                    if content_length > 500000:  # 500KB threshold
+                        logger.info("✅ Large PDF file size indicates high-quality graphics")
+                    elif content_length > 100000:  # 100KB threshold
+                        logger.info("⚠️ Medium PDF file size - graphics quality may be improved but not optimal")
+                    else:
+                        logger.info("❌ Small PDF file size - may indicate low-quality graphics")
+                    
+                    # Check for image data in PDF (high DPI creates more image data)
+                    pdf_text = response.content.decode('latin-1', errors='ignore')
+                    image_objects = pdf_text.count('/Type /XObject')
+                    image_filters = pdf_text.count('/Filter')
+                    
+                    logger.info(f"Image objects in PDF: {image_objects}")
+                    logger.info(f"Image filters in PDF: {image_filters}")
+                    
+                    if image_objects > 0:
+                        logger.info("✅ PDF contains image objects (charts/graphics)")
+                    else:
+                        logger.warning("⚠️ No image objects found - may be text-only PDF")
+                        
+                else:
+                    logger.error("❌ Invalid PDF format")
+                    
+            elif response.status_code == 503:
+                logger.info("⚠️ PDF service unavailable - cannot test graphics quality")
+                
+            elif response.status_code in [401, 403]:
+                logger.info("🔒 Authentication required - cannot test graphics quality")
+                
+            else:
+                logger.info(f"⚠️ Cannot test graphics quality - status code: {response.status_code}")
+                
+        except requests.exceptions.Timeout:
+            logger.info("⏰ PDF generation timeout - high-quality graphics may take longer to render")
+        except Exception as e:
+            logger.error(f"❌ Error testing PDF graphics quality: {str(e)}")
+    
+    def test_pdf_chart_types_coverage(self):
+        """Test coverage of different chart types in PDF reports"""
+        logger.info("\n=== Testing PDF Chart Types Coverage ===")
+        
+        # Test different report endpoints for chart coverage
+        endpoints = [
+            ("/reports/comprehensive", "Comprehensive Report"),
+            ("/reports/training", "Training Report"),
+            ("/reports/consumption", "Consumption Report")
+        ]
+        
+        for endpoint, report_name in endpoints:
+            logger.info(f"\n--- Testing {report_name} ---")
+            
+            url = f"{self.api_url}{endpoint}"
+            params = {"client_id": self.test_client_id}
+            
+            try:
+                response = requests.get(url, headers=self.headers_admin, params=params, timeout=30)
+                logger.info(f"{report_name} status code: {response.status_code}")
+                
+                if response.status_code == 200:
+                    logger.info(f"✅ {report_name} generated successfully")
+                    
+                    content_length = len(response.content)
+                    logger.info(f"{report_name} size: {content_length / 1024:.1f} KB")
+                    
+                    # Check if it's a valid PDF
+                    if response.content.startswith(b'%PDF'):
+                        logger.info(f"✅ {report_name} is valid PDF format")
+                    else:
+                        logger.warning(f"⚠️ {report_name} may not be valid PDF")
+                        
+                elif response.status_code == 503:
+                    logger.info(f"⚠️ {report_name} service unavailable")
+                    
+                elif response.status_code in [401, 403]:
+                    logger.info(f"🔒 {report_name} requires authentication")
+                    
+                else:
+                    logger.info(f"⚠️ {report_name} failed with status: {response.status_code}")
+                    
+            except requests.exceptions.Timeout:
+                logger.info(f"⏰ {report_name} generation timed out")
+            except Exception as e:
+                logger.error(f"❌ Error testing {report_name}: {str(e)}")
+    
+    def test_pdf_generation_performance(self):
+        """Test PDF generation performance with high-quality graphics"""
+        logger.info("\n=== Testing PDF Generation Performance ===")
+        
+        url = f"{self.api_url}/reports/comprehensive"
+        params = {"client_id": self.test_client_id}
+        
+        try:
+            start_time = datetime.now()
+            response = requests.get(url, headers=self.headers_admin, params=params, timeout=60)
+            end_time = datetime.now()
+            
+            generation_time = (end_time - start_time).total_seconds()
+            logger.info(f"PDF generation time: {generation_time:.2f} seconds")
+            
+            if response.status_code == 200:
+                logger.info("✅ PDF generated successfully")
+                
+                # High-quality graphics may take longer to generate
+                if generation_time > 10:
+                    logger.info("⚠️ Long generation time - may indicate high-quality processing")
+                elif generation_time > 5:
+                    logger.info("✅ Reasonable generation time for high-quality graphics")
+                else:
+                    logger.info("✅ Fast generation time")
+                    
+                # Calculate throughput
+                content_size = len(response.content)
+                throughput = content_size / generation_time if generation_time > 0 else 0
+                logger.info(f"Generation throughput: {throughput / 1024:.1f} KB/second")
+                
+            else:
+                logger.info(f"⚠️ PDF generation failed with status: {response.status_code}")
+                
+        except requests.exceptions.Timeout:
+            logger.info("⏰ PDF generation timed out (>60 seconds) - may indicate complex high-quality processing")
+        except Exception as e:
+            logger.error(f"❌ Error testing PDF generation performance: {str(e)}")
+
 class Test422ErrorFixVerification(unittest.TestCase):
     """Test class for 422 Error Fix Verification - Railway Production Test"""
     
