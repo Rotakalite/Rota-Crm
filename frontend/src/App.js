@@ -15241,12 +15241,20 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-gray-800">📋 Tedarikçilerim</h2>
-              <button
-                onClick={() => setShowAddForm(!showAddForm)}
-                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2"
-              >
-                {showAddForm ? '❌ İptal' : '➕ Tedarikçi Ekle'}
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2"
+                >
+                  {showAddForm ? '❌ İptal' : '➕ Tedarikçi Ekle'}
+                </button>
+                <button
+                  onClick={() => setShowBulkForm(!showBulkForm)}
+                  className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium flex items-center gap-2"
+                >
+                  {showBulkForm ? '❌ İptal' : '📋 Toplu Ekle'}
+                </button>
+              </div>
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-blue-800">
