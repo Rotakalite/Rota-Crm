@@ -10825,6 +10825,97 @@ async def delete_supplier(
         logger.error(f"Error deleting supplier: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+# BULK SUPPLIER MANAGEMENT ENDPOINTS
+
+class BulkSupplierItem(BaseModel):
+    company_name: str
+    contact_person: str = ""
+    email: str = ""
+    phone: str = ""
+    category: str
+    services: List[str] = []
+    certifications: List[str] = []
+    sustainability_score: int = 0
+    local_supplier: bool = False
+
+@api_router.post("/suppliers/bulk")
+async def add_bulk_suppliers(
+    suppliers_list: List[BulkSupplierItem],
+    client_id: str = None,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    🏪 BULK TEDARİKÇİ EKLEME - Toplu tedarikçi ekleme endpoint'i
+    """
+    try:
+        logging.info(f"🏪 BULK SUPPLIERS: Adding {len(suppliers_list)} suppliers for user: {current_user.email}")
+        
+        # Get MongoDB connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
+        
+        # Determine target client_id based on user role
+        target_client_id = None
+        if current_user.role == UserRole.CLIENT:
+            target_client_id = current_user.client_id
+        elif current_user.role in [UserRole.ADMIN, UserRole.CONSULTANT]:
+            if not client_id:
+                raise HTTPException(status_code=400, detail="Admin/consultant kullanıcıları için client_id gereklidir")
+            target_client_id = client_id
+        else:
+            raise HTTPException(status_code=403, detail="Bulk tedarikçi ekleme yetkisi yok")
+        
+        # Verify client exists
+        client = await asyncio.to_thread(db.clients.find_one, {"id": target_client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Müşteri bulunamadı")
+        
+        # Add each supplier to database
+        added_suppliers = []
+        for supplier_data in suppliers_list:
+            supplier_doc = {
+                "id": str(uuid.uuid4()),
+                "client_id": target_client_id,
+                "company_name": supplier_data.company_name.strip(),
+                "contact_person": supplier_data.contact_person.strip() if supplier_data.contact_person else "",
+                "email": supplier_data.email.strip() if supplier_data.email else "",
+                "phone": supplier_data.phone.strip() if supplier_data.phone else "",
+                "category": supplier_data.category,
+                "services": supplier_data.services,
+                "certifications": supplier_data.certifications,
+                "sustainability_score": max(0, min(100, supplier_data.sustainability_score)),  # 0-100 range
+                "local_supplier": supplier_data.local_supplier,
+                "created_at": datetime.now().isoformat(),
+                "updated_at": datetime.now().isoformat()
+            }
+            
+            try:
+                await asyncio.to_thread(db.suppliers.insert_one, supplier_doc)
+                added_suppliers.append(supplier_data.company_name)
+                logging.info(f"✅ Added supplier: {supplier_data.company_name}")
+            except Exception as insert_error:
+                logging.error(f"❌ Failed to add supplier {supplier_data.company_name}: {str(insert_error)}")
+                continue
+        
+        success_count = len(added_suppliers)
+        total_count = len(suppliers_list)
+        
+        logging.info(f"🏪 BULK SUPPLIERS COMPLETED: {success_count}/{total_count} suppliers added successfully")
+        
+        return {
+            "message": f"Bulk tedarikçi ekleme tamamlandı",
+            "success_count": success_count,
+            "total_count": total_count,
+            "added_suppliers": added_suppliers,
+            "success_rate": f"{(success_count/total_count)*100:.1f}%"
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ BULK SUPPLIERS ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Bulk tedarikçi ekleme hatası: {str(e)}")
+
+# EXISTING CODE CONTINUES...
+
 # Mount static files (React build) - KALICI ÇÖZÜM!
 # Bu CORS problemini tamamen ortadan kaldırır çünkü frontend ve backend aynı domain'de
 frontend_build_path = "/app/frontend/build"
