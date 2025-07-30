@@ -2514,6 +2514,12 @@ const PersonnelManagement = () => {
                   >
                     {showBulkForm ? '❌ İptal' : '📋 Toplu Ekle'}
                   </button>
+                  <button
+                    onClick={() => setShowExcelImport(!showExcelImport)}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  >
+                    {showExcelImport ? '❌ İptal' : '📊 Excel İmport'}
+                  </button>
                 </div>
               )}
             </div>
