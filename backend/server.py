@@ -13063,6 +13063,67 @@ async def download_import_template(current_user: User = Depends(get_admin_user))
 # PDF REPORT ENDPOINTS
 # ==========================================
 
+# Helper function for collecting client data - MUST BE BEFORE ENDPOINTS
+async def collect_client_report_data(client_id: str) -> dict:
+    """Collect all client data for comprehensive report"""
+    try:
+        # Get client info
+        client = await db.clients.find_one({"id": client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client bulunamadı")
+        
+        # Get all related data
+        trainings = await db.trainings.find({"client_id": client_id}).to_list(None)
+        personnel = await db.personnel.find({"client_id": client_id}).to_list(None)
+        suppliers = await db.suppliers.find({"client_id": client_id}).to_list(None)
+        consumptions = await db.consumptions.find({"client_id": client_id}).to_list(None)
+        targets = await db.sustainability_targets.find({"client_id": client_id}).to_list(None)
+        documents = await db.documents.count_documents({"client_id": client_id})
+        
+        # Process consumption data for charts
+        energy_by_month = {}
+        water_by_month = {}
+        for consumption in consumptions:
+            month = consumption.get("month", "unknown")
+            energy_by_month[month] = energy_by_month.get(month, 0) + consumption.get("electricity", 0)
+            water_by_month[month] = water_by_month.get(month, 0) + consumption.get("water", 0)
+        
+        # Calculate totals
+        total_energy = sum(energy_by_month.values())
+        total_water = sum(water_by_month.values())
+        total_personnel = len(personnel)
+        total_suppliers = len(suppliers)
+        
+        # Training statistics
+        total_trainings = len(trainings)
+        completed_trainings = len([t for t in trainings if t.get('status') == 'completed'])
+        
+        return {
+            'client_info': client,
+            'trainings': trainings,
+            'personnel': personnel,
+            'suppliers': suppliers,
+            'targets': targets,
+            'documents_count': documents,
+            'consumption_data': {
+                'energy_by_month': energy_by_month,
+                'water_by_month': water_by_month,
+                'total_energy': total_energy,
+                'total_water': total_water
+            },
+            'statistics': {
+                'total_personnel': total_personnel,
+                'total_suppliers': total_suppliers,
+                'total_trainings': total_trainings,
+                'completed_trainings': completed_trainings,
+                'completion_rate': (completed_trainings / total_trainings * 100) if total_trainings > 0 else 0
+            }
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Error collecting client data: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Veri toplama hatası: {str(e)}")
+
 @api_router.get("/test-reports")
 async def test_reports_endpoint():
     """Test endpoint to verify reports routing works"""
