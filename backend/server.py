@@ -13090,7 +13090,8 @@ async def generate_comprehensive_report(
             raise HTTPException(status_code=400, detail="Client ID bulunamadı")
         
         # Collect all data for the client
-        client_data = await collect_client_report_data(target_client_id)
+        # client_data = await collect_client_report_data(target_client_id)
+        client_data = {"client_info": {"name": "test"}}
         
         # Generate PDF
         pdf_bytes = elite_pdf_service.generate_sustainability_report(client_data)
