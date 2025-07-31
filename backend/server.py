@@ -13093,7 +13093,7 @@ async def generate_comprehensive_report(
         client_data = await collect_client_report_data(target_client_id)
         
         # Generate PDF
-        pdf_bytes = elite_pdf_service.generate_comprehensive_report(client_data, "comprehensive")
+        pdf_bytes = elite_pdf_service.generate_sustainability_report(client_data)
         
         # Return as downloadable file
         from fastapi.responses import Response
