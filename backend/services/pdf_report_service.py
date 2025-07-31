@@ -702,6 +702,275 @@ class PDFReportService:
         buffer.seek(0)
         return buffer.getvalue()
     
+    def generate_sustainability_report(self, client_data: dict) -> bytes:
+        """
+        Generate NEST Hotel style professional sustainability report
+        Based on the professional format with company info, targets, metrics
+        """
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(
+            buffer,
+            pagesize=A4,
+            rightMargin=0.75*inch,
+            leftMargin=0.75*inch,
+            topMargin=1*inch,
+            bottomMargin=1*inch,
+            title="Sürdürülebilirlik Raporu"
+        )
+        
+        story = []
+        
+        # COVER PAGE - Professional Style
+        self._add_sustainability_cover_page(story, client_data)
+        story.append(PageBreak())
+        
+        # TABLE OF CONTENTS
+        self._add_sustainability_contents(story)
+        story.append(PageBreak())
+        
+        # ABOUT THE REPORT
+        self._add_report_about_section(story, client_data)
+        story.append(PageBreak())
+        
+        # COMPANY INFO
+        self._add_company_info_section(story, client_data)
+        story.append(PageBreak())
+        
+        # SUSTAINABILITY MESSAGE
+        self._add_sustainability_message_section(story, client_data)
+        story.append(PageBreak())
+        
+        # SUSTAINABILITY TEAM
+        self._add_sustainability_team_section(story, client_data)
+        story.append(PageBreak())
+        
+        # ENVIRONMENTAL IMPACTS REDUCTION
+        self._add_environmental_section(story, client_data)
+        story.append(PageBreak())
+        
+        # RESOURCE CONSUMPTION
+        self._add_resource_consumption_section(story, client_data)
+        story.append(PageBreak())
+        
+        # ENERGY CONSUMPTION
+        self._add_energy_consumption_section(story, client_data)
+        story.append(PageBreak())
+        
+        # WATER CONSUMPTION
+        self._add_water_consumption_section(story, client_data)
+        story.append(PageBreak())
+        
+        # WASTE MANAGEMENT
+        self._add_waste_management_section(story, client_data)
+        story.append(PageBreak())
+        
+        # PERSONNEL AND WORK LIFE
+        self._add_personnel_section(story, client_data)
+        story.append(PageBreak())
+        
+        # SOCIAL WORK
+        self._add_social_work_section(story, client_data)
+        story.append(PageBreak())
+        
+        # CULTURAL WORK
+        self._add_cultural_work_section(story, client_data)
+        
+        # Build PDF
+        doc.build(story)
+        return buffer.getvalue()
+    
+    def _add_sustainability_cover_page(self, story, client_data):
+        """Add professional cover page like NEST Hotel example"""
+        client_info = client_data.get('client_info', {})
+        hotel_name = client_info.get('hotel_name', client_info.get('name', 'İşletme'))
+        
+        # Company logo area (placeholder)
+        story.append(Spacer(1, 50))
+        
+        # Company name
+        story.append(Paragraph(
+            self._encode_turkish_text("Rota Kalite&Danışmanlık"),
+            ParagraphStyle(
+                'CompanyName',
+                parent=self.custom_styles['Header'],
+                fontSize=16,
+                textColor=colors.HexColor('#2563EB'),
+                alignment=TA_CENTER,
+                spaceAfter=30
+            )
+        ))
+        
+        # Main title
+        story.append(Paragraph(
+            self._encode_turkish_text("SÜRDÜRÜLEBİLİRLİK"),
+            ParagraphStyle(
+                'MainTitle',
+                parent=self.custom_styles['Header'],
+                fontSize=36,
+                textColor=colors.HexColor('#059669'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=10
+            )
+        ))
+        
+        story.append(Paragraph(
+            self._encode_turkish_text("RAPORU"),
+            ParagraphStyle(
+                'MainTitle2',
+                parent=self.custom_styles['Header'],
+                fontSize=36,
+                textColor=colors.HexColor('#059669'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=50
+            )
+        ))
+        
+        # Hotel name
+        story.append(Paragraph(
+            self._encode_turkish_text(hotel_name.upper()),
+            ParagraphStyle(
+                'HotelName',
+                parent=self.custom_styles['Header'],
+                fontSize=24,
+                textColor=colors.HexColor('#1F2937'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=80
+            )
+        ))
+        
+        # Year
+        current_year = datetime.now().year
+        story.append(Paragraph(
+            str(current_year),
+            ParagraphStyle(
+                'Year',
+                parent=self.custom_styles['Header'],
+                fontSize=28,
+                textColor=colors.HexColor('#374151'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font
+            )
+        ))
+    
+    def _add_sustainability_contents(self, story):
+        """Add table of contents like NEST Hotel format"""
+        story.append(Paragraph(
+            self._encode_turkish_text("İÇERİK"),
+            ParagraphStyle(
+                'ContentsTitle',
+                parent=self.custom_styles['Header'],
+                fontSize=24,
+                textColor=colors.HexColor('#059669'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=40
+            )
+        ))
+        
+        contents = [
+            ("Rapor Hakkında", "1"),
+            ("İşletme Bilgileri", "2"),
+            ("Sürdürülebilirlik Mesajı", "3"),
+            ("Sürdürülebilirlik Ekibi", "4"),
+            ("Çevre Etkilerinin Azaltılması", "5"),
+            ("Kaynak Tüketimi", "6"),
+            ("Enerji Tüketimi", "7"),
+            ("Su Tüketimi", "8"),
+            ("Atık Yönetimi", "9"),
+            ("Personel ve Çalışma Hayatı", "10"),
+            ("Yapılan Sosyal Çalışmalar", "11"),
+            ("Kültürel Çalışmalar", "12")
+        ]
+        
+        for title, page in contents:
+            content_line = f"{title} {'.' * (60 - len(title) - len(page))} {page}"
+            story.append(Paragraph(
+                self._encode_turkish_text(content_line),
+                ParagraphStyle(
+                    'ContentLine',
+                    parent=self.custom_styles['Body'],
+                    fontSize=12,
+                    spaceAfter=8,
+                    alignment=TA_LEFT
+                )
+            ))
+    
+    def _add_report_about_section(self, story, client_data):
+        """Add 'About Report' section"""
+        story.append(Paragraph(
+            self._encode_turkish_text("RAPOR HAKKINDA"),
+            ParagraphStyle(
+                'SectionTitle',
+                parent=self.custom_styles['Header'],
+                fontSize=20,
+                textColor=colors.HexColor('#059669'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=30
+            )
+        ))
+        
+        current_year = datetime.now().year
+        report_text = f"""
+Bu hazırlanan sürdürülebilirlik raporunda yer alan bilgiler;
+
+• Tesisimizin çevresel, sosyal ve ekonomik performans değerlendirmesini,
+• Bu performansı artırmak adına belirlenen hedeflerimizi,
+• Bu hedeflere ulaşmak için izlenecek strateji ve sürecimizi,
+• Ekolojik dengeye katkıda bulunabilmeyi,
+• Çevreye etki edecek olumsuzlukları ve tehlikeleri en aza indirmeyi,
+• Aksi belirtilmediği takdirde {current_year} dönemi performans sonuçlarını içermektedir.
+
+Yaşanabilir bir dünya için farkında olmak ve farkındalık yaratmak ilkesi içinde emanet edilen 
+doğal kaynakları gelecek kuşaklara aynı şekilde, hatta daha da iyileştirilmiş bir biçimde 
+devredebilmek için çalışıyoruz.
+        """
+        
+        story.append(Paragraph(
+            self._encode_turkish_text(report_text.strip()),
+            self.custom_styles['Body']
+        ))
+    
+    def _add_company_info_section(self, story, client_data):
+        """Add company information section"""
+        client_info = client_data.get('client_info', {})
+        hotel_name = client_info.get('hotel_name', client_info.get('name', 'İşletme'))
+        
+        story.append(Paragraph(
+            self._encode_turkish_text(hotel_name.upper()),
+            ParagraphStyle(
+                'CompanyTitle',
+                parent=self.custom_styles['Header'],
+                fontSize=24,
+                textColor=colors.HexColor('#059669'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=40
+            )
+        ))
+        
+        company_text = f"""
+{hotel_name}, misafirlerine kaliteli bir konaklama deneyimi sunan otel, sürdürülebilirlik ilkesi ile 
+kalitesine bir yıldız eklemeyi hedeflemektedir.
+
+Sektörde en başarılı olmayı hedefliyoruz.
+
+• Küçük şeyler büyük farklar yaratır mantığıyla detaylara dikkat ediyoruz.
+• Misafir odaklı çalışıyor ve misafirlerimizin uyarılarını önemle dikkate alıyoruz.
+• Yetenekli ve eğitimli personellerimize güveniyor, hizmet kalitemizin en büyük payının 
+  ekip ruhuyla çalışan personellerimizden ileri geldiğini biliyoruz.
+• Personelimizin İş Sağlığı ve Güvenliği alanında, sıfır kaza hedefiyle sürekli iyileştirme 
+  çalışmaları yürütüyoruz.
+        """
+        
+        story.append(Paragraph(
+            self._encode_turkish_text(company_text.strip()),
+            self.custom_styles['Body']
+        ))
+    
     def _create_consumption_chart(self, energy_data: dict, water_data: dict) -> str:
         """Create consumption bar chart and return as base64 string"""
         try:
