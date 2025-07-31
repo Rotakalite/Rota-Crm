@@ -14139,9 +14139,9 @@ const ReportsManagement = ({ selectedClient: propSelectedClient }) => {
             <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
               <div className="text-center">
                 <div className="text-4xl mb-4">🌱</div>
-                <h3 className="text-lg font-bold text-gray-800 mb-2">Sürdürülebilirlik Raporu</h3>
+                <h3 className="text-lg font-bold text-gray-800 mb-2">Profesyonel Sürdürülebilirlik Raporu</h3>
                 <p className="text-gray-600 text-sm mb-4">
-                  Tüm veriler, hedefler, tüketim analizi ve öneriler
+                  NEST Hotel tarzında profesyonel format ile tüm sürdürülebilirlik verileri
                 </p>
                 <button 
                   onClick={downloadComprehensiveReport}
