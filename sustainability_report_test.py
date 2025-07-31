@@ -50,7 +50,7 @@ class SustainabilityReportTester:
         """Test if backend is accessible"""
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.get(f"{BACKEND_URL}/health")
+                response = await client.get(f"{API_BASE}/health")
                 
                 if response.status_code == 200:
                     data = response.json()
