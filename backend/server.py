@@ -13063,7 +13063,7 @@ async def download_import_template(current_user: User = Depends(get_admin_user))
 # PDF REPORT ENDPOINTS
 # ==========================================
 
-@api_router.get("/reports/test")
+@api_router.get("/test-reports")
 async def test_reports_endpoint():
     """Test endpoint to verify reports routing works"""
     return {"message": "Reports endpoint is working", "status": "success"}
