@@ -971,6 +971,438 @@ Sektörde en başarılı olmayı hedefliyoruz.
             self.custom_styles['Body']
         ))
     
+    def _add_sustainability_message_section(self, story, client_data):
+        """Add sustainability message section"""
+        client_info = client_data.get('client_info', {})
+        hotel_name = client_info.get('hotel_name', client_info.get('name', 'İşletme'))
+        
+        story.append(Paragraph(
+            self._encode_turkish_text("SÜRDÜRÜLEBİLİRLİK MESAJI"),
+            ParagraphStyle(
+                'SectionTitle',
+                parent=self.custom_styles['Header'],
+                fontSize=20,
+                textColor=colors.HexColor('#059669'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=30
+            )
+        ))
+        
+        message_text = f"""
+{hotel_name} olarak turizmde sürdürülebilirlik çalışmalarının çevresel ve kültürel miras 
+üzerindeki olumsuz etkileri en aza indirdiğinin ve sürdürülebilir turizmin getirdiği 
+sorumlulukların bilincindeyiz.
+
+Gelecek nesiller için daha iyi bir dünya bırakmaya çalışıyoruz. Bu doğrultuda çevresel 
+etkilerin azaltılması, enerji, su ve atık yönetimi, kültürel ve sosyal mirasın korunması, 
+yerel halka ekonomik ve sosyal olarak fayda sağlama ve çevreyi koruma gibi sürdürülebilirlik 
+kavramı içinde yer alan birçok konuda çalışmalarımıza devam etmekteyiz.
+
+İklim değişikliğinin ve küresel ısınmanın öneminin her geçen gün daha çok hissedildiği 
+günümüz dünyasında üzerimize düşen sorumluluğu en iyi şekilde yerine getirmeyi amaç 
+edinmekte, çevre bilincinin personellerimiz tarafından benimsenmesi için çaba göstermekteyiz.
+        """
+        
+        story.append(Paragraph(
+            self._encode_turkish_text(message_text.strip()),
+            self.custom_styles['Body']
+        ))
+    
+    def _add_sustainability_team_section(self, story, client_data):
+        """Add sustainability team section"""
+        story.append(Paragraph(
+            self._encode_turkish_text("SÜRDÜRÜLEBİLİRLİK EKİBİ"),
+            ParagraphStyle(
+                'SectionTitle',
+                parent=self.custom_styles['Header'],
+                fontSize=20,
+                textColor=colors.HexColor('#059669'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=30
+            )
+        ))
+        
+        # Team structure table
+        team_data = [
+            ['EKİP LİDERİ'],
+            ['Genel Müdür'],
+            [''],
+            ['Çevre Temsilcisi'],
+            [''],
+            ['Enerji Yönetim Temsilcisi'],
+            [''],
+            ['Çalışan ve Müşteri Temsilcisi']
+        ]
+        
+        team_table = Table(team_data, colWidths=[3*inch])
+        team_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, -1), self.bold_font),
+            ('FONTSIZE', (0, 0), (-1, -1), 12),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#059669')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.lightgrey),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey])
+        ]))
+        
+        story.append(team_table)
+    
+    def _add_environmental_section(self, story, client_data):
+        """Add environmental impacts section"""
+        story.append(Paragraph(
+            self._encode_turkish_text("ÇEVRE ETKİLERİNİN AZALTILMASI"),
+            ParagraphStyle(
+                'SectionTitle',
+                parent=self.custom_styles['Header'],
+                fontSize=20,
+                textColor=colors.HexColor('#059669'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=30
+            )
+        ))
+        
+        env_text = """
+İşletmemiz olarak misafirlerimizin konforundan ödün vermeden, su, elektrik, doğalgaz, 
+kimyasal tüketimi ve katı atık miktarlarını azaltarak çevreye ve doğal kaynaklara yönelik 
+oluşabilecek zararları minimuma indirmeyi hedeflemekteyiz.
+
+Personellerimizden her birinin çevreye duyduğumuz özveride aktif olarak katkıda bulunmaları 
+konusunda eğitimler vererek bilgilendiriyoruz.
+
+HEDEFLERİMİZ:
+
+• Paydaşlarımızla sürdürülebilirlik çalışmalarımızın daha etkin paylaşılması
+• Veri toplamada kullanılan kaynakların gözden geçirilerek hedeflerimizi daha etkin sonuçlar 
+  elde edecek şekilde oluşturmak
+• Bölgenin kalkınmasında katkıda bulunmak
+• Çevre dostu teknolojilerin kullanımı
+• Doğal kaynakların korunması
+• İş sağlığı ve güvenliği açısından personellerimizin güvenliğini sağlamak
+        """
+        
+        story.append(Paragraph(
+            self._encode_turkish_text(env_text.strip()),
+            self.custom_styles['Body']
+        ))
+    
+    def _add_resource_consumption_section(self, story, client_data):
+        """Add resource consumption section with data"""
+        story.append(Paragraph(
+            self._encode_turkish_text("KAYNAK TÜKETİMİ"),
+            ParagraphStyle(
+                'SectionTitle',
+                parent=self.custom_styles['Header'],
+                fontSize=20,
+                textColor=colors.HexColor('#059669'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=30
+            )
+        ))
+        
+        # Add consumption data from system
+        consumption_data = client_data.get('consumption_data', {})
+        if consumption_data:
+            energy_data = consumption_data.get('energy_by_month', {})
+            water_data = consumption_data.get('water_by_month', {})
+            
+            if energy_data or water_data:
+                # Create consumption chart
+                consumption_chart = self._create_consumption_chart(energy_data, water_data)
+                if consumption_chart:
+                    from reportlab.platypus import Image
+                    chart_img = Image(io.BytesIO(base64.b64decode(consumption_chart)), width=6*inch, height=3*inch)
+                    story.append(chart_img)
+                    story.append(Spacer(1, 20))
+        
+        resource_text = """
+Dünyada kullanılabilir enerji kaynaklarının limitli olduğunun farkındayız.
+
+• Tüketimlerimiz, günlük, aylık ve yıllık olarak izlenmektedir
+• Kaynak tüketimlerimizi azaltmak için personellerimizi ve misafirlerimizi bilinçlendirmekteyiz
+• Personellerimize kaynak tüketimleri ile ilgili eğitim verilmektedir
+• Alt yapısı müsait olan alanlarda fotoselli aydınlatmalar kullanılmaktadır
+• Misafirlerin kimyasal kullanımını azaltabilmek adına genel alanlardaki lavabolarda 
+  doldurmalı sıvı sabun kullanılmaktadır
+        """
+        
+        story.append(Paragraph(
+            self._encode_turkish_text(resource_text.strip()),
+            self.custom_styles['Body']
+        ))
+    
+    def _add_energy_consumption_section(self, story, client_data):
+        """Add energy consumption section"""
+        story.append(Paragraph(
+            self._encode_turkish_text("ELEKTRİK TÜKETİMİ"),
+            ParagraphStyle(
+                'SectionTitle',
+                parent=self.custom_styles['Header'],
+                fontSize=20,
+                textColor=colors.HexColor('#059669'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=30
+            )
+        ))
+        
+        # Energy consumption measures
+        energy_measures = [
+            "Otelimizde enerji tasarruflu ampuller ya da led ışıklar kullanılmaktadır",
+            "Alt yapısı müsait ortak alanlarda aydınlatma için sensörler kullanılmaktadır",
+            "Dış aydınlatmalar zamanlayıcılarla kontrol edilmektedir",
+            "Odalarımızda LED TV'ler kullanılmaktadır",
+            "Mini barlarımız enerji tasarrufu sağlamak amacıyla misafir kullanımı haricinde enerji kaynağı ile bağı kesilmektedir",
+            "Elektrikle çalışan cihazlar güneş ışıklarına maruz kalmayacak şekilde konumlandırılmıştır"
+        ]
+        
+        for measure in energy_measures:
+            story.append(Paragraph(
+                f"• {self._encode_turkish_text(measure)}",
+                self.custom_styles['Body']
+            ))
+        
+        story.append(Spacer(1, 20))
+        
+        # 2025 targets
+        story.append(Paragraph(
+            self._encode_turkish_text("HEDEFLERİMİZ"),
+            ParagraphStyle(
+                'SubHeader',
+                parent=self.custom_styles['Header'],
+                fontSize=14,
+                textColor=colors.HexColor('#059669'),
+                fontName=self.bold_font,
+                spaceAfter=15
+            )
+        ))
+        
+        targets_text = """
+• 2025 yıl sonuna kadar enerji tüketiminde kişi başı %1 tasarrufu sağlamak
+• Enerji verimliliği yüksek cihazlar almaya devam etmek
+• Yaş olarak ilerlemiş cihazları enerji tasarruflu cihazlar ile değiştirmek
+• Her yıl enerji tasarrufu eğitimlerine devam ederek personeli bilgilendirmek
+        """
+        
+        story.append(Paragraph(
+            self._encode_turkish_text(targets_text.strip()),
+            self.custom_styles['Body']
+        ))
+    
+    def _add_water_consumption_section(self, story, client_data):
+        """Add water consumption section"""
+        story.append(Paragraph(
+            self._encode_turkish_text("SU TÜKETİMİ"),
+            ParagraphStyle(
+                'SectionTitle',
+                parent=self.custom_styles['Header'],
+                fontSize=20,
+                textColor=colors.HexColor('#059669'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=30
+            )
+        ))
+        
+        water_text = """
+Sağlık, hijyen ve misafir memnuniyeti konularından ödün vermeden genel su tüketimini azaltmak 
+amacıyla su tasarrufu sağlayan donanımlar kullanıyoruz.
+
+Uygulamalarımız:
+• Tuvaletlerde tasarruflu ve/veya ikili sifon sistemi kullanılmaktadır
+• Tüm rezervuarlar her kullanımda 6 litreden fazla su akıtmayacak şekilde ayarlanmıştır
+• Oda ve genel alanları suyla yıkamak yerine fiber bez ve paspaslar kullanılarak temizlenmektedir
+• Su depolarının kış aylarında bakımları yapılmakta, oluşabilecek su sızıntıları engellenmektedir
+• Havlu ve çarşaf değişimi, sadece misafir isteği üzerine yapılmaktadır
+
+HEDEFLERİMİZ:
+• 2025 yılında su tüketiminde kişi başına %1 tasarruf sağlamak
+• Her yıl su tasarrufu eğitimlerine devam ederek personeli bilinçlendirmek
+• Yeni alınacak cihazlarda tasarruflu cihazları tercih etmek
+        """
+        
+        story.append(Paragraph(
+            self._encode_turkish_text(water_text.strip()),
+            self.custom_styles['Body']
+        ))
+    
+    def _add_waste_management_section(self, story, client_data):
+        """Add waste management section"""
+        story.append(Paragraph(
+            self._encode_turkish_text("ATIK YÖNETİMİ"),
+            ParagraphStyle(
+                'SectionTitle',
+                parent=self.custom_styles['Header'],
+                fontSize=20,
+                textColor=colors.HexColor('#059669'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=30
+            )
+        ))
+        
+        waste_text = """
+Uyguladığımız ATIK Yönetimi Sistemimizde öncelikli amacımız atık miktarını azaltmak, 
+oluşan atıklarımızı iyi yöneterek çevreye en az zarar ile bertarafını sağlamak ve 
+geri kazanılabilir olanları tekrar kazanmaktır.
+
+Uygulamalarımız:
+• Tehlikeli atıklar düzenli olarak tehlikeli atık deposunda biriktirilmekte
+• Geri dönüşümlü atıkların ayrı toplanması ve geri dönüşüme kazandırılması için her bölüme 
+  ayrı bidonlar konulmuştur
+• Tek kullanımlık ürünler yerine büyük ambalajlı kutu, çuval, bidon gibi ürünler satın alınarak 
+  ambalaj atığı en aza indirilmektedir
+• Kâğıt tüketimimizi azaltmak için mümkün olduğunca yazışmalarımız e-posta ortamında yapılmaktadır
+
+HEDEFLERİMİZ:
+• 2025 yılında öncelikli hedefimiz geceleme başına düşen kâğıt, plastik, cam ve metal atık 
+  miktarını %1'lik oranında azaltmak
+• Her yıl vermiş olduğumuz çevre eğitimlerine katılım sayısını artırmak
+        """
+        
+        story.append(Paragraph(
+            self._encode_turkish_text(waste_text.strip()),
+            self.custom_styles['Body']
+        ))
+    
+    def _add_personnel_section(self, story, client_data):
+        """Add personnel and work life section"""
+        story.append(Paragraph(
+            self._encode_turkish_text("PERSONEL VE ÇALIŞMA HAYATI"),
+            ParagraphStyle(
+                'SectionTitle',
+                parent=self.custom_styles['Header'],
+                fontSize=20,
+                textColor=colors.HexColor('#059669'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=30
+            )
+        ))
+        
+        # Personnel statistics from data
+        personnel_data = client_data.get('personnel', [])
+        if personnel_data:
+            total_personnel = len(personnel_data)
+            female_count = len([p for p in personnel_data if p.get('gender', '').lower() in ['kadın', 'female', 'k']])
+            male_count = total_personnel - female_count
+            local_count = len([p for p in personnel_data if p.get('local_employee', False)])
+            
+            # Personnel statistics table
+            personnel_stats = [
+                ['Personel İstatistikleri', 'Sayı', 'Oran'],
+                ['Toplam Personel', str(total_personnel), '100%'],
+                ['Kadın Personel', str(female_count), f'{(female_count/total_personnel*100):.1f}%' if total_personnel > 0 else '0%'],
+                ['Erkek Personel', str(male_count), f'{(male_count/total_personnel*100):.1f}%' if total_personnel > 0 else '0%'],
+                ['Yerel Personel', str(local_count), f'{(local_count/total_personnel*100):.1f}%' if total_personnel > 0 else '0%']
+            ]
+            
+            personnel_table = Table(personnel_stats, colWidths=[2.5*inch, 1*inch, 1*inch])
+            personnel_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#059669')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), self.bold_font),
+                ('FONTSIZE', (0, 0), (-1, -1), 10),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.lightblue),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ]))
+            
+            story.append(personnel_table)
+            story.append(Spacer(1, 20))
+        
+        personnel_text = """
+PERSONELLERİMİZE SUNULAN İMKANLAR:
+• Personel Yemekhanesi: Çalışanlar için ücretsiz 3 öğün yemek
+• Personel Motivasyon Yemeği: Sezon başı ve sonunda motivasyon etkinlikleri
+• Kariyer Yönetimi: Eğitimler ve kariyer yönetimi programı ile destek
+• Turizm öğrencilerine staj imkânı yaratıyoruz
+        """
+        
+        story.append(Paragraph(
+            self._encode_turkish_text(personnel_text.strip()),
+            self.custom_styles['Body']
+        ))
+    
+    def _add_social_work_section(self, story, client_data):
+        """Add social work section"""
+        story.append(Paragraph(
+            self._encode_turkish_text("YAPILAN SOSYAL ÇALIŞMALAR"),
+            ParagraphStyle(
+                'SectionTitle',
+                parent=self.custom_styles['Header'],
+                fontSize=20,
+                textColor=colors.HexColor('#059669'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=30
+            )
+        ))
+        
+        social_text = """
+Sürdürülebilir kalkınma; sosyal, ekolojik, ekonomik, mekânsal ve kültürel boyutları olan bir 
+kavramdır. Sürdürülebilir turizm ve kalkınma konusunda sorumluluklarımızın bilincinde ve kararlıyız.
+
+Yaptığımız Çalışmalar:
+• Ürün ve hizmet tedarikçilerimizi yöresel firmalardan seçiyoruz
+• Yöresel ürünleri kullanmayı tercih ediyoruz
+• Turizm öğrencilerinin çalışma tecrübesi kazanmaları adına staj imkânı yaratıyoruz
+• Ziyaretçilerin yerelde geceleme, yerel üretici ve hizmet sağlayıcı ile buluşma oranını artırıyoruz
+• Irk, cinsiyet, engellilik gibi konularda ayrımcılık yapılmaksızın mesleki uzmanlaşmayı destekleriz
+• Ekonomik ve sosyal faydaların genele yaygın ve adil bir biçimde dağıtılmasına çalışırız
+        """
+        
+        story.append(Paragraph(
+            self._encode_turkish_text(social_text.strip()),
+            self.custom_styles['Body']
+        ))
+    
+    def _add_cultural_work_section(self, story, client_data):
+        """Add cultural work section"""
+        story.append(Paragraph(
+            self._encode_turkish_text("KÜLTÜREL ÇALIŞMALAR"),
+            ParagraphStyle(
+                'SectionTitle',
+                parent=self.custom_styles['Header'],
+                fontSize=20,
+                textColor=colors.HexColor('#059669'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=30
+            )
+        ))
+        
+        cultural_text = """
+'Müşteri' değil 'misafir' zihniyetiyle misafirlerimizi Türk misafirperverliği ile karşılar, 
+tatilleri boyunca tüm sorunlarıyla ilgileniriz.
+
+Kültürel Çalışmalarımız:
+• Yerel halkının fikri mülkiyet haklarına saygı gösteririz
+• Geleneksel ve çağdaş yerel kültürün otantik unsurları mutfağımızda, tasarımımızda, 
+  dekorasyonda değerlendiririz
+• Kültürel mirasımızın korunması ve tanıtılması adına birçok iletişim kanalı ile yakınımızda 
+  bulunan yerleşim bölgeleri, tarihi güzellikler, zanaatlar ve arkeolojik kalıntıların bilgi 
+  erişimini sağlarız
+• Misafirlerimize özel tema geceleri sunarak hem kendi kültürümüzü tanıtıp hem de 
+  memnuniyetlerini en üst seviyede tutmaya çalışıyoruz
+
+Misafirlerimize Verdiğimiz Bilgilendirmeler:
+• Tarihi yerlerden herhangi bir malzeme alınmaması gerektiği
+• Tarihi yerlere çöp atılmaması gerektiği
+• Tarihi yerlerde ateş yakılmaması gerektiği
+• Herhangi bir tarihi objeye zarar verilmemesi gerektiği
+        """
+        
+        story.append(Paragraph(
+            self._encode_turkish_text(cultural_text.strip()),
+            self.custom_styles['Body']
+        ))
+    
     def _create_consumption_chart(self, energy_data: dict, water_data: dict) -> str:
         """Create consumption bar chart and return as base64 string"""
         try:
