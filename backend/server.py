@@ -13129,6 +13129,11 @@ async def test_reports_endpoint():
     """Test endpoint to verify reports routing works"""
     return {"message": "Reports endpoint is working", "status": "success"}
 
+@api_router.get("/test-simple")
+async def test_simple_endpoint():
+    """Simple test endpoint"""
+    return {"message": "Simple test endpoint working", "status": "success"}
+
 @api_router.get("/reports/comprehensive")
 async def generate_comprehensive_report(
     client_id: str = None,
