@@ -350,6 +350,21 @@ frontend:
 
 
 backend:
+  - task: "Sustainability Report Feature Test - GET /api/reports/comprehensive"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "user"
+        -comment: "2025-07-31: Yeni sustainability report özelliğini test et. Test et: 1. GET /api/reports/comprehensive endpoint'inin çalışıp çalışmadığını 2. PDF dosyasının doğru oluşturulup oluşturulmadığını 3. Client data'sının doğru toplandığını ve PDF'e aktarıldığını 4. Yeni generate_sustainability_report fonksiyonunun çalışıp çalışmadığını. Test için en az bir client olduğundan emin ol ve client_id ile test yap. Authentication kullan ve PDF response'unun doğru geldiğini kontrol et."
+        -working: false
+        -agent: "testing"
+        -comment: "2025-07-31: 🚨 CRITICAL BUG FOUND - SUSTAINABILITY REPORT ENDPOINT NOT ACCESSIBLE! ❌ MAJOR ISSUE: GET /api/reports/comprehensive returns 404 Not Found - endpoint is NOT accessible despite being implemented in code. ✅ BACKEND ANALYSIS: Code shows comprehensive sustainability report implementation: generate_sustainability_report() function exists in PDF service, collect_client_report_data() function properly collects all client data (trainings, personnel, suppliers, consumptions, targets), endpoint defined with proper authentication and role-based access control. ❌ ROOT CAUSE IDENTIFIED: Endpoints defined with @app.get('/api/reports/comprehensive') instead of @api_router.get('/reports/comprehensive'). Since API router is mounted with /api prefix, these endpoints are not accessible. ❌ AFFECTED ENDPOINTS: /api/reports/comprehensive (Sustainability Report), /api/reports/training (Training Report), /api/reports/consumption (Consumption Report) - ALL return 404. ✅ BACKEND LOGS CONFIRM: Server logs show 'GET /api/reports/comprehensive HTTP/1.1 404 Not Found' - requests are reaching backend but endpoints not registered. ✅ PDF SERVICE READY: generate_sustainability_report() function implemented with professional NEST Hotel style report including cover page, table of contents, company info, sustainability metrics, consumption charts, personnel data, and recommendations. ✅ DATA COLLECTION READY: collect_client_report_data() function properly aggregates all client data for comprehensive reporting. 🚨 IMPACT: Users cannot generate ANY PDF reports! Core sustainability reporting functionality is broken. ⚡ PRIORITY: CRITICAL - Requires immediate fix by changing @app.get to @api_router.get decorators."
+
   - task: "Tüketim Takibi Tablo 12 Ay Fix Test - Railway Production"
     implemented: true
     working: true
