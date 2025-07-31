@@ -13063,7 +13063,7 @@ async def download_import_template(current_user: User = Depends(get_admin_user))
 # PDF REPORT ENDPOINTS
 # ==========================================
 
-@app.get("/api/reports/comprehensive")
+@api_router.get("/reports/comprehensive")
 async def generate_comprehensive_report(
     client_id: str = None,
     current_user: User = Depends(get_current_user)
