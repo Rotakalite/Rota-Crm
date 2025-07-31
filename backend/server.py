@@ -13295,6 +13295,12 @@ async def collect_client_report_data(client_id: str) -> dict:
 # ==========================================
 # API ROUTER REGISTRATION - MUST BE AT END
 # ==========================================
+
+@api_router.get("/test-reports-before-mount")
+async def test_reports_before_mount():
+    """Test endpoint defined before router mounting"""
+    return {"message": "Test endpoint before mount", "status": "success"}
+
 app.include_router(api_router, prefix="/api")
 
 # Debug endpoint to list all routes
