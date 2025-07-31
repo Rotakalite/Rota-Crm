@@ -13152,7 +13152,7 @@ async def generate_training_report(
         logging.error(f"❌ Error generating training report: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Eğitim raporu oluşturma hatası: {str(e)}")
 
-@app.get("/api/reports/consumption")
+@api_router.get("/reports/consumption")
 async def generate_consumption_report(
     client_id: str = None,
     current_user: User = Depends(get_current_user)
