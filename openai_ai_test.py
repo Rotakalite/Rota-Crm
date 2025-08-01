@@ -12,7 +12,7 @@ import sys
 from datetime import datetime
 
 # Test configuration
-BACKEND_URL = "https://74cd54d6-e7c4-4086-a9b0-2c069ca9924d.preview.emergentagent.com"
+BACKEND_URL = "http://localhost:8001"
 API_BASE = f"{BACKEND_URL}/api"
 
 class OpenAIIntegrationTester:
