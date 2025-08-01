@@ -21,4 +21,4 @@ pandas==2.2.0
 openpyxl==3.1.2
 reportlab==4.0.8
 matplotlib==3.8.2
-emergentintegrations
+openai
