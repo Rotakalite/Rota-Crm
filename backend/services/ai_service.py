@@ -1,12 +1,12 @@
 """
 AI Service for Rota-CRM
 Provides intelligent suggestions and automatic text generation using OpenAI
+Direct OpenAI integration for better stability
 """
 import os
 import logging
-import uuid
 from typing import Dict, List, Any, Optional
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+from openai import AsyncOpenAI
 
 class SustainabilityAIService:
     """AI service for sustainability recommendations and text generation"""
@@ -16,26 +16,30 @@ class SustainabilityAIService:
         if not self.api_key:
             raise ValueError("OPENAI_API_KEY environment variable not found")
         
+        # Initialize OpenAI client
+        self.client = AsyncOpenAI(api_key=self.api_key)
         self.model = "gpt-4o-mini"  # Economic choice
-        self.provider = "openai"
         
         logging.info(f"✅ AI Service initialized with {self.model}")
     
-    def _create_chat_session(self, system_message: str) -> LlmChat:
-        """Create a new LLM chat session"""
-        session_id = str(uuid.uuid4())
-        
-        chat = LlmChat(
-            api_key=self.api_key,
-            session_id=session_id,
-            system_message=system_message
-        )
-        
-        # Configure with our chosen model
-        chat.with_model(self.provider, self.model)
-        chat.with_max_tokens(2048)  # Reasonable limit
-        
-        return chat
+    async def _send_message(self, system_message: str, user_message: str) -> str:
+        """Send message to OpenAI and get response"""
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": user_message}
+                ],
+                max_tokens=2048,
+                temperature=0.7
+            )
+            
+            return response.choices[0].message.content
+            
+        except Exception as e:
+            logging.error(f"❌ OpenAI API Error: {str(e)}")
+            raise Exception(f"OpenAI API hatası: {str(e)}")
     
     async def generate_sustainability_suggestions(self, client_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -85,11 +89,8 @@ Her öneri için:
 Kısa ve öz, uygulanabilir öneriler ver.
             """
             
-            # Create chat and get response
-            chat = self._create_chat_session(system_message)
-            user_message = UserMessage(text=user_prompt)
-            
-            response = await chat.send_message(user_message)
+            # Get AI response
+            response = await self._send_message(system_message, user_prompt)
             
             return {
                 "suggestions": response,
@@ -152,10 +153,7 @@ Kısa ve etkili, 3-4 cümle.
             if section_type not in prompts:
                 return f"{section_type} bölümü için otomatik metin üretimi hazırlanıyor..."
             
-            chat = self._create_chat_session(system_message)
-            user_message = UserMessage(text=prompts[section_type])
-            
-            response = await chat.send_message(user_message)
+            response = await self._send_message(system_message, prompts[section_type])
             return response
             
         except Exception as e:
@@ -196,10 +194,7 @@ Bu verileri analiz et ve şunları belirle:
 Kısa ve net analiz yap.
             """
             
-            chat = self._create_chat_session(system_message)
-            user_message = UserMessage(text=user_prompt)
-            
-            response = await chat.send_message(user_message)
+            response = await self._send_message(system_message, user_prompt)
             
             return {
                 "analysis": response,
@@ -212,6 +207,29 @@ Kısa ve net analiz yap.
             return {
                 "error": f"Trend analizi hatası: {str(e)}",
                 "analysis": "Veri analizi yapılamadı."
+            }
+    
+    async def test_connection(self) -> Dict[str, Any]:
+        """Test OpenAI API connection"""
+        try:
+            system_message = "Sen yardımcı bir asistansın."
+            user_message = "Merhaba! AI servisi test ediliyor. Kısa bir cevap ver."
+            
+            response = await self._send_message(system_message, user_message)
+            
+            return {
+                "status": "success",
+                "message": "AI servisi çalışıyor!",
+                "test_response": response,
+                "model": self.model
+            }
+            
+        except Exception as e:
+            logging.error(f"❌ AI Test Error: {str(e)}")
+            return {
+                "status": "error", 
+                "message": f"AI servisi test hatası: {str(e)}",
+                "model": self.model
             }
 
 # Global instance
