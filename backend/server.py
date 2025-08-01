@@ -13269,6 +13269,110 @@ async def generate_consumption_report(
         raise HTTPException(status_code=500, detail=f"Tüketim raporu oluşturma hatası: {str(e)}")
 
 # ==========================================
+# AI ENDPOINTS - SUSTAINABILITY INTELLIGENCE
+# ==========================================
+
+@api_router.get("/ai/suggestions/{client_id}")
+async def get_ai_sustainability_suggestions(
+    client_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get AI-powered sustainability suggestions for a client"""
+    try:
+        # Collect client data
+        client_data = await collect_client_report_data(client_id)
+        
+        # Generate AI suggestions
+        suggestions = await sustainability_ai.generate_sustainability_suggestions(client_data)
+        
+        return {
+            "client_id": client_id,
+            "suggestions": suggestions,
+            "generated_at": "2024-01-01",
+            "model": "gpt-4o-mini"
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Error generating AI suggestions: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"AI önerileri oluşturma hatası: {str(e)}")
+
+@api_router.get("/ai/report-text/{client_id}")
+async def generate_ai_report_text(
+    client_id: str,
+    section_type: str = "sustainability_message",
+    current_user: User = Depends(get_current_user)
+):
+    """Generate AI-powered text for report sections"""
+    try:
+        # Collect client data
+        client_data = await collect_client_report_data(client_id)
+        
+        # Generate AI text
+        ai_text = await sustainability_ai.generate_report_section_text(section_type, client_data)
+        
+        return {
+            "client_id": client_id,
+            "section_type": section_type,
+            "generated_text": ai_text,
+            "model": "gpt-4o-mini"
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Error generating AI text: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"AI metin üretimi hatası: {str(e)}")
+
+@api_router.get("/ai/trend-analysis/{client_id}")
+async def get_ai_trend_analysis(
+    client_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get AI-powered consumption trend analysis"""
+    try:
+        # Collect client data
+        client_data = await collect_client_report_data(client_id)
+        consumption_data = client_data.get('consumption_data', {})
+        
+        # Generate AI analysis
+        analysis = await sustainability_ai.analyze_consumption_trends(consumption_data)
+        
+        return {
+            "client_id": client_id,
+            "trend_analysis": analysis,
+            "model": "gpt-4o-mini"
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Error generating AI analysis: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"AI trend analizi hatası: {str(e)}")
+
+@api_router.get("/ai/test")
+async def test_ai_service():
+    """Test AI service connectivity"""
+    try:
+        # Simple test message
+        system_message = "Sen yardımcı bir asistansın."
+        
+        chat = sustainability_ai._create_chat_session(system_message)
+        user_message = UserMessage(text="Merhaba, AI servisi test ediliyor. Kısa bir cevap ver.")
+        
+        response = await chat.send_message(user_message)
+        
+        return {
+            "status": "success",
+            "message": "AI servisi çalışıyor!",
+            "test_response": response,
+            "model": sustainability_ai.model
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ AI Test Error: {str(e)}")
+        return {
+            "status": "error", 
+            "message": f"AI servisi test hatası: {str(e)}",
+            "model": sustainability_ai.model
+        }
+
+# ==========================================
 # API ROUTER REGISTRATION - MUST BE AT END
 # ==========================================
 
