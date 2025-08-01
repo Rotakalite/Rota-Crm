@@ -45,6 +45,14 @@ except Exception as e:
     logging.error(f"❌ Failed to import Email service: {e}")
     email_service = None
 
+# AI service import
+try:
+    from services.ai_service import sustainability_ai
+    logging.info("✅ AI service imported successfully")
+except Exception as e:
+    logging.error(f"❌ Failed to import AI service: {e}")
+    sustainability_ai = None
+
 # PDF Report service
 try:
     from services.elite_pdf_report_service import elite_pdf_service
