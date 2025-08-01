@@ -13343,6 +13343,10 @@ async def get_ai_trend_analysis(
 ):
     """Get AI-powered consumption trend analysis"""
     try:
+        # Check if AI service is available
+        if sustainability_ai is None:
+            raise HTTPException(status_code=503, detail="AI servisi kullanılamıyor - import hatası")
+        
         # Collect client data
         client_data = await collect_client_report_data(client_id)
         consumption_data = client_data.get('consumption_data', {})
