@@ -105,6 +105,14 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+# AI service import - AFTER environment loading
+try:
+    from services.ai_service import sustainability_ai
+    logging.info("✅ AI service imported successfully")
+except Exception as e:
+    logging.error(f"❌ Failed to import AI service: {e}")
+    sustainability_ai = None
+
 # Clerk configuration
 CLERK_SECRET_KEY = os.environ.get('CLERK_SECRET_KEY')
 CLERK_JWKS_URL = os.environ.get('CLERK_JWKS_URL')
