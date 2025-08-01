@@ -12,7 +12,7 @@ import sys
 from datetime import datetime
 
 # Test configuration
-BACKEND_URL = "http://localhost:8001"
+BACKEND_URL = "https://rota-crm-production.up.railway.app"
 API_BASE = f"{BACKEND_URL}/api"
 
 class OpenAIIntegrationTester:
