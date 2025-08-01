@@ -13356,6 +13356,14 @@ async def get_ai_trend_analysis(
 async def test_ai_service():
     """Test AI service connectivity"""
     try:
+        # Check if AI service is available
+        if sustainability_ai is None:
+            return {
+                "status": "error",
+                "message": "AI servisi yüklenemedi - import hatası",
+                "model": "unknown"
+            }
+        
         # Simple test message using direct _send_message method
         system_message = "Sen yardımcı bir asistansın."
         user_message = "Merhaba, AI servisi test ediliyor. Kısa bir cevap ver."
