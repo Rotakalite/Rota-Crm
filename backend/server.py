@@ -13349,13 +13349,11 @@ async def get_ai_trend_analysis(
 async def test_ai_service():
     """Test AI service connectivity"""
     try:
-        # Simple test message
+        # Simple test message using direct _send_message method
         system_message = "Sen yardımcı bir asistansın."
+        user_message = "Merhaba, AI servisi test ediliyor. Kısa bir cevap ver."
         
-        chat = sustainability_ai._create_chat_session(system_message)
-        user_message = UserMessage(text="Merhaba, AI servisi test ediliyor. Kısa bir cevap ver.")
-        
-        response = await chat.send_message(user_message)
+        response = await sustainability_ai._send_message(system_message, user_message)
         
         return {
             "status": "success",
@@ -13369,7 +13367,7 @@ async def test_ai_service():
         return {
             "status": "error", 
             "message": f"AI servisi test hatası: {str(e)}",
-            "model": sustainability_ai.model
+            "model": sustainability_ai.model if sustainability_ai else "unknown"
         }
 
 # ==========================================
