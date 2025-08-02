@@ -17858,6 +17858,374 @@ const RoleSetup = ({ onComplete }) => {
   );
 };
 
+// ==========================================
+// AI ASSISTANT COMPONENT
+// ==========================================
+const AIAssistant = () => {
+  const { authToken, dbUser } = useAuth();
+  const [activeAITab, setActiveAITab] = useState('suggestions');
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [aiResponse, setAiResponse] = useState(null);
+  const [error, setError] = useState(null);
+  const API = getApiUrl();
+
+  // Fetch clients
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
+  const fetchClients = async () => {
+    if (!authToken) return;
+    
+    try {
+      const response = await axios.get(`${API}/clients`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setClients(response.data);
+    } catch (err) {
+      console.error('Failed to fetch clients:', err);
+    }
+  };
+
+  // AI Service Functions
+  const getAISuggestions = async (clientId) => {
+    if (!clientId) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await axios.get(`${API}/ai/suggestions/${clientId}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setAiResponse(response.data);
+    } catch (err) {
+      setError(err.response?.data?.detail || 'AI önerileri alınamadı');
+      console.error('AI Suggestions Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getAIReportText = async (clientId, sectionType = 'sustainability_message') => {
+    if (!clientId) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await axios.get(`${API}/ai/report-text/${clientId}?section_type=${sectionType}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setAiResponse(response.data);
+    } catch (err) {
+      setError(err.response?.data?.detail || 'AI rapor metni oluşturulamadı');
+      console.error('AI Report Text Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getAITrendAnalysis = async (clientId) => {
+    if (!clientId) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await axios.get(`${API}/ai/trend-analysis/${clientId}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setAiResponse(response.data);
+    } catch (err) {
+      setError(err.response?.data?.detail || 'AI trend analizi yapılamadı');
+      console.error('AI Trend Analysis Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const testAIService = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await axios.get(`${API}/ai/test`);
+      setAiResponse(response.data);
+    } catch (err) {
+      setError(err.response?.data?.detail || 'AI servisi test edilemedi');
+      console.error('AI Test Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const aiTabs = [
+    { id: 'suggestions', name: 'Akıllı Öneriler', icon: '💡' },
+    { id: 'report-text', name: 'Otomatik Metin', icon: '📝' },
+    { id: 'trend-analysis', name: 'Trend Analizi', icon: '📊' },
+    { id: 'test', name: 'AI Test', icon: '🔧' }
+  ];
+
+  return (
+    <div className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 min-h-screen">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <div className="bg-gradient-to-r from-purple-600 to-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-white text-2xl">🤖</span>
+          </div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            AI Sürdürülebilirlik Asistanı
+          </h1>
+          <p className="text-gray-600 mt-2">
+            GPT-4o-mini ile güçlendirilmiş akıllı öneriler ve otomatik metin üretimi
+          </p>
+        </div>
+
+        {/* AI Tabs */}
+        <div className="flex justify-center mb-8">
+          <div className="flex bg-white rounded-xl p-1 shadow-lg">
+            {aiTabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveAITab(tab.id)}
+                className={`px-6 py-3 rounded-lg font-medium transition-all ${
+                  activeAITab === tab.id
+                    ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg'
+                    : 'text-gray-600 hover:text-purple-600'
+                }`}
+              >
+                <span className="mr-2">{tab.icon}</span>
+                {tab.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-12 gap-6">
+          {/* Client Selection Sidebar */}
+          {activeAITab !== 'test' && (
+            <div className="col-span-3">
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4">
+                  🏨 Müşteri Seçin
+                </h3>
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {clients.map((client) => (
+                    <button
+                      key={client.id}
+                      onClick={() => setSelectedClient(client)}
+                      className={`w-full text-left p-3 rounded-lg transition-all ${
+                        selectedClient?.id === client.id
+                          ? 'bg-gradient-to-r from-purple-100 to-blue-100 border-2 border-purple-300'
+                          : 'bg-gray-50 hover:bg-gray-100'
+                      }`}
+                    >
+                      <div className="font-medium text-gray-800">
+                        {client.hotel_name}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {client.contact_person}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* AI Content */}
+          <div className={activeAITab === 'test' ? 'col-span-12' : 'col-span-9'}>
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              {/* AI Tab Content */}
+              {activeAITab === 'suggestions' && (
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-gray-800">
+                      💡 Akıllı Sürdürülebilirlik Önerileri
+                    </h2>
+                    <button
+                      onClick={() => selectedClient && getAISuggestions(selectedClient.id)}
+                      disabled={!selectedClient || loading}
+                      className="px-6 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg hover:from-purple-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loading ? '🔄 Üretiliyor...' : '🚀 Öneri Al'}
+                    </button>
+                  </div>
+                  
+                  {!selectedClient && (
+                    <div className="text-center py-12 text-gray-500">
+                      <div className="text-6xl mb-4">🏨</div>
+                      <p className="text-lg">Müşteri seçin</p>
+                      <p className="text-sm">AI önerileri almak için sol taraftan bir müşteri seçin</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeAITab === 'report-text' && (
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-gray-800">
+                      📝 Otomatik Rapor Metni
+                    </h2>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => selectedClient && getAIReportText(selectedClient.id, 'sustainability_message')}
+                        disabled={!selectedClient || loading}
+                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 text-sm"
+                      >
+                        Sürdürülebilirlik Mesajı
+                      </button>
+                      <button
+                        onClick={() => selectedClient && getAIReportText(selectedClient.id, 'executive_summary')}
+                        disabled={!selectedClient || loading}
+                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 text-sm"
+                      >
+                        Yönetici Özeti
+                      </button>
+                    </div>
+                  </div>
+
+                  {!selectedClient && (
+                    <div className="text-center py-12 text-gray-500">
+                      <div className="text-6xl mb-4">📝</div>
+                      <p className="text-lg">Müşteri seçin</p>
+                      <p className="text-sm">Otomatik metin üretmek için sol taraftan bir müşteri seçin</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeAITab === 'trend-analysis' && (
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-gray-800">
+                      📊 AI Trend Analizi
+                    </h2>
+                    <button
+                      onClick={() => selectedClient && getAITrendAnalysis(selectedClient.id)}
+                      disabled={!selectedClient || loading}
+                      className="px-6 py-2 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-lg hover:from-green-600 hover:to-teal-600 disabled:opacity-50"
+                    >
+                      {loading ? '🔄 Analiz ediliyor...' : '📈 Analiz Et'}
+                    </button>
+                  </div>
+
+                  {!selectedClient && (
+                    <div className="text-center py-12 text-gray-500">
+                      <div className="text-6xl mb-4">📊</div>
+                      <p className="text-lg">Müşteri seçin</p>
+                      <p className="text-sm">Trend analizi için sol taraftan bir müşteri seçin</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeAITab === 'test' && (
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-gray-800">
+                      🔧 AI Servis Testi
+                    </h2>
+                    <button
+                      onClick={testAIService}
+                      disabled={loading}
+                      className="px-6 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 disabled:opacity-50"
+                    >
+                      {loading ? '🔄 Test ediliyor...' : '🧪 Test Et'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* AI Response Display */}
+              {loading && (
+                <div className="flex items-center justify-center py-12">
+                  <div className="text-center">
+                    <div className="animate-spin text-4xl mb-4">🤖</div>
+                    <p className="text-lg text-gray-600">AI düşünüyor...</p>
+                    <p className="text-sm text-gray-500">GPT-4o-mini ile işleniyor</p>
+                  </div>
+                </div>
+              )}
+
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-center">
+                    <span className="text-red-500 text-xl mr-3">❌</span>
+                    <div>
+                      <h4 className="text-red-800 font-medium">Hata</h4>
+                      <p className="text-red-600 text-sm">{error}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {aiResponse && !loading && (
+                <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-6">
+                  <div className="flex items-center mb-4">
+                    <span className="text-2xl mr-3">🤖</span>
+                    <h4 className="text-lg font-bold text-gray-800">AI Cevabı</h4>
+                    <span className="ml-auto text-sm text-gray-500">
+                      Model: {aiResponse.model || 'gpt-4o-mini'}
+                    </span>
+                  </div>
+                  
+                  <div className="bg-white rounded-lg p-4 shadow-sm">
+                    {activeAITab === 'suggestions' && aiResponse.suggestions?.suggestions && (
+                      <div className="whitespace-pre-wrap text-gray-800">
+                        {aiResponse.suggestions.suggestions}
+                      </div>
+                    )}
+                    
+                    {activeAITab === 'report-text' && aiResponse.generated_text && (
+                      <div className="whitespace-pre-wrap text-gray-800">
+                        {aiResponse.generated_text}
+                      </div>
+                    )}
+                    
+                    {activeAITab === 'trend-analysis' && aiResponse.trend_analysis?.analysis && (
+                      <div className="whitespace-pre-wrap text-gray-800">
+                        {aiResponse.trend_analysis.analysis}
+                      </div>
+                    )}
+                    
+                    {activeAITab === 'test' && aiResponse.test_response && (
+                      <div>
+                        <div className="mb-4">
+                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            aiResponse.status === 'success' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {aiResponse.status === 'success' ? '✅ Başarılı' : '❌ Hata'}
+                          </span>
+                        </div>
+                        <div className="whitespace-pre-wrap text-gray-800">
+                          <strong>Mesaj:</strong> {aiResponse.message}
+                        </div>
+                        {aiResponse.test_response && (
+                          <div className="mt-3 p-3 bg-gray-50 rounded">
+                            <strong>AI Cevabı:</strong> {aiResponse.test_response}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const MainApp = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedClient, setSelectedClient] = useState(null);
