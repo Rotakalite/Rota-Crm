@@ -14760,6 +14760,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'personnel', name: 'Personel Yönetimi', icon: '👥' },
     { id: 'sustainability-targets', name: 'Sürdürülebilirlik Hedefleri', icon: '🎯' },
     { id: 'yeni-belge', name: 'Belge Yönetimi', icon: '📋' },
+    { id: 'ai-assistant', name: 'AI Asistan', icon: '🤖' },
     { id: 'training', name: 'Eğitimlerim', icon: '🎓' }
   ];
 
