@@ -17867,7 +17867,7 @@ const AIAssistant = () => {
   const { authToken, dbUser } = useAuth();
   const [activeAITab, setActiveAITab] = useState('suggestions');
   const [selectedClient, setSelectedClient] = useState(null);
-  const [clients, setClients] = useState([]);
+  const [clients, setClients] = useState([]); // Initialize as empty array
   const [loading, setLoading] = useState(false);
   const [aiResponse, setAiResponse] = useState(null);
   const [error, setError] = useState(null);
