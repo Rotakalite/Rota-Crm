@@ -17890,9 +17890,10 @@ const AIAssistant = () => {
     );
   }
 
-  // Fetch clients
+  // Fetch clients and usage
   useEffect(() => {
     fetchClients();
+    fetchDailyUsage();
   }, [authToken]);
 
   const fetchClients = async () => {
