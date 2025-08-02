@@ -17994,10 +17994,11 @@ const AIAssistant = () => {
     setError(null);
     
     try {
-      // This will trigger download
+      // This will trigger download - INCREASED TIMEOUT to 5 minutes
       const response = await axios.post(`${API}/ai/generate-sustainability-report/${selectedClient.id}`, {}, {
         headers: { Authorization: `Bearer ${authToken}` },
-        responseType: 'blob'
+        responseType: 'blob',
+        timeout: 300000  // 5 minutes for AI processing
       });
       
       // Create download link
@@ -18016,8 +18017,12 @@ const AIAssistant = () => {
       });
       
     } catch (err) {
-      setError(err.response?.data?.detail || 'AI rapor oluşturma hatası');
       console.error('AI Report Error:', err);
+      if (err.code === 'ECONNABORTED') {
+        setError('AI rapor oluşturma işlemi çok uzun sürdü. Lütfen tekrar deneyin.');
+      } else {
+        setError(err.response?.data?.detail || 'AI rapor oluşturma hatası');
+      }
     } finally {
       setLoading(false);
     }
