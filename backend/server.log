@@ -1,0 +1,9 @@
+✅ Elite PDF: Liberation Sans fonts registered - FULL Turkish Unicode support
+✅ Turkish character test: ğüşıöçĞÜŞİÖÇ
+ERROR:services.supabase_storage:❌ Failed to initialize Supabase client: 'dict' object has no attribute 'headers'
+WARNING:services.gcs:❌ GCS credentials not found, using mock mode
+INFO:     Started server process [10797]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8004 (Press CTRL+C to quit)
+INFO:     127.0.0.1:40704 - "GET /api/email-templates-test HTTP/1.1" 404 Not Found
