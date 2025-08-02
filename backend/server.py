@@ -13532,40 +13532,6 @@ async def test_reports_before_mount():
 
 app.include_router(api_router, prefix="/api")
 
-# Manual AI endpoint registration for debugging
-@app.get("/api/ai/test-manual")
-async def test_ai_service_manual():
-    """Test AI service connectivity - Manual registration"""
-    try:
-        # Check if AI service is available
-        if sustainability_ai is None:
-            return {
-                "status": "error",
-                "message": "AI servisi yüklenemedi - import hatası",
-                "model": "unknown"
-            }
-        
-        # Simple test message using direct _send_message method
-        system_message = "Sen yardımcı bir asistansın."
-        user_message = "Merhaba, AI servisi test ediliyor. Kısa bir cevap ver."
-        
-        response = await sustainability_ai._send_message(system_message, user_message)
-        
-        return {
-            "status": "success",
-            "message": "AI servisi çalışıyor!",
-            "test_response": response,
-            "model": sustainability_ai.model
-        }
-        
-    except Exception as e:
-        logging.error(f"❌ AI Test Error: {str(e)}")
-        return {
-            "status": "error", 
-            "message": f"AI servisi test hatası: {str(e)}",
-            "model": sustainability_ai.model if sustainability_ai else "unknown"
-        }
-
 # Debug endpoint to list all routes
 @app.get("/debug/routes")
 async def debug_routes():
