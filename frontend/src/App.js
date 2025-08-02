@@ -14746,6 +14746,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'yeni-belge', name: 'Belge Yönetimi', icon: '📋' },
     { id: 'training', name: 'Eğitim Yönetimi', icon: '🎓' },
     { id: 'email-management', name: 'Email Yönetimi', icon: '📧' },
+    { id: 'ai-assistant', name: 'AI Asistan', icon: '🤖' },
     { id: 'reports', name: 'Raporlar', icon: '📊' }
   ];
 
