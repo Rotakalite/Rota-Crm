@@ -17900,11 +17900,19 @@ const AIAssistant = () => {
     
     setClientsLoading(true);
     try {
+      console.log('🔍 AI Assistant: Fetching clients...');
       const response = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
+      
+      console.log('📊 AI Assistant: Response received:', response.data);
+      console.log('📊 AI Assistant: Response type:', typeof response.data);
+      console.log('📊 AI Assistant: Is array?', Array.isArray(response.data));
+      
       // Ensure response.data is array
       const clientsData = Array.isArray(response.data) ? response.data : [];
+      console.log('📊 AI Assistant: Setting clients:', clientsData.length, 'items');
+      
       setClients(clientsData);
     } catch (err) {
       console.error('Failed to fetch clients:', err);
