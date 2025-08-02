@@ -18021,6 +18021,7 @@ const ConsultantApp = () => {
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
     { id: 'my-clients', name: 'Müşterilerim', icon: '👥' },
     { id: 'client-assignment', name: 'Müşteri Atama', icon: '➕' },
+    { id: 'ai-assistant', name: 'AI Asistan', icon: '🤖' },
     { id: 'reports', name: 'Raporlar', icon: '📊' },
     { id: 'profile', name: 'Profil', icon: '👤' },
     { id: 'consumption', name: 'Tüketim Takibi', icon: '⚡' },
