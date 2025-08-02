@@ -18380,6 +18380,8 @@ const ConsultantApp = () => {
         return <TrainingManagement />;
       case 'email-management':
         return <EmailManagement />;
+      case 'ai-assistant':
+        return <AIAssistant />;
       case 'reports':
         return <ReportsManagement />;
       default:
