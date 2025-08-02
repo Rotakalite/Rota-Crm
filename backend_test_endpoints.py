@@ -23,12 +23,12 @@ def get_backend_url():
         
         if not backend_url:
             logger.error("REACT_APP_BACKEND_URL not found in .env file")
-            return "https://74cd54d6-e7c4-4086-a9b0-2c069ca9924d.preview.emergentagent.com"
+            return "https://d787e851-4fbb-4d90-a594-90394e6ba15e.preview.emergentagent.com"
         
         return backend_url
     except Exception as e:
         logger.error(f"Error reading .env file: {str(e)}")
-        return "https://74cd54d6-e7c4-4086-a9b0-2c069ca9924d.preview.emergentagent.com"
+        return "https://d787e851-4fbb-4d90-a594-90394e6ba15e.preview.emergentagent.com"
 
 class TestBackendEndpoints(unittest.TestCase):
     """Test class for backend endpoints without authentication"""

@@ -20,7 +20,7 @@ def get_backend_url():
                     return line.split('=', 1)[1].strip()
     except:
         pass
-    return "https://74cd54d6-e7c4-4086-a9b0-2c069ca9924d.preview.emergentagent.com"
+    return "https://d787e851-4fbb-4d90-a594-90394e6ba15e.preview.emergentagent.com"
 
 BACKEND_URL = get_backend_url()
 TEST_CLIENT_ID = "94927a77-edc3-45ec-8329-795feae35771"
