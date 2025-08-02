@@ -57,13 +57,7 @@ except Exception as e:
         logging.error(f"❌ Failed to import PDF Report service: {e} | Fallback error: {e2}")
         elite_pdf_service = None
 
-# AI service import - separate block
-try:
-    from services.ai_service import sustainability_ai
-    logging.info("✅ AI service imported successfully")
-except Exception as e:
-    logging.error(f"❌ Failed to import AI service: {e}")
-    sustainability_ai = None
+# AI service import - moved to after env loading
 
 # WhatsApp service - DISABLED
 whatsapp_service = None  # WhatsApp service deactivated
