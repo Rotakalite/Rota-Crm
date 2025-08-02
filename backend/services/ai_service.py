@@ -117,42 +117,127 @@ Kısa ve öz, uygulanabilir öneriler ver.
         """
         try:
             client_info = client_data.get('client_info', {})
-            hotel_name = client_info.get('hotel_name', client_info.get('name', 'İşletme'))
+            consumption = client_data.get('consumption_data', {})
+            personnel = client_data.get('personnel', [])
             
-            system_message = "Sen profesyonel sürdürülebilirlik raporu yazan uzman bir yazarsın. NEST Hotel tarzında profesyonel, resmi ve etkileyici metinler yazıyorsun."
+            hotel_name = client_info.get('hotel_name', client_info.get('name', 'İşletme'))
+            total_energy = consumption.get('total_energy', 0)
+            total_water = consumption.get('total_water', 0)
+            
+            system_message = """Sen dünya çapında prestijli sustainability consultancy'de senior director seviyesinde uzman bir yazarsın. McKinsey, Deloitte, PwC gibi firmalarda C-Suite yöneticileri için rapor hazırlıyorsun. Yazım tarzın son derece profesyonel, analitik ve etkileyici. Fortune 500 şirketlerinin sürdürülebilirlik raporlarında published yazıların var."""
             
             prompts = {
                 "sustainability_message": f"""
-{hotel_name} için sürdürülebilirlik mesajı yazısı yaz. 
-Şu konuları içersin:
-- Çevre sorumluluğu
-- Gelecek nesiller için çalışma
-- Sürdürülebilir turizm anlayışı
-- Paydaşlarla işbirliği
+{hotel_name} için kurumsal sürdürülebilirlik manifestosu yazısı hazırla.
 
-Profesyonel, resmi dil kullanın. 2-3 paragraf olsun.
+KURUMSAL CONTEXT:
+• İşletme: {hotel_name}
+• Sektör: Luxury Hospitality & Tourism
+• Operasyonel Ölçek: {len(personnel)} FTE, {total_energy:,.0f} kWh/yıl
+• Sustainability Maturity: Growth Phase
+
+MANIFESTO KRİTERLERİ:
+1. VISION STATEMENT: Net-zero carbon future commitment
+2. STAKEHOLDER PROMISE: Guests, employees, community, environment
+3. OPERATIONAL PHILOSOPHY: Regenerative tourism principles
+4. INNOVATION COMMITMENT: Technology-enabled sustainability
+5. TRANSPARENCY PLEDGE: Science-based reporting standards
+6. LEGACY ASPIRATION: Next generation stewardship
+
+YAZIM STANDARTLARI:
+• Executive leadership perspective
+• Inspiring yet actionable language
+• Global sustainability framework referansları
+• Long-term value creation focus
+• Stakeholder-centric approach
+
+3-4 paragraf, her paragraf 4-5 cümle. Corporate manifesto standardında yaz.
                 """,
                 
                 "environmental_approach": f"""
-{hotel_name} için çevre yaklaşımı bölümü yaz.
-Şu konuları içersin:
-- Doğal kaynakların korunması
-- Çevre bilinci
-- Kirlilik önleme
-- Sürekli iyileştirme
+{hotel_name} için Environmental Stewardship yaklaşım belgesi hazırla.
 
-Profesyonel ton, 2-3 paragraf.
+PERFORMANCE BASELINE:
+• Energy Intensity: {total_energy/len(personnel) if len(personnel) > 0 else 0:,.1f} kWh/FTE
+• Water Intensity: {total_water/len(personnel) if len(personnel) > 0 else 0:,.1f} m³/FTE
+• Workforce: {len(personnel)} environmental champions
+
+APPROACH FRAMEWORK:
+1. SCIENCE-BASED METHODOLOGY:
+   - Life Cycle Assessment (LCA) principles
+   - Carbon accounting (Scope 1, 2, 3)
+   - Water footprint optimization
+   - Circular economy integration
+
+2. ECOSYSTEM THINKING:
+   - Biodiversity conservation programs
+   - Local community partnerships
+   - Supply chain sustainability
+   - Guest engagement initiatives
+
+3. CONTINUOUS IMPROVEMENT:
+   - ISO 14001 management systems
+   - Real-time monitoring & analytics
+   - Third-party verification
+   - Transparent reporting (GRI standards)
+
+4. INNOVATION LEADERSHIP:
+   - Clean technology adoption
+   - R&D partnerships
+   - Pilot program development
+   - Best practice sharing
+
+ÇIKTI FORMAT:
+• Technical yet accessible language
+• Methodology-focused approach
+• Performance improvement narrative
+• Stakeholder value proposition
+• 4-5 paragraf comprehensive approach
                 """,
                 
                 "executive_summary": f"""
-{hotel_name} için sürdürülebilirlik raporu yönetici özeti yaz.
-Ana başarılar ve 2025 hedefleri içersin.
-Kısa ve etkili, 3-4 cümle.
+{hotel_name} - 2025 Sürdürülebilirlik Raporu Yönetici Özeti hazırla.
+
+EXECUTIVE BRIEFING DATA:
+• Operational Scale: {len(personnel)} employees, {total_energy:,.0f} kWh annual consumption
+• Performance Period: 2024-2025 baseline establishment
+• Strategic Focus: Carbon neutrality pathway & operational excellence
+
+EXECUTIVE SUMMARY COMPONENTS:
+1. STRATEGIC CONTEXT:
+   - Market positioning in sustainable hospitality
+   - Competitive advantages through ESG leadership
+   - Risk mitigation & opportunity capture
+
+2. PERFORMANCE HIGHLIGHTS:
+   - Key sustainability metrics achieved
+   - Efficiency improvements realized
+   - Cost optimization through green initiatives
+
+3. FUTURE ROADMAP:
+   - 2030 Net Zero commitment pathway
+   - Investment priorities & resource allocation
+   - Technology integration strategy
+
+4. STAKEHOLDER VALUE:
+   - Guest experience enhancement
+   - Employee engagement & retention
+   - Community impact & partnership
+   - Investor confidence & ESG ratings
+
+EXECUTIVE STANDARDS:
+• C-Suite decision-making focus
+• ROI & business value emphasis
+• Strategic risk & opportunity framing
+• Concise yet comprehensive narrative
+• Board presentation quality
+
+4-5 paragraf, executive briefing standardında hazırla.
                 """
             }
             
             if section_type not in prompts:
-                return f"{section_type} bölümü için otomatik metin üretimi hazırlanıyor..."
+                return f"{section_type} bölümü için gelişmiş AI analizi hazırlanıyor..."
             
             response = await self._send_message(system_message, prompts[section_type])
             return response
