@@ -18097,9 +18097,11 @@ const AIAssistant = () => {
   };
 
   const aiTabs = [
+    { id: 'chat', name: 'AI Chat', icon: '💬' },
     { id: 'suggestions', name: 'Akıllı Öneriler', icon: '💡' },
     { id: 'report-text', name: 'Otomatik Metin', icon: '📝' },
-    { id: 'trend-analysis', name: 'Trend Analizi', icon: '📊' },
+    { id: 'ai-report', name: 'AI Rapor', icon: '📊' },
+    { id: 'trend-analysis', name: 'Trend Analizi', icon: '📈' },
     { id: 'test', name: 'AI Test', icon: '🔧' }
   ];
 
