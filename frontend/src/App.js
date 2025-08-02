@@ -17872,6 +17872,9 @@ const AIAssistant = () => {
   const [clientsLoading, setClientsLoading] = useState(true); // Add separate loading for clients
   const [aiResponse, setAiResponse] = useState(null);
   const [error, setError] = useState(null);
+  const [chatQuestion, setChatQuestion] = useState('');
+  const [chatHistory, setChatHistory] = useState([]);
+  const [dailyUsage, setDailyUsage] = useState({ used: 0, limit: 10, remaining: 10 });
   const API = getApiUrl();
 
   // Safety check - if required hooks fail, show error
