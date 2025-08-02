@@ -18201,6 +18201,134 @@ const AIAssistant = () => {
           <div className={activeAITab === 'test' ? 'col-span-12' : 'col-span-9'}>
             <div className="bg-white rounded-xl shadow-lg p-6">
               {/* AI Tab Content */}
+              {activeAITab === 'chat' && (
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-gray-800">
+                      💬 AI Chat Asistanı
+                    </h2>
+                    <div className="text-sm text-gray-500">
+                      Günlük kalan: {dailyUsage.remaining} soru
+                    </div>
+                  </div>
+                  
+                  {!selectedClient ? (
+                    <div className="text-center py-12 text-gray-500">
+                      <div className="text-6xl mb-4">🏨</div>
+                      <p className="text-lg">Müşteri seçin</p>
+                      <p className="text-sm">AI ile sohbet etmek için sol taraftan bir müşteri seçin</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {/* Chat History */}
+                      <div className="bg-gray-50 rounded-lg p-4 h-64 overflow-y-auto">
+                        {chatHistory.length === 0 ? (
+                          <div className="text-center text-gray-500 mt-20">
+                            <div className="text-4xl mb-2">💬</div>
+                            <p>AI ile sohbete başlayın!</p>
+                            <p className="text-sm">Sürdürülebilirlik hakkında sorularınızı sorun</p>
+                          </div>
+                        ) : (
+                          chatHistory.map((chat) => (
+                            <div key={chat.id} className="mb-4">
+                              <div className="bg-blue-100 rounded-lg p-3 mb-2">
+                                <div className="flex justify-between items-start">
+                                  <p className="text-blue-800 font-medium">👤 Siz:</p>
+                                  <span className="text-xs text-blue-600">{chat.timestamp}</span>
+                                </div>
+                                <p className="text-blue-700 mt-1">{chat.question}</p>
+                              </div>
+                              <div className="bg-purple-100 rounded-lg p-3">
+                                <p className="text-purple-800 font-medium mb-1">🤖 AI Asistan:</p>
+                                <div className="text-purple-700 whitespace-pre-wrap">{chat.answer}</div>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                      
+                      {/* Chat Input */}
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={chatQuestion}
+                          onChange={(e) => setChatQuestion(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && !loading && sendChatMessage()}
+                          placeholder="Sürdürülebilirlik hakkında sorunuzu yazın..."
+                          disabled={loading || dailyUsage.remaining <= 0}
+                          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100"
+                        />
+                        <button
+                          onClick={sendChatMessage}
+                          disabled={!chatQuestion.trim() || loading || dailyUsage.remaining <= 0}
+                          className="px-6 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg hover:from-purple-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {loading ? '🤖' : '📤'} Gönder
+                        </button>
+                      </div>
+                      
+                      {dailyUsage.remaining <= 0 && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
+                          <p className="text-red-600 font-medium">⚠️ Günlük AI soru sınırına ulaştınız</p>
+                          <p className="text-red-500 text-sm">Yarın gece yarısında limit sıfırlanacak</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeAITab === 'ai-report' && (
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-gray-800">
+                      📊 AI Destekli Sürdürülebilirlik Raporu
+                    </h2>
+                    <button
+                      onClick={() => selectedClient && generateAIReport()}
+                      disabled={!selectedClient || loading}
+                      className="px-6 py-2 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-lg hover:from-green-600 hover:to-teal-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loading ? '🤖 Oluşturuluyor...' : '📊 AI Rapor Oluştur'}
+                    </button>
+                  </div>
+                  
+                  {!selectedClient ? (
+                    <div className="text-center py-12 text-gray-500">
+                      <div className="text-6xl mb-4">📊</div>
+                      <p className="text-lg">Müşteri seçin</p>
+                      <p className="text-sm">AI destekli rapor için sol taraftan bir müşteri seçin</p>
+                    </div>
+                  ) : (
+                    <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-lg p-6">
+                      <h3 className="text-lg font-bold text-gray-800 mb-4">🤖 AI Rapor Özellikleri</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-white rounded-lg p-4">
+                          <div className="text-2xl mb-2">📝</div>
+                          <h4 className="font-bold text-gray-800">Yönetici Özeti</h4>
+                          <p className="text-sm text-gray-600">AI tarafından üretilen kapsamlı özet</p>
+                        </div>
+                        <div className="bg-white rounded-lg p-4">
+                          <div className="text-2xl mb-2">🌍</div>
+                          <h4 className="font-bold text-gray-800">Çevresel Analiz</h4>
+                          <p className="text-sm text-gray-600">Detaylı çevresel etki değerlendirmesi</p>
+                        </div>
+                        <div className="bg-white rounded-lg p-4">
+                          <div className="text-2xl mb-2">🎯</div>
+                          <h4 className="font-bold text-gray-800">Eylem Planı</h4>
+                          <p className="text-sm text-gray-600">2025-2026 sürdürülebilirlik stratejisi</p>
+                        </div>
+                        <div className="bg-white rounded-lg p-4">
+                          <div className="text-2xl mb-2">⭐</div>
+                          <h4 className="font-bold text-gray-800">Best Practices</h4>
+                          <p className="text-sm text-gray-600">Sektör öncüsü uygulama önerileri</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {activeAITab === 'suggestions' && (
                 <div>
                   <div className="flex items-center justify-between mb-6">
