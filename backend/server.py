@@ -13488,6 +13488,39 @@ async def generate_ai_sustainability_report(
         logging.error(f"❌ Error generating AI sustainability report: {str(e)}")
         raise HTTPException(status_code=500, detail=f"AI sürdürülebilirlik raporu oluşturma hatası: {str(e)}")
 
+@api_router.get("/ai/test-manual")
+async def test_ai_service_manual():
+    """Test AI service connectivity - Manual registration in api_router"""
+    try:
+        # Check if AI service is available
+        if sustainability_ai is None:
+            return {
+                "status": "error",
+                "message": "AI servisi yüklenemedi - import hatası",
+                "model": "unknown"
+            }
+        
+        # Simple test message using direct _send_message method
+        system_message = "Sen yardımcı bir asistansın."
+        user_message = "Merhaba, AI servisi test ediliyor. Kısa bir cevap ver."
+        
+        response = await sustainability_ai._send_message(system_message, user_message)
+        
+        return {
+            "status": "success",
+            "message": "AI servisi çalışıyor!",
+            "test_response": response,
+            "model": sustainability_ai.model
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ AI Test Error: {str(e)}")
+        return {
+            "status": "error", 
+            "message": f"AI servisi test hatası: {str(e)}",
+            "model": sustainability_ai.model if sustainability_ai else "unknown"
+        }
+
 @api_router.get("/ai/test")
 async def test_ai_service():
     """Test AI service connectivity"""
