@@ -779,6 +779,182 @@ class PDFReportService:
         doc.build(story)
         return buffer.getvalue()
     
+    def generate_ai_enhanced_sustainability_report(self, ai_enhanced_data: dict) -> bytes:
+        """
+        Generate AI-enhanced professional sustainability report
+        """
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(
+            buffer,
+            pagesize=A4,
+            rightMargin=0.75*inch,
+            leftMargin=0.75*inch,
+            topMargin=1*inch,
+            bottomMargin=1*inch,
+            title="AI Destekli Sürdürülebilirlik Raporu"
+        )
+        
+        story = []
+        
+        # COVER PAGE
+        self._add_ai_report_cover_page(story, ai_enhanced_data)
+        story.append(PageBreak())
+        
+        # AI SECTIONS
+        ai_sections = ai_enhanced_data.get('ai_enhanced_sections', {})
+        
+        if 'executive_summary' in ai_sections:
+            self._add_ai_section(story, "YÖNETİCİ ÖZETİ", ai_sections['executive_summary'])
+            story.append(PageBreak())
+        
+        if 'environmental_analysis' in ai_sections:
+            self._add_ai_section(story, "ÇEVRESEL ETKİ ANALİZİ", ai_sections['environmental_analysis'])
+            story.append(PageBreak())
+        
+        if 'action_plan' in ai_sections:
+            self._add_ai_section(story, "SÜRDÜRÜLEBİLİRLİK EYLEM PLANI", ai_sections['action_plan'])
+            story.append(PageBreak())
+        
+        if 'best_practices' in ai_sections:
+            self._add_ai_section(story, "SEKTÖR BEST PRACTICE ÖNERİLERİ", ai_sections['best_practices'])
+        
+        # Build PDF
+        doc.build(story)
+        return buffer.getvalue()
+    
+    def _add_ai_report_cover_page(self, story, ai_enhanced_data):
+        """Add AI-enhanced report cover"""
+        client_info = ai_enhanced_data.get('client_info', {})
+        hotel_name = client_info.get('hotel_name', client_info.get('name', 'İşletme'))
+        
+        story.append(Spacer(1, 50))
+        
+        # AI Badge
+        story.append(Paragraph(
+            self._encode_turkish_text("🤖 AI DESTEKLI"),
+            ParagraphStyle(
+                'AIBadge',
+                parent=self.custom_styles['Header'],
+                fontSize=14,
+                textColor=colors.HexColor('#7C3AED'),
+                alignment=TA_CENTER,
+                spaceAfter=20
+            )
+        ))
+        
+        # Main title
+        story.append(Paragraph(
+            self._encode_turkish_text("SÜRDÜRÜLEBİLİRLİK"),
+            ParagraphStyle(
+                'MainTitle',
+                parent=self.custom_styles['Header'],
+                fontSize=36,
+                textColor=colors.HexColor('#059669'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=10
+            )
+        ))
+        
+        story.append(Paragraph(
+            self._encode_turkish_text("RAPORU"),
+            ParagraphStyle(
+                'MainTitle2',
+                parent=self.custom_styles['Header'],
+                fontSize=36,
+                textColor=colors.HexColor('#059669'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=30
+            )
+        ))
+        
+        # Hotel name
+        story.append(Paragraph(
+            self._encode_turkish_text(hotel_name.upper()),
+            ParagraphStyle(
+                'HotelName',
+                parent=self.custom_styles['Header'],
+                fontSize=24,
+                textColor=colors.HexColor('#1F2937'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font,
+                spaceAfter=50
+            )
+        ))
+        
+        # AI info
+        story.append(Paragraph(
+            self._encode_turkish_text("GPT-4o-mini ile desteklenen AI analizi"),
+            ParagraphStyle(
+                'AIInfo',
+                parent=self.custom_styles['Body'],
+                fontSize=12,
+                textColor=colors.HexColor('#7C3AED'),
+                alignment=TA_CENTER,
+                spaceAfter=30
+            )
+        ))
+        
+        # Year
+        current_year = datetime.now().year
+        story.append(Paragraph(
+            str(current_year),
+            ParagraphStyle(
+                'Year',
+                parent=self.custom_styles['Header'],
+                fontSize=28,
+                textColor=colors.HexColor('#374151'),
+                alignment=TA_CENTER,
+                fontName=self.bold_font
+            )
+        ))
+    
+    def _add_ai_section(self, story, title, content):
+        """Add AI-generated section"""
+        # Section title
+        story.append(Paragraph(
+            self._encode_turkish_text(title),
+            ParagraphStyle(
+                'AISectionTitle',
+                parent=self.custom_styles['Header'],
+                fontSize=20,
+                textColor=colors.HexColor('#7C3AED'),
+                alignment=TA_LEFT,
+                fontName=self.bold_font,
+                spaceAfter=20,
+                spaceBefore=20
+            )
+        ))
+        
+        # AI badge
+        story.append(Paragraph(
+            self._encode_turkish_text("🤖 AI tarafından oluşturuldu"),
+            ParagraphStyle(
+                'AIBadgeSmall',
+                parent=self.custom_styles['Body'],
+                fontSize=10,
+                textColor=colors.HexColor('#7C3AED'),
+                alignment=TA_LEFT,
+                spaceAfter=15
+            )
+        ))
+        
+        # Content
+        story.append(Paragraph(
+            self._encode_turkish_text(content),
+            ParagraphStyle(
+                'AIContent',
+                parent=self.custom_styles['Body'],
+                fontSize=11,
+                textColor=colors.HexColor('#1F2937'),
+                alignment=TA_JUSTIFY,
+                leftIndent=0.2*inch,
+                rightIndent=0.2*inch,
+                spaceAfter=20
+            )
+        ))
+    
     def _add_sustainability_cover_page(self, story, client_data):
         """Add professional cover page like NEST Hotel example"""
         client_info = client_data.get('client_info', {})
