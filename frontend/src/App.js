@@ -17934,6 +17934,95 @@ const AIAssistant = () => {
     }
   };
 
+  const fetchDailyUsage = async () => {
+    if (!authToken) return;
+    
+    try {
+      const response = await axios.get(`${API}/ai/usage`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setDailyUsage(response.data);
+    } catch (err) {
+      console.error('❌ AI Usage fetch error:', err);
+    }
+  };
+
+  const sendChatMessage = async () => {
+    if (!selectedClient || !chatQuestion.trim()) return;
+    
+    if (dailyUsage.remaining <= 0) {
+      setError('Günlük AI soru sınırına ulaştınız. Yarın tekrar deneyin.');
+      return;
+    }
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await axios.post(`${API}/ai/chat/${selectedClient.id}`, {
+        question: chatQuestion.trim()
+      }, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      // Add to chat history
+      const newChatEntry = {
+        id: Date.now(),
+        question: chatQuestion,
+        answer: response.data.ai_response,
+        timestamp: new Date().toLocaleTimeString('tr-TR')
+      };
+      
+      setChatHistory(prev => [...prev, newChatEntry]);
+      setChatQuestion('');
+      
+      // Update usage
+      setDailyUsage(response.data.usage);
+      
+    } catch (err) {
+      setError(err.response?.data?.detail || 'AI chat hatası');
+      console.error('AI Chat Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateAIReport = async () => {
+    if (!selectedClient) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // This will trigger download
+      const response = await axios.post(`${API}/ai/generate-sustainability-report/${selectedClient.id}`, {}, {
+        headers: { Authorization: `Bearer ${authToken}` },
+        responseType: 'blob'
+      });
+      
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `ai_sustainability_report_${selectedClient.hotel_name || selectedClient.name}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      
+      setAiResponse({
+        message: "AI destekli sürdürülebilirlik raporu başarıyla oluşturuldu ve indirildi!",
+        type: "success"
+      });
+      
+    } catch (err) {
+      setError(err.response?.data?.detail || 'AI rapor oluşturma hatası');
+      console.error('AI Report Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // AI Service Functions
   const getAISuggestions = async (clientId) => {
     if (!clientId) return;
