@@ -13371,6 +13371,127 @@ async def get_ai_trend_analysis(
         logging.error(f"❌ Error generating AI analysis: {str(e)}")
         raise HTTPException(status_code=500, detail=f"AI trend analizi hatası: {str(e)}")
 
+@api_router.post("/ai/chat/{client_id}")
+async def ai_chat_with_client(
+    client_id: str,
+    request: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """AI Chat with daily limit (10 questions per day)"""
+    try:
+        # Check daily usage limit
+        today = datetime.now().strftime("%Y-%m-%d")
+        usage_key = f"ai_chat_{current_user.id}_{today}"
+        
+        # Get current usage count from database
+        usage_doc = await db.ai_usage.find_one({"key": usage_key})
+        current_count = usage_doc.get("count", 0) if usage_doc else 0
+        
+        # Check if limit exceeded
+        DAILY_LIMIT = 10
+        if current_count >= DAILY_LIMIT:
+            raise HTTPException(
+                status_code=429, 
+                detail=f"Günlük AI soru sınırına ulaştınız. Limit: {DAILY_LIMIT}/gün. Yarın tekrar deneyin."
+            )
+        
+        # Get user question
+        user_question = request.get("question", "")
+        if not user_question.strip():
+            raise HTTPException(status_code=400, detail="Soru boş olamaz")
+        
+        # Collect client data for context
+        client_data = await collect_client_report_data(client_id)
+        
+        # Generate AI response with context
+        ai_response = await sustainability_ai.chat_with_context(user_question, client_data)
+        
+        # Update usage count
+        await db.ai_usage.update_one(
+            {"key": usage_key},
+            {
+                "$inc": {"count": 1},
+                "$set": {
+                    "user_id": current_user.id,
+                    "date": today,
+                    "last_used": datetime.now()
+                }
+            },
+            upsert=True
+        )
+        
+        remaining = DAILY_LIMIT - (current_count + 1)
+        
+        return {
+            "client_id": client_id,
+            "question": user_question,
+            "ai_response": ai_response,
+            "usage": {
+                "used": current_count + 1,
+                "limit": DAILY_LIMIT,
+                "remaining": remaining
+            },
+            "model": "gpt-4o-mini"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ Error in AI chat: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"AI chat hatası: {str(e)}")
+
+@api_router.get("/ai/usage")
+async def get_ai_usage(current_user: User = Depends(get_current_user)):
+    """Get user's daily AI usage"""
+    try:
+        today = datetime.now().strftime("%Y-%m-%d")
+        usage_key = f"ai_chat_{current_user.id}_{today}"
+        
+        usage_doc = await db.ai_usage.find_one({"key": usage_key})
+        current_count = usage_doc.get("count", 0) if usage_doc else 0
+        
+        DAILY_LIMIT = 10
+        remaining = DAILY_LIMIT - current_count
+        
+        return {
+            "date": today,
+            "used": current_count,
+            "limit": DAILY_LIMIT,
+            "remaining": remaining,
+            "reset_time": "00:00 (Gece yarısı)"
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Error getting AI usage: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Kullanım bilgisi alınamadı: {str(e)}")
+
+@api_router.post("/ai/generate-sustainability-report/{client_id}")
+async def generate_ai_sustainability_report(
+    client_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Generate comprehensive AI-powered sustainability report"""
+    try:
+        # Collect all client data
+        client_data = await collect_client_report_data(client_id)
+        
+        # Generate AI-enhanced sustainability report
+        ai_enhanced_data = await sustainability_ai.generate_comprehensive_sustainability_report(client_data)
+        
+        # Use enhanced data to generate PDF
+        pdf_bytes = elite_pdf_service.generate_ai_enhanced_sustainability_report(ai_enhanced_data)
+        
+        # Return PDF
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename=ai_sustainability_report_{client_id}.pdf"}
+        )
+        
+    except Exception as e:
+        logging.error(f"❌ Error generating AI sustainability report: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"AI sürdürülebilirlik raporu oluşturma hatası: {str(e)}")
+
 @api_router.get("/ai/test")
 async def test_ai_service():
     """Test AI service connectivity"""
