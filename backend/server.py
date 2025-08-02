@@ -116,8 +116,10 @@ db = client[os.environ['DB_NAME']]
 try:
     from services.ai_service import sustainability_ai
     logging.info("✅ AI service imported successfully")
+    print(f"✅ AI service imported successfully! Type: {type(sustainability_ai)}")
 except Exception as e:
     logging.error(f"❌ Failed to import AI service: {e}")
+    print(f"❌ Failed to import AI service: {e}")
     sustainability_ai = None
 
 # Clerk configuration
