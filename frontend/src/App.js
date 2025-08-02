@@ -17874,6 +17874,19 @@ const AIAssistant = () => {
   const [error, setError] = useState(null);
   const API = getApiUrl();
 
+  // Safety check - if required hooks fail, show error
+  if (!authToken) {
+    return (
+      <div className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 min-h-screen">
+        <div className="max-w-4xl mx-auto text-center py-20">
+          <div className="text-6xl mb-4">🔒</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Giriş Gerekli</h2>
+          <p className="text-gray-600">AI asistanı kullanmak için giriş yapmanız gerekiyor.</p>
+        </div>
+      </div>
+    );
+  }
+
   // Fetch clients
   useEffect(() => {
     fetchClients();
