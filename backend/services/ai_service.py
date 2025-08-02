@@ -232,6 +232,126 @@ Kısa ve net analiz yap.
                 "message": f"AI servisi test hatası: {str(e)}",
                 "model": self.model
             }
+    
+    async def chat_with_context(self, user_question: str, client_data: Dict[str, Any]) -> str:
+        """
+        AI Chat with client context for informed responses
+        """
+        try:
+            client_info = client_data.get('client_info', {})
+            consumption = client_data.get('consumption_data', {})
+            personnel = client_data.get('personnel', [])
+            
+            hotel_name = client_info.get('hotel_name', client_info.get('name', 'İşletme'))
+            total_energy = consumption.get('total_energy', 0)
+            total_water = consumption.get('total_water', 0)
+            
+            system_message = f"""Sen {hotel_name} için sürdürülebilirlik uzmanı AI asistanısın. 
+            
+İşletme Bilgileri:
+- İşletme: {hotel_name}
+- Personel: {len(personnel)} kişi
+- Yıllık Elektrik: {total_energy} kWh
+- Yıllık Su: {total_water} m³
+
+Kullanıcının sorularını bu veriler ışığında, profesyonel, pratik ve uygulanabilir şekilde yanıtla. 
+Türkçe konuş ve sürdürülebilirlik konularında uzman tavsiyeleri ver."""
+            
+            response = await self._send_message(system_message, user_question)
+            return response
+            
+        except Exception as e:
+            logging.error(f"❌ AI Chat Error: {str(e)}")
+            return f"Üzgünüm, sorunuzu cevaplayamadım: {str(e)}"
+    
+    async def generate_comprehensive_sustainability_report(self, client_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Generate comprehensive AI-enhanced sustainability report data
+        """
+        try:
+            client_info = client_data.get('client_info', {})
+            consumption = client_data.get('consumption_data', {})
+            personnel = client_data.get('personnel', [])
+            
+            hotel_name = client_info.get('hotel_name', client_info.get('name', 'İşletme'))
+            
+            # Generate multiple sections with AI
+            sections = {}
+            
+            # Executive Summary
+            sections['executive_summary'] = await self.generate_report_section_text(
+                'executive_summary', client_data
+            )
+            
+            # Environmental Impact Analysis
+            system_message = "Sen çevre uzmanısın. Otel için çevresel etki analizi yap."
+            env_prompt = f"""
+{hotel_name} için detaylı çevresel etki analizi yap:
+
+Mevcut Durum:
+- Elektrik: {consumption.get('total_energy', 0)} kWh/yıl
+- Su: {consumption.get('total_water', 0)} m³/yıl
+- Personel: {len(personnel)} kişi
+
+Analiz et:
+1. Mevcut çevresel etki seviyesi
+2. Sektör karşılaştırması
+3. İyileştirme alanları
+4. Risk faktörleri
+
+Profesyonel, sayısal ve detaylı analiz yap.
+            """
+            
+            sections['environmental_analysis'] = await self._send_message(system_message, env_prompt)
+            
+            # Sustainability Action Plan
+            action_system = "Sen sürdürülebilirlik strateji uzmanısın."
+            action_prompt = f"""
+{hotel_name} için 2025-2026 sürdürülebilirlik eylem planı oluştur:
+
+Şu alanları kapsasın:
+1. Kısa vadeli hedefler (3-6 ay)
+2. Orta vadeli hedefler (6-12 ay)
+3. Uzun vadeli hedefler (1-2 yıl)
+4. Bütçe önerileri
+5. Başarı metrikleri
+
+Somut, ölçülebilir ve uygulanabilir plan yap.
+            """
+            
+            sections['action_plan'] = await self._send_message(action_system, action_prompt)
+            
+            # Best Practices Recommendations
+            best_practices_system = "Sen otel sürdürülebilirlik uzmanısın."
+            best_practices_prompt = f"""
+{hotel_name} için sektör best practice önerileri:
+
+1. Enerji verimliliği best practices
+2. Su tasarrufu innovative yöntemler
+3. Atık azaltma stratejileri
+4. Yeşil sertifikasyon yolları
+5. Misafir engagement taktikleri
+
+Dünya örnekleri ve başarı hikayeleri ile destekle.
+            """
+            
+            sections['best_practices'] = await self._send_message(best_practices_system, best_practices_prompt)
+            
+            return {
+                **client_data,
+                'ai_enhanced_sections': sections,
+                'generated_at': datetime.now().isoformat(),
+                'ai_model': self.model
+            }
+            
+        except Exception as e:
+            logging.error(f"❌ AI Report Generation Error: {str(e)}")
+            return {
+                **client_data,
+                'ai_enhanced_sections': {
+                    'error': f"AI rapor üretimi hatası: {str(e)}"
+                }
+            }
 
 # Global instance
 sustainability_ai = SustainabilityAIService()
