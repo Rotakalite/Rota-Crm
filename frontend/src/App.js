@@ -18119,6 +18119,17 @@ const AIAssistant = () => {
           <p className="text-gray-600 mt-2">
             GPT-4o-mini ile güçlendirilmiş akıllı öneriler ve otomatik metin üretimi
           </p>
+          
+          {/* Daily Usage Display */}
+          <div className="mt-4 inline-flex items-center bg-white rounded-full px-4 py-2 shadow-lg">
+            <span className="text-sm text-gray-600 mr-2">Günlük kullanım:</span>
+            <span className={`font-bold ${dailyUsage.remaining > 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {dailyUsage.used}/{dailyUsage.limit}
+            </span>
+            <span className="text-xs text-gray-500 ml-2">
+              ({dailyUsage.remaining} kaldı)
+            </span>
+          </div>
         </div>
 
         {/* AI Tabs */}
