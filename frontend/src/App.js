@@ -17900,24 +17900,31 @@ const AIAssistant = () => {
     
     setClientsLoading(true);
     try {
-      console.log('🔍 AI Assistant: Fetching clients...');
-      const response = await axios.get(`${API}/clients`, {
+      console.log('🔍 AI Assistant: Fetching registered clients...');
+      
+      // Only get REGISTERED clients for AI (not bulk clients)
+      const response = await axios.get(`${API}/clients?client_type=registered&limit=100`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
       console.log('📊 AI Assistant: Response received:', response.data);
-      console.log('📊 AI Assistant: Response type:', typeof response.data);
-      console.log('📊 AI Assistant: Is array?', Array.isArray(response.data));
       
-      // Ensure response.data is array
-      const clientsData = Array.isArray(response.data) ? response.data : [];
-      console.log('📊 AI Assistant: Setting clients:', clientsData.length, 'items');
+      // Backend returns paginated format: { clients: [...], pagination: {...} }
+      let clientsData = [];
+      if (response.data && response.data.clients) {
+        clientsData = Array.isArray(response.data.clients) ? response.data.clients : [];
+      } else if (Array.isArray(response.data)) {
+        // Fallback for direct array response
+        clientsData = response.data;
+      }
+      
+      console.log('📊 AI Assistant: Setting clients:', clientsData.length, 'registered clients');
       
       setClients(clientsData);
     } catch (err) {
-      console.error('Failed to fetch clients:', err);
+      console.error('❌ AI Assistant: Failed to fetch clients:', err);
       setClients([]); // Set empty array on error
-      setError('Müşteri listesi yüklenemedi');
+      setError('Kayıtlı müşteri listesi yüklenemedi');
     } finally {
       setClientsLoading(false);
     }
