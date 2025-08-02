@@ -272,76 +272,206 @@ Türkçe konuş ve sürdürülebilirlik konularında uzman tavsiyeleri ver."""
             client_info = client_data.get('client_info', {})
             consumption = client_data.get('consumption_data', {})
             personnel = client_data.get('personnel', [])
+            waste_data = client_data.get('waste_data', {})
+            training_data = client_data.get('training_data', [])
             
             hotel_name = client_info.get('hotel_name', client_info.get('name', 'İşletme'))
+            total_energy = consumption.get('total_energy', 0)
+            total_water = consumption.get('total_water', 0)
             
             # Generate multiple sections with AI
             sections = {}
             
-            # Executive Summary
-            sections['executive_summary'] = await self.generate_report_section_text(
-                'executive_summary', client_data
-            )
+            # Executive Summary - Ultra Professional
+            exec_system = """Sen dünya çapında tanınmış bir sürdürülebilirlik raporu yazarısın. Fortune 500 şirketleri, lüks otel zincirleri ve uluslararası organizasyonlar için prestijli raporlar hazırlıyorsun. Yazım tarzın son derece profesyonel, analitik ve etkileyici."""
             
-            # Environmental Impact Analysis
-            system_message = "Sen çevre uzmanısın. Otel için çevresel etki analizi yap."
+            exec_prompt = f"""
+{hotel_name} için 2025 yılı Sürdürülebilirlik Raporu'nun Yönetici Özeti'ni hazırla.
+
+PERFORMANS VERİLERİ:
+• Yıllık Enerji Tüketimi: {total_energy:,.0f} kWh
+• Yıllık Su Tüketimi: {total_water:,.0f} m³
+• Aktif Personel: {len(personnel)} kişi
+• Eğitim Programları: {len(training_data)} adet
+
+RAPOR KRİTERLERİ:
+1. C-Suite yöneticilerine hitap eden üst düzey dil
+2. Konkret başarılar ve KPI'lar
+3. Sektör benchmarking'i
+4. Stratejik vizyonu yansıtan gelecek hedefleri
+5. Finansal etkiler ve ROI referansları
+6. Sürdürülebilirlik standartları (ISO 14001, LEED, BREEAM) referansları
+
+FORMAT:
+• 4-5 paragraf
+• Her paragraf 3-4 cümle
+• Executive summary standartlarında
+• Sayısal destekli argümanlar
+
+Lüks turizm sektöründe sürdürülebilirlik liderliği perspektifinden yaz.
+            """
+            sections['executive_summary'] = await self._send_message(exec_system, exec_prompt)
+            
+            # Environmental Impact Analysis - Çok Detaylı
+            env_system = """Sen IFC (International Finance Corporation) ve CDP (Carbon Disclosure Project) standartlarında çevre raporu yazan bir ekspersisn. ESG analistleri ve kurumsal yatırımcılar için teknik raporlar hazırlıyorsun."""
+            
             env_prompt = f"""
-{hotel_name} için detaylı çevresel etki analizi yap:
+{hotel_name} için kapsamlı Çevresel Etki Analizi hazırla:
 
-Mevcut Durum:
-- Elektrik: {consumption.get('total_energy', 0)} kWh/yıl
-- Su: {consumption.get('total_water', 0)} m³/yıl
-- Personel: {len(personnel)} kişi
+VERİ SETİ:
+• Elektrik: {total_energy:,.0f} kWh/yıl
+• Su: {total_water:,.0f} m³/yıl
+• İnsan Kaynağı: {len(personnel)} FTE
+• Faaliyet Alanı: Konaklama Hizmetleri
 
-Analiz et:
-1. Mevcut çevresel etki seviyesi
-2. Sektör karşılaştırması
-3. İyileştirme alanları
-4. Risk faktörleri
+ANALİZ KAPSAMI:
+1. CARBON FOOTPRINT ASSESSMENT:
+   - Scope 1, 2, 3 emisyon kategorileri
+   - kgCO2e/gece hesaplaması
+   - Sektör ortalaması ile karşılaştırma (Türkiye otel sektörü: 35-45 kgCO2e/gece)
 
-Profesyonel, sayısal ve detaylı analiz yap.
+2. RESOURCE EFFICIENCY ANALYSIS:
+   - Su yoğunluğu (L/gece) - Benchmark: 300-500L
+   - Enerji yoğunluğu (kWh/gece) - Benchmark: 15-25 kWh
+   - Atık üretimi ve geri dönüşüm oranları
+
+3. ENVIRONMENTAL RISKS & OPPORTUNITIES:
+   - İklim değişikliği riskleri (fiziksel, geçiş)
+   - Kaynak kıtlığı riskleri
+   - Maliyet optimizasyonu fırsatları
+   - Yeşil teknoloji yatırım potansiyeli
+
+4. REGULATORY COMPLIANCE:
+   - EU Taxonomy uyumu
+   - Paris Anlaşması hedefleri
+   - Ulusal çevre mevzuatı
+   - TCFD (Task Force on Climate-related Financial Disclosures) önerileri
+
+ÇIKTI FORMAT:
+• Teknik terminoloji kullan
+• Sayısal verilerle destekle
+• Risk matriksi oluştur
+• Öncelikli aksiyon alanları belirle
+• 6-8 paragraf detaylı analiz
             """
+            sections['environmental_analysis'] = await self._send_message(env_system, env_prompt)
             
-            sections['environmental_analysis'] = await self._send_message(system_message, env_prompt)
+            # Sustainability Strategy & Action Plan
+            strategy_system = """Sen McKinsey, BCG, Deloitte gibi global danışmanlık şirketlerinde sürdürülebilirlik stratejisi geliştiren senior consultant'sın. Fortune 500 şirketlerinin Net Zero stratejilerini tasarlıyorsun."""
             
-            # Sustainability Action Plan
-            action_system = "Sen sürdürülebilirlik strateji uzmanısın."
-            action_prompt = f"""
-{hotel_name} için 2025-2026 sürdürülebilirlik eylem planı oluştur:
+            strategy_prompt = f"""
+{hotel_name} için 2025-2030 Sürdürülebilirlik Dönüşüm Stratejisi ve Eylem Planı oluştur:
 
-Şu alanları kapsasın:
-1. Kısa vadeli hedefler (3-6 ay)
-2. Orta vadeli hedefler (6-12 ay)
-3. Uzun vadeli hedefler (1-2 yıl)
-4. Bütçe önerileri
-5. Başarı metrikleri
+MEVCUT DURUM BASELINE:
+• Enerji: {total_energy:,.0f} kWh/yıl ({total_energy/len(personnel) if len(personnel) > 0 else 0:,.0f} kWh/personel)
+• Su: {total_water:,.0f} m³/yıl ({total_water/len(personnel) if len(personnel) > 0 else 0:,.0f} m³/personel)
+• İnsan Sermayesi: {len(personnel)} aktif personel
 
-Somut, ölçülebilir ve uygulanabilir plan yap.
+STRATEJİK FRAMEWORK:
+1. DÖNÜŞÜM ROADMAP'İ (5 YIL):
+   - 2025 Acil Öncelikler (Q1-Q4)
+   - 2026-2027 Orta Vadeli Hedefler
+   - 2028-2030 Uzun Vadeli Vizyonu
+
+2. PERFORMANCE TARGETS (KPI-Based):
+   - Carbon Neutral hedefi (yıl bazında)
+   - Su verimliliği: %20 azalım (2030)
+   - Enerji verimliliği: %30 azalım (2030)
+   - Atık: Zero-to-Landfill hedefi
+   - Çalışan engagement: %90+ awareness
+
+3. INVESTMENT PORTFOLIO:
+   - CAPEX yatırımları (Solar, BMS, Water Treatment)
+   - OPEX optimizasyonları
+   - ROI hesaplamaları ve payback period
+   - Financing options (Green bonds, ESG funds)
+
+4. GOVERNANCE & MONITORING:
+   - ESG komitesi kurulum
+   - Reporting framework (GRI, SASB, TCFD)
+   - Third-party verification süreçleri
+   - Stakeholder engagement stratejisi
+
+5. INNOVATION & TECHNOLOGY:
+   - Digital twin modeling
+   - AI-powered energy management
+   - IoT sensor networks
+   - Blockchain-based carbon tracking
+
+ÇIKTI KRİTERLERİ:
+• Strategy consulting kalitesinde
+• Quantitative metrics odaklı
+• Implementation roadmap'i net
+• Financial business case güçlü
+• Industry best practices referanslı
+• 8-10 paragraf comprehensive strateji
             """
+            sections['action_plan'] = await self._send_message(strategy_system, strategy_prompt)
             
-            sections['action_plan'] = await self._send_message(action_system, action_prompt)
+            # Best Practices & Innovation
+            innovation_system = """Sen sürdürülebilirlik alanında global innovation lead'issin. Dünya çapında hospitality sektöründe breakthrough teknolojiler ve best practice'leri araştırıyorsun. MIT, Stanford gibi üniversitelerle işbirliği yapıyorsun."""
             
-            # Best Practices Recommendations
-            best_practices_system = "Sen otel sürdürülebilirlik uzmanısın."
-            best_practices_prompt = f"""
-{hotel_name} için sektör best practice önerileri:
+            innovation_prompt = f"""
+{hotel_name} için Sürdürülebilirlik İnovasyonu ve Global Best Practices raporu hazırla:
 
-1. Enerji verimliliği best practices
-2. Su tasarrufu innovative yöntemler
-3. Atık azaltma stratejileri
-4. Yeşil sertifikasyon yolları
-5. Misafir engagement taktikleri
+INNOVATION FOCUS AREAS:
+1. CUTTING-EDGE TECHNOLOGIES:
+   - Smart Building Management Systems
+   - AI-Powered Predictive Analytics
+   - Blockchain Carbon Credits
+   - Digital Twin Optimization
+   - IoT Ecosystem Integration
 
-Dünya örnekleri ve başarı hikayeleri ile destekle.
+2. GLOBAL BEST PRACTICES (Case Studies):
+   - Marriott: 30x30 Initiative success
+   - Hilton: Travel with Purpose program
+   - Accor: Planet 21 framework
+   - Six Senses: Sustainability Fund model
+   - 1 Hotels: Biophilic design principles
+
+3. EMERGING TRENDS 2025:
+   - Regenerative Tourism concepts
+   - Circular Economy models
+   - Nature-positive hospitality
+   - Carbon negative operations
+   - Biodiversity net gain strategies
+
+4. TECHNOLOGY INTEGRATION ROADMAP:
+   - Phase 1: Foundation (Building automation)
+   - Phase 2: Intelligence (AI/ML integration)
+   - Phase 3: Ecosystem (Stakeholder connectivity)
+   - Phase 4: Innovation (R&D partnerships)
+
+5. PARTNERSHIP OPPORTUNITIES:
+   - Clean tech startups
+   - Academic institutions
+   - NGO collaborations
+   - Supply chain partnerships
+   - Guest engagement platforms
+
+IMPLEMENTATION FOCUS:
+• Technology adoption feasibility
+• Cost-benefit analysis
+• Pilot program önerileri
+• Success measurement frameworks
+• Scaling stratejileri
+
+FORMAT:
+• Innovation consulting standartları
+• Global case study referansları
+• Technology readiness assessment
+• Implementation timeline
+• 6-8 paragraf comprehensive analysis
             """
-            
-            sections['best_practices'] = await self._send_message(best_practices_system, best_practices_prompt)
+            sections['best_practices'] = await self._send_message(innovation_system, innovation_prompt)
             
             return {
                 **client_data,
                 'ai_enhanced_sections': sections,
                 'generated_at': datetime.now().isoformat(),
-                'ai_model': self.model
+                'ai_model': self.model,
+                'report_quality': 'executive_grade',
+                'analysis_depth': 'comprehensive'
             }
             
         except Exception as e:
