@@ -17869,6 +17869,7 @@ const AIAssistant = () => {
   const [selectedClient, setSelectedClient] = useState(null);
   const [clients, setClients] = useState([]); // Initialize as empty array
   const [loading, setLoading] = useState(false);
+  const [clientsLoading, setClientsLoading] = useState(true); // Add separate loading for clients
   const [aiResponse, setAiResponse] = useState(null);
   const [error, setError] = useState(null);
   const API = getApiUrl();
@@ -17876,18 +17877,28 @@ const AIAssistant = () => {
   // Fetch clients
   useEffect(() => {
     fetchClients();
-  }, []);
+  }, [authToken]);
 
   const fetchClients = async () => {
-    if (!authToken) return;
+    if (!authToken) {
+      setClientsLoading(false);
+      return;
+    }
     
+    setClientsLoading(true);
     try {
       const response = await axios.get(`${API}/clients`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      setClients(response.data);
+      // Ensure response.data is array
+      const clientsData = Array.isArray(response.data) ? response.data : [];
+      setClients(clientsData);
     } catch (err) {
       console.error('Failed to fetch clients:', err);
+      setClients([]); // Set empty array on error
+      setError('Müşteri listesi yüklenemedi');
+    } finally {
+      setClientsLoading(false);
     }
   };
 
