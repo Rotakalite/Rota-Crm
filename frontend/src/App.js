@@ -18016,7 +18016,7 @@ const AIAssistant = () => {
                   🏨 Müşteri Seçin
                 </h3>
                 <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {clients.map((client) => (
+                  {clients && clients.length > 0 ? clients.map((client) => (
                     <button
                       key={client.id}
                       onClick={() => setSelectedClient(client)}
@@ -18027,13 +18027,18 @@ const AIAssistant = () => {
                       }`}
                     >
                       <div className="font-medium text-gray-800">
-                        {client.hotel_name}
+                        {client.hotel_name || client.name}
                       </div>
                       <div className="text-sm text-gray-600">
                         {client.contact_person}
                       </div>
                     </button>
-                  ))}
+                  )) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <div className="text-4xl mb-2">🏨</div>
+                      <p className="text-sm">Müşteri yükleniyor...</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
