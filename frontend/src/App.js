@@ -17986,6 +17986,8 @@ const ConsultantApp = () => {
         return <ConsultantClientManagement onNavigate={handleNavigate} />;
       case 'client-assignment':
         return <ConsultantClientAssignment />;
+      case 'ai-assistant':
+        return <AIAssistant />;
       case 'reports':
         return <ConsultantReports />;
       case 'profile':
