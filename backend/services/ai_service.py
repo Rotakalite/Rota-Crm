@@ -6,6 +6,7 @@ Direct OpenAI integration for better stability
 import os
 import logging
 from typing import Dict, List, Any, Optional
+from datetime import datetime
 from openai import AsyncOpenAI
 
 class SustainabilityAIService:
