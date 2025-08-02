@@ -18018,11 +18018,20 @@ const AIAssistant = () => {
       
     } catch (err) {
       console.error('AI Report Error:', err);
-      if (err.code === 'ECONNABORTED') {
-        setError('AI rapor oluşturma işlemi çok uzun sürdü. Lütfen tekrar deneyin.');
+      
+      // Daha açıklayıcı hata mesajı
+      let errorMessage = 'AI rapor üretimi hatası: ';
+      if (err.response?.status === 401) {
+        errorMessage = 'OpenAI API key problemi - lütfen sistem yöneticisiyle iletişime geçin.';
+      } else if (err.response?.status === 503) {
+        errorMessage = 'AI servisi şu anda kullanılamıyor.';
+      } else if (err.code === 'ECONNABORTED') {
+        errorMessage = 'İşlem zaman aşımına uğradı. Rapor çok büyük olabilir, lütfen tekrar deneyin.';
       } else {
-        setError(err.response?.data?.detail || 'AI rapor oluşturma hatası');
+        errorMessage += (err.response?.data?.detail || err.message);
       }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
