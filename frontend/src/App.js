@@ -18027,27 +18027,35 @@ const AIAssistant = () => {
                   🏨 Müşteri Seçin
                 </h3>
                 <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {clients && clients.length > 0 ? clients.map((client) => (
-                    <button
-                      key={client.id}
-                      onClick={() => setSelectedClient(client)}
-                      className={`w-full text-left p-3 rounded-lg transition-all ${
-                        selectedClient?.id === client.id
-                          ? 'bg-gradient-to-r from-purple-100 to-blue-100 border-2 border-purple-300'
-                          : 'bg-gray-50 hover:bg-gray-100'
-                      }`}
-                    >
-                      <div className="font-medium text-gray-800">
-                        {client.hotel_name || client.name}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {client.contact_person}
-                      </div>
-                    </button>
-                  )) : (
+                  {clientsLoading ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <div className="animate-spin text-2xl mb-2">🔄</div>
+                      <p className="text-sm">Müşteriler yükleniyor...</p>
+                    </div>
+                  ) : Array.isArray(clients) && clients.length > 0 ? (
+                    clients.map((client) => (
+                      <button
+                        key={client?.id || Math.random()}
+                        onClick={() => setSelectedClient(client)}
+                        className={`w-full text-left p-3 rounded-lg transition-all ${
+                          selectedClient?.id === client?.id
+                            ? 'bg-gradient-to-r from-purple-100 to-blue-100 border-2 border-purple-300'
+                            : 'bg-gray-50 hover:bg-gray-100'
+                        }`}
+                      >
+                        <div className="font-medium text-gray-800">
+                          {client?.hotel_name || client?.name || 'İsimsiz Müşteri'}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {client?.contact_person || 'İletişim bilgisi yok'}
+                        </div>
+                      </button>
+                    ))
+                  ) : (
                     <div className="text-center py-8 text-gray-500">
                       <div className="text-4xl mb-2">🏨</div>
-                      <p className="text-sm">Müşteri yükleniyor...</p>
+                      <p className="text-sm">Henüz müşteri bulunmuyor</p>
+                      <p className="text-xs text-gray-400 mt-1">Admin panelinden müşteri ekleyebilirsiniz</p>
                     </div>
                   )}
                 </div>
