@@ -1125,7 +1125,683 @@ async def health_check_main():
     }
 
 # ==========================================
-# CONSULTANT MANAGEMENT - MAIN APP ENDPOINTS
+# USER ROLE & PERMISSION MANAGEMENT SYSTEM
+# ==========================================
+
+class PermissionModel(BaseModel):
+    """İzin modeli"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str = Field(..., description="İzin adı")
+    description: str = Field(..., description="İzin açıklaması") 
+    category: str = Field(..., description="İzin kategorisi (documents, personnel, reports, etc.)")
+    resource: str = Field(..., description="Kaynak adı")
+    action: str = Field(..., description="İşlem türü (create, read, update, delete, manage)")
+    is_active: bool = Field(default=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class RolePermissionModel(BaseModel):
+    """Rol-İzin ilişkisi modeli"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    role_name: str = Field(..., description="Rol adı")
+    permission_id: str = Field(..., description="İzin ID")
+    granted: bool = Field(default=True, description="İzin verildi mi")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class CustomRoleModel(BaseModel):
+    """Özel rol modeli"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str = Field(..., description="Rol adı")
+    display_name: str = Field(..., description="Gösterim adı")
+    description: str = Field(..., description="Rol açıklaması")
+    is_system_role: bool = Field(default=False, description="Sistem rolü mü")
+    is_active: bool = Field(default=True)
+    permissions: List[str] = Field(default_factory=list, description="İzin ID listesi")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class UserRoleAssignmentModel(BaseModel):
+    """Kullanıcı rol atama modeli"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str = Field(..., description="Kullanıcı ID")
+    role_name: str = Field(..., description="Rol adı") 
+    assigned_by: str = Field(..., description="Atayan kullanıcı ID")
+    assigned_at: datetime = Field(default_factory=datetime.utcnow)
+    expires_at: Optional[datetime] = Field(None, description="Rol bitiş tarihi")
+    is_active: bool = Field(default=True)
+
+# ==========================================
+# PERMISSION MANAGEMENT ENDPOINTS
+# ==========================================
+
+@api_router.get("/settings/permissions")
+async def get_all_permissions(current_user: User = Depends(get_admin_user)):
+    """Tüm izinleri getir - SADECE ADMİN"""
+    try:
+        permissions = await db.permissions.find({}).to_list(length=None)
+        
+        # Kategori bazında grupla
+        categorized_permissions = {}
+        for perm in permissions:
+            if "_id" in perm:
+                del perm["_id"]
+            
+            category = perm.get("category", "other")
+            if category not in categorized_permissions:
+                categorized_permissions[category] = []
+            categorized_permissions[category].append(perm)
+        
+        return {
+            "total_count": len(permissions),
+            "categories": categorized_permissions,
+            "permissions": permissions
+        }
+        
+    except Exception as e:
+        logging.error(f"Error fetching permissions: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"İzinler alınırken hata: {str(e)}")
+
+@api_router.post("/settings/permissions")
+async def create_permission(
+    permission_data: PermissionModel,
+    current_user: User = Depends(get_admin_user)
+):
+    """Yeni izin oluştur - SADECE ADMİN"""
+    try:
+        # İzin zaten var mı kontrol et
+        existing = await db.permissions.find_one({
+            "name": permission_data.name,
+            "resource": permission_data.resource,
+            "action": permission_data.action
+        })
+        
+        if existing:
+            raise HTTPException(status_code=400, detail="Bu izin zaten mevcut")
+        
+        # Yeni izin oluştur
+        permission = permission_data.dict()
+        await db.permissions.insert_one(permission)
+        
+        logging.info(f"✅ New permission created: {permission['name']} by {current_user.name}")
+        
+        return {"message": "İzin başarıyla oluşturuldu", "permission_id": permission["id"]}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error creating permission: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"İzin oluşturulurken hata: {str(e)}")
+
+@api_router.put("/settings/permissions/{permission_id}")
+async def update_permission(
+    permission_id: str,
+    permission_data: dict,
+    current_user: User = Depends(get_admin_user)
+):
+    """İzin güncelle - SADECE ADMİN"""
+    try:
+        # İzin var mı kontrol et
+        existing = await db.permissions.find_one({"id": permission_id})
+        if not existing:
+            raise HTTPException(status_code=404, detail="İzin bulunamadı")
+        
+        # İzin güncelle
+        update_data = {k: v for k, v in permission_data.items() if k != "id"}
+        update_data["updated_at"] = datetime.utcnow()
+        
+        await db.permissions.update_one(
+            {"id": permission_id},
+            {"$set": update_data}
+        )
+        
+        logging.info(f"✅ Permission updated: {permission_id} by {current_user.name}")
+        
+        return {"message": "İzin başarıyla güncellendi"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating permission: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"İzin güncellenirken hata: {str(e)}")
+
+@api_router.delete("/settings/permissions/{permission_id}")
+async def delete_permission(
+    permission_id: str,
+    current_user: User = Depends(get_admin_user)
+):
+    """İzin sil - SADECE ADMİN"""
+    try:
+        # İzin var mı kontrol et
+        existing = await db.permissions.find_one({"id": permission_id})
+        if not existing:
+            raise HTTPException(status_code=404, detail="İzin bulunamadı")
+        
+        # İzin kullanılıyor mu kontrol et
+        role_perms = await db.role_permissions.find({"permission_id": permission_id}).to_list(length=None)
+        if role_perms:
+            raise HTTPException(status_code=400, detail="Bu izin roller tarafından kullanılıyor, silinemez")
+        
+        # İzni sil
+        await db.permissions.delete_one({"id": permission_id})
+        
+        logging.info(f"✅ Permission deleted: {permission_id} by {current_user.name}")
+        
+        return {"message": "İzin başarıyla silindi"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error deleting permission: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"İzin silinirken hata: {str(e)}")
+
+# ==========================================
+# ROLE MANAGEMENT ENDPOINTS  
+# ==========================================
+
+@api_router.get("/settings/roles")
+async def get_all_roles(current_user: User = Depends(get_admin_user)):
+    """Tüm rolleri getir - SADECE ADMİN"""
+    try:
+        # Sistem rolleri
+        system_roles = [
+            {
+                "name": "admin",
+                "display_name": "Sistem Yöneticisi", 
+                "description": "Tüm sistem yetkilerine sahip",
+                "is_system_role": True,
+                "is_active": True,
+                "user_count": await db.users.count_documents({"role": "admin"})
+            },
+            {
+                "name": "consultant", 
+                "display_name": "Danışman",
+                "description": "Müşteri yönetimi ve danışmanlık hizmetleri",
+                "is_system_role": True,
+                "is_active": True,
+                "user_count": await db.users.count_documents({"role": "consultant"})
+            },
+            {
+                "name": "client",
+                "display_name": "Müşteri",
+                "description": "Kendi verilerini yönetebilir",
+                "is_system_role": True, 
+                "is_active": True,
+                "user_count": await db.users.count_documents({"role": "client"})
+            }
+        ]
+        
+        # Özel roller
+        custom_roles = await db.custom_roles.find({"is_active": True}).to_list(length=None)
+        
+        for role in custom_roles:
+            if "_id" in role:
+                del role["_id"]
+            # Kullanıcı sayısını hesapla
+            role["user_count"] = await db.user_role_assignments.count_documents({
+                "role_name": role["name"],
+                "is_active": True
+            })
+        
+        total_roles = system_roles + custom_roles
+        
+        return {
+            "total_count": len(total_roles),
+            "system_roles": system_roles,
+            "custom_roles": custom_roles,
+            "all_roles": total_roles
+        }
+        
+    except Exception as e:
+        logging.error(f"Error fetching roles: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Roller alınırken hata: {str(e)}")
+
+@api_router.post("/settings/roles")
+async def create_custom_role(
+    role_data: CustomRoleModel,
+    current_user: User = Depends(get_admin_user)
+):
+    """Özel rol oluştur - SADECE ADMİN"""
+    try:
+        # Rol adı zaten var mı kontrol et
+        existing_system = role_data.name.lower() in ["admin", "consultant", "client"]
+        if existing_system:
+            raise HTTPException(status_code=400, detail="Sistem rol adları kullanılamaz")
+        
+        existing_custom = await db.custom_roles.find_one({"name": role_data.name})
+        if existing_custom:
+            raise HTTPException(status_code=400, detail="Bu rol adı zaten mevcut")
+        
+        # Yeni rol oluştur
+        role = role_data.dict()
+        role["is_system_role"] = False  # Özel rol
+        await db.custom_roles.insert_one(role)
+        
+        logging.info(f"✅ New custom role created: {role['name']} by {current_user.name}")
+        
+        return {"message": "Özel rol başarıyla oluşturuldu", "role_id": role["id"]}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error creating custom role: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Rol oluşturulurken hata: {str(e)}")
+
+@api_router.get("/settings/roles/{role_name}/permissions")
+async def get_role_permissions(
+    role_name: str,
+    current_user: User = Depends(get_admin_user)
+):
+    """Rolün izinlerini getir - SADECE ADMİN"""
+    try:
+        # Sistem rolü mü kontrol et
+        if role_name.lower() in ["admin", "consultant", "client"]:
+            # Sistem rolleri için default izinler döndür
+            permissions = await get_system_role_permissions(role_name.lower())
+        else:
+            # Özel rol için izinler
+            role = await db.custom_roles.find_one({"name": role_name})
+            if not role:
+                raise HTTPException(status_code=404, detail="Rol bulunamadı")
+            
+            # Rol izinlerini getir
+            role_perms = await db.role_permissions.find({
+                "role_name": role_name,
+                "granted": True
+            }).to_list(length=None)
+            
+            permission_ids = [rp["permission_id"] for rp in role_perms]
+            permissions = await db.permissions.find({
+                "id": {"$in": permission_ids},
+                "is_active": True
+            }).to_list(length=None)
+            
+            for perm in permissions:
+                if "_id" in perm:
+                    del perm["_id"]
+        
+        # Kategori bazında grupla
+        categorized = {}
+        for perm in permissions:
+            category = perm.get("category", "other")
+            if category not in categorized:
+                categorized[category] = []
+            categorized[category].append(perm)
+        
+        return {
+            "role_name": role_name,
+            "total_permissions": len(permissions),
+            "categorized_permissions": categorized,
+            "permissions": permissions
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error fetching role permissions: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Rol izinleri alınırken hata: {str(e)}")
+
+async def get_system_role_permissions(role_name: str) -> List[dict]:
+    """Sistem rolleri için default izinleri döndür"""
+    
+    admin_permissions = [
+        {"id": "admin_all", "name": "Tam Yetki", "description": "Tüm sistem yetkilerine sahip", "category": "system", "resource": "*", "action": "*"},
+        {"id": "manage_users", "name": "Kullanıcı Yönetimi", "description": "Kullanıcı ekleme/silme/güncelleme", "category": "users", "resource": "users", "action": "manage"},
+        {"id": "manage_roles", "name": "Rol Yönetimi", "description": "Rol ve yetki yönetimi", "category": "roles", "resource": "roles", "action": "manage"},
+        {"id": "manage_consultants", "name": "Danışman Yönetimi", "description": "Danışman ekleme/silme/atama", "category": "consultants", "resource": "consultants", "action": "manage"},
+        {"id": "manage_clients", "name": "Müşteri Yönetimi", "description": "Tüm müşteri bilgilerine erişim", "category": "clients", "resource": "clients", "action": "manage"},
+        {"id": "view_all_reports", "name": "Tüm Raporları Görme", "description": "Sistem geneli raporları görüntüleme", "category": "reports", "resource": "reports", "action": "read"},
+        {"id": "system_settings", "name": "Sistem Ayarları", "description": "Sistem ayarlarını değiştirme", "category": "settings", "resource": "settings", "action": "manage"}
+    ]
+    
+    consultant_permissions = [
+        {"id": "manage_assigned_clients", "name": "Atanan Müşteri Yönetimi", "description": "Atanan müşterileri yönetme", "category": "clients", "resource": "clients", "action": "manage_assigned"},
+        {"id": "view_client_data", "name": "Müşteri Verilerini Görme", "description": "Müşteri tüketim ve belgelerini görme", "category": "clients", "resource": "client_data", "action": "read"},
+        {"id": "create_reports", "name": "Rapor Oluşturma", "description": "Müşteri raporları oluşturma", "category": "reports", "resource": "reports", "action": "create"},
+        {"id": "manage_documents", "name": "Belge Yönetimi", "description": "Müşteri belgelerini yönetme", "category": "documents", "resource": "documents", "action": "manage"},
+        {"id": "manage_personnel", "name": "Personel Yönetimi", "description": "Müşteri personel bilgilerini yönetme", "category": "personnel", "resource": "personnel", "action": "manage"},
+        {"id": "manage_trainings", "name": "Eğitim Yönetimi", "description": "Eğitim planı ve takibi", "category": "trainings", "resource": "trainings", "action": "manage"},
+        {"id": "use_ai_features", "name": "AI Özellikleri", "description": "AI asistan ve öneriler", "category": "ai", "resource": "ai", "action": "use"}
+    ]
+    
+    client_permissions = [
+        {"id": "view_own_data", "name": "Kendi Verilerini Görme", "description": "Kendi verilerini görüntüleme", "category": "self", "resource": "own_data", "action": "read"},
+        {"id": "manage_own_personnel", "name": "Kendi Personelini Yönetme", "description": "Personel bilgilerini güncelleme", "category": "personnel", "resource": "own_personnel", "action": "manage"},
+        {"id": "manage_own_consumption", "name": "Kendi Tüketimini Yönetme", "description": "Tüketim verilerini güncelleme", "category": "consumption", "resource": "own_consumption", "action": "manage"},
+        {"id": "view_own_reports", "name": "Kendi Raporlarını Görme", "description": "Kendi sürdürülebilirlik raporları", "category": "reports", "resource": "own_reports", "action": "read"},
+        {"id": "upload_documents", "name": "Belge Yükleme", "description": "Kendi belgelerini yükleme", "category": "documents", "resource": "own_documents", "action": "create"},
+        {"id": "limited_ai_features", "name": "Sınırlı AI Özellikleri", "description": "Temel AI önerileri", "category": "ai", "resource": "ai", "action": "limited_use"}
+    ]
+    
+    if role_name == "admin":
+        return admin_permissions
+    elif role_name == "consultant":
+        return consultant_permissions
+    elif role_name == "client":
+        return client_permissions
+    else:
+        return []
+
+@api_router.put("/settings/roles/{role_name}/permissions")
+async def update_role_permissions(
+    role_name: str,
+    permissions_data: dict,
+    current_user: User = Depends(get_admin_user)
+):
+    """Rol izinlerini güncelle - SADECE ADMİN"""
+    try:
+        # Sistem rollerinin izinleri değiştirilemez
+        if role_name.lower() in ["admin", "consultant", "client"]:
+            raise HTTPException(status_code=400, detail="Sistem rollerinin izinleri değiştirilemez")
+        
+        # Özel rol var mı kontrol et
+        role = await db.custom_roles.find_one({"name": role_name})
+        if not role:
+            raise HTTPException(status_code=404, detail="Rol bulunamadı")
+        
+        permission_ids = permissions_data.get("permission_ids", [])
+        
+        # Mevcut rol-izin ilişkilerini sil
+        await db.role_permissions.delete_many({"role_name": role_name})
+        
+        # Yeni izinleri ekle
+        for perm_id in permission_ids:
+            role_perm = RolePermissionModel(
+                role_name=role_name,
+                permission_id=perm_id,
+                granted=True
+            ).dict()
+            await db.role_permissions.insert_one(role_perm)
+        
+        # Özel rolü güncelle
+        await db.custom_roles.update_one(
+            {"name": role_name},
+            {"$set": {
+                "permissions": permission_ids,
+                "updated_at": datetime.utcnow()
+            }}
+        )
+        
+        logging.info(f"✅ Role permissions updated: {role_name} by {current_user.name}")
+        
+        return {"message": "Rol izinleri başarıyla güncellendi"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating role permissions: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Rol izinleri güncellenirken hata: {str(e)}")
+
+# ==========================================
+# USER ROLE ASSIGNMENT ENDPOINTS
+# ==========================================
+
+@api_router.get("/settings/users")
+async def get_users_for_role_management(
+    page: int = 1,
+    limit: int = 20,
+    search: str = None,
+    role_filter: str = None,
+    current_user: User = Depends(get_admin_user)
+):
+    """Rol yönetimi için kullanıcıları getir - SADECE ADMİN"""
+    try:
+        skip = (page - 1) * limit
+        query = {}
+        
+        # Arama filtresi
+        if search:
+            query["$or"] = [
+                {"name": {"$regex": search, "$options": "i"}},
+                {"email": {"$regex": search, "$options": "i"}}
+            ]
+        
+        # Rol filtresi
+        if role_filter and role_filter != "all":
+            query["role"] = role_filter
+        
+        # Toplam sayım
+        total_count = await db.users.count_documents(query)
+        
+        # Kullanıcıları getir
+        users = await db.users.find(query).skip(skip).limit(limit).to_list(length=None)
+        
+        clean_users = []
+        for user in users:
+            if "_id" in user:
+                del user["_id"]
+            
+            # Danışman bilgisi ekle
+            if user.get("consultant_id"):
+                consultant = await db.consultants.find_one({"id": user["consultant_id"]})
+                user["consultant_info"] = {
+                    "company_name": consultant.get("company_name", ""),
+                    "authorized_person_name": consultant.get("authorized_person_name", "")
+                } if consultant else None
+            
+            # Müşteri bilgisi ekle
+            if user.get("client_id"):
+                client = await db.clients.find_one({"id": user["client_id"]})
+                user["client_info"] = {
+                    "hotel_name": client.get("hotel_name", client.get("name", "")),
+                    "email": client.get("email", "")
+                } if client else None
+            
+            clean_users.append(user)
+        
+        return {
+            "users": clean_users,
+            "pagination": {
+                "current_page": page,
+                "total_pages": (total_count + limit - 1) // limit,
+                "total_count": total_count,
+                "has_next": skip + limit < total_count,
+                "has_prev": page > 1
+            }
+        }
+        
+    except Exception as e:
+        logging.error(f"Error fetching users for role management: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Kullanıcılar alınırken hata: {str(e)}")
+
+@api_router.put("/settings/users/{user_id}/role")
+async def assign_user_role(
+    user_id: str,
+    role_data: dict,
+    current_user: User = Depends(get_admin_user)
+):
+    """Kullanıcıya rol ata - SADECE ADMİN"""
+    try:
+        new_role = role_data.get("role")
+        if not new_role:
+            raise HTTPException(status_code=400, detail="Rol belirtilmelidir")
+        
+        # Kullanıcı var mı kontrol et
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+        
+        # Kendine admin rolü atayamaz
+        if user_id == current_user.id and new_role != "admin":
+            raise HTTPException(status_code=400, detail="Kendi admin rolünüzü değiştiremezsiniz")
+        
+        # Rol geçerli mi kontrol et
+        valid_system_roles = ["admin", "consultant", "client"]
+        
+        if new_role not in valid_system_roles:
+            # Özel rol var mı kontrol et
+            custom_role = await db.custom_roles.find_one({"name": new_role, "is_active": True})
+            if not custom_role:
+                raise HTTPException(status_code=400, detail="Geçersiz rol")
+        
+        old_role = user.get("role")
+        
+        # Kullanıcı rolünü güncelle
+        update_data = {
+            "role": new_role,
+            "updated_at": datetime.utcnow()
+        }
+        
+        # Rol değişikliğine göre ek alanları temizle/güncelle
+        if new_role != "consultant":
+            update_data["consultant_id"] = None
+        if new_role != "client":
+            update_data["client_id"] = ""
+        
+        await db.users.update_one(
+            {"id": user_id},
+            {"$set": update_data}
+        )
+        
+        # Rol atama geçmişi kaydet (özel roller için)
+        if new_role not in valid_system_roles:
+            assignment = UserRoleAssignmentModel(
+                user_id=user_id,
+                role_name=new_role,
+                assigned_by=current_user.id
+            ).dict()
+            await db.user_role_assignments.insert_one(assignment)
+        
+        logging.info(f"✅ User role changed: {user['name']} ({user_id}) from {old_role} to {new_role} by {current_user.name}")
+        
+        return {"message": f"Kullanıcı rolü '{new_role}' olarak güncellendi"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error assigning user role: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Rol ataması sırasında hata: {str(e)}")
+
+# ==========================================
+# ROLE INITIALIZATION - İLK KURULUM
+# ==========================================
+
+@api_router.post("/settings/initialize-default-permissions")
+async def initialize_default_permissions(current_user: User = Depends(get_admin_user)):
+    """Varsayılan izinleri oluştur - SADECE ADMİN"""
+    try:
+        # Zaten var mı kontrol et
+        existing_count = await db.permissions.count_documents({})
+        if existing_count > 0:
+            return {"message": f"Zaten {existing_count} izin mevcut", "skipped": True}
+        
+        # Varsayılan izinler
+        default_permissions = [
+            # Kullanıcı Yönetimi
+            {"name": "Kullanıcı Görüntüleme", "description": "Kullanıcıları görüntüleyebilir", "category": "users", "resource": "users", "action": "read"},
+            {"name": "Kullanıcı Ekleme", "description": "Yeni kullanıcı ekleyebilir", "category": "users", "resource": "users", "action": "create"},
+            {"name": "Kullanıcı Güncelleme", "description": "Kullanıcı bilgilerini güncelleyebilir", "category": "users", "resource": "users", "action": "update"},
+            {"name": "Kullanıcı Silme", "description": "Kullanıcıları silebilir", "category": "users", "resource": "users", "action": "delete"},
+            {"name": "Kullanıcı Yönetimi", "description": "Tüm kullanıcı işlemleri", "category": "users", "resource": "users", "action": "manage"},
+            
+            # Müşteri Yönetimi
+            {"name": "Müşteri Görüntüleme", "description": "Müşterileri görüntüleyebilir", "category": "clients", "resource": "clients", "action": "read"},
+            {"name": "Müşteri Ekleme", "description": "Yeni müşteri ekleyebilir", "category": "clients", "resource": "clients", "action": "create"},
+            {"name": "Müşteri Güncelleme", "description": "Müşteri bilgilerini güncelleyebilir", "category": "clients", "resource": "clients", "action": "update"},
+            {"name": "Müşteri Silme", "description": "Müşterileri silebilir", "category": "clients", "resource": "clients", "action": "delete"},
+            {"name": "Müşteri Yönetimi", "description": "Tüm müşteri işlemleri", "category": "clients", "resource": "clients", "action": "manage"},
+            
+            # Belge Yönetimi
+            {"name": "Belge Görüntüleme", "description": "Belgeleri görüntüleyebilir", "category": "documents", "resource": "documents", "action": "read"},
+            {"name": "Belge Yükleme", "description": "Yeni belge yükleyebilir", "category": "documents", "resource": "documents", "action": "create"},
+            {"name": "Belge Güncelleme", "description": "Belge bilgilerini güncelleyebilir", "category": "documents", "resource": "documents", "action": "update"},
+            {"name": "Belge Silme", "description": "Belgeleri silebilir", "category": "documents", "resource": "documents", "action": "delete"},
+            {"name": "Belge Yönetimi", "description": "Tüm belge işlemleri", "category": "documents", "resource": "documents", "action": "manage"},
+            
+            # Personel Yönetimi
+            {"name": "Personel Görüntüleme", "description": "Personel bilgilerini görüntüleyebilir", "category": "personnel", "resource": "personnel", "action": "read"},
+            {"name": "Personel Ekleme", "description": "Yeni personel ekleyebilir", "category": "personnel", "resource": "personnel", "action": "create"},
+            {"name": "Personel Güncelleme", "description": "Personel bilgilerini güncelleyebilir", "category": "personnel", "resource": "personnel", "action": "update"},
+            {"name": "Personel Silme", "description": "Personel kayıtlarını silebilir", "category": "personnel", "resource": "personnel", "action": "delete"},
+            
+            # Raporlama
+            {"name": "Rapor Görüntüleme", "description": "Raporları görüntüleyebilir", "category": "reports", "resource": "reports", "action": "read"},
+            {"name": "Rapor Oluşturma", "description": "Yeni rapor oluşturabilir", "category": "reports", "resource": "reports", "action": "create"},
+            {"name": "Rapor İndirme", "description": "Raporları indirebilir", "category": "reports", "resource": "reports", "action": "download"},
+            
+            # AI Özellikleri
+            {"name": "AI Kullanımı", "description": "AI özelliklerini kullanabilir", "category": "ai", "resource": "ai", "action": "use"},
+            {"name": "AI Rapor Üretimi", "description": "AI ile rapor üretebilir", "category": "ai", "resource": "ai_reports", "action": "generate"},
+            
+            # Sistem Ayarları
+            {"name": "Sistem Ayarları", "description": "Sistem ayarlarını değiştirebilir", "category": "settings", "resource": "settings", "action": "manage"},
+            {"name": "Rol Yönetimi", "description": "Rol ve yetkileri yönetebilir", "category": "settings", "resource": "roles", "action": "manage"}
+        ]
+        
+        # İzinleri oluştur
+        created_count = 0
+        for perm_data in default_permissions:
+            permission = PermissionModel(**perm_data).dict()
+            await db.permissions.insert_one(permission)
+            created_count += 1
+        
+        logging.info(f"✅ Default permissions initialized: {created_count} permissions created")
+        
+        return {
+            "message": f"{created_count} varsayılan izin başarıyla oluşturuldu",
+            "created_count": created_count
+        }
+        
+    except Exception as e:
+        logging.error(f"Error initializing default permissions: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Varsayılan izinler oluşturulurken hata: {str(e)}")
+
+@api_router.get("/settings/role-stats")
+async def get_role_statistics(current_user: User = Depends(get_admin_user)):
+    """Rol istatistiklerini getir - SADECE ADMİN"""
+    try:
+        # Kullanıcı rol dağılımı
+        user_role_stats = await db.users.aggregate([
+            {"$group": {"_id": "$role", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}}
+        ]).to_list(length=None)
+        
+        # Toplam kullanıcı sayısı
+        total_users = await db.users.count_documents({})
+        
+        # İzin sayısı
+        total_permissions = await db.permissions.count_documents({"is_active": True})
+        
+        # Özel rol sayısı
+        custom_roles_count = await db.custom_roles.count_documents({"is_active": True})
+        
+        # Son rol atamaları
+        recent_assignments = await db.user_role_assignments.find({}).sort("assigned_at", -1).limit(5).to_list(length=None)
+        
+        for assignment in recent_assignments:
+            if "_id" in assignment:
+                del assignment["_id"]
+            
+            # Kullanıcı bilgisi ekle
+            user = await db.users.find_one({"id": assignment["user_id"]})
+            assignment["user_name"] = user.get("name", "Bilinmeyen") if user else "Bilinmeyen"
+            
+            # Atayan bilgisi ekle
+            assigned_by_user = await db.users.find_one({"id": assignment["assigned_by"]})
+            assignment["assigned_by_name"] = assigned_by_user.get("name", "Sistem") if assigned_by_user else "Sistem"
+        
+        return {
+            "overview": {
+                "total_users": total_users,
+                "total_permissions": total_permissions,
+                "custom_roles_count": custom_roles_count,
+                "system_roles_count": 3  # admin, consultant, client
+            },
+            "user_role_distribution": [
+                {
+                    "role": stat["_id"] or "Rolsüz",
+                    "count": stat["count"],
+                    "percentage": round((stat["count"] / total_users) * 100, 1) if total_users > 0 else 0
+                }
+                for stat in user_role_stats
+            ],
+            "recent_assignments": recent_assignments
+        }
+        
+    except Exception as e:
+        logging.error(f"Error fetching role statistics: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Rol istatistikleri alınırken hata: {str(e)}")
+
+# ==========================================
+# ROLE & PERMISSION SYSTEM - Backend Implementation Complete
 # ==========================================
 
 @app.post("/api/consultants")
