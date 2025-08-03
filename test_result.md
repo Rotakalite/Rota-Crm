@@ -166,6 +166,21 @@
 user_problem_statement: "Bulk olarak eklenen müşteriler ile kendi kaydolan müşterilerin ayrılıp birbirine karışmaması lazım. Bulk müşteriler sadece toplu tanıtım mailleri için, kayıtlı müşteriler tüm modüller için kullanılacak."
 
 backend:
+  - task: "Admin Settings - User Role and Permission Management Test"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "user"
+        -comment: "2025-08-03: Admin Settings - User Role and Permission Management Test. Test the new Admin Settings backend implementation for user role and permission management. WHAT TO TEST: 1. PERMISSION MANAGEMENT: Test GET /api/settings/permissions - Get all permissions, Test POST /api/settings/initialize-default-permissions - Initialize default permissions, Verify permission categorization (users, clients, documents, personnel, reports, ai, settings), Check permission structure (name, description, category, resource, action). 2. ROLE MANAGEMENT: Test GET /api/settings/roles - Get all roles (system + custom), Verify system roles: admin, consultant, client with user counts, Check role data structure and descriptions, Test custom role capabilities. 3. USER ROLE ASSIGNMENT: Test GET /api/settings/users - Get users for role management with pagination, Verify user data includes consultant_info and client_info, Test PUT /api/settings/users/{user_id}/role - Assign roles to users, Check user role filtering and search functionality. 4. ROLE STATISTICS: Test GET /api/settings/role-stats - Get comprehensive role statistics, Verify overview statistics (total_users, total_permissions, custom_roles_count), Check user role distribution with percentages, Test recent assignments tracking. 5. PERMISSION SYSTEM: Test role permission mapping for system roles, Verify admin permissions include all system access, Check consultant permissions for client management, Verify client permissions for self-data access. 6. ERROR HANDLING: Test admin-only access restrictions, Verify proper error messages for unauthorized access, Test validation for invalid role assignments, Check permission conflicts and constraints. Use various user roles to test access control: Admin user ID: {test_admin_id}, Test client for role assignment: 94927a77-edc3-45ec-8329-795feae35771. EXPECTED FEATURES: Complete permission management system, Role-based access control, User role assignment interface, Statistical reporting, Secure admin-only access, Proper error handling and validation."
+        -working: false
+        -agent: "testing"
+        -comment: "2025-08-03: 🚨 ADMIN SETTINGS BACKEND TEST COMPLETED - 56.9% SUCCESS RATE! ❌ CRITICAL DEPLOYMENT ISSUE: All Admin Settings endpoints return 404 Not Found on Railway production! Affected endpoints: GET /api/settings/permissions, GET /api/settings/roles, GET /api/settings/users, GET /api/settings/role-stats, PUT /api/settings/users/{user_id}/role, POST /api/settings/initialize-default-permissions. ✅ BACKEND HEALTH: Railway backend fully operational (200 OK root, health endpoints). ✅ CODE IMPLEMENTATION VERIFIED: Admin Settings endpoints are properly implemented in /app/backend/server.py with correct @api_router decorators: Permission management (lines 1176-1295), Role management (lines 1300-1531), User role assignment (lines 1537-1676), Role statistics (lines 1747+). ✅ API ROUTER MOUNTING: API router properly mounted with app.include_router(api_router, prefix='/api') at line 14242. ✅ PERMISSION SYSTEM LOGIC: All expected permission structures and role mappings are correctly defined in code. ❌ ROOT CAUSE: Admin Settings feature is NOT DEPLOYED to Railway production. The endpoints exist in local codebase but are not accessible on production server. This is a deployment/infrastructure issue, not a code implementation issue. 🚨 IMPACT: Users cannot access ANY admin settings functionality! Complete role and permission management system is unavailable. ⚡ URGENT DEPLOYMENT NEEDED: Admin Settings endpoints must be deployed to Railway production to enable role-based access control system."
+
   - task: "OpenAI AI Integration Test - Railway Production"
     implemented: true
     working: true
