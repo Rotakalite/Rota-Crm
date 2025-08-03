@@ -18865,6 +18865,8 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
         return <AIAssistant />;
       case 'reports':
         return <ReportsManagement />;
+      case 'settings':
+        return <AdminSettings />;
       default:
         return <Dashboard onNavigate={handleNavigate} />;
     }
