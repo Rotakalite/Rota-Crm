@@ -18,7 +18,7 @@ TEST_YEAR_CURRENT = 2024
 TEST_YEAR_PREVIOUS = 2025
 
 # Railway backend URL
-RAILWAY_API_URL = "https://d787e851-4fbb-4d90-a594-90394e6ba15e.preview.emergentagent.com/api"
+RAILWAY_API_URL = "https://59ac40e0-967c-4254-8b25-c980adb51f08.preview.emergentagent.com/api"
 
 # Test JWT token - this is a sample token for testing
 # In a real scenario, you would generate this from Clerk
