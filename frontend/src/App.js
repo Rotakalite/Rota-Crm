@@ -18647,6 +18647,35 @@ const AdminSettings = () => {
     }
   };
 
+  const deleteUser = async (userId) => {
+    try {
+      await axios.delete(`${API}/settings/users/${userId}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      alert('✅ Kullanıcı başarıyla silindi!');
+      fetchUsersForRoleManagement(userPage, userSearch, userRoleFilter);
+    } catch (error) {
+      console.error('Kullanıcı silme hatası:', error);
+      alert(`❌ Kullanıcı silme hatası: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
+  const deleteRole = async (roleName) => {
+    try {
+      await axios.delete(`${API}/settings/roles/${roleName}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      alert('✅ Rol başarıyla silindi!');
+      fetchRoles();
+      fetchRoleStats();
+    } catch (error) {
+      console.error('Rol silme hatası:', error);
+      alert(`❌ Rol silme hatası: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
   const initializeDefaultPermissions = async () => {
     try {
       const response = await axios.post(`${API}/settings/initialize-default-permissions`, {}, {
