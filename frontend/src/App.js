@@ -18897,6 +18897,20 @@ const AdminSettings = () => {
                     </td>
                   </tr>
                 ))}
+                {!Array.isArray(users) && (
+                  <tr>
+                    <td colSpan="5" className="py-4 text-center text-gray-500">
+                      Kullanıcı verileri yüklenemedi
+                    </td>
+                  </tr>
+                )}
+                {Array.isArray(users) && users.length === 0 && (
+                  <tr>
+                    <td colSpan="5" className="py-4 text-center text-gray-500">
+                      Kullanıcı bulunamadı
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
 
