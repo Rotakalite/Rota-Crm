@@ -1670,6 +1670,162 @@ async def assign_user_role(
         logging.error(f"Error assigning user role: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Rol ataması sırasında hata: {str(e)}")
 
+@api_router.put("/settings/users/{user_id}/role")
+async def assign_user_role(
+    user_id: str,
+    role_data: dict,
+    current_user: User = Depends(get_admin_user)
+):
+    """Kullanıcıya rol ata - SADECE ADMİN"""
+    try:
+        new_role = role_data.get("role")
+        if not new_role:
+            raise HTTPException(status_code=400, detail="Rol belirtilmelidir")
+        
+        # Kullanıcı var mı kontrol et
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+        
+        # Kendine admin rolü atayamaz
+        if user_id == current_user.id and new_role != "admin":
+            raise HTTPException(status_code=400, detail="Kendi admin rolünüzü değiştiremezsiniz")
+        
+        # Rol geçerli mi kontrol et
+        valid_system_roles = ["admin", "consultant", "client"]
+        
+        if new_role not in valid_system_roles:
+            # Özel rol var mı kontrol et
+            custom_role = await db.custom_roles.find_one({"name": new_role, "is_active": True})
+            if not custom_role:
+                raise HTTPException(status_code=400, detail="Geçersiz rol")
+        
+        old_role = user.get("role")
+        
+        # Kullanıcı rolünü güncelle
+        update_data = {
+            "role": new_role,
+            "updated_at": datetime.utcnow()
+        }
+        
+        # Rol değişikliğine göre ek alanları temizle/güncelle
+        if new_role != "consultant":
+            update_data["consultant_id"] = None
+        if new_role != "client":
+            update_data["client_id"] = ""
+        
+        await db.users.update_one(
+            {"id": user_id},
+            {"$set": update_data}
+        )
+        
+        # Rol atama geçmişi kaydet (özel roller için)
+        if new_role not in valid_system_roles:
+            assignment = UserRoleAssignmentModel(
+                user_id=user_id,
+                role_name=new_role,
+                assigned_by=current_user.id
+            ).dict()
+            await db.user_role_assignments.insert_one(assignment)
+        
+        logging.info(f"✅ User role changed: {user['name']} ({user_id}) from {old_role} to {new_role} by {current_user.name}")
+        
+        return {"message": f"Kullanıcı rolü '{new_role}' olarak güncellendi"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error assigning user role: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Rol ataması sırasında hata: {str(e)}")
+
+@api_router.delete("/settings/users/{user_id}")
+async def delete_user(
+    user_id: str,
+    current_user: User = Depends(get_admin_user)
+):
+    """Kullanıcı sil - SADECE ADMİN"""
+    try:
+        # Kullanıcı var mı kontrol et
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+        
+        # Kendini silemez
+        if user_id == current_user.id:
+            raise HTTPException(status_code=400, detail="Kendi hesabınızı silemezsiniz")
+        
+        # Son admin'i silmeyi engelle
+        if user.get("role") == "admin":
+            admin_count = await db.users.count_documents({"role": "admin"})
+            if admin_count <= 1:
+                raise HTTPException(status_code=400, detail="Son admin kullanıcısını silemezsiniz")
+        
+        # Kullanıcıyı sil
+        await db.users.delete_one({"id": user_id})
+        
+        # İlgili verileri temizle (isteğe bağlı)
+        if user.get("role") == "consultant":
+            await db.consultants.delete_many({"id": user.get("consultant_id")})
+        elif user.get("role") == "client":
+            await db.clients.delete_many({"id": user.get("client_id")})
+        
+        # Rol atama geçmişini sil
+        await db.user_role_assignments.delete_many({"user_id": user_id})
+        
+        logging.info(f"✅ User deleted: {user['name']} ({user_id}) by {current_user.name}")
+        
+        return {"message": f"Kullanıcı '{user['name']}' başarıyla silindi"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error deleting user: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Kullanıcı silme sırasında hata: {str(e)}")
+
+@api_router.delete("/settings/roles/{role_name}")
+async def delete_custom_role(
+    role_name: str,
+    current_user: User = Depends(get_admin_user)
+):
+    """Özel rol sil - SADECE ADMİN"""
+    try:
+        # Sistem rollerini silemez
+        if role_name.lower() in ["admin", "consultant", "client"]:
+            raise HTTPException(status_code=400, detail="Sistem rolleri silinemez")
+        
+        # Rol var mı kontrol et
+        role = await db.custom_roles.find_one({"name": role_name})
+        if not role:
+            raise HTTPException(status_code=404, detail="Rol bulunamadı")
+        
+        # Rol kullanılıyor mu kontrol et
+        users_with_role = await db.user_role_assignments.count_documents({
+            "role_name": role_name,
+            "is_active": True
+        })
+        
+        if users_with_role > 0:
+            raise HTTPException(status_code=400, detail=f"Bu rol {users_with_role} kullanıcı tarafından kullanılıyor, silinemez")
+        
+        # Rolü sil
+        await db.custom_roles.delete_one({"name": role_name})
+        
+        # Rol-izin ilişkilerini sil
+        await db.role_permissions.delete_many({"role_name": role_name})
+        
+        # Rol atama geçmişini sil
+        await db.user_role_assignments.delete_many({"role_name": role_name})
+        
+        logging.info(f"✅ Custom role deleted: {role_name} by {current_user.name}")
+        
+        return {"message": f"Rol '{role_name}' başarıyla silindi"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error deleting custom role: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Rol silme sırasında hata: {str(e)}")
+
 # ==========================================
 # ROLE INITIALIZATION - İLK KURULUM
 # ==========================================
