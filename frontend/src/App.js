@@ -6881,8 +6881,8 @@ const BulkOperations = ({ onNavigate }) => {
         emailData.email_type = 'bulk';
         
         // Add custom content for general announcement
-        if (selectedTemplate.id === 'general_announcement' && bulkEmailForm.custom_content.trim()) {
-          emailData.custom_content = bulkEmailForm.custom_content;
+        if (selectedTemplate.id === 'general_announcement' && customContent.trim()) {
+          emailData.custom_content = customContent;
         }
       } else {
         // Use custom content
