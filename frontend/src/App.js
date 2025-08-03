@@ -3655,6 +3655,18 @@ const Dashboard = ({ onNavigate }) => {
                     <h4 className="font-medium text-gray-900">Atık Yönetimi</h4>
                     <p className="text-sm text-gray-600">Atık kayıtları ve analiz</p>
                   </button>
+                  
+                  <button
+                    onClick={() => {
+                      console.log('🎯 Navigating to settings');
+                      onNavigate('settings');
+                    }}
+                    className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left group"
+                  >
+                    <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">⚙️</div>
+                    <h4 className="font-medium text-gray-900">Sistem Ayarları</h4>
+                    <p className="text-sm text-gray-600">Kullanıcı rolleri ve sistem yapılandırması</p>
+                  </button>
                 </div>
               </div>
             </div>
