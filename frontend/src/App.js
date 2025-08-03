@@ -18847,7 +18847,7 @@ const AdminSettings = () => {
                   <tr key={user.id} className="border-b hover:bg-gray-50">
                     <td className="py-3 px-4">
                       <div className="font-medium">{user.name}</div>
-                      <div className="text-sm text-gray-500">ID: {user.id.slice(0, 8)}...</div>
+                      <div className="text-sm text-gray-500">ID: {user.id ? user.id.slice(0, 8) : 'N/A'}...</div>
                     </td>
                     <td className="py-3 px-4 text-sm">{user.email}</td>
                     <td className="py-3 px-4">
