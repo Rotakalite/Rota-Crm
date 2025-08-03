@@ -18843,7 +18843,7 @@ const AdminSettings = () => {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
+                {Array.isArray(users) && users.map((user) => (
                   <tr key={user.id} className="border-b hover:bg-gray-50">
                     <td className="py-3 px-4">
                       <div className="font-medium">{user.name}</div>
