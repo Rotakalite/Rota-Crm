@@ -9,8 +9,8 @@ import json
 import sys
 from datetime import datetime
 
-# Backend URL from frontend/.env
-BACKEND_URL = "https://d787e851-4fbb-4d90-a594-90394e6ba15e.preview.emergentagent.com/api"
+# Railway Production Backend URL
+BACKEND_URL = "https://rota-crm-production.up.railway.app/api"
 
 class AdminSettingsBackendTest:
     def __init__(self):
