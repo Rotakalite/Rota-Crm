@@ -18878,22 +18878,36 @@ const AdminSettings = () => {
                       )}
                     </td>
                     <td className="py-3 px-4">
-                      <select
-                        value={user.role || ''}
-                        onChange={(e) => {
-                          if (e.target.value && e.target.value !== user.role) {
-                            if (confirm(`${user.name} kullanıcısının rolünü "${e.target.value}" olarak değiştirmek istediğinizden emin misiniz?`)) {
-                              assignUserRole(user.id, e.target.value);
+                      <div className="flex space-x-2">
+                        <select
+                          value={user.role || ''}
+                          onChange={(e) => {
+                            if (e.target.value && e.target.value !== user.role) {
+                              if (confirm(`${user.name} kullanıcısının rolünü "${e.target.value}" olarak değiştirmek istediğinizden emin misiniz?`)) {
+                                assignUserRole(user.id, e.target.value);
+                              }
                             }
-                          }
-                        }}
-                        className="px-2 py-1 border border-gray-300 rounded text-sm"
-                      >
-                        <option value="">Rol Seçin</option>
-                        <option value="admin">Yönetici</option>
-                        <option value="consultant">Danışman</option>
-                        <option value="client">Müşteri</option>
-                      </select>
+                          }}
+                          className="px-2 py-1 border border-gray-300 rounded text-sm"
+                        >
+                          <option value="">Rol Seçin</option>
+                          <option value="admin">Yönetici</option>
+                          <option value="consultant">Danışman</option>
+                          <option value="client">Müşteri</option>
+                        </select>
+                        
+                        <button
+                          onClick={() => {
+                            if (confirm(`⚠️ ${user.name} kullanıcısını silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz!`)) {
+                              deleteUser(user.id);
+                            }
+                          }}
+                          className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition-colors"
+                          title="Kullanıcıyı Sil"
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
