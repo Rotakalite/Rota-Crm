@@ -18540,6 +18540,447 @@ const AIAssistant = () => {
   );
 };
 
+// ==========================================
+// ADMIN SETTINGS COMPONENT
+// ==========================================
+
+const AdminSettings = () => {
+  const { authToken, userRole } = useAuth();
+  const [currentView, setCurrentView] = useState('overview');
+  const [loading, setLoading] = useState(false);
+  
+  // Settings States
+  const [roles, setRoles] = useState([]);
+  const [permissions, setPermissions] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [userPage, setUserPage] = useState(1);
+  const [userSearch, setUserSearch] = useState('');
+  const [userRoleFilter, setUserRoleFilter] = useState('all');
+  const [userTotalPages, setUserTotalPages] = useState(1);
+  const [roleStats, setRoleStats] = useState(null);
+  
+  const API = getApiUrl();
+
+  // Sadece admin erişebilir
+  if (userRole !== 'admin') {
+    return (
+      <div className="p-6">
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">🚫</div>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">Erişim Engellendi</h3>
+          <p className="text-gray-600">Bu alana sadece sistem yöneticileri erişebilir.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // API Functions
+  const fetchRoles = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/settings/roles`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setRoles(response.data.all_roles || []);
+    } catch (error) {
+      console.error('Roller alınırken hata:', error);
+      alert('Roller alınırken hata oluştu');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPermissions = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/permissions`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setPermissions(response.data.permissions || []);
+    } catch (error) {
+      console.error('İzinler alınırken hata:', error);
+      alert('İzinler alınırken hata oluştu');
+    }
+  };
+
+  const fetchUsersForRoleManagement = async (page = 1, search = '', roleFilter = 'all') => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/settings/users`, {
+        params: { page, limit: 20, search, role_filter: roleFilter },
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setUsers(response.data.users || []);
+      setUserTotalPages(response.data.pagination.total_pages);
+      setUserPage(response.data.pagination.current_page);
+    } catch (error) {
+      console.error('Kullanıcılar alınırken hata:', error);
+      alert('Kullanıcılar alınırken hata oluştu');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchRoleStats = async () => {
+    try {
+      const response = await axios.get(`${API}/settings/role-stats`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setRoleStats(response.data);
+    } catch (error) {
+      console.error('Rol istatistikleri alınırken hata:', error);
+    }
+  };
+
+  const assignUserRole = async (userId, newRole) => {
+    try {
+      await axios.put(`${API}/settings/users/${userId}/role`, {
+        role: newRole
+      }, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      alert('Kullanıcı rolü başarıyla güncellendi!');
+      fetchUsersForRoleManagement(userPage, userSearch, userRoleFilter);
+    } catch (error) {
+      console.error('Rol atama hatası:', error);
+      alert(`Rol atama hatası: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
+  const initializeDefaultPermissions = async () => {
+    try {
+      const response = await axios.post(`${API}/settings/initialize-default-permissions`, {}, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      alert(response.data.message);
+      fetchPermissions();
+    } catch (error) {
+      console.error('Varsayılan izinler oluşturulamadı:', error);
+      alert(`Hata: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
+  // Navigation Functions
+  const navigateToView = (view) => {
+    setCurrentView(view);
+    
+    if (view === 'roles') {
+      fetchRoles();
+      fetchPermissions();
+      fetchRoleStats();
+    } else if (view === 'users') {
+      fetchUsersForRoleManagement();
+      fetchRoles();
+    }
+  };
+
+  // Render Functions
+  const renderSettingsOverview = () => (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-xl shadow-lg">
+        <h1 className="text-3xl font-bold mb-2">⚙️ Sistem Ayarları</h1>
+        <p className="text-blue-100">Sistem yönetimi ve yapılandırma menüsü</p>
+      </div>
+
+      {/* Settings Menu Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <button
+          onClick={() => navigateToView('users')}
+          className="p-6 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl group"
+        >
+          <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">👥</div>
+          <h3 className="text-xl font-bold mb-2">Kullanıcı Rolleri ve Yetkileri</h3>
+          <p className="text-emerald-100 text-sm">Kullanıcı rollerini yönetin, yetkiler atayın</p>
+        </button>
+
+        <button
+          onClick={() => navigateToView('company')}
+          className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl group opacity-60 cursor-not-allowed"
+        >
+          <div className="text-4xl mb-3">🏢</div>
+          <h3 className="text-xl font-bold mb-2">Şirket Bilgileri</h3>
+          <p className="text-blue-100 text-sm">Logo, tema, marka ayarları (Yakında)</p>
+        </button>
+
+        <button
+          onClick={() => navigateToView('notifications')}
+          className="p-6 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl group opacity-60 cursor-not-allowed"
+        >
+          <div className="text-4xl mb-3">🔔</div>
+          <h3 className="text-xl font-bold mb-2">Bildirim Ayarları</h3>
+          <p className="text-purple-100 text-sm">Email, SMS ve sistem bildirimleri (Yakında)</p>
+        </button>
+
+        <button
+          onClick={() => navigateToView('integrations')}
+          className="p-6 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-xl group opacity-60 cursor-not-allowed"
+        >
+          <div className="text-4xl mb-3">🔌</div>
+          <h3 className="text-xl font-bold mb-2">Entegrasyonlar</h3>
+          <p className="text-orange-100 text-sm">API, webhook ve harici servis ayarları (Yakında)</p>
+        </button>
+
+        <button
+          onClick={() => navigateToView('backup')}
+          className="p-6 bg-gradient-to-br from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all shadow-lg hover:shadow-xl group opacity-60 cursor-not-allowed"
+        >
+          <div className="text-4xl mb-3">💾</div>
+          <h3 className="text-xl font-bold mb-2">Yedekleme & Güvenlik</h3>
+          <p className="text-red-100 text-sm">Veri yedekleme ve güvenlik ayarları (Yakında)</p>
+        </button>
+
+        <button
+          onClick={() => navigateToView('analytics-settings')}
+          className="p-6 bg-gradient-to-br from-teal-500 to-teal-600 text-white rounded-xl hover:from-teal-600 hover:to-teal-700 transition-all shadow-lg hover:shadow-xl group opacity-60 cursor-not-allowed"
+        >
+          <div className="text-4xl mb-3">📊</div>
+          <h3 className="text-xl font-bold mb-2">Analitik Ayarları</h3>
+          <p className="text-teal-100 text-sm">KPI tanımları ve rapor şablonları (Yakında)</p>
+        </button>
+      </div>
+
+      {/* Quick Stats */}
+      {roleStats && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">📈 Sistem İstatistikleri</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-blue-600 mb-1">Toplam Kullanıcı</h3>
+              <p className="text-2xl font-bold text-blue-800">{roleStats.overview?.total_users || 0}</p>
+            </div>
+            <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-emerald-600 mb-1">Aktif İzinler</h3>
+              <p className="text-2xl font-bold text-emerald-800">{roleStats.overview?.total_permissions || 0}</p>
+            </div>
+            <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-purple-600 mb-1">Özel Roller</h3>
+              <p className="text-2xl font-bold text-purple-800">{roleStats.overview?.custom_roles_count || 0}</p>
+            </div>
+            <div className="bg-gradient-to-r from-orange-50 to-orange-100 p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-orange-600 mb-1">Sistem Rolleri</h3>
+              <p className="text-2xl font-bold text-orange-800">{roleStats.overview?.system_roles_count || 0}</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderUserRoleManagement = () => (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <button
+            onClick={() => setCurrentView('overview')}
+            className="text-blue-600 hover:text-blue-800 mb-2 flex items-center space-x-1"
+          >
+            <span>←</span>
+            <span>Ayarlara Dön</span>
+          </button>
+          <h1 className="text-3xl font-bold text-gray-900">👥 Kullanıcı Rolleri ve Yetkileri</h1>
+          <p className="text-gray-600 mt-1">Kullanıcı rollerini yönetin ve yetki atamalarını yapın</p>
+        </div>
+        
+        <div className="flex space-x-3">
+          <button
+            onClick={initializeDefaultPermissions}
+            className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+          >
+            🔧 Varsayılan İzinleri Oluştur
+          </button>
+        </div>
+      </div>
+
+      {/* User Management */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-800">Kullanıcı Yönetimi</h2>
+          <div className="flex space-x-3">
+            <input
+              type="text"
+              placeholder="Kullanıcı ara..."
+              value={userSearch}
+              onChange={(e) => setUserSearch(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && fetchUsersForRoleManagement(1, userSearch, userRoleFilter)}
+              className="px-3 py-2 border border-gray-300 rounded-lg"
+            />
+            <select
+              value={userRoleFilter}
+              onChange={(e) => setUserRoleFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg"
+            >
+              <option value="all">Tüm Roller</option>
+              <option value="admin">Admin</option>
+              <option value="consultant">Danışman</option>
+              <option value="client">Müşteri</option>
+            </select>
+            <button
+              onClick={() => fetchUsersForRoleManagement(1, userSearch, userRoleFilter)}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            >
+              🔍 Ara
+            </button>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="mt-2 text-gray-600">Yükleniyor...</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-3 px-4">Kullanıcı</th>
+                  <th className="text-left py-3 px-4">Email</th>
+                  <th className="text-left py-3 px-4">Mevcut Rol</th>
+                  <th className="text-left py-3 px-4">Bağlı Müşteri/Danışman</th>
+                  <th className="text-left py-3 px-4">İşlemler</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id} className="border-b hover:bg-gray-50">
+                    <td className="py-3 px-4">
+                      <div className="font-medium">{user.name}</div>
+                      <div className="text-sm text-gray-500">ID: {user.id.slice(0, 8)}...</div>
+                    </td>
+                    <td className="py-3 px-4 text-sm">{user.email}</td>
+                    <td className="py-3 px-4">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        user.role === 'admin' ? 'bg-red-100 text-red-800' :
+                        user.role === 'consultant' ? 'bg-blue-100 text-blue-800' :
+                        user.role === 'client' ? 'bg-green-100 text-green-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {user.role === 'admin' ? 'Yönetici' :
+                         user.role === 'consultant' ? 'Danışman' :
+                         user.role === 'client' ? 'Müşteri' : user.role || 'Rolsüz'}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-sm">
+                      {user.consultant_info && (
+                        <span className="text-blue-600">
+                          👔 {user.consultant_info.company_name}
+                        </span>
+                      )}
+                      {user.client_info && (
+                        <span className="text-green-600">
+                          🏨 {user.client_info.hotel_name}
+                        </span>
+                      )}
+                      {!user.consultant_info && !user.client_info && (
+                        <span className="text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4">
+                      <select
+                        value={user.role || ''}
+                        onChange={(e) => {
+                          if (e.target.value && e.target.value !== user.role) {
+                            if (confirm(`${user.name} kullanıcısının rolünü "${e.target.value}" olarak değiştirmek istediğinizden emin misiniz?`)) {
+                              assignUserRole(user.id, e.target.value);
+                            }
+                          }
+                        }}
+                        className="px-2 py-1 border border-gray-300 rounded text-sm"
+                      >
+                        <option value="">Rol Seçin</option>
+                        <option value="admin">Yönetici</option>
+                        <option value="consultant">Danışman</option>
+                        <option value="client">Müşteri</option>
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Pagination */}
+            {userTotalPages > 1 && (
+              <div className="flex justify-center mt-4 space-x-2">
+                <button
+                  onClick={() => fetchUsersForRoleManagement(Math.max(1, userPage - 1), userSearch, userRoleFilter)}
+                  disabled={userPage <= 1}
+                  className="px-3 py-1 border rounded disabled:opacity-50"
+                >
+                  Önceki
+                </button>
+                <span className="px-3 py-1">
+                  {userPage} / {userTotalPages}
+                </span>
+                <button
+                  onClick={() => fetchUsersForRoleManagement(Math.min(userTotalPages, userPage + 1), userSearch, userRoleFilter)}
+                  disabled={userPage >= userTotalPages}
+                  className="px-3 py-1 border rounded disabled:opacity-50"
+                >
+                  Sonraki
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Role Distribution Stats */}
+      {roleStats && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">📊 Rol Dağılımı</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {roleStats.user_role_distribution?.map((role, index) => (
+              <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-medium text-gray-700">
+                  {role.role === 'admin' ? '🔴 Yönetici' :
+                   role.role === 'consultant' ? '🔵 Danışman' :
+                   role.role === 'client' ? '🟢 Müşteri' : 
+                   `⚪ ${role.role || 'Rolsüz'}`}
+                </h3>
+                <p className="text-2xl font-bold text-gray-900 mt-1">{role.count}</p>
+                <p className="text-sm text-gray-500">%{role.percentage}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  // Main Render
+  useEffect(() => {
+    if (currentView === 'overview') {
+      fetchRoleStats();
+    }
+  }, [currentView]);
+
+  return (
+    <div className="p-6 min-h-screen bg-gray-50">
+      {currentView === 'overview' && renderSettingsOverview()}
+      {currentView === 'users' && renderUserRoleManagement()}
+      
+      {/* Placeholder for other views */}
+      {currentView === 'roles' && (
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">🎭</div>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">Rol Yönetimi</h3>
+          <p className="text-gray-600">Özel rol oluşturma özelliği geliştiriliyor...</p>
+        </div>
+      )}
+      
+      {['company', 'notifications', 'integrations', 'backup', 'analytics-settings'].includes(currentView) && (
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">🚧</div>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">Yakında</h3>
+          <p className="text-gray-600">Bu özellik geliştiriliyor...</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const MainApp = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedClient, setSelectedClient] = useState(null);
