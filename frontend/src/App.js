@@ -19395,87 +19395,18 @@ const App = () => {
   // Basit routing sistemi
   const currentPath = window.location.pathname;
   
-  // Advanced DOM manipulation for Clerk customization
-  React.useEffect(() => {
-    const customizeClerkElements = () => {
-      // Başlığı değiştir
-      const titleElements = document.querySelectorAll('.cl-headerTitle, [data-testid="sign-in-title"], h1');
-      titleElements.forEach(element => {
-        if (element && element.textContent && element.textContent.includes('Sustainable Tourism')) {
-          element.innerHTML = 'GreenWave CRM\'e Giriş';
-          element.style.color = '#047857';
-          element.style.fontSize = '2rem';
-          element.style.fontWeight = '700';
-          element.style.textAlign = 'center';
-        }
-      });
-      
-      // Alt başlığı değiştir  
-      const subtitleElements = document.querySelectorAll('.cl-headerSubtitle, [data-testid="sign-in-subtitle"], p');
-      subtitleElements.forEach(element => {
-        if (element && element.textContent && (element.textContent.includes('Welcome back') || element.textContent.includes('Please sign in'))) {
-          element.innerHTML = 'Hoş geldiniz! Sürdürülebilirlik yönetim sistemine giriş yapın';
-          element.style.color = '#059669';
-          element.style.fontSize = '1.1rem';
-          element.style.textAlign = 'center';
-        }
-      });
-      
-      // Logo ekle
-      const cardElements = document.querySelectorAll('.cl-card, [data-testid="sign-in-card"]');
-      cardElements.forEach(cardElement => {
-        if (cardElement && !cardElement.querySelector('.greenwave-custom-logo')) {
-          const logoDiv = document.createElement('div');
-          logoDiv.className = 'greenwave-custom-logo';
-          logoDiv.style.cssText = `
-            width: 120px !important;
-            height: 120px !important;
-            background-image: url('/greenwave-logo.png') !important;
-            background-size: contain !important;
-            background-repeat: no-repeat !important;
-            background-position: center !important;
-            margin: 0 auto 2rem auto !important;
-            display: block !important;
-          `;
-          cardElement.insertBefore(logoDiv, cardElement.firstChild);
-        }
-      });
-      
-      // Page title'ı da değiştir
-      if (document.title.includes('Sustainable Tourism')) {
-        document.title = 'GreenWave CRM - Giriş';
-      }
-    };
-
-    // İlk yüklemede çalıştır
-    customizeClerkElements();
-    
-    // MutationObserver ile DOM değişikliklerini izle
-    const observer = new MutationObserver(() => {
-      customizeClerkElements();
-    });
-    
-    // Tüm dokümanı izle
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      characterData: true
-    });
-    
-    // Her 1 saniyede bir kontrol et (backup)
-    const interval = setInterval(customizeClerkElements, 1000);
-    
-    // Cleanup
-    return () => {
-      observer.disconnect();
-      clearInterval(interval);
-    };
-  }, []);
-
   // Custom routing
   if (currentPath === '/sign-in') {
     return (
-      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+      <ClerkProvider 
+        publishableKey={CLERK_PUBLISHABLE_KEY}
+        appearance={{
+          variables: {
+            colorPrimary: '#10b981',
+            colorText: '#047857',
+          },
+        }}
+      >
         <CustomSignIn />
       </ClerkProvider>
     );
@@ -19483,7 +19414,15 @@ const App = () => {
   
   if (currentPath === '/sign-up') {
     return (
-      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+      <ClerkProvider 
+        publishableKey={CLERK_PUBLISHABLE_KEY}
+        appearance={{
+          variables: {
+            colorPrimary: '#10b981',
+            colorText: '#047857',
+          },
+        }}
+      >
         <CustomSignUp />
       </ClerkProvider>
     );
@@ -19491,13 +19430,21 @@ const App = () => {
   
   if (currentPath === '/forgot-password') {
     return (
-      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+      <ClerkProvider 
+        publishableKey={CLERK_PUBLISHABLE_KEY}
+        appearance={{
+          variables: {
+            colorPrimary: '#10b981',
+            colorText: '#047857',
+          },
+        }}
+      >
         <ForgotPasswordPage />
       </ClerkProvider>
     );
   }
 
-  // Ana uygulama (default)
+  // Ana uygulama (default) - Normal Clerk flow
   return (
     <ClerkProvider 
       publishableKey={CLERK_PUBLISHABLE_KEY}
@@ -19518,9 +19465,10 @@ const App = () => {
       }}
     >
       <SignedOut>
-        {/* Default olarak custom sign-in'e yönlendir */}
-        {window.location.pathname !== '/sign-in' && (window.location.href = '/sign-in')}
-        <CustomSignIn />
+        {/* Otomatik olarak /sign-in'e yönlendir */}
+        <div style={{display: 'none'}}>
+          {window.location.pathname !== '/sign-in' && (window.location.href = '/sign-in')}
+        </div>
       </SignedOut>
       
       <SignedIn>
