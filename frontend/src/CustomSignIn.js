@@ -38,12 +38,21 @@ const CustomSignIn = () => {
                   border: 'none',
                   padding: 0,
                 },
-                // Başlığı gizle (kendi başlığımızı kullanıyoruz)
+                // Başlığı ve logoları tamamen gizle
                 headerTitle: {
-                  display: 'none',
+                  display: 'none !important',
                 },
                 headerSubtitle: {
-                  display: 'none',
+                  display: 'none !important',
+                },
+                header: {
+                  display: 'none !important',
+                },
+                logoBox: {
+                  display: 'none !important',
+                },
+                logoImage: {
+                  display: 'none !important',
                 },
                 // Form elemanları
                 formButtonPrimary: {
@@ -106,11 +115,16 @@ const CustomSignIn = () => {
                 fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 borderRadius: '12px',
               },
+              layout: {
+                logoPlacement: 'none',
+                socialButtonsPlacement: 'bottom',
+              },
             }}
-            // Routing ayarları
+            // Routing ayarları - Bu çok önemli!
             routing="path"
             path="/sign-in"
             signUpUrl="/sign-up"
+            afterSignInUrl="/"
             // Forgot password aktif
             resetPasswordMode="email_code"
             // Custom fields
