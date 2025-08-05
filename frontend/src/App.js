@@ -19055,6 +19055,11 @@ const MainApp = () => {
   const { userRole, isLoaded, dbUser, refreshUser } = useAuth();
   const { user } = useUser();
   const isMobile = useIsMobile();
+  
+  // Mobile optimization hooks
+  useMobileTableConverter();
+  useMobileFormOptimizer();
+  useMobileContentOptimizer();
 
   // Mobile navigation handler
   const handleMobileNavigation = (page) => {
