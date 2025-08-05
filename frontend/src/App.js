@@ -3732,58 +3732,62 @@ const Dashboard = ({ onNavigate }) => {
           </div>
         )}
 
-        {/* Enhanced Client Dashboard */}
+        {/* Enhanced Client Dashboard - Mobile Optimized */}
         {userRole === 'client' && clientDashboardData && (
           <>
-            {/* Welcome Section */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 mb-8 text-white">
-              <h1 className="text-3xl font-bold mb-2">🏨 Hoş Geldiniz, {clientDashboardData.client_info?.hotel_name || dbUser?.name}!</h1>
-              <p className="text-blue-100 text-lg">Sürdürülebilirlik yolculuğunuzdaki tüm verileri tek bir yerde görebilirsiniz.</p>
+            {/* Welcome Section - Mobile Responsive */}
+            <div className={`bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl mb-8 text-white ${isMobile ? 'p-4' : 'p-8'}`}>
+              <h1 className={`font-bold mb-2 ${isMobile ? 'text-xl text-center' : 'text-3xl'}`}>
+                🏨 Hoş Geldiniz, {clientDashboardData.client_info?.hotel_name || dbUser?.name}!
+              </h1>
+              <p className={`text-blue-100 ${isMobile ? 'text-sm text-center' : 'text-lg'}`}>
+                Sürdürülebilirlik yolculuğunuzdaki tüm verileri tek bir yerde görebilirsiniz.
+              </p>
             </div>
 
-            {/* Key Performance Indicators */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {/* Key Performance Indicators - Mobile Grid */}
+            <div className={`grid gap-6 mb-8 ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'}`}>
               <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-blue-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-gray-600 text-sm font-medium">Toplam Doküman</h3>
-                    <p className="text-3xl font-bold text-gray-900">{clientDashboardData.statistics?.total_documents || 0}</p>
-                    <p className="text-sm text-green-600">Yüklenen belgeler</p>
+                    <h3 className={`text-gray-600 font-medium ${isMobile ? 'text-xs' : 'text-sm'}`}>Toplam Doküman</h3>
+                    <p className={`font-bold text-gray-900 ${isMobile ? 'text-xl' : 'text-3xl'}`}>{clientDashboardData.statistics?.total_documents || 0}</p>
+                    <p className={`text-green-600 ${isMobile ? 'text-xs' : 'text-sm'}`}>Yüklenen belgeler</p>
                   </div>
-                  <div className="text-4xl">📄</div>
+                  <div className={isMobile ? 'text-3xl' : 'text-4xl'}>📄</div>
                 </div>
               </div>
 
               <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-gray-600 text-sm font-medium">Tamamlanan Eğitim</h3>
-                    <p className="text-3xl font-bold text-gray-900">{clientDashboardData.statistics?.completed_trainings || 0}</p>
-                    <p className="text-sm text-blue-600">{clientDashboardData.statistics?.training_completion_rate || 0}% tamamlanma oranı</p>
+                    <h3 className={`text-gray-600 font-medium ${isMobile ? 'text-xs' : 'text-sm'}`}>Tamamlanan Eğitim</h3>
+                    <p className={`font-bold text-gray-900 ${isMobile ? 'text-xl' : 'text-3xl'}`}>{clientDashboardData.statistics?.completed_trainings || 0}</p>
+                    <p className={`text-blue-600 ${isMobile ? 'text-xs' : 'text-sm'}`}>{clientDashboardData.statistics?.training_completion_rate || 0}% tamamlanma oranı</p>
                   </div>
-                  <div className="text-4xl">🎓</div>
+                  <div className={isMobile ? 'text-3xl' : 'text-4xl'}>🎓</div>
                 </div>
               </div>
 
               <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-purple-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-gray-600 text-sm font-medium">Karbon Tasarrufu</h3>
-                    <p className="text-3xl font-bold text-gray-900">-{clientDashboardData.sustainability_progress?.carbon_reduction || 0}%</p>
-                    <p className="text-sm text-green-600">Geçen yıla göre</p>
+                    <h3 className={`text-gray-600 font-medium ${isMobile ? 'text-xs' : 'text-sm'}`}>Karbon Tasarrufu</h3>
+                    <p className={`font-bold text-gray-900 ${isMobile ? 'text-xl' : 'text-3xl'}`}>-{clientDashboardData.sustainability_progress?.carbon_reduction || 0}%</p>
+                    <p className={`text-green-600 ${isMobile ? 'text-xs' : 'text-sm'}`}>Geçen yıla göre</p>
                   </div>
-                  <div className="text-4xl">🌱</div>
+                  <div className={isMobile ? 'text-3xl' : 'text-4xl'}>🌱</div>
                 </div>
               </div>
 
               <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-orange-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-gray-600 text-sm font-medium">Sertifika Durumu</h3>
-                    <p className="text-3xl font-bold text-gray-900">{clientDashboardData.client_info?.certificate_status || 'Aktif'}</p>
-                    <p className="text-sm text-orange-600">{clientDashboardData.client_info?.certificate_days_left || 0} gün kaldı</p>
+                    <h3 className={`text-gray-600 font-medium ${isMobile ? 'text-xs' : 'text-sm'}`}>Sertifika Durumu</h3>
+                    <p className={`font-bold text-gray-900 ${isMobile ? 'text-lg' : 'text-3xl'}`}>{clientDashboardData.client_info?.certificate_status || 'Aktif'}</p>
+                    <p className={`text-orange-600 ${isMobile ? 'text-xs' : 'text-sm'}`}>{clientDashboardData.client_info?.certificate_days_left || 0} gün kaldı</p>
                   </div>
-                  <div className="text-4xl">🏆</div>
+                  <div className={isMobile ? 'text-3xl' : 'text-4xl'}>🏆</div>
                 </div>
               </div>
             </div>
