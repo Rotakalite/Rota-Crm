@@ -3,6 +3,19 @@ import { useClerk } from '@clerk/clerk-react';
 
 const MobileNavigation = ({ currentPage, onPageChange, userRole }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { signOut } = useClerk();
+
+  // Handle proper logout
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      // Clerk will automatically redirect to sign-in page after successful logout
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Fallback: redirect manually if Clerk fails
+      window.location.href = '/sign-in';
+    }
+  };
 
   // Main bottom navigation (4 items + menu)
   const getMainNavItems = () => {
