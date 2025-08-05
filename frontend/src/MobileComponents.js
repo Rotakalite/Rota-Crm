@@ -304,7 +304,7 @@ const MobileNavigation = ({ currentPage, onPageChange, userRole }) => {
               {/* Footer with Logout */}
               <div className="p-4 border-t border-gray-200">
                 <button
-                  onClick={() => window.location.href = '/sign-in'}
+                  onClick={handleLogout}
                   className="w-full flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg transition-colors"
                 >
                   <span className="text-lg">🚪</span>
