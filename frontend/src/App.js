@@ -13786,8 +13786,8 @@ const EmailManagement = ({ selectedClient: propSelectedClient }) => {
       };
 
       // Add custom content for general announcement
-      if (selectedTemplate.id === 'general_announcement' && bulkEmailForm.custom_content.trim()) {
-        testEmailData.custom_content = bulkEmailForm.custom_content;
+      if (selectedTemplate.id === 'general_announcement' && customContent.trim()) {
+        testEmailData.custom_content = customContent;
       }
 
       const response = await axios.post(`${API}/email-templates/test`, testEmailData, {
