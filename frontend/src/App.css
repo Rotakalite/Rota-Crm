@@ -24,6 +24,32 @@
   width: 100% !important;
 }
 
+/* GreenWave Logo Ekleme */
+.cl-card::before {
+  content: '';
+  display: block;
+  width: 120px;
+  height: 120px;
+  background-image: url('./greenwave-logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  margin: 0 auto 2rem auto;
+}
+
+/* GreenWave Başlık Ekleme */
+.cl-card::after {
+  content: 'GreenWave CRM\A Sürdürülebilirlik Yönetim Sistemi';
+  white-space: pre-line;
+  display: block;
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #047857;
+  margin-bottom: 2rem;
+  line-height: 1.2;
+}
+
 /* Clerk logolarını ve başlıklarını tamamen gizle */
 .cl-headerTitle,
 .cl-headerSubtitle,
