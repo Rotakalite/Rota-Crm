@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useClerk } from '@clerk/clerk-react';
 
 const MobileNavigation = ({ currentPage, onPageChange, userRole }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
