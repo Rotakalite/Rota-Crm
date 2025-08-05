@@ -83,6 +83,7 @@ const MobileNavigation = ({ currentPage, onPageChange, userRole }) => {
         { id: 'yeni-belge', label: 'Belge Yükle', icon: '📄', group: 'documents' },
         { id: 'training', label: 'Eğitimlerim', icon: '🎓', group: 'documents' },
         { id: 'consumption', label: 'Tüketim Takibi', icon: '⚡', group: 'analytics' },
+        { id: 'analytics', label: 'Tüketim Analizi', icon: '📊', group: 'analytics' },
         { id: 'waste-management', label: 'Atık Yönetimi', icon: '♻️', group: 'analytics' },
         { id: 'suppliers', label: 'Tedarikçiler', icon: '🚚', group: 'analytics' },
         { id: 'personnel', label: 'Personel', icon: '👤', group: 'analytics' },
