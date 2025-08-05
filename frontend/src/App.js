@@ -3792,23 +3792,23 @@ const Dashboard = ({ onNavigate }) => {
               </div>
             </div>
 
-            {/* Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* Charts Section - Mobile Responsive */}
+            <div className={`grid gap-8 mb-8 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}>
               {/* Energy Consumption Chart */}
               <div className="bg-white p-6 rounded-xl shadow-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">⚡ Enerji Tüketimi (kWh)</h3>
-                <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                <h3 className={`font-semibold text-gray-900 mb-4 ${isMobile ? 'text-base' : 'text-lg'}`}>⚡ Enerji Tüketimi (kWh)</h3>
+                <div className={`bg-gray-50 rounded-lg flex items-center justify-center ${isMobile ? 'h-48' : 'h-64'}`}>
                   <div className="text-center w-full">
-                    <div className="text-6xl mb-4">📊</div>
+                    <div className={`mb-4 ${isMobile ? 'text-4xl' : 'text-6xl'}`}>📊</div>
                     <div className="space-y-2">
                       {Object.entries(clientDashboardData.consumption_data?.energy_by_month || {}).map(([month, value]) => (
                         <div key={month} className="flex justify-between items-center bg-blue-50 p-3 rounded">
-                          <span className="text-sm font-medium">{month}</span>
-                          <span className="text-lg font-bold text-blue-600">{value.toLocaleString()}</span>
+                          <span className={`font-medium ${isMobile ? 'text-xs' : 'text-sm'}`}>{month}</span>
+                          <span className={`font-bold text-blue-600 ${isMobile ? 'text-sm' : 'text-lg'}`}>{value.toLocaleString()}</span>
                         </div>
                       ))}
                       {Object.keys(clientDashboardData.consumption_data?.energy_by_month || {}).length === 0 && (
-                        <p className="text-gray-500">Henüz enerji tüketim verisi bulunmamaktadır.</p>
+                        <p className={`text-gray-500 ${isMobile ? 'text-sm' : ''}`}>Henüz enerji tüketim verisi bulunmamaktadır.</p>
                       )}
                     </div>
                   </div>
@@ -3817,19 +3817,19 @@ const Dashboard = ({ onNavigate }) => {
 
               {/* Water Consumption Chart */}
               <div className="bg-white p-6 rounded-xl shadow-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">💧 Su Tüketimi (m³)</h3>
-                <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                <h3 className={`font-semibold text-gray-900 mb-4 ${isMobile ? 'text-base' : 'text-lg'}`}>💧 Su Tüketimi (m³)</h3>
+                <div className={`bg-gray-50 rounded-lg flex items-center justify-center ${isMobile ? 'h-48' : 'h-64'}`}>
                   <div className="text-center w-full">
-                    <div className="text-6xl mb-4">💧</div>
+                    <div className={`mb-4 ${isMobile ? 'text-4xl' : 'text-6xl'}`}>💧</div>
                     <div className="space-y-2">
                       {Object.entries(clientDashboardData.consumption_data?.water_by_month || {}).map(([month, value]) => (
                         <div key={month} className="flex justify-between items-center bg-cyan-50 p-3 rounded">
-                          <span className="text-sm font-medium">{month}</span>
-                          <span className="text-lg font-bold text-cyan-600">{value.toLocaleString()}</span>
+                          <span className={`font-medium ${isMobile ? 'text-xs' : 'text-sm'}`}>{month}</span>
+                          <span className={`font-bold text-cyan-600 ${isMobile ? 'text-sm' : 'text-lg'}`}>{value.toLocaleString()}</span>
                         </div>
                       ))}
                       {Object.keys(clientDashboardData.consumption_data?.water_by_month || {}).length === 0 && (
-                        <p className="text-gray-500">Henüz su tüketim verisi bulunmamaktadır.</p>
+                        <p className={`text-gray-500 ${isMobile ? 'text-sm' : ''}`}>Henüz su tüketim verisi bulunmamaktadır.</p>
                       )}
                     </div>
                   </div>
