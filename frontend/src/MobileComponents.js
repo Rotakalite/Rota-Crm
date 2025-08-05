@@ -106,7 +106,7 @@ const MobileNavigation = ({ currentPage, onPageChange, userRole }) => {
 
   const handleItemClick = (item) => {
     if (item.isLogout) {
-      window.location.href = '/sign-in';
+      handleLogout();
     } else {
       onPageChange(item.id);
       setIsMenuOpen(false); // Close menu after selection
