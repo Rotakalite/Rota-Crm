@@ -6905,7 +6905,7 @@ const BulkOperations = ({ onNavigate }) => {
         emailData.template_id = selectedTemplate.id;
         emailData.email_type = 'bulk';
         
-        // Use template if selected - template logic will be handled in EmailManagement component
+        // Template logic will be handled in EmailManagement component
       } else {
         // Use custom content
         emailData.subject = bulkEmailForm.subject;
