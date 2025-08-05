@@ -9021,18 +9021,20 @@ const ConsumptionAnalytics = () => {
                   </div>
                 </div>
 
-                {/* Monthly Comparison Table - Elite Design */}
+                {/* Monthly Comparison Table - Mobile Responsive */}
                 <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
                   {/* Header with Gradient */}
-                  <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6">
-                    <div className="flex items-center justify-between">
+                  <div className={`bg-gradient-to-r from-blue-600 to-purple-600 ${isMobile ? 'px-4 py-4' : 'px-8 py-6'}`}>
+                    <div className={`${isMobile ? 'text-center' : 'flex items-center justify-between'}`}>
                       <div>
-                        <h2 className="text-2xl font-bold text-white flex items-center">
-                          📊 Aylık Karşılaştırma Analizi
+                        <h2 className={`font-bold text-white flex items-center ${isMobile ? 'text-lg justify-center' : 'text-2xl'}`}>
+                          📊 {isMobile ? 'Aylık Analiz' : 'Aylık Karşılaştırma Analizi'}
                         </h2>
-                        <p className="text-blue-100 mt-1">Detaylı tüketim ve kişi başı performans verileri</p>
+                        <p className={`text-blue-100 mt-1 ${isMobile ? 'text-sm' : ''}`}>
+                          {isMobile ? 'Tüketim verileri' : 'Detaylı tüketim ve kişi başı performans verileri'}
+                        </p>
                       </div>
-                      <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
+                      <div className={`bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 ${isMobile ? 'mt-3 inline-block' : ''}`}>
                         <span className="text-white font-medium">{selectedYear}</span>
                       </div>
                     </div>
