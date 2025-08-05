@@ -19471,13 +19471,13 @@ const App = () => {
       }}
     >
       <SignedOut>
-        {/* Giriş yapılmamışsa /sign-in'e yönlendir */}
-        <div>
-          <script dangerouslySetInnerHTML={{
-            __html: `window.location.replace('/sign-in');`
-          }} />
-          Giriş sayfasına yönlendiriliyor...
-        </div>
+        {/* Sadece ana sayfada redirect yap, auth sayfalarında değil */}
+        {currentPath === '/' && (
+          <div>
+            <script>window.location.replace('/sign-in');</script>
+            Giriş sayfasına yönlendiriliyor...
+          </div>
+        )}
       </SignedOut>
       
       <SignedIn>
