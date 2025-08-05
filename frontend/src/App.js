@@ -19179,7 +19179,20 @@ const MainApp = () => {
     return <ConsultantApp />;
   }
 
-  // STEP 5: Show main admin/client app
+  // STEP 5: Mobile Dashboard for mobile devices
+  if (isMobile) {
+    return (
+      <MobileDashboardView 
+        user={user}
+        clients={[]} // Bu değerler gerçek verilerle doldurulacak
+        documents={[]}
+        trainings={[]}
+        onNavigate={handleMobileNavigation}
+      />
+    );
+  }
+
+  // STEP 6: Show main admin/client app for desktop
   return <MainAdminClientApp 
     activeTab={activeTab} 
     setActiveTab={setActiveTab} 
