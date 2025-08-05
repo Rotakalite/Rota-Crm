@@ -11,8 +11,8 @@ import sys
 import os
 from datetime import datetime
 
-# Backend URL from frontend .env
-BACKEND_URL = "https://63cd9e66-c298-4a2c-92bc-f8af7936d9a9.preview.emergentagent.com"
+# Railway Production Backend URL (correct backend, not frontend)
+BACKEND_URL = "https://rota-crm-production.up.railway.app"
 TEST_CLIENT_ID = "94927a77-edc3-45ec-8329-795feae35771"
 
 class MobileResponsivenessBackendTester:
