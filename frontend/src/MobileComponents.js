@@ -312,10 +312,19 @@ const MobileNavigation = ({ currentPage, onPageChange, userRole }) => {
               <div className="p-4 border-t border-gray-200">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg transition-colors"
+                  disabled={isLoggingOut}
+                  className={`w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-lg transition-colors ${
+                    isLoggingOut 
+                      ? 'bg-gray-400 cursor-not-allowed text-white' 
+                      : 'bg-red-600 hover:bg-red-700 text-white'
+                  }`}
                 >
-                  <span className="text-lg">🚪</span>
-                  <span className="font-medium">Çıkış Yap</span>
+                  <span className="text-lg">
+                    {isLoggingOut ? '⏳' : '🚪'}
+                  </span>
+                  <span className="font-medium">
+                    {isLoggingOut ? 'Çıkış Yapılıyor...' : 'Çıkış Yap'}
+                  </span>
                 </button>
               </div>
             </div>
