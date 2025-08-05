@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* GreenWave CRM Custom Styles */
 
 /* Clerk Login Page Customization */
