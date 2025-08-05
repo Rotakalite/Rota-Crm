@@ -130,27 +130,13 @@ const MobileNavigation = ({ currentPage, onPageChange, userRole }) => {
 
   return (
     <>
-      {/* Main Bottom Navigation */}
-      <nav className="mobile-nav md:hidden">
-        <div className="flex justify-around items-center">
-          {/* Main 4 navigation items */}
-          {mainNavItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => handleItemClick(item)}
-              className={`mobile-nav-item ${
-                currentPage === item.id ? 'active' : ''
-              }`}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              <span className="nav-label">{item.label}</span>
-            </button>
-          ))}
-          
-          {/* Menu Button */}
+      {/* Simplified Bottom Navigation - Only Menu Button */}
+      <nav className="mobile-nav-simple md:hidden">
+        <div className="flex justify-center items-center">
+          {/* Only Menu Button */}
           <button
             onClick={() => setIsMenuOpen(true)}
-            className="mobile-nav-item"
+            className="mobile-nav-menu-only"
           >
             <span className="nav-icon">☰</span>
             <span className="nav-label">Menü</span>
