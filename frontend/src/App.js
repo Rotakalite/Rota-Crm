@@ -19395,6 +19395,13 @@ const App = () => {
   // Basit routing sistemi
   const currentPath = window.location.pathname;
   
+  // Ana sayfa için React effect ile redirect
+  React.useEffect(() => {
+    if (currentPath === '/' && !currentPath.includes('/sign-')) {
+      window.location.replace('/sign-in');
+    }
+  }, [currentPath]);
+  
   // Custom routing sadece auth sayfaları için
   if (currentPath === '/sign-in') {
     return (
@@ -19444,12 +19451,6 @@ const App = () => {
     );
   }
 
-  // Ana sayfa için direkt yönlendirme
-  if (currentPath === '/') {
-    window.location.replace('/sign-in');
-    return <div>Yönlendiriliyor...</div>;
-  }
-
   // Ana uygulama - Normal Clerk flow (diğer tüm sayfalar için)
   return (
     <ClerkProvider 
@@ -19471,11 +19472,18 @@ const App = () => {
       }}
     >
       <SignedOut>
-        {/* Sadece ana sayfada redirect yap, auth sayfalarında değil */}
+        {/* Sadece ana sayfada redirect göster */}
         {currentPath === '/' && (
-          <div>
-            <script>window.location.replace('/sign-in');</script>
-            Giriş sayfasına yönlendiriliyor...
+          <div style={{
+            minHeight: '100vh', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            background: 'linear-gradient(135deg, #10b981, #047857)',
+            color: 'white',
+            fontSize: '18px'
+          }}>
+            Yönlendiriliyor...
           </div>
         )}
       </SignedOut>
