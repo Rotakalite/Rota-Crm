@@ -9274,7 +9274,8 @@ const ConsumptionAnalytics = () => {
                         ))}
                       </tbody>
                     </table>
-                  </div>
+                    </div>
+                  )}
                   
                   {/* Elite Footer */}
                   <div className="bg-gradient-to-r from-gray-100 to-gray-200 px-8 py-4 border-t border-gray-200">
