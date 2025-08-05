@@ -3367,21 +3367,21 @@ const Dashboard = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Elite Header */}
-      <div className="bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 text-white p-8 shadow-2xl">
+    <div className={`min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 ${isMobile ? 'mobile-dashboard' : ''}`}>
+      {/* Elite Header - Mobile optimized */}
+      <div className={`bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 text-white shadow-2xl ${isMobile ? 'p-4' : 'p-8'}`}>
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center space-x-4 mb-2">
+          <div className={`flex items-center ${isMobile ? 'flex-col text-center space-y-4' : 'justify-between'}`}>
+            <div className={isMobile ? 'w-full' : ''}>
+              <div className={`flex items-center ${isMobile ? 'justify-center' : ''} space-x-4 mb-2`}>
                 <div className="bg-gradient-to-r from-yellow-400 to-orange-500 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg">
                   <span className="text-2xl">👋</span>
                 </div>
                 <div>
-                  <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-transparent">
+                  <h1 className={`font-bold bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-transparent ${isMobile ? 'text-2xl' : 'text-4xl'}`}>
                     Hoş Geldiniz, {user?.firstName || 'Değerli Kullanıcı'}!
                   </h1>
-                  <p className="text-blue-200 text-lg mt-1">
+                  <p className={`text-blue-200 mt-1 ${isMobile ? 'text-sm' : 'text-lg'}`}>
                     {userRole === 'admin' ? '🎯 Admin Panel - Sistemin tüm kontrolü sizde' 
                     : userRole === 'consultant' ? '💼 Danışman Paneli - Müşterilerinizi elite seviyede yönetin'
                     : '🏨 Müşteri Paneli - Sürdürülebilirlik yolculuğunuza devam edin'}
@@ -3389,9 +3389,9 @@ const Dashboard = ({ onNavigate }) => {
                 </div>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-white">{formatTime(currentTime)}</div>
-              <div className="text-blue-200 text-sm">{formatDate(currentTime)}</div>
+            <div className={`text-right ${isMobile ? 'w-full text-center' : ''}`}>
+              <div className={`font-bold text-white ${isMobile ? 'text-xl' : 'text-2xl'}`}>{formatTime(currentTime)}</div>
+              <div className={`text-blue-200 ${isMobile ? 'text-xs' : 'text-sm'}`}>{formatDate(currentTime)}</div>
               <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full bg-green-500 text-white text-sm font-medium">
                 <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
                 Sistem Aktif
@@ -3401,8 +3401,8 @@ const Dashboard = ({ onNavigate }) => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto p-8">
+      {/* Main Content - Mobile optimized */}
+      <div className={`max-w-7xl mx-auto ${isMobile ? 'p-4' : 'p-8'}`}>
         
         {/* Enhanced Admin Dashboard */}
         {userRole === 'admin' && (
