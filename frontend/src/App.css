@@ -4,6 +4,244 @@
 
 /* GreenWave CRM Custom Styles */
 
+/* Mobile-First Responsive Design */
+:root {
+  --mobile-breakpoint: 768px;
+  --tablet-breakpoint: 1024px;
+  --desktop-breakpoint: 1280px;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  .mobile-hidden {
+    display: none !important;
+  }
+  
+  .mobile-full-width {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  
+  .mobile-padding {
+    padding: 1rem !important;
+  }
+  
+  .mobile-text-sm {
+    font-size: 0.875rem !important;
+  }
+  
+  .mobile-compact {
+    gap: 0.5rem !important;
+  }
+}
+
+/* Touch-Friendly Interface */
+.touch-button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.touch-button:active {
+  transform: scale(0.95);
+  opacity: 0.8;
+}
+
+/* Mobile Navigation */
+.mobile-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  z-index: 50;
+  padding: 0.75rem;
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.mobile-nav-item:hover,
+.mobile-nav-item.active {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+/* Mobile Cards */
+.mobile-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.mobile-card-header {
+  padding: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  background: #f9fafb;
+}
+
+.mobile-card-content {
+  padding: 1rem;
+}
+
+/* Swipe Gestures */
+.swipeable {
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Mobile Forms */
+.mobile-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.mobile-input {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px; /* Prevents zoom on iOS */
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  transition: border-color 0.2s ease;
+}
+
+.mobile-input:focus {
+  border-color: #10b981;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Mobile Modals */
+.mobile-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+}
+
+.mobile-modal-content {
+  background: white;
+  width: 100%;
+  max-height: 80vh;
+  border-radius: 16px 16px 0 0;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+/* Mobile Tables */
+.mobile-table {
+  display: block;
+  width: 100%;
+}
+
+.mobile-table-row {
+  display: block;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-table-cell {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.mobile-table-cell:last-child {
+  border-bottom: none;
+}
+
+.mobile-table-label {
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.mobile-table-value {
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-align: right;
+}
+
+/* Mobile Dashboard */
+.mobile-dashboard {
+  padding: 1rem;
+  padding-bottom: 5rem; /* Space for bottom navigation */
+}
+
+.mobile-dashboard-header {
+  background: linear-gradient(135deg, #10b981, #047857);
+  color: white;
+  padding: 2rem 1rem 1rem;
+  border-radius: 0 0 20px 20px;
+  margin: -1rem -1rem 2rem -1rem;
+}
+
+.mobile-dashboard-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-dashboard-subtitle {
+  opacity: 0.9;
+  font-size: 0.875rem;
+}
+
+/* Mobile Stats Cards */
+.mobile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.mobile-stat-card {
+  background: white;
+  padding: 1.5rem 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.mobile-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #10b981;
+  line-height: 1;
+}
+
+.mobile-stat-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
 /* Clerk Login Page Customization */
 .cl-rootBox {
   background: linear-gradient(135deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #064e3b 100%) !important;
