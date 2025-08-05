@@ -9040,8 +9040,62 @@ const ConsumptionAnalytics = () => {
                     </div>
                   </div>
                   
-                  <div className="overflow-x-auto bg-white">
-                    <table className="min-w-full">
+                  {/* Mobile and Desktop Table Views */}
+                  {isMobile ? (
+                    // Mobile Card View
+                    <div className="p-4 bg-white space-y-4">
+                      {analyticsData.monthly_comparison?.slice(0, 12).map((month, index) => (
+                        <div key={index} className="mobile-card">
+                          <div className="mobile-card-header">
+                            <h3 className="font-semibold text-gray-800 flex items-center">
+                              📅 {month.month_name}
+                            </h3>
+                          </div>
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="text-center">
+                                <div className="text-blue-600 text-sm font-medium">⚡ Elektrik</div>
+                                <div className="font-bold text-gray-900">{month.electricity?.toLocaleString() || 0}</div>
+                                <div className="text-xs text-gray-500">kWh</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-blue-600 text-sm font-medium">💧 Su</div>
+                                <div className="font-bold text-gray-900">{month.water?.toLocaleString() || 0}</div>
+                                <div className="text-xs text-gray-500">m³</div>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="text-center">
+                                <div className="text-orange-600 text-sm font-medium">🔥 Doğalgaz</div>
+                                <div className="font-bold text-gray-900">{month.natural_gas?.toLocaleString() || 0}</div>
+                                <div className="text-xs text-gray-500">m³</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-purple-600 text-sm font-medium">🏨 Konaklama</div>
+                                <div className="font-bold text-gray-900">{month.accommodation_count?.toLocaleString() || 0}</div>
+                                <div className="text-xs text-gray-500">geceleme</div>
+                              </div>
+                            </div>
+                            <div className="pt-2 border-t border-gray-100">
+                              <div className="grid grid-cols-2 gap-3">
+                                <div className="text-center">
+                                  <div className="text-yellow-600 text-xs font-medium">👤⚡ /Kişi</div>
+                                  <div className="font-bold text-sm text-gray-900">{month.electricity_per_person?.toFixed(2) || '0.00'}</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-yellow-600 text-xs font-medium">👤💧 /Kişi</div>
+                                  <div className="font-bold text-sm text-gray-900">{month.water_per_person?.toFixed(2) || '0.00'}</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    // Desktop Table View
+                    <div className="overflow-x-auto bg-white">
+                      <table className="min-w-full">
                       {/* Elite Header */}
                       <thead>
                         <tr className="bg-gradient-to-r from-gray-900 to-gray-800">
