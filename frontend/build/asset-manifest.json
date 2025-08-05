@@ -1,13 +1,16 @@
 {
   "files": {
-    "main.css": "/static/css/main.18f37556.css",
-    "main.js": "/static/js/main.0ca34c76.js",
+    "main.css": "/static/css/main.9cb94154.css",
+    "main.js": "/static/js/main.d474e5bc.js",
+    "static/js/238.58977f58.chunk.js": "/static/js/238.58977f58.chunk.js",
+    "static/media/greenwave-logo.png": "/static/media/greenwave-logo.0b2b2770a9017ebdf860.png",
     "index.html": "/index.html",
-    "main.18f37556.css.map": "/static/css/main.18f37556.css.map",
-    "main.0ca34c76.js.map": "/static/js/main.0ca34c76.js.map"
+    "main.9cb94154.css.map": "/static/css/main.9cb94154.css.map",
+    "main.d474e5bc.js.map": "/static/js/main.d474e5bc.js.map",
+    "238.58977f58.chunk.js.map": "/static/js/238.58977f58.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.18f37556.css",
-    "static/js/main.0ca34c76.js"
+    "static/css/main.9cb94154.css",
+    "static/js/main.d474e5bc.js"
   ]
 }
