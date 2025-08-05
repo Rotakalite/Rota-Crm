@@ -19390,7 +19390,49 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
 //Wrap MainApp with ClerkProvider and add Clerk authentication flow
 const App = () => {
   return (
-    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+    <ClerkProvider 
+      publishableKey={CLERK_PUBLISHABLE_KEY}
+      appearance={{
+        elements: {
+          rootBox: {
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #064e3b 100%)',
+          },
+          card: {
+            background: 'rgba(255, 255, 255, 0.95)',
+            borderRadius: '20px',
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.15)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+          },
+          headerTitle: {
+            color: '#047857',
+            fontSize: '2rem',
+            fontWeight: '700',
+          },
+          headerSubtitle: {
+            color: '#059669',
+            fontSize: '1.1rem',
+          },
+          formButtonPrimary: {
+            background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
+            borderRadius: '12px',
+            boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)',
+          },
+          formFieldInput: {
+            borderRadius: '12px',
+            border: '2px solid #d1fae5',
+          },
+        },
+        variables: {
+          colorPrimary: '#10b981',
+          colorText: '#047857',
+        },
+        layout: {
+          socialButtonsPlacement: 'bottom',
+          logoPlacement: 'inside',
+        },
+      }}
+    >
       <SignedOut>
         <RedirectToSignIn />
       </SignedOut>
