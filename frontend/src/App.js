@@ -19438,7 +19438,7 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
         {/* Main Content */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 mobile-dashboard md:bg-gray-50" 
               style={{ minHeight: 'calc(100vh - 64px)' }}>
-          <div className="p-4 md:p-6 pb-20 md:pb-6">
+          <div className="p-4 md:p-6 pb-24 md:pb-6">
             {renderContent()}
           </div>
         </main>
