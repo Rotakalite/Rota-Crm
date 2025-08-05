@@ -14807,7 +14807,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
             <img 
               src="/greenwave-logo.png" 
               alt="GreenWave CRM" 
-              className="w-10 h-10 object-contain filter brightness-0 invert"
+              className="w-10 h-10 object-contain"
             />
           </div>
           <h1 className="text-xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
