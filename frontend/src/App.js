@@ -19262,30 +19262,22 @@ const ConsultantApp = () => {
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" style={{ minHeight: '100vh' }}>
-      {/* Elite Consultant Sidebar */}
-      <div 
-        className="text-white w-64 shadow-2xl"
-        style={{
-          background: 'linear-gradient(180deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%)',
-          minHeight: '100vh',
-          height: '100vh',
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          zIndex: 10,
-          display: 'flex',
-          flexDirection: 'column',
-          overflowY: 'auto', // Consultant sidebar scroll
-          overflowX: 'hidden'
-        }}
-      >
-        <div 
-          className="p-6 flex-1 flex flex-col"
-          style={{ 
-            minHeight: '100vh',
-            background: 'linear-gradient(180deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%)'
-          }}
-        >
+      {/* Desktop Sidebar - Hidden on mobile */}
+      <div className="hidden md:block fixed inset-y-0 left-0 z-50 w-64 text-white shadow-2xl"
+           style={{
+             background: 'linear-gradient(180deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%)',
+             minHeight: '100vh',
+             height: '100vh',
+             display: 'flex',
+             flexDirection: 'column',
+             overflowY: 'auto',
+             overflowX: 'hidden'
+           }}>
+        <div className="p-6 flex-1 flex flex-col"
+             style={{ 
+               minHeight: '100vh',
+               background: 'linear-gradient(180deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%)'
+             }}>
           <div className="text-center mb-8 flex-shrink-0">
             <div className="bg-gradient-to-r from-yellow-400 to-orange-500 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
               <span className="text-white text-xl font-bold">👔</span>
@@ -19299,16 +19291,14 @@ const ConsultantApp = () => {
             </p>
           </div>
         
-          <nav 
-            className="space-y-2 flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-blue-800" 
-            style={{ 
-              minHeight: '400px',
-              maxHeight: 'calc(100vh - 200px)', // Header ve footer için alan bırak
-              paddingRight: '8px', // Scroll bar için alan
-              scrollbarWidth: 'thin',
-              scrollbarColor: '#2563EB #1E40AF'
-            }}
-          >
+          <nav className="space-y-2 flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-blue-800" 
+               style={{ 
+                 minHeight: '400px',
+                 maxHeight: 'calc(100vh - 200px)',
+                 paddingRight: '8px',
+                 scrollbarWidth: 'thin',
+                 scrollbarColor: '#2563EB #1E40AF'
+               }}>
             {consultantMenuItems.map((item) => (
               <button
                 key={item.id}
@@ -19317,8 +19307,7 @@ const ConsultantApp = () => {
                   activeTab === item.id
                     ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg transform scale-105'
                     : 'text-blue-200 hover:bg-blue-700 hover:text-white hover:translate-x-2'
-                }`}
-              >
+                }`}>
                 <span className="text-lg">{item.icon}</span>
                 <span className="font-medium">{item.name}</span>
                 {activeTab === item.id && (
@@ -19328,14 +19317,12 @@ const ConsultantApp = () => {
             ))}
           </nav>
           
-          <div 
-            className="p-4 rounded-xl flex-shrink-0" 
-            style={{ 
-              background: 'linear-gradient(90deg, #059669, #0d9488)',
-              marginTop: '20px',
-              marginBottom: '10px'
-            }}
-          >
+          <div className="p-4 rounded-xl flex-shrink-0" 
+               style={{ 
+                 background: 'linear-gradient(90deg, #059669, #0d9488)',
+                 marginTop: '20px',
+                 marginBottom: '10px'
+               }}>
             <div className="text-center">
               <div className="text-2xl mb-2">🎯</div>
               <p className="text-white text-sm font-medium">Danışman Başarı</p>
@@ -19343,7 +19330,6 @@ const ConsultantApp = () => {
             </div>
           </div>
           
-          {/* Çıkış Butonu */}
           <div className="p-4 flex-shrink-0">
             <SignOutButton>
               <button className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg">
@@ -19355,12 +19341,29 @@ const ConsultantApp = () => {
         </div>
       </div>
       
-      {/* Main Content Area */}
-      <div 
-        className="flex-1 p-6"
-        style={{ marginLeft: '256px' }} // Account for fixed sidebar
-      >
-        {renderConsultantContent()}
+      {/* Mobile & Desktop Content */}
+      <div className="flex flex-col overflow-hidden md:ml-64" style={{ minHeight: '100vh' }}>
+        {/* Mobile Header */}
+        <div className="md:hidden mobile-dashboard-header">
+          <h1 className="mobile-dashboard-title">GreenWave CRM</h1>
+          <p className="mobile-dashboard-subtitle">Danışman Paneli</p>
+        </div>
+        
+        {/* Main Content */}
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 mobile-dashboard">
+          <div className="p-4 md:p-6 pb-20 md:pb-6">
+            {renderConsultantContent()}
+          </div>
+        </main>
+      </div>
+      
+      {/* Mobile Navigation - Only on mobile */}
+      <div className="md:hidden">
+        <MobileNavigation 
+          currentPage={activeTab}
+          onPageChange={(page) => setActiveTab(page)}
+          userRole="consultant"
+        />
       </div>
     </div>
   );
