@@ -14718,7 +14718,7 @@ const EmailNotificationManagement = () => {
                 <div className="bg-gray-50 p-4 rounded-lg mb-4">
                   <div className="text-sm text-gray-600 space-y-2">
                     <p><strong>📧 Konu:</strong> GreenWave CRM - Yeni {activeTab === 'documents' ? 'Doküman' : 'Eğitim'} Bildirimi ({(activeTab === 'documents' ? selectedDocuments : selectedTrainings).length} adet)</p>
-                    <p><strong>📝 İçerik:</strong> Standart ROTA CRM bildirim formatı kullanılacak</p>
+                    <p><strong>📝 İçerik:</strong> Standart GreenWave CRM bildirim formatı kullanılacak</p>
                     <p><strong>📊 Seçilen İtemler:</strong> {activeTab === 'documents' ? selectedDocuments.length : selectedTrainings.length} adet</p>
                     <p><strong>🏢 Müşteri:</strong> {clients.find(c => c.id === selectedClient)?.name || clients.find(c => c.id === selectedClient)?.hotel_name}</p>
                   </div>
