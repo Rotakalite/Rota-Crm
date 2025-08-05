@@ -410,6 +410,56 @@
     right: 0 !important;
     top: auto !important;
   }
+  
+  /* Mobile content wrapper */
+  .mobile-content-wrapper {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* Hide horizontal scrollbars on mobile */
+  .mobile-content-wrapper * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Table responsive - hide and show mobile version */
+  .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  .desktop-table {
+    display: none !important;
+  }
+  
+  .mobile-table {
+    display: block !important;
+  }
+  
+  /* File upload areas */
+  .file-upload-area {
+    padding: 2rem 1rem !important;
+    text-align: center !important;
+  }
+  
+  /* Charts and graphs */
+  .chart-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  /* Action buttons */
+  .action-buttons {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+  
+  .action-buttons.horizontal {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+  }
 }
 
 /* Mobile Stats Cards */
