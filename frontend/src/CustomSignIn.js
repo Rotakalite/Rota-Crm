@@ -118,6 +118,16 @@ const CustomSignIn = () => {
               google: ['email', 'profile'],
             }}
           />
+          
+          {/* Custom Forgot Password Link */}
+          <div className="mt-4 text-center">
+            <a 
+              href="/forgot-password" 
+              className="text-green-600 hover:text-green-700 font-medium text-sm transition-colors"
+            >
+              Şifremi unuttum
+            </a>
+          </div>
         </div>
 
         {/* Alt bilgi */}
