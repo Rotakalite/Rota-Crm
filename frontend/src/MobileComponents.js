@@ -3,10 +3,15 @@ import { useClerk } from '@clerk/clerk-react';
 
 const MobileNavigation = ({ currentPage, onPageChange, userRole }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { signOut } = useClerk();
 
   // Handle proper logout
   const handleLogout = async () => {
+    if (isLoggingOut) return; // Prevent multiple clicks
+    
+    setIsLoggingOut(true);
+    
     try {
       await signOut();
       // Clerk will automatically redirect to sign-in page after successful logout
@@ -14,6 +19,8 @@ const MobileNavigation = ({ currentPage, onPageChange, userRole }) => {
       console.error('Logout error:', error);
       // Fallback: redirect manually if Clerk fails
       window.location.href = '/sign-in';
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
