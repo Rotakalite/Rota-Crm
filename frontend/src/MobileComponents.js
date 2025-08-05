@@ -1,13 +1,45 @@
 import React, { useState, useEffect } from 'react';
 
-const MobileNavigation = ({ currentPage, onPageChange }) => {
-  const navItems = [
-    { id: 'dashboard', label: 'Ana Sayfa', icon: '🏠' },
-    { id: 'documents', label: 'Belgeler', icon: '📄' },
-    { id: 'analytics', label: 'Analitik', icon: '📊' },
-    { id: 'settings', label: 'Ayarlar', icon: '⚙️' },
-    { id: 'profile', label: 'Profil', icon: '👤' }
-  ];
+const MobileNavigation = ({ currentPage, onPageChange, userRole }) => {
+  // Role-based navigation items
+  const getNavItems = () => {
+    if (userRole === 'admin') {
+      return [
+        { id: 'dashboard', label: 'Ana Sayfa', icon: '🏠' },
+        { id: 'clients', label: 'Müşteriler', icon: '🏨' },
+        { id: 'consultants', label: 'Danışman', icon: '👥' },
+        { id: 'ai-assistant', label: 'AI Asistan', icon: '🤖' },
+        { id: 'settings', label: 'Ayarlar', icon: '⚙️' }
+      ];
+    } else if (userRole === 'client') {
+      return [
+        { id: 'dashboard', label: 'Ana Sayfa', icon: '🏠' },
+        { id: 'yeni-belge', label: 'Belgeler', icon: '📄' },
+        { id: 'consumption', label: 'Tüketim', icon: '⚡' },
+        { id: 'ai-assistant', label: 'AI Asistan', icon: '🤖' },
+        { id: 'analytics', label: 'Analitik', icon: '📊' }
+      ];
+    } else if (userRole === 'consultant') {
+      return [
+        { id: 'dashboard', label: 'Ana Sayfa', icon: '🏠' },
+        { id: 'my-clients', label: 'Müşteriler', icon: '👥' },
+        { id: 'reports', label: 'Raporlar', icon: '📊' },
+        { id: 'ai-assistant', label: 'AI Asistan', icon: '🤖' },
+        { id: 'profile', label: 'Profil', icon: '👤' }
+      ];
+    } else {
+      // Default items
+      return [
+        { id: 'dashboard', label: 'Ana Sayfa', icon: '🏠' },
+        { id: 'yeni-belge', label: 'Belgeler', icon: '📄' },
+        { id: 'analytics', label: 'Analitik', icon: '📊' },
+        { id: 'ai-assistant', label: 'AI Asistan', icon: '🤖' },
+        { id: 'profile', label: 'Profil', icon: '👤' }
+      ];
+    }
+  };
+
+  const navItems = getNavItems();
 
   return (
     <nav className="mobile-nav md:hidden">
