@@ -19424,12 +19424,43 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
 
   return (
     <div className="bg-gray-100" style={{ minHeight: '100vh' }}>
-      <Sidebar activeTab={activeTab} onNavigate={handleNavigate} userRole={userRole} />
-      <div className="flex flex-col overflow-hidden" style={{ marginLeft: '256px', minHeight: '100vh' }}>
-        <Header />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50" style={{ minHeight: 'calc(100vh - 64px)' }}>
-          {renderContent()}
+      {/* Desktop Sidebar - Hidden on mobile */}
+      <div className="hidden md:block">
+        <Sidebar activeTab={activeTab} onNavigate={handleNavigate} userRole={userRole} />
+      </div>
+      
+      {/* Mobile & Desktop Content */}
+      <div className="flex flex-col overflow-hidden md:ml-64" style={{ minHeight: '100vh' }}>
+        {/* Desktop Header - Hidden on mobile */}
+        <div className="hidden md:block">
+          <Header />
+        </div>
+        
+        {/* Mobile Header */}
+        <div className="md:hidden mobile-dashboard-header">
+          <h1 className="mobile-dashboard-title">GreenWave CRM</h1>
+          <p className="mobile-dashboard-subtitle">
+            {userRole === 'admin' ? 'Admin Paneli' : 
+             userRole === 'client' ? 'Müşteri Paneli' : 'Dashboard'}
+          </p>
+        </div>
+        
+        {/* Main Content */}
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 mobile-dashboard md:bg-gray-50" 
+              style={{ minHeight: 'calc(100vh - 64px)' }}>
+          <div className="p-4 md:p-6 pb-20 md:pb-6">
+            {renderContent()}
+          </div>
         </main>
+      </div>
+      
+      {/* Mobile Navigation - Only on mobile */}
+      <div className="md:hidden">
+        <MobileNavigation 
+          currentPage={activeTab}
+          onPageChange={handleNavigate}
+          userRole={userRole}
+        />
       </div>
     </div>
   );
