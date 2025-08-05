@@ -19395,6 +19395,13 @@ const App = () => {
   // Basit routing sistemi
   const currentPath = window.location.pathname;
   
+  // React useEffect ile redirect
+  React.useEffect(() => {
+    if (currentPath === '/') {
+      window.location.href = '/sign-in';
+    }
+  }, [currentPath]);
+  
   // Custom routing sadece auth sayfaları için
   if (currentPath === '/sign-in') {
     return (
@@ -19465,12 +19472,7 @@ const App = () => {
       }}
     >
       <SignedOut>
-        {/* Ana sayfada değilse /sign-in'e yönlendir */}
-        {currentPath === '/' && (
-          <div>
-            <script>{`window.location.href = '/sign-in'`}</script>
-          </div>
-        )}
+        <div>Yönlendiriliyor...</div>
       </SignedOut>
       
       <SignedIn>
