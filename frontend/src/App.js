@@ -19395,7 +19395,7 @@ const App = () => {
   // Basit routing sistemi
   const currentPath = window.location.pathname;
   
-  // Custom routing
+  // Custom routing sadece auth sayfaları için
   if (currentPath === '/sign-in') {
     return (
       <ClerkProvider 
@@ -19444,7 +19444,7 @@ const App = () => {
     );
   }
 
-  // Ana uygulama (default) - Normal Clerk flow
+  // Ana uygulama - Normal Clerk flow (default)
   return (
     <ClerkProvider 
       publishableKey={CLERK_PUBLISHABLE_KEY}
@@ -19465,10 +19465,12 @@ const App = () => {
       }}
     >
       <SignedOut>
-        {/* Otomatik olarak /sign-in'e yönlendir */}
-        <div style={{display: 'none'}}>
-          {window.location.pathname !== '/sign-in' && (window.location.href = '/sign-in')}
-        </div>
+        {/* Ana sayfada değilse /sign-in'e yönlendir */}
+        {currentPath === '/' && (
+          <div>
+            <script>{`window.location.href = '/sign-in'`}</script>
+          </div>
+        )}
       </SignedOut>
       
       <SignedIn>
