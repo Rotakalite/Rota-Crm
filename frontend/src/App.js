@@ -14441,7 +14441,7 @@ const EmailNotificationManagement = () => {
         type: activeTab === 'documents' ? 'document' : 'training',
         subject: activeTab === 'documents' ? 
           `GreenWave CRM - Yeni Doküman Bildirimi (${selectedItems.length} adet)` : 
-          `ROTA CRM - Yeni Eğitim Bildirimi (${selectedItems.length} adet)`,
+          `GreenWave CRM - Yeni Eğitim Bildirimi (${selectedItems.length} adet)`,
         message: `Sayın ${clientName},\n\nSisteminize ${selectedItems.length} adet yeni ${activeTab === 'documents' ? 'doküman' : 'eğitim'} yüklenmiştir. Detaylar aşağıdadır.\n\nSaygılarımızla,\nROTA CRM Ekibi`,
         items: selectedItems.map(item => ({
           id: item.id,
