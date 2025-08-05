@@ -14803,11 +14803,15 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
         }}
       >
         <div className="text-center mb-8 flex-shrink-0">
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
-            <span className="text-white text-xl font-bold">R</span>
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
+            <img 
+              src="/greenwave-logo.png" 
+              alt="GreenWave CRM" 
+              className="w-10 h-10 object-contain filter brightness-0 invert"
+            />
           </div>
-          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            GREENWAVE CRM
+          <h1 className="text-xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+            GreenWave CRM
           </h1>
           <p className="text-gray-400 text-sm mt-1">Sürdürülebilirlik Paneli</p>
         </div>
