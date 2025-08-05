@@ -3231,6 +3231,7 @@ const Dashboard = ({ onNavigate }) => {
   const [adminDashboardData, setAdminDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const isMobile = useIsMobile();
   const API = getApiUrl();
 
   // Update time every minute
