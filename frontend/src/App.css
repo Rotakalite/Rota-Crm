@@ -502,6 +502,59 @@
   }
 }
 
+/* Portrait vs Landscape optimizations */
+@media (max-width: 640px) and (orientation: portrait) {
+  .mobile-nav {
+    padding: 0.25rem;
+    padding-bottom: calc(0.25rem + env(safe-area-inset-bottom, 0px));
+  }
+  
+  .mobile-nav-item {
+    padding: 0.25rem;
+    min-height: 55px;
+  }
+  
+  .mobile-nav-item .nav-icon {
+    font-size: 1.1rem;
+  }
+  
+  .mobile-nav-item .nav-label {
+    font-size: 0.55rem;
+  }
+  
+  .mobile-dashboard {
+    padding-bottom: 7rem;
+  }
+}
+
+@media (max-width: 640px) and (orientation: landscape) {
+  .mobile-nav {
+    padding: 0.5rem;
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+  }
+  
+  .mobile-nav-item {
+    padding: 0.5rem;
+    min-height: 45px;
+  }
+  
+  .mobile-nav-item .nav-icon {
+    font-size: 1rem;
+  }
+  
+  .mobile-nav-item .nav-label {
+    font-size: 0.6rem;
+  }
+  
+  .mobile-dashboard {
+    padding-bottom: 5rem;
+  }
+  
+  .mobile-dashboard-header {
+    padding: 1rem 1rem 0.5rem;
+  }
+}
+
 /* Development mode badge styling */
 .cl-card + div {
   background: rgba(249, 115, 22, 0.1) !important;
