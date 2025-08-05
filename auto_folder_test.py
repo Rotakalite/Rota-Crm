@@ -16,7 +16,7 @@ class TestAutoFolderCreation(unittest.TestCase):
     def setUp(self):
         """Set up test environment"""
         # API URL
-        self.api_url = "https://59ac40e0-967c-4254-8b25-c980adb51f08.preview.emergentagent.com/api"
+        self.api_url = "https://63cd9e66-c298-4a2c-92bc-f8af7936d9a9.preview.emergentagent.com/api"
         
         # MongoDB connection
         self.mongo_url = "mongodb://localhost:27017"
