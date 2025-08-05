@@ -3508,37 +3508,37 @@ const Dashboard = ({ onNavigate }) => {
               </div>
             </div>
 
-            {/* Charts and Analytics */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Charts and Analytics - Mobile Responsive */}
+            <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}>
               {/* Client Distribution Chart */}
               <div className="bg-white rounded-xl shadow-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Müşteri Dağılımı</h3>
+                <h3 className={`font-semibold text-gray-900 mb-4 ${isMobile ? 'text-base' : 'text-lg'}`}>Müşteri Dağılımı</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Kayıtlı Müşteriler</span>
+                    <span className={`text-gray-600 ${isMobile ? 'text-xs' : 'text-sm'}`}>Kayıtlı Müşteriler</span>
                     <div className="flex items-center space-x-2">
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div className={`bg-gray-200 rounded-full h-2 ${isMobile ? 'w-20' : 'w-32'}`}>
                         <div className="bg-blue-600 h-2 rounded-full" style={{width: `${((adminDashboardData?.overview?.registered_clients || 0) / (adminDashboardData?.overview?.total_clients || 1)) * 100}%`}}></div>
                       </div>
-                      <span className="text-sm font-medium w-8">{adminDashboardData?.overview?.registered_clients || 0}</span>
+                      <span className={`font-medium w-8 ${isMobile ? 'text-xs' : 'text-sm'}`}>{adminDashboardData?.overview?.registered_clients || 0}</span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Bulk Müşteriler</span>
+                    <span className={`text-gray-600 ${isMobile ? 'text-xs' : 'text-sm'}`}>Bulk Müşteriler</span>
                     <div className="flex items-center space-x-2">
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div className={`bg-gray-200 rounded-full h-2 ${isMobile ? 'w-20' : 'w-32'}`}>
                         <div className="bg-green-600 h-2 rounded-full" style={{width: `${((adminDashboardData?.overview?.bulk_clients || 0) / (adminDashboardData?.overview?.total_clients || 1)) * 100}%`}}></div>
                       </div>
-                      <span className="text-sm font-medium w-8">{adminDashboardData?.overview?.bulk_clients || 0}</span>
+                      <span className={`font-medium w-8 ${isMobile ? 'text-xs' : 'text-sm'}`}>{adminDashboardData?.overview?.bulk_clients || 0}</span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Consultant Atanmış</span>
+                    <span className={`text-gray-600 ${isMobile ? 'text-xs' : 'text-sm'}`}>Consultant Atanmış</span>
                     <div className="flex items-center space-x-2">
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div className={`bg-gray-200 rounded-full h-2 ${isMobile ? 'w-20' : 'w-32'}`}>
                         <div className="bg-purple-600 h-2 rounded-full" style={{width: `${((adminDashboardData?.overview?.assigned_clients || 0) / (adminDashboardData?.overview?.total_clients || 1)) * 100}%`}}></div>
                       </div>
-                      <span className="text-sm font-medium w-8">{adminDashboardData?.overview?.assigned_clients || 0}</span>
+                      <span className={`font-medium w-8 ${isMobile ? 'text-xs' : 'text-sm'}`}>{adminDashboardData?.overview?.assigned_clients || 0}</span>
                     </div>
                   </div>
                 </div>
@@ -3546,7 +3546,7 @@ const Dashboard = ({ onNavigate }) => {
 
               {/* System Performance */}
               <div className="bg-white rounded-xl shadow-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Sistem Performansı</h3>
+                <h3 className={`font-semibold text-gray-900 mb-4 ${isMobile ? 'text-base' : 'text-lg'}`}>Sistem Performansı</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Karbon Ayak İzi Analizi</span>
