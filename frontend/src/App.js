@@ -8795,6 +8795,7 @@ const ConsumptionAnalytics = () => {
   const [selectedClient, setSelectedClient] = useState('');
   const [selectedYear, setSelectedYear] = useState(2025);
   const [loading, setLoading] = useState(false);
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState('overview'); // overview, per-person
 
   const { authToken, userRole, dbUser, refreshToken } = useAuth();
