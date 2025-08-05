@@ -19053,6 +19053,39 @@ const MainApp = () => {
   const [showRoleSetup, setShowRoleSetup] = useState(false);
   const { userRole, isLoaded, dbUser, refreshUser } = useAuth();
   const { user } = useUser();
+  const isMobile = useIsMobile();
+
+  // Mobile navigation handler
+  const handleMobileNavigation = (page) => {
+    switch (page) {
+      case 'dashboard':
+        setActiveTab('dashboard');
+        break;
+      case 'documents':
+        setActiveTab('documents');
+        break;
+      case 'analytics':
+        setActiveTab('sustainability-tracking');
+        break;
+      case 'settings':
+        setActiveTab('admin-settings');
+        break;
+      case 'profile':
+        setActiveTab('profile');
+        break;
+      case 'ai-report':
+        setActiveTab('ai-assistant');
+        break;
+      case 'add-client':
+        setShowClientSetup(true);
+        break;
+      case 'activities':
+        setActiveTab('activities');
+        break;
+      default:
+        setActiveTab('dashboard');
+    }
+  };
 
   // Check 2FA completion status when user loads
   useEffect(() => {
