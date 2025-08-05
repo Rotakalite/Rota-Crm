@@ -19389,48 +19389,81 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
 
 //Wrap MainApp with ClerkProvider and add Clerk authentication flow
 const App = () => {
-  // DOM manipulation for Clerk customization
+  // Advanced DOM manipulation for Clerk customization
   React.useEffect(() => {
     const customizeClerkElements = () => {
       // Başlığı değiştir
-      const titleElement = document.querySelector('.cl-headerTitle');
-      if (titleElement && titleElement.textContent.includes('Sustainable Tourism')) {
-        titleElement.textContent = 'GreenWave CRM\'e Giriş';
-      }
+      const titleElements = document.querySelectorAll('.cl-headerTitle, [data-testid="sign-in-title"], h1');
+      titleElements.forEach(element => {
+        if (element && element.textContent && element.textContent.includes('Sustainable Tourism')) {
+          element.innerHTML = 'GreenWave CRM\'e Giriş';
+          element.style.color = '#047857';
+          element.style.fontSize = '2rem';
+          element.style.fontWeight = '700';
+          element.style.textAlign = 'center';
+        }
+      });
       
       // Alt başlığı değiştir  
-      const subtitleElement = document.querySelector('.cl-headerSubtitle');
-      if (subtitleElement && subtitleElement.textContent.includes('Welcome back')) {
-        subtitleElement.textContent = 'Hoş geldiniz! Sürdürülebilirlik yönetim sistemine giriş yapın';
-      }
+      const subtitleElements = document.querySelectorAll('.cl-headerSubtitle, [data-testid="sign-in-subtitle"], p');
+      subtitleElements.forEach(element => {
+        if (element && element.textContent && (element.textContent.includes('Welcome back') || element.textContent.includes('Please sign in'))) {
+          element.innerHTML = 'Hoş geldiniz! Sürdürülebilirlik yönetim sistemine giriş yapın';
+          element.style.color = '#059669';
+          element.style.fontSize = '1.1rem';
+          element.style.textAlign = 'center';
+        }
+      });
       
       // Logo ekle
-      const cardElement = document.querySelector('.cl-card');
-      if (cardElement && !cardElement.querySelector('.custom-logo')) {
-        const logoDiv = document.createElement('div');
-        logoDiv.className = 'custom-logo';
-        logoDiv.style.cssText = `
-          width: 120px;
-          height: 120px;
-          background-image: url('/greenwave-logo.png');
-          background-size: contain;
-          background-repeat: no-repeat;
-          background-position: center;
-          margin: 0 auto 2rem auto;
-          display: block;
-        `;
-        cardElement.insertBefore(logoDiv, cardElement.firstChild);
+      const cardElements = document.querySelectorAll('.cl-card, [data-testid="sign-in-card"]');
+      cardElements.forEach(cardElement => {
+        if (cardElement && !cardElement.querySelector('.greenwave-custom-logo')) {
+          const logoDiv = document.createElement('div');
+          logoDiv.className = 'greenwave-custom-logo';
+          logoDiv.style.cssText = `
+            width: 120px !important;
+            height: 120px !important;
+            background-image: url('/greenwave-logo.png') !important;
+            background-size: contain !important;
+            background-repeat: no-repeat !important;
+            background-position: center !important;
+            margin: 0 auto 2rem auto !important;
+            display: block !important;
+          `;
+          cardElement.insertBefore(logoDiv, cardElement.firstChild);
+        }
+      });
+      
+      // Page title'ı da değiştir
+      if (document.title.includes('Sustainable Tourism')) {
+        document.title = 'GreenWave CRM - Giriş';
       }
     };
 
     // İlk yüklemede çalıştır
     customizeClerkElements();
     
-    // Clerk asenkron yüklendiği için interval ile kontrol et
-    const interval = setInterval(customizeClerkElements, 500);
+    // MutationObserver ile DOM değişikliklerini izle
+    const observer = new MutationObserver(() => {
+      customizeClerkElements();
+    });
+    
+    // Tüm dokümanı izle
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+    
+    // Her 1 saniyede bir kontrol et (backup)
+    const interval = setInterval(customizeClerkElements, 1000);
     
     // Cleanup
-    return () => clearInterval(interval);
+    return () => {
+      observer.disconnect();
+      clearInterval(interval);
+    };
   }, []);
 
   return (
