@@ -3404,49 +3404,66 @@ const Dashboard = ({ onNavigate }) => {
       {/* Main Content - Mobile optimized */}
       <div className={`max-w-7xl mx-auto ${isMobile ? 'p-4' : 'p-8'}`}>
         
-        {/* Enhanced Admin Dashboard */}
+        {/* Enhanced Admin Dashboard - Mobile Optimized */}
         {userRole === 'admin' && (
           <div className="space-y-8">
-            {/* Header Section */}
+            {/* Header Section - Mobile Responsive */}
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
-              <div className="flex justify-between items-center">
+              <div className={`${isMobile ? 'text-center' : 'flex justify-between items-center'}`}>
                 <div>
-                  <h1 className="text-3xl font-bold mb-2">🎯 Admin Dashboard</h1>
-                  <p className="text-blue-100 text-lg">Sistem geneli istatistikler ve yönetim paneli</p>
+                  <h1 className={`font-bold mb-2 ${isMobile ? 'text-xl' : 'text-3xl'}`}>🎯 Admin Dashboard</h1>
+                  <p className={`text-blue-100 ${isMobile ? 'text-sm' : 'text-lg'}`}>Sistem geneli istatistikler ve yönetim paneli</p>
                 </div>
-                <div className="flex items-center space-x-3">
+                {!isMobile && (
+                  <div className="flex items-center space-x-3">
+                    <button 
+                      onClick={() => {
+                        console.log('🔄 Manual refresh clicked');
+                        fetchDashboardData();
+                      }}
+                      className="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors"
+                    >
+                      🔄 Yenile
+                    </button>
+                    <button className="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors">
+                      📊 Rapor İndir
+                    </button>
+                    <button className="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors">
+                      ⚙️ Ayarlar
+                    </button>
+                  </div>
+                )}
+              </div>
+              
+              {/* Mobile Action Buttons */}
+              {isMobile && (
+                <div className="mt-4 space-y-2">
                   <button 
                     onClick={() => {
                       console.log('🔄 Manual refresh clicked');
                       fetchDashboardData();
                     }}
-                    className="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors"
+                    className="w-full bg-white/20 text-white py-3 px-4 rounded-lg hover:bg-white/30 transition-colors"
                   >
                     🔄 Yenile
                   </button>
-                  <button className="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors">
-                    📊 Rapor İndir
-                  </button>
-                  <button className="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors">
-                    ⚙️ Ayarlar
-                  </button>
                 </div>
-              </div>
+              )}
             </div>
 
-            {/* Key Metrics Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Key Metrics Row - Mobile Responsive Grid */}
+            <div className={`grid gap-6 ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'}`}>
               <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Toplam Müşteri</p>
-                    <p className="text-3xl font-bold text-gray-900">{adminDashboardData?.overview?.total_clients || 0}</p>
-                    <p className="text-sm text-green-600 mt-1">
-                      ↗ {adminDashboardData?.overview?.registered_clients || 0} kayıtlı, {adminDashboardData?.overview?.bulk_clients || 0} bulk
+                    <p className={`font-medium text-gray-600 ${isMobile ? 'text-xs' : 'text-sm'}`}>Toplam Müşteri</p>
+                    <p className={`font-bold text-gray-900 ${isMobile ? 'text-xl' : 'text-3xl'}`}>{adminDashboardData?.overview?.total_clients || 0}</p>
+                    <p className={`text-green-600 mt-1 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                      ↗ {adminDashboardData?.overview?.registered_clients || 0} kayıtlı
                     </p>
                   </div>
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">👥</span>
+                  <div className={`bg-blue-100 rounded-lg flex items-center justify-center ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
+                    <span className={isMobile ? 'text-lg' : 'text-2xl'}>👥</span>
                   </div>
                 </div>
               </div>
@@ -3454,12 +3471,12 @@ const Dashboard = ({ onNavigate }) => {
               <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Toplam Doküman</p>
-                    <p className="text-3xl font-bold text-gray-900">{adminDashboardData?.overview?.total_documents || 0}</p>
-                    <p className="text-sm text-green-600 mt-1">↗ Bu ay +{adminDashboardData?.overview?.monthly_documents || 0}</p>
+                    <p className={`font-medium text-gray-600 ${isMobile ? 'text-xs' : 'text-sm'}`}>Toplam Doküman</p>
+                    <p className={`font-bold text-gray-900 ${isMobile ? 'text-xl' : 'text-3xl'}`}>{adminDashboardData?.overview?.total_documents || 0}</p>
+                    <p className={`text-green-600 mt-1 ${isMobile ? 'text-xs' : 'text-sm'}`}>↗ Bu ay +{adminDashboardData?.overview?.monthly_documents || 0}</p>
                   </div>
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">📄</span>
+                  <div className={`bg-green-100 rounded-lg flex items-center justify-center ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
+                    <span className={isMobile ? 'text-lg' : 'text-2xl'}>📄</span>
                   </div>
                 </div>
               </div>
@@ -3467,12 +3484,12 @@ const Dashboard = ({ onNavigate }) => {
               <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Tamamlanan Eğitim</p>
-                    <p className="text-3xl font-bold text-gray-900">{adminDashboardData?.overview?.total_trainings || 0}</p>
-                    <p className="text-sm text-purple-600 mt-1">↗ %{adminDashboardData?.training_analytics?.completion_rate || 0} tamamlanma</p>
+                    <p className={`font-medium text-gray-600 ${isMobile ? 'text-xs' : 'text-sm'}`}>Tamamlanan Eğitim</p>
+                    <p className={`font-bold text-gray-900 ${isMobile ? 'text-xl' : 'text-3xl'}`}>{adminDashboardData?.overview?.total_trainings || 0}</p>
+                    <p className={`text-purple-600 mt-1 ${isMobile ? 'text-xs' : 'text-sm'}`}>↗ %{adminDashboardData?.training_analytics?.completion_rate || 0} tamamlanma</p>
                   </div>
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">🎓</span>
+                  <div className={`bg-purple-100 rounded-lg flex items-center justify-center ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
+                    <span className={isMobile ? 'text-lg' : 'text-2xl'}>🎓</span>
                   </div>
                 </div>
               </div>
@@ -3480,12 +3497,12 @@ const Dashboard = ({ onNavigate }) => {
               <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Atanan Müşteri</p>
-                    <p className="text-3xl font-bold text-gray-900">{adminDashboardData?.overview?.assigned_clients || 0}</p>
-                    <p className="text-sm text-orange-600 mt-1">↗ {(adminDashboardData?.overview?.total_clients || 0) - (adminDashboardData?.overview?.assigned_clients || 0)} atanmamış</p>
+                    <p className={`font-medium text-gray-600 ${isMobile ? 'text-xs' : 'text-sm'}`}>Atanan Müşteri</p>
+                    <p className={`font-bold text-gray-900 ${isMobile ? 'text-xl' : 'text-3xl'}`}>{adminDashboardData?.overview?.assigned_clients || 0}</p>
+                    <p className={`text-orange-600 mt-1 ${isMobile ? 'text-xs' : 'text-sm'}`}>↗ {(adminDashboardData?.overview?.total_clients || 0) - (adminDashboardData?.overview?.assigned_clients || 0)} atanmamış</p>
                   </div>
-                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">👨‍💼</span>
+                  <div className={`bg-orange-100 rounded-lg flex items-center justify-center ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
+                    <span className={isMobile ? 'text-lg' : 'text-2xl'}>👨‍💼</span>
                   </div>
                 </div>
               </div>
