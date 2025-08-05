@@ -19392,6 +19392,9 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
 
 //Wrap MainApp with ClerkProvider and add Clerk authentication flow
 const App = () => {
+  // Basit routing sistemi
+  const currentPath = window.location.pathname;
+  
   // Advanced DOM manipulation for Clerk customization
   React.useEffect(() => {
     const customizeClerkElements = () => {
@@ -19469,6 +19472,32 @@ const App = () => {
     };
   }, []);
 
+  // Custom routing
+  if (currentPath === '/sign-in') {
+    return (
+      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+        <CustomSignIn />
+      </ClerkProvider>
+    );
+  }
+  
+  if (currentPath === '/sign-up') {
+    return (
+      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+        <CustomSignUp />
+      </ClerkProvider>
+    );
+  }
+  
+  if (currentPath === '/forgot-password') {
+    return (
+      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+        <ForgotPasswordPage />
+      </ClerkProvider>
+    );
+  }
+
+  // Ana uygulama (default)
   return (
     <ClerkProvider 
       publishableKey={CLERK_PUBLISHABLE_KEY}
@@ -19489,7 +19518,9 @@ const App = () => {
       }}
     >
       <SignedOut>
-        <RedirectToSignIn />
+        {/* Default olarak custom sign-in'e yönlendir */}
+        {window.location.pathname !== '/sign-in' && (window.location.href = '/sign-in')}
+        <CustomSignIn />
       </SignedOut>
       
       <SignedIn>
