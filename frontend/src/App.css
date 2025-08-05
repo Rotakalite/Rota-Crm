@@ -1064,21 +1064,197 @@
   color: white;
 }
 
-/* Data visualization enhancements */
-.chart-container {
-  position: relative;
-  height: 300px;
-  width: 100%;
+/* Mobile Dashboard Styles */
+.mobile-dashboard {
+  padding-bottom: 80px; /* Space for bottom navigation */
 }
 
-.metric-card {
+.mobile-dashboard-header {
+  background: linear-gradient(135deg, #10b981, #047857);
+  color: white;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.mobile-dashboard-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.mobile-dashboard-subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+}
+
+/* Mobile Stats Grid */
+.mobile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.mobile-stat-card {
   background: white;
-  border-radius: 8px;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  text-align: center;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  border-left: 4px solid #10b981;
 }
 
-.metric-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px);
+.mobile-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.mobile-stat-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Mobile Data Table */
+.mobile-data-table {
+  display: block;
+}
+
+.mobile-data-table .mobile-card {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.mobile-data-table .mobile-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Mobile Form Styles */
+.mobile-form-group {
+  margin-bottom: 1rem;
+}
+
+.mobile-form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-form-group input,
+.mobile-form-group select,
+.mobile-form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem; /* Prevent zoom on iOS */
+  border: 2px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: white;
+  min-height: 48px; /* Touch-friendly */
+}
+
+.mobile-form-group input:focus,
+.mobile-form-group select:focus,
+.mobile-form-group textarea:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Mobile Content Wrapper */
+.mobile-content-wrapper {
+  padding: 1rem;
+  padding-bottom: 5rem; /* Space for bottom nav */
+}
+
+@media (max-width: 768px) {
+  /* Hide desktop tables and show mobile version */
+  table:not(.mobile-keep) {
+    display: none !important;
+  }
+  
+  .mobile-table-replacement {
+    display: block !important;
+  }
+  
+  /* Convert grids to single column */
+  .grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  /* Adjust padding for mobile */
+  .p-8 {
+    padding: 1rem !important;
+  }
+  
+  .p-6 {
+    padding: 1rem !important;
+  }
+  
+  .p-4 {
+    padding: 0.75rem !important;
+  }
+  
+  /* Mobile-specific text sizes */
+  .text-3xl {
+    font-size: 1.5rem !important;
+  }
+  
+  .text-2xl {
+    font-size: 1.25rem !important;
+  }
+  
+  .text-xl {
+    font-size: 1.125rem !important;
+  }
+  
+  /* Make buttons touch-friendly */
+  button {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+  }
+  
+  /* Responsive charts */
+  .chart-container {
+    height: 250px !important;
+  }
+}
+
+/* Portrait mode specific */
+@media (max-width: 768px) and (orientation: portrait) {
+  .mobile-stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .mobile-dashboard-header {
+    text-align: center;
+  }
+  
+  /* Stack buttons vertically in portrait */
+  .flex.space-x-3 {
+    flex-direction: column !important;
+    space-x: 0 !important;
+    gap: 0.5rem;
+  }
+  
+  /* Full width cards in portrait */
+  .lg\\:grid-cols-4,
+  .lg\\:grid-cols-3,
+  .lg\\:grid-cols-2,
+  .md\\:grid-cols-2,
+  .md\\:grid-cols-3,
+  .md\\:grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
 }
