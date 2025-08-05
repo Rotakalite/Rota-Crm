@@ -19389,6 +19389,50 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
 
 //Wrap MainApp with ClerkProvider and add Clerk authentication flow
 const App = () => {
+  // DOM manipulation for Clerk customization
+  React.useEffect(() => {
+    const customizeClerkElements = () => {
+      // Başlığı değiştir
+      const titleElement = document.querySelector('.cl-headerTitle');
+      if (titleElement && titleElement.textContent.includes('Sustainable Tourism')) {
+        titleElement.textContent = 'GreenWave CRM\'e Giriş';
+      }
+      
+      // Alt başlığı değiştir  
+      const subtitleElement = document.querySelector('.cl-headerSubtitle');
+      if (subtitleElement && subtitleElement.textContent.includes('Welcome back')) {
+        subtitleElement.textContent = 'Hoş geldiniz! Sürdürülebilirlik yönetim sistemine giriş yapın';
+      }
+      
+      // Logo ekle
+      const cardElement = document.querySelector('.cl-card');
+      if (cardElement && !cardElement.querySelector('.custom-logo')) {
+        const logoDiv = document.createElement('div');
+        logoDiv.className = 'custom-logo';
+        logoDiv.style.cssText = `
+          width: 120px;
+          height: 120px;
+          background-image: url('/greenwave-logo.png');
+          background-size: contain;
+          background-repeat: no-repeat;
+          background-position: center;
+          margin: 0 auto 2rem auto;
+          display: block;
+        `;
+        cardElement.insertBefore(logoDiv, cardElement.firstChild);
+      }
+    };
+
+    // İlk yüklemede çalıştır
+    customizeClerkElements();
+    
+    // Clerk asenkron yüklendiği için interval ile kontrol et
+    const interval = setInterval(customizeClerkElements, 500);
+    
+    // Cleanup
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <ClerkProvider 
       publishableKey={CLERK_PUBLISHABLE_KEY}
@@ -19404,7 +19448,7 @@ const App = () => {
         },
         layout: {
           socialButtonsPlacement: 'bottom',
-          logoPlacement: 'none', // Logo'yu CSS ile kendimiz ekleyeceğiz
+          logoPlacement: 'none',
         },
       }}
     >
