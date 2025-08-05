@@ -19432,6 +19432,20 @@ const App = () => {
           logoPlacement: 'inside',
         },
       }}
+      localization={{
+        signIn: {
+          start: {
+            title: 'GreenWave CRM\'e Giriş',
+            subtitle: 'Hoş geldiniz! Devam etmek için lütfen giriş yapın',
+          },
+        },
+        signUp: {
+          start: {
+            title: 'GreenWave CRM\'e Kayıt',
+            subtitle: 'Yeni hesap oluşturun',
+          },
+        },
+      }}
     >
       <SignedOut>
         <RedirectToSignIn />
