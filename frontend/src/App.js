@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ClerkProvider, SignedIn, SignedOut, RedirectToSignIn, useUser, useClerk, SignOutButton } from '@clerk/clerk-react';
 import MobileDashboardView from './MobileDashboardView';
 import { useIsMobile, MobileNavigation } from './MobileComponents';
+import { useMobileTableConverter, useMobileFormOptimizer, useMobileContentOptimizer } from './MobileOptimizationHooks';
 import "./App.css";
 import axios from "axios";
 import YeniBelgeYonetimiYeni from './YeniBelgeYonetimiYeni';
