@@ -209,7 +209,8 @@
 /* Mobile Dashboard */
 .mobile-dashboard {
   padding: 1rem;
-  padding-bottom: 5rem; /* Space for bottom navigation */
+  padding-bottom: 6rem; /* Space for bottom navigation - increased */
+  min-height: 100vh;
 }
 
 .mobile-dashboard-header {
@@ -218,6 +219,8 @@
   padding: 2rem 1rem 1rem;
   border-radius: 0 0 20px 20px;
   margin: -1rem -1rem 2rem -1rem;
+  position: relative;
+  z-index: 1;
 }
 
 .mobile-dashboard-title {
