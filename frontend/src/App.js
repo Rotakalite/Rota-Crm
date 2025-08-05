@@ -17569,7 +17569,7 @@ const RoleSetup = ({ onComplete }) => {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl">
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-2">🏨 Rota CRM</h1>
+            <h1 className="text-2xl font-bold mb-2">🏨 GreenWave CRM</h1>
             <p className="text-blue-100">Hoş geldiniz! Lütfen hesap türünüzu seçin</p>
           </div>
         </div>
