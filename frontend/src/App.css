@@ -1229,7 +1229,7 @@
 /* Mobile Content Wrapper */
 .mobile-content-wrapper {
   padding: 1rem;
-  padding-bottom: 5rem; /* Space for bottom nav */
+  padding-bottom: 3.5rem; /* Space for smaller bottom nav (50px + margin) */
 }
 
 @media (max-width: 768px) {
