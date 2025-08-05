@@ -68,6 +68,7 @@ const MobileNavigation = ({ currentPage, onPageChange, userRole }) => {
         { id: 'training', label: 'Eğitim Yönetimi', icon: '🎓', group: 'documents' },
         { id: 'email-management', label: 'Email Yönetimi', icon: '📧', group: 'documents' },
         { id: 'consumption', label: 'Tüketim Takibi', icon: '⚡', group: 'analytics' },
+        { id: 'analytics', label: 'Tüketim Analizi', icon: '📊', group: 'analytics' },
         { id: 'waste-management', label: 'Atık Yönetimi', icon: '♻️', group: 'analytics' },
         { id: 'suppliers', label: 'Tedarikçi Yönetimi', icon: '🚚', group: 'analytics' },
         { id: 'personnel', label: 'Personel Yönetimi', icon: '👤', group: 'analytics' },
