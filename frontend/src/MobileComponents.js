@@ -6,40 +6,49 @@ const MobileNavigation = ({ currentPage, onPageChange, userRole }) => {
     if (userRole === 'admin') {
       return [
         { id: 'dashboard', label: 'Ana Sayfa', icon: '🏠' },
-        { id: 'clients', label: 'Müşteriler', icon: '🏨' },
+        { id: 'clients', label: 'Müşteri', icon: '🏨' },
         { id: 'consultants', label: 'Danışman', icon: '👥' },
-        { id: 'ai-assistant', label: 'AI Asistan', icon: '🤖' },
-        { id: 'settings', label: 'Ayarlar', icon: '⚙️' }
+        { id: 'ai-assistant', label: 'AI', icon: '🤖' },
+        { id: 'settings', label: 'Çıkış', icon: '🚪', isLogout: true }
       ];
     } else if (userRole === 'client') {
       return [
         { id: 'dashboard', label: 'Ana Sayfa', icon: '🏠' },
         { id: 'yeni-belge', label: 'Belgeler', icon: '📄' },
         { id: 'consumption', label: 'Tüketim', icon: '⚡' },
-        { id: 'ai-assistant', label: 'AI Asistan', icon: '🤖' },
-        { id: 'analytics', label: 'Analitik', icon: '📊' }
+        { id: 'ai-assistant', label: 'AI', icon: '🤖' },
+        { id: 'logout', label: 'Çıkış', icon: '🚪', isLogout: true }
       ];
     } else if (userRole === 'consultant') {
       return [
         { id: 'dashboard', label: 'Ana Sayfa', icon: '🏠' },
-        { id: 'my-clients', label: 'Müşteriler', icon: '👥' },
-        { id: 'reports', label: 'Raporlar', icon: '📊' },
-        { id: 'ai-assistant', label: 'AI Asistan', icon: '🤖' },
-        { id: 'profile', label: 'Profil', icon: '👤' }
+        { id: 'my-clients', label: 'Müşteri', icon: '👥' },
+        { id: 'reports', label: 'Rapor', icon: '📊' },
+        { id: 'ai-assistant', label: 'AI', icon: '🤖' },
+        { id: 'logout', label: 'Çıkış', icon: '🚪', isLogout: true }
       ];
     } else {
       // Default items
       return [
         { id: 'dashboard', label: 'Ana Sayfa', icon: '🏠' },
         { id: 'yeni-belge', label: 'Belgeler', icon: '📄' },
-        { id: 'analytics', label: 'Analitik', icon: '📊' },
-        { id: 'ai-assistant', label: 'AI Asistan', icon: '🤖' },
-        { id: 'profile', label: 'Profil', icon: '👤' }
+        { id: 'consumption', label: 'Tüketim', icon: '⚡' },
+        { id: 'ai-assistant', label: 'AI', icon: '🤖' },
+        { id: 'logout', label: 'Çıkış', icon: '🚪', isLogout: true }
       ];
     }
   };
 
   const navItems = getNavItems();
+
+  const handleItemClick = (item) => {
+    if (item.isLogout) {
+      // Logout functionality - we'll need to import SignOutButton from Clerk
+      window.location.href = '/sign-in';
+    } else {
+      onPageChange(item.id);
+    }
+  };
 
   return (
     <nav className="mobile-nav md:hidden">
@@ -47,13 +56,13 @@ const MobileNavigation = ({ currentPage, onPageChange, userRole }) => {
         {navItems.map((item) => (
           <button
             key={item.id}
-            onClick={() => onPageChange(item.id)}
+            onClick={() => handleItemClick(item)}
             className={`mobile-nav-item ${
               currentPage === item.id ? 'active' : ''
             }`}
           >
-            <span className="text-lg mb-1">{item.icon}</span>
-            <span className="text-xs font-medium">{item.label}</span>
+            <span className="nav-icon">{item.icon}</span>
+            <span className="nav-label">{item.label}</span>
           </button>
         ))}
       </div>
