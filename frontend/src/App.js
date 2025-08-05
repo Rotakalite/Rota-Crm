@@ -19392,66 +19392,6 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
 
 //Wrap MainApp with ClerkProvider and add Clerk authentication flow
 const App = () => {
-  // Basit routing sistemi
-  const currentPath = window.location.pathname;
-  
-  // Ana sayfa için React effect ile redirect
-  React.useEffect(() => {
-    if (currentPath === '/' && !currentPath.includes('/sign-')) {
-      window.location.replace('/sign-in');
-    }
-  }, [currentPath]);
-  
-  // Custom routing sadece auth sayfaları için
-  if (currentPath === '/sign-in') {
-    return (
-      <ClerkProvider 
-        publishableKey={CLERK_PUBLISHABLE_KEY}
-        appearance={{
-          variables: {
-            colorPrimary: '#10b981',
-            colorText: '#047857',
-          },
-        }}
-      >
-        <CustomSignIn />
-      </ClerkProvider>
-    );
-  }
-  
-  if (currentPath === '/sign-up') {
-    return (
-      <ClerkProvider 
-        publishableKey={CLERK_PUBLISHABLE_KEY}
-        appearance={{
-          variables: {
-            colorPrimary: '#10b981',
-            colorText: '#047857',
-          },
-        }}
-      >
-        <CustomSignUp />
-      </ClerkProvider>
-    );
-  }
-  
-  if (currentPath === '/forgot-password') {
-    return (
-      <ClerkProvider 
-        publishableKey={CLERK_PUBLISHABLE_KEY}
-        appearance={{
-          variables: {
-            colorPrimary: '#10b981',
-            colorText: '#047857',
-          },
-        }}
-      >
-        <ForgotPasswordPage />
-      </ClerkProvider>
-    );
-  }
-
-  // Ana uygulama - Normal Clerk flow (diğer tüm sayfalar için)
   return (
     <ClerkProvider 
       publishableKey={CLERK_PUBLISHABLE_KEY}
@@ -19465,6 +19405,82 @@ const App = () => {
           fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
           borderRadius: '12px'
         },
+        elements: {
+          // Clerk'ın kendi elementlerini özelleştir
+          rootBox: {
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 25%, #047857 50%, #065f46 75%, #064e3b 100%)',
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
+          card: {
+            background: 'rgba(255, 255, 255, 0.95)',
+            borderRadius: '20px',
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.15)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            maxWidth: '400px',
+            width: '100%',
+            padding: '2rem',
+          },
+          headerTitle: {
+            color: '#047857',
+            fontSize: '2rem',
+            fontWeight: '700',
+            textAlign: 'center',
+            display: 'none', // Gizle, CSS ile değiştireceğiz
+          },
+          headerSubtitle: {
+            color: '#059669',
+            fontSize: '1.1rem',
+            textAlign: 'center',
+            marginBottom: '1.5rem',
+            display: 'none', // Gizle, CSS ile değiştireceğiz
+          },
+          formButtonPrimary: {
+            background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
+            borderRadius: '12px',
+            padding: '14px 28px',
+            fontSize: '16px',
+            fontWeight: '600',
+            boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)',
+            transition: 'all 0.3s ease',
+            border: 'none',
+            width: '100%',
+            marginTop: '1rem',
+          },
+          formFieldInput: {
+            borderRadius: '12px',
+            border: '2px solid #d1fae5',
+            padding: '14px 16px',
+            fontSize: '16px',
+            transition: 'all 0.3s ease',
+            backgroundColor: 'white',
+          },
+          formFieldLabel: {
+            color: '#374151',
+            fontWeight: '500',
+            marginBottom: '0.5rem',
+            fontSize: '14px',
+          },
+          footerActionText: {
+            color: '#6b7280',
+            textAlign: 'center',
+            marginTop: '1.5rem',
+          },
+          footerActionLink: {
+            color: '#10b981',
+            fontWeight: '600',
+            textDecoration: 'none',
+          },
+          socialButtonsIconButton: {
+            borderRadius: '12px',
+            border: '2px solid #10b981',
+            transition: 'all 0.3s ease',
+            marginBottom: '0.5rem',
+          },
+        },
         layout: {
           socialButtonsPlacement: 'bottom',
           logoPlacement: 'none',
@@ -19472,20 +19488,7 @@ const App = () => {
       }}
     >
       <SignedOut>
-        {/* Sadece ana sayfada redirect göster */}
-        {currentPath === '/' && (
-          <div style={{
-            minHeight: '100vh', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            background: 'linear-gradient(135deg, #10b981, #047857)',
-            color: 'white',
-            fontSize: '18px'
-          }}>
-            Yönlendiriliyor...
-          </div>
-        )}
+        <RedirectToSignIn />
       </SignedOut>
       
       <SignedIn>
