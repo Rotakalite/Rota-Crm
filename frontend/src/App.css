@@ -24,6 +24,23 @@
   width: 100% !important;
 }
 
+/* Clerk logolarını ve başlıklarını tamamen gizle */
+.cl-headerTitle,
+.cl-headerSubtitle,
+.cl-header,
+.cl-logoBox,
+.cl-logoImage,
+.cl-logo,
+[data-testid="sign-in-title"],
+[data-testid="sign-in-subtitle"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 /* Başlık metnini tamamen değiştir */
 .cl-headerTitle {
   color: #047857 !important;
