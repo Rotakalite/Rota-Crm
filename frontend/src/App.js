@@ -14807,7 +14807,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
             <span className="text-white text-xl font-bold">R</span>
           </div>
           <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            ROTA CRM
+            GREENWAVE CRM
           </h1>
           <p className="text-gray-400 text-sm mt-1">Sürdürülebilirlik Paneli</p>
         </div>
