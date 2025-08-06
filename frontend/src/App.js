@@ -8049,13 +8049,13 @@ const SimpleClientManagement = ({ onNavigate }) => {
     }
   };
 
-  const handleDeleteClient = async (client) => {
-    const confirmDelete = window.confirm(`"${client.name}" isimli müşteriyi silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz.`);
+  const handleDeleteClient = async (clientId, clientName) => {
+    const confirmDelete = window.confirm(`"${clientName}" isimli müşteriyi silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz.`);
     
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`${API}/clients/${client.id}`, {
+      await axios.delete(`${API}/clients/${clientId}`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
 
