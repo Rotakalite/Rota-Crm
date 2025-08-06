@@ -3374,14 +3374,14 @@ const Dashboard = ({ onNavigate }) => {
   };
 
   // 🎬 Demo Control Functions
-  const fetchDemoStatus = async () => {
+  const fetchDemoStatus = useCallback(async () => {
     try {
       const response = await axios.get(`${API}/api/demo/status`);
       setDemoStatus(response.data);
     } catch (error) {
       console.error('Demo status fetch error:', error);
     }
-  };
+  }, [API]);
 
   const handleDemoToggle = async () => {
     if (demoLoading) return;
