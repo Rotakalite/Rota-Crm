@@ -871,11 +871,10 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
                     multiple
                     onChange={handleFileSelect}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-                    capture="environment"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,image/*"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    📱 Mobilde "Dosya Seç" butonuna basınca kamera ile çekim yapabilirsiniz
+                    📱 Galeri, kamera veya dosya seçebilirsiniz • PDF, Word, Excel, Resim desteklenir
                   </p>
                   {selectedFiles.length > 0 && (
                     <div className="mt-2 text-sm text-gray-600">
