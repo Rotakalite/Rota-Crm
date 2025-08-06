@@ -267,9 +267,6 @@ class ClerkAdminManager:
             logging.error(f"❌ Clerk password update failed: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Failed to update user password in Clerk: {str(e)}")
 
-# Initialize Clerk admin manager
-clerk_admin = ClerkAdminManager()
-
 # Email service import
 try:
     import sys
@@ -280,6 +277,9 @@ try:
 except Exception as e:
     logging.error(f"❌ Failed to import Email service: {e}")
     email_service = None
+
+# Initialize Clerk admin manager
+clerk_admin = ClerkAdminManager()
 
 # PDF Report service
 try:
