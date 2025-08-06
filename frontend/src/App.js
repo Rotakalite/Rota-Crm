@@ -8750,7 +8750,9 @@ const SimpleClientManagement = ({ onNavigate }) => {
                       district: '',
                       address: '',
                       certificate_end_date: '',
-                      audit_company: ''
+                      audit_company: '',
+                      password: '',
+                      auto_create_account: true
                     });
                   }}
                   className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600"
