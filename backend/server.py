@@ -356,6 +356,9 @@ except Exception as e:
 CLERK_SECRET_KEY = os.environ.get('CLERK_SECRET_KEY')
 CLERK_JWKS_URL = os.environ.get('CLERK_JWKS_URL')
 
+# Initialize Clerk admin manager AFTER environment loading
+clerk_admin = ClerkAdminManager()
+
 # Configure FastAPI for large file uploads
 app = FastAPI(
     title="Sürdürülebilir Turizm Danışmanlık CRM API",
