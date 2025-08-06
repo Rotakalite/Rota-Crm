@@ -35,6 +35,9 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 # Import demo utilities
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from demo_utils import demo_manager
 
 # Email service import
