@@ -121,8 +121,10 @@ class ClerkAdminManager:
             from clerk_backend_sdk import CreateUserRequest
             
             # Create user request object
+            username = email.split('@')[0]  # Email prefix'ini username yap
             user_request = CreateUserRequest(
                 email_address=[email],
+                username=username,  # 🎯 FIXED: Username requirement için eklendi
                 password=password,
                 first_name=first_name,
                 last_name=last_name,
