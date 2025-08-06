@@ -14514,10 +14514,175 @@ async def test_ai_service():
 # API ROUTER REGISTRATION - MUST BE AT END
 # ==========================================
 
-@api_router.get("/test-reports-before-mount")
-async def test_reports_before_mount():
-    """Test endpoint defined before router mounting"""
-    return {"message": "Test endpoint before mount", "status": "success"}
+# ==================== DEMO MODE ENDPOINTS (BEFORE ROUTER MOUNT) ====================
+
+@api_router.get("/demo/status")  # Route: /api/demo/status
+async def get_demo_status(current_user: User = Depends(get_current_user)):
+    """Get demo mode status"""
+    return {
+        "demo_mode": demo_manager.is_demo(),
+        "database": demo_manager.get_database_name(),
+        "message": "Demo status retrieved successfully"
+    }
+
+@api_router.post("/demo/activate")  # Route: /api/demo/activate
+async def activate_demo_mode(current_user: User = Depends(get_current_user)):
+    """Activate demo mode - Admin only"""
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can activate demo mode")
+    
+    try:
+        # Update environment variable temporarily
+        os.environ['DEMO_MODE'] = 'true'
+        
+        return {
+            "success": True,
+            "message": "Demo mode activated",
+            "demo_mode": True,
+            "database": demo_manager.get_database_name(),
+            "note": "Demo sample data population available via separate endpoint"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to activate demo mode: {str(e)}")
+
+@api_router.post("/demo/deactivate")  # Route: /api/demo/deactivate
+async def deactivate_demo_mode(current_user: User = Depends(get_current_user)):
+    """Deactivate demo mode - Admin only"""
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can deactivate demo mode")
+    
+    try:
+        # Update environment variable temporarily
+        os.environ['DEMO_MODE'] = 'false'
+        
+        return {
+            "success": True,
+            "message": "Demo mode deactivated",
+            "demo_mode": False,
+            "database": demo_manager.get_database_name()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to deactivate demo mode: {str(e)}")
+
+@api_router.post("/demo/populate")
+async def populate_demo_data(current_user: User = Depends(get_current_user)):
+    """Populate demo database with sample data - Admin only"""
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can populate demo data")
+    
+    if not demo_manager.is_demo():
+        raise HTTPException(status_code=400, detail="Demo mode must be activated first")
+    
+    try:
+        # Get demo database connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client[demo_manager.get_database_name()]
+        
+        # Clear existing demo data
+        db.clients.delete_many({})
+        db.consumptions.delete_many({})
+        db.documents.delete_many({})
+        db.consultants.delete_many({})
+        
+        # Insert sample data
+        sample_clients = demo_manager.get_sample_clients()
+        sample_consumption = demo_manager.get_sample_consumption_data()
+        sample_documents = demo_manager.get_sample_documents()
+        sample_consultants = demo_manager.get_sample_consultants()
+        
+        # Insert data
+        db.clients.insert_many(sample_clients)
+        db.consumptions.insert_many(sample_consumption)
+        db.documents.insert_many(sample_documents)
+        db.consultants.insert_many(sample_consultants)
+        
+        return {
+            "success": True,
+            "message": "Demo data populated successfully",
+            "data": {
+                "clients": len(sample_clients),
+                "consumption_records": len(sample_consumption),
+                "documents": len(sample_documents),
+                "consultants": len(sample_consultants)
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to populate demo data: {str(e)}")
+
+@api_router.delete("/demo/clear")
+async def clear_demo_data(current_user: User = Depends(get_current_user)):
+    """Clear demo database - Admin only"""
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admins can clear demo data")
+    
+    if not demo_manager.is_demo():
+        raise HTTPException(status_code=400, detail="Demo mode must be activated first")
+    
+    try:
+        # Get demo database connection
+        mongo_client = MongoClient(mongo_url)
+        db = mongo_client[demo_manager.get_database_name()]
+        
+        # Clear all demo data
+        collections = ['clients', 'consumptions', 'documents', 'consultants', 'folders', 'trainings', 'personnel', 'suppliers', 'waste_records']
+        cleared = {}
+        
+        for collection_name in collections:
+            result = db[collection_name].delete_many({})
+            cleared[collection_name] = result.deleted_count
+        
+        return {
+            "success": True,
+            "message": "Demo data cleared successfully",
+            "cleared": cleared
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to clear demo data: {str(e)}")
+
+@api_router.get("/demo/data/preview")
+async def get_demo_data_preview():
+    """Get preview of demo data without authentication"""
+    try:
+        # Get sample data (not from database)
+        sample_clients = demo_manager.get_sample_clients()[:2]  # Only first 2 clients
+        sample_consumption = demo_manager.get_sample_consumption_data()[:6]  # Only 6 records
+        
+        # Format for preview
+        preview_data = {
+            "clients": [
+                {
+                    "name": client["name"],
+                    "city": client["city"],
+                    "industry": client["industry"],
+                    "employee_count": client["employee_count"],
+                    "sustainability_score": client["sustainability_score"]
+                } for client in sample_clients
+            ],
+            "consumption_sample": [
+                {
+                    "month": f"{record['month']}/{record['year']}",
+                    "electricity": f"{record['electricity']:.0f} kWh",
+                    "water": f"{record['water']:.0f} m³",
+                    "accommodation": f"{record['accommodation_count']} kişi"
+                } for record in sample_consumption
+            ],
+            "features": [
+                "📊 Gerçek zamanlı tüketim takibi",
+                "🏆 Sürdürülebilirlik skorlama sistemi", 
+                "📄 Otomatik belge yönetimi",
+                "🤖 AI destekli analiz ve öneriler",
+                "📱 Tam mobil uyumlu arayüz",
+                "⚡ Anlık raporlama ve dashboard"
+            ]
+        }
+        
+        return {
+            "success": True,
+            "message": "Demo data preview",
+            "data": preview_data
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get demo preview: {str(e)}")
 
 app.include_router(api_router, prefix="/api")
 
@@ -14534,7 +14699,3 @@ async def debug_routes():
                 "name": getattr(route, 'name', 'unknown')
             })
     return {"routes": routes, "total": len(routes)}
-
-# ==================== DEMO MODE ENDPOINTS ====================
-
-app.include_router(api_router, prefix="/api")
