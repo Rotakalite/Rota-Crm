@@ -3373,6 +3373,68 @@ const Dashboard = ({ onNavigate }) => {
     });
   };
 
+  // 🎬 Demo Control Functions
+  const fetchDemoStatus = async () => {
+    try {
+      const response = await axios.get(`${API}/api/demo/status`);
+      setDemoStatus(response.data);
+    } catch (error) {
+      console.error('Demo status fetch error:', error);
+    }
+  };
+
+  const handleDemoToggle = async () => {
+    if (demoLoading) return;
+    
+    setDemoLoading(true);
+    try {
+      if (demoStatus.demo_mode) {
+        // Deactivate demo
+        await axios.post(`${API}/api/demo/deactivate`, {}, {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        
+        // Clear demo data
+        await axios.delete(`${API}/api/demo/clear`, {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        
+        alert('🔴 Demo modu kapatıldı ve demo verileri temizlendi!');
+      } else {
+        // Activate demo
+        await axios.post(`${API}/api/demo/activate`, {}, {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        
+        // Populate demo data
+        await axios.post(`${API}/api/demo/populate`, {}, {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        
+        alert('🎬 Demo modu açıldı! Örnek veriler yüklendi. Sistemi müşteriye gösterebilirsiniz!');
+      }
+      
+      // Refresh demo status
+      await fetchDemoStatus();
+      
+      // Refresh dashboard data
+      await fetchDashboardData();
+      
+    } catch (error) {
+      console.error('Demo toggle error:', error);
+      alert('❌ Demo işlemi başarısız. Tekrar deneyin.');
+    } finally {
+      setDemoLoading(false);
+    }
+  };
+
+  // Load demo status on component mount
+  useEffect(() => {
+    if (userRole === 'admin') {
+      fetchDemoStatus();
+    }
+  }, [userRole]);
+
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 ${isMobile ? 'mobile-dashboard' : ''}`}>
       {/* Elite Header - Mobile optimized */}
