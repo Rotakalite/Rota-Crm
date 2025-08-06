@@ -7979,6 +7979,111 @@ const SimpleClientManagement = ({ onNavigate }) => {
     fetchClients(1, itemsPerPage, searchTerm, field, newOrder, clientTypeFilter);
   };
 
+  // 🎯 NEW: Client CRUD Functions
+  const handleEditClient = (client) => {
+    setEditingClient(client);
+    setNewClientData({
+      name: client.name || '',
+      hotel_name: client.hotel_name || client.name || '',
+      email: client.email || '',
+      phone: client.phone || '',
+      city: client.city || '',
+      district: client.district || '',
+      address: client.address || '',
+      certificate_end_date: client.certificate_end_date || '',
+      audit_company: client.audit_company || '',
+      password: '', // Empty for security
+      auto_create_account: false // Don't auto-create when editing
+    });
+    setShowEditForm(true);
+    setShowAddClient(false);
+  };
+
+  const handleUpdateClient = async (e) => {
+    e.preventDefault();
+    try {
+      const updateData = { ...newClientData };
+      
+      // Remove password from update data if not provided
+      if (!updateData.password) {
+        delete updateData.password;
+        delete updateData.auto_create_account;
+      }
+
+      const response = await axios.put(`${API}/clients/${editingClient.id}`, updateData, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      alert('✅ Müşteri başarıyla güncellendi!');
+      
+      if (updateData.password) {
+        alert(`🎉 Yeni giriş bilgileri: ${updateData.email} / ${updateData.password}`);
+      }
+
+      // Reset form and refresh
+      setShowEditForm(false);
+      setEditingClient(null);
+      setNewClientData({
+        name: '', hotel_name: '', email: '', phone: '', city: '', district: '', 
+        address: '', certificate_end_date: '', audit_company: '', password: '', auto_create_account: true
+      });
+      fetchClients(currentPage, itemsPerPage, searchTerm, sortBy, sortOrder, clientTypeFilter);
+      
+    } catch (error) {
+      console.error('Update client error:', error);
+      alert('❌ Müşteri güncellenirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  const handleDeleteClient = async (client) => {
+    const confirmDelete = window.confirm(`"${client.name}" isimli müşteriyi silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz.`);
+    
+    if (!confirmDelete) return;
+
+    try {
+      await axios.delete(`${API}/clients/${client.id}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      alert('✅ Müşteri başarıyla silindi!');
+      fetchClients(currentPage, itemsPerPage, searchTerm, sortBy, sortOrder, clientTypeFilter);
+      
+    } catch (error) {
+      console.error('Delete client error:', error);
+      alert('❌ Müşteri silinirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  const handleAddClient = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(`${API}/clients`, newClientData, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      alert('✅ Müşteri başarıyla eklendi!');
+      
+      // Show account creation info if auto_create_account was enabled
+      if (newClientData.auto_create_account && response.data.auto_account_created) {
+        alert(`🎉 ${response.data.account_message}\n\nGiriş bilgileri: ${response.data.login_email} / [Email ile gönderildi]`);
+      } else if (newClientData.password) {
+        alert(`🔐 Manuel giriş bilgileri: ${newClientData.email} / ${newClientData.password}`);
+      }
+
+      // Reset form and refresh
+      setShowAddClient(false);
+      setNewClientData({
+        name: '', hotel_name: '', email: '', phone: '', city: '', district: '', 
+        address: '', certificate_end_date: '', audit_company: '', password: '', auto_create_account: true
+      });
+      fetchClients(currentPage, itemsPerPage, searchTerm, sortBy, sortOrder, clientTypeFilter);
+      
+    } catch (error) {
+      console.error('Add client error:', error);
+      alert('❌ Müşteri eklenirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
   // Bulk Email Functions
   const fetchBulkEmailStats = async () => {
     try {
