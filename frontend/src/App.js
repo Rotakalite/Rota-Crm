@@ -3527,6 +3527,18 @@ const Dashboard = ({ onNavigate }) => {
                   >
                     🔄 Yenile
                   </button>
+                  {/* Mobile Demo Button */}
+                  <button 
+                    onClick={handleDemoToggle}
+                    disabled={demoLoading}
+                    className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 ${
+                      demoStatus.demo_mode 
+                        ? 'bg-red-500 hover:bg-red-600 text-white' 
+                        : 'bg-green-500 hover:bg-green-600 text-white'
+                    } ${demoLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {demoLoading ? '⏳ İşleniyor...' : (demoStatus.demo_mode ? '🔴 Demo Kapat' : '🎬 Demo Aç')}
+                  </button>
                 </div>
               )}
             </div>
