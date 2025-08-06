@@ -2536,6 +2536,74 @@ async def create_consultant(consultant_data: ConsultantCreate):
         logging.error(f"Error creating consultant: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+@api_router.post("/consultants")
+async def create_consultant_admin(
+    consultant_data: ConsultantCreate,
+    current_user: User = Depends(get_admin_user)
+):
+    """Enhanced consultant creation with automatic Clerk user registration - Admin only"""
+    try:
+        consultant_dict = consultant_data.dict()
+        consultant = Consultant(**consultant_dict)
+        
+        # 🎯 NEW: Auto-create Clerk user if admin creates consultant with email
+        clerk_user_data = None
+        if consultant.email and clerk_admin.is_available():
+            try:
+                logging.info(f"🎯 Admin creating consultant with auto Clerk signup for: {consultant.email}")
+                
+                # Generate Clerk user
+                clerk_user_data = await clerk_admin.create_user_with_clerk(
+                    email=consultant.email,
+                    first_name=consultant.authorized_person_name.split()[0] if consultant.authorized_person_name else "Consultant",
+                    last_name=consultant.authorized_person_name.split()[-1] if len(consultant.authorized_person_name.split()) > 1 else "User",
+                    password=consultant_data.password
+                )
+                
+                # Add Clerk ID to consultant data
+                consultant.clerk_user_id = clerk_user_data["clerk_user_id"]
+                
+                logging.info(f"✅ Clerk user created successfully for consultant: {clerk_user_data['clerk_user_id']}")
+                
+            except Exception as e:
+                logging.error(f"❌ Clerk user creation failed for consultant (continuing with creation): {str(e)}")
+                # Continue with consultant creation even if Clerk fails
+        
+        # Insert consultant to database
+        await db.consultants.insert_one(consultant.dict())
+        
+        # 🎯 NEW: Send welcome email if Clerk user was created
+        if clerk_user_data:
+            try:
+                # Create custom welcome email for consultant
+                email_sent = await send_consultant_welcome_email(
+                    email=clerk_user_data["email"],
+                    password=clerk_user_data["password"],
+                    consultant_name=consultant.authorized_person_name,
+                    company_name=consultant.company_name
+                )
+                
+                if email_sent:
+                    logging.info(f"✅ Welcome email sent to consultant {consultant.email}")
+                else:
+                    logging.warning(f"⚠️ Welcome email failed to send to consultant {consultant.email}")
+                    
+            except Exception as e:
+                logging.error(f"❌ Consultant welcome email error: {str(e)}")
+        
+        # 🎯 NEW: Return enhanced response with Clerk info
+        response_data = consultant.dict()
+        if clerk_user_data:
+            response_data["auto_account_created"] = True
+            response_data["login_email"] = clerk_user_data["email"]
+            response_data["account_message"] = f"Danışman hesabı otomatik olarak oluşturuldu ve giriş bilgileri {consultant.email} adresine gönderildi"
+        
+        return response_data
+        
+    except Exception as e:
+        logging.error(f"Error creating consultant: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
 @app.post("/api/consultants/register-with-user")
 async def register_consultant_with_user(
     request_data: dict,
