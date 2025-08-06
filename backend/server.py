@@ -258,7 +258,7 @@ class ClerkAdminManager:
             )
             
             # Update user password in Clerk using the users API
-            self.users_api.update_user(user_id=user_id, update_user_request=user_request)
+            await self.users_api.update_user(user_id=user_id, update_user_request=user_request)
             
             logging.info(f"✅ Clerk password updated for user: {user_id}")
             return True
