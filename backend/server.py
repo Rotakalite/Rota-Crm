@@ -6458,7 +6458,7 @@ async def create_client(
     
     # 🎯 NEW: Auto-create Clerk user if admin creates client with email
     clerk_user_data = None
-    if current_user.role == UserRole.ADMIN and client.email:
+    if current_user.role == UserRole.ADMIN and client.email and clerk_admin.is_available():
         try:
             logging.info(f"🎯 Admin creating client with auto Clerk signup for: {client.email}")
             
