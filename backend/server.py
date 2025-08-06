@@ -14678,7 +14678,8 @@ async def activate_demo_mode(current_user: User = Depends(get_current_user)):
             "success": True,
             "message": "Demo mode activated",
             "demo_mode": True,
-            "database": demo_manager.get_database_name()
+            "database": demo_manager.get_database_name(),
+            "note": "Demo sample data population available via separate endpoint"
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to activate demo mode: {str(e)}")
