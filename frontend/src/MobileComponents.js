@@ -93,12 +93,22 @@ const MobileNavigation = ({ currentPage, onPageChange, userRole }) => {
       ];
     } else if (userRole === 'consultant') {
       return [
-        { id: 'dashboard', label: 'Ana Sayfa', icon: '🏠', group: 'main' },
+        { id: 'dashboard', label: 'Dashboard', icon: '📊', group: 'main' },
         { id: 'my-clients', label: 'Müşterilerim', icon: '👥', group: 'main' },
-        { id: 'reports', label: 'Raporlar', icon: '📊', group: 'main' },
-        { id: 'ai-assistant', label: 'AI Asistan', icon: '🤖', group: 'ai' },
+        { id: 'client-assignment', label: 'Müşteri Atama', icon: '➕', group: 'main' },
+        { id: 'yeni-belge', label: 'Belge Yönetimi', icon: '📄', group: 'documents' },
         { id: 'training', label: 'Eğitim Yönetimi', icon: '🎓', group: 'documents' },
-        { id: 'email-management', label: 'Email Yönetimi', icon: '📧', group: 'documents' }
+        { id: 'email-management', label: 'Email Yönetimi', icon: '📧', group: 'documents' },
+        { id: 'consumption', label: 'Tüketim Takibi', icon: '⚡', group: 'analytics' },
+        { id: 'analytics', label: 'Tüketim Analizi', icon: '📈', group: 'analytics' },
+        { id: 'carbon', label: 'Karbon Ayak İzi', icon: '🌍', group: 'analytics' },
+        { id: 'waste-management', label: 'Atık Yönetimi', icon: '♻️', group: 'analytics' },
+        { id: 'suppliers', label: 'Tedarikçi Yönetimi', icon: '🚚', group: 'analytics' },
+        { id: 'personnel', label: 'Personel Yönetimi', icon: '👤', group: 'analytics' },
+        { id: 'ai-assistant', label: 'AI Asistan', icon: '🤖', group: 'ai' },
+        { id: 'reports', label: 'Raporlar', icon: '📊', group: 'ai' },
+        { id: 'profile', label: 'Profil', icon: '👤', group: 'settings' },
+        { id: 'sustainability-targets', label: 'Sürdürülebilirlik Hedefleri', icon: '🎯', group: 'settings' }
       ];
     } else {
       return [
