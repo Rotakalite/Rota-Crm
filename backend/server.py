@@ -7040,8 +7040,45 @@ async def update_client(
     client_update: ClientUpdate,
     current_user: User = Depends(get_admin_user)
 ):
+    # Get the current client data
+    existing_client = await db.clients.find_one({"id": client_id})
+    if not existing_client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    
     update_data = {k: v for k, v in client_update.dict().items() if v is not None}
     update_data["updated_at"] = datetime.utcnow()
+    
+    # 🎯 NEW: Handle password update for Clerk account
+    if client_update.password and existing_client.get("email") and clerk_admin.is_available():
+        try:
+            logging.info(f"🎯 Admin updating client password for: {existing_client['email']}")
+            
+            # Update Clerk user password if client has clerk_user_id
+            if existing_client.get("clerk_user_id"):
+                await clerk_admin.update_user_password(
+                    user_id=existing_client["clerk_user_id"],
+                    password=client_update.password
+                )
+                logging.info(f"✅ Clerk password updated for client: {existing_client['email']}")
+            else:
+                # If no clerk_user_id, try to create Clerk account
+                clerk_user_data = await clerk_admin.create_user_with_clerk(
+                    email=existing_client["email"],
+                    first_name=existing_client.get("contact_person", existing_client.get("name", "Client")),
+                    last_name="Client",
+                    password=client_update.password
+                )
+                # Add Clerk ID to update data
+                update_data["clerk_user_id"] = clerk_user_data["clerk_user_id"]
+                logging.info(f"✅ New Clerk user created for existing client: {clerk_user_data['clerk_user_id']}")
+                
+        except Exception as e:
+            logging.error(f"❌ Clerk password update failed (continuing with client update): {str(e)}")
+            # Continue with client update even if Clerk fails
+    
+    # Remove password from update data (don't store in database)
+    if "password" in update_data:
+        del update_data["password"]
     
     result = await db.clients.update_one(
         {"id": client_id}, 
