@@ -34,16 +34,21 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
-# Import demo utilities - try relative import first
-try:
-    from .demo_utils import demo_manager
-except ImportError:
-    # Fallback to direct import
-    import sys
-    import os
-    backend_dir = os.path.dirname(os.path.abspath(__file__))
-    sys.path.insert(0, backend_dir)
-    from demo_utils import demo_manager
+# Demo mode utilities - Inline version
+class DemoManager:
+    def __init__(self):
+        self.is_demo_mode = os.environ.get('DEMO_MODE', 'false').lower() == 'true'
+        self.demo_db_name = os.environ.get('DEMO_DB_NAME', 'rotacrm_demo')
+        self.prod_db_name = os.environ.get('DB_NAME', 'rotacrm')
+        
+    def get_database_name(self):
+        return self.demo_db_name if self.is_demo_mode else self.prod_db_name
+    
+    def is_demo(self):
+        return self.is_demo_mode
+
+# Initialize demo manager
+demo_manager = DemoManager()
 
 # Email service import
 try:
