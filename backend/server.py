@@ -113,7 +113,10 @@ class ClerkAdminManager:
                 "first_name": first_name,
                 "last_name": last_name,
                 "skip_password_requirement": False,
-                "skip_password_checks": False
+                "skip_password_checks": False,
+                "public_metadata": {
+                    "role": "client"  # 🎯 CRITICAL FIX: Set client role in Clerk metadata
+                }
             }
             
             clerk_user = await self.clerk.users.create(user_request)
