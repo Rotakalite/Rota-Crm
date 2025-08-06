@@ -3433,7 +3433,7 @@ const Dashboard = ({ onNavigate }) => {
     if (userRole === 'admin') {
       fetchDemoStatus();
     }
-  }, [userRole]);
+  }, [userRole, fetchDemoStatus]);
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 ${isMobile ? 'mobile-dashboard' : ''}`}>
