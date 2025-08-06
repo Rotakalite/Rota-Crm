@@ -150,7 +150,7 @@ class ClerkAdminManager:
     
     def is_available(self):
         """Check if Clerk is available and configured"""
-        return CLERK_AVAILABLE and self.clerk is not None
+        return CLERK_AVAILABLE and self.users_api is not None
     
     async def send_welcome_email(self, email: str, password: str, client_name: str):
         """Send welcome email with credentials to new user"""
