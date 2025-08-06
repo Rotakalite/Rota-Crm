@@ -3374,14 +3374,14 @@ const Dashboard = ({ onNavigate }) => {
   };
 
   // 🎬 Demo Control Functions
-  const fetchDemoStatus = useCallback(async () => {
+  const fetchDemoStatus = async () => {
     try {
       const response = await axios.get(`${API}/api/demo/status`);
       setDemoStatus(response.data);
     } catch (error) {
       console.error('Demo status fetch error:', error);
     }
-  }, [API]);
+  };
 
   const handleDemoToggle = async () => {
     if (demoLoading) return;
@@ -3428,12 +3428,13 @@ const Dashboard = ({ onNavigate }) => {
     }
   };
 
-  // Load demo status on component mount
+  // Load demo status on component mount - ONLY ONCE
   useEffect(() => {
     if (userRole === 'admin') {
       fetchDemoStatus();
     }
-  }, [userRole, fetchDemoStatus]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency - only run once on mount
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 ${isMobile ? 'mobile-dashboard' : ''}`}>
