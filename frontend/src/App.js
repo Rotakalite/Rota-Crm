@@ -11665,84 +11665,161 @@ const ConsumptionManagement = ({ onNavigate }) => {
       {/* Consumption List - Admin için müşteri seçimi gerekli */}
       {(userRole === 'client' || (userRole === 'admin' && selectedClient)) && (
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="bg-gray-50 px-6 py-4 border-b">
-          <h3 className="text-lg font-semibold text-gray-800">
-            📊 {selectedYear} Yılı Tüketim Verileri
-          </h3>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ay</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">⚡ Elektrik</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">💧 Su</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">🔥 Doğalgaz</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">⚫ Kömür</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">🏨 Konaklama</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+          <div className="bg-gray-50 px-6 py-4 border-b">
+            <h3 className="text-lg font-semibold text-gray-800">
+              📊 {selectedYear} Yılı Tüketim Verileri
+            </h3>
+          </div>
+          
+          {/* Mobile and Desktop Views */}
+          {isMobile ? (
+            /* Mobile Card View */
+            <div className="p-4 space-y-4">
               {(Array.isArray(consumptions) ? consumptions : []).map((consumption) => (
-                <tr key={consumption.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap font-medium">
-                    {getMonthName(consumption.month)} {consumption.year}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {consumption.electricity.toFixed(2)} kWh
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {consumption.water.toFixed(2)} m³
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {consumption.natural_gas.toFixed(2)} m³
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {consumption.coal.toFixed(2)} kg
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {consumption.accommodation_count} kişi
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex space-x-2">
-                      {(userRole === 'admin' || userRole === 'client') && (
-                        <>
-                          <button
-                            onClick={() => handleEdit(consumption)}
-                            className="text-blue-600 hover:text-blue-900 font-medium flex items-center space-x-1"
-                          >
-                            <span>✏️</span>
-                            <span>Düzenle</span>
-                          </button>
-                          <button
-                            onClick={() => handleDelete(consumption.id)}
-                            className="text-red-600 hover:text-red-900 font-medium flex items-center space-x-1"
-                          >
-                            <span>🗑️</span>
-                            <span>Sil</span>
-                          </button>
-                        </>
-                      )}
-                      {userRole === 'consultant' && (
-                        <span className="text-gray-500 text-sm">Sadece görüntüleme</span>
-                      )}
+                <div key={consumption.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <div className="flex justify-between items-center mb-3">
+                    <h4 className="font-semibold text-gray-900">
+                      📅 {getMonthName(consumption.month)} {consumption.year}
+                    </h4>
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                      {consumption.accommodation_count} kişi
+                    </span>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div className="text-center">
+                      <div className="text-blue-600 text-sm font-medium">⚡ Elektrik</div>
+                      <div className="font-bold text-gray-900">{consumption.electricity.toFixed(2)}</div>
+                      <div className="text-xs text-gray-500">kWh</div>
                     </div>
-                  </td>
-                </tr>
+                    <div className="text-center">
+                      <div className="text-blue-600 text-sm font-medium">💧 Su</div>
+                      <div className="font-bold text-gray-900">{consumption.water.toFixed(2)}</div>
+                      <div className="text-xs text-gray-500">m³</div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div className="text-center">
+                      <div className="text-orange-600 text-sm font-medium">🔥 Doğalgaz</div>
+                      <div className="font-bold text-gray-900">{consumption.natural_gas.toFixed(2)}</div>
+                      <div className="text-xs text-gray-500">m³</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-gray-600 text-sm font-medium">⚫ Kömür</div>
+                      <div className="font-bold text-gray-900">{consumption.coal.toFixed(2)}</div>
+                      <div className="text-xs text-gray-500">kg</div>
+                    </div>
+                  </div>
+                  
+                  <div className="pt-3 border-t border-gray-100">
+                    {(userRole === 'admin' || userRole === 'client') && (
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEdit(consumption)}
+                          className="flex-1 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium"
+                        >
+                          ✏️ Düzenle
+                        </button>
+                        <button
+                          onClick={() => handleDelete(consumption.id)}
+                          className="flex-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-medium"
+                        >
+                          🗑️ Sil
+                        </button>
+                      </div>
+                    )}
+                    {userRole === 'consultant' && (
+                      <div className="text-center text-gray-500 text-sm py-2">
+                        Sadece görüntüleme
+                      </div>
+                    )}
+                  </div>
+                </div>
               ))}
+              
               {(Array.isArray(consumptions) ? consumptions : []).length === 0 && (
-                <tr>
-                  <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
-                    {selectedYear} yılı için henüz tüketim verisi girilmemiş.
-                  </td>
-                </tr>
+                <div className="text-center py-8 text-gray-500">
+                  <div className="text-4xl mb-2">📊</div>
+                  <p>{selectedYear} yılı için henüz tüketim verisi girilmemiş.</p>
+                </div>
               )}
-            </tbody>
-          </table>
+            </div>
+          ) : (
+            /* Desktop Table View */
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ay</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">⚡ Elektrik</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">💧 Su</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">🔥 Doğalgaz</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">⚫ Kömür</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">🏨 Konaklama</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {(Array.isArray(consumptions) ? consumptions : []).map((consumption) => (
+                    <tr key={consumption.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap font-medium">
+                        {getMonthName(consumption.month)} {consumption.year}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {consumption.electricity.toFixed(2)} kWh
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {consumption.water.toFixed(2)} m³
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {consumption.natural_gas.toFixed(2)} m³
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {consumption.coal.toFixed(2)} kg
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {consumption.accommodation_count} kişi
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex space-x-2">
+                          {(userRole === 'admin' || userRole === 'client') && (
+                            <>
+                              <button
+                                onClick={() => handleEdit(consumption)}
+                                className="text-blue-600 hover:text-blue-900 font-medium flex items-center space-x-1"
+                              >
+                                <span>✏️</span>
+                                <span>Düzenle</span>
+                              </button>
+                              <button
+                                onClick={() => handleDelete(consumption.id)}
+                                className="text-red-600 hover:text-red-900 font-medium flex items-center space-x-1"
+                              >
+                                <span>🗑️</span>
+                                <span>Sil</span>
+                              </button>
+                            </>
+                          )}
+                          {userRole === 'consultant' && (
+                            <span className="text-gray-500 text-sm">Sadece görüntüleme</span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {(Array.isArray(consumptions) ? consumptions : []).length === 0 && (
+                    <tr>
+                      <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                        {selectedYear} yılı için henüz tüketim verisi girilmemiş.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-      </div>
       )}
 
       {/* Client Section - Only Client Role */}
