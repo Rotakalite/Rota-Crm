@@ -13292,9 +13292,9 @@ async def send_2fa_code(request: dict):
         import random
         verification_code = f"{random.randint(100000, 999999)}"
         
-        # Store code in database with expiration (10 minutes)
+        # Store code in database with expiration (5 minutes) 🎯 FIXED
         from datetime import datetime, timedelta
-        expires_at = datetime.utcnow() + timedelta(minutes=10)
+        expires_at = datetime.utcnow() + timedelta(minutes=5)
         
         # Remove any existing code for this email
         await db.verification_codes.delete_many({"email": email})
