@@ -3388,7 +3388,11 @@ const Dashboard = ({ onNavigate }) => {
     
     setDemoLoading(true);
     try {
-      if (demoStatus.demo_mode) {
+      // First fetch current demo status
+      const statusResponse = await axios.get(`${API}/api/demo/status`);
+      const currentStatus = statusResponse.data;
+      
+      if (currentStatus.demo_mode) {
         // Deactivate demo
         await axios.post(`${API}/api/demo/deactivate`, {}, {
           headers: { Authorization: `Bearer ${authToken}` }
@@ -3400,6 +3404,7 @@ const Dashboard = ({ onNavigate }) => {
         });
         
         alert('🔴 Demo modu kapatıldı ve demo verileri temizlendi!');
+        setDemoStatus({ demo_mode: false, database: 'rotacrm' });
       } else {
         // Activate demo
         await axios.post(`${API}/api/demo/activate`, {}, {
@@ -3412,10 +3417,8 @@ const Dashboard = ({ onNavigate }) => {
         });
         
         alert('🎬 Demo modu açıldı! Örnek veriler yüklendi. Sistemi müşteriye gösterebilirsiniz!');
+        setDemoStatus({ demo_mode: true, database: 'rotacrm_demo' });
       }
-      
-      // Refresh demo status
-      await fetchDemoStatus();
       
       // Refresh dashboard data
       await fetchDashboardData();
