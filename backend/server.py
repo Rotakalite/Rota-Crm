@@ -14758,6 +14758,9 @@ async def activate_demo_mode(current_user: User = Depends(get_current_user)):
         # Update environment variable temporarily
         os.environ['DEMO_MODE'] = 'true'
         
+        # 🚀 CRITICAL: Update global database connection
+        update_global_db()
+        
         # Ensure demo database exists
         demo_manager.ensure_demo_database_exists()
         
