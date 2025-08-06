@@ -14784,9 +14784,12 @@ async def deactivate_demo_mode(current_user: User = Depends(get_current_user)):
         # Update environment variable temporarily
         os.environ['DEMO_MODE'] = 'false'
         
+        # 🚀 CRITICAL: Update global database connection back to production
+        update_global_db()
+        
         return {
             "success": True,
-            "message": "Demo mode deactivated",
+            "message": "Demo mode deactivated - switched back to production database",
             "demo_mode": False,
             "database": demo_manager.get_database_name()
         }
