@@ -3233,6 +3233,13 @@ const Dashboard = ({ onNavigate }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const isMobile = useIsMobile();
   const API = getApiUrl();
+  
+  // Demo Control State
+  const [demoStatus, setDemoStatus] = useState({
+    demo_mode: false,
+    database: 'rotacrm'
+  });
+  const [demoLoading, setDemoLoading] = useState(false);
 
   // Update time every minute
   useEffect(() => {
