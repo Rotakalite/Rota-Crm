@@ -13058,7 +13058,7 @@ async def create_new_client_main(
         logging.error(f"❌ CLIENT CREATION ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Client creation error: {str(e)}")
 
-@app.delete("/api/clients/{client_id}")
+@app.delete("/api/clients-main/{client_id}")  # 🎯 FIXED: Route conflict düzeltildi
 async def delete_client_main(client_id: str):
     """Delete client - MAIN APP - REAL DELETE"""
     try:
