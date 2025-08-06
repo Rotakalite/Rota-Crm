@@ -222,6 +222,29 @@ class ClerkAdminManager:
         except Exception as e:
             logging.error(f"❌ Failed to send welcome email: {str(e)}")
             return False
+    
+    async def update_user_password(self, user_id: str, password: str):
+        """Update user password in Clerk"""
+        if not CLERK_AVAILABLE:
+            raise HTTPException(status_code=503, detail="Clerk service not available")
+            
+        if not self.clerk:
+            raise HTTPException(status_code=500, detail="Clerk admin API not configured")
+        
+        try:
+            # Update user password in Clerk
+            user_request = {
+                "password": password
+            }
+            
+            await self.clerk.users.update(user_id=user_id, update_user=user_request)
+            
+            logging.info(f"✅ Clerk password updated for user: {user_id}")
+            return True
+            
+        except Exception as e:
+            logging.error(f"❌ Clerk password update failed: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Failed to update user password in Clerk: {str(e)}")
 
 # Initialize Clerk admin manager
 clerk_admin = ClerkAdminManager()
