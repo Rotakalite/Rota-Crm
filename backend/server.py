@@ -245,16 +245,20 @@ class ClerkAdminManager:
         if not CLERK_AVAILABLE:
             raise HTTPException(status_code=503, detail="Clerk service not available")
             
-        if not self.clerk:
+        if not self.users_api:
             raise HTTPException(status_code=500, detail="Clerk admin API not configured")
         
         try:
-            # Update user password in Clerk
-            user_request = {
-                "password": password
-            }
+            # Import the update request model
+            from clerk_backend_sdk import UpdateUserRequest
             
-            await self.clerk.users.update(user_id=user_id, update_user=user_request)
+            # Create update user request
+            user_request = UpdateUserRequest(
+                password=password
+            )
+            
+            # Update user password in Clerk using the users API
+            self.users_api.update_user(user_id=user_id, update_user_request=user_request)
             
             logging.info(f"✅ Clerk password updated for user: {user_id}")
             return True
