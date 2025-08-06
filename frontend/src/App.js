@@ -11364,7 +11364,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
                 </div>
               )}
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Yıl</label>
                   <select
@@ -11394,7 +11394,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     ⚡ Elektrik (kWh)
