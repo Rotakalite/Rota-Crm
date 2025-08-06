@@ -706,6 +706,11 @@ class ClientUpdate(BaseModel):
     carbon_footprint: Optional[float] = None
     sustainability_score: Optional[int] = None
     client_type: Optional[str] = None
+    audit_company: Optional[str] = None  # 🎯 NEW: Audit company field for updates
+    certificate_end_date: Optional[str] = None  # 🎯 NEW: Certificate date field for updates
+    city: Optional[str] = None  # 🎯 NEW: City field for updates
+    district: Optional[str] = None  # 🎯 NEW: District field for updates
+    password: Optional[str] = None  # 🎯 NEW: Password update for Clerk account
 
 class Document(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
