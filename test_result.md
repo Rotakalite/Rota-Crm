@@ -167,7 +167,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Admin client management özelliklerini geliştirme: 1) Admin tanımlı şifre ile yeni müşteri kayıt 2) Kayıtlı müşterileri düzenleme özelliği."
+user_problem_statement: "Client Role Tüketim Tablosu Görüntüleme Sorunu Testi: Kullanıcı şu sorunu bildiriyor: 'Müşteri (client) uygulamasına girdiğimde Tüketim Yönetimi sayfasında alt taraftaki tablo görünmüyor ama admin uygulamasına girdiğinde görünüyor.' Test hedefleri: 1) Client role kullanıcıları için /api/consumptions endpoint'inin düzgün çalışıp çalışmadığını kontrol et 2) Admin role ve Client role için farklı response'lar alınıp alınmadığını test et 3) Authentication ve role-based access control'un doğru çalışıp çalışmadığını doğrula 4) /api/consumptions/analytics endpoint'inin client role için çalışıp çalışmadığını test et"
 
 backend:
   - task: "Client Management - Admin Password & Edit Client Backend Test"
