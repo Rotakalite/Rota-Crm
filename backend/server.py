@@ -133,7 +133,7 @@ class ClerkAdminManager:
             )
             
             # Create user in Clerk using the users API
-            clerk_user = self.users_api.create_user(user_request)
+            clerk_user = await self.users_api.create_user(user_request)
             
             return {
                 "clerk_user_id": clerk_user.id,
