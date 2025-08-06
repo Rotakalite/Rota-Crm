@@ -698,7 +698,7 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
               Müşteri bulunamadı...
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
               {clients.map(client => (
                 <div
                   key={client.id}
