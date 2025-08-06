@@ -550,7 +550,14 @@ def get_db():
     else:
         return client[os.environ['DB_NAME']]
 
-# Legacy global db for compatibility - DEPRECATED, use get_db() instead
+# 🚀 CRITICAL FIX: Update global db reference dynamically 
+def update_global_db():
+    """Update global db reference based on current mode"""
+    global db
+    db = get_db()
+    return db
+
+# Legacy global db for compatibility - DEPRECATED, use get_db() instead  
 db = client[os.environ['DB_NAME']]
 
 # AI service import - AFTER environment loading
