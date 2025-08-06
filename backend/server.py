@@ -79,9 +79,10 @@ class ClerkAdminManager:
                 
                 # Configure API client
                 config = Configuration()
-                config.api_key['bearerAuth'] = self.clerk_secret
-                config.api_key_prefix['bearerAuth'] = 'Bearer'
-                print("⚙️ Clerk configuration created")
+                
+                # 🎯 ALTERNATIVE 1: Set access token directly
+                config.access_token = self.clerk_secret
+                print("⚙️ Clerk configuration created with access_token")
                 
                 # Initialize API client and users API
                 self.api_client = ApiClient(config)
