@@ -7592,6 +7592,15 @@ async def create_training(
             # Check if the client is assigned to this consultant
             if client.get("consultant_id") != consultant_id:
                 raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+        elif current_user.role == UserRole.CLIENT:
+            # 🎯 FIXED: Client can create training for their own account
+            client_id_from_user = current_user.client_id
+            if not client_id_from_user:
+                raise HTTPException(status_code=403, detail="Client ID not assigned to user")
+            
+            # Check if trying to create training for their own account
+            if training_data.client_id != client_id_from_user:
+                raise HTTPException(status_code=403, detail="Access denied: Can only create training for your own account")
         else:
             raise HTTPException(status_code=403, detail="Bu müşteri için eğitim oluşturma yetkiniz yok")
         
