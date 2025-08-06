@@ -18,7 +18,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 # Clerk Admin API
-from clerk_backend_api import Clerk
+from clerk_backend_sdk import Clerk
 from datetime import datetime, timedelta
 from typing import List, Optional
 from fastapi import FastAPI, APIRouter, HTTPException, status, Depends, UploadFile, File, Form, Request
