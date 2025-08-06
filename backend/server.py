@@ -449,6 +449,96 @@ class ClerkAdminManager:
             logging.error(f"❌ Failed to send welcome email: {str(e)}")
             return False
     
+    async def send_consultant_welcome_email(self, email: str, password: str, consultant_name: str, company_name: str):
+        """Send welcome email with credentials to new consultant"""
+        try:
+            smtp_server = "smtp.gmail.com"
+            smtp_port = 587
+            sender_email = os.environ.get('GMAIL_USER')
+            sender_password = os.environ.get('GMAIL_PASSWORD')
+            
+            if not sender_email or not sender_password:
+                logging.warning("⚠️ Gmail credentials not configured")
+                return False
+            
+            # Create message
+            message = MIMEMultipart("alternative")
+            message["Subject"] = f"🎉 GreenWave CRM Danışman Hesabınız Hazır - {company_name}"
+            message["From"] = sender_email
+            message["To"] = email
+            
+            # HTML content for consultant
+            html_content = f"""
+            <html>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                        <div style="background: linear-gradient(135deg, #10b981, #047857); color: white; padding: 30px; text-align: center; border-radius: 10px;">
+                            <h1 style="margin: 0; font-size: 28px;">🌱 GreenWave CRM</h1>
+                            <p style="margin: 10px 0 0 0; font-size: 16px;">Sürdürülebilirlik Danışmanlık Sistemi</p>
+                        </div>
+                        
+                        <div style="padding: 30px; background: #f8f9fa; border-radius: 10px; margin-top: 20px;">
+                            <h2 style="color: #10b981; margin-bottom: 20px;">Hoş Geldiniz {consultant_name}!</h2>
+                            <p><strong>{company_name}</strong> için GreenWave CRM danışman hesabınız başarıyla oluşturuldu.</p>
+                            
+                            <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #10b981; margin: 20px 0;">
+                                <h3 style="margin-top: 0; color: #047857;">📧 Danışman Giriş Bilgileriniz:</h3>
+                                <p><strong>Email:</strong> {email}</p>
+                                <p><strong>Şifre:</strong> <code style="background: #e5e7eb; padding: 4px 8px; border-radius: 4px; font-family: monospace;">{password}</code></p>
+                                <p><strong>Rol:</strong> Danışman</p>
+                            </div>
+                            
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="https://rota-crm-production.up.railway.app" 
+                                   style="display: inline-block; background: linear-gradient(135deg, #10b981, #047857); 
+                                          color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; 
+                                          font-weight: bold; font-size: 16px;">
+                                    🚀 Danışman Paneline Giriş Yap
+                                </a>
+                            </div>
+                            
+                            <div style="background: #dbeafe; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                                <h4 style="margin-top: 0; color: #1e40af;">🎯 Danışman Olarak Neler Yapabilirsiniz?</h4>
+                                <ul style="margin-bottom: 0;">
+                                    <li>👥 Müşteri portföyünüzü yönetin</li>
+                                    <li>📊 Müşteri tüketim verilerini takip edin</li>
+                                    <li>📄 Belge yönetimi ve onayları</li>
+                                    <li>🎓 Eğitim programları düzenleyin</li>
+                                    <li>📈 Sürdürülebilirlik raporları oluşturun</li>
+                                    <li>🤖 AI destekli analiz ve öneriler</li>
+                                </ul>
+                            </div>
+                            
+                            <p style="margin-top: 30px; color: #6b7280; font-size: 14px;">
+                                Bu bilgiler güvenlik amacıyla sadece size gönderilmiştir. Şifrenizi kimseyle paylaşmayın.
+                            </p>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 20px; color: #6b7280; font-size: 12px;">
+                            <p>© 2024 GreenWave CRM - Sürdürülebilir Gelecek İçin Teknoloji</p>
+                        </div>
+                    </div>
+                </body>
+            </html>
+            """
+            
+            # Add HTML content
+            html_part = MIMEText(html_content, "html", "utf-8")
+            message.attach(html_part)
+            
+            # Send email
+            with smtplib.SMTP(smtp_server, smtp_port) as server:
+                server.starttls()
+                server.login(sender_email, sender_password)
+                server.send_message(message)
+            
+            logging.info(f"✅ Consultant welcome email sent to {email}")
+            return True
+            
+        except Exception as e:
+            logging.error(f"❌ Failed to send consultant welcome email: {str(e)}")
+            return False
+    
     async def update_user_password(self, user_id: str, password: str):
         """Update user password in Clerk"""
         if not CLERK_AVAILABLE:
