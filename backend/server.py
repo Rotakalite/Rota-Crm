@@ -14537,7 +14537,7 @@ async def debug_routes():
 
 # ==================== DEMO MODE ENDPOINTS ====================
 
-@app.get("/api/demo/status")
+@api_router.get("/demo/status")  # Route: /api/demo/status
 async def get_demo_status():
     """Get demo mode status"""
     return {
