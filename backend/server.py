@@ -6474,7 +6474,7 @@ async def create_client(
                 email=client.email,
                 first_name=client.contact_person or client.name,
                 last_name="Client",  # Default last name
-                password=None  # Auto-generate
+                password=client_data.password  # 🎯 FIXED: Use admin-defined password
             )
             
             # Add Clerk ID to client data
