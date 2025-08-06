@@ -77,13 +77,18 @@ demo_manager = DemoManager()
 class ClerkAdminManager:
     def __init__(self):
         self.clerk_secret = os.environ.get('CLERK_SECRET_KEY')
+        print(f"🔑 Clerk Secret Key: {'Set' if self.clerk_secret else 'Not Set'}")
+        
         if CLERK_AVAILABLE and self.clerk_secret:
             try:
                 from clerk_backend_sdk import Configuration, ApiClient, UsersApi
+                print("📦 Clerk SDK modules imported successfully")
+                
                 # Configure API client
                 config = Configuration()
                 config.api_key['bearerAuth'] = self.clerk_secret
                 config.api_key_prefix['bearerAuth'] = 'Bearer'
+                print("⚙️ Clerk configuration created")
                 
                 # Initialize API client and users API
                 self.api_client = ApiClient(config)
@@ -91,10 +96,12 @@ class ClerkAdminManager:
                 print("✅ Clerk Admin API initialized successfully")
             except Exception as e:
                 print(f"❌ Clerk Admin API initialization failed: {str(e)}")
+                import traceback
+                traceback.print_exc()
                 self.api_client = None
                 self.users_api = None
         else:
-            print("⚠️ Clerk Admin API not configured")
+            print(f"⚠️ Clerk Admin API not configured: CLERK_AVAILABLE={CLERK_AVAILABLE}, Secret={'Set' if self.clerk_secret else 'Not Set'}")
             self.api_client = None
             self.users_api = None
     
