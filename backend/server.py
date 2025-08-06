@@ -79,16 +79,24 @@ class ClerkAdminManager:
         self.clerk_secret = os.environ.get('CLERK_SECRET_KEY')
         if CLERK_AVAILABLE and self.clerk_secret:
             try:
-                self.clerk = Clerk(bearer_auth=self.clerk_secret)
+                from clerk_backend_sdk import Configuration, ApiClient, UsersApi
+                # Configure API client
+                config = Configuration()
+                config.api_key['bearerAuth'] = self.clerk_secret
+                config.api_key_prefix['bearerAuth'] = 'Bearer'
+                
+                # Initialize API client and users API
+                self.api_client = ApiClient(config)
+                self.users_api = UsersApi(self.api_client)
+                print("✅ Clerk Admin API initialized successfully")
             except Exception as e:
-                logging.warning(f"⚠️ Clerk initialization error: {e}")
-                self.clerk = None
+                print(f"❌ Clerk Admin API initialization failed: {str(e)}")
+                self.api_client = None
+                self.users_api = None
         else:
-            self.clerk = None
-            if not CLERK_AVAILABLE:
-                logging.warning("⚠️ Clerk SDK not available")
-            else:
-                logging.warning("⚠️ Clerk secret key not found")
+            print("⚠️ Clerk Admin API not configured")
+            self.api_client = None
+            self.users_api = None
     
     def generate_secure_password(self, length=12):
         """Generate secure random password"""
