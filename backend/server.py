@@ -801,6 +801,8 @@ class ConsultantCreate(BaseModel):
     email: str
     phone: str
     address: str
+    password: Optional[str] = None
+    auto_create_account: bool = False
 
 # Existing Models
 class Client(BaseModel):
