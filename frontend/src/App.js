@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from 'react';
 import { ClerkProvider, SignedIn, SignedOut, RedirectToSignIn, useUser, useClerk, SignOutButton } from '@clerk/clerk-react';
 import MobileDashboardView from './MobileDashboardView';
 import { useIsMobile, MobileNavigation } from './MobileComponents';
