@@ -9197,8 +9197,16 @@ const ConsumptionAnalytics = () => {
       setLoading(true);
       const params = new URLSearchParams();
       if (selectedYear) params.append('year', selectedYear);
-      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
-        params.append('client_id', selectedClient);
+      
+      // 🎯 FIXED: Client can see their own data
+      if (userRole === 'admin' || userRole === 'consultant') {
+        // Admin/Consultant can select any client
+        if (selectedClient) {
+          params.append('client_id', selectedClient);
+        }
+      } else if (userRole === 'client') {
+        // Client sees their own data automatically (backend will filter by user)
+        // No need to send client_id, backend uses authenticated user's client_id
       }
 
       console.log('🔍 ConsumptionAnalytics API call:', {
