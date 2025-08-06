@@ -3405,7 +3405,8 @@ const Dashboard = ({ onNavigate }) => {
         });
         
         alert('🔴 Demo modu kapatıldı ve demo verileri temizlendi!');
-        setDemoStatus({ demo_mode: false, database: 'rotacrm' });
+        // Fetch real demo status from backend
+        await fetchDemoStatus();
       } else {
         // Activate demo - FIX: Remove duplicate /api
         await axios.post(`${API}/demo/activate`, {}, {
