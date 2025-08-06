@@ -14793,11 +14793,22 @@ async def populate_demo_data(current_user: User = Depends(get_current_user)):
         raise HTTPException(status_code=400, detail="Demo mode must be activated first")
     
     try:
-        # Get demo database connection
+        # 🔒 SAFETY CHECK: Only allow populating in demo mode  
+        if not demo_manager.is_demo():
+            raise HTTPException(status_code=400, detail="Demo mode must be activated first")
+            
+        # 🔒 SAFETY CHECK: Get demo database connection explicitly
+        from pymongo import MongoClient
         mongo_client = MongoClient(mongo_url)
-        db = mongo_client[demo_manager.get_database_name()]
+        demo_db_name = demo_manager.demo_db_name  # Force demo DB name
         
-        # Clear existing demo data
+        # 🔒 SAFETY CHECK: Verify we're using demo database
+        if demo_db_name == os.environ['DB_NAME']:
+            raise HTTPException(status_code=500, detail="Safety check failed: Cannot populate production database")
+            
+        db = mongo_client[demo_db_name]  # Explicitly use demo DB
+        
+        # Clear existing demo data first
         db.clients.delete_many({})
         db.consumptions.delete_many({})
         db.documents.delete_many({})
@@ -14815,9 +14826,12 @@ async def populate_demo_data(current_user: User = Depends(get_current_user)):
         db.documents.insert_many(sample_documents)
         db.consultants.insert_many(sample_consultants)
         
+        mongo_client.close()
+        
         return {
             "success": True,
-            "message": "Demo data populated successfully",
+            "message": f"Demo data populated successfully in {demo_db_name}",
+            "database": demo_db_name,
             "data": {
                 "clients": len(sample_clients),
                 "consumption_records": len(sample_consumption),
