@@ -6410,8 +6410,14 @@ async def register_user(user_data: UserCreate):
     if existing_user:
         # SECURITY FIX: Check if existing client user needs client_id linking
         if existing_user.get("role") == UserRole.CLIENT and not existing_user.get("client_id"):
-            # Try to find matching client by email
-            matching_client = await db.clients.find_one({"contact_person": existing_user.get("email")})
+            # Try to find matching client by email (check both email and contact_person fields)
+            user_email = existing_user.get("email")
+            matching_client = await db.clients.find_one({
+                "$or": [
+                    {"email": user_email},
+                    {"contact_person": user_email}
+                ]
+            })
             if matching_client:
                 # Update existing user with client_id
                 await db.users.update_one(
@@ -6419,9 +6425,9 @@ async def register_user(user_data: UserCreate):
                     {"$set": {"client_id": matching_client["id"], "updated_at": datetime.utcnow()}}
                 )
                 existing_user["client_id"] = matching_client["id"]
-                logging.info(f"🔗 Existing client user linked to client: {matching_client['name']} (ID: {matching_client['id']})")
+                logging.info(f"🔗 Existing client user linked to client: {matching_client.get('hotel_name', matching_client.get('name'))} (ID: {matching_client['id']})")
             else:
-                logging.warning(f"⚠️ Existing client user but no matching client found for email: {existing_user.get('email')}")
+                logging.warning(f"⚠️ Existing client user but no matching client found for email: {user_email}")
         
         return User(**existing_user)
     
