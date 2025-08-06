@@ -3549,31 +3549,6 @@ const Dashboard = ({ onNavigate }) => {
 
             {/* Key Metrics Row - Mobile Responsive Grid */}
             <div className={`grid gap-6 ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'}`}>
-              {/* Demo Status Indicator */}
-              <div className={`bg-white rounded-xl shadow-lg p-6 border-l-4 ${demoStatus.demo_mode ? 'border-orange-500' : 'border-blue-500'}`}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className={`font-medium text-gray-600 ${isMobile ? 'text-xs' : 'text-sm'}`}>Sistem Modu</p>
-                    <p className={`font-bold ${isMobile ? 'text-xl' : 'text-3xl'} ${
-                      demoStatus.demo_mode ? 'text-orange-600' : 'text-blue-600'
-                    }`}>
-                      {demoStatus.demo_mode ? 'DEMO' : 'PROD'}
-                    </p>
-                    <p className={`mt-1 ${isMobile ? 'text-xs' : 'text-sm'} ${
-                      demoStatus.demo_mode ? 'text-orange-600' : 'text-blue-600'
-                    }`}>
-                      {demoStatus.demo_mode ? '🎬 Demo aktif' : '💼 Canlı sistem'}
-                    </p>
-                  </div>
-                  <div className={`rounded-lg flex items-center justify-center ${
-                    demoStatus.demo_mode ? 'bg-orange-100' : 'bg-blue-100'
-                  } ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}>
-                    <span className={isMobile ? 'text-lg' : 'text-2xl'}>
-                      {demoStatus.demo_mode ? '🎬' : '💻'}
-                    </span>
-                  </div>
-                </div>
-              </div>
               
               <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
                 <div className="flex items-center justify-between">
