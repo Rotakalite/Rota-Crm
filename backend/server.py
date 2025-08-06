@@ -13712,7 +13712,7 @@ async def send_2fa_code(request: dict):
                             <div class="code-label">Doğrulama Kodu</div>
                             <div class="verification-code">{verification_code}</div>
                             <div class="code-timer">
-                                ⏰ Bu kod 10 dakika süreyle geçerlidir
+                                ⏰ Bu kod 5 dakika süreyle geçerlidir
                             </div>
                         </div>
                         
