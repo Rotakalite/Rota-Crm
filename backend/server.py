@@ -19,20 +19,13 @@ from email.mime.text import MIMEText
 
 # Clerk Admin API - Safe import
 try:
-    from clerk_backend_sdk import Client as Clerk  # 🎯 FIXED: Import Client as Clerk
+    from clerk_backend_sdk import Configuration, ApiClient, UsersApi  # 🎯 FIXED: Import proper classes
     CLERK_AVAILABLE = True
     print("✅ Clerk SDK imported successfully")
 except ImportError as e:
     print(f"⚠️ Clerk SDK import error: {e}")
-    try:
-        # Try alternative import
-        from clerk_backend_sdk.api_client import Client as Clerk
-        CLERK_AVAILABLE = True
-        print("✅ Clerk SDK alternative import successful")
-    except ImportError:
-        print("⚠️ Clerk SDK not available, disabling Clerk features")
-        CLERK_AVAILABLE = False
-        Clerk = None
+    print("⚠️ Clerk SDK not available, disabling Clerk features")
+    CLERK_AVAILABLE = False
 from datetime import datetime, timedelta
 from typing import List, Optional
 from fastapi import FastAPI, APIRouter, HTTPException, status, Depends, UploadFile, File, Form, Request
