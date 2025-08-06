@@ -3368,66 +3368,7 @@ const Dashboard = ({ onNavigate }) => {
     });
   };
 
-  // 🎬 Demo Control Functions
-  const fetchDemoStatus = async () => {
-    try {
-      // FIX: Remove duplicate /api
-      const response = await axios.get(`${API}/demo/status`);
-      setDemoStatus(response.data);
-    } catch (error) {
-      console.error('Demo status fetch error:', error);
-    }
-  };
 
-  const handleDemoToggle = async () => {
-    if (demoLoading) return;
-    
-    setDemoLoading(true);
-    try {
-      // First fetch current demo status - FIX: Remove duplicate /api
-      const statusResponse = await axios.get(`${API}/demo/status`);
-      const currentStatus = statusResponse.data;
-      
-      if (currentStatus.demo_mode) {
-        // Clear demo data FIRST (while demo mode is still active)
-        await axios.delete(`${API}/demo/clear`, {
-          headers: { Authorization: `Bearer ${authToken}` }
-        });
-        
-        // Deactivate demo AFTER clearing data
-        await axios.post(`${API}/demo/deactivate`, {}, {
-          headers: { Authorization: `Bearer ${authToken}` }
-        });
-        
-        alert('🔴 Demo modu kapatıldı ve demo verileri temizlendi!');
-        // Fetch real demo status from backend
-        await fetchDemoStatus();
-      } else {
-        // Activate demo - FIX: Remove duplicate /api
-        await axios.post(`${API}/demo/activate`, {}, {
-          headers: { Authorization: `Bearer ${authToken}` }
-        });
-        
-        // Populate demo data - FIX: Remove duplicate /api
-        await axios.post(`${API}/demo/populate`, {}, {
-          headers: { Authorization: `Bearer ${authToken}` }
-        });
-        
-        alert('🎬 Demo modu açıldı! Örnek veriler yüklendi. Sistemi müşteriye gösterebilirsiniz!');
-        // Fetch real demo status from backend
-        await fetchDemoStatus();
-      }
-      
-      // Refresh dashboard data
-      await fetchDashboardData();
-      
-    } catch (error) {
-      console.error('Demo toggle error:', error);
-      alert('❌ Demo işlemi başarısız. Tekrar deneyin.');
-    } finally {
-      setDemoLoading(false);
-    }
-  };
 
   // Load demo status on component mount - DISABLED FOR NOW
   // useEffect(() => {
