@@ -3394,13 +3394,13 @@ const Dashboard = ({ onNavigate }) => {
       const currentStatus = statusResponse.data;
       
       if (currentStatus.demo_mode) {
-        // Deactivate demo - FIX: Remove duplicate /api
-        await axios.post(`${API}/demo/deactivate`, {}, {
+        // Clear demo data FIRST (while demo mode is still active)
+        await axios.delete(`${API}/demo/clear`, {
           headers: { Authorization: `Bearer ${authToken}` }
         });
         
-        // Clear demo data - FIX: Remove duplicate /api
-        await axios.delete(`${API}/demo/clear`, {
+        // Deactivate demo AFTER clearing data
+        await axios.post(`${API}/demo/deactivate`, {}, {
           headers: { Authorization: `Bearer ${authToken}` }
         });
         
