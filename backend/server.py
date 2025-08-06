@@ -14737,6 +14737,8 @@ async def test_ai_service():
 # API ROUTER REGISTRATION - MUST BE AT END
 # ==========================================
 
+app.include_router(api_router, prefix="/api")
+
 # Debug endpoint to list all routes
 @app.get("/debug/routes")
 async def debug_routes():
