@@ -62,6 +62,190 @@ class DemoManager:
     
     def is_demo(self):
         return self.is_demo_mode
+    
+    def get_sample_clients(self):
+        """Generate sample client data for demo"""
+        return [
+            {
+                "id": str(uuid.uuid4()),
+                "name": "Green Resort Antalya",
+                "hotel_name": "Green Resort Antalya",
+                "contact_person": "Ahmet Yılmaz",
+                "email": "info@greenresort.com",
+                "phone": "+90 242 123 4567",
+                "city": "Antalya",
+                "district": "Kemer",
+                "address": "Kemer Mah. Sahil Cad. No:123",
+                "audit_company": "EcoAudit Ltd.",
+                "certificate_end_date": "2024-12-31",
+                "current_stage": "I.Aşama",
+                "services_completed": ["Mevcut durum analizi"],
+                "carbon_footprint": 125.5,
+                "sustainability_score": 78,
+                "client_type": "registered",
+                "industry": "Turizm",
+                "employee_count": 150,
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "name": "Eco Beach Hotel",
+                "hotel_name": "Eco Beach Hotel",
+                "contact_person": "Fatma Demir",
+                "email": "contact@ecobeach.com",
+                "phone": "+90 252 987 6543",
+                "city": "Muğla",
+                "district": "Bodrum",
+                "address": "Bodrum Marina Mah. Deniz Sok. No:45",
+                "audit_company": "Sustainable Audit Co.",
+                "certificate_end_date": "2025-06-30",
+                "current_stage": "II.Aşama",
+                "services_completed": ["Mevcut durum analizi", "Çalışma ekibinin belirlenmesi"],
+                "carbon_footprint": 89.2,
+                "sustainability_score": 85,
+                "client_type": "registered",
+                "industry": "Turizm",
+                "employee_count": 95,
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "name": "Mountain Lodge Cappadocia",
+                "hotel_name": "Mountain Lodge Cappadocia",
+                "contact_person": "Mehmet Özkan",
+                "email": "info@mountainlodge.com",
+                "phone": "+90 384 555 1234",
+                "city": "Nevşehir",
+                "district": "Göreme",
+                "address": "Göreme Mah. Balon Sok. No:78",
+                "audit_company": "Green Cert International",
+                "certificate_end_date": "2024-09-15",
+                "current_stage": "III.Aşama",
+                "services_completed": ["Mevcut durum analizi", "Çalışma ekibinin belirlenmesi", "Proje planının oluşturulması"],
+                "carbon_footprint": 67.8,
+                "sustainability_score": 92,
+                "client_type": "registered",
+                "industry": "Turizm",
+                "employee_count": 45,
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+        ]
+    
+    def get_sample_consumption_data(self):
+        """Generate sample consumption data for demo"""
+        consumption_data = []
+        for month in range(1, 13):
+            for client_id in ["demo-client-1", "demo-client-2", "demo-client-3"]:
+                consumption_data.append({
+                    "id": str(uuid.uuid4()),
+                    "client_id": client_id,
+                    "year": 2024,
+                    "month": month,
+                    "electricity": 15000 + (month * 500) + (hash(client_id) % 3000),
+                    "water": 8000 + (month * 200) + (hash(client_id) % 1500),
+                    "natural_gas": 2500 + (month * 100) + (hash(client_id) % 500),
+                    "coal": 0,
+                    "diesel": 500 + (month * 20),
+                    "gasoline": 300 + (month * 15),
+                    "lpg": 150 + (month * 10),
+                    "fuel_oil": 0,
+                    "r134a_gas": 2.5,
+                    "r600a_gas": 1.2,
+                    "r410a_gas": 3.1,
+                    "r32_gas": 0.8,
+                    "co2_fire": 0,
+                    "fm200_fire": 0,
+                    "accommodation_count": 2500 + (month * 200) + (hash(client_id) % 800),
+                    "total_co2_emissions": 45.2 + (month * 2.1),
+                    "total_co2_tonnes": 0.045 + (month * 0.002),
+                    "per_person_co2": 18.5 + (month * 0.8),
+                    "carbon_benchmark": "Good" if month % 3 == 0 else "Average",
+                    "created_at": datetime.utcnow(),
+                    "updated_at": datetime.utcnow()
+                })
+        return consumption_data
+    
+    def get_sample_documents(self):
+        """Generate sample document data for demo"""
+        return [
+            {
+                "id": str(uuid.uuid4()),
+                "client_id": "demo-client-1",
+                "name": "Sürdürülebilirlik Politikası",
+                "document_type": "Prosedür",
+                "stage": "I.Aşama",
+                "file_path": "/demo/documents/sustainability_policy.pdf",
+                "original_filename": "sustainability_policy.pdf",
+                "file_size": 245760,
+                "uploaded_by": "admin",
+                "folder_path": "Green Resort Antalya SYS/Politikalar",
+                "folder_level": 1,
+                "mock_upload": True,
+                "created_at": datetime.utcnow()
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "client_id": "demo-client-2",
+                "name": "Karbon Ayak İzi Raporu 2024",
+                "document_type": "Karbon Ayak İzi Raporu",
+                "stage": "II.Aşama",
+                "file_path": "/demo/documents/carbon_footprint_2024.pdf",
+                "original_filename": "carbon_footprint_2024.pdf",
+                "file_size": 1024000,
+                "uploaded_by": "admin",
+                "folder_path": "Eco Beach Hotel SYS/Raporlar",
+                "folder_level": 1,
+                "mock_upload": True,
+                "created_at": datetime.utcnow()
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "client_id": "demo-client-3",
+                "name": "III. Aşama Belgesi",
+                "document_type": "III. Aşama Belgesi",
+                "stage": "III.Aşama",
+                "file_path": "/demo/documents/stage_3_certificate.pdf",
+                "original_filename": "stage_3_certificate.pdf",
+                "file_size": 512000,
+                "uploaded_by": "admin",
+                "folder_path": "Mountain Lodge Cappadocia SYS/Belgeler",
+                "folder_level": 1,
+                "mock_upload": True,
+                "created_at": datetime.utcnow()
+            }
+        ]
+    
+    def get_sample_consultants(self):
+        """Generate sample consultant data for demo"""
+        return [
+            {
+                "id": str(uuid.uuid4()),
+                "company_name": "EcoConsult Danışmanlık",
+                "authorized_person_name": "Dr. Ayşe Kaya",
+                "email": "info@ecoconsult.com",
+                "phone": "+90 212 123 4567",
+                "address": "İstanbul, Beşiktaş, Barbaros Bulvarı No:123",
+                "is_active": True,
+                "total_clients": 15,
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "company_name": "Green Tourism Advisory",
+                "authorized_person_name": "Mühendis Okan Demir",
+                "email": "contact@greentourism.com",
+                "phone": "+90 232 987 6543",
+                "address": "İzmir, Konak, Cumhuriyet Bulvarı No:456",
+                "is_active": True,
+                "total_clients": 22,
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+        ]
 
 # Initialize demo manager
 demo_manager = DemoManager()
