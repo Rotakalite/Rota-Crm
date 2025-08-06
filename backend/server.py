@@ -13311,445 +13311,166 @@ async def send_2fa_code(request: dict):
         # Send email with verification code
         from services.email_service import email_service
         if email_service:
-            subject = "ROTA CRM - Doğrulama Kodu"
+            subject = "🔐 GreenWave CRM - Güvenlik Kodu"
             html_content = f"""
-            <!DOCTYPE html>
-            <html lang="tr">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>ROTA CRM - Güvenlik Doğrulama</title>
-                <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap');
-                    
-                    * {{
-                        margin: 0;
-                        padding: 0;
-                        box-sizing: border-box;
-                    }}
-                    
-                    body {{
-                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-                        line-height: 1.6;
-                        color: #0f172a;
-                        background: linear-gradient(135deg, #1e293b 0%, #334155 35%, #0f172a 100%);
-                        margin: 0;
-                        padding: 20px;
-                        min-height: 100vh;
-                        position: relative;
-                    }}
-                    
-                    body::before {{
-                        content: '';
-                        position: fixed;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        bottom: 0;
-                        background: radial-gradient(circle at 20% 50%, #3b82f640 0%, transparent 50%),
-                                    radial-gradient(circle at 80% 20%, #8b5cf640 0%, transparent 50%),
-                                    radial-gradient(circle at 40% 80%, #ec489940 0%, transparent 50%);
-                        pointer-events: none;
-                    }}
-                    
-                    .email-container {{
-                        max-width: 650px;
-                        margin: 0 auto;
-                        background: #ffffff;
-                        border-radius: 24px;
-                        box-shadow: 
-                            0 25px 50px -12px rgba(0, 0, 0, 0.4),
-                            0 0 0 1px rgba(255, 255, 255, 0.05),
-                            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-                        overflow: hidden;
-                        position: relative;
-                        backdrop-filter: blur(20px);
-                    }}
-                    
-                    .header-section {{
-                        background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 25%, #8b5cf6 50%, #ec4899 75%, #f97316 100%);
-                        padding: 60px 50px;
-                        text-align: center;
-                        position: relative;
-                        overflow: hidden;
-                    }}
-                    
-                    .header-section::before {{
-                        content: '';
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        bottom: 0;
-                        background: 
-                            radial-gradient(circle at 30% 20%, rgba(255,255,255,0.15) 0%, transparent 50%),
-                            radial-gradient(circle at 70% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
-                    }}
-                    
-                    .header-section::after {{
-                        content: '';
-                        position: absolute;
-                        top: -50%;
-                        left: -50%;
-                        width: 200%;
-                        height: 200%;
-                        background: linear-gradient(45deg, transparent 49%, rgba(255,255,255,0.03) 50%, transparent 51%);
-                        animation: shimmer 8s infinite;
-                    }}
-                    
-                    @keyframes shimmer {{
-                        0% {{ transform: translateX(-100%) translateY(-100%) rotate(45deg); }}
-                        100% {{ transform: translateX(100%) translateY(100%) rotate(45deg); }}
-                    }}
-                    
-                    .logo-section {{
-                        position: relative;
-                        z-index: 2;
-                        margin-bottom: 32px;
-                    }}
-                    
-                    .logo-icon {{
-                        display: inline-block;
-                        width: 64px;
-                        height: 64px;
-                        background: rgba(255,255,255,0.2);
-                        border-radius: 16px;
-                        margin-bottom: 16px;
-                        position: relative;
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255,255,255,0.2);
-                    }}
-                    
-                    .logo-icon::before {{
-                        content: '🛡️';
-                        position: absolute;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        font-size: 28px;
-                    }}
-                    
-                    .logo-text {{
-                        font-size: 32px;
-                        font-weight: 800;
-                        color: #ffffff;
-                        margin-bottom: 8px;
-                        letter-spacing: -1px;
-                        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-                    }}
-                    
-                    .logo-subtitle {{
-                        color: rgba(255, 255, 255, 0.9);
-                        font-size: 15px;
-                        font-weight: 500;
-                        text-transform: uppercase;
-                        letter-spacing: 3px;
-                        opacity: 0.8;
-                    }}
-                    
-                    .header-title {{
-                        color: #ffffff;
-                        font-size: 28px;
-                        font-weight: 700;
-                        margin-top: 40px;
-                        position: relative;
-                        z-index: 2;
-                        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-                    }}
-                    
-                    .main-content {{
-                        padding: 60px 50px;
-                        background: #ffffff;
-                        position: relative;
-                    }}
-                    
-                    .greeting {{
-                        font-size: 20px;
-                        color: #334155;
-                        margin-bottom: 32px;
-                        font-weight: 600;
-                    }}
-                    
-                    .description {{
-                        font-size: 16px;
-                        color: #64748b;
-                        margin-bottom: 48px;
-                        line-height: 1.8;
-                    }}
-                    
-                    .code-container {{
-                        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-                        border-radius: 20px;
-                        padding: 48px 40px;
-                        text-align: center;
-                        margin: 48px 0;
-                        position: relative;
-                        overflow: hidden;
-                        box-shadow: 
-                            0 20px 25px -5px rgba(0, 0, 0, 0.1),
-                            0 10px 10px -5px rgba(0, 0, 0, 0.04),
-                            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-                    }}
-                    
-                    .code-container::before {{
-                        content: '';
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        height: 4px;
-                        background: linear-gradient(90deg, #0ea5e9, #3b82f6, #8b5cf6, #ec4899, #f97316);
-                        border-radius: 20px 20px 0 0;
-                    }}
-                    
-                    .code-container::after {{
-                        content: '';
-                        position: absolute;
-                        top: 50%;
-                        left: 50%;
-                        width: 200px;
-                        height: 200px;
-                        background: radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%);
-                        transform: translate(-50%, -50%);
-                        border-radius: 50%;
-                        animation: pulse 4s infinite;
-                    }}
-                    
-                    @keyframes pulse {{
-                        0%, 100% {{ transform: translate(-50%, -50%) scale(1); opacity: 0.5; }}
-                        50% {{ transform: translate(-50%, -50%) scale(1.1); opacity: 0.3; }}
-                    }}
-                    
-                    .code-label {{
-                        color: #94a3b8;
-                        font-size: 14px;
-                        font-weight: 600;
-                        text-transform: uppercase;
-                        letter-spacing: 2px;
-                        margin-bottom: 24px;
-                        position: relative;
-                        z-index: 2;
-                    }}
-                    
-                    .verification-code {{
-                        font-family: 'JetBrains Mono', 'Courier New', monospace;
-                        font-size: 48px;
-                        font-weight: 700;
-                        color: #ffffff;
-                        letter-spacing: 12px;
-                        margin-bottom: 24px;
-                        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-                        position: relative;
-                        z-index: 2;
-                        text-align: center;
-                        background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
-                        -webkit-background-clip: text;
-                        -webkit-text-fill-color: transparent;
-                        background-clip: text;
-                    }}
-                    
-                    .code-timer {{
-                        color: #cbd5e1;
-                        font-size: 15px;
-                        font-weight: 500;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        gap: 8px;
-                        position: relative;
-                        z-index: 2;
-                    }}
-                    
-                    .security-alert {{
-                        background: linear-gradient(135deg, #fef3c7 0%, #fde047 100%);
-                        border: 2px solid #f59e0b;
-                        border-radius: 16px;
-                        padding: 32px;
-                        margin: 48px 0;
-                        position: relative;
-                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                    }}
-                    
-                    .security-alert::before {{
-                        content: '⚠️';
-                        position: absolute;
-                        top: -16px;
-                        left: 32px;
-                        background: #ffffff;
-                        padding: 8px 12px;
-                        font-size: 24px;
-                        border-radius: 8px;
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                    }}
-                    
-                    .alert-title {{
-                        font-weight: 700;
-                        color: #92400e;
-                        margin-bottom: 12px;
-                        font-size: 18px;
-                    }}
-                    
-                    .alert-text {{
-                        color: #a16207;
-                        font-size: 15px;
-                        line-height: 1.7;
-                        font-weight: 500;
-                    }}
-                    
-                    .help-section {{
-                        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-                        border-radius: 16px;
-                        padding: 32px;
-                        margin: 40px 0;
-                        border-left: 6px solid #0ea5e9;
-                        position: relative;
-                    }}
-                    
-                    .help-section::before {{
-                        content: '💡';
-                        position: absolute;
-                        top: -12px;
-                        right: 32px;
-                        background: #ffffff;
-                        padding: 8px;
-                        border-radius: 50%;
-                        font-size: 20px;
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                    }}
-                    
-                    .help-title {{
-                        font-weight: 700;
-                        color: #0c4a6e;
-                        margin-bottom: 12px;
-                        font-size: 18px;
-                    }}
-                    
-                    .help-text {{
-                        color: #075985;
-                        font-size: 15px;
-                        line-height: 1.7;
-                        margin: 0;
-                    }}
-                    
-                    .footer {{
-                        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-                        padding: 48px 50px;
-                        text-align: center;
-                        border-top: 1px solid #e2e8f0;
-                        position: relative;
-                    }}
-                    
-                    .company-info {{
-                        color: #1e293b;
-                        font-size: 16px;
-                        font-weight: 700;
-                        margin-bottom: 16px;
-                    }}
-                    
-                    .footer-text {{
-                        color: #64748b;
-                        font-size: 14px;
-                        line-height: 1.6;
-                        margin-bottom: 20px;
-                        max-width: 400px;
-                        margin-left: auto;
-                        margin-right: auto;
-                    }}
-                    
-                    .divider {{
-                        height: 2px;
-                        background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
-                        margin: 24px 0;
-                        border-radius: 1px;
-                    }}
-                    
-                    .copyright {{
-                        color: #94a3b8;
-                        font-size: 13px;
-                        font-weight: 500;
-                    }}
-                    
-                    @media (max-width: 700px) {{
-                        body {{ padding: 10px; }}
-                        .email-container {{ 
-                            margin: 10px 0; 
-                            border-radius: 16px;
-                        }}
-                        .header-section, .main-content, .footer {{ 
-                            padding: 40px 30px; 
-                        }}
-                        .verification-code {{ 
-                            font-size: 36px; 
-                            letter-spacing: 8px; 
-                        }}
-                        .header-title {{ font-size: 24px; }}
-                        .logo-text {{ font-size: 28px; }}
-                    }}
-                </style>
-            </head>
-            <body>
-                <div class="email-container">
-                    <div class="header-section">
-                        <div class="logo-section">
-                            <div class="logo-icon"></div>
-                            <div class="logo-text">ROTA CRM</div>
-                            <div class="logo-subtitle">Elite Danışmanlık Sistemi</div>
-                        </div>
-                        <h1 class="header-title">🔐 Güvenlik Doğrulama</h1>
-                    </div>
-                    
-                    <div class="main-content">
-                        <div class="greeting">Sayın Kullanıcımız,</div>
-                        
-                        <p class="description">
-                            ROTA CRM Elite Danışmanlık Sistemi'ne güvenli erişim için 
-                            <strong>iki faktörlü kimlik doğrulama</strong> kodunuz hazırlandı. 
-                            Lütfen aşağıdaki özel doğrulama kodunu giriş ekranında kullanarak 
-                            sistemimize güvenle erişim sağlayın.
-                        </p>
-                        
-                        <div class="code-container">
-                            <div class="code-label">Doğrulama Kodu</div>
-                            <div class="verification-code">{verification_code}</div>
-                            <div class="code-timer">
-                                ⏰ Bu kod 5 dakika süreyle geçerlidir
-                            </div>
-                        </div>
-                        
-                        <div class="security-alert">
-                            <div class="alert-title">🛡️ Gizlilik ve Güvenlik Uyarısı</div>
-                            <div class="alert-text">
-                                Bu doğrulama kodu yalnızca sizin için özel olarak oluşturulmuştur. 
-                                Kodu asla kimseyle paylaşmayın. ROTA CRM ekibi bu kodu hiçbir zaman 
-                                telefon, SMS veya email yoluyla talep etmez. Şüpheli durumlarda 
-                                derhal sistem yöneticinizle iletişime geçin.
-                            </div>
-                        </div>
-                        
-                        <div class="help-section">
-                            <div class="help-title">Bu giriş denemesi sizin değil mi?</div>
-                            <p class="help-text">
-                                Eğer bu doğrulama kodunu siz talep etmediyseniz, lütfen <strong>derhal</strong> 
-                                hesap güvenliğiniz için şifrenizi değiştirin ve sistem yöneticinizi bilgilendirin. 
-                                Hesabınızın güvenliği bizim için öncelik taşımaktadır.
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div class="footer">
-                        <div class="company-info">🏢 ROTA Kalite Danışmanlık Ltd. Şti.</div>
-                        <div class="footer-text">
-                            Bu e-posta, ROTA CRM gelişmiş güvenlik sistemi tarafından otomatik olarak 
-                            oluşturulmuş ve size özel olarak gönderilmiştir.
-                        </div>
-                        <div class="divider"></div>
-                        <div class="copyright">
-                            © {datetime.utcnow().year} ROTA CRM - Tüm hakları saklıdır. • Güvenli Danışmanlık Platformu
-                        </div>
-                    </div>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenWave CRM - Güvenlik Doğrulama</title>
+    <style>
+        * {{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }}
+        
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #374151;
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            padding: 20px;
+        }}
+        
+        .container {{
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }}
+        
+        .header {{
+            background: linear-gradient(135deg, #10b981, #047857);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }}
+        
+        .logo {{
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }}
+        
+        .subtitle {{
+            opacity: 0.9;
+            font-size: 14px;
+        }}
+        
+        .content {{
+            padding: 40px 30px;
+            text-align: center;
+        }}
+        
+        .title {{
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }}
+        
+        .description {{
+            color: #6b7280;
+            margin-bottom: 30px;
+            font-size: 15px;
+        }}
+        
+        .code-box {{
+            background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+            border: 2px solid #10b981;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }}
+        
+        .code {{
+            font-size: 32px;
+            font-weight: bold;
+            color: #10b981;
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+        }}
+        
+        .timer {{
+            color: #ef4444;
+            font-size: 13px;
+            font-weight: 500;
+        }}
+        
+        .warning {{
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 25px;
+            text-align: left;
+        }}
+        
+        .warning-title {{
+            color: #dc2626;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }}
+        
+        .warning-text {{
+            color: #7f1d1d;
+            font-size: 13px;
+            line-height: 1.5;
+        }}
+        
+        .footer {{
+            background: #f9fafb;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+        }}
+        
+        @media (max-width: 480px) {{
+            .container {{ margin: 10px; }}
+            .content {{ padding: 30px 20px; }}
+            .code {{ font-size: 28px; }}
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🌱 GreenWave CRM</div>
+            <div class="subtitle">Sürdürülebilir Turizm Platformu</div>
+        </div>
+        
+        <div class="content">
+            <h1 class="title">🔐 Güvenlik Doğrulama</h1>
+            <p class="description">
+                Hesabınızın güvenliği için oluşturulan doğrulama kodunuz aşağıdadır.
+            </p>
+            
+            <div class="code-box">
+                <div class="code">{verification_code}</div>
+                <div class="timer">⏰ Bu kod 5 dakika süreyle geçerlidir</div>
+            </div>
+            
+            <div class="warning">
+                <div class="warning-title">🚨 Güvenlik Uyarısı</div>
+                <div class="warning-text">
+                    Bu kodu kimseyle paylaşmayın. GreenWave CRM ekibi asla telefonla kod talep etmez.
                 </div>
-            </body>
-            </html>
+            </div>
+        </div>
+        
+        <div class="footer">
+            © {datetime.utcnow().year} GreenWave CRM - Güvenli Danışmanlık Platformu
+        </div>
+    </div>
+</body>
+</html>
             """
             
             await email_service.send_email(
