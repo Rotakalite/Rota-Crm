@@ -58,8 +58,29 @@ class DemoManager:
         self.prod_db_name = os.environ.get('DB_NAME', 'rotacrm')
         
     def get_database_name(self):
-        return self.demo_db_name if self.is_demo_mode else self.prod_db_name
+        return self.demo_db_name if self.is_demo() else self.prod_db_name
     
+    def ensure_demo_database_exists(self):
+        """Ensure demo database exists, create if not"""
+        if self.is_demo():
+            try:
+                from pymongo import MongoClient
+                mongo_client = MongoClient(mongo_url)
+                
+                # Check if demo database exists
+                if self.demo_db_name not in mongo_client.list_database_names():
+                    # Create demo database by creating a dummy collection
+                    demo_db = mongo_client[self.demo_db_name]
+                    demo_db.create_collection("_init")
+                    demo_db["_init"].insert_one({"init": True, "created_at": datetime.utcnow()})
+                    print(f"✅ Demo database '{self.demo_db_name}' created successfully")
+                else:
+                    print(f"✅ Demo database '{self.demo_db_name}' already exists")
+                    
+                mongo_client.close()
+            except Exception as e:
+                print(f"❌ Failed to create demo database: {e}")
+                
     def is_demo(self):
         """Check demo mode status from current environment variable"""
         return os.environ.get('DEMO_MODE', 'false').lower() == 'true'
