@@ -14566,7 +14566,7 @@ async def activate_demo_mode(current_user: User = Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to activate demo mode: {str(e)}")
 
-@api_router.post("/demo/deactivate")
+@api_router.post("/demo/deactivate")  # Route: /api/demo/deactivate
 async def deactivate_demo_mode(current_user: User = Depends(get_current_user)):
     """Deactivate demo mode - Admin only"""
     if current_user.role != UserRole.ADMIN:
