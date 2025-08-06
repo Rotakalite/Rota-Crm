@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useIsMobile } from './MobileComponents';
 
 const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
+  const isMobile = useIsMobile();
   // useAuth hook'u App.js'den import edemediğimiz için manuel auth kontrol
   const [authToken, setAuthToken] = useState(null);
   const [userRole, setUserRole] = useState(null);
