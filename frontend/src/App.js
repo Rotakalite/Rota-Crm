@@ -7752,6 +7752,21 @@ const SimpleClientManagement = ({ onNavigate }) => {
     auto_create_account: true
   });
   
+  // ✏️ NEW: Edit client state
+  const [showEditClient, setShowEditClient] = useState(false);
+  const [editingClient, setEditingClient] = useState(null);
+  const [editClientData, setEditClientData] = useState({
+    name: '',
+    hotel_name: '',
+    email: '',
+    phone: '',
+    city: '',
+    district: '',
+    address: '',
+    certificate_end_date: '',
+    audit_company: ''
+  });
+  
   // Türkiye İl ve İlçe Listesi
   const turkeyProvinces = {
     'ADANA': ['ALADAĞ', 'CEYHAN', 'ÇUKUROVA', 'FEKE', 'İMAMOĞLU', 'KARAİSALI', 'KARATAŞ', 'KOZAN', 'MERKEZ', 'POZANTI', 'SAİMBEYLİ', 'SARIÇAM', 'TUFANBEYLI', 'YUMURTALIK', 'YÜREĞİR'],
