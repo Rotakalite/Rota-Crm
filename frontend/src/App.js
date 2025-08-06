@@ -8574,13 +8574,22 @@ const SimpleClientManagement = ({ onNavigate }) => {
                         </span>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          onClick={() => handleDeleteClient(client.id, client.hotel_name)}
-                          className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"
-                          title="Sil"
-                        >
-                          🗑️
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleEditClient(client)}
+                            className="text-blue-500 hover:text-blue-700 p-1 rounded hover:bg-blue-50"
+                            title="Düzenle"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClient(client.id, client.hotel_name)}
+                            className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"
+                            title="Sil"
+                          >
+                            🗑️
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
