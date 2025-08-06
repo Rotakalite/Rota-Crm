@@ -14751,9 +14751,12 @@ async def activate_demo_mode(current_user: User = Depends(get_current_user)):
         # Update environment variable temporarily
         os.environ['DEMO_MODE'] = 'true'
         
+        # Ensure demo database exists
+        demo_manager.ensure_demo_database_exists()
+        
         return {
             "success": True,
-            "message": "Demo mode activated",
+            "message": "Demo mode activated and demo database created",
             "demo_mode": True,
             "database": demo_manager.get_database_name(),
             "note": "Demo sample data population available via separate endpoint"
