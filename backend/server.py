@@ -13502,7 +13502,10 @@ async def send_2fa_code(request: dict):
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">🌱 GreenWave CRM</div>
+            <div class="logo-container">
+                <div class="logo-icon"></div>
+                <div class="logo-text">GreenWave CRM</div>
+            </div>
             <div class="subtitle">Sürdürülebilir Turizm Platformu</div>
         </div>
         
