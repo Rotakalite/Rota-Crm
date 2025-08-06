@@ -14868,8 +14868,6 @@ async def get_demo_data_preview():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get demo preview: {str(e)}")
 
-app.include_router(api_router, prefix="/api")
-
 # Debug endpoint to list all routes
 @app.get("/debug/routes")
 async def debug_routes():
