@@ -3418,7 +3418,8 @@ const Dashboard = ({ onNavigate }) => {
         });
         
         alert('🎬 Demo modu açıldı! Örnek veriler yüklendi. Sistemi müşteriye gösterebilirsiniz!');
-        setDemoStatus({ demo_mode: true, database: 'rotacrm_demo' });
+        // Fetch real demo status from backend
+        await fetchDemoStatus();
       }
       
       // Refresh dashboard data
