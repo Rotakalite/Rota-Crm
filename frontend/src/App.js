@@ -3431,6 +3431,17 @@ const Dashboard = ({ onNavigate }) => {
                     <button className="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors">
                       ⚙️ Ayarlar
                     </button>
+                    {/* 🎬 DEMO CONTROL BUTTON */}
+                    <button 
+                      onClick={handleDemoToggle}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                        demoStatus.demo_mode 
+                          ? 'bg-red-500 hover:bg-red-600 text-white' 
+                          : 'bg-green-500 hover:bg-green-600 text-white'
+                      }`}
+                    >
+                      {demoStatus.demo_mode ? '🔴 Demo Kapat' : '🎬 Demo Aç'}
+                    </button>
                   </div>
                 )}
               </div>
