@@ -34,6 +34,9 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
+# Import demo utilities
+from demo_utils import demo_manager
+
 # Email service import
 try:
     import sys
