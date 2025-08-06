@@ -13348,12 +13348,72 @@ async def send_2fa_code(request: dict):
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }}
         
-        .logo {{
+        .header::before {{
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
+        }}
+        
+        .logo-container {{
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 5px;
+        }}
+        
+        .logo-icon {{
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            position: relative;
+        }}
+        
+        .logo-icon::before {{
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(45deg, #ffffff 0%, #e0f2fe 100%);
+            border-radius: 50%;
+            top: 6px;
+            left: 6px;
+        }}
+        
+        .logo-icon::after {{
+            content: '🌊';
+            position: absolute;
+            font-size: 16px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }}
+        
+        .logo-text {{
             font-size: 24px;
             font-weight: bold;
-            margin-bottom: 5px;
+            background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }}
         
         .subtitle {{
