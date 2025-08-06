@@ -61,7 +61,8 @@ class DemoManager:
         return self.demo_db_name if self.is_demo_mode else self.prod_db_name
     
     def is_demo(self):
-        return self.is_demo_mode
+        """Check demo mode status from current environment variable"""
+        return os.environ.get('DEMO_MODE', 'false').lower() == 'true'
     
     def get_sample_clients(self):
         """Generate sample client data for demo"""
