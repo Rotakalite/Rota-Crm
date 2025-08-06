@@ -19349,10 +19349,11 @@ const MainApp = () => {
   />;
 };
 
-// Consultant App - Separate app for consultants
+// Consultant App - Mobile First Design
 const ConsultantApp = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const { userRole, dbUser } = useAuth();
+  const isMobile = useIsMobile();
 
   const handleNavigate = (tab) => {
     setActiveTab(tab);
