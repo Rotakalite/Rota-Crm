@@ -34,11 +34,16 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
-# Import demo utilities
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from demo_utils import demo_manager
+# Import demo utilities - try relative import first
+try:
+    from .demo_utils import demo_manager
+except ImportError:
+    # Fallback to direct import
+    import sys
+    import os
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, backend_dir)
+    from demo_utils import demo_manager
 
 # Email service import
 try:
