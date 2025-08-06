@@ -1025,43 +1025,86 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
                 Bu klasörde henüz belge yüklenmemiş
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full table-auto">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-2 text-left">Belge Adı</th>
-                      <th className="px-4 py-2 text-left">Dosya Adı</th>
-                      <th className="px-4 py-2 text-left">Boyut</th>
-                      <th className="px-4 py-2 text-left">Tarih</th>
-                      <th className="px-4 py-2 text-left">İşlemler</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+              <>
+                {/* Mobile View */}
+                {isMobile ? (
+                  <div className="space-y-4">
                     {documents.map(doc => (
-                      <tr key={doc.id} className="border-t hover:bg-gray-50">
-                        <td className="px-4 py-2 font-medium">{doc.name}</td>
-                        <td className="px-4 py-2 text-sm text-gray-600">{doc.original_filename}</td>
-                        <td className="px-4 py-2 text-sm">{(doc.file_size / 1024 / 1024).toFixed(2)} MB</td>
-                        <td className="px-4 py-2 text-sm">{new Date(doc.created_at).toLocaleDateString('tr-TR')}</td>
-                        <td className="px-4 py-2 space-x-2">
+                      <div key={doc.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-medium text-gray-900 flex-1 mr-2">{doc.name}</h4>
+                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                            {(doc.file_size / 1024 / 1024).toFixed(2)} MB
+                          </span>
+                        </div>
+                        
+                        <div className="space-y-1 mb-3">
+                          <p className="text-sm text-gray-600">
+                            📄 {doc.original_filename}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            📅 {new Date(doc.created_at).toLocaleDateString('tr-TR')}
+                          </p>
+                        </div>
+                        
+                        <div className="flex space-x-2">
                           <button
                             onClick={() => downloadDocument(doc)}
-                            className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                            className="flex-1 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium"
                           >
                             📥 İndir
                           </button>
                           <button
                             onClick={() => deleteDocument(doc.id)}
-                            className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                            className="flex-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-medium"
                           >
                             🗑️ Sil
                           </button>
-                        </td>
-                      </tr>
+                        </div>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
-              </div>
+                  </div>
+                ) : (
+                  /* Desktop Table View */
+                  <div className="overflow-x-auto">
+                    <table className="w-full table-auto">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-2 text-left">Belge Adı</th>
+                          <th className="px-4 py-2 text-left">Dosya Adı</th>
+                          <th className="px-4 py-2 text-left">Boyut</th>
+                          <th className="px-4 py-2 text-left">Tarih</th>
+                          <th className="px-4 py-2 text-left">İşlemler</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {documents.map(doc => (
+                          <tr key={doc.id} className="border-t hover:bg-gray-50">
+                            <td className="px-4 py-2 font-medium">{doc.name}</td>
+                            <td className="px-4 py-2 text-sm text-gray-600">{doc.original_filename}</td>
+                            <td className="px-4 py-2 text-sm">{(doc.file_size / 1024 / 1024).toFixed(2)} MB</td>
+                            <td className="px-4 py-2 text-sm">{new Date(doc.created_at).toLocaleDateString('tr-TR')}</td>
+                            <td className="px-4 py-2 space-x-2">
+                              <button
+                                onClick={() => downloadDocument(doc)}
+                                className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                              >
+                                📥 İndir
+                              </button>
+                              <button
+                                onClick={() => deleteDocument(doc.id)}
+                                className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                              >
+                                🗑️ Sil
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
