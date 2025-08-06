@@ -75,11 +75,18 @@ demo_manager = DemoManager()
 class ClerkAdminManager:
     def __init__(self):
         self.clerk_secret = os.environ.get('CLERK_SECRET_KEY')
-        if self.clerk_secret:
-            self.clerk = Clerk(bearer_auth=self.clerk_secret)
+        if CLERK_AVAILABLE and self.clerk_secret:
+            try:
+                self.clerk = Clerk(bearer_auth=self.clerk_secret)
+            except Exception as e:
+                logging.warning(f"⚠️ Clerk initialization error: {e}")
+                self.clerk = None
         else:
             self.clerk = None
-            logging.warning("⚠️ Clerk secret key not found")
+            if not CLERK_AVAILABLE:
+                logging.warning("⚠️ Clerk SDK not available")
+            else:
+                logging.warning("⚠️ Clerk secret key not found")
     
     def generate_secure_password(self, length=12):
         """Generate secure random password"""
@@ -88,6 +95,9 @@ class ClerkAdminManager:
     
     async def create_user_with_clerk(self, email: str, first_name: str, last_name: str, password: str = None):
         """Create user in Clerk and return user data"""
+        if not CLERK_AVAILABLE:
+            raise HTTPException(status_code=503, detail="Clerk service not available")
+            
         if not self.clerk:
             raise HTTPException(status_code=500, detail="Clerk admin API not configured")
         
@@ -120,6 +130,10 @@ class ClerkAdminManager:
         except Exception as e:
             logging.error(f"❌ Clerk user creation failed: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Failed to create user in Clerk: {str(e)}")
+    
+    def is_available(self):
+        """Check if Clerk is available and configured"""
+        return CLERK_AVAILABLE and self.clerk is not None
     
     async def send_welcome_email(self, email: str, password: str, client_name: str):
         """Send welcome email with credentials to new user"""
