@@ -17,8 +17,20 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-# Clerk Admin API
-from clerk_backend_sdk import Clerk
+# Clerk Admin API - Safe import
+try:
+    from clerk_backend_sdk import Clerk
+    CLERK_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ Clerk SDK import error: {e}")
+    try:
+        # Try alternative import
+        from clerk_backend_sdk.clerk import Clerk
+        CLERK_AVAILABLE = True
+    except ImportError:
+        print("⚠️ Clerk SDK not available, disabling Clerk features")
+        CLERK_AVAILABLE = False
+        Clerk = None
 from datetime import datetime, timedelta
 from typing import List, Optional
 from fastapi import FastAPI, APIRouter, HTTPException, status, Depends, UploadFile, File, Form, Request
