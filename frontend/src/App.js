@@ -7752,9 +7752,8 @@ const SimpleClientManagement = ({ onNavigate }) => {
     auto_create_account: true
   });
   
-  // ✏️ NEW: Edit client state
+  // ✏️ NEW: Edit client state - showEditClient, editClientData ekledik
   const [showEditClient, setShowEditClient] = useState(false);
-  const [editingClient, setEditingClient] = useState(null);
   const [editClientData, setEditClientData] = useState({
     name: '',
     hotel_name: '',
