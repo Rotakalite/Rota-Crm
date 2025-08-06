@@ -14546,7 +14546,7 @@ async def get_demo_status():
         "message": "Demo status retrieved successfully"
     }
 
-@api_router.post("/demo/activate")
+@api_router.post("/demo/activate")  # Route: /api/demo/activate
 async def activate_demo_mode(current_user: User = Depends(get_current_user)):
     """Activate demo mode - Admin only"""
     if current_user.role != UserRole.ADMIN:
