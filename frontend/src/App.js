@@ -8532,6 +8532,7 @@ const SimpleClientManagement = ({ onNavigate }) => {
                 </tbody>
               </table>
             </div>
+            )}
           </div>
         )}
       </div>
