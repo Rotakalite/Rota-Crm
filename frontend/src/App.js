@@ -8788,6 +8788,203 @@ const SimpleClientManagement = ({ onNavigate }) => {
         </div>
       )}
 
+      {/* ✏️ NEW: Edit Client Modal */}
+      {showEditForm && editingClient && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900">✏️ Müşteri Düzenle</h3>
+              <button
+                onClick={() => {
+                  setShowEditForm(false);
+                  setEditingClient(null);
+                  setNewClientData({
+                    name: '', hotel_name: '', email: '', phone: '', city: '', district: '', 
+                    address: '', certificate_end_date: '', audit_company: '', password: '', auto_create_account: true
+                  });
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                ✖️
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateClient}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    İletişim Kişisi Adı *
+                  </label>
+                  <input
+                    type="text"
+                    value={newClientData.name}
+                    onChange={(e) => setNewClientData({...newClientData, name: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="İletişim kişisi adı"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Otel Adı *
+                  </label>
+                  <input
+                    type="text"
+                    value={newClientData.hotel_name}
+                    onChange={(e) => setNewClientData({...newClientData, hotel_name: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="Otel adını girin"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={newClientData.email}
+                    onChange={(e) => setNewClientData({...newClientData, email: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="Email adresi"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Telefon
+                  </label>
+                  <input
+                    type="tel"
+                    value={newClientData.phone}
+                    onChange={(e) => setNewClientData({...newClientData, phone: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="Telefon numarası"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      İl *
+                    </label>
+                    <select
+                      value={newClientData.city}
+                      onChange={(e) => setNewClientData({...newClientData, city: e.target.value, district: ''})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">İl seçiniz</option>
+                      {Object.keys(turkeyProvinces).map(province => (
+                        <option key={province} value={province}>{province}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      İlçe *
+                    </label>
+                    <select
+                      value={newClientData.district}
+                      onChange={(e) => setNewClientData({...newClientData, district: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                      disabled={!newClientData.city}
+                    >
+                      <option value="">İlçe seçiniz</option>
+                      {newClientData.city && turkeyProvinces[newClientData.city]?.map(district => (
+                        <option key={district} value={district}>{district}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Denetim Firması
+                  </label>
+                  <select
+                    value={newClientData.audit_company}
+                    onChange={(e) => setNewClientData({...newClientData, audit_company: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Denetim firması seçiniz</option>
+                    {auditCompanies.map(company => (
+                      <option key={company} value={company}>{company}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Sertifika Geçerlilik Tarihi
+                  </label>
+                  <input
+                    type="date"
+                    value={newClientData.certificate_end_date}
+                    onChange={(e) => setNewClientData({...newClientData, certificate_end_date: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    🔐 Yeni Şifre (Opsiyonel - Clerk Hesabı Güncelleme)
+                  </label>
+                  <input
+                    type="password"
+                    value={newClientData.password}
+                    onChange={(e) => setNewClientData({...newClientData, password: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="Yeni şifre belirleyin (opsiyonel)"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Boş bırakılırsa şifre güncellenmez
+                  </p>
+                </div>
+
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Adres
+                  </label>
+                  <textarea
+                    value={newClientData.address}
+                    onChange={(e) => setNewClientData({...newClientData, address: e.target.value})}
+                    rows={3}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="Adres bilgisi"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="submit"
+                  disabled={!newClientData.name || !newClientData.hotel_name || !newClientData.city || !newClientData.district}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Güncelle
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditForm(false);
+                    setEditingClient(null);
+                    setNewClientData({
+                      name: '', hotel_name: '', email: '', phone: '', city: '', district: '', 
+                      address: '', certificate_end_date: '', audit_company: '', password: '', auto_create_account: true
+                    });
+                  }}
+                  className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600"
+                >
+                  İptal
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
