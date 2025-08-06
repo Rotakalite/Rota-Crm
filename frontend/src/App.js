@@ -3388,31 +3388,31 @@ const Dashboard = ({ onNavigate }) => {
     
     setDemoLoading(true);
     try {
-      // First fetch current demo status
-      const statusResponse = await axios.get(`${API}/api/demo/status`);
+      // First fetch current demo status - FIX: Remove duplicate /api
+      const statusResponse = await axios.get(`${API}/demo/status`);
       const currentStatus = statusResponse.data;
       
       if (currentStatus.demo_mode) {
-        // Deactivate demo
-        await axios.post(`${API}/api/demo/deactivate`, {}, {
+        // Deactivate demo - FIX: Remove duplicate /api
+        await axios.post(`${API}/demo/deactivate`, {}, {
           headers: { Authorization: `Bearer ${authToken}` }
         });
         
-        // Clear demo data
-        await axios.delete(`${API}/api/demo/clear`, {
+        // Clear demo data - FIX: Remove duplicate /api
+        await axios.delete(`${API}/demo/clear`, {
           headers: { Authorization: `Bearer ${authToken}` }
         });
         
         alert('🔴 Demo modu kapatıldı ve demo verileri temizlendi!');
         setDemoStatus({ demo_mode: false, database: 'rotacrm' });
       } else {
-        // Activate demo
-        await axios.post(`${API}/api/demo/activate`, {}, {
+        // Activate demo - FIX: Remove duplicate /api
+        await axios.post(`${API}/demo/activate`, {}, {
           headers: { Authorization: `Bearer ${authToken}` }
         });
         
-        // Populate demo data
-        await axios.post(`${API}/api/demo/populate`, {}, {
+        // Populate demo data - FIX: Remove duplicate /api
+        await axios.post(`${API}/demo/populate`, {}, {
           headers: { Authorization: `Bearer ${authToken}` }
         });
         
