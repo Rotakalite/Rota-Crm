@@ -7733,6 +7733,10 @@ const SimpleClientManagement = ({ onNavigate }) => {
   const [hasNext, setHasNext] = useState(false);
   const [showAddClient, setShowAddClient] = useState(false);
   
+  // 🎯 NEW: Edit functionality states
+  const [editingClient, setEditingClient] = useState(null);
+  const [showEditForm, setShowEditForm] = useState(false);
+  
   const [newClientData, setNewClientData] = useState({
     name: '',
     hotel_name: '',
@@ -7742,7 +7746,10 @@ const SimpleClientManagement = ({ onNavigate }) => {
     district: '',
     address: '',
     certificate_end_date: '',
-    audit_company: ''
+    audit_company: '',
+    // 🎯 NEW: Password field for Clerk account creation
+    password: '',
+    auto_create_account: true
   });
   
   // Türkiye İl ve İlçe Listesi
