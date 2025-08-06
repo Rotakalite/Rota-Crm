@@ -8349,8 +8349,68 @@ const SimpleClientManagement = ({ onNavigate }) => {
               <h3 className="text-lg font-medium text-gray-900">Müşteri Listesi</h3>
               <p className="text-sm text-gray-500 mt-1">Toplam {clients.length} müşteri</p>
             </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+            
+            {/* Mobile Card View */}
+            {isMobile ? (
+              <div className="space-y-4">
+                {clients.map((client) => (
+                  <div key={client.id} className="bg-white rounded-lg shadow p-4 border">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-semibold text-lg text-gray-900">{client.hotel_name}</h3>
+                        <p className="text-sm text-gray-600">{client.name}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEditClient(client)}
+                          className="text-blue-500 hover:text-blue-700 p-2 rounded-full hover:bg-blue-50"
+                          title="Düzenle"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClient(client.id, client.hotel_name)}
+                          className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50"
+                          title="Sil"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-500">Şehir:</span>
+                        <p className="font-medium">{client.city || 'Belirtilmemiş'}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">İlçe:</span>
+                        <p className="font-medium">{client.district || 'Belirtilmemiş'}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Email:</span>
+                        <p className="font-medium">{client.email || 'Belirtilmemiş'}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Telefon:</span>
+                        <p className="font-medium">{client.phone || 'Belirtilmemiş'}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Denetim:</span>
+                        <p className="font-medium">{client.audit_company || 'Belirtilmemiş'}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Tip:</span>
+                        <p className="font-medium">{client.client_type === 'registered' ? 'Kayıtlı' : 'Bulk'}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              /* Desktop Table View */
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
                     <th 
