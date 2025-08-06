@@ -108,7 +108,7 @@ class ClerkAdminManager:
         if not CLERK_AVAILABLE:
             raise HTTPException(status_code=503, detail="Clerk service not available")
             
-        if not self.clerk:
+        if not self.users_api:
             raise HTTPException(status_code=500, detail="Clerk admin API not configured")
         
         try:
@@ -116,20 +116,24 @@ class ClerkAdminManager:
             if not password:
                 password = self.generate_secure_password()
             
-            # Create user in Clerk
-            user_request = {
-                "email_address": [email],
-                "password": password,
-                "first_name": first_name,
-                "last_name": last_name,
-                "skip_password_requirement": False,
-                "skip_password_checks": False,
-                "public_metadata": {
+            # Import the request model
+            from clerk_backend_sdk import CreateUserRequest
+            
+            # Create user request object
+            user_request = CreateUserRequest(
+                email_address=[email],
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                skip_password_requirement=False,
+                skip_password_checks=False,
+                public_metadata={
                     "role": "client"  # 🎯 CRITICAL FIX: Set client role in Clerk metadata
                 }
-            }
+            )
             
-            clerk_user = await self.clerk.users.create(user_request)
+            # Create user in Clerk using the users API
+            clerk_user = self.users_api.create_user(user_request)
             
             return {
                 "clerk_user_id": clerk_user.id,
