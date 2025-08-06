@@ -6413,6 +6413,7 @@ async def create_client(
     client_data: ClientCreate,
     current_user: User = Depends(get_current_user)
 ):
+    """Enhanced client creation with automatic Clerk user registration"""
     # Admin can create any client, client users can only create for themselves
     if current_user.role == UserRole.CLIENT and current_user.client_id:
         # If client user already has a client record, return the existing one
@@ -6428,10 +6429,52 @@ async def create_client(
     
     client_dict = client_data.dict()
     client = Client(**client_dict)
+    
+    # 🎯 NEW: Auto-create Clerk user if admin creates client with email
+    clerk_user_data = None
+    if current_user.role == UserRole.ADMIN and client.email:
+        try:
+            logging.info(f"🎯 Admin creating client with auto Clerk signup for: {client.email}")
+            
+            # Generate Clerk user
+            clerk_user_data = await clerk_admin.create_user_with_clerk(
+                email=client.email,
+                first_name=client.contact_person or client.name,
+                last_name="Client",  # Default last name
+                password=None  # Auto-generate
+            )
+            
+            # Add Clerk ID to client data
+            client.clerk_user_id = clerk_user_data["clerk_user_id"]
+            
+            logging.info(f"✅ Clerk user created successfully: {clerk_user_data['clerk_user_id']}")
+            
+        except Exception as e:
+            logging.error(f"❌ Clerk user creation failed (continuing with client creation): {str(e)}")
+            # Continue with client creation even if Clerk fails
+    
+    # Insert client to database
     await db.clients.insert_one(client.dict())
     
     # Create root folder for the new client
     await create_client_root_folder(client.id, client.name)
+    
+    # 🎯 NEW: Send welcome email if Clerk user was created
+    if clerk_user_data:
+        try:
+            email_sent = await clerk_admin.send_welcome_email(
+                email=clerk_user_data["email"],
+                password=clerk_user_data["password"],
+                client_name=client.name
+            )
+            
+            if email_sent:
+                logging.info(f"✅ Welcome email sent to {client.email}")
+            else:
+                logging.warning(f"⚠️ Welcome email failed to send to {client.email}")
+                
+        except Exception as e:
+            logging.error(f"❌ Welcome email error: {str(e)}")
     
     # If client user is creating their own record, update their user record
     if current_user.role == UserRole.CLIENT:
@@ -6440,7 +6483,14 @@ async def create_client(
             {"$set": {"client_id": client.id, "updated_at": datetime.utcnow()}}
         )
     
-    return client
+    # 🎯 NEW: Return enhanced response with Clerk info
+    response_data = client.dict()
+    if clerk_user_data:
+        response_data["auto_account_created"] = True
+        response_data["login_email"] = clerk_user_data["email"]
+        response_data["account_message"] = "Müşteri hesabı otomatik olarak oluşturuldu ve giriş bilgileri email ile gönderildi."
+    
+    return Client(**response_data)
 
 # Admin endpoint to fix user-client assignments
 @api_router.post("/admin/assign-client-to-user")
