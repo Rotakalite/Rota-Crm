@@ -7756,6 +7756,7 @@ const SimpleClientManagement = ({ onNavigate }) => {
   const [sendingTestEmail, setSendingTestEmail] = useState(false);
   
   const { authToken, userRole, dbUser, ensureTokenForOperation } = useAuth();
+  const isMobile = useIsMobile();
   const API = getApiUrl();
 
   // Fetch clients
