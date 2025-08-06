@@ -21,7 +21,7 @@ class TestDocumentManagementRefactor(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://803628de-b480-49b9-b686-800daa158bb4.preview.emergentagent.com/api"
+        self.api_url = "https://5b8d26b4-f10c-4ad8-9010-a28a207ffa9e.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
     

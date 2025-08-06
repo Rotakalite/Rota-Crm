@@ -13,7 +13,7 @@ async def test_endpoint_registration_issue():
     print("🚨 CRITICAL BUG ANALYSIS: Sustainability Report Endpoint")
     print("=" * 60)
     
-    backend_url = "https://803628de-b480-49b9-b686-800daa158bb4.preview.emergentagent.com"
+    backend_url = "https://5b8d26b4-f10c-4ad8-9010-a28a207ffa9e.preview.emergentagent.com"
     
     # Test 1: Health endpoint (should work)
     try:
