@@ -974,8 +974,12 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
                     multiple
                     onChange={handleFileSelect}
                     className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    accept=".pdf,.doc,.docx,.xls,.xlsx"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                    capture="environment"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    📷 Mobilde kamera ile belgelerinizi çekebilirsiniz
+                  </p>
                   {selectedFiles.length > 0 && (
                     <div className="mt-2 text-sm text-gray-600">
                       {selectedFiles.length} dosya seçildi: {selectedFiles.map(f => f.name).join(', ')}
