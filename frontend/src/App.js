@@ -10935,6 +10935,7 @@ const ClientDocuments = () => {
 };
 
 const ConsumptionManagement = ({ onNavigate }) => {
+  const isMobile = useIsMobile();
   const [consumptions, setConsumptions] = useState([]);
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState('');
