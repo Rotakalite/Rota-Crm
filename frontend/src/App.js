@@ -8702,6 +8702,22 @@ const SimpleClientManagement = ({ onNavigate }) => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
+                    🔐 Müşteri Şifresi (Clerk Hesabı İçin)
+                  </label>
+                  <input
+                    type="password"
+                    value={newClientData.password}
+                    onChange={(e) => setNewClientData({...newClientData, password: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="Müşteri için şifre belirlerin (opsiyonel)"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Boş bırakılırsa otomatik şifre oluşturulacak ve email ile gönderilecek
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Adres
                   </label>
                   <textarea
