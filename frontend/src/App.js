@@ -19423,109 +19423,113 @@ const ConsultantApp = () => {
   ];
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" style={{ minHeight: '100vh' }}>
-      {/* Desktop Sidebar - Hidden on mobile */}
-      <div className="hidden md:block fixed inset-y-0 left-0 z-50 w-64 text-white shadow-2xl"
-           style={{
-             background: 'linear-gradient(180deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%)',
-             minHeight: '100vh',
-             height: '100vh',
-             display: 'flex',
-             flexDirection: 'column',
-             overflowY: 'auto',
-             overflowX: 'hidden'
-           }}>
-        <div className="p-6 flex-1 flex flex-col"
-             style={{ 
-               minHeight: '100vh',
-               background: 'linear-gradient(180deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%)'
-             }}>
-          <div className="text-center mb-8 flex-shrink-0">
-            <div className="bg-gradient-to-r from-yellow-400 to-orange-500 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
-              <span className="text-white text-xl font-bold">👔</span>
-            </div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
-              Danışman Paneli
-            </h1>
-            <p className="text-blue-200 text-sm mt-1">
-              {dbUser?.company_name || dbUser?.name || 'User'}
-              {console.log('🔍 SIDEBAR DEBUG - dbUser:', dbUser)}
-            </p>
-          </div>
-        
-          <nav className="space-y-2 flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-blue-800" 
-               style={{ 
-                 minHeight: '400px',
-                 maxHeight: 'calc(100vh - 200px)',
-                 paddingRight: '8px',
-                 scrollbarWidth: 'thin',
-                 scrollbarColor: '#2563EB #1E40AF'
-               }}>
-            {consultantMenuItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`group w-full text-left px-4 py-3 rounded-xl transition-all duration-200 flex items-center space-x-3 ${
-                  activeTab === item.id
-                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg transform scale-105'
-                    : 'text-blue-200 hover:bg-blue-700 hover:text-white hover:translate-x-2'
-                }`}>
-                <span className="text-lg">{item.icon}</span>
-                <span className="font-medium">{item.name}</span>
-                {activeTab === item.id && (
-                  <span className="ml-auto text-white">⚡</span>
-                )}
-              </button>
-            ))}
-          </nav>
-          
-          <div className="p-4 rounded-xl flex-shrink-0" 
-               style={{ 
-                 background: 'linear-gradient(90deg, #059669, #0d9488)',
-                 marginTop: '20px',
-                 marginBottom: '10px'
-               }}>
-            <div className="text-center">
-              <div className="text-2xl mb-2">🎯</div>
-              <p className="text-white text-sm font-medium">Danışman Başarı</p>
-              <p className="text-emerald-100 text-xs mt-1">Müşteri odaklı çözümler</p>
-            </div>
-          </div>
-          
-          <div className="p-4 flex-shrink-0">
-            <SignOutButton>
-              <button className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg">
-                <span className="text-lg">🚪</span>
-                <span className="font-medium">Çıkış Yap</span>
-              </button>
-            </SignOutButton>
-          </div>
-        </div>
-      </div>
-      
-      {/* Mobile & Desktop Content */}
-      <div className="flex flex-col overflow-hidden md:ml-64" style={{ minHeight: '100vh' }}>
-        {/* Mobile Header */}
-        <div className="md:hidden mobile-dashboard-header">
-          <h1 className="mobile-dashboard-title">GreenWave CRM</h1>
-          <p className="mobile-dashboard-subtitle">Danışman Paneli</p>
-        </div>
-        
-        {/* Main Content */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 mobile-dashboard">
-          <div className="p-4 md:p-6 pb-24 md:pb-6">
-            {renderConsultantContent()}
-          </div>
-        </main>
-      </div>
-      
-      {/* Mobile Navigation - Only on mobile */}
-      <div className="md:hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      {/* Mobile Navigation */}
+      {isMobile && (
         <MobileNavigation 
           currentPage={activeTab}
           onPageChange={(page) => setActiveTab(page)}
           userRole="consultant"
         />
+      )}
+      
+      {/* Desktop Sidebar - Only on desktop */}
+      {!isMobile && (
+        <div className="fixed inset-y-0 left-0 z-50 w-64 text-white shadow-2xl"
+             style={{
+               background: 'linear-gradient(180deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%)',
+               minHeight: '100vh',
+               height: '100vh',
+               display: 'flex',
+               flexDirection: 'column',
+               overflowY: 'auto',
+               overflowX: 'hidden'
+             }}>
+          <div className="p-6 flex-1 flex flex-col"
+               style={{ 
+                 minHeight: '100vh',
+                 background: 'linear-gradient(180deg, #1e3a8a 0%, #1e40af 50%, #1e3a8a 100%)'
+               }}>
+            <div className="text-center mb-8 flex-shrink-0">
+              <div className="bg-gradient-to-r from-yellow-400 to-orange-500 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <span className="text-white text-xl font-bold">👔</span>
+              </div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
+                Danışman Paneli
+              </h1>
+              <p className="text-blue-200 text-sm mt-1">
+                {dbUser?.company_name || dbUser?.name || 'User'}
+                {console.log('🔍 SIDEBAR DEBUG - dbUser:', dbUser)}
+              </p>
+            </div>
+          
+            <nav className="space-y-2 flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-blue-800" 
+                 style={{ 
+                   minHeight: '400px',
+                   maxHeight: 'calc(100vh - 200px)',
+                   paddingRight: '8px',
+                   scrollbarWidth: 'thin',
+                   scrollbarColor: '#2563EB #1E40AF'
+                 }}>
+              {consultantMenuItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`group w-full text-left px-4 py-3 rounded-xl transition-all duration-200 flex items-center space-x-3 ${
+                    activeTab === item.id
+                      ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg transform scale-105'
+                      : 'text-blue-200 hover:bg-blue-700 hover:text-white hover:translate-x-2'
+                  }`}>
+                  <span className="text-lg">{item.icon}</span>
+                  <span className="font-medium">{item.name}</span>
+                  {activeTab === item.id && (
+                    <span className="ml-auto text-white">⚡</span>
+                  )}
+                </button>
+              ))}
+            </nav>
+            
+            <div className="p-4 rounded-xl flex-shrink-0" 
+                 style={{ 
+                   background: 'linear-gradient(90deg, #059669, #0d9488)',
+                   marginTop: '20px',
+                   marginBottom: '10px'
+                 }}>
+              <div className="text-center">
+                <div className="text-2xl mb-2">🎯</div>
+                <p className="text-white text-sm font-medium">Danışman Başarı</p>
+                <p className="text-emerald-100 text-xs mt-1">Müşteri odaklı çözümler</p>
+              </div>
+            </div>
+            
+            <div className="p-4 flex-shrink-0">
+              <SignOutButton>
+                <button className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg">
+                  <span className="text-lg">🚪</span>
+                  <span className="font-medium">Çıkış Yap</span>
+                </button>
+              </SignOutButton>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Main Content */}
+      <div className={`flex flex-col overflow-hidden ${!isMobile ? 'ml-64' : ''}`} style={{ minHeight: '100vh' }}>
+        {/* Mobile Header */}
+        {isMobile && (
+          <div className="mobile-dashboard-header">
+            <h1 className="mobile-dashboard-title">GreenWave CRM</h1>
+            <p className="mobile-dashboard-subtitle">Danışman Paneli</p>
+          </div>
+        )}
+        
+        {/* Main Content */}
+        <main className={`flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 ${isMobile ? 'mobile-content-wrapper' : 'p-6'}`}>
+          <div className={isMobile ? 'pb-20' : ''}>
+            {renderConsultantContent()}
+          </div>
+        </main>
       </div>
     </div>
   );
