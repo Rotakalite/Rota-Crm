@@ -13,6 +13,9 @@ from bson import ObjectId
 import traceback
 import secrets
 import string
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 # Clerk Admin API
 from clerk_backend_api import Clerk
