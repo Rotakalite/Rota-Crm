@@ -801,7 +801,7 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h3 className="text-xl font-semibold mb-4">📤 Yeni Belge Yükle</h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
               {/* Left Column */}
               <div className="space-y-4">
                 <div>
