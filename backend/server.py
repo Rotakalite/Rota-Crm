@@ -520,6 +520,16 @@ load_dotenv(ROOT_DIR / '.env')
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
+
+# 🎯 FIXED: Dynamic database connection based on demo mode
+def get_db():
+    """Get database connection based on current demo mode"""
+    if demo_manager.is_demo():
+        return client[demo_manager.get_database_name()]
+    else:
+        return client[os.environ['DB_NAME']]
+
+# Legacy global db for compatibility - DEPRECATED, use get_db() instead
 db = client[os.environ['DB_NAME']]
 
 # AI service import - AFTER environment loading
