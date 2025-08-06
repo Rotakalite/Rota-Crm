@@ -3430,11 +3430,19 @@ const Dashboard = ({ onNavigate }) => {
 
   // Load demo status on component mount - ONLY ONCE
   useEffect(() => {
-    if (userRole === 'admin') {
-      fetchDemoStatus();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency - only run once on mount
+    const loadDemoStatus = async () => {
+      if (userRole === 'admin') {
+        try {
+          const response = await axios.get(`${API}/api/demo/status`);
+          setDemoStatus(response.data);
+        } catch (error) {
+          console.error('Demo status fetch error:', error);
+        }
+      }
+    };
+    
+    loadDemoStatus();
+  }, [userRole, API]); // Only depend on userRole and API
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 ${isMobile ? 'mobile-dashboard' : ''}`}>
