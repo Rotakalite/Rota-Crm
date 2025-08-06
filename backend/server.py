@@ -691,6 +691,8 @@ class ClientCreate(BaseModel):
     audit_company: Optional[str] = None
     certificate_end_date: Optional[str] = None
     client_type: str = "registered"  # Default to registered
+    password: Optional[str] = None  # 🎯 NEW: Admin-defined password for Clerk
+    auto_create_account: Optional[bool] = True  # 🎯 NEW: Auto-create Clerk account
 
 class ClientUpdate(BaseModel):
     name: Optional[str] = None
