@@ -12045,8 +12045,8 @@ const ConsumptionManagement = ({ onNavigate }) => {
         </div>
       )}
 
-      {/* Consumption List - Admin için müşteri seçimi gerekli */}
-      {(userRole === 'client' || (userRole === 'admin' && selectedClient)) && (
+      {/* Consumption List - Tüm kullanıcılar için görünür */}
+      {(userRole === 'client' || userRole === 'admin' || userRole === 'consultant') && (
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="bg-gray-50 px-6 py-4 border-b">
             <h3 className="text-lg font-semibold text-gray-800">
