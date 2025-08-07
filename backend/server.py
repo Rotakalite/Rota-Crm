@@ -7887,6 +7887,9 @@ async def add_bulk_personnel(
             "success_rate": f"{(success_count/total_count)*100:.1f}%"
         }
         
+    except HTTPException:
+        # Re-raise HTTP exceptions (like demo limit errors) without modification
+        raise
     except Exception as e:
         logging.error(f"❌ BULK PERSONNEL ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Bulk personel ekleme hatası: {str(e)}")
