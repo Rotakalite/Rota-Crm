@@ -10835,6 +10835,11 @@ async def post_waste_data_via_analytics(
         }
 
         await db.environment_data.insert_one(record)
+        
+        # 🎯 NEW: Increment demo limit counter for waste data
+        if not current_user.admin_approved:
+            await increment_demo_limit(current_user, "consumptions")
+        
         return {"message": "Waste record created successfully", "id": record["id"]}
 
     except Exception as e:
