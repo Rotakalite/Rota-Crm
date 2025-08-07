@@ -7718,6 +7718,14 @@ async def create_document(
     document_data: DocumentCreate,
     current_user: User = Depends(get_current_user)
 ):
+    # 🎯 NEW: Demo limit check for document creation
+    if current_user.user_status == "demo_user":
+        demo_check = await check_demo_limit(current_user, "documents")
+        if not demo_check["allowed"]:
+            raise HTTPException(status_code=403, detail=demo_check["message"])
+    elif current_user.user_status == "pending_approval":
+        raise HTTPException(status_code=403, detail="Hesabınız onay bekliyor. Admin ile görüşün: bilgi@rotakalitedanismanlik.com")
+    
     # Check permissions based on role
     if current_user.role == UserRole.ADMIN:
         # Admin can upload documents for any client
@@ -7738,6 +7746,11 @@ async def create_document(
     document_dict["uploaded_by"] = current_user.clerk_user_id
     document = Document(**document_dict)
     await db.documents.insert_one(document.dict())
+    
+    # 🎯 NEW: Increment demo limit counter
+    if current_user.user_status == "demo_user":
+        await increment_demo_limit(current_user, "documents")
+    
     return document
 
 @api_router.get("/documents")
