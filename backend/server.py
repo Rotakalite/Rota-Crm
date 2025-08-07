@@ -6905,8 +6905,16 @@ async def check_demo_limit(user: User, limit_type: str) -> dict:
     if user.admin_approved:
         return {"allowed": True, "message": "User is admin approved"}
     
-    current_count = user.demo_limits.get(limit_type, 0)
+    # 🎯 FIX: Get fresh demo limits from database instead of cached user object
+    fresh_user = await db.users.find_one({"id": user.id})
+    if not fresh_user:
+        return {"allowed": False, "message": "User not found"}
+    
+    current_count = fresh_user.get("demo_limits", {}).get(limit_type, 0)
     max_limit = user.max_demo_limit
+    
+    logging.error(f"🔍 FRESH CHECK - User: {user.email}, fresh demo_limits: {fresh_user.get('demo_limits', {})}")
+    logging.error(f"🔍 Current count for {limit_type}: {current_count}, max: {max_limit}")
     
     if current_count >= max_limit:
         # User reached limit, change status to pending_approval
