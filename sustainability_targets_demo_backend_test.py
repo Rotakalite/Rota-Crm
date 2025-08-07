@@ -23,7 +23,7 @@ from typing import Dict, List, Any
 
 class SustainabilityTargetsDemoTester:
     def __init__(self):
-        self.base_url = "https://147f3791-101b-4a68-af5d-538aaba71c7f.preview.emergentagent.com"
+        self.base_url = "https://rota-crm-production.up.railway.app"
         self.api_url = f"{self.base_url}/api"
         self.test_results = []
         self.total_tests = 0
