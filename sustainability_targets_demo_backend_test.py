@@ -506,6 +506,7 @@ class SustainabilityTargetsDemoTester:
         print("=" * 60)
         
         success_rate = (self.passed_tests / self.total_tests * 100) if self.total_tests > 0 else 0
+        return success_rate
         
         print(f"Total Tests: {self.total_tests}")
         print(f"Passed: {self.passed_tests}")
