@@ -8039,7 +8039,13 @@ async def update_client(
 async def delete_client(client_id: str, current_user: User = Depends(get_admin_user)):
     result = await db.clients.delete_one({"id": client_id})
     if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Client not found")
+        logging.error(f"❌ Client not found for deletion: {client_id}")
+        # Try to clean up orphaned records anyway
+        await cleanup_orphaned_user_references(client_id)
+        raise HTTPException(status_code=404, detail="Client not found - may have been deleted")
+    
+    # Clean up related records after successful deletion
+    await cleanup_orphaned_user_references(client_id)
     return {"message": "Client deleted successfully"}
 
 # Document Management
