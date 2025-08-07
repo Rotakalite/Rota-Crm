@@ -7990,6 +7990,10 @@ async def create_training(
             logging.error(f"❌ WhatsApp bildirimi hatası: {whatsapp_error}")
             # WhatsApp hatası training create işlemini etkilemesin
         
+        # 🎯 NEW: Increment demo limit counter
+        if current_user.user_status == "demo_user":
+            await increment_demo_limit(current_user, "trainings")
+        
         return training
     except Exception as e:
         logging.error(f"❌ Error creating training: {str(e)}")
