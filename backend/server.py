@@ -6877,15 +6877,15 @@ async def api_status():
 
 # 🎯 NEW: Demo System Functions
 async def check_demo_limit(user: User, limit_type: str) -> dict:
-    """Check if demo user has reached limit for specific operation"""
-    if user.user_status != "demo_user":
-        return {"allowed": True, "message": "User is not demo user"}
+    """Check if user has reached limit for specific operation"""
+    if user.admin_approved:
+        return {"allowed": True, "message": "User is admin approved"}
     
     current_count = user.demo_limits.get(limit_type, 0)
     max_limit = user.max_demo_limit
     
     if current_count >= max_limit:
-        # User reached demo limit, change status to pending_approval
+        # User reached limit, change status to pending_approval
         await db.users.update_one(
             {"id": user.id},
             {"$set": {
@@ -6899,7 +6899,7 @@ async def check_demo_limit(user: User, limit_type: str) -> dict:
         
         return {
             "allowed": False, 
-            "message": f"Demo kullanma limitine ulaştınız admin ile görüşünüz. Admin: bilgi@rotakalitedanismanlik.com",
+            "message": f"Demo kullanma limitine ulaştınız. Devam edebilmek için admin ile görüşünüz. Admin: bilgi@rotakalitedanismanlik.com",
             "limit_reached": True
         }
     
@@ -6907,7 +6907,7 @@ async def check_demo_limit(user: User, limit_type: str) -> dict:
 
 async def increment_demo_limit(user: User, limit_type: str):
     """Increment demo limit counter for specific operation"""
-    if user.user_status != "demo_user":
+    if user.admin_approved:
         return
     
     update_query = {"$inc": {f"demo_limits.{limit_type}": 1}, "$set": {"updated_at": datetime.utcnow()}}
