@@ -12,7 +12,7 @@ Test hedefleri:
 4. Authentication & Role Based Access
 5. Email Notification Test
 
-Backend URL: https://147f3791-101b-4a68-af5d-538aaba71c7f.preview.emergentagent.com
+Backend URL: https://rota-crm-production.up.railway.app
 """
 
 import requests
