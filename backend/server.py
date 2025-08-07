@@ -3525,6 +3525,11 @@ async def upload_belge_main_app(
         result = await asyncio.to_thread(db.documents.insert_one, document_data)
         logging.info(f"✅ Metadata saved: {document_id}")
         
+        # 🎯 NEW: Increment demo limit counter for belge upload
+        if not current_user.admin_approved:
+            await increment_demo_limit(current_user, "documents")
+            logging.error(f"🔍 Demo limit incremented for belge upload")
+        
         return {
             "success": True,
             "document_id": document_id,
