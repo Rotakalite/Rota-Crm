@@ -8273,6 +8273,9 @@ async def create_training(
             await increment_demo_limit(current_user, "trainings")
         
         return training
+    except HTTPException:
+        # Re-raise HTTP exceptions (like demo limit errors) without modification
+        raise
     except Exception as e:
         logging.error(f"❌ Error creating training: {str(e)}")
         logging.error(f"❌ Training data received: {training_data}")
