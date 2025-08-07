@@ -3855,6 +3855,7 @@ const Dashboard = ({ onNavigate }) => {
                             <span className="bg-orange-100 text-orange-800 px-1 rounded">👥 {user.demo_limits?.personnel || 0}/{user.max_demo_limit}</span>
                             <span className="bg-teal-100 text-teal-800 px-1 rounded">🏢 {user.demo_limits?.suppliers || 0}/{user.max_demo_limit}</span>
                             <span className="bg-indigo-100 text-indigo-800 px-1 rounded">🎯 {user.demo_limits?.targets || 0}/{user.max_demo_limit}</span>
+                            <span className="bg-red-100 text-red-800 px-1 rounded">🗑️ {user.demo_limits?.waste || 0}/{user.max_demo_limit}</span>
                           </div>
                         </div>
                         <button
