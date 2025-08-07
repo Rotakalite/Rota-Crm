@@ -49,6 +49,7 @@ const useAuth = () => {
     const storedUser = sessionStorage.getItem('dbUser');
     return storedUser ? JSON.parse(storedUser) : null;
   });
+  const [pendingApprovals, setPendingApprovals] = useState([]);
 
   // Enhanced token refresh with better error handling and proactive refresh
   const refreshToken = async (force = false) => {
