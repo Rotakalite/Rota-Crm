@@ -7239,7 +7239,7 @@ Hesabınız onaylandı! Artık GreenWave CRM'deki tüm özellikleri tam olarak k
 
 Demo sürecinde girdiğiniz tüm veriler korunmuştur ve kullanıma hazırdır.
 
-Sisteme giriş yapmak için: https://rota-crm-production.up.railway.app
+Sisteme giriş yapmak için: https://portal.rotakalitedanismanlik.com
 
 Keyifli çalışmalar!
 GreenWave CRM Ekibi
