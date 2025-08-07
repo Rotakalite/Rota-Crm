@@ -1061,18 +1061,17 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Admin Dashboard Stats API Fix"
-    - "Document Management API endpoints test"
-    - "Level 4 Folder Structure Implementation"
-    - "Document Management Client Filtering"
-    - "Document Management Security Fix"
+    - "Sustainability Targets Demo Limit System Backend Test"
   stuck_tasks: 
-    - "Document Management Client Filtering"
+    - "Self-Signup Demo User Endpoint Test"
+    - "Demo Limit System Backend Test" 
+    - "Admin Approval System Backend Test"
   test_all: false
   test_priority: "high_first"
   completed_tasks:
-    - "Personnel Management Consultant Access Fix"
-    - "Training Management Personnel Selection and Auto-Complete"
+    - "Sustainability Targets Demo Limit System Backend Test"
+    - "User Model Extensions Backend Test"
+    - "Backward Compatibility Backend Test"
 
   - task: "Multiple Modules Consultant Access Fix Backend Testing"
     implemented: true
