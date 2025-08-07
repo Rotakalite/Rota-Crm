@@ -7248,7 +7248,10 @@ async def approve_user(user_id: str, current_user: User = Depends(get_admin_user
         # Find the user
         user = await db.users.find_one({"id": user_id})
         if not user:
-            raise HTTPException(status_code=404, detail="User not found")
+            logging.error(f"❌ User not found in database: {user_id}")
+            # Try to clean up orphaned records
+            await cleanup_orphaned_user_references(user_id)
+            raise HTTPException(status_code=404, detail="User not found - may have been deleted")
         
         user_obj = User(**user)
         # Check if user is already fully approved
