@@ -866,6 +866,16 @@ class User(BaseModel):
     role: UserRole = UserRole.CLIENT
     client_id: Optional[str] = None  # For client users, links to their client record
     consultant_id: Optional[str] = None  # For consultant users, links to their consultant record
+    # 🎯 NEW: Demo System Fields
+    user_status: str = "approved"  # demo_user, pending_approval, approved
+    demo_limits: dict = Field(default_factory=lambda: {
+        "documents": 0,
+        "trainings": 0, 
+        "consumptions": 0,
+        "personnel": 0,
+        "suppliers": 0
+    })
+    max_demo_limit: int = 3
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
