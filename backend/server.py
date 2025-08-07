@@ -6956,18 +6956,20 @@ async def api_status():
 # 🎯 NEW: Demo System Functions
 async def check_demo_limit(user: User, limit_type: str) -> dict:
     """Check if user has reached limit for specific operation"""
-    if user.admin_approved:
-        return {"allowed": True, "message": "User is admin approved"}
     
-    # 🎯 FIX: Get fresh demo limits from database instead of cached user object
+    # 🎯 CRITICAL FIX: Get fresh user data FIRST, then check admin_approved
     fresh_user = await db.users.find_one({"id": user.id})
     if not fresh_user:
         return {"allowed": False, "message": "User not found"}
     
+    # Check admin_approved status from FRESH data
+    if fresh_user.get("admin_approved", False):
+        return {"allowed": True, "message": "User is admin approved"}
+    
     current_count = fresh_user.get("demo_limits", {}).get(limit_type, 0)
     max_limit = user.max_demo_limit
     
-    logging.error(f"🔍 FRESH CHECK - User: {user.email}, fresh demo_limits: {fresh_user.get('demo_limits', {})}")
+    logging.error(f"🔍 FRESH CHECK - User: {user.email}, fresh admin_approved: {fresh_user.get('admin_approved', False)}, fresh demo_limits: {fresh_user.get('demo_limits', {})}")
     logging.error(f"🔍 Current count for {limit_type}: {current_count}, max: {max_limit}")
     
     if current_count >= max_limit:
