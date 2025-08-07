@@ -7909,7 +7909,7 @@ async def create_document(
     await db.documents.insert_one(document.dict())
     
     # 🎯 NEW: Increment demo limit counter
-    if current_user.user_status == "demo_user":
+    if not current_user.admin_approved:
         await increment_demo_limit(current_user, "documents")
     
     return document
