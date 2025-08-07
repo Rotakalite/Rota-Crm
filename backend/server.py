@@ -7022,6 +7022,12 @@ async def register_user(user_data: UserCreate):
         if matching_client:
             # Link this user to the existing client
             user_dict["client_id"] = matching_client["id"]
+            
+            # 🎯 NEW: If client was created by admin, auto-approve user
+            if matching_client.get("created_by_admin"):
+                user_dict["admin_approved"] = True
+                logging.info(f"🎯 Auto-approving new user {user_email} - client created by admin")
+            
             logging.info(f"🔗 New client user linked to existing client: {matching_client.get('hotel_name', matching_client.get('name'))} (ID: {matching_client['id']})")
         else:
             # No matching client found - client_id remains None for manual admin assignment
