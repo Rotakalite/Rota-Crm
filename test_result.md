@@ -169,7 +169,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Client Role Tüketim Tablosu Görüntüleme Sorunu Testi: Kullanıcı şu sorunu bildiriyor: 'Müşteri (client) uygulamasına girdiğimde Tüketim Yönetimi sayfasında alt taraftaki tablo görünmüyor ama admin uygulamasına girdiğinde görünüyor.' Test hedefleri: 1) Client role kullanıcıları için /api/consumptions endpoint'inin düzgün çalışıp çalışmadığını kontrol et 2) Admin role ve Client role için farklı response'lar alınıp alınmadığını test et 3) Authentication ve role-based access control'un doğru çalışıp çalışmadığını doğrula 4) /api/consumptions/analytics endpoint'inin client role için çalışıp çalışmadığını test et"
+user_problem_statement: "Self-Signup + Demo Sistemi Backend Implementasyonu Test: Kullanıcı yeni demo sistem özelliklerinin test edilmesini istiyor. Test hedefleri: 1) User Model genişletmesi (user_status, demo_limits, max_demo_limit) 2) Self-Signup endpoint (POST /api/auth/self-signup) - demo user oluşturma 3) Demo Limit Sistemi (check_demo_limit, increment_demo_limit, send_demo_limit_notification) 4) Admin Approval Sistemi (GET /api/admin/pending-approvals, POST /api/admin/approve-user/{user_id}) 5) Email uniqueness kontrolü 6) Otomatik demo_user status ataması 7) Backward compatibility kontrolü"
 
 backend:
   - task: "Client Role Consumption Table Backend Test"
