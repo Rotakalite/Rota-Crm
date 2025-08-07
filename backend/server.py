@@ -13025,6 +13025,11 @@ async def add_bulk_suppliers(
             try:
                 await asyncio.to_thread(db.suppliers.insert_one, supplier_doc)
                 added_suppliers.append(supplier_data.company_name)
+                
+                # 🎯 NEW: Increment demo limit counter for each supplier
+                if not current_user.admin_approved:
+                    await increment_demo_limit(current_user, "suppliers")
+                
                 logging.info(f"✅ Added supplier: {supplier_data.company_name}")
             except Exception as insert_error:
                 logging.error(f"❌ Failed to add supplier {supplier_data.company_name}: {str(insert_error)}")
