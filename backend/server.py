@@ -866,8 +866,9 @@ class User(BaseModel):
     role: UserRole = UserRole.CLIENT
     client_id: Optional[str] = None  # For client users, links to their client record
     consultant_id: Optional[str] = None  # For consultant users, links to their consultant record
-    # 🎯 NEW: Demo System Fields
-    user_status: str = "approved"  # demo_user, pending_approval, approved
+    # 🎯 NEW: Admin Approval System
+    user_status: str = "approved"  # Normal status
+    admin_approved: bool = False   # 🆕 YENİ - Admin onayı gerekli
     demo_limits: dict = Field(default_factory=lambda: {
         "documents": 0,
         "trainings": 0, 
