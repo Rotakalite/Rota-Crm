@@ -3265,6 +3265,9 @@ const Dashboard = ({ onNavigate }) => {
         });
         console.log('🛡️ Admin Dashboard Data:', response.data);
         setAdminDashboardData(response.data);
+        
+        // 🎯 NEW: Fetch pending approvals for admin
+        await fetchPendingApprovals();
       } else {
         // Fetch general dashboard data for consultant
         const response = await axios.get(`${API}/stats`, {
