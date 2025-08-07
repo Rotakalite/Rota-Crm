@@ -10380,6 +10380,14 @@ async def create_waste_record_via_consumptions(
 ):
     """Create waste record via consumptions endpoint"""
     try:
+        # 🎯 NEW: Demo limit check for waste data creation
+        if not current_user.admin_approved:
+            demo_check = await check_demo_limit(current_user, "consumptions")
+            if not demo_check["allowed"]:
+                raise HTTPException(status_code=403, detail=demo_check["message"])
+        elif current_user.user_status == "pending_approval":
+            raise HTTPException(status_code=403, detail="Demo kullanma limitine ulaştınız. Devam edebilmek için admin ile görüşünüz. Admin: bilgi@rotakalitedanismanlik.com")
+        
         client_id = env_data.client_id if current_user.role == UserRole.ADMIN else current_user.client_id
         if not client_id:
             raise HTTPException(status_code=400, detail="Client ID required")
