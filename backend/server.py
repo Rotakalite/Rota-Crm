@@ -3090,6 +3090,53 @@ async def assign_unassigned_clients_to_rota(
     except Exception as e:
         logging.error(f"Error assigning unassigned clients: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+@app.post("/api/admin/link-to-rota-consultant")
+async def link_admin_to_rota_consultant(
+    current_user: User = Depends(get_current_user)
+):
+    """Link admin user to ROTA consultant - Admin only"""
+    try:
+        # Only admin can perform this action
+        if current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="Access denied: Admin only")
+        
+        # Find ROTA consultant
+        rota_consultant = await db.consultants.find_one({"company_name": "ROTA"})
+        if not rota_consultant:
+            # Create ROTA consultant if not exists
+            rota_consultant = Consultant(
+                company_name="ROTA",
+                authorized_person_name=f"{current_user.name} (Admin)",
+                email=current_user.email,
+                phone="",
+                address="",
+                is_active=True
+            )
+            await db.consultants.insert_one(rota_consultant.dict())
+            logging.info(f"✅ ROTA consultant created for admin: {current_user.email}")
+        
+        # Update admin user's consultant_id
+        await db.users.update_one(
+            {"id": current_user.id},
+            {"$set": {
+                "consultant_id": rota_consultant["id"],
+                "updated_at": datetime.utcnow()
+            }}
+        )
+        
+        logging.info(f"✅ Admin {current_user.email} linked to ROTA consultant: {rota_consultant['id']}")
+        
+        return {
+            "message": "Admin başarıyla ROTA consultant'ına bağlandı",
+            "consultant_id": rota_consultant["id"],
+            "consultant_name": rota_consultant.get("company_name", "ROTA")
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error linking admin to ROTA consultant: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @app.get("/api/debug/users")
 async def debug_users():
