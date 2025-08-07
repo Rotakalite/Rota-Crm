@@ -7122,7 +7122,8 @@ async def self_signup_demo_user(user_data: dict):
                 "trainings": 0,
                 "consumptions": 0,
                 "personnel": 0,
-                "suppliers": 0
+                "suppliers": 0,
+                "targets": 0
             },
             "max_demo_limit": 3,
             "client_id": None,  # Will be assigned by admin later
