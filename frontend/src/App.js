@@ -3263,7 +3263,6 @@ const Dashboard = ({ onNavigate }) => {
   const [dashboardData, setDashboardData] = useState(null);
   const [clientDashboardData, setClientDashboardData] = useState(null);
   const [adminDashboardData, setAdminDashboardData] = useState(null);
-  const [pendingApprovals, setPendingApprovals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
   const isMobile = useIsMobile();
