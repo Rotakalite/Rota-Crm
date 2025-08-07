@@ -887,8 +887,9 @@ class UserCreate(BaseModel):
     role: UserRole = UserRole.CLIENT
     client_id: Optional[str] = None
     consultant_id: Optional[str] = None
-    # 🎯 NEW: Demo System Fields
-    user_status: str = "approved"  # Default approved for admin-created users
+    # 🎯 NEW: Admin Approval System  
+    user_status: str = "approved"  # Normal status
+    admin_approved: bool = False   # 🆕 Default: Admin onayı bekliyor
     demo_limits: dict = Field(default_factory=lambda: {
         "documents": 0,
         "trainings": 0,
