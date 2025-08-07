@@ -942,6 +942,7 @@ class Client(BaseModel):
     carbon_footprint: Optional[float] = None
     sustainability_score: Optional[int] = None
     client_type: str = "registered"  # "bulk" or "registered"
+    created_by_admin: bool = False   # 🎯 NEW: Track if created by admin for auto-approval
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
