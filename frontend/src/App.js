@@ -329,6 +329,37 @@ const useAuth = () => {
     if (authToken) {
       try {
         const API = getApiUrl();
+        
+        // 🎯 NEW: Fetch pending approvals for admin
+        const fetchPendingApprovals = async () => {
+          try {
+            const response = await axios.get(`${API}/admin/pending-approvals`, {
+              headers: { Authorization: `Bearer ${authToken}` }
+            });
+            setPendingApprovals(response.data);
+            console.log('⏳ Pending Approvals:', response.data);
+          } catch (error) {
+            console.error('Error fetching pending approvals:', error);
+            setPendingApprovals([]);
+          }
+        };
+
+        // Handle user approval
+        const handleApproveUser = async (userId) => {
+          try {
+            const response = await axios.post(`${API}/admin/approve-user/${userId}`, {}, {
+              headers: { Authorization: `Bearer ${authToken}` }
+            });
+            
+            alert(`✅ ${response.data.message}`);
+            
+            // Refresh pending approvals
+            await fetchPendingApprovals();
+          } catch (error) {
+            console.error('Error approving user:', error);
+            alert('❌ Kullanıcı onaylama sırasında hata oluştu: ' + (error.response?.data?.detail || error.message));
+          }
+        };
         const response = await axios.get(`${API}/me`, {
           headers: { 'Authorization': `Bearer ${authToken}` }
         });
