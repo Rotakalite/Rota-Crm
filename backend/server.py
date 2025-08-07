@@ -10548,7 +10548,7 @@ async def create_waste_record(
     
     # 🎯 NEW: Demo limit check for waste record creation
     if not current_user.admin_approved:
-        demo_check = await check_demo_limit(current_user, "consumptions")
+        demo_check = await check_demo_limit(current_user, "waste")
         if not demo_check["allowed"]:
             raise HTTPException(status_code=403, detail=demo_check["message"])
     elif current_user.user_status == "pending_approval":
