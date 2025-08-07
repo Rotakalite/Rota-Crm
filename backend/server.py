@@ -3537,6 +3537,9 @@ async def upload_belge_main_app(
             "file_size": file_size
         }
         
+    except HTTPException:
+        # Re-raise HTTPException (like 403 Forbidden for demo limits)
+        raise
     except Exception as e:
         logging.error(f"❌ BELGE UPLOAD ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Upload hatası: {str(e)}")
