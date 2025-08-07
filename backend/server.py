@@ -11874,6 +11874,10 @@ async def create_sustainability_target(
 
         result = await db.sustainability_targets.insert_one(target)
         
+        # 🎯 NEW: Increment demo limit counter
+        if not current_user.admin_approved:
+            await increment_demo_limit(current_user, "targets")
+        
         return {
             "message": "Sustainability target created successfully",
             "target_id": target["id"]
