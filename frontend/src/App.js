@@ -377,6 +377,26 @@ const useAuth = () => {
         
         console.log('✅ User data refreshed:', response.data);
         
+        // 🎯 NEW: Auto-link admin to ROTA consultant if not linked
+        if (response.data.role === 'admin' && !response.data.consultant_id) {
+          try {
+            console.log('🔗 Linking admin to ROTA consultant...');
+            await axios.post(`${API}/admin/link-to-rota-consultant`, {}, {
+              headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            console.log('✅ Admin linked to ROTA consultant');
+            
+            // Refresh user data to get updated consultant_id
+            const updatedResponse = await axios.get(`${API}/me`, {
+              headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            setDbUser(updatedResponse.data);
+            sessionStorage.setItem('dbUser', JSON.stringify(updatedResponse.data));
+          } catch (linkError) {
+            console.error('❌ Failed to link admin to ROTA consultant:', linkError);
+          }
+        }
+        
         return response.data;
       } catch (error) {
         console.error('Error refreshing user:', error);
