@@ -6934,8 +6934,21 @@ async def increment_demo_limit(user: User, limit_type: str):
     if user.admin_approved:
         return
     
+    logging.error(f"🔍 INCREMENT DEBUG - User ID: {user.id}, limit_type: {limit_type}")
+    logging.error(f"🔍 Current demo_limits before increment: {user.demo_limits}")
+    
     update_query = {"$inc": {f"demo_limits.{limit_type}": 1}, "$set": {"updated_at": datetime.utcnow()}}
-    await db.users.update_one({"id": user.id}, update_query)
+    result = await db.users.update_one({"id": user.id}, update_query)
+    
+    logging.error(f"🔍 MongoDB update result: matched_count={result.matched_count}, modified_count={result.modified_count}")
+    
+    if result.matched_count == 0:
+        logging.error(f"❌ User not found in database for increment: {user.id}")
+    elif result.modified_count == 0:
+        logging.error(f"❌ User found but not modified for increment: {user.id}")
+    else:
+        logging.error(f"✅ Demo limit incremented successfully for {user.email}: {limit_type}")
+    
     logging.info(f"🎯 Demo limit incremented for {user.email}: {limit_type}")
 
 async def send_demo_limit_notification(user: User):
