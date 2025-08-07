@@ -9322,12 +9322,12 @@ async def create_consumption(
     logging.info(f"🔍 POST /consumptions called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
     
     # 🎯 NEW: Demo limit check for consumption creation
-    if current_user.user_status == "demo_user":
+    if not current_user.admin_approved:
         demo_check = await check_demo_limit(current_user, "consumptions")
         if not demo_check["allowed"]:
             raise HTTPException(status_code=403, detail=demo_check["message"])
     elif current_user.user_status == "pending_approval":
-        raise HTTPException(status_code=403, detail="Hesabınız onay bekliyor. Admin ile görüşün: bilgi@rotakalitedanismanlik.com")
+        raise HTTPException(status_code=403, detail="Demo kullanma limitine ulaştınız. Devam edebilmek için admin ile görüşünüz. Admin: bilgi@rotakalitedanismanlik.com")
     
     # Check permissions - only admin can create for any client, client can create for themselves, consultant can create for assigned clients
     if current_user.role == UserRole.ADMIN:
