@@ -7154,7 +7154,12 @@ async def self_signup_demo_user(user_data: dict):
 async def get_pending_approvals(current_user: User = Depends(get_admin_user)):
     """Get list of users pending approval - Admin only"""
     try:
-        pending_users = await db.users.find({"admin_approved": False, "role": "client"}).to_list(1000)
+        pending_users = await db.users.find({
+            "$or": [
+                {"admin_approved": False, "role": "client"},
+                {"user_status": "pending_approval"}
+            ]
+        }).to_list(1000)
         
         result = []
         for user in pending_users:
