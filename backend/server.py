@@ -7880,12 +7880,12 @@ async def create_document(
     current_user: User = Depends(get_current_user)
 ):
     # 🎯 NEW: Demo limit check for document creation
-    if current_user.user_status == "demo_user":
+    if not current_user.admin_approved:
         demo_check = await check_demo_limit(current_user, "documents")
         if not demo_check["allowed"]:
             raise HTTPException(status_code=403, detail=demo_check["message"])
     elif current_user.user_status == "pending_approval":
-        raise HTTPException(status_code=403, detail="Hesabınız onay bekliyor. Admin ile görüşün: bilgi@rotakalitedanismanlik.com")
+        raise HTTPException(status_code=403, detail="Demo kullanma limitine ulaştınız. Devam edebilmek için admin ile görüşünüz. Admin: bilgi@rotakalitedanismanlik.com")
     
     # Check permissions based on role
     if current_user.role == UserRole.ADMIN:
