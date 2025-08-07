@@ -10626,6 +10626,10 @@ async def create_waste_record(
 
     await db.waste_management.insert_one(waste_dict)
     
+    # 🎯 NEW: Increment demo limit counter for waste record
+    if not current_user.admin_approved:
+        await increment_demo_limit(current_user, "consumptions")
+    
     logging.info(f"✅ Waste record created successfully for client: {client_id}, month: {waste_data.month}/{waste_data.year}")
     return {"message": "Waste record created successfully", "id": waste_dict["id"]}
 
