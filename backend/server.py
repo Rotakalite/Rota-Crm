@@ -6983,12 +6983,24 @@ async def register_user(user_data: UserCreate):
                 ]
             })
             if matching_client:
-                # Update existing user with client_id
+                # Update existing user with client_id and admin approval if created by admin
+                update_data = {
+                    "client_id": matching_client["id"],
+                    "updated_at": datetime.utcnow()
+                }
+                
+                # 🎯 NEW: If client was created by admin, auto-approve user
+                if matching_client.get("created_by_admin"):
+                    update_data["admin_approved"] = True
+                    logging.info(f"🎯 Auto-approving user {user_email} - client created by admin")
+                
                 await db.users.update_one(
                     {"clerk_user_id": user_data.clerk_user_id},
-                    {"$set": {"client_id": matching_client["id"], "updated_at": datetime.utcnow()}}
+                    {"$set": update_data}
                 )
                 existing_user["client_id"] = matching_client["id"]
+                if matching_client.get("created_by_admin"):
+                    existing_user["admin_approved"] = True
                 logging.info(f"🔗 Existing client user linked to client: {matching_client.get('hotel_name', matching_client.get('name'))} (ID: {matching_client['id']})")
             else:
                 logging.warning(f"⚠️ Existing client user but no matching client found for email: {user_email}")
