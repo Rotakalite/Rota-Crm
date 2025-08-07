@@ -6826,6 +6826,96 @@ async def test_email_templates_endpoint():
 async def api_status():
     return {"message": "Sürdürülebilir Turizm Danışmanlık CRM API", "status": "active"}
 
+# 🎯 NEW: Demo System Functions
+async def check_demo_limit(user: User, limit_type: str) -> dict:
+    """Check if demo user has reached limit for specific operation"""
+    if user.user_status != "demo_user":
+        return {"allowed": True, "message": "User is not demo user"}
+    
+    current_count = user.demo_limits.get(limit_type, 0)
+    max_limit = user.max_demo_limit
+    
+    if current_count >= max_limit:
+        # User reached demo limit, change status to pending_approval
+        await db.users.update_one(
+            {"id": user.id},
+            {"$set": {
+                "user_status": "pending_approval",
+                "updated_at": datetime.utcnow()
+            }}
+        )
+        
+        # Send notification email to admin
+        await send_demo_limit_notification(user)
+        
+        return {
+            "allowed": False, 
+            "message": f"Demo kullanma limitine ulaştınız admin ile görüşünüz. Admin: bilgi@rotakalitedanismanlik.com",
+            "limit_reached": True
+        }
+    
+    return {"allowed": True, "current_count": current_count, "max_limit": max_limit}
+
+async def increment_demo_limit(user: User, limit_type: str):
+    """Increment demo limit counter for specific operation"""
+    if user.user_status != "demo_user":
+        return
+    
+    update_query = {"$inc": {f"demo_limits.{limit_type}": 1}, "$set": {"updated_at": datetime.utcnow()}}
+    await db.users.update_one({"id": user.id}, update_query)
+    logging.info(f"🎯 Demo limit incremented for {user.email}: {limit_type}")
+
+async def send_demo_limit_notification(user: User):
+    """Send email notification to admin when demo user reaches limit"""
+    try:
+        # Email content
+        admin_email = "bilgi@rotakalitedanismanlik.com"
+        subject = "Demo Kullanıcı Onay Bekliyor - GreenWave CRM"
+        
+        email_body = f"""
+Demo kullanıcısı limit doldu ve onay bekliyor:
+
+Kullanıcı Bilgileri:
+- İsim: {user.name}
+- Email: {user.email}
+- Kayıt Tarihi: {user.created_at.strftime('%d.%m.%Y %H:%M')}
+- Demo Limits: {user.demo_limits}
+
+Admin panelinden onaylayabilirsiniz.
+
+Bu otomatik bir mesajdır.
+        """
+        
+        # Send email using existing email service
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587
+        sender_email = os.environ.get('GMAIL_USER')
+        sender_password = os.environ.get('GMAIL_PASSWORD')
+        
+        if sender_email and sender_password:
+            import smtplib
+            from email.mime.text import MIMEText
+            from email.mime.multipart import MIMEMultipart
+            
+            msg = MIMEMultipart()
+            msg['From'] = sender_email
+            msg['To'] = admin_email
+            msg['Subject'] = subject
+            msg.attach(MIMEText(email_body, 'plain', 'utf-8'))
+            
+            server = smtplib.SMTP(smtp_server, smtp_port)
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
+            server.quit()
+            
+            logging.info(f"✅ Demo limit notification sent to admin for user: {user.email}")
+        else:
+            logging.warning(f"⚠️ Email credentials missing, cannot send demo notification")
+            
+    except Exception as e:
+        logging.error(f"❌ Failed to send demo limit notification: {str(e)}")
+
 # Authentication Routes
 @api_router.post("/auth/register", response_model=User)
 async def register_user(user_data: UserCreate):
