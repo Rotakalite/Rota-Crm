@@ -3623,6 +3623,53 @@ const Dashboard = ({ onNavigate }) => {
               </div>
             </div>
 
+            {/* 🎯 NEW: Pending Approvals Section */}
+            {pendingApprovals && pendingApprovals.length > 0 && (
+              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className={`font-semibold text-gray-900 flex items-center ${isMobile ? 'text-base' : 'text-lg'}`}>
+                    ⏳ Bekleyen Onaylar
+                    <span className="ml-2 bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
+                      {pendingApprovals.length}
+                    </span>
+                  </h3>
+                </div>
+                <div className="space-y-3">
+                  {pendingApprovals.map((user) => (
+                    <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <span className="text-sm">👤</span>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900 text-sm">{user.name}</p>
+                            <p className="text-xs text-gray-500">{user.email}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="text-right mr-2">
+                          <p className="text-xs text-gray-600">Demo Limits:</p>
+                          <div className="flex space-x-1 text-xs">
+                            <span className="bg-blue-100 text-blue-800 px-1 rounded">📄 {user.demo_limits?.documents || 0}/{user.max_demo_limit}</span>
+                            <span className="bg-green-100 text-green-800 px-1 rounded">📚 {user.demo_limits?.trainings || 0}/{user.max_demo_limit}</span>
+                            <span className="bg-purple-100 text-purple-800 px-1 rounded">⚡ {user.demo_limits?.consumptions || 0}/{user.max_demo_limit}</span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleApproveUser(user.id)}
+                          className="bg-green-500 text-white px-3 py-1 rounded-lg text-xs font-medium hover:bg-green-600 transition-colors"
+                        >
+                          ✅ Onayla
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Recent Activities and Quick Actions */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Recent Activities */}
