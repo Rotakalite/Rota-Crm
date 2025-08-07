@@ -8152,7 +8152,7 @@ async def create_training(
             # WhatsApp hatası training create işlemini etkilemesin
         
         # 🎯 NEW: Increment demo limit counter
-        if current_user.user_status == "demo_user":
+        if not current_user.admin_approved:
             await increment_demo_limit(current_user, "trainings")
         
         return training
