@@ -7924,6 +7924,14 @@ async def create_training(
     try:
         logging.info(f"📚 Creating training with data: {training_data} by user: {current_user.email} ({current_user.role})")
         
+        # 🎯 NEW: Demo limit check for training creation
+        if current_user.user_status == "demo_user":
+            demo_check = await check_demo_limit(current_user, "trainings")
+            if not demo_check["allowed"]:
+                raise HTTPException(status_code=403, detail=demo_check["message"])
+        elif current_user.user_status == "pending_approval":
+            raise HTTPException(status_code=403, detail="Hesabınız onay bekliyor. Admin ile görüşün: bilgi@rotakalitedanismanlik.com")
+        
         # Check if client exists
         client = await db.clients.find_one({"id": training_data.client_id})
         if not client:
