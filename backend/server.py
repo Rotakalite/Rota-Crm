@@ -7907,14 +7907,21 @@ async def create_document(
     current_user: User = Depends(get_current_user)
 ):
     # 🎯 NEW: Demo limit check for document creation
-    logging.info(f"🔍 Document create - User: {current_user.email}, admin_approved: {current_user.admin_approved}, demo_limits: {current_user.demo_limits}")
+    logging.error(f"🔍 DOCUMENT CREATE DEBUG - User: {current_user.email}")
+    logging.error(f"🔍 admin_approved: {current_user.admin_approved}")
+    logging.error(f"🔍 demo_limits: {current_user.demo_limits}")
+    logging.error(f"🔍 client_id: {current_user.client_id}")
     
     if not current_user.admin_approved:
+        logging.error(f"🔍 User is NOT admin approved - checking demo limits")
         demo_check = await check_demo_limit(current_user, "documents")
-        logging.info(f"🔍 Demo check result: {demo_check}")
+        logging.error(f"🔍 Demo check result: {demo_check}")
         if not demo_check["allowed"]:
             raise HTTPException(status_code=403, detail=demo_check["message"])
-    elif current_user.user_status == "pending_approval":
+    else:
+        logging.error(f"🔍 User IS admin approved - SKIPPING demo limits")
+    
+    if current_user.user_status == "pending_approval":
         raise HTTPException(status_code=403, detail="Demo kullanma limitine ulaştınız. Devam edebilmek için admin ile görüşünüz. Admin: bilgi@rotakalitedanismanlik.com")
     
     # Check permissions based on role
