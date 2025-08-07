@@ -12970,6 +12970,16 @@ async def add_bulk_suppliers(
     try:
         logging.info(f"🏪 BULK SUPPLIERS: Adding {len(request.suppliers_list)} suppliers for user: {current_user.email}")
         
+        # 🎯 NEW: Demo limit check for bulk supplier creation
+        if not current_user.admin_approved:
+            # Check if adding these suppliers would exceed the limit
+            for _ in request.suppliers_list:
+                demo_check = await check_demo_limit(current_user, "suppliers")
+                if not demo_check["allowed"]:
+                    raise HTTPException(status_code=403, detail=demo_check["message"])
+        elif current_user.user_status == "pending_approval":
+            raise HTTPException(status_code=403, detail="Demo kullanma limitine ulaştınız. Devam edebilmek için admin ile görüşünüz. Admin: bilgi@rotakalitedanismanlik.com")
+        
         # Get MongoDB connection
         mongo_client = MongoClient(mongo_url)
         db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
