@@ -3831,39 +3831,81 @@ const Dashboard = ({ onNavigate }) => {
                     </span>
                   </h3>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {pendingApprovals.map((user) => (
-                    <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex-1">
+                    <div key={user.id} className="bg-white border border-yellow-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all">
+                      {/* User Header */}
+                      <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                            <span className="text-sm">👤</span>
+                          <div className="w-10 h-10 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
+                            <span className="text-white text-lg">👤</span>
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900 text-sm">{user.name}</p>
-                            <p className="text-xs text-gray-500">{user.email}</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="text-right mr-2">
-                          <p className="text-xs text-gray-600">Demo Limits:</p>
-                          <div className="flex flex-wrap gap-1 text-xs">
-                            <span className="bg-blue-100 text-blue-800 px-1 rounded">📄 {user.demo_limits?.documents || 0}/{user.max_demo_limit}</span>
-                            <span className="bg-green-100 text-green-800 px-1 rounded">📚 {user.demo_limits?.trainings || 0}/{user.max_demo_limit}</span>
-                            <span className="bg-purple-100 text-purple-800 px-1 rounded">⚡ {user.demo_limits?.consumptions || 0}/{user.max_demo_limit}</span>
-                            <span className="bg-orange-100 text-orange-800 px-1 rounded">👥 {user.demo_limits?.personnel || 0}/{user.max_demo_limit}</span>
-                            <span className="bg-teal-100 text-teal-800 px-1 rounded">🏢 {user.demo_limits?.suppliers || 0}/{user.max_demo_limit}</span>
-                            <span className="bg-indigo-100 text-indigo-800 px-1 rounded">🎯 {user.demo_limits?.targets || 0}/{user.max_demo_limit}</span>
-                            <span className="bg-red-100 text-red-800 px-1 rounded">🗑️ {user.demo_limits?.waste || 0}/{user.max_demo_limit}</span>
+                            <p className="font-semibold text-gray-900">{user.name}</p>
+                            <p className="text-sm text-gray-500">{user.email}</p>
                           </div>
                         </div>
                         <button
                           onClick={() => handleApproveUser(user.id)}
-                          className="bg-green-500 text-white px-3 py-1 rounded-lg text-xs font-medium hover:bg-green-600 transition-colors"
+                          className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-200 shadow-md"
                         >
                           ✅ Onayla
                         </button>
+                      </div>
+                      
+                      {/* Demo Usage Status */}
+                      <div className="bg-gray-50 rounded-lg p-3">
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">Demo Kullanım Durumu:</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                          <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-2 py-1">
+                            <span className="text-blue-700 text-xs font-medium">📄 Belge</span>
+                            <span className={`text-xs font-bold ${(user.demo_limits?.documents || 0) >= user.max_demo_limit ? 'text-red-600' : 'text-blue-600'}`}>
+                              {user.demo_limits?.documents || 0}/{user.max_demo_limit}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-2 py-1">
+                            <span className="text-green-700 text-xs font-medium">📚 Eğitim</span>
+                            <span className={`text-xs font-bold ${(user.demo_limits?.trainings || 0) >= user.max_demo_limit ? 'text-red-600' : 'text-green-600'}`}>
+                              {user.demo_limits?.trainings || 0}/{user.max_demo_limit}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between bg-purple-50 border border-purple-200 rounded-lg px-2 py-1">
+                            <span className="text-purple-700 text-xs font-medium">⚡ Tüketim</span>
+                            <span className={`text-xs font-bold ${(user.demo_limits?.consumptions || 0) >= user.max_demo_limit ? 'text-red-600' : 'text-purple-600'}`}>
+                              {user.demo_limits?.consumptions || 0}/{user.max_demo_limit}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between bg-orange-50 border border-orange-200 rounded-lg px-2 py-1">
+                            <span className="text-orange-700 text-xs font-medium">👥 Personel</span>
+                            <span className={`text-xs font-bold ${(user.demo_limits?.personnel || 0) >= user.max_demo_limit ? 'text-red-600' : 'text-orange-600'}`}>
+                              {user.demo_limits?.personnel || 0}/{user.max_demo_limit}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between bg-teal-50 border border-teal-200 rounded-lg px-2 py-1">
+                            <span className="text-teal-700 text-xs font-medium">🏢 Tedarikçi</span>
+                            <span className={`text-xs font-bold ${(user.demo_limits?.suppliers || 0) >= user.max_demo_limit ? 'text-red-600' : 'text-teal-600'}`}>
+                              {user.demo_limits?.suppliers || 0}/{user.max_demo_limit}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between bg-indigo-50 border border-indigo-200 rounded-lg px-2 py-1">
+                            <span className="text-indigo-700 text-xs font-medium">🎯 Hedef</span>
+                            <span className={`text-xs font-bold ${(user.demo_limits?.targets || 0) >= user.max_demo_limit ? 'text-red-600' : 'text-indigo-600'}`}>
+                              {user.demo_limits?.targets || 0}/{user.max_demo_limit}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg px-2 py-1">
+                            <span className="text-red-700 text-xs font-medium">🗑️ Atık</span>
+                            <span className={`text-xs font-bold ${(user.demo_limits?.waste || 0) >= user.max_demo_limit ? 'text-red-600' : 'text-red-500'}`}>
+                              {user.demo_limits?.waste || 0}/{user.max_demo_limit}
+                            </span>
+                          </div>
+                        </div>
+                        {/* Overall Status */}
+                        <div className="mt-2 text-center">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            🔄 Demo Kullanıcısı - Onay Bekliyor
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ))}
