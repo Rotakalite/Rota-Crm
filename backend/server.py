@@ -12628,6 +12628,14 @@ async def create_supplier(
 ):
     """Create a new supplier (Admin and Consultant access)"""
     try:
+        # 🎯 NEW: Demo limit check for supplier creation
+        if not current_user.admin_approved:
+            demo_check = await check_demo_limit(current_user, "suppliers")
+            if not demo_check["allowed"]:
+                raise HTTPException(status_code=403, detail=demo_check["message"])
+        elif current_user.user_status == "pending_approval":
+            raise HTTPException(status_code=403, detail="Demo kullanma limitine ulaştınız. Devam edebilmek için admin ile görüşünüz. Admin: bilgi@rotakalitedanismanlik.com")
+        
         # Determine client_id based on user role
         if current_user.role == UserRole.CLIENT:
             client_id = current_user.client_id
