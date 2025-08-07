@@ -6880,6 +6880,67 @@ async def register_user(user_data: UserCreate):
     await db.users.insert_one(user.dict())
     return user
 
+# 🎯 NEW: Self-Signup endpoint for demo users
+@api_router.post("/auth/self-signup", response_model=dict)
+async def self_signup_demo_user(user_data: dict):
+    """Self-signup for demo users - NO AUTH required"""
+    try:
+        logging.info(f"🎯 SELF-SIGNUP Demo User: {user_data.get('email')}")
+        
+        # Validate required fields
+        required_fields = ['clerk_user_id', 'email', 'name']
+        for field in required_fields:
+            if not user_data.get(field):
+                raise HTTPException(status_code=400, detail=f"Missing required field: {field}")
+        
+        # Check if user already exists
+        existing_user = await db.users.find_one({"clerk_user_id": user_data["clerk_user_id"]})
+        if existing_user:
+            raise HTTPException(status_code=400, detail="User already exists")
+        
+        # Check email uniqueness
+        existing_email = await db.users.find_one({"email": user_data["email"]})
+        if existing_email:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        
+        # Create demo user with demo status
+        demo_user_data = {
+            "clerk_user_id": user_data["clerk_user_id"],
+            "email": user_data["email"],
+            "name": user_data["name"],
+            "role": "client",  # Always client for self-signup
+            "user_status": "demo_user",  # 🎯 Demo status
+            "demo_limits": {
+                "documents": 0,
+                "trainings": 0,
+                "consumptions": 0,
+                "personnel": 0,
+                "suppliers": 0
+            },
+            "max_demo_limit": 3,
+            "client_id": None,  # Will be assigned by admin later
+            "consultant_id": None
+        }
+        
+        user = User(**demo_user_data)
+        await db.users.insert_one(user.dict())
+        
+        logging.info(f"✅ Demo user created successfully: {user.email}")
+        
+        return {
+            "message": "Demo hesabınız oluşturuldu! Her modülden 3'er veri girişi yapabilirsiniz.",
+            "user_id": user.id,
+            "status": "demo_user",
+            "demo_limits": user.demo_limits,
+            "max_demo_limit": user.max_demo_limit
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ Self-signup error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
+
 @api_router.get("/auth/me", response_model=User)
 async def get_current_user_info(current_user: User = Depends(get_current_user)):
     return current_user
