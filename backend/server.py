@@ -7085,7 +7085,7 @@ async def self_signup_demo_user(user_data: dict):
 async def get_pending_approvals(current_user: User = Depends(get_admin_user)):
     """Get list of users pending approval - Admin only"""
     try:
-        pending_users = await db.users.find({"user_status": "pending_approval"}).to_list(1000)
+        pending_users = await db.users.find({"admin_approved": False, "role": "client"}).to_list(1000)
         
         result = []
         for user in pending_users:
@@ -7096,7 +7096,8 @@ async def get_pending_approvals(current_user: User = Depends(get_admin_user)):
                 "email": user_data.email,
                 "created_at": user_data.created_at,
                 "demo_limits": user_data.demo_limits,
-                "max_demo_limit": user_data.max_demo_limit
+                "max_demo_limit": user_data.max_demo_limit,
+                "admin_approved": user_data.admin_approved
             })
         
         return result
@@ -7115,14 +7116,14 @@ async def approve_user(user_id: str, current_user: User = Depends(get_admin_user
             raise HTTPException(status_code=404, detail="User not found")
         
         user_obj = User(**user)
-        if user_obj.user_status != "pending_approval":
-            raise HTTPException(status_code=400, detail="User is not pending approval")
+        if user_obj.admin_approved:
+            raise HTTPException(status_code=400, detail="User is already approved")
         
-        # Update user status to approved
+        # Update user admin_approved to true
         await db.users.update_one(
             {"id": user_id},
             {"$set": {
-                "user_status": "approved",
+                "admin_approved": True,
                 "updated_at": datetime.utcnow()
             }}
         )
@@ -7135,7 +7136,7 @@ async def approve_user(user_id: str, current_user: User = Depends(get_admin_user
         return {
             "message": f"Kullanıcı {user_obj.name} başarıyla onaylandı",
             "user_id": user_id,
-            "status": "approved"
+            "admin_approved": True
         }
         
     except HTTPException:
