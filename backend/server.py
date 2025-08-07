@@ -9266,6 +9266,10 @@ async def create_consumption(
     
     await db.consumptions.insert_one(consumption.dict())
     
+    # 🎯 NEW: Increment demo limit counter
+    if current_user.user_status == "demo_user":
+        await increment_demo_limit(current_user, "consumptions")
+    
     return {"message": "Tüketim verisi başarıyla kaydedildi", "consumption_id": consumption.id}
 
 @api_router.get("/consumptions")
