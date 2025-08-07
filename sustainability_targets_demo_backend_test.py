@@ -497,7 +497,7 @@ class SustainabilityTargetsDemoTester:
         self.test_demo_system_deployment_status()
         
         # Print summary
-        self.print_summary()
+        return self.print_summary()
     
     def print_summary(self):
         """Print test summary"""
