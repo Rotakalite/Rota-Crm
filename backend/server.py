@@ -1231,6 +1231,53 @@ class TwoFACode(BaseModel):
     verified: bool = False
 
 
+# Cleanup Functions
+async def cleanup_orphaned_user_references(user_id: str):
+    """Clean up orphaned references when a user is not found"""
+    try:
+        logging.info(f"🧹 Starting cleanup for orphaned user references: {user_id}")
+        
+        # Clean up orphaned client records
+        orphaned_clients = await db.clients.find({"id": user_id}).to_list(length=None)
+        if orphaned_clients:
+            await db.clients.delete_many({"id": user_id})
+            logging.info(f"🗑️ Removed {len(orphaned_clients)} orphaned client records")
+        
+        # Clean up orphaned consumption records
+        orphaned_consumptions = await db.consumptions.find({"client_id": user_id}).to_list(length=None)
+        if orphaned_consumptions:
+            await db.consumptions.delete_many({"client_id": user_id})
+            logging.info(f"🗑️ Removed {len(orphaned_consumptions)} orphaned consumption records")
+        
+        # Clean up orphaned documents
+        orphaned_documents = await db.documents.find({"client_id": user_id}).to_list(length=None)
+        if orphaned_documents:
+            await db.documents.delete_many({"client_id": user_id})
+            logging.info(f"🗑️ Removed {len(orphaned_documents)} orphaned document records")
+        
+        # Clean up orphaned training records
+        orphaned_trainings = await db.trainings.find({"client_id": user_id}).to_list(length=None)
+        if orphaned_trainings:
+            await db.trainings.delete_many({"client_id": user_id})
+            logging.info(f"🗑️ Removed {len(orphaned_trainings)} orphaned training records")
+        
+        # Clean up orphaned waste management records
+        orphaned_waste = await db.waste_management.find({"client_id": user_id}).to_list(length=None)
+        if orphaned_waste:
+            await db.waste_management.delete_many({"client_id": user_id})
+            logging.info(f"🗑️ Removed {len(orphaned_waste)} orphaned waste management records")
+        
+        # Clean up orphaned personnel records
+        orphaned_personnel = await db.personnel.find({"client_id": user_id}).to_list(length=None)
+        if orphaned_personnel:
+            await db.personnel.delete_many({"client_id": user_id})
+            logging.info(f"🗑️ Removed {len(orphaned_personnel)} orphaned personnel records")
+        
+        logging.info(f"✅ Cleanup completed for user: {user_id}")
+        
+    except Exception as e:
+        logging.error(f"❌ Error during cleanup for user {user_id}: {str(e)}")
+
 # Authentication Functions
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
