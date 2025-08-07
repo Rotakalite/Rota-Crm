@@ -7254,7 +7254,14 @@ async def create_client(
                 {"$unset": {"client_id": ""}, "$set": {"updated_at": datetime.utcnow()}}
             )
     
+    # Create Client object
     client_dict = client_data.dict()
+    # 🎯 NEW: Mark if created by admin (for auto-approval)
+    if current_user.role == UserRole.ADMIN:
+        client_dict["created_by_admin"] = True
+    else:
+        client_dict["created_by_admin"] = False
+    
     client = Client(**client_dict)
     
     # 🎯 NEW: Auto-create Clerk user if admin creates client with email
