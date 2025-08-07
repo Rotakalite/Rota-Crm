@@ -12058,6 +12058,10 @@ async def add_target_progress(
 
         result = await db.target_progress.insert_one(progress)
         
+        # 🎯 NEW: Increment demo limit counter
+        if not current_user.admin_approved:
+            await increment_demo_limit(current_user, "targets")
+        
         return {
             "message": "Target progress added successfully",
             "progress_id": progress["id"]
