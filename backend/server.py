@@ -7031,6 +7031,118 @@ async def self_signup_demo_user(user_data: dict):
         logging.error(f"❌ Self-signup error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
 
+# 🎯 NEW: Admin approval endpoints
+@api_router.get("/admin/pending-approvals", response_model=list)
+async def get_pending_approvals(current_user: User = Depends(get_admin_user)):
+    """Get list of users pending approval - Admin only"""
+    try:
+        pending_users = await db.users.find({"user_status": "pending_approval"}).to_list(1000)
+        
+        result = []
+        for user in pending_users:
+            user_data = User(**user)
+            result.append({
+                "id": user_data.id,
+                "name": user_data.name,
+                "email": user_data.email,
+                "created_at": user_data.created_at,
+                "demo_limits": user_data.demo_limits,
+                "max_demo_limit": user_data.max_demo_limit
+            })
+        
+        return result
+        
+    except Exception as e:
+        logging.error(f"❌ Error fetching pending approvals: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/admin/approve-user/{user_id}")
+async def approve_user(user_id: str, current_user: User = Depends(get_admin_user)):
+    """Approve a pending user - Admin only"""
+    try:
+        # Find the user
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user_obj = User(**user)
+        if user_obj.user_status != "pending_approval":
+            raise HTTPException(status_code=400, detail="User is not pending approval")
+        
+        # Update user status to approved
+        await db.users.update_one(
+            {"id": user_id},
+            {"$set": {
+                "user_status": "approved",
+                "updated_at": datetime.utcnow()
+            }}
+        )
+        
+        # Send approval notification email to user
+        await send_approval_notification(user_obj)
+        
+        logging.info(f"✅ User approved: {user_obj.email}")
+        
+        return {
+            "message": f"Kullanıcı {user_obj.name} başarıyla onaylandı",
+            "user_id": user_id,
+            "status": "approved"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ Error approving user: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+async def send_approval_notification(user: User):
+    """Send email notification to user when approved"""
+    try:
+        subject = "Hesabınız Onaylandı - GreenWave CRM"
+        
+        email_body = f"""
+Merhaba {user.name},
+
+Hesabınız onaylandı! Artık GreenWave CRM'deki tüm özellikleri tam olarak kullanabilirsiniz.
+
+Demo sürecinde girdiğiniz tüm veriler korunmuştur ve kullanıma hazırdır.
+
+Sisteme giriş yapmak için: https://rota-crm-production.up.railway.app
+
+Keyifli çalışmalar!
+GreenWave CRM Ekibi
+        """
+        
+        # Send email using existing email service
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587
+        sender_email = os.environ.get('GMAIL_USER')
+        sender_password = os.environ.get('GMAIL_PASSWORD')
+        
+        if sender_email and sender_password:
+            import smtplib
+            from email.mime.text import MIMEText
+            from email.mime.multipart import MIMEMultipart
+            
+            msg = MIMEMultipart()
+            msg['From'] = sender_email
+            msg['To'] = user.email
+            msg['Subject'] = subject
+            msg.attach(MIMEText(email_body, 'plain', 'utf-8'))
+            
+            server = smtplib.SMTP(smtp_server, smtp_port)
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
+            server.quit()
+            
+            logging.info(f"✅ Approval notification sent to user: {user.email}")
+        else:
+            logging.warning(f"⚠️ Email credentials missing, cannot send approval notification")
+            
+    except Exception as e:
+        logging.error(f"❌ Failed to send approval notification: {str(e)}")
+
 @api_router.get("/auth/me", response_model=User)
 async def get_current_user_info(current_user: User = Depends(get_current_user)):
     return current_user
