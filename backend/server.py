@@ -7724,7 +7724,10 @@ async def get_client(client_id: str, current_user: User = Depends(get_current_us
     
     client = await db.clients.find_one({"id": client_id})
     if not client:
-        raise HTTPException(status_code=404, detail="Client not found")
+        logging.error(f"❌ Client not found in database: {client_id}")
+        # Try to clean up orphaned records
+        await cleanup_orphaned_user_references(client_id)
+        raise HTTPException(status_code=404, detail="Client not found - may have been deleted")
     
     return Client(**client)
 
