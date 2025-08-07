@@ -886,6 +886,16 @@ class UserCreate(BaseModel):
     role: UserRole = UserRole.CLIENT
     client_id: Optional[str] = None
     consultant_id: Optional[str] = None
+    # 🎯 NEW: Demo System Fields
+    user_status: str = "approved"  # Default approved for admin-created users
+    demo_limits: dict = Field(default_factory=lambda: {
+        "documents": 0,
+        "trainings": 0,
+        "consumptions": 0,
+        "personnel": 0,
+        "suppliers": 0
+    })
+    max_demo_limit: int = 3
 
 # Consultant Models
 class Consultant(BaseModel):
