@@ -400,7 +400,7 @@ class ClerkAdminManager:
                             </div>
                             
                             <div style="text-align: center; margin: 30px 0;">
-                                <a href="https://rota-crm-production.up.railway.app" 
+                                <a href="https://portal.rotakalitedanismanlik.com" 
                                    style="display: inline-block; background: linear-gradient(135deg, #10b981, #047857); 
                                           color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; 
                                           font-weight: bold; font-size: 16px;">
