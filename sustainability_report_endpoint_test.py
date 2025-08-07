@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from environment
-BACKEND_URL = "https://5b8d26b4-f10c-4ad8-9010-a28a207ffa9e.preview.emergentagent.com"
+BACKEND_URL = "https://147f3791-101b-4a68-af5d-538aaba71c7f.preview.emergentagent.com"
 
 def test_endpoint_registration():
     """Test that sustainability report endpoints are properly registered"""

@@ -1,82 +1,94 @@
 <analysis>
-The previous AI engineer effectively navigated a complex debugging and feature implementation trajectory for the GreenWave CRM application. Key challenges included persistent environment variable inconsistencies, duplicate function declarations in a large codebase, and intricate Clerk authentication integration issues (e.g., , metadata, API key formatting). A critical data loss incident occurred due to a flawed admin demo system that incorrectly managed database connections, leading to its complete removal. Subsequently, the focus shifted to refining mobile responsiveness and correcting role-based access control for client functionalities. The engineer demonstrated strong problem-solving skills by systematically addressing errors, frequently re-verifying solutions, and proactively communicating with the user for clarifications and task reprioritization.
+The previous AI engineer demonstrated strong adaptability and debugging skills across several complex feature implementations and critical fixes for the GreenWave CRM. Initially, the focus was on refining existing functionalities, such as fixing environment variable inconsistencies (emergent to railway URLs) and correcting UI/role-based access issues in consumption analytics and training modules. A significant challenge involved the intricate Clerk authentication integration for client and consultant user creation, which led to deep dives into backend API routing conflicts and  initialization problems.
+
+A major setback occurred with a flawed admin demo system causing data loss, leading to its complete removal. The user later initiated a Git rollback to a clean state, from which a new Customer Self-Demo System with Admin Approval Flow was conceptualized and implemented. This involved modifying user models, adding new self-signup and admin approval endpoints, and implementing a granular 3-item usage limit for demo users across various modules (documents, trainings, consumptions, personnel, suppliers, and currently targets). Persistent issues included demo limits not incrementing due to cached user data, which was successfully debugged. The work is ongoing, focusing on extending the demo limit functionality to all relevant modules and ensuring frontend visibility of these limits.
 </analysis>
 
 <product_requirements>
-The GreenWave CRM is a SaaS platform, rebranded from Rota-CRM, designed for Admin, Client, and Consultant roles, providing consumption, training, and sustainability reporting functionalities. Initial features included bulk document management (ZIP downloads), efficient user data handling, enhanced 300 DPI PDF reports, XLSX data input, full-year consumption visibility, automated sustainability reports, and OpenAI AI integration for suggestions, report text, chatbot, and trend analysis. These initial requirements were successfully implemented. The current development phases focus on expanding the Admin Settings, a complete application rebrand, implementing custom Clerk authentication pages (sign-in/up/forgot password), and achieving full mobile responsiveness across all modules and navigation. Recent work involved enhancing client management with admin-defined passwords and client editing, and addressing critical authentication and data integrity issues.
+The GreenWave CRM (rebranded from Rota-CRM) is a SaaS platform supporting Admin, Client, and Consultant roles, providing consumption, training, and sustainability reporting. Initial successful features included bulk document management, user data handling, 300 DPI PDF reports, XLSX data input, full-year consumption visibility, automated sustainability reports, and OpenAI AI integration for suggestions, report text, chatbot, and trend analysis.
+
+Current development aims to:
+1.  Expand Admin Settings.
+2.  Complete application rebrand.
+3.  Implement custom Clerk authentication pages (sign-in/up/forgot password).
+4.  Achieve full mobile responsiveness across all modules and navigation.
+5.  Enhance client management with admin-defined passwords and client editing (previously implemented).
+6.  Address critical authentication and data integrity issues (ongoing, e.g., removal of faulty admin demo, fixing Clerk integration for consultants).
+7.  **Implement Customer Self-Demo System with Admin Approval Flow**:
+    *   New users (self-signup) start with .
+    *   They can use all modules but are limited to 3 data entries/documents per module (documents, trainings, consumptions, personnel, suppliers, targets).
+    *   Upon reaching the limit, a message appears: Demo kullanma limitine ulaştınız. Devam edebilmek için admin ile görüşünüz. Admin: bilgi@rotakalitedanismanlik.com.
+    *   An email is sent to the admin ().
+    *   Admin sees Bekleyen Onaylar (Pending Approvals) in their dashboard and can approve users.
+    *   Upon admin approval,  becomes , and the user gains unlimited access.
+    *   Crucially, data entered during the demo period is *not* deleted upon approval.
+    *   Clients created by an admin are *automatically*  and have no demo limits.
 </product_requirements>
 
 <key_technical_concepts>
--   **React**: Frontend UI.
--   **FastAPI**: Python backend, RESTful APIs.
--   **MongoDB Atlas**: NoSQL database.
+-   **React**: Frontend UI development.
+-   **FastAPI**: Python backend for RESTful APIs.
+-   **MongoDB Atlas**: NoSQL database for data persistence.
 -   **Clerk Authentication & Backend SDK**: User authentication and management.
--   **Tailwind CSS**: Utility-first styling.
--   **Supervisorctl**: Process management.
--   **Axios**: Frontend HTTP client.
--   **OpenAI API**: AI features.
--   ****: Environment variable loading.
+-   **Tailwind CSS**: Utility-first CSS framework for styling.
+-   **Supervisorctl**: Process management for services.
+-   **Axios**: Frontend HTTP client for API communication.
+-   ****: Loading environment variables.
 -   ****: Frontend routing.
 </key_technical_concepts>
 
 <code_architecture>
 
--   ****: Central FastAPI application.
-    -   **Importance**: Defines API endpoints, handles business logic, and manages integrations.
-    -   **Changes**: Added / models with password fields; updated client creation/update logic to send passwords to Clerk. Corrected Clerk SDK import ( instead of ) and initialization to use . Moved  initialization after  for correct secret key loading. Modified 2FA email template and expiration. Fixed conflicting  route. Implemented  for dynamic database selection (initially flawed, leading to data loss and subsequent removal of the admin demo system). Corrected Clerk API calls to use . Removed all admin-facing demo mode endpoints and related logic. Corrected training creation permissions for  role.
+
+-   ****: The core FastAPI backend application.
+    -   **Importance**: Defines API endpoints, handles business logic, and integrates with MongoDB and Clerk.
+    -   **Changes**:  and  models updated with  (boolean),  (dict), and  (int). New endpoints , ,  added.  and  functions implemented. Demo limit checks and increments integrated into , , , , , , , , . Error handling was refined for  in file uploads. Logic added to ensure admin-created clients result in  for the associated user. The  model was modified (and then reverted) to include  and  for Clerk integration, and related consultant endpoints were modified to integrate Clerk user creation, including complex debugging around route conflicts and  initialization. An endpoint  was added to create a default ROTA consultant, and  was added to link the admin user to this ROTA consultant.
 -   ****: Backend environment variables.
-    -   **Importance**: Stores sensitive configurations.
-    -   **Changes**:  and  were added then removed with the demo system.  usage was debugged.
--   ** (New)**: Utility for demo mode.
-    -   **Importance**: Centralizes demo logic.
-    -   **Changes**: Its logic was initially inlined to  and then completely removed as the admin demo system was scrapped.
+    -   **Importance**: Stores sensitive configurations like  and , and email credentials (, ).
+    -   **Changes**: Verified  and Gmail SMTP credentials are correctly set and used.
 -   ****: Frontend environment configuration.
-    -   **Importance**: Specifies backend URL.
-    -   **Changes**:  was manually adjusted to ensure it points to the Railway environment.
--   ****: Main React component.
-    -   **Importance**: Orchestrates application logic, routing, state, and UI.
+    -   **Importance**: Specifies the backend URL.
+    -   **Changes**:  was repeatedly corrected by the user to  from incorrect  URLs, indicating a persistent environment configuration challenge.
+-   ****: The main React component, orchestrating application logic, routing, state, and UI.
+    -   **Importance**: Central to user interaction and data flow.
     -   **Changes**:
-        *   **Client Management**: Added password input to new client form; updated form reset. Fixed duplicate  and  states. Corrected  parameter passing.
-        *   **Clerk Auth/Branding**: Refactored Clerk integration for custom components and handled redirect loops.
-        *   **Demo Controls (Removed)**: Initially added Demo Aç/Kapat buttons and status indicators; implemented . However, due to critical data loss, all related UI elements, states (), and functions (, ) were completely removed.
-        *   **Mobile Responsiveness**: Implemented a card-based view for the client list on mobile in .
-        *   **Role-based Permissions**: Corrected  to allow clients to fetch and view their own data and comparison tables. Corrected  to allow clients to add their own training records.
--   ****: Global CSS file.
-    -   **Importance**: Application-wide styling.
-    -   **Changes**: Extensive mobile-first CSS rules were previously added.
--   ****: Document management.
-    -   **Importance**: Handles document uploads and listings.
-    -   **Changes**: Previously made document list and forms mobile responsive.
--   ** (New)**: Mobile UI components.
-    -   **Importance**: Centralizes mobile UI logic.
-    -   **Changes**: Previously refined .
+        *   **Mobile Responsiveness**: Corrected client list display for admin users on mobile (card-based view).
+        *   **Role-based Permissions**: Fixed  and  to allow client users to view and add their own data.
+        *   **Consultant Management**: Updated forms to include password fields and logic for Clerk integration, mirroring client creation. Modified  to display and prioritize the admin/ROTA consultant, with special styling.
+        *   **Admin Approval Flow**: Added  state, , and  functions. Integrated a Bekleyen Onaylar (Pending Approvals) section into the Admin Dashboard UI.
+        *   **Client Setup**: The  component was added from a backup file and correctly placed to resolve an .
+        *   **User Linking**:  function modified to automatically link the admin user to the ROTA consultant upon login.
+-   ****: Custom Clerk signup component.
+    -   **Importance**: Handles user registration with Clerk.
+    -   **Changes**: Not directly modified to enforce demo status, as the logic was shifted to the backend's  and  endpoints.
 </code_architecture>
 
 <pending_tasks>
--   Further development of Sustainability Targets module.
+-   Further development of Sustainability Targets module (beyond current demo limit integration).
 -   Enhance document module UI to display document counts.
 -   Full integration of Advanced Reporting (PDF export) into Admin/Consultant dashboards.
 -   Full development of AI Analytics and Cultural Sustainability modules.
 -   General frontend styling enhancements.
 -   Address recurring Pydantic validation errors for  model.
 -   Investigate why MongoDB Atlas registered data isn't fully visible to frontend users.
--   Find a permanent solution for  constantly reverting.
+-   Find a permanent solution for  constantly reverting (though user handles push/deploy now).
 -   Implement remaining Admin Settings categories: Company Information, Notification Settings, Integrations, Backup & Security, Analytics Settings.
 </pending_tasks>
 
 <current_work>
-Immediately prior to this summary, the AI engineer was addressing critical issues and implementing requested features following a complex sequence of user feedback and debugging.
+Immediately prior to this summary, the AI engineer was focused on implementing the Customer Self-Demo System with Admin Approval Flow as per detailed user requirements, following a complete Git rollback initiated by the user.
 
-The primary focus was on fixing the broken admin demo system, which had unfortunately led to data loss in the production database. The engineer identified the root cause as a static global database connection in the backend that did not dynamically switch with demo mode, causing demo operations to affect the production DB. This led to the ultimate decision, upon user request, to completely remove all traces of the admin demo system from both frontend ( - buttons, indicators, functions) and backend ( - endpoints, logic, ).
+The core of this work involved:
+1.  **Backend Model Updates**: The  model was augmented with  (boolean,  by default),  (dictionary tracking usage per module: , , , , , ), and  (integer, set to 3). The  model gained a  flag.
+2.  **Self-Signup & Approval Endpoints**: A  endpoint was added for new registrations, initiating users with  and demo limits.  and  were added for admin management.
+3.  **Demo Limit Enforcement**:  and  functions were implemented. These functions control usage based on  status and the  count. They were integrated into *all* relevant data creation/upload endpoints: , , , , , , .
+4.  **Admin Auto-Approval Logic**: If a client is created by an admin, the associated user is automatically set to , bypassing demo limits.
+5.  **Frontend Admin Dashboard**: A Bekleyen Onaylar (Pending Approvals) section was added to the Admin Dashboard in , displaying users awaiting approval and providing a one-click approval mechanism.
+6.  **Email Notifications**: Logic was integrated to send emails to the admin when a demo user hits their limit and to the user upon admin approval, leveraging existing Gmail SMTP configuration.
 
-Concurrently, the engineer addressed several mobile UI and role-based permission issues:
-1.  **Mobile Admin - Client List**: The client list was not displaying clients for admin users on mobile. This was fixed by implementing a responsive card-based view in  to render client details on mobile devices instead of the tabular view.
-2.  **Client Role - Consumption Analytics Comparison Tables**: Previously, clients could not see their own comparison tables in the Consumption Analytics module. The issue was traced to an incorrect role check in  preventing  and a missing  parameter in . These were corrected to allow clients to view their own consumption data.
-3.  **Client Role - Training Module Permissions**: Clients could see the Add Training button but received a permission error when trying to add a training. The backend () was updated to correctly allow clients to create their own training records, linking them to their , after identifying and correcting an overly restrictive permission check.
-
-The last successful value addition involved confirming these fixes with the user, leading to a decision to fork the conversation.
+A key debugging challenge arose when  were not incrementing despite successful MongoDB updates. This was traced to the  object in the  function being cached, leading to stale data. The fix involved explicitly fetching fresh user data from the database within , resolving the issue. The last task being actively worked on is extending this demo limit system to the Sustainability Targets module, which includes both target creation ( POST) and progress updates ( POST), as well as displaying these limits in the admin pending approvals section.
 </current_work>
 
 <optional_next_step>
-The next step is to implement the Customer Self-Demo System with usage limits and the Admin Approval Flow for all new registrations as agreed upon with the user.
+Continue implementing the demo limit checks and increments for the Sustainability Targets module in the backend, and update the Admin Dashboard frontend to display the targets limit.
 </optional_next_step>

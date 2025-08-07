@@ -11,7 +11,7 @@ from datetime import datetime
 
 class SimpleDemoTest:
     def __init__(self):
-        self.base_url = "https://5b8d26b4-f10c-4ad8-9010-a28a207ffa9e.preview.emergentagent.com"
+        self.base_url = "https://147f3791-101b-4a68-af5d-538aaba71c7f.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         
     async def test_basic_endpoints(self):
