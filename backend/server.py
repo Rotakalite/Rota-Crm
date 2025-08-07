@@ -12685,6 +12685,10 @@ async def create_supplier(
 
         result = await db.suppliers.insert_one(supplier)
         
+        # 🎯 NEW: Increment demo limit counter
+        if not current_user.admin_approved:
+            await increment_demo_limit(current_user, "suppliers")
+        
         return {
             "message": "Supplier created successfully",
             "supplier_id": supplier["id"]
