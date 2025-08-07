@@ -3848,10 +3848,13 @@ const Dashboard = ({ onNavigate }) => {
                       <div className="flex items-center space-x-2">
                         <div className="text-right mr-2">
                           <p className="text-xs text-gray-600">Demo Limits:</p>
-                          <div className="flex space-x-1 text-xs">
+                          <div className="flex flex-wrap gap-1 text-xs">
                             <span className="bg-blue-100 text-blue-800 px-1 rounded">📄 {user.demo_limits?.documents || 0}/{user.max_demo_limit}</span>
                             <span className="bg-green-100 text-green-800 px-1 rounded">📚 {user.demo_limits?.trainings || 0}/{user.max_demo_limit}</span>
                             <span className="bg-purple-100 text-purple-800 px-1 rounded">⚡ {user.demo_limits?.consumptions || 0}/{user.max_demo_limit}</span>
+                            <span className="bg-orange-100 text-orange-800 px-1 rounded">👥 {user.demo_limits?.personnel || 0}/{user.max_demo_limit}</span>
+                            <span className="bg-teal-100 text-teal-800 px-1 rounded">🏢 {user.demo_limits?.suppliers || 0}/{user.max_demo_limit}</span>
+                            <span className="bg-indigo-100 text-indigo-800 px-1 rounded">🎯 {user.demo_limits?.targets || 0}/{user.max_demo_limit}</span>
                           </div>
                         </div>
                         <button
