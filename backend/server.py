@@ -7907,8 +7907,11 @@ async def create_document(
     current_user: User = Depends(get_current_user)
 ):
     # 🎯 NEW: Demo limit check for document creation
+    logging.info(f"🔍 Document create - User: {current_user.email}, admin_approved: {current_user.admin_approved}, demo_limits: {current_user.demo_limits}")
+    
     if not current_user.admin_approved:
         demo_check = await check_demo_limit(current_user, "documents")
+        logging.info(f"🔍 Demo check result: {demo_check}")
         if not demo_check["allowed"]:
             raise HTTPException(status_code=403, detail=demo_check["message"])
     elif current_user.user_status == "pending_approval":
