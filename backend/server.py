@@ -7851,6 +7851,11 @@ async def add_bulk_personnel(
             try:
                 await asyncio.to_thread(db.personnel.insert_one, personnel_doc)
                 added_personnel.append(person_data.full_name)
+                
+                # 🎯 NEW: Increment demo limit counter for each personnel
+                if not current_user.admin_approved:
+                    await increment_demo_limit(current_user, "personnel")
+                
                 logging.info(f"✅ Added personnel: {person_data.full_name}")
             except Exception as insert_error:
                 logging.error(f"❌ Failed to add personnel {person_data.full_name}: {str(insert_error)}")
