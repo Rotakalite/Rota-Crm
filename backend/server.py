@@ -12307,6 +12307,10 @@ async def create_personnel(
 
         result = await db.personnel.insert_one(personnel)
         
+        # 🎯 NEW: Increment demo limit counter
+        if not current_user.admin_approved:
+            await increment_demo_limit(current_user, "personnel")
+        
         return {
             "message": "Personnel created successfully",
             "personnel_id": personnel["id"]
