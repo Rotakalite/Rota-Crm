@@ -7200,11 +7200,12 @@ async def approve_user(user_id: str, current_user: User = Depends(get_admin_user
         if user_obj.admin_approved:
             raise HTTPException(status_code=400, detail="User is already approved")
         
-        # Update user admin_approved to true
+        # Update user admin_approved to true and status to approved
         await db.users.update_one(
             {"id": user_id},
             {"$set": {
                 "admin_approved": True,
+                "user_status": "approved",
                 "updated_at": datetime.utcnow()
             }}
         )
