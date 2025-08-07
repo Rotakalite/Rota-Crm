@@ -6943,12 +6943,17 @@ async def check_demo_limit(user: User, limit_type: str) -> dict:
     return {"allowed": True, "current_count": current_count, "max_limit": max_limit}
 
 async def increment_demo_limit(user: User, limit_type: str):
-    """Increment demo limit counter for specific operation"""
-    if user.admin_approved:
+    """Increment demo limit counter for user"""
+    logging.error(f"🔍 INCREMENT DEBUG - User ID: {user.id}, limit_type: {limit_type}")
+    
+    # 🔧 CRITICAL FIX: Fetch fresh user data from database
+    fresh_user_data = await db.users.find_one({"id": user.id})
+    if not fresh_user_data:
+        logging.error(f"❌ User not found for increment: {user.id}")
         return
     
-    logging.error(f"🔍 INCREMENT DEBUG - User ID: {user.id}, limit_type: {limit_type}")
-    logging.error(f"🔍 Current demo_limits before increment: {user.demo_limits}")
+    current_demo_limits = fresh_user_data.get('demo_limits', {})
+    logging.error(f"🔍 Current demo_limits before increment (FRESH): {current_demo_limits}")
     
     update_query = {"$inc": {f"demo_limits.{limit_type}": 1}, "$set": {"updated_at": datetime.utcnow()}}
     result = await db.users.update_one({"id": user.id}, update_query)
