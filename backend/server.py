@@ -896,7 +896,8 @@ class UserCreate(BaseModel):
         "trainings": 0,
         "consumptions": 0,
         "personnel": 0,
-        "suppliers": 0
+        "suppliers": 0,
+        "targets": 0
     })
     max_demo_limit: int = 3
 
