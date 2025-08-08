@@ -17515,7 +17515,90 @@ const BackupManagement = () => {
     }
   };
 
-  const createBackup = async () => {
+  const testBackupSystem = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      setSuccess('');
+      setTestResults(null);
+      
+      const response = await axios.post(`${API}/admin/backup/test`, {}, {
+        headers: { Authorization: `Bearer ${authToken}` },
+        responseType: 'blob',
+        timeout: 120000 // 2 minutes timeout
+      });
+      
+      // Parse test results from headers
+      const testResultsHeader = response.headers['x-test-results'];
+      if (testResultsHeader) {
+        setTestResults(JSON.parse(testResultsHeader));
+      }
+      
+      // Create download link for test backup
+      const blob = new Blob([response.data], { type: 'application/zip' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+      const filename = `test_backup_${timestamp}.zip`;
+      
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+      
+      setSuccess(`✅ Test başarılı! Test yedeği indirildi: ${filename}`);
+      
+    } catch (error) {
+      console.error('Test backup error:', error);
+      setError('Test backup başarısız: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const validateBackupFile = async (file) => {
+    try {
+      setUploadLoading(true);
+      setError('');
+      setValidationResults(null);
+      
+      const formData = new FormData();
+      formData.append('backup_file', file);
+      
+      const response = await axios.post(`${API}/admin/backup/validate`, formData, {
+        headers: { 
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'multipart/form-data'
+        },
+        timeout: 60000 // 1 minute timeout for validation
+      });
+      
+      setValidationResults(response.data);
+      setSuccess('✅ Yedek dosyası doğrulandı!');
+      
+    } catch (error) {
+      console.error('Backup validation error:', error);
+      setError('Yedek doğrulama başarısız: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setUploadLoading(false);
+    }
+  };
+
+  const handleValidationFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (!file.name.endsWith('.zip')) {
+        setError('Sadece ZIP dosyaları desteklenmektedir!');
+        return;
+      }
+      validateBackupFile(file);
+    }
+    // Reset file input
+    event.target.value = '';
+  };
     try {
       setLoading(true);
       setError('');
