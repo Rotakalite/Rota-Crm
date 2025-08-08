@@ -17712,6 +17712,54 @@ const BackupManagement = () => {
         </div>
       )}
 
+      {/* Test Results */}
+      {testResults && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+          <h2 className="text-xl font-bold text-blue-800 mb-4">🧪 Test Sonuçları</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="bg-white p-3 rounded-lg">
+              <div className="text-sm text-gray-600">Test Status</div>
+              <div className="text-lg font-bold text-green-600">{testResults.test_status}</div>
+            </div>
+            <div className="bg-white p-3 rounded-lg">
+              <div className="text-sm text-gray-600">Yedek Boyutu</div>
+              <div className="text-lg font-bold text-blue-600">{testResults.backup_size_mb} MB</div>
+            </div>
+            <div className="bg-white p-3 rounded-lg">
+              <div className="text-sm text-gray-600">Koleksiyon Sayısı</div>
+              <div className="text-lg font-bold text-purple-600">{testResults.collections_found}/{testResults.expected_collections}</div>
+            </div>
+          </div>
+          <div className="bg-green-100 border border-green-200 rounded-lg p-3">
+            <div className="text-green-800">{testResults.test_message}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Validation Results */}
+      {validationResults && (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-6">
+          <h2 className="text-xl font-bold text-green-800 mb-4">🔍 Doğrulama Sonuçları</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="bg-white p-3 rounded-lg">
+              <div className="text-sm text-gray-600">Geçerli Koleksiyon</div>
+              <div className="text-lg font-bold text-green-600">{validationResults.total_valid_collections}/{validationResults.total_expected_collections}</div>
+            </div>
+            <div className="bg-white p-3 rounded-lg">
+              <div className="text-sm text-gray-600">Toplam Kayıt</div>
+              <div className="text-lg font-bold text-blue-600">{validationResults.backup_info?.total_documents || 0}</div>
+            </div>
+            <div className="bg-white p-3 rounded-lg">
+              <div className="text-sm text-gray-600">Yedek Tarihi</div>
+              <div className="text-lg font-bold text-purple-600">{validationResults.backup_info?.backup_timestamp || 'N/A'}</div>
+            </div>
+          </div>
+          <div className="bg-green-100 border border-green-200 rounded-lg p-3">
+            <div className="text-green-800">{validationResults.validation_message}</div>
+          </div>
+        </div>
+      )}
+
       {/* System Information */}
       {backupInfo && (
         <div className="bg-white rounded-xl shadow-lg p-6">
