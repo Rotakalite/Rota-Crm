@@ -19894,6 +19894,7 @@ const AdminSettings = () => {
     <div className="p-6 min-h-screen bg-gray-50">
       {currentView === 'overview' && renderSettingsOverview()}
       {currentView === 'users' && renderUserRoleManagement()}
+      {currentView === 'backup' && <BackupManagement />}
       
       {/* Placeholder for other views */}
       {currentView === 'roles' && (
