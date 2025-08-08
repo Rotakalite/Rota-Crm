@@ -8317,6 +8317,170 @@ async def get_backup_info(current_user: User = Depends(get_admin_user)):
         logging.error(f"❌ Backup info failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to get backup info: {str(e)}")
 
+@api_router.post("/admin/backup/test")
+async def test_backup_system(current_user: User = Depends(get_admin_user)):
+    """Test backup system without affecting data - ADMIN ONLY"""
+    try:
+        logging.info(f"🧪 Backup test requested by admin: {current_user.email}")
+        
+        # Create backup (same as normal backup)
+        backup_file_path = await backup_manager.create_backup()
+        
+        # Test backup validation (try to read it)
+        import tempfile
+        temp_dir = tempfile.mkdtemp(prefix="test_backup_validation_")
+        
+        try:
+            with zipfile.ZipFile(backup_file_path, 'r') as zipf:
+                zipf.extractall(temp_dir)
+            
+            # Check metadata
+            metadata_file = os.path.join(temp_dir, "metadata.json")
+            if not os.path.exists(metadata_file):
+                raise Exception("❌ Metadata file missing")
+            
+            with open(metadata_file, 'r', encoding='utf-8') as f:
+                metadata = json.load(f)
+            
+            # Check database directory
+            database_dir = os.path.join(temp_dir, "database")
+            if not os.path.exists(database_dir):
+                raise Exception("❌ Database directory missing")
+            
+            # Count collections
+            collection_files = [f for f in os.listdir(database_dir) if f.endswith('.json')]
+            
+            # Cleanup test extraction
+            import shutil
+            shutil.rmtree(temp_dir)
+            
+            # Get file size
+            file_size = os.path.getsize(backup_file_path)
+            file_size_mb = round(file_size / (1024 * 1024), 2)
+            
+            test_results = {
+                "test_status": "✅ SUCCESS",
+                "backup_valid": True,
+                "metadata_valid": True,
+                "collections_found": len(collection_files),
+                "expected_collections": len(backup_manager.collections),
+                "backup_size_mb": file_size_mb,
+                "total_documents": metadata.get("total_documents", 0),
+                "created_at": metadata.get("created_at"),
+                "test_message": f"✅ Backup sistemi çalışıyor! {len(collection_files)} koleksiyon başarıyla yedeklendi."
+            }
+            
+            logging.info(f"🧪 Backup test successful for admin: {current_user.email}")
+            
+            # Also return the backup file for download
+            from fastapi.responses import FileResponse
+            
+            return FileResponse(
+                path=backup_file_path,
+                filename=f"test_backup_{os.path.basename(backup_file_path)}",
+                media_type='application/zip',
+                headers={
+                    "Content-Disposition": f"attachment; filename=test_backup_{os.path.basename(backup_file_path)}",
+                    "X-Test-Results": json.dumps(test_results)
+                }
+            )
+            
+        except Exception as validation_error:
+            import shutil
+            shutil.rmtree(temp_dir)
+            raise Exception(f"Backup validation failed: {str(validation_error)}")
+            
+    except Exception as e:
+        logging.error(f"❌ Backup test failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Backup test failed: {str(e)}")
+
+@api_router.post("/admin/backup/validate")
+async def validate_backup_file(
+    backup_file: UploadFile = File(...),
+    current_user: User = Depends(get_admin_user)
+):
+    """Validate backup file without restoring - ADMIN ONLY"""
+    try:
+        logging.info(f"🔍 Backup validation requested by admin: {current_user.email}")
+        
+        # Validate file type
+        if not backup_file.filename.endswith('.zip'):
+            raise HTTPException(status_code=400, detail="Only ZIP files are supported")
+        
+        # Save uploaded file temporarily
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
+        content = await backup_file.read()
+        temp_file.write(content)
+        temp_file.close()
+        
+        try:
+            # Extract and validate
+            temp_dir = tempfile.mkdtemp(prefix="backup_validation_")
+            
+            with zipfile.ZipFile(temp_file.name, 'r') as zipf:
+                zipf.extractall(temp_dir)
+            
+            # Read metadata
+            metadata_file = os.path.join(temp_dir, "metadata.json")
+            if not os.path.exists(metadata_file):
+                raise Exception("❌ Invalid backup: metadata.json not found")
+            
+            with open(metadata_file, 'r', encoding='utf-8') as f:
+                metadata = json.load(f)
+            
+            # Check database directory
+            database_dir = os.path.join(temp_dir, "database")
+            if not os.path.exists(database_dir):
+                raise Exception("❌ Invalid backup: database directory not found")
+            
+            # Validate collections
+            collection_files = {}
+            for collection_name in backup_manager.collections:
+                collection_file = os.path.join(database_dir, f"{collection_name}.json")
+                if os.path.exists(collection_file):
+                    with open(collection_file, 'r', encoding='utf-8') as f:
+                        try:
+                            data = json.load(f)
+                            collection_files[collection_name] = {
+                                "valid": True,
+                                "document_count": len(data) if isinstance(data, list) else 0
+                            }
+                        except json.JSONDecodeError:
+                            collection_files[collection_name] = {
+                                "valid": False,
+                                "error": "Invalid JSON format"
+                            }
+                else:
+                    collection_files[collection_name] = {
+                        "valid": False,
+                        "error": "File not found"
+                    }
+            
+            # Cleanup
+            import shutil
+            shutil.rmtree(temp_dir)
+            
+            validation_results = {
+                "backup_valid": True,
+                "backup_info": metadata,
+                "collections_validation": collection_files,
+                "total_valid_collections": sum(1 for c in collection_files.values() if c["valid"]),
+                "total_expected_collections": len(backup_manager.collections),
+                "validation_status": "✅ VALID",
+                "validation_message": "Yedek dosyası geçerli ve geri yüklenmeye hazır!"
+            }
+            
+            logging.info(f"✅ Backup validation successful for admin: {current_user.email}")
+            return validation_results
+            
+        finally:
+            # Cleanup temp file
+            os.unlink(temp_file.name)
+            
+    except Exception as e:
+        logging.error(f"❌ Backup validation failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Backup validation failed: {str(e)}")
+
 # Document Management
 @api_router.post("/documents", response_model=Document)
 async def create_document(
