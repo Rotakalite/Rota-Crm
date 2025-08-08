@@ -19629,11 +19629,11 @@ const AdminSettings = () => {
 
         <button
           onClick={() => navigateToView('backup')}
-          className="p-6 bg-gradient-to-br from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all shadow-lg hover:shadow-xl group opacity-60 cursor-not-allowed"
+          className="p-6 bg-gradient-to-br from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all shadow-lg hover:shadow-xl group"
         >
           <div className="text-4xl mb-3">💾</div>
-          <h3 className="text-xl font-bold mb-2">Yedekleme & Güvenlik</h3>
-          <p className="text-red-100 text-sm">Veri yedekleme ve güvenlik ayarları (Yakında)</p>
+          <h3 className="text-xl font-bold mb-2">Yedekleme & Geri Yükleme</h3>
+          <p className="text-red-100 text-sm">Sistem verileriniizi yedekleyin ve geri yükleyin</p>
         </button>
 
         <button
