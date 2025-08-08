@@ -17483,7 +17483,324 @@ DEF Tekstil San., Mehmet Demir, mehmet@deftekstil.com, 0212-333-4444, Tekstil, ,
   );
 };
 
-// Main App Component
+// ==========================================
+// BACKUP MANAGEMENT COMPONENT
+// ==========================================
+
+const BackupManagement = () => {
+  const { authToken } = useAuth();
+  const [backupInfo, setBackupInfo] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  
+  const API = getApiUrl();
+
+  const fetchBackupInfo = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const response = await axios.get(`${API}/admin/backup/info`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setBackupInfo(response.data);
+    } catch (error) {
+      console.error('Backup info fetch error:', error);
+      setError('Yedekleme bilgileri alınamadı: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createBackup = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      setSuccess('');
+      
+      const response = await axios.post(`${API}/admin/backup/create`, {}, {
+        headers: { Authorization: `Bearer ${authToken}` },
+        responseType: 'blob',
+        timeout: 120000 // 2 minutes timeout for backup creation
+      });
+      
+      // Create download link
+      const blob = new Blob([response.data], { type: 'application/zip' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Get filename from response headers or create default
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+      const filename = response.headers['content-disposition']?.split('filename=')[1]?.replace(/"/g, '') || 
+                      `greenwave_backup_${timestamp}.zip`;
+      
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+      
+      setSuccess(`✅ Yedek başarıyla oluşturuldu ve indirildi: ${filename}`);
+      
+    } catch (error) {
+      console.error('Backup creation error:', error);
+      setError('Yedek oluşturulamadı: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const restoreBackup = async (file) => {
+    try {
+      setUploadLoading(true);
+      setError('');
+      setSuccess('');
+      
+      if (!file.name.endsWith('.zip')) {
+        setError('Sadece ZIP dosyaları desteklenmektedir!');
+        return;
+      }
+      
+      const formData = new FormData();
+      formData.append('backup_file', file);
+      
+      const response = await axios.post(`${API}/admin/backup/restore`, formData, {
+        headers: { 
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'multipart/form-data'
+        },
+        timeout: 300000 // 5 minutes timeout for restore
+      });
+      
+      setSuccess(`✅ Sistem başarıyla geri yüklendi! ${response.data.details.total_restored} kayıt geri yüklendi.`);
+      
+      // Refresh backup info
+      setTimeout(() => {
+        fetchBackupInfo();
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Backup restore error:', error);
+      setError('Geri yükleme başarısız: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setUploadLoading(false);
+    }
+  };
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (window.confirm(`⚠️ DİKKAT!\n\nGeri yükleme işlemi mevcut tüm verileri silecek ve yedek dosyasındaki verilerle değiştirecektir.\n\nBu işlem GERİ ALINAMAZ!\n\nDevam etmek istediğinizden emin misiniz?`)) {
+        restoreBackup(file);
+      }
+    }
+    // Reset file input
+    event.target.value = '';
+  };
+
+  useEffect(() => {
+    fetchBackupInfo();
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-6 rounded-xl shadow-lg">
+        <h1 className="text-2xl font-bold mb-2">💾 Yedekleme & Geri Yükleme</h1>
+        <p className="text-red-100">Sistem verilerinizi güvenle yedekleyin ve gerektiğinde geri yükleyin</p>
+      </div>
+
+      {/* Error/Success Messages */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <div className="flex items-center">
+            <span className="text-xl mr-2">❌</span>
+            <span>{error}</span>
+          </div>
+        </div>
+      )}
+      
+      {success && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+          <div className="flex items-center">
+            <span className="text-xl mr-2">✅</span>
+            <span>{success}</span>
+          </div>
+        </div>
+      )}
+
+      {/* System Information */}
+      {backupInfo && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">📊 Sistem Bilgileri</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <div className="flex items-center justify-between">
+                <span className="text-blue-700 font-semibold">Toplam Kayıt</span>
+                <span className="text-2xl font-bold text-blue-800">{backupInfo.system_info.total_documents.toLocaleString()}</span>
+              </div>
+            </div>
+            
+            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+              <div className="flex items-center justify-between">
+                <span className="text-green-700 font-semibold">Veritabanı Boyutu</span>
+                <span className="text-2xl font-bold text-green-800">{backupInfo.system_info.database_size_mb} MB</span>
+              </div>
+            </div>
+            
+            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+              <div className="flex items-center justify-between">
+                <span className="text-purple-700 font-semibold">Koleksiyon Sayısı</span>
+                <span className="text-2xl font-bold text-purple-800">{Object.keys(backupInfo.system_info.collections).length}</span>
+              </div>
+            </div>
+          </div>
+
+          <h3 className="text-lg font-semibold text-gray-700 mb-3">Koleksiyon Detayları</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {Object.entries(backupInfo.system_info.collections).map(([collection, count]) => (
+              <div key={collection} className="bg-gray-50 p-3 rounded-lg text-center">
+                <div className="text-lg font-bold text-gray-800">{count.toLocaleString()}</div>
+                <div className="text-xs text-gray-600 capitalize">{collection}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Backup Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Create Backup */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">📦 Yedek Oluştur</h2>
+          <p className="text-gray-600 mb-4">
+            Mevcut sistem verilerinizin tam yedeğini alın. Yedek dosyası ZIP formatında bilgisayarınıza indirilecektir.
+          </p>
+          
+          <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg mb-4">
+            <div className="flex items-start">
+              <span className="text-xl mr-2 flex-shrink-0">⚠️</span>
+              <div className="text-sm">
+                <strong>Önemli:</strong> Yedekleme işlemi sistem boyutuna göre birkaç dakika sürebilir. 
+                Lütfen sayfayı kapatmayın.
+              </div>
+            </div>
+          </div>
+          
+          <button
+            onClick={createBackup}
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none flex items-center justify-center space-x-2"
+          >
+            {loading ? (
+              <>
+                <span className="animate-spin text-xl">⏳</span>
+                <span>Yedek Oluşturuluyor...</span>
+              </>
+            ) : (
+              <>
+                <span className="text-xl">💾</span>
+                <span>Yedek Oluştur ve İndir</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Restore Backup */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">📂 Yedek Geri Yükle</h2>
+          <p className="text-gray-600 mb-4">
+            Daha önce aldığınız yedek dosyasını seçerek sistemi geri yükleyin.
+          </p>
+          
+          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4">
+            <div className="flex items-start">
+              <span className="text-xl mr-2 flex-shrink-0">🚨</span>
+              <div className="text-sm">
+                <strong>Dikkat:</strong> Geri yükleme işlemi mevcut TÜM verileri silecek ve 
+                yedek dosyasındaki verilerle değiştirecektir. Bu işlem geri alınamaz!
+              </div>
+            </div>
+          </div>
+          
+          <div className="relative">
+            <input
+              type="file"
+              accept=".zip"
+              onChange={handleFileUpload}
+              disabled={uploadLoading}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+            />
+            <button
+              disabled={uploadLoading}
+              className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none flex items-center justify-center space-x-2"
+            >
+              {uploadLoading ? (
+                <>
+                  <span className="animate-spin text-xl">⏳</span>
+                  <span>Geri Yükleniyor...</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-xl">📂</span>
+                  <span>Yedek Dosyası Seç ve Geri Yükle</span>
+                </>
+              )}
+            </button>
+          </div>
+          
+          <p className="text-xs text-gray-500 mt-2 text-center">
+            Sadece .zip uzantılı dosyalar kabul edilir
+          </p>
+        </div>
+      </div>
+
+      {/* Instructions */}
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+        <h2 className="text-xl font-bold text-blue-800 mb-4">📋 Kullanım Talimatları</h2>
+        
+        <div className="space-y-4">
+          <div>
+            <h3 className="font-semibold text-blue-700 mb-2">1. Yedek Oluşturma</h3>
+            <ul className="text-blue-600 text-sm space-y-1 ml-4">
+              <li>• Düzenli olarak (haftalık/aylık) sistem yedeği alın</li>
+              <li>• Önemli değişiklikler öncesinde mutlaka yedek alın</li>
+              <li>• Yedek dosyalarını güvenli bir yerde saklayın</li>
+              <li>• Yedek dosyalarını periyodik olarak test edin</li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 className="font-semibold text-blue-700 mb-2">2. Geri Yükleme</h3>
+            <ul className="text-blue-600 text-sm space-y-1 ml-4">
+              <li>• Sadece güvendiğiniz yedek dosyalarını kullanın</li>
+              <li>• Geri yükleme öncesi mevcut verilerinizi de yedekleyin</li>
+              <li>• İşlem birkaç dakika sürebilir, bekleyin</li>
+              <li>• İşlem sonrası sistemi kontrol edin</li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 className="font-semibold text-blue-700 mb-2">3. Güvenlik</h3>
+            <ul className="text-blue-600 text-sm space-y-1 ml-4">
+              <li>• Yedek dosyalarını şifreli saklayın</li>
+              <li>• Birden fazla lokasyonda saklamayı düşünün</li>
+              <li>• Eski yedekleri periyodik olarak temizleyin</li>
+              <li>• Bu işlemleri sadece güvendiğiniz kişilerle paylaşın</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ==========================================
+// MAIN APP COMPONENT
+// ==========================================
 // Consultant Management Component
 const ConsultantManagement = () => {
   const { authToken, userRole, dbUser, refreshToken } = useAuth();
