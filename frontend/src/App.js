@@ -17595,6 +17595,8 @@ const BackupManagement = () => {
     // Reset file input
     event.target.value = '';
   };
+
+  const createBackup = async () => {
     try {
       setLoading(true);
       setError('');
