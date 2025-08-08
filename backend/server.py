@@ -8208,6 +8208,115 @@ async def delete_client(client_id: str, current_user: User = Depends(get_admin_u
     await cleanup_orphaned_user_references(client_id)
     return {"message": "Client deleted successfully"}
 
+# 🗂️ BACKUP & RESTORE ENDPOINTS
+
+@api_router.post("/admin/backup/create")
+async def create_system_backup(current_user: User = Depends(get_admin_user)):
+    """Create complete system backup - ADMIN ONLY"""
+    try:
+        logging.info(f"🗂️ Backup requested by admin: {current_user.email}")
+        
+        # Create backup
+        backup_file_path = await backup_manager.create_backup()
+        
+        # Read the backup file to return as response
+        from fastapi.responses import FileResponse
+        
+        # Get file size for logging
+        file_size = os.path.getsize(backup_file_path)
+        file_size_mb = round(file_size / (1024 * 1024), 2)
+        
+        logging.info(f"✅ Backup ready for download: {os.path.basename(backup_file_path)} ({file_size_mb} MB)")
+        
+        return FileResponse(
+            path=backup_file_path,
+            filename=os.path.basename(backup_file_path),
+            media_type='application/zip',
+            headers={
+                "Content-Disposition": f"attachment; filename={os.path.basename(backup_file_path)}"
+            }
+        )
+        
+    except Exception as e:
+        logging.error(f"❌ Backup creation failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Backup creation failed: {str(e)}")
+
+@api_router.post("/admin/backup/restore")
+async def restore_system_backup(
+    backup_file: UploadFile = File(...),
+    current_user: User = Depends(get_admin_user)
+):
+    """Restore system from backup file - ADMIN ONLY"""
+    try:
+        logging.info(f"🔄 Restore requested by admin: {current_user.email}")
+        
+        # Validate file type
+        if not backup_file.filename.endswith('.zip'):
+            raise HTTPException(status_code=400, detail="Only ZIP files are supported")
+        
+        # Save uploaded file temporarily
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
+        content = await backup_file.read()
+        temp_file.write(content)
+        temp_file.close()
+        
+        try:
+            # Restore from backup
+            result = await backup_manager.restore_backup(temp_file.name)
+            
+            logging.info(f"✅ Restore completed by admin: {current_user.email}")
+            
+            return {
+                "message": "System restored successfully",
+                "details": result
+            }
+            
+        finally:
+            # Cleanup temp file
+            os.unlink(temp_file.name)
+        
+    except Exception as e:
+        logging.error(f"❌ Restore failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Restore failed: {str(e)}")
+
+@api_router.get("/admin/backup/info")
+async def get_backup_info(current_user: User = Depends(get_admin_user)):
+    """Get backup system information - ADMIN ONLY"""
+    try:
+        # Count documents in all collections
+        collection_counts = {}
+        total_documents = 0
+        
+        for collection_name in backup_manager.collections:
+            try:
+                collection = db[collection_name]
+                count = await collection.count_documents({})
+                collection_counts[collection_name] = count
+                total_documents += count
+            except Exception as e:
+                logging.error(f"❌ Error counting {collection_name}: {str(e)}")
+                collection_counts[collection_name] = 0
+        
+        # Get database size (approximate)
+        db_stats = await db.command("dbStats")
+        db_size_mb = round(db_stats.get("dataSize", 0) / (1024 * 1024), 2)
+        
+        return {
+            "system_info": {
+                "version": "GreenWave CRM v1.0",
+                "database_size_mb": db_size_mb,
+                "total_documents": total_documents,
+                "collections": collection_counts
+            },
+            "backup_ready": True,
+            "supported_formats": ["ZIP"],
+            "collections_available": backup_manager.collections
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Backup info failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get backup info: {str(e)}")
+
 # Document Management
 @api_router.post("/documents", response_model=Document)
 async def create_document(
