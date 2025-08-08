@@ -20222,7 +20222,7 @@ const AdminSettings = () => {
         </div>
       )}
       
-      {['company', 'notifications', 'integrations', 'backup', 'analytics-settings'].includes(currentView) && (
+      {['company', 'notifications', 'integrations', 'analytics-settings'].includes(currentView) && (
         <div className="text-center py-12">
           <div className="text-6xl mb-4">🚧</div>
           <h3 className="text-xl font-semibold text-gray-800 mb-2">Yakında</h3>
