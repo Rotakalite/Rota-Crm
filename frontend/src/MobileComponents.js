@@ -117,6 +117,7 @@ const MobileNavigation = ({ currentPage, onPageChange, userRole }) => {
         { id: 'dashboard', label: 'Ana Sayfa', icon: '🏠', group: 'main' },
         { id: 'yeni-belge', label: 'Belgeler', icon: '📄', group: 'documents' },
         { id: 'consumption', label: 'Tüketim', icon: '⚡', group: 'analytics' },
+        { id: 'carbon', label: 'Karbon Ayak İzi', icon: '🌍', group: 'analytics' },
         { id: 'ai-assistant', label: 'AI Asistan', icon: '🤖', group: 'ai' }
       ];
     }
