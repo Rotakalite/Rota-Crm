@@ -1278,6 +1278,164 @@ async def cleanup_orphaned_user_references(user_id: str):
     except Exception as e:
         logging.error(f"❌ Error during cleanup for user {user_id}: {str(e)}")
 
+# 🗂️ BACKUP & RESTORE SYSTEM 
+class BackupManager:
+    def __init__(self):
+        self.collections = [
+            'users', 'clients', 'documents', 'trainings', 
+            'consumptions', 'waste_management', 'personnel', 
+            'suppliers', 'sustainability_targets', 'environment_data'
+        ]
+    
+    async def create_backup(self) -> str:
+        """Create complete system backup and return file path"""
+        try:
+            # Create temporary directory
+            backup_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            temp_dir = tempfile.mkdtemp(prefix=f"greenwave_backup_{backup_timestamp}_")
+            database_dir = os.path.join(temp_dir, "database")
+            os.makedirs(database_dir)
+            
+            logging.info(f"🗂️ Creating backup in: {temp_dir}")
+            
+            # Export all collections to JSON
+            collection_counts = {}
+            for collection_name in self.collections:
+                try:
+                    collection = db[collection_name]
+                    documents = await collection.find({}).to_list(length=None)
+                    
+                    # Convert ObjectId to string for JSON serialization
+                    for doc in documents:
+                        if '_id' in doc:
+                            doc['_id'] = str(doc['_id'])
+                    
+                    collection_file = os.path.join(database_dir, f"{collection_name}.json")
+                    with open(collection_file, 'w', encoding='utf-8') as f:
+                        json.dump(documents, f, ensure_ascii=False, indent=2, default=str)
+                    
+                    collection_counts[collection_name] = len(documents)
+                    logging.info(f"✅ Exported {len(documents)} documents from {collection_name}")
+                    
+                except Exception as e:
+                    logging.error(f"❌ Error exporting {collection_name}: {str(e)}")
+                    collection_counts[collection_name] = 0
+            
+            # Create metadata file
+            metadata = {
+                "backup_timestamp": backup_timestamp,
+                "created_at": datetime.now().isoformat(),
+                "system_version": "GreenWave CRM v1.0",
+                "collections": collection_counts,
+                "total_documents": sum(collection_counts.values())
+            }
+            
+            metadata_file = os.path.join(temp_dir, "metadata.json")
+            with open(metadata_file, 'w', encoding='utf-8') as f:
+                json.dump(metadata, f, ensure_ascii=False, indent=2)
+            
+            # Create ZIP archive
+            zip_filename = f"greenwave_backup_{backup_timestamp}.zip"
+            zip_path = os.path.join(tempfile.gettempdir(), zip_filename)
+            
+            with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                # Add all files from temp_dir to zip
+                for root, dirs, files in os.walk(temp_dir):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        arc_path = os.path.relpath(file_path, temp_dir)
+                        zipf.write(file_path, arc_path)
+            
+            # Cleanup temp directory
+            import shutil
+            shutil.rmtree(temp_dir)
+            
+            logging.info(f"🎉 Backup created successfully: {zip_path}")
+            logging.info(f"📊 Backup contains {sum(collection_counts.values())} total documents")
+            
+            return zip_path
+            
+        except Exception as e:
+            logging.error(f"❌ Backup creation failed: {str(e)}")
+            raise
+    
+    async def restore_backup(self, backup_file_path: str) -> dict:
+        """Restore system from backup file"""
+        try:
+            logging.info(f"🔄 Starting restore from: {backup_file_path}")
+            
+            # Extract ZIP file
+            temp_dir = tempfile.mkdtemp(prefix="greenwave_restore_")
+            with zipfile.ZipFile(backup_file_path, 'r') as zipf:
+                zipf.extractall(temp_dir)
+            
+            # Read metadata
+            metadata_file = os.path.join(temp_dir, "metadata.json")
+            if not os.path.exists(metadata_file):
+                raise Exception("Invalid backup file - metadata.json not found")
+            
+            with open(metadata_file, 'r', encoding='utf-8') as f:
+                metadata = json.load(f)
+            
+            database_dir = os.path.join(temp_dir, "database")
+            if not os.path.exists(database_dir):
+                raise Exception("Invalid backup file - database directory not found")
+            
+            restore_counts = {}
+            
+            # Restore each collection
+            for collection_name in self.collections:
+                try:
+                    collection_file = os.path.join(database_dir, f"{collection_name}.json")
+                    if not os.path.exists(collection_file):
+                        logging.warning(f"⚠️ Collection file not found: {collection_name}.json")
+                        restore_counts[collection_name] = 0
+                        continue
+                    
+                    with open(collection_file, 'r', encoding='utf-8') as f:
+                        documents = json.load(f)
+                    
+                    if documents:
+                        # Clear existing collection
+                        collection = db[collection_name]
+                        await collection.delete_many({})
+                        
+                        # Insert restored documents
+                        await collection.insert_many(documents)
+                        restore_counts[collection_name] = len(documents)
+                        logging.info(f"✅ Restored {len(documents)} documents to {collection_name}")
+                    else:
+                        restore_counts[collection_name] = 0
+                        logging.info(f"✅ No documents to restore for {collection_name}")
+                    
+                except Exception as e:
+                    logging.error(f"❌ Error restoring {collection_name}: {str(e)}")
+                    restore_counts[collection_name] = 0
+            
+            # Cleanup temp directory
+            import shutil
+            shutil.rmtree(temp_dir)
+            
+            result = {
+                "success": True,
+                "restored_at": datetime.now().isoformat(),
+                "original_backup": metadata,
+                "restore_counts": restore_counts,
+                "total_restored": sum(restore_counts.values())
+            }
+            
+            logging.info(f"🎉 Restore completed successfully!")
+            logging.info(f"📊 Restored {sum(restore_counts.values())} total documents")
+            
+            return result
+            
+        except Exception as e:
+            logging.error(f"❌ Restore failed: {str(e)}")
+            raise
+
+# Global backup manager instance
+backup_manager = BackupManager()
+
 # Authentication Functions
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
