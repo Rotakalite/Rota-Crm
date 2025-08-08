@@ -17494,6 +17494,8 @@ const BackupManagement = () => {
   const [uploadLoading, setUploadLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [testResults, setTestResults] = useState(null);
+  const [validationResults, setValidationResults] = useState(null);
   
   const API = getApiUrl();
 
