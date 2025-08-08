@@ -17801,7 +17801,60 @@ const BackupManagement = () => {
       )}
 
       {/* Backup Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Test Backup System */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">🧪 Sistem Testi</h2>
+          <p className="text-gray-600 mb-4">
+            Backup sisteminin çalışıp çalışmadığını test edin. Veri kaybı riski yoktur.
+          </p>
+          
+          <button
+            onClick={testBackupSystem}
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none flex items-center justify-center space-x-2 mb-4"
+          >
+            {loading ? (
+              <>
+                <span className="animate-spin text-xl">⏳</span>
+                <span>Test Ediliyor...</span>
+              </>
+            ) : (
+              <>
+                <span className="text-xl">🧪</span>
+                <span>Sistem Testi Yap</span>
+              </>
+            )}
+          </button>
+
+          {/* Validate Backup */}
+          <div className="relative">
+            <input
+              type="file"
+              accept=".zip"
+              onChange={handleValidationFileUpload}
+              disabled={uploadLoading}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+            />
+            <button
+              disabled={uploadLoading}
+              className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none flex items-center justify-center space-x-2"
+            >
+              {uploadLoading ? (
+                <>
+                  <span className="animate-spin text-xl">⏳</span>
+                  <span>Doğrulanıyor...</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-xl">🔍</span>
+                  <span>Yedek Dosyası Doğrula</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
         {/* Create Backup */}
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h2 className="text-xl font-bold text-gray-800 mb-4">📦 Yedek Oluştur</h2>
