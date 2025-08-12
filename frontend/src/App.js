@@ -595,6 +595,112 @@ const useAuth = () => {
   return { user, authToken, userRole, dbUser, isLoaded, refreshUser, refreshToken, ensureFreshToken, ensureTokenForOperation, pendingApprovals, fetchPendingApprovals, handleApproveUser, handleViewTeam, handleAddTeamMember, showTeamModal, setShowTeamModal, selectedClient, teamMembers, showAddTeamMember, setShowAddTeamMember, teamMemberForm, setTeamMemberForm };
 };
 
+// 🛡️ Role-Based Console Protection Hook
+const useConsoleProtection = () => {
+  const { userRole } = useAuth();
+  
+  useEffect(() => {
+    // Only apply protection if user is NOT admin
+    if (userRole && userRole !== 'admin') {
+      console.log('🛡️ Applying console protection for role:', userRole);
+      
+      // Disable console functions
+      const originalConsole = { ...console };
+      console.log = () => {};
+      console.warn = () => {};
+      console.error = () => {};
+      console.info = () => {};
+      console.debug = () => {};
+      console.clear = () => {};
+      console.dir = () => {};
+      console.dirxml = () => {};
+      console.table = () => {};
+      console.trace = () => {};
+      console.group = () => {};
+      console.groupEnd = () => {};
+      console.time = () => {};
+      console.timeEnd = () => {};
+      console.profile = () => {};
+      console.profileEnd = () => {};
+      
+      // Disable right-click context menu
+      document.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        return false;
+      });
+      
+      // Disable F12, Ctrl+Shift+I, Ctrl+Shift+C, Ctrl+Shift+J
+      document.addEventListener('keydown', (e) => {
+        // F12
+        if (e.keyCode === 123) {
+          e.preventDefault();
+          return false;
+        }
+        
+        // Ctrl+Shift+I (DevTools)
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+          e.preventDefault();
+          return false;
+        }
+        
+        // Ctrl+Shift+C (Inspect)
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
+          e.preventDefault();
+          return false;
+        }
+        
+        // Ctrl+Shift+J (Console)
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
+          e.preventDefault();
+          return false;
+        }
+        
+        // Ctrl+U (View Source)
+        if (e.ctrlKey && e.keyCode === 85) {
+          e.preventDefault();
+          return false;
+        }
+        
+        // Ctrl+S (Save)
+        if (e.ctrlKey && e.keyCode === 83) {
+          e.preventDefault();
+          return false;
+        }
+      });
+      
+      // DevTools detection
+      let devtools = {
+        open: false,
+        orientation: null
+      };
+      
+      const threshold = 160;
+      
+      setInterval(() => {
+        if (window.outerHeight - window.innerHeight > threshold || 
+            window.outerWidth - window.innerWidth > threshold) {
+          if (!devtools.open) {
+            devtools.open = true;
+            // Redirect away from page if DevTools detected
+            window.location.href = "about:blank";
+          }
+        } else {
+          devtools.open = false;
+        }
+      }, 500);
+      
+      // Clean up function - restore console for admin
+      return () => {
+        if (userRole === 'admin') {
+          Object.assign(console, originalConsole);
+        }
+      };
+    } else if (userRole === 'admin') {
+      console.log('👑 Admin role detected - console protection disabled');
+    }
+  }, [userRole]);
+};
+
 // Global utility function for file icons
 const getFileIcon = (filePath) => {
   const extension = filePath && filePath.split('.').pop() && filePath.split('.').pop().toLowerCase();
