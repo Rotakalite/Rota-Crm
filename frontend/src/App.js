@@ -50,6 +50,19 @@ const useAuth = () => {
     const storedUser = sessionStorage.getItem('dbUser');
     return storedUser ? JSON.parse(storedUser) : null;
   });
+  
+  // 👥 Team Management States
+  const [showTeamModal, setShowTeamModal] = useState(false);
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [showAddTeamMember, setShowAddTeamMember] = useState(false);
+  const [teamMemberForm, setTeamMemberForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    team_role: 'staff'
+  });
+  
   const [pendingApprovals, setPendingApprovals] = useState([]);
 
   // Enhanced token refresh with better error handling and proactive refresh
