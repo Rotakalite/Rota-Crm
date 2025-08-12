@@ -16099,6 +16099,7 @@ async def add_team_member(
                 json={
                     "email_address": [team_member_data["email"]],
                     "password": team_member_data["password"],
+                    "username": team_member_data["email"].split("@")[0],  # 🎯 FIX: Generate username from email
                     "first_name": team_member_data["name"].split()[0] if team_member_data["name"] else "",
                     "last_name": " ".join(team_member_data["name"].split()[1:]) if len(team_member_data["name"].split()) > 1 else "",
                     "public_metadata": {
