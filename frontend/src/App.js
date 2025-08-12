@@ -8146,7 +8146,7 @@ const SimpleClientManagement = ({ onNavigate }) => {
   const [testEmail, setTestEmail] = useState('');
   const [sendingTestEmail, setSendingTestEmail] = useState(false);
   
-  const { authToken, userRole, dbUser, ensureTokenForOperation } = useAuth();
+  const { authToken, userRole, dbUser, ensureTokenForOperation, handleViewTeam, handleAddTeamMember, showTeamModal, setShowTeamModal, selectedClient, teamMembers, showAddTeamMember, setShowAddTeamMember, teamMemberForm, setTeamMemberForm } = useAuth();
   const isMobile = useIsMobile();
   const API = getApiUrl();
 
