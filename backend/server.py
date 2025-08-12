@@ -10918,6 +10918,326 @@ async def get_waste_records(
     logging.info(f"📊 Found {len(records)} waste records")
     return records
 
+# 📊 NEW: Survey & Customer Satisfaction Endpoints
+@api_router.post("/surveys")
+async def create_survey(
+    survey_data: SurveyCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new survey"""
+    try:
+        # Determine client_id
+        if current_user.role == UserRole.ADMIN:
+            raise HTTPException(status_code=400, detail="Admin must specify client_id in survey data")
+        else:
+            client_id = current_user.client_id
+            if not client_id:
+                raise HTTPException(status_code=400, detail="Client not linked to user")
+        
+        # Create survey record
+        survey_dict = {
+            "id": str(uuid.uuid4()),
+            "client_id": client_id,
+            "title": survey_data.title,
+            "description": survey_data.description,
+            "survey_type": survey_data.survey_type,
+            "questions": [q.dict() for q in survey_data.questions],
+            "is_active": True,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        await db.surveys.insert_one(survey_dict)
+        return {"message": "Survey created successfully", "survey_id": survey_dict["id"]}
+        
+    except Exception as e:
+        logging.error(f"Error creating survey: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/surveys")
+async def get_surveys(
+    current_user: User = Depends(get_current_user)
+):
+    """Get surveys for current user/client"""
+    try:
+        if current_user.role == UserRole.ADMIN:
+            # Admin can see all surveys
+            surveys = await db.surveys.find({}).to_list(length=None)
+        else:
+            # Client can only see their own surveys
+            if not current_user.client_id:
+                raise HTTPException(status_code=400, detail="Client not linked to user")
+            surveys = await db.surveys.find({"client_id": current_user.client_id}).to_list(length=None)
+        
+        return surveys
+        
+    except Exception as e:
+        logging.error(f"Error fetching surveys: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/surveys/{survey_id}")
+async def get_survey(
+    survey_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get specific survey by ID"""
+    try:
+        survey = await db.surveys.find_one({"id": survey_id})
+        if not survey:
+            raise HTTPException(status_code=404, detail="Survey not found")
+        
+        # Check permissions
+        if current_user.role != UserRole.ADMIN and survey["client_id"] != current_user.client_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        return survey
+        
+    except Exception as e:
+        logging.error(f"Error fetching survey: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/surveys/{survey_id}/campaigns")
+async def create_survey_campaign(
+    survey_id: str,
+    campaign_data: SurveyCampaignCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a survey campaign"""
+    try:
+        # Check if survey exists and user has access
+        survey = await db.surveys.find_one({"id": survey_id})
+        if not survey:
+            raise HTTPException(status_code=404, detail="Survey not found")
+        
+        if current_user.role != UserRole.ADMIN and survey["client_id"] != current_user.client_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        # Create campaign record
+        campaign_dict = {
+            "id": str(uuid.uuid4()),
+            "client_id": survey["client_id"],
+            "survey_id": survey_id,
+            "campaign_name": campaign_data.campaign_name,
+            "target_emails": campaign_data.target_emails,
+            "email_subject": campaign_data.email_subject,
+            "email_content": campaign_data.email_content,
+            "sent_at": None,
+            "total_sent": 0,
+            "total_responses": 0,
+            "is_sent": False,
+            "created_at": datetime.utcnow()
+        }
+        
+        await db.survey_campaigns.insert_one(campaign_dict)
+        return {"message": "Survey campaign created successfully", "campaign_id": campaign_dict["id"]}
+        
+    except Exception as e:
+        logging.error(f"Error creating survey campaign: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/surveys/{survey_id}/campaigns/{campaign_id}/send")
+async def send_survey_campaign(
+    survey_id: str,
+    campaign_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Send survey campaign emails"""
+    try:
+        # Get campaign and survey
+        campaign = await db.survey_campaigns.find_one({"id": campaign_id, "survey_id": survey_id})
+        if not campaign:
+            raise HTTPException(status_code=404, detail="Campaign not found")
+        
+        survey = await db.surveys.find_one({"id": survey_id})
+        if not survey:
+            raise HTTPException(status_code=404, detail="Survey not found")
+        
+        # Check permissions
+        if current_user.role != UserRole.ADMIN and survey["client_id"] != current_user.client_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        if campaign["is_sent"]:
+            raise HTTPException(status_code=400, detail="Campaign already sent")
+        
+        # TODO: Implement actual email sending logic here
+        # For now, just mark as sent
+        sent_count = len(campaign["target_emails"])
+        
+        await db.survey_campaigns.update_one(
+            {"id": campaign_id},
+            {
+                "$set": {
+                    "is_sent": True,
+                    "sent_at": datetime.utcnow(),
+                    "total_sent": sent_count
+                }
+            }
+        )
+        
+        return {"message": f"Survey campaign sent to {sent_count} recipients"}
+        
+    except Exception as e:
+        logging.error(f"Error sending survey campaign: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/surveys/{survey_id}/responses")
+async def submit_survey_response(
+    survey_id: str,
+    response_data: SurveyResponseCreate
+):
+    """Submit survey response (public endpoint)"""
+    try:
+        # Check if survey exists and is active
+        survey = await db.surveys.find_one({"id": survey_id, "is_active": True})
+        if not survey:
+            raise HTTPException(status_code=404, detail="Survey not found or inactive")
+        
+        # Create response record
+        response_dict = {
+            "id": str(uuid.uuid4()),
+            "survey_id": survey_id,
+            "client_id": survey["client_id"],
+            "respondent_email": response_data.respondent_email,
+            "respondent_name": response_data.respondent_name,
+            "responses": response_data.responses,
+            "completed_at": datetime.utcnow(),
+            "ip_address": None  # TODO: Get from request
+        }
+        
+        await db.survey_responses.insert_one(response_dict)
+        
+        # Update campaign response count if applicable
+        await db.survey_campaigns.update_many(
+            {"survey_id": survey_id},
+            {"$inc": {"total_responses": 1}}
+        )
+        
+        return {"message": "Survey response submitted successfully", "response_id": response_dict["id"]}
+        
+    except Exception as e:
+        logging.error(f"Error submitting survey response: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/surveys/{survey_id}/responses")
+async def get_survey_responses(
+    survey_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get survey responses"""
+    try:
+        # Check if survey exists and user has access
+        survey = await db.surveys.find_one({"id": survey_id})
+        if not survey:
+            raise HTTPException(status_code=404, detail="Survey not found")
+        
+        if current_user.role != UserRole.ADMIN and survey["client_id"] != current_user.client_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        responses = await db.survey_responses.find({"survey_id": survey_id}).to_list(length=None)
+        return responses
+        
+    except Exception as e:
+        logging.error(f"Error fetching survey responses: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/surveys/{survey_id}/analysis")
+async def get_survey_analysis(
+    survey_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get survey analysis and insights"""
+    try:
+        # Check if survey exists and user has access
+        survey = await db.surveys.find_one({"id": survey_id})
+        if not survey:
+            raise HTTPException(status_code=404, detail="Survey not found")
+        
+        if current_user.role != UserRole.ADMIN and survey["client_id"] != current_user.client_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        # Get responses
+        responses = await db.survey_responses.find({"survey_id": survey_id}).to_list(length=None)
+        
+        if not responses:
+            return {"message": "No responses yet", "total_responses": 0}
+        
+        # Calculate basic analytics
+        total_responses = len(responses)
+        
+        # Get campaign info for response rate
+        campaigns = await db.survey_campaigns.find({"survey_id": survey_id}).to_list(length=None)
+        total_sent = sum(c.get("total_sent", 0) for c in campaigns)
+        response_rate = (total_responses / total_sent * 100) if total_sent > 0 else 0
+        
+        # Calculate average ratings for rating questions
+        average_ratings = {}
+        for question in survey["questions"]:
+            if question["question_type"] == "rating":
+                question_id = question["id"]
+                ratings = []
+                for response in responses:
+                    if question_id in response["responses"]:
+                        try:
+                            rating = float(response["responses"][question_id])
+                            ratings.append(rating)
+                        except (ValueError, TypeError):
+                            continue
+                
+                if ratings:
+                    average_ratings[question_id] = {
+                        "question": question["question_text"],
+                        "average": sum(ratings) / len(ratings),
+                        "count": len(ratings)
+                    }
+        
+        # TODO: Implement AI insights using sustainability_ai service
+        ai_insights = "AI analysis will be implemented in future updates."
+        recommendations = [
+            "Continue monitoring customer satisfaction trends",
+            "Focus on areas with lower ratings for improvement",
+            "Consider follow-up surveys for deeper insights"
+        ]
+        
+        analysis = {
+            "survey_id": survey_id,
+            "survey_title": survey["title"],
+            "total_responses": total_responses,
+            "response_rate": round(response_rate, 2),
+            "average_ratings": average_ratings,
+            "ai_insights": ai_insights,
+            "recommendations": recommendations,
+            "sentiment_analysis": {"positive": 0, "neutral": 0, "negative": 0},  # TODO: Implement
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        
+        return analysis
+        
+    except Exception as e:
+        logging.error(f"Error generating survey analysis: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/surveys/{survey_id}/public")
+async def get_public_survey(survey_id: str):
+    """Get survey for public access (no authentication required)"""
+    try:
+        survey = await db.surveys.find_one({"id": survey_id, "is_active": True})
+        if not survey:
+            raise HTTPException(status_code=404, detail="Survey not found or inactive")
+        
+        # Return only necessary fields for public access
+        public_survey = {
+            "id": survey["id"],
+            "title": survey["title"],
+            "description": survey["description"],
+            "survey_type": survey["survey_type"],
+            "questions": survey["questions"]
+        }
+        
+        return public_survey
+        
+    except Exception as e:
+        logging.error(f"Error fetching public survey: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 @api_router.get("/consumptions/waste/analytics")
 async def get_waste_analytics(
     year: Optional[int] = None,
