@@ -577,6 +577,20 @@ async def send_consultant_welcome_email(email: str, password: str, consultant_na
     """Standalone function to send consultant welcome email"""
     return await clerk_admin.send_consultant_welcome_email(email, password, consultant_name, company_name)
 
+async def send_email(to_email: str, subject: str, html_content: str):
+    """Standalone function to send email"""
+    try:
+        from services.email_service import EmailService
+        email_service = EmailService()
+        return await email_service.send_email(
+            to_email=to_email,
+            subject=subject,
+            html_content=html_content
+        )
+    except Exception as e:
+        logging.error(f"❌ Failed to send email: {str(e)}")
+        return False
+
 # PDF Report service
 try:
     from services.elite_pdf_report_service import elite_pdf_service
