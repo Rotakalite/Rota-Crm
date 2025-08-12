@@ -8760,6 +8760,13 @@ const SimpleClientManagement = ({ onNavigate }) => {
                           ✏️
                         </button>
                         <button
+                          onClick={() => handleViewTeam(client)}
+                          className="text-green-500 hover:text-green-700 p-2 rounded-full hover:bg-green-50"
+                          title="Takım Yönetimi"
+                        >
+                          👥
+                        </button>
+                        <button
                           onClick={() => handleDeleteClient(client.id, client.hotel_name)}
                           className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50"
                           title="Sil"
