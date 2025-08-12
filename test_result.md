@@ -177,7 +177,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Sustainability Targets Demo Limit System Backend Test: GreenWave CRM'de yeni implementedilen Sustainability Targets modülü için demo limit sistemi test edilmesi isteniyor. Test hedefleri: 1) Demo Limit Check Functions (check_demo_limit, increment_demo_limit, send_demo_limit_notification) 2) Sustainability Targets Endpoints Demo Integration (POST /api/sustainability-targets, POST /api/sustainability-targets/progress) 3) User Model Verification (demo_limits.targets field) 4) Authentication & Role Based Access 5) Email Notification Test. Backend URL: https://rota-crm-production.up.railway.app"
+user_problem_statement: "Team Management System Backend Testing - Railway Production: GreenWave CRM'de yeni eklenen Team Management sistemi backend testini gerçekleştir. Test Edilecek Endpoints: 1. GET /api/clients/{client_id}/team - Takım üyelerini listele 2. POST /api/clients/{client_id}/team/add - Yeni takım üyesi ekle. Test Senaryo: 1. Admin authentication ile endpoints'lere erişim 2. Geçerli bir client_id ile team endpoint testi 3. Yeni takım üyesi ekleme testi (name, email, password, team_role) 4. Clerk integration testi 5. Email notification testi 6. Database integration testi. Test Environment: Railway production (https://rota-crm-production.up.railway.app). Beklenen Sonuç: Team endpoints başarılı çalışmalı, Admin authorization doğru çalışmalı, Clerk user creation çalışmalı, Database'e team member kaydı yapılmalı, Welcome email gönderilmeli"
 
 backend:
   - task: "Sustainability Targets Demo Limit System Backend Test"
