@@ -978,27 +978,81 @@ class Client(BaseModel):
             return None
         return v
 
-# Guest Engagement Models
-class GuestEngagementInput(BaseModel):
-    guest_name: str
-    room_number: str
-    eco_actions: List[str] = []  # Completed eco actions
-    sustainability_score: int = 0
-    feedback_rating: Optional[int] = None
-    feedback_comment: Optional[str] = None
-    client_id: Optional[str] = None
-
-class GuestEngagement(BaseModel):
+# 📊 NEW: Survey & Customer Satisfaction Models
+class SurveyQuestion(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    guest_name: str
-    room_number: str
-    eco_actions: List[str] = []
-    sustainability_score: int = 0
-    feedback_rating: Optional[int] = None
-    feedback_comment: Optional[str] = None
+    question_text: str
+    question_type: str  # "rating", "multiple_choice", "checkbox", "text", "yes_no"
+    options: Optional[List[str]] = None  # For multiple choice/checkbox
+    required: bool = True
+    category: str  # "sustainability", "satisfaction", "general"
+
+class Survey(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     client_id: str
+    title: str
+    description: str
+    survey_type: str  # "sustainability", "satisfaction", "combined"
+    questions: List[SurveyQuestion]
+    is_active: bool = True
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class SurveyResponse(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    survey_id: str
+    client_id: str
+    respondent_email: str
+    respondent_name: Optional[str] = None
+    responses: dict  # {question_id: answer}
+    completed_at: datetime = Field(default_factory=datetime.utcnow)
+    ip_address: Optional[str] = None
+
+class SurveyCampaign(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    client_id: str
+    survey_id: str
+    campaign_name: str
+    target_emails: List[str]
+    email_subject: str
+    email_content: str
+    sent_at: Optional[datetime] = None
+    total_sent: int = 0
+    total_responses: int = 0
+    is_sent: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class SurveyAnalysis(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    survey_id: str
+    client_id: str
+    total_responses: int
+    response_rate: float
+    average_ratings: dict
+    ai_insights: str
+    recommendations: List[str]
+    sentiment_analysis: dict
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+# Create Models for API
+class SurveyCreate(BaseModel):
+    title: str
+    description: str
+    survey_type: str
+    questions: List[SurveyQuestion]
+
+class SurveyCampaignCreate(BaseModel):
+    survey_id: str
+    campaign_name: str
+    target_emails: List[str]
+    email_subject: str
+    email_content: str
+
+class SurveyResponseCreate(BaseModel):
+    survey_id: str
+    respondent_email: str
+    respondent_name: Optional[str] = None
+    responses: dict
 
 # Consumption Models
 class Consumption(BaseModel):
