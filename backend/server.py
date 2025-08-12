@@ -16059,7 +16059,7 @@ async def get_client_team(client_id: str, current_user: User = Depends(get_curre
         logging.error(f"Get client team error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/api/clients/{client_id}/team/add")
+@api_router.post("/clients/{client_id}/team/add")
 async def add_team_member(
     client_id: str, 
     team_member_data: dict,
