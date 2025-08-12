@@ -16141,9 +16141,7 @@ async def add_team_member(
         
         # Send welcome email (optional)
         try:
-            from services.email_service import EmailService
-            email_service = EmailService()
-            await email_service.send_email(
+            await send_email(
                 to_email=team_member_data["email"],
                 subject="GreenWave CRM - Takım Üyeliği",
                 html_content=f"""
