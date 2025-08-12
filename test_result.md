@@ -1079,13 +1079,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Sustainability Targets Demo Limit System Backend Test"
+    - "Team Management System Backend Test"
   stuck_tasks: 
+    - "Team Management System Backend Test"
     - "Self-Signup Demo User Endpoint Test"
     - "Demo Limit System Backend Test" 
     - "Admin Approval System Backend Test"
   test_all: false
-  test_priority: "high_first"
+  test_priority: "critical_first"
   completed_tasks:
     - "Sustainability Targets Demo Limit System Backend Test"
     - "User Model Extensions Backend Test"
