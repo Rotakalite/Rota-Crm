@@ -20761,6 +20761,9 @@ const MainApp = () => {
   const { user } = useUser();
   const isMobile = useIsMobile();
   
+  // 🛡️ Apply role-based console protection
+  useConsoleProtection();
+  
   // Mobile optimization hooks
   useMobileTableConverter();
   useMobileFormOptimizer();
