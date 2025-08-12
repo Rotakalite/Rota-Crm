@@ -16015,7 +16015,7 @@ async def test_ai_service():
 # 👥 TEAM MANAGEMENT ENDPOINTS
 # ==========================================
 
-@app.get("/api/clients/{client_id}/team")
+@api_router.get("/clients/{client_id}/team")
 async def get_client_team(client_id: str, current_user: User = Depends(get_current_user)):
     """Get team members for a specific client"""
     try:
