@@ -866,6 +866,10 @@ class User(BaseModel):
     role: UserRole = UserRole.CLIENT
     client_id: Optional[str] = None  # For client users, links to their client record
     consultant_id: Optional[str] = None  # For consultant users, links to their consultant record
+    # 🎯 NEW: Team Management System
+    parent_client_id: Optional[str] = None  # For team members, links to parent client
+    is_team_member: bool = False  # Indicates if this user is a team member
+    team_role: Optional[str] = None  # Role within the team (e.g., "manager", "staff")
     # 🎯 NEW: Admin Approval System
     user_status: str = "approved"  # Normal status
     admin_approved: bool = False   # 🆕 YENİ - Admin onayı gerekli
