@@ -536,7 +536,57 @@ const useAuth = () => {
     initAuth();
   }, [user, isLoaded, session]);
 
-  return { user, authToken, userRole, dbUser, isLoaded, refreshUser, refreshToken, ensureFreshToken, ensureTokenForOperation, pendingApprovals, fetchPendingApprovals, handleApproveUser };
+  // 👥 Team Management Functions
+  const handleViewTeam = async (client) => {
+    try {
+      setSelectedClient(client);
+      setShowTeamModal(true);
+      
+      const response = await axios.get(`${getApiUrl()}/clients/${client.id}/team`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      setTeamMembers(response.data.team_members || []);
+    } catch (error) {
+      console.error('Error fetching team members:', error);
+      alert('Takım bilgileri alınamadı: ' + (error.response?.data?.detail || error.message));
+      setTeamMembers([]);
+    }
+  };
+
+  const handleAddTeamMember = async () => {
+    try {
+      if (!teamMemberForm.name || !teamMemberForm.email || !teamMemberForm.password) {
+        alert('Lütfen tüm zorunlu alanları doldurun!');
+        return;
+      }
+
+      const response = await axios.post(`${getApiUrl()}/clients/${selectedClient.id}/team/add`, teamMemberForm, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      alert(`Takım üyesi başarıyla eklendi: ${teamMemberForm.name}`);
+      
+      // Reset form
+      setTeamMemberForm({
+        name: '',
+        email: '',
+        password: '',
+        team_role: 'staff'
+      });
+      
+      setShowAddTeamMember(false);
+      
+      // Refresh team list
+      await handleViewTeam(selectedClient);
+      
+    } catch (error) {
+      console.error('Team member creation error:', error);
+      alert('Takım üyesi ekleme hatası: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  return { user, authToken, userRole, dbUser, isLoaded, refreshUser, refreshToken, ensureFreshToken, ensureTokenForOperation, pendingApprovals, fetchPendingApprovals, handleApproveUser, handleViewTeam, handleAddTeamMember, showTeamModal, setShowTeamModal, selectedClient, teamMembers, showAddTeamMember, setShowAddTeamMember, teamMemberForm, setTeamMemberForm };
 };
 
 // Global utility function for file icons
