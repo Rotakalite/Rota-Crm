@@ -21098,6 +21098,10 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
         return <ConsultantManagement />;
       case 'clients':
         return <SimpleClientManagement onNavigate={handleNavigate} />;
+      
+      case 'survey-management':
+        return <SurveyManagement onNavigate={handleNavigate} />;
+      
       case 'bulk-operations':
         return <BulkOperations onNavigate={handleNavigate} />;
       case 'consumption':
