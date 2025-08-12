@@ -16152,8 +16152,9 @@ async def add_team_member(
                 <p><strong>Giriş Bilgileriniz:</strong></p>
                 <ul>
                     <li>Email: {team_member_data['email']}</li>
-                    <li>Şifre: [Email ile gönderilmiştir]</li>
+                    <li>Şifre: {team_member_data['password']}</li>
                 </ul>
+                <p>⚠️ <strong>GÜVENLİK:</strong> İlk giriş sonrası şifrenizi değiştirmenizi öneriyoruz.</p>
                 <p>Sisteme giriş yapmak için: <a href="https://rota-crm-production.up.railway.app">GreenWave CRM</a></p>
                 <p>İyi çalışmalar!</p>
                 """
