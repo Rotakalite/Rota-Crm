@@ -21122,6 +21122,798 @@ const AdminSettings = () => {
   );
 };
 
+// 📊 Survey Management Component - Complete Survey System
+const SurveyManagement = ({ onNavigate }) => {
+  const { authToken, userRole, dbUser } = useAuth();
+  const [currentSurveyView, setCurrentSurveyView] = useState('dashboard');
+  const [surveys, setSurveys] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedSurvey, setSelectedSurvey] = useState(null);
+  
+  // Survey Creation States
+  const [showCreateSurvey, setShowCreateSurvey] = useState(false);
+  const [surveyForm, setSurveyForm] = useState({
+    title: '',
+    description: '',
+    survey_type: 'satisfaction',
+    questions: []
+  });
+  const [newQuestion, setNewQuestion] = useState({
+    question_text: '',
+    question_type: 'rating',
+    options: [],
+    required: true,
+    category: 'general'
+  });
+  
+  // Campaign States
+  const [showCreateCampaign, setShowCreateCampaign] = useState(false);
+  const [campaignForm, setCampaignForm] = useState({
+    campaign_name: '',
+    target_emails: [],
+    email_subject: '',
+    email_content: ''
+  });
+  const [emailListText, setEmailListText] = useState('');
+  
+  // Survey Responses & Analysis
+  const [responses, setResponses] = useState([]);
+  const [analysis, setAnalysis] = useState(null);
+  
+  const API = getApiUrl();
+
+  // Fetch surveys
+  const fetchSurveys = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/surveys`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setSurveys(response.data.surveys || response.data || []);
+    } catch (error) {
+      console.error('Error fetching surveys:', error);
+      alert('Anketler yüklenirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Create survey
+  const handleCreateSurvey = async () => {
+    try {
+      if (!surveyForm.title || !surveyForm.description || surveyForm.questions.length === 0) {
+        alert('Lütfen tüm zorunlu alanları doldurun ve en az bir soru ekleyin!');
+        return;
+      }
+
+      const response = await axios.post(`${API}/surveys`, surveyForm, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      alert('Anket başarıyla oluşturuldu!');
+      setShowCreateSurvey(false);
+      setSurveyForm({ title: '', description: '', survey_type: 'satisfaction', questions: [] });
+      fetchSurveys();
+    } catch (error) {
+      console.error('Error creating survey:', error);
+      alert('Anket oluşturulurken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Add question to survey
+  const addQuestionToSurvey = () => {
+    if (!newQuestion.question_text) {
+      alert('Lütfen soru metnini girin!');
+      return;
+    }
+
+    const questionWithId = {
+      ...newQuestion,
+      id: Date.now().toString()
+    };
+
+    setSurveyForm({
+      ...surveyForm,
+      questions: [...surveyForm.questions, questionWithId]
+    });
+
+    setNewQuestion({
+      question_text: '',
+      question_type: 'rating',
+      options: [],
+      required: true,
+      category: 'general'
+    });
+  };
+
+  // Remove question from survey
+  const removeQuestion = (questionId) => {
+    setSurveyForm({
+      ...surveyForm,
+      questions: surveyForm.questions.filter(q => q.id !== questionId)
+    });
+  };
+
+  // Create campaign
+  const handleCreateCampaign = async () => {
+    try {
+      if (!selectedSurvey) {
+        alert('Lütfen önce bir anket seçin!');
+        return;
+      }
+
+      if (!campaignForm.campaign_name || !campaignForm.email_subject) {
+        alert('Lütfen kampanya adı ve email konusu girin!');
+        return;
+      }
+
+      const emails = emailListText
+        .split(/[,;\n]/)
+        .map(email => email.trim())
+        .filter(email => email && email.includes('@'));
+
+      if (emails.length === 0) {
+        alert('Lütfen geçerli email adresleri girin!');
+        return;
+      }
+
+      const campaignData = {
+        ...campaignForm,
+        target_emails: emails
+      };
+
+      const response = await axios.post(`${API}/surveys/${selectedSurvey.id}/campaigns`, campaignData, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      alert(`Kampanya oluşturuldu! ${emails.length} kişiye gönderilecek.`);
+      setShowCreateCampaign(false);
+      setCampaignForm({ campaign_name: '', target_emails: [], email_subject: '', email_content: '' });
+      setEmailListText('');
+    } catch (error) {
+      console.error('Error creating campaign:', error);
+      alert('Kampanya oluşturulurken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Fetch survey responses
+  const fetchSurveyResponses = async (surveyId) => {
+    try {
+      const response = await axios.get(`${API}/surveys/${surveyId}/responses`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setResponses(response.data.responses || response.data || []);
+    } catch (error) {
+      console.error('Error fetching responses:', error);
+      alert('Yanıtlar yüklenirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Fetch survey analysis
+  const fetchSurveyAnalysis = async (surveyId) => {
+    try {
+      const response = await axios.get(`${API}/surveys/${surveyId}/analysis`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      setAnalysis(response.data);
+    } catch (error) {
+      console.error('Error fetching analysis:', error);
+      alert('Analiz yüklenirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Load data on component mount
+  useEffect(() => {
+    if (authToken) {
+      fetchSurveys();
+    }
+  }, [authToken]);
+
+  // Question type options
+  const questionTypes = [
+    { value: 'rating', label: 'Puanlama (1-5 ⭐)' },
+    { value: 'multiple_choice', label: 'Çoktan Seçmeli' },
+    { value: 'checkbox', label: 'Çoklu Seçim' },
+    { value: 'text', label: 'Serbest Metin' },
+    { value: 'yes_no', label: 'Evet/Hayır' }
+  ];
+
+  const renderSurveyDashboard = () => (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">📋 Anket Yönetimi</h2>
+          <p className="text-gray-600">Müşteri memnuniyet ve sürdürülebilirlik anketleri</p>
+        </div>
+        <button
+          onClick={() => setShowCreateSurvey(true)}
+          className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md"
+        >
+          ➕ Yeni Anket Oluştur
+        </button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="flex items-center">
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <span className="text-2xl">📊</span>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Toplam Anket</p>
+              <p className="text-2xl font-semibold text-gray-900">{surveys.length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="flex items-center">
+            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <span className="text-2xl">✅</span>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Aktif Anket</p>
+              <p className="text-2xl font-semibold text-gray-900">{surveys.filter(s => s.is_active).length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="flex items-center">
+            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+              <span className="text-2xl">📧</span>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Gönderilmiş</p>
+              <p className="text-2xl font-semibold text-gray-900">0</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="flex items-center">
+            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+              <span className="text-2xl">📝</span>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Toplam Yanıt</p>
+              <p className="text-2xl font-semibold text-gray-900">0</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Surveys List */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div className="px-6 py-4 border-b border-gray-100">
+          <h3 className="text-lg font-semibold text-gray-900">Anketlerim</h3>
+        </div>
+
+        {loading ? (
+          <div className="p-12 text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+            <p className="mt-2 text-gray-600">Anketler yükleniyor...</p>
+          </div>
+        ) : surveys.length === 0 ? (
+          <div className="p-12 text-center">
+            <span className="text-6xl mb-4 block">📋</span>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Henüz anket oluşturmadınız</h3>
+            <p className="text-gray-600 mb-4">İlk anketinizi oluşturun ve müşterilerinizden geri bildirim alın</p>
+            <button
+              onClick={() => setShowCreateSurvey(true)}
+              className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors"
+            >
+              İlk Anketi Oluştur
+            </button>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-100">
+            {surveys.map((survey) => (
+              <div key={survey.id} className="p-6 hover:bg-gray-50 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h4 className="text-lg font-medium text-gray-900">{survey.title}</h4>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        survey.survey_type === 'satisfaction' ? 'bg-blue-100 text-blue-800' :
+                        survey.survey_type === 'sustainability' ? 'bg-green-100 text-green-800' :
+                        'bg-purple-100 text-purple-800'
+                      }`}>
+                        {survey.survey_type === 'satisfaction' ? 'Memnuniyet' :
+                         survey.survey_type === 'sustainability' ? 'Sürdürülebilirlik' : 'Karma'}
+                      </span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        survey.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {survey.is_active ? 'Aktif' : 'Pasif'}
+                      </span>
+                    </div>
+                    <p className="text-gray-600 mb-2">{survey.description}</p>
+                    <p className="text-sm text-gray-500">{survey.questions?.length || 0} soru • Oluşturma: {new Date(survey.created_at).toLocaleDateString('tr-TR')}</p>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        setSelectedSurvey(survey);
+                        setCurrentSurveyView('responses');
+                        fetchSurveyResponses(survey.id);
+                      }}
+                      className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50 transition-colors"
+                      title="Yanıtları Görüntüle"
+                    >
+                      📊
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedSurvey(survey);
+                        setCurrentSurveyView('analysis');
+                        fetchSurveyAnalysis(survey.id);
+                      }}
+                      className="text-purple-600 hover:text-purple-800 p-2 rounded-lg hover:bg-purple-50 transition-colors"
+                      title="Analiz"
+                    >
+                      🧠
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedSurvey(survey);
+                        setShowCreateCampaign(true);
+                      }}
+                      className="text-green-600 hover:text-green-800 p-2 rounded-lg hover:bg-green-50 transition-colors"
+                      title="Email Kampanyası"
+                    >
+                      📧
+                    </button>
+                    <button
+                      onClick={() => {
+                        const surveyUrl = `${window.location.origin}/survey/${survey.id}`;
+                        navigator.clipboard.writeText(surveyUrl);
+                        alert('Anket linki panoya kopyalandı!');
+                      }}
+                      className="text-gray-600 hover:text-gray-800 p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                      title="Link Kopyala"
+                    >
+                      🔗
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderCreateSurvey = () => (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div className="relative top-10 mx-auto p-5 border w-11/12 md:w-4/5 lg:w-3/4 shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
+        <div className="mt-3">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-bold text-gray-900">📋 Yeni Anket Oluştur</h3>
+            <button
+              onClick={() => setShowCreateSurvey(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <span className="text-2xl">&times;</span>
+            </button>
+          </div>
+
+          {/* Survey Basic Info */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Anket Başlığı *
+              </label>
+              <input
+                type="text"
+                value={surveyForm.title}
+                onChange={(e) => setSurveyForm({...surveyForm, title: e.target.value})}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                placeholder="Örn: Müşteri Memnuniyet Anketi"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Anket Türü
+              </label>
+              <select
+                value={surveyForm.survey_type}
+                onChange={(e) => setSurveyForm({...surveyForm, survey_type: e.target.value})}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              >
+                <option value="satisfaction">Memnuniyet Anketi</option>
+                <option value="sustainability">Sürdürülebilirlik Anketi</option>
+                <option value="combined">Karma Anket</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Anket Açıklaması *
+            </label>
+            <textarea
+              value={surveyForm.description}
+              onChange={(e) => setSurveyForm({...surveyForm, description: e.target.value})}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              rows="3"
+              placeholder="Anket hakkında kısa açıklama..."
+            />
+          </div>
+
+          {/* Questions Section */}
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h4 className="text-lg font-semibold text-gray-800 mb-4">Sorular ({surveyForm.questions.length})</h4>
+            
+            {/* Existing Questions */}
+            {surveyForm.questions.map((question, index) => (
+              <div key={question.id} className="bg-white p-4 rounded-lg mb-3 border border-gray-200">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900 mb-1">
+                      {index + 1}. {question.question_text}
+                      {question.required && <span className="text-red-500 ml-1">*</span>}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Tür: {questionTypes.find(t => t.value === question.question_type)?.label}
+                      {question.options?.length > 0 && ` • Seçenekler: ${question.options.join(', ')}`}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => removeQuestion(question.id)}
+                    className="text-red-500 hover:text-red-700 p-1"
+                    title="Soruyu Sil"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            {/* Add New Question */}
+            <div className="bg-white p-4 rounded-lg border-2 border-dashed border-gray-300">
+              <h5 className="font-medium text-gray-800 mb-3">Yeni Soru Ekle</h5>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Soru Metni</label>
+                  <input
+                    type="text"
+                    value={newQuestion.question_text}
+                    onChange={(e) => setNewQuestion({...newQuestion, question_text: e.target.value})}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    placeholder="Sorunuzu yazın..."
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Soru Türü</label>
+                  <select
+                    value={newQuestion.question_type}
+                    onChange={(e) => setNewQuestion({...newQuestion, question_type: e.target.value})}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  >
+                    {questionTypes.map(type => (
+                      <option key={type.value} value={type.value}>{type.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Options for multiple choice/checkbox */}
+              {(newQuestion.question_type === 'multiple_choice' || newQuestion.question_type === 'checkbox') && (
+                <div className="mb-3">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Seçenekler (virgülle ayırın)</label>
+                  <input
+                    type="text"
+                    onChange={(e) => setNewQuestion({
+                      ...newQuestion, 
+                      options: e.target.value.split(',').map(opt => opt.trim()).filter(opt => opt)
+                    })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    placeholder="Seçenek 1, Seçenek 2, Seçenek 3"
+                  />
+                </div>
+              )}
+
+              <div className="flex items-center justify-between">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={newQuestion.required}
+                    onChange={(e) => setNewQuestion({...newQuestion, required: e.target.checked})}
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-gray-700">Zorunlu soru</span>
+                </label>
+                
+                <button
+                  onClick={addQuestionToSurvey}
+                  className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  ➕ Soru Ekle
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end space-x-3">
+            <button
+              onClick={() => setShowCreateSurvey(false)}
+              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+            >
+              İptal
+            </button>
+            <button
+              onClick={handleCreateSurvey}
+              className="px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700"
+            >
+              📋 Anket Oluştur
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCreateCampaign = () => (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div className="relative top-10 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
+        <div className="mt-3">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">📧 Email Kampanyası Oluştur</h3>
+              <p className="text-gray-600 mt-1">Anket: {selectedSurvey?.title}</p>
+            </div>
+            <button
+              onClick={() => setShowCreateCampaign(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <span className="text-2xl">&times;</span>
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Kampanya Adı *
+              </label>
+              <input
+                type="text"
+                value={campaignForm.campaign_name}
+                onChange={(e) => setCampaignForm({...campaignForm, campaign_name: e.target.value})}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                placeholder="Örn: Mayıs 2025 Memnuniyet Anketi"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email Konusu *
+              </label>
+              <input
+                type="text"
+                value={campaignForm.email_subject}
+                onChange={(e) => setCampaignForm({...campaignForm, email_subject: e.target.value})}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                placeholder="Görüşleriniz bizim için değerli!"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email İçeriği
+              </label>
+              <textarea
+                value={campaignForm.email_content}
+                onChange={(e) => setCampaignForm({...campaignForm, email_content: e.target.value})}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                rows="4"
+                placeholder="Merhaba! Hizmetlerimiz hakkındaki düşüncelerinizi öğrenmek istiyoruz..."
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Hedef Email Listesi *
+                </label>
+                <button
+                  onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = '/musteri_listesi_template.csv';
+                    link.download = 'musteri_listesi_template.csv';
+                    link.click();
+                  }}
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  📥 Örnek CSV İndir
+                </button>
+              </div>
+              <textarea
+                value={emailListText}
+                onChange={(e) => setEmailListText(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                rows="6"
+                placeholder="Email adreslerini her satıra bir tane gelecek şekilde girin:&#10;ahmet@example.com&#10;ayse@example.com&#10;veya virgülle ayırarak: email1@test.com, email2@test.com"
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                {emailListText ? `${emailListText.split(/[,;\n]/).filter(email => email.trim() && email.includes('@')).length} geçerli email adresi tespit edildi` : 'Email adresleri henüz girilmedi'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-3 mt-6">
+            <button
+              onClick={() => setShowCreateCampaign(false)}
+              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+            >
+              İptal
+            </button>
+            <button
+              onClick={handleCreateCampaign}
+              className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700"
+            >
+              📧 Kampanya Oluştur
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Main render based on current view
+  return (
+    <div className="p-6 max-w-7xl mx-auto">
+      {/* Navigation */}
+      <div className="mb-6">
+        <button
+          onClick={() => onNavigate('dashboard')}
+          className="text-blue-600 hover:text-blue-800 flex items-center gap-2 mb-4"
+        >
+          ← Ana Panele Dön
+        </button>
+      </div>
+
+      {/* Content based on current view */}
+      {currentSurveyView === 'dashboard' && renderSurveyDashboard()}
+      
+      {currentSurveyView === 'responses' && selectedSurvey && (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">📊 Anket Yanıtları</h2>
+              <p className="text-gray-600">{selectedSurvey.title}</p>
+            </div>
+            <button
+              onClick={() => setCurrentSurveyView('dashboard')}
+              className="text-blue-600 hover:text-blue-800"
+            >
+              ← Geri Dön
+            </button>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            {responses.length === 0 ? (
+              <div className="text-center py-12">
+                <span className="text-6xl mb-4 block">📝</span>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Henüz yanıt alınmadı</h3>
+                <p className="text-gray-600">Bu anket için henüz kimse yanıt göndermemiş</p>
+              </div>
+            ) : (
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Toplam {responses.length} yanıt</h3>
+                <div className="space-y-4">
+                  {responses.map((response, index) => (
+                    <div key={response.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-medium text-gray-900">Yanıt #{index + 1}</span>
+                        <span className="text-sm text-gray-500">
+                          {new Date(response.completed_at).toLocaleString('tr-TR')}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600">
+                        {response.respondent_name || 'Anonim'} ({response.respondent_email})
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {currentSurveyView === 'analysis' && selectedSurvey && (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">🧠 Anket Analizi</h2>
+              <p className="text-gray-600">{selectedSurvey.title}</p>
+            </div>
+            <button
+              onClick={() => setCurrentSurveyView('dashboard')}
+              className="text-blue-600 hover:text-blue-800"
+            >
+              ← Geri Dön
+            </button>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            {analysis ? (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-blue-600">{analysis.total_responses}</p>
+                    <p className="text-gray-600">Toplam Yanıt</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-green-600">{Object.keys(analysis.average_ratings || {}).length}</p>
+                    <p className="text-gray-600">Puanlanan Soru</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-purple-600">{analysis.recommendations?.length || 0}</p>
+                    <p className="text-gray-600">Öneri</p>
+                  </div>
+                </div>
+
+                {analysis.average_ratings && Object.keys(analysis.average_ratings).length > 0 && (
+                  <div>
+                    <h4 className="text-lg font-semibold mb-4">📊 Ortalama Puanlar</h4>
+                    <div className="space-y-3">
+                      {Object.entries(analysis.average_ratings).map(([questionId, ratingData]) => (
+                        <div key={questionId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900">{ratingData.question}</p>
+                            <p className="text-sm text-gray-600">{ratingData.total_ratings} yanıt</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-2xl font-bold text-blue-600">{ratingData.average}</p>
+                            <p className="text-sm text-gray-500">/ 5.0</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {analysis.recommendations && analysis.recommendations.length > 0 && (
+                  <div>
+                    <h4 className="text-lg font-semibold mb-4">💡 Öneriler</h4>
+                    <div className="space-y-2">
+                      {analysis.recommendations.map((recommendation, index) => (
+                        <div key={index} className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                          <p className="text-yellow-800">{recommendation}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <span className="text-6xl mb-4 block">🧠</span>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Analiz hazırlanıyor</h3>
+                <p className="text-gray-600">Anket analizi yükleniyor...</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Modals */}
+      {showCreateSurvey && renderCreateSurvey()}
+      {showCreateCampaign && renderCreateCampaign()}
+    </div>
+  );
+};
+
 const MainApp = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedClient, setSelectedClient] = useState(null);
