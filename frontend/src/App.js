@@ -9327,6 +9327,150 @@ const SimpleClientManagement = ({ onNavigate }) => {
         </div>
       )}
 
+      {/* 👥 Team Management Modal */}
+      {showTeamModal && selectedClient && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
+            <div className="mt-3">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">👥 Takım Yönetimi</h3>
+                  <p className="text-gray-600 mt-1">{selectedClient.hotel_name} - {selectedClient.city}</p>
+                </div>
+                <button
+                  onClick={() => setShowTeamModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <span className="text-2xl">&times;</span>
+                </button>
+              </div>
+
+              <div className="mb-6 p-4 bg-green-50 rounded-lg">
+                <h4 className="text-lg font-semibold text-green-800 mb-3">
+                  Takım Üyeleri ({teamMembers.length})
+                </h4>
+                
+                {teamMembers.length === 0 ? (
+                  <div className="text-green-600 p-4 bg-white rounded border border-green-200">
+                    <p className="text-center">Bu müşteri için henüz takım üyesi eklenmemiş.</p>
+                    <p className="text-center text-sm mt-1">Yeni üye eklemek için aşağıdaki formu kullanın.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {teamMembers.map((member) => (
+                      <div key={member.id} className="bg-white p-3 rounded-lg border border-green-200">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium text-gray-900">{member.name}</p>
+                            <p className="text-sm text-gray-600">{member.email}</p>
+                            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                              {member.team_role === 'manager' ? 'Yönetici' : 'Personel'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <form className="space-y-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="text-lg font-semibold text-gray-800">Yeni Takım Üyesi Ekle</h4>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddTeamMember(!showAddTeamMember)}
+                    className="text-green-600 hover:text-green-800 font-medium"
+                  >
+                    {showAddTeamMember ? '👆 Formu Gizle' : '👇 Formu Göster'}
+                  </button>
+                </div>
+
+                {showAddTeamMember && (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          İsim *
+                        </label>
+                        <input
+                          type="text"
+                          value={teamMemberForm.name}
+                          onChange={(e) => setTeamMemberForm({...teamMemberForm, name: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          placeholder="Ad Soyad"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          E-posta *
+                        </label>
+                        <input
+                          type="email"
+                          value={teamMemberForm.email}
+                          onChange={(e) => setTeamMemberForm({...teamMemberForm, email: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          placeholder="email@example.com"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Şifre *
+                        </label>
+                        <input
+                          type="password"
+                          value={teamMemberForm.password}
+                          onChange={(e) => setTeamMemberForm({...teamMemberForm, password: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          placeholder="Güçlü bir şifre girin"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Takımdaki Rolü
+                        </label>
+                        <select
+                          value={teamMemberForm.team_role}
+                          onChange={(e) => setTeamMemberForm({...teamMemberForm, team_role: e.target.value})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        >
+                          <option value="staff">Personel</option>
+                          <option value="manager">Yönetici</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-200">
+                      <div className="flex justify-end space-x-3">
+                        <button
+                          type="button"
+                          onClick={() => setShowTeamModal(false)}
+                          className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                        >
+                          İptal
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleAddTeamMember}
+                          className="px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700"
+                        >
+                          ➕ Takım Üyesi Ekle
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
