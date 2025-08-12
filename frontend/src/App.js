@@ -561,6 +561,10 @@ const useAuth = () => {
         return;
       }
 
+      console.log('🔍 Debug - teamMemberForm:', teamMemberForm);
+      console.log('🔍 Debug - selectedClient:', selectedClient);
+      console.log('🔍 Debug - authToken exists:', !!authToken);
+
       const response = await axios.post(`${getApiUrl()}/clients/${selectedClient.id}/team/add`, teamMemberForm, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
@@ -582,6 +586,8 @@ const useAuth = () => {
       
     } catch (error) {
       console.error('Team member creation error:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
       alert('Takım üyesi ekleme hatası: ' + (error.response?.data?.detail || error.message));
     }
   };
