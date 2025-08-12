@@ -6779,7 +6779,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
 
 // Bulk Operations Component
 const BulkOperations = ({ onNavigate }) => {
-  const { authToken, userRole, dbUser, ensureTokenForOperation } = useAuth();
+  const { authToken, userRole, dbUser, ensureTokenForOperation, handleViewTeam, handleAddTeamMember, showTeamModal, setShowTeamModal, selectedClient, teamMembers, showAddTeamMember, setShowAddTeamMember, teamMemberForm, setTeamMemberForm } = useAuth();
   const { session } = useClerk();
   const [bulkClients, setBulkClients] = useState([]);
   const [loading, setLoading] = useState(true);
