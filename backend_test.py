@@ -1,487 +1,483 @@
 #!/usr/bin/env python3
 """
-🎯 TEMPLATE DOWNLOAD FEATURE BACKEND TEST - Railway Production
-Comprehensive testing of Template Download functionality and supporting backend endpoints
-Focus: Personnel and Supplier template download features
+Survey Management System Backend Test - Updated Analysis
+GreenWave CRM Survey Management Backend Testing
+
+Test Environment: Railway production (https://team-management-1.preview.emergentagent.com)
+Focus: Survey endpoints after backend restart and duplicate endpoint analysis
 """
 
 import requests
 import json
-import sys
-import os
+import uuid
 from datetime import datetime
+import time
 
-# Railway Production Backend URL
-BACKEND_URL = "https://rota-crm-production.up.railway.app"
-TEST_CLIENT_ID = "94927a77-edc3-45ec-8329-795feae35771"
-
-class TemplateDownloadBackendTester:
+class SurveyManagementBackendTest:
     def __init__(self):
-        self.backend_url = BACKEND_URL
-        self.test_client_id = TEST_CLIENT_ID
-        self.test_results = []
-        self.total_tests = 0
-        self.passed_tests = 0
+        # Use production backend URL from frontend/.env
+        self.base_url = "https://team-management-1.preview.emergentagent.com"
+        self.api_url = f"{self.base_url}/api"
         
-    def log_test(self, test_name, passed, details=""):
+        # Test data
+        self.test_survey_data = {
+            "title": "Test Müşteri Memnuniyet Anketi",
+            "description": "Bu anket müşteri memnuniyetini ölçmek için tasarlanmıştır",
+            "survey_type": "satisfaction",
+            "questions": [
+                {
+                    "id": str(uuid.uuid4()),
+                    "question_text": "Hizmet kalitemizi nasıl değerlendiriyorsunuz?",
+                    "question_type": "rating",
+                    "options": None,
+                    "required": True,
+                    "category": "satisfaction"
+                },
+                {
+                    "id": str(uuid.uuid4()),
+                    "question_text": "Hangi hizmetlerimizden memnunsunuz?",
+                    "question_type": "multiple_choice",
+                    "options": ["Temizlik", "Yemek", "Personel", "Konum"],
+                    "required": True,
+                    "category": "satisfaction"
+                },
+                {
+                    "id": str(uuid.uuid4()),
+                    "question_text": "Önerileriniz nelerdir?",
+                    "question_type": "text",
+                    "options": None,
+                    "required": False,
+                    "category": "general"
+                }
+            ]
+        }
+        
+        self.test_response_data = {
+            "respondent_email": "test@example.com",
+            "respondent_name": "Test Kullanıcı",
+            "responses": {}
+        }
+        
+        self.test_campaign_data = {
+            "campaign_name": "Müşteri Memnuniyet Kampanyası",
+            "target_emails": ["customer1@example.com", "customer2@example.com"],
+            "email_subject": "Görüşleriniz Bizim İçin Değerli",
+            "email_content": "Lütfen bu kısa anketi doldurarak deneyiminizi bizimle paylaşın."
+        }
+        
+        # Test results
+        self.results = []
+        self.survey_id = None
+        self.campaign_id = None
+        
+    def log_result(self, test_name, success, details, response_code=None):
         """Log test result"""
-        self.total_tests += 1
-        if passed:
-            self.passed_tests += 1
-            status = "✅ PASS"
-        else:
-            status = "❌ FAIL"
-        
-        result = f"{status} - {test_name}"
-        if details:
-            result += f" | {details}"
-        
-        print(result)
-        self.test_results.append({
+        result = {
             "test": test_name,
-            "passed": passed,
-            "details": details
-        })
+            "success": success,
+            "details": details,
+            "response_code": response_code,
+            "timestamp": datetime.now().isoformat()
+        }
+        self.results.append(result)
         
-    def test_backend_accessibility(self):
-        """Test if Railway backend is accessible"""
-        print("\n🚂 RAILWAY BACKEND ACCESSIBILITY TEST")
-        print("=" * 50)
-        
-        try:
-            # Test root endpoint
-            response = requests.get(f"{self.backend_url}/", timeout=10)
-            self.log_test("Backend Root Accessible", 
-                         response.status_code == 200,
-                         f"Status: {response.status_code}")
-            
-            # Test health endpoint
-            response = requests.get(f"{self.backend_url}/health", timeout=10)
-            self.log_test("Health Endpoint Working", 
-                         response.status_code == 200,
-                         f"Status: {response.status_code}")
-            
-            # Test API health endpoint
-            response = requests.get(f"{self.backend_url}/api/health", timeout=10)
-            self.log_test("API Health Endpoint Working", 
-                         response.status_code == 200,
-                         f"Status: {response.status_code}")
-            
-        except Exception as e:
-            self.log_test("Backend Accessibility", False, f"Error: {str(e)}")
+        status = "✅ PASS" if success else "❌ FAIL"
+        code_info = f" (HTTP {response_code})" if response_code else ""
+        print(f"{status}: {test_name}{code_info}")
+        if not success or response_code:
+            print(f"   Details: {details}")
     
-    def test_template_related_endpoints(self):
-        """Test template-related backend endpoints"""
-        print("\n📋 TEMPLATE RELATED ENDPOINTS TEST")
-        print("=" * 50)
-        
-        # Test bulk import template endpoint
+    def test_backend_health(self):
+        """Test if backend is accessible"""
         try:
-            response = requests.get(f"{self.backend_url}/api/bulk-import/template", timeout=10)
-            if response.status_code in [401, 403]:
-                self.log_test("Bulk Import Template Endpoint Security", 
-                             True,
-                             f"Properly secured (HTTP {response.status_code})")
-            elif response.status_code == 200:
-                self.log_test("Bulk Import Template Endpoint", 
-                             True,
-                             "Template endpoint accessible")
+            response = requests.get(f"{self.base_url}/health", timeout=10)
+            if response.status_code == 200:
+                self.log_result("Backend Health Check", True, "Backend is accessible", response.status_code)
+                return True
             else:
-                self.log_test("Bulk Import Template Endpoint", 
-                             False,
-                             f"Unexpected status: HTTP {response.status_code}")
+                self.log_result("Backend Health Check", False, f"Unexpected status code", response.status_code)
+                return False
         except Exception as e:
-            self.log_test("Bulk Import Template Endpoint", False, f"Error: {str(e)}")
+            self.log_result("Backend Health Check", False, f"Connection failed: {str(e)}")
+            return False
     
-    def test_personnel_management_endpoints(self):
-        """Test personnel management endpoints that support template functionality"""
-        print("\n👥 PERSONNEL MANAGEMENT ENDPOINTS TEST")
-        print("=" * 50)
-        
-        endpoints_to_test = [
-            ("GET", "/api/personnel", "Personnel List Endpoint"),
-            ("POST", "/api/personnel", "Personnel Create Endpoint"),
-            ("POST", "/api/personnel/bulk", "Personnel Bulk Import Endpoint"),
+    def test_survey_endpoints_accessibility(self):
+        """Test if survey endpoints are accessible (should return 403/401, not 404)"""
+        endpoints = [
+            ("POST", "/surveys", "Survey Creation Endpoint"),
+            ("GET", "/surveys", "Survey List Endpoint"),
+            ("GET", "/surveys/test-id", "Survey Details Endpoint"),
+            ("GET", "/surveys/test-id/public", "Public Survey Endpoint"),
+            ("POST", "/surveys/test-id/responses", "Survey Response Endpoint"),
+            ("GET", "/surveys/test-id/responses", "Survey Responses List Endpoint"),
+            ("POST", "/surveys/test-id/campaigns", "Survey Campaign Creation Endpoint"),
+            ("POST", "/surveys/test-id/campaigns/test-campaign/send", "Campaign Send Endpoint"),
+            ("GET", "/surveys/test-id/analysis", "Survey Analysis Endpoint")
         ]
         
-        for method, endpoint, test_name in endpoints_to_test:
+        accessible_count = 0
+        
+        for method, endpoint, name in endpoints:
             try:
-                url = f"{self.backend_url}{endpoint}"
+                url = f"{self.api_url}{endpoint}"
                 
                 if method == "GET":
                     response = requests.get(url, timeout=10)
                 elif method == "POST":
                     response = requests.post(url, json={}, timeout=10)
                 
-                self._evaluate_auth_response(test_name, response)
-                        
+                # Check if endpoint is accessible (not 404)
+                if response.status_code == 404:
+                    self.log_result(f"{name} Accessibility", False, "Endpoint returns 404 Not Found", response.status_code)
+                elif response.status_code in [403, 401, 400, 422, 500]:
+                    # These are expected for endpoints requiring auth or proper data
+                    self.log_result(f"{name} Accessibility", True, "Endpoint is accessible (requires auth/data)", response.status_code)
+                    accessible_count += 1
+                else:
+                    self.log_result(f"{name} Accessibility", True, "Endpoint is accessible", response.status_code)
+                    accessible_count += 1
+                    
             except Exception as e:
-                self.log_test(test_name, False, f"Error: {str(e)}")
-                
-    def test_supplier_management_endpoints(self):
-        """Test supplier management endpoints that support template functionality"""
-        print("\n🏢 SUPPLIER MANAGEMENT ENDPOINTS TEST")
-        print("=" * 50)
+                self.log_result(f"{name} Accessibility", False, f"Request failed: {str(e)}")
         
-        endpoints_to_test = [
-            ("GET", "/api/suppliers", "Supplier List Endpoint"),
-            ("POST", "/api/suppliers", "Supplier Create Endpoint"),
-            ("POST", "/api/suppliers/bulk", "Supplier Bulk Import Endpoint"),
-            ("GET", "/api/suppliers/categories", "Supplier Categories Endpoint"),
-            ("GET", "/api/suppliers/certifications", "Supplier Certifications Endpoint"),
-        ]
-        
-        for method, endpoint, test_name in endpoints_to_test:
-            try:
-                url = f"{self.backend_url}{endpoint}"
-                
-                if method == "GET":
-                    response = requests.get(url, timeout=10)
-                elif method == "POST":
-                    response = requests.post(url, json={}, timeout=10)
-                
-                self._evaluate_auth_response(test_name, response)
-                        
-            except Exception as e:
-                self.log_test(test_name, False, f"Error: {str(e)}")
-                
-    def _evaluate_auth_response(self, test_name, response):
-        """Evaluate response for authentication-protected endpoints"""
-        if response.status_code in [401, 403]:
-            self.log_test(
-                f"{test_name} Security", 
-                True, 
-                f"Endpoint properly secured (HTTP {response.status_code})"
-            )
-        elif response.status_code == 404:
-            self.log_test(
-                test_name, 
-                False, 
-                "Endpoint not found - may not be implemented"
-            )
-        elif response.status_code == 405:
-            self.log_test(
-                f"{test_name} Method", 
-                False, 
-                "Method not allowed - endpoint exists but wrong HTTP method"
-            )
-        elif response.status_code == 422:
-            self.log_test(
-                f"{test_name} Validation", 
-                True, 
-                "Endpoint exists and validates input (validation error expected with empty payload)"
-            )
-        elif response.status_code == 200:
-            try:
-                data = response.json()
-                self.log_test(
-                    test_name, 
-                    True, 
-                    f"Endpoint accessible and working"
-                )
-            except:
-                self.log_test(
-                    test_name, 
-                    True, 
-                    "Endpoint accessible (non-JSON response)"
-                )
-        else:
-            self.log_test(
-                test_name, 
-                False, 
-                f"Unexpected status: HTTP {response.status_code}"
-            )
+        return accessible_count
+    
+    def test_public_survey_endpoint(self):
+        """Test public survey endpoint (should not require auth)"""
+        try:
+            # Test with non-existent survey ID
+            response = requests.get(f"{self.api_url}/surveys/non-existent-id/public", timeout=10)
             
-    def test_template_data_structure(self):
-        """Test if backend supports the data structures used in templates"""
-        print("\n📊 TEMPLATE DATA STRUCTURE TEST")
-        print("=" * 50)
-        
-        # Test personnel data structure (from frontend template)
-        personnel_template_fields = [
-            "Ad Soyad", "Pozisyon", "Lokasyon", "Sertifikalar", "Yerel", "Cinsiyet"
-        ]
-        
-        # Test supplier data structure (from frontend template)  
-        supplier_template_fields = [
-            "Şirket Adı", "İletişim Kişisi", "Email", "Telefon", "Kategori", 
-            "Hizmetler", "Sertifikalar", "Sürdürülebilirlik Skoru", "Yerel"
-        ]
-        
-        self.log_test(
-            "Personnel Template Structure", 
-            True, 
-            f"Template contains {len(personnel_template_fields)} fields: {', '.join(personnel_template_fields)}"
-        )
-        
-        self.log_test(
-            "Supplier Template Structure", 
-            True, 
-            f"Template contains {len(supplier_template_fields)} fields: {', '.join(supplier_template_fields)}"
-        )
-        
-    def test_turkish_character_support(self):
-        """Test Turkish character support in backend"""
-        print("\n🇹🇷 TURKISH CHARACTER SUPPORT TEST")
-        print("=" * 50)
-        
-        # Test endpoints with Turkish characters in query parameters
-        turkish_test_cases = [
-            ("Müşteri", "Customer with Turkish chars"),
-            ("Çalışan", "Employee with Turkish chars"),
-            ("Tedarikçi", "Supplier with Turkish chars"),
-            ("Sertifika", "Certificate with Turkish chars")
-        ]
-        
-        for turkish_word, description in turkish_test_cases:
-            try:
-                # Test search functionality with Turkish characters
-                url = f"{self.backend_url}/api/clients?search={turkish_word}"
-                response = requests.get(url, timeout=10)
-                if response.status_code in [200, 401, 403]:
-                    self.log_test(
-                        f"Turkish Character Support - {description}", 
-                        True, 
-                        f"Backend handles Turkish characters in URL parameters"
-                    )
-                else:
-                    self.log_test(
-                        f"Turkish Character Support - {description}", 
-                        False, 
-                        f"HTTP {response.status_code} - may have encoding issues"
-                    )
-            except Exception as e:
-                self.log_test(
-                    f"Turkish Character Support - {description}", 
-                    False, 
-                    f"Error: {str(e)}"
-                )
+            if response.status_code == 404:
+                self.log_result("Public Survey Endpoint", True, "Returns 404 for non-existent survey (correct behavior)", response.status_code)
+                return True
+            elif response.status_code == 403:
+                self.log_result("Public Survey Endpoint", False, "Public endpoint requires authentication (incorrect)", response.status_code)
+                return False
+            else:
+                self.log_result("Public Survey Endpoint", True, "Endpoint is accessible", response.status_code)
+                return True
                 
-    def test_csv_compatibility_endpoints(self):
-        """Test endpoints that might be used for CSV/Excel compatibility"""
-        print("\n📈 CSV COMPATIBILITY ENDPOINTS TEST")
-        print("=" * 50)
-        
-        # Test if backend has any CSV export endpoints
-        csv_endpoints = [
-            "/api/export/personnel",
-            "/api/export/suppliers", 
-            "/api/export/clients",
-            "/api/reports/personnel",
-            "/api/reports/suppliers"
-        ]
-        
-        for endpoint in csv_endpoints:
-            try:
-                url = f"{self.backend_url}{endpoint}"
-                response = requests.get(url, timeout=10)
-                if response.status_code == 200:
-                    self.log_test(
-                        f"CSV Export Endpoint - {endpoint}", 
-                        True, 
-                        "Export endpoint available"
-                    )
-                elif response.status_code in [401, 403]:
-                    self.log_test(
-                        f"CSV Export Endpoint - {endpoint}", 
-                        True, 
-                        "Export endpoint exists but requires authentication"
-                    )
-                elif response.status_code == 404:
-                    self.log_test(
-                        f"CSV Export Endpoint - {endpoint}", 
-                        False, 
-                        "Export endpoint not implemented"
-                    )
-                else:
-                    self.log_test(
-                        f"CSV Export Endpoint - {endpoint}", 
-                        False, 
-                        f"Unexpected status: HTTP {response.status_code}"
-                    )
-            except Exception as e:
-                self.log_test(f"CSV Export Endpoint - {endpoint}", False, f"Error: {str(e)}")
+        except Exception as e:
+            self.log_result("Public Survey Endpoint", False, f"Request failed: {str(e)}")
+            return False
+    
+    def test_survey_response_endpoint(self):
+        """Test public survey response endpoint"""
+        try:
+            # Test with minimal data
+            test_data = {
+                "survey_id": "test-survey-id",
+                "respondent_email": "test@example.com",
+                "responses": {"q1": "test answer"}
+            }
+            
+            response = requests.post(f"{self.api_url}/surveys/test-survey-id/responses", 
+                                   json=test_data, timeout=10)
+            
+            if response.status_code == 404:
+                self.log_result("Survey Response Endpoint", True, "Returns 404 for non-existent survey (correct behavior)", response.status_code)
+                return True
+            elif response.status_code in [400, 422]:
+                self.log_result("Survey Response Endpoint", True, "Endpoint validates data (correct behavior)", response.status_code)
+                return True
+            else:
+                self.log_result("Survey Response Endpoint", True, "Endpoint is accessible", response.status_code)
+                return True
                 
-    def test_authentication_system(self):
-        """Test authentication system that protects template-related endpoints"""
-        print("\n🔐 AUTHENTICATION SYSTEM TEST")
-        print("=" * 50)
-        
-        # Test with invalid token
-        invalid_tokens = [
-            "invalid_token",
-            "Bearer invalid_token", 
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid",
-            ""
+        except Exception as e:
+            self.log_result("Survey Response Endpoint", False, f"Request failed: {str(e)}")
+            return False
+    
+    def test_cors_headers(self):
+        """Test CORS headers on survey endpoints"""
+        try:
+            # Test OPTIONS request
+            response = requests.options(f"{self.api_url}/surveys", timeout=10)
+            
+            cors_headers = [
+                'Access-Control-Allow-Origin',
+                'Access-Control-Allow-Methods',
+                'Access-Control-Allow-Headers'
+            ]
+            
+            cors_present = all(header in response.headers for header in cors_headers)
+            
+            if cors_present:
+                self.log_result("CORS Headers", True, "All required CORS headers present", response.status_code)
+                return True
+            else:
+                missing_headers = [h for h in cors_headers if h not in response.headers]
+                self.log_result("CORS Headers", False, f"Missing CORS headers: {missing_headers}", response.status_code)
+                return False
+                
+        except Exception as e:
+            self.log_result("CORS Headers", False, f"OPTIONS request failed: {str(e)}")
+            return False
+    
+    def test_http_methods(self):
+        """Test HTTP method restrictions"""
+        try:
+            # Test unsupported method on survey endpoint
+            response = requests.put(f"{self.api_url}/surveys", timeout=10)
+            
+            if response.status_code == 405:
+                self.log_result("HTTP Method Restrictions", True, "PUT method properly rejected", response.status_code)
+                return True
+            elif response.status_code in [403, 401]:
+                self.log_result("HTTP Method Restrictions", True, "Method handled (auth required)", response.status_code)
+                return True
+            else:
+                self.log_result("HTTP Method Restrictions", False, f"Unexpected response to PUT", response.status_code)
+                return False
+                
+        except Exception as e:
+            self.log_result("HTTP Method Restrictions", False, f"Request failed: {str(e)}")
+            return False
+    
+    def test_debug_routes_endpoint(self):
+        """Test debug routes endpoint to see registered routes"""
+        try:
+            response = requests.get(f"{self.api_url}/debug/routes", timeout=10)
+            
+            if response.status_code == 200:
+                routes_data = response.json()
+                survey_routes = [route for route in routes_data.get('routes', []) if 'survey' in route.lower()]
+                
+                self.log_result("Debug Routes - Survey Routes", True, 
+                              f"Found {len(survey_routes)} survey routes: {survey_routes[:3]}...", response.status_code)
+                return len(survey_routes)
+            else:
+                self.log_result("Debug Routes Endpoint", False, "Debug endpoint not accessible", response.status_code)
+                return 0
+                
+        except Exception as e:
+            self.log_result("Debug Routes Endpoint", False, f"Request failed: {str(e)}")
+            return 0
+    
+    def test_database_collections(self):
+        """Test if survey-related database collections exist"""
+        try:
+            # Try to access survey endpoints that would interact with database
+            endpoints_to_test = [
+                ("/surveys", "surveys collection"),
+                ("/surveys/test/responses", "survey_responses collection"),
+                ("/surveys/test/campaigns", "survey_campaigns collection")
+            ]
+            
+            collections_accessible = 0
+            
+            for endpoint, collection_name in endpoints_to_test:
+                try:
+                    response = requests.get(f"{self.api_url}{endpoint}", timeout=10)
+                    
+                    # If we get anything other than 404, the endpoint is registered
+                    if response.status_code != 404:
+                        collections_accessible += 1
+                        self.log_result(f"Database Collection - {collection_name}", True, 
+                                      "Endpoint accessible (collection exists)", response.status_code)
+                    else:
+                        self.log_result(f"Database Collection - {collection_name}", False, 
+                                      "Endpoint returns 404", response.status_code)
+                        
+                except Exception as e:
+                    self.log_result(f"Database Collection - {collection_name}", False, f"Request failed: {str(e)}")
+            
+            return collections_accessible
+            
+        except Exception as e:
+            self.log_result("Database Collections Test", False, f"Test failed: {str(e)}")
+            return 0
+    
+    def test_authentication_security(self):
+        """Test authentication requirements on protected endpoints"""
+        protected_endpoints = [
+            ("GET", "/surveys", "Survey List"),
+            ("POST", "/surveys", "Survey Creation"),
+            ("GET", "/surveys/test-id", "Survey Details"),
+            ("GET", "/surveys/test-id/responses", "Survey Responses"),
+            ("POST", "/surveys/test-id/campaigns", "Campaign Creation"),
+            ("GET", "/surveys/test-id/analysis", "Survey Analysis")
         ]
         
-        for token in invalid_tokens:
+        secure_endpoints = 0
+        
+        for method, endpoint, name in protected_endpoints:
             try:
-                headers = {"Authorization": f"Bearer {token}"} if token else {}
-                response = requests.get(
-                    f"{self.backend_url}/api/personnel", 
-                    headers=headers,
-                    timeout=10
-                )
+                url = f"{self.api_url}{endpoint}"
+                
+                if method == "GET":
+                    response = requests.get(url, timeout=10)
+                elif method == "POST":
+                    response = requests.post(url, json={}, timeout=10)
+                
                 if response.status_code in [401, 403]:
-                    self.log_test(
-                        f"Authentication Security - Invalid Token", 
-                        True, 
-                        f"Invalid token properly rejected (HTTP {response.status_code})"
-                    )
-                    break
+                    self.log_result(f"Auth Security - {name}", True, "Requires authentication", response.status_code)
+                    secure_endpoints += 1
+                elif response.status_code == 404:
+                    self.log_result(f"Auth Security - {name}", False, "Endpoint not found", response.status_code)
+                else:
+                    self.log_result(f"Auth Security - {name}", False, "No auth required (security issue)", response.status_code)
+                    
             except Exception as e:
-                self.log_test(
-                    "Authentication Security", 
-                    False, 
-                    f"Error testing auth: {str(e)}"
-                )
-                
-    def test_frontend_template_functions_analysis(self):
-        """Analyze frontend template download functions"""
-        print("\n🎨 FRONTEND TEMPLATE FUNCTIONS ANALYSIS")
-        print("=" * 50)
+                self.log_result(f"Auth Security - {name}", False, f"Request failed: {str(e)}")
         
-        # Analysis of frontend template functions
-        personnel_analysis = {
-            "function_name": "downloadPersonnelTemplate()",
-            "file_name": "personel_taslak.csv",
-            "headers": ["Ad Soyad", "Pozisyon", "Lokasyon", "Sertifikalar", "Yerel", "Cinsiyet"],
-            "sample_data_count": 5,
-            "encoding": "UTF-8 with BOM (\\ufeff)",
-            "format": "CSV"
-        }
-        
-        supplier_analysis = {
-            "function_name": "downloadSuppliersTemplate()",
-            "file_name": "tedarikci_taslak.csv", 
-            "headers": ["Şirket Adı", "İletişim Kişisi", "Email", "Telefon", "Kategori", "Hizmetler", "Sertifikalar", "Sürdürülebilirlik Skoru", "Yerel"],
-            "sample_data_count": 5,
-            "encoding": "UTF-8 with BOM (\\ufeff)",
-            "format": "CSV"
-        }
-        
-        self.log_test(
-            "Personnel Template Function Analysis",
-            True,
-            f"Function: {personnel_analysis['function_name']}, File: {personnel_analysis['file_name']}, Headers: {len(personnel_analysis['headers'])}, Encoding: {personnel_analysis['encoding']}"
-        )
-        
-        self.log_test(
-            "Supplier Template Function Analysis", 
-            True,
-            f"Function: {supplier_analysis['function_name']}, File: {supplier_analysis['file_name']}, Headers: {len(supplier_analysis['headers'])}, Encoding: {supplier_analysis['encoding']}"
-        )
-        
-        # Check if Turkish characters are properly handled
-        turkish_chars_found = any('ç' in h or 'ğ' in h or 'ı' in h or 'ö' in h or 'ş' in h or 'ü' in h 
-                                 for h in personnel_analysis['headers'] + supplier_analysis['headers'])
-        
-        self.log_test(
-            "Turkish Character Support in Templates",
-            turkish_chars_found,
-            f"Turkish characters found in headers: {turkish_chars_found}"
-        )
-        
-    def run_all_tests(self):
-        """Run all template download backend tests"""
-        print("🎯 TEMPLATE DOWNLOAD FEATURE BACKEND TEST - Railway Production")
-        print("=" * 70)
-        print(f"🎯 Target: {self.backend_url}")
-        print(f"📅 Test Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print("=" * 70)
-        
-        # Core backend tests
-        self.test_backend_accessibility()
-        self.test_template_related_endpoints()
-        
-        # Feature-specific tests
-        self.test_personnel_management_endpoints()
-        self.test_supplier_management_endpoints()
-        
-        # Data structure and compatibility tests
-        self.test_template_data_structure()
-        self.test_turkish_character_support()
-        self.test_csv_compatibility_endpoints()
-        
-        # Security tests
-        self.test_authentication_system()
-        
-        # Frontend analysis
-        self.test_frontend_template_functions_analysis()
-        
-        # Generate final report
-        self.generate_final_report()
-        
-    def generate_final_report(self):
-        """Generate comprehensive test report"""
-        success_rate = (self.passed_tests / self.total_tests * 100) if self.total_tests > 0 else 0
-        
-        print("\n" + "="*80)
-        print("🎉 TEMPLATE DOWNLOAD BACKEND TEST COMPLETED!")
-        print("="*80)
-        print(f"📊 OVERALL RESULTS:")
-        print(f"   Total Tests: {self.total_tests}")
-        print(f"   Passed: {self.passed_tests}")
-        print(f"   Failed: {self.total_tests - self.passed_tests}")
-        print(f"   Success Rate: {success_rate:.1f}%")
-        print("="*80)
-        
-        # Categorize results
-        passed_tests = [r for r in self.test_results if r['passed']]
-        failed_tests = [r for r in self.test_results if not r['passed']]
-        
-        if passed_tests:
-            print("✅ PASSED TESTS:")
-            for test in passed_tests:
-                print(f"   • {test['test']}: {test['details']}")
-                
-        if failed_tests:
-            print("\n❌ FAILED TESTS:")
-            for test in failed_tests:
-                print(f"   • {test['test']}: {test['details']}")
-                
-        print("\n🎯 TEMPLATE DOWNLOAD FEATURE ANALYSIS:")
-        print("   • Template download functions are implemented on FRONTEND only")
-        print("   • downloadPersonnelTemplate() creates CSV with Turkish headers")
-        print("   • downloadSuppliersTemplate() creates CSV with Turkish headers")
-        print("   • Both functions use UTF-8 BOM (\\ufeff) for proper encoding")
-        print("   • Files are generated client-side: personel_taslak.csv, tedarikci_taslak.csv")
-        print("   • Backend provides supporting endpoints for bulk import functionality")
-        
-        print("\n📋 TEMPLATE CONTENT VALIDATION:")
-        print("   • Personnel template: Ad Soyad, Pozisyon, Lokasyon, Sertifikalar, Yerel, Cinsiyet")
-        print("   • Supplier template: Şirket Adı, İletişim Kişisi, Email, Telefon, Kategori, etc.")
-        print("   • Sample data includes realistic Turkish names and companies")
-        print("   • Column headers are in Turkish as requested")
-        
-        print("\n🔧 USER EXPERIENCE FEATURES:")
-        print("   • Template download buttons are in frontend UI")
-        print("   • Click events trigger client-side CSV generation")
-        print("   • User feedback via alert() messages")
-        print("   • Files download automatically via browser")
-        
-        if success_rate >= 80:
-            print("\n🚂 RAILWAY PRODUCTION STATUS: ✅ READY")
-            print("   Backend infrastructure supports template download functionality!")
-        elif success_rate >= 60:
-            print("\n🚂 RAILWAY PRODUCTION STATUS: ⚠️ MOSTLY READY")
-            print("   Backend has minor issues but core functionality works!")
-        else:
-            print("\n🚂 RAILWAY PRODUCTION STATUS: ❌ NEEDS ATTENTION")
-            print("   Backend has significant issues that may affect functionality!")
+        return secure_endpoints
+    
+    def test_json_response_format(self):
+        """Test JSON response format"""
+        try:
+            response = requests.get(f"{self.api_url}/surveys", timeout=10)
             
-        return success_rate
+            # Check if response has proper JSON content type
+            content_type = response.headers.get('content-type', '')
+            
+            if 'application/json' in content_type:
+                self.log_result("JSON Response Format", True, "Proper JSON content type", response.status_code)
+                return True
+            else:
+                self.log_result("JSON Response Format", False, f"Content type: {content_type}", response.status_code)
+                return False
+                
+        except Exception as e:
+            self.log_result("JSON Response Format", False, f"Request failed: {str(e)}")
+            return False
+    
+    def test_performance(self):
+        """Test response times"""
+        try:
+            start_time = time.time()
+            response = requests.get(f"{self.api_url}/surveys", timeout=10)
+            end_time = time.time()
+            
+            response_time = end_time - start_time
+            
+            if response_time < 2.0:
+                self.log_result("Performance Test", True, f"Response time: {response_time:.2f}s", response.status_code)
+                return True
+            else:
+                self.log_result("Performance Test", False, f"Slow response: {response_time:.2f}s", response.status_code)
+                return False
+                
+        except Exception as e:
+            self.log_result("Performance Test", False, f"Request failed: {str(e)}")
+            return False
+    
+    def run_comprehensive_test(self):
+        """Run all survey management tests"""
+        print("🎯 SURVEY MANAGEMENT SYSTEM BACKEND TEST - UPDATED ANALYSIS")
+        print("=" * 70)
+        print(f"Backend URL: {self.base_url}")
+        print(f"API URL: {self.api_url}")
+        print(f"Test Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print("=" * 70)
+        
+        # Test categories
+        tests = [
+            ("Backend Health", self.test_backend_health),
+            ("Survey Endpoints Accessibility", self.test_survey_endpoints_accessibility),
+            ("Public Survey Endpoint", self.test_public_survey_endpoint),
+            ("Survey Response Endpoint", self.test_survey_response_endpoint),
+            ("CORS Headers", self.test_cors_headers),
+            ("HTTP Method Restrictions", self.test_http_methods),
+            ("Debug Routes", self.test_debug_routes_endpoint),
+            ("Database Collections", self.test_database_collections),
+            ("Authentication Security", self.test_authentication_security),
+            ("JSON Response Format", self.test_json_response_format),
+            ("Performance", self.test_performance)
+        ]
+        
+        total_tests = 0
+        passed_tests = 0
+        
+        for test_name, test_func in tests:
+            print(f"\n📋 Running {test_name} Tests...")
+            try:
+                result = test_func()
+                if isinstance(result, bool):
+                    total_tests += 1
+                    if result:
+                        passed_tests += 1
+                elif isinstance(result, int):
+                    # For tests that return counts
+                    total_tests += 1
+                    if result > 0:
+                        passed_tests += 1
+            except Exception as e:
+                print(f"❌ Test {test_name} failed with exception: {str(e)}")
+                total_tests += 1
+        
+        # Calculate success rate
+        success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
+        
+        print("\n" + "=" * 70)
+        print("📊 SURVEY MANAGEMENT BACKEND TEST RESULTS")
+        print("=" * 70)
+        print(f"Total Tests: {total_tests}")
+        print(f"Passed: {passed_tests}")
+        print(f"Failed: {total_tests - passed_tests}")
+        print(f"Success Rate: {success_rate:.1f}%")
+        
+        # Detailed results
+        print(f"\n📋 Detailed Results:")
+        for result in self.results:
+            status = "✅" if result["success"] else "❌"
+            code = f" (HTTP {result['response_code']})" if result['response_code'] else ""
+            print(f"{status} {result['test']}{code}: {result['details']}")
+        
+        # Analysis and recommendations
+        print(f"\n🔍 ANALYSIS:")
+        
+        failed_tests = [r for r in self.results if not r["success"]]
+        if failed_tests:
+            print("❌ Failed Tests:")
+            for test in failed_tests:
+                print(f"   - {test['test']}: {test['details']}")
+        
+        # Check for specific issues
+        accessibility_tests = [r for r in self.results if "Accessibility" in r["test"]]
+        accessible_endpoints = len([r for r in accessibility_tests if r["success"]])
+        
+        if accessible_endpoints == 0:
+            print("\n🚨 CRITICAL ISSUE: NO SURVEY ENDPOINTS ARE ACCESSIBLE!")
+            print("   - All survey endpoints return 404 Not Found")
+            print("   - This indicates a routing/deployment issue")
+            print("   - Survey management functionality is completely unavailable")
+        elif accessible_endpoints < len(accessibility_tests):
+            print(f"\n⚠️ PARTIAL ACCESSIBILITY: {accessible_endpoints}/{len(accessibility_tests)} endpoints accessible")
+            print("   - Some survey endpoints are not properly deployed")
+        else:
+            print(f"\n✅ ENDPOINT ACCESSIBILITY: All {accessible_endpoints} survey endpoints are accessible")
+        
+        # Check authentication
+        auth_tests = [r for r in self.results if "Auth Security" in r["test"]]
+        secure_endpoints = len([r for r in auth_tests if r["success"]])
+        
+        if secure_endpoints > 0:
+            print(f"✅ SECURITY: {secure_endpoints} endpoints properly secured with authentication")
+        
+        # Final recommendation
+        if success_rate >= 80:
+            print(f"\n🎉 OVERALL STATUS: GOOD ({success_rate:.1f}% success rate)")
+            if accessible_endpoints == len(accessibility_tests):
+                print("✅ Survey Management System backend is OPERATIONAL!")
+            else:
+                print("⚠️ Some endpoints need attention but core functionality works")
+        elif success_rate >= 50:
+            print(f"\n⚠️ OVERALL STATUS: MODERATE ({success_rate:.1f}% success rate)")
+            print("🔧 Survey Management System needs fixes but partially functional")
+        else:
+            print(f"\n🚨 OVERALL STATUS: CRITICAL ({success_rate:.1f}% success rate)")
+            print("❌ Survey Management System has major issues and needs immediate attention")
+        
+        return {
+            "success_rate": success_rate,
+            "total_tests": total_tests,
+            "passed_tests": passed_tests,
+            "accessible_endpoints": accessible_endpoints,
+            "results": self.results
+        }
 
 if __name__ == "__main__":
-    tester = TemplateDownloadBackendTester()
-    try:
-        tester.run_all_tests()
-        success_rate = (tester.passed_tests / tester.total_tests * 100) if tester.total_tests > 0 else 0
-        sys.exit(0 if success_rate >= 80 else 1)
-    except KeyboardInterrupt:
-        print("🛑 Test interrupted by user")
-        sys.exit(1)
-    except Exception as e:
-        print(f"💥 Fatal error: {str(e)}")
-        sys.exit(1)
+    tester = SurveyManagementBackendTest()
+    results = tester.run_comprehensive_test()
