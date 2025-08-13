@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL
-BACKEND_URL = "https://147f3791-101b-4a68-af5d-538aaba71c7f.preview.emergentagent.com"
+BACKEND_URL = "https://team-management-1.preview.emergentagent.com"
 
 def test_api_router_registration():
     """Test if the API router is properly registered"""

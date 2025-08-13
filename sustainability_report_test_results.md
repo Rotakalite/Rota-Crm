@@ -3,7 +3,7 @@
 
 ## Test Summary
 - **Test Date**: 2025-07-31
-- **Backend URL**: https://147f3791-101b-4a68-af5d-538aaba71c7f.preview.emergentagent.com
+- **Backend URL**: https://team-management-1.preview.emergentagent.com
 - **Total Tests**: 12
 - **Passed**: 4
 - **Failed**: 8

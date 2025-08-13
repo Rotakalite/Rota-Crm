@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # API URL
-API_URL = "https://147f3791-101b-4a68-af5d-538aaba71c7f.preview.emergentagent.com/api"
+API_URL = "https://team-management-1.preview.emergentagent.com/api"
 
 # MongoDB connection
 MONGO_URL = "mongodb://mongo:LbwPeZMoFflpreeQGSoEnUATtNpFRXRG@turntable.proxy.rlwy.net:14941"

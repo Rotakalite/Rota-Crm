@@ -22,7 +22,7 @@ class TestFolderSystem(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://147f3791-101b-4a68-af5d-538aaba71c7f.preview.emergentagent.com/api"
+        self.api_url = "https://team-management-1.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         

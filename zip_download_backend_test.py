@@ -28,7 +28,7 @@ from dotenv import load_dotenv
 load_dotenv('/app/backend/.env')
 
 # Configuration
-BACKEND_URL = os.getenv('REACT_APP_BACKEND_URL', 'https://147f3791-101b-4a68-af5d-538aaba71c7f.preview.emergentagent.com')
+BACKEND_URL = os.getenv('REACT_APP_BACKEND_URL', 'https://team-management-1.preview.emergentagent.com')
 API_BASE = f"{BACKEND_URL}/api"
 MONGO_URL = os.environ.get('MONGO_URL')
 DB_NAME = os.environ.get('DB_NAME', 'rotacrm')
