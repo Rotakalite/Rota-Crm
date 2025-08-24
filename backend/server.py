@@ -1109,6 +1109,28 @@ class ConsumptionInput(BaseModel):
     accommodation_count: int = 0
     client_id: Optional[str] = None  # Optional for admin users
 
+class BulkConsumptionItem(BaseModel):
+    year: int
+    month: int
+    electricity: float = 0.0
+    water: float = 0.0  
+    natural_gas: float = 0.0
+    coal: float = 0.0
+    diesel: float = 0.0
+    gasoline: float = 0.0
+    lpg: float = 0.0
+    fuel_oil: float = 0.0
+    r134a_gas: float = 0.0
+    r600a_gas: float = 0.0
+    r410a_gas: float = 0.0
+    r32_gas: float = 0.0
+    co2_fire: float = 0.0
+    fm200_fire: float = 0.0
+    accommodation_count: int = 0
+
+class BulkConsumptionRequest(BaseModel):
+    consumptions_list: List[BulkConsumptionItem]
+
 class Training(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     client_id: str
