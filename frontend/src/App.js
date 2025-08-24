@@ -13115,6 +13115,22 @@ const ConsumptionManagement = ({ onNavigate }) => {
             {consumptionData.client_id && (
               <div className="flex space-x-2">
                 <button
+                  onClick={downloadTemplate}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                  title="Excel template indir"
+                >
+                  <span>📊</span>
+                  <span>Excel Template</span>
+                </button>
+                <button
+                  onClick={() => setShowBulkImport(true)}
+                  className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
+                  title="Toplu tüketim verisi içe aktar"
+                >
+                  <span>📥</span>
+                  <span>Toplu İçe Aktar</span>
+                </button>
+                <button
                   onClick={() => {
                     console.log('🆕 Creating new consumption for client:', consumptionData.client_id);
                     setEditingConsumption(null);
