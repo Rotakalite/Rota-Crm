@@ -3767,7 +3767,13 @@ async def api_health_check_direct():
         "status": "healthy",
         "service": "Rota CRM Backend", 
         "timestamp": datetime.utcnow().isoformat(),
-        "version": "1.0.0",
+        "version": "2.1.0",
+        "features": {
+            "gmail_app_password": True,
+            "bulk_consumption_import": True,
+            "sendgrid_ready": True,
+            "survey_management": True
+        },
         "api_direct": True
     }
 
