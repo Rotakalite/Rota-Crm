@@ -12321,6 +12321,108 @@ const ConsumptionManagement = ({ onNavigate }) => {
     return units[type] || '';
   };
 
+  // Bulk import functions
+  const handleBulkImport = async (e) => {
+    e.preventDefault();
+    
+    if (!bulkFile) {
+      alert('Lütfen bir dosya seçin!');
+      return;
+    }
+    
+    setBulkImporting(true);
+    setBulkImportResults(null);
+    
+    try {
+      // Parse CSV file
+      const text = await bulkFile.text();
+      const lines = text.split('\n').filter(line => line.trim() !== '');
+      
+      if (lines.length < 2) {
+        throw new Error('Dosya en az 1 veri satırı içermelidir');
+      }
+      
+      // Parse header
+      const headers = lines[0].split(',').map(h => h.trim());
+      
+      // Expected headers
+      const expectedHeaders = [
+        'year', 'month', 'electricity', 'water', 'natural_gas', 'coal',
+        'diesel', 'gasoline', 'lpg', 'fuel_oil', 'r134a_gas', 'r600a_gas',
+        'r410a_gas', 'r32_gas', 'co2_fire', 'fm200_fire', 'accommodation_count'
+      ];
+      
+      // Validate headers
+      const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
+      if (missingHeaders.length > 0) {
+        throw new Error(`Eksik sütunlar: ${missingHeaders.join(', ')}`);
+      }
+      
+      // Parse data rows
+      const consumptions_list = [];
+      
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim());
+        
+        if (values.length !== headers.length) {
+          console.warn(`Satır ${i + 1}: Sütun sayısı uyuşmuyor, atlanıyor`);
+          continue;
+        }
+        
+        const rowData = {};
+        headers.forEach((header, index) => {
+          if (header === 'year' || header === 'month' || header === 'accommodation_count') {
+            rowData[header] = parseInt(values[index]) || 0;
+          } else {
+            rowData[header] = parseFloat(values[index]) || 0.0;
+          }
+        });
+        
+        // Validate required fields
+        if (!rowData.year || !rowData.month || rowData.month < 1 || rowData.month > 12) {
+          console.warn(`Satır ${i + 1}: Geçersiz yıl/ay değeri, atlanıyor`);
+          continue;
+        }
+        
+        consumptions_list.push(rowData);
+      }
+      
+      if (consumptions_list.length === 0) {
+        throw new Error('Geçerli veri satırı bulunamadı');
+      }
+      
+      // Send bulk data to backend
+      const response = await axios.post(`${API}/consumptions/bulk`, {
+        consumptions_list
+      }, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      
+      setBulkImportResults(response.data);
+      
+      // Refresh data
+      fetchConsumptions();
+      fetchAnalytics();
+      
+      alert(`✅ Toplu içe aktarma tamamlandı!\n${response.data.successful_imports} başarılı, ${response.data.failed_imports} hatalı`);
+      
+    } catch (error) {
+      console.error('Bulk import error:', error);
+      alert('❌ Toplu içe aktarma hatası: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setBulkImporting(false);
+    }
+  };
+
+  const downloadTemplate = () => {
+    const link = document.createElement('a');
+    link.href = '/tuketim_listesi_template.csv';
+    link.download = 'tuketim_listesi_template.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
