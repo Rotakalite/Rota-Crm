@@ -12030,11 +12030,6 @@ const ConsumptionManagement = ({ onNavigate }) => {
   const API = getApiUrl();
 
   useEffect(() => {
-    // Debug: Update document title with state
-    document.title = `CRM - Bulk Import: ${showBulkImport}`;
-  }, [showBulkImport]);
-
-  useEffect(() => {
     console.log('🔍 ConsumptionManagement useEffect triggered:', {
       authToken: !!authToken,
       userRole,
