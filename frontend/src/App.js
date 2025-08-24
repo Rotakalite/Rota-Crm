@@ -139,11 +139,6 @@ const useAuth = () => {
 
   // Setup axios interceptor for automatic token refresh
   useEffect(() => {
-    // Debug: Update document title with state
-    document.title = `CRM - Bulk Import: ${showBulkImport}`;
-  }, [showBulkImport]);
-
-  useEffect(() => {
     const requestInterceptor = axios.interceptors.request.use(
       async (config) => {
         // Proactively refresh token before each request
