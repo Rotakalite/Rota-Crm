@@ -88,6 +88,42 @@ class EmailService:
         except Exception as e:
             logging.error(f"❌ Error checking templates: {str(e)}")
     
+    async def send_direct_smtp(self, to_email: str, subject: str, html_content: str):
+        """Direct SMTP fallback method using smtplib"""
+        import smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+        
+        try:
+            logging.info(f"🔄 Starting direct SMTP connection to smtp.gmail.com:587")
+            
+            # Create message
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = subject
+            msg['From'] = gmail_user
+            msg['To'] = to_email
+            
+            # Add HTML content
+            html_part = MIMEText(html_content, 'html')
+            msg.attach(html_part)
+            
+            # Connect to Gmail SMTP
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(gmail_user, gmail_password)
+            
+            # Send email
+            text = msg.as_string()
+            server.sendmail(gmail_user, to_email, text)
+            server.quit()
+            
+            logging.info(f"✅ Direct SMTP email sent successfully to: {to_email}")
+            return True
+            
+        except Exception as e:
+            logging.error(f"❌ Direct SMTP error: {str(e)}")
+            return False
+    
     async def send_email(self, to_email: str, subject: str, html_content: str, from_email: str = None, from_name: str = None):
         """Send email with HTML content"""
         try:
