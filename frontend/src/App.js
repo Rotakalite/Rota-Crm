@@ -13809,8 +13809,8 @@ const ProjectManagement = ({ client, onNavigate }) => {
         </div>
       )}
       
-      {/* Consumption Bulk Import Modal - ALWAYS VISIBLE FOR DEBUG */}
-      {true && (
+      {/* Consumption Bulk Import Modal */}
+      {showBulkImport && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
           style={{ zIndex: 9999 }}
