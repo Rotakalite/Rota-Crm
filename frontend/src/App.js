@@ -12021,6 +12021,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
   const [bulkImporting, setBulkImporting] = useState(false);
   
   const { authToken, userRole, dbUser, ensureTokenForOperation, handleViewTeam, handleAddTeamMember, showTeamModal, setShowTeamModal, teamMembers, showAddTeamMember, setShowAddTeamMember, teamMemberForm, setTeamMemberForm } = useAuth();
+  const API = getApiUrl();
 
   useEffect(() => {
     console.log('🔍 ConsumptionManagement useEffect triggered:', {
