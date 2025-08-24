@@ -10626,6 +10626,109 @@ async def get_carbon_analytics(
     }
 
 
+# Bulk Consumption Import Endpoint
+@api_router.post("/consumptions/bulk")
+async def bulk_import_consumptions(
+    bulk_data: BulkConsumptionRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """Import multiple consumption records from Excel/CSV"""
+    
+    try:
+        # 🎯 Demo limit check for bulk consumption import
+        if not current_user.admin_approved:
+            demo_limit = await check_demo_limit(current_user, 'consumptions', len(bulk_data.consumptions_list))
+            if demo_limit:
+                return demo_limit
+        
+        logging.info(f"📊 Bulk consumption import started by user: {current_user.role} - {current_user.name}")
+        
+        # Determine client_id based on user role
+        if current_user.role == UserRole.CLIENT:
+            client_id = current_user.client_id
+        elif current_user.role == UserRole.ADMIN:
+            # Admin must specify client_id for each consumption or use their own
+            client_id = None  # Will be set per consumption
+        elif current_user.role == UserRole.CONSULTANT:
+            client_id = None  # Will validate per consumption
+        else:
+            raise HTTPException(status_code=403, detail="Bulk consumption import permission denied")
+        
+        successful_imports = 0
+        failed_imports = 0
+        error_messages = []
+        
+        for idx, consumption_item in enumerate(bulk_data.consumptions_list):
+            try:
+                # Set client_id for the consumption
+                if current_user.role == UserRole.CLIENT:
+                    target_client_id = client_id
+                elif current_user.role == UserRole.ADMIN:
+                    # Admin can import for any client, but defaults to their own if not specified
+                    target_client_id = client_id or current_user.client_id or "admin_default"
+                elif current_user.role == UserRole.CONSULTANT:
+                    # Consultant must have client assignment
+                    if not current_user.consultant_id:
+                        error_messages.append(f"Row {idx + 1}: Consultant ID not assigned")
+                        failed_imports += 1
+                        continue
+                    target_client_id = current_user.client_id
+                
+                # Check for existing consumption record
+                existing_consumption = await db.consumptions.find_one({
+                    "client_id": target_client_id,
+                    "year": consumption_item.year,
+                    "month": consumption_item.month
+                })
+                
+                # Create consumption record
+                consumption_dict = consumption_item.dict()
+                consumption_dict.update({
+                    "id": str(uuid.uuid4()),
+                    "client_id": target_client_id,
+                    "created_at": datetime.utcnow(),
+                    "updated_at": datetime.utcnow()
+                })
+                
+                if existing_consumption:
+                    # Update existing record
+                    await db.consumptions.update_one(
+                        {"id": existing_consumption["id"]},
+                        {"$set": consumption_dict}
+                    )
+                    logging.info(f"✅ Updated existing consumption for {consumption_item.year}-{consumption_item.month}")
+                else:
+                    # Insert new record
+                    await db.consumptions.insert_one(consumption_dict)
+                    logging.info(f"✅ Created new consumption for {consumption_item.year}-{consumption_item.month}")
+                    
+                    # 🎯 Increment demo limit for new consumption
+                    if not current_user.admin_approved:
+                        await increment_demo_limit(current_user, 'consumptions')
+                
+                successful_imports += 1
+                
+            except Exception as e:
+                error_messages.append(f"Row {idx + 1}: {str(e)}")
+                failed_imports += 1
+                logging.error(f"❌ Error importing consumption row {idx + 1}: {e}")
+        
+        # 🎯 Send demo limit notification if limit reached
+        if not current_user.admin_approved and successful_imports > 0:
+            await send_demo_limit_notification(current_user, 'consumptions')
+        
+        return {
+            "message": f"Bulk consumption import completed",
+            "successful_imports": successful_imports,
+            "failed_imports": failed_imports,
+            "total_processed": len(bulk_data.consumptions_list),
+            "errors": error_messages[:10]  # Limit error messages
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Bulk consumption import error: {e}")
+        raise HTTPException(status_code=500, detail=f"Bulk import failed: {str(e)}")
+
 
 @api_router.post("/consumptions/waste-data")
 async def create_waste_record_via_consumptions(
