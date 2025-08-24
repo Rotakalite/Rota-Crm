@@ -13758,8 +13758,8 @@ const ProjectManagement = ({ client, onNavigate }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl">
             <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-t-xl">
-              <h3 className="text-xl font-bold">📥 Toplu Tüketim Verisi İçe Aktarma</h3>
-              <p className="text-purple-100 mt-1">CSV dosyası ile birden fazla aylık tüketim verisi ekleyin</p>
+              <h3 className="text-xl font-bold">📊 Toplu Tüketim Verisi İçe Aktarma</h3>
+              <p className="text-purple-100 mt-1">Excel dosyası (.xlsx) ile birden fazla aylık tüketim verisi ekleyin</p>
             </div>
             
             <form onSubmit={handleBulkImport} className="p-6 space-y-6">
