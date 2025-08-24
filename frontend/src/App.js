@@ -7780,8 +7780,8 @@ const BulkOperations = ({ onNavigate }) => {
         )}
       </div>
 
-      {/* Bulk Import Modal */}
-      {showBulkImport && (
+      {/* Bulk Import Modal - ALWAYS VISIBLE FOR DEBUG */}
+      {true && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-10 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
             <h3 className="text-lg font-bold text-gray-900 mb-4">📤 Toplu Müşteri Yükleme</h3>
