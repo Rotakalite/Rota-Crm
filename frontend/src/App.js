@@ -12016,6 +12016,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
   });
   
   // Bulk import states
+  const [showBulkImport, setShowBulkImport] = useState(false);
   const [bulkFile, setBulkFile] = useState(null);
   const [bulkImportResults, setBulkImportResults] = useState(null);
   const [bulkImporting, setBulkImporting] = useState(false);
