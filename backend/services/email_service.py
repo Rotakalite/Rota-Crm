@@ -125,17 +125,23 @@ class EmailService:
             return False
     
     async def send_email(self, to_email: str, subject: str, html_content: str, from_email: str = None, from_name: str = None):
-        """Send email with HTML content"""
+        """Send email with comprehensive error logging and fallback"""
         try:
+            logging.info(f"📧 Starting email send to: {to_email}")
+            logging.info(f"📧 Subject: {subject}")
+            logging.info(f"📧 Using Gmail SMTP: smtp.gmail.com:587")
+            
             # Choose the right FastMail instance based on from_name
             if from_name:
                 # Use bulk FastMail with display name for bulk emails
                 fastmail_instance = self.fastmail_bulk
-                logging.info(f"📧 Using bulk email config with display name")
+                logging.info(f"📧 Using bulk email config with display name: {from_name}")
             else:
                 # Use regular FastMail for normal emails (2FA etc)
                 fastmail_instance = self.fastmail
                 logging.info(f"📧 Using regular email config")
+            
+            logging.info(f"📧 Message schema creation...")
             
             # Create message
             message = MessageSchema(
@@ -144,17 +150,34 @@ class EmailService:
                 body=html_content,
                 subtype="html"
             )
+            
+            logging.info(f"📧 Message schema created successfully")
+            logging.info(f"📧 Attempting FastMail send...")
                 
             await fastmail_instance.send_message(message)
             
             # Log with sender info
             sender_info = f"from {from_name}" if from_name else f"from {gmail_user}"
-            logging.info(f"📧 Email sent to {to_email} {sender_info} with subject: {subject}")
+            logging.info(f"✅ Email sent successfully to {to_email} {sender_info} with subject: {subject}")
             return True
             
         except Exception as e:
-            logging.error(f"❌ Error sending email: {str(e)}")
-            raise
+            logging.error(f"❌ FastMail error: {str(e)}")
+            logging.error(f"❌ Error type: {type(e).__name__}")
+            
+            # Fallback to direct SMTP
+            try:
+                logging.info(f"🔄 Attempting direct SMTP fallback...")
+                success = await self.send_direct_smtp(to_email, subject, html_content)
+                if success:
+                    logging.info(f"✅ Direct SMTP fallback successful")
+                    return True
+                else:
+                    logging.error(f"❌ Direct SMTP fallback failed")
+                    return False
+            except Exception as fallback_error:
+                logging.error(f"❌ Direct SMTP fallback error: {str(fallback_error)}")
+                return False
     
     async def send_document_upload_notification(
         self, 
