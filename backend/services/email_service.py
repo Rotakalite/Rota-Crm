@@ -33,7 +33,6 @@ else:
         MAIL_SERVER="smtp.gmail.com",
         MAIL_STARTTLS=True,
         MAIL_SSL_TLS=False,
-        MAIL_TIMEOUT=60,  # Increased timeout
         TEMPLATE_FOLDER=str(Path(__file__).parent.parent / "templates")
     )
     
@@ -46,7 +45,6 @@ else:
         MAIL_SERVER="smtp.gmail.com",
         MAIL_STARTTLS=True,
         MAIL_SSL_TLS=False,
-        MAIL_TIMEOUT=60,  # Increased timeout
         TEMPLATE_FOLDER=str(Path(__file__).parent.parent / "templates")
     )
 
