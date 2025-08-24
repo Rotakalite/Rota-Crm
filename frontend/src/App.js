@@ -12342,53 +12342,76 @@ const ConsumptionManagement = ({ onNavigate }) => {
     setBulkImportResults(null);
     
     try {
-      // Parse CSV file
-      const text = await bulkFile.text();
-      const lines = text.split('\n').filter(line => line.trim() !== '');
+      // Import XLSX library dynamically
+      const XLSX = (await import('xlsx')).default;
       
-      if (lines.length < 2) {
-        throw new Error('Dosya en az 1 veri satırı içermelidir');
+      // Read Excel file
+      const data = await bulkFile.arrayBuffer();
+      const workbook = XLSX.read(data, { type: 'array' });
+      
+      // Get first worksheet
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      
+      // Convert to JSON
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+      
+      if (jsonData.length === 0) {
+        throw new Error('Excel dosyası boş veya geçersiz formatta');
       }
       
-      // Parse header
-      const headers = lines[0].split(',').map(h => h.trim());
+      // Column mapping (Turkish to English)
+      const columnMap = {
+        'Yıl': 'year',
+        'Ay': 'month', 
+        'Elektrik (kWh)': 'electricity',
+        'Su (m³)': 'water',
+        'Doğalgaz (m³)': 'natural_gas',
+        'Kömür (kg)': 'coal',
+        'Dizel (lt)': 'diesel',
+        'Benzin (lt)': 'gasoline',
+        'LPG (kg)': 'lpg',
+        'Fuel Oil (lt)': 'fuel_oil',
+        'R134a Gaz (kg)': 'r134a_gas',
+        'R600a Gaz (kg)': 'r600a_gas',
+        'R410a Gaz (kg)': 'r410a_gas',
+        'R32 Gaz (kg)': 'r32_gas',
+        'CO2 Yangın (kg)': 'co2_fire',
+        'FM200 Yangın (kg)': 'fm200_fire',
+        'Konaklama Sayısı': 'accommodation_count'
+      };
       
-      // Expected headers
-      const expectedHeaders = [
-        'year', 'month', 'electricity', 'water', 'natural_gas', 'coal',
-        'diesel', 'gasoline', 'lpg', 'fuel_oil', 'r134a_gas', 'r600a_gas',
-        'r410a_gas', 'r32_gas', 'co2_fire', 'fm200_fire', 'accommodation_count'
-      ];
-      
-      // Validate headers
-      const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
-      if (missingHeaders.length > 0) {
-        throw new Error(`Eksik sütunlar: ${missingHeaders.join(', ')}`);
-      }
-      
-      // Parse data rows
+      // Process data rows
       const consumptions_list = [];
       
-      for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',').map(v => v.trim());
-        
-        if (values.length !== headers.length) {
-          console.warn(`Satır ${i + 1}: Sütun sayısı uyuşmuyor, atlanıyor`);
-          continue;
-        }
-        
+      for (let i = 0; i < jsonData.length; i++) {
+        const row = jsonData[i];
         const rowData = {};
-        headers.forEach((header, index) => {
-          if (header === 'year' || header === 'month' || header === 'accommodation_count') {
-            rowData[header] = parseInt(values[index]) || 0;
+        
+        // Map Turkish columns to English
+        Object.keys(columnMap).forEach(turkishKey => {
+          const englishKey = columnMap[turkishKey];
+          const value = row[turkishKey];
+          
+          if (value !== undefined && value !== null && value !== '') {
+            if (englishKey === 'year' || englishKey === 'month' || englishKey === 'accommodation_count') {
+              rowData[englishKey] = parseInt(value) || 0;
+            } else {
+              rowData[englishKey] = parseFloat(value) || 0.0;
+            }
           } else {
-            rowData[header] = parseFloat(values[index]) || 0.0;
+            // Set default values
+            if (englishKey === 'year' || englishKey === 'month' || englishKey === 'accommodation_count') {
+              rowData[englishKey] = 0;
+            } else {
+              rowData[englishKey] = 0.0;
+            }
           }
         });
         
         // Validate required fields
         if (!rowData.year || !rowData.month || rowData.month < 1 || rowData.month > 12) {
-          console.warn(`Satır ${i + 1}: Geçersiz yıl/ay değeri, atlanıyor`);
+          console.warn(`Satır ${i + 1}: Geçersiz yıl/ay değeri (${rowData.year}/${rowData.month}), atlanıyor`);
           continue;
         }
         
@@ -12398,6 +12421,8 @@ const ConsumptionManagement = ({ onNavigate }) => {
       if (consumptions_list.length === 0) {
         throw new Error('Geçerli veri satırı bulunamadı');
       }
+      
+      console.log(`📊 Processing ${consumptions_list.length} consumption records`);
       
       // Send bulk data to backend
       const response = await axios.post(`${API}/consumptions/bulk`, {
@@ -12424,8 +12449,8 @@ const ConsumptionManagement = ({ onNavigate }) => {
 
   const downloadTemplate = () => {
     const link = document.createElement('a');
-    link.href = '/tuketim_listesi_template.csv';
-    link.download = 'tuketim_listesi_template.csv';
+    link.href = '/tuketim_listesi_template.xlsx';
+    link.download = 'tuketim_listesi_template.xlsx';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
