@@ -13765,27 +13765,27 @@ const ProjectManagement = ({ client, onNavigate }) => {
             <form onSubmit={handleBulkImport} className="p-6 space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  CSV Dosyası Seçin
+                  Excel Dosyası Seçin (.xlsx)
                 </label>
                 <input
                   type="file"
-                  accept=".csv"
+                  accept=".xlsx,.xls"
                   onChange={(e) => setBulkFile(e.target.files[0])}
                   className="w-full p-3 border-2 border-dashed border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
                   required
                 />
                 <p className="text-sm text-gray-600 mt-2">
-                  Sadece CSV formatı kabul edilir. Template dosyasını indirip kullanabilirsiniz.
+                  Sadece Excel formatı (.xlsx, .xls) kabul edilir. Template dosyasını indirip kullanabilirsiniz.
                 </p>
               </div>
               
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h4 className="font-semibold text-blue-800 mb-2">📋 CSV Format Bilgisi:</h4>
+                <h4 className="font-semibold text-blue-800 mb-2">📊 Excel Format Bilgisi:</h4>
                 <ul className="text-sm text-blue-700 space-y-1">
-                  <li>• <strong>Gerekli sütunlar:</strong> year, month, electricity, water, natural_gas, coal, accommodation_count</li>
-                  <li>• <strong>Opsiyonel:</strong> diesel, gasoline, lpg, fuel_oil, r134a_gas, r600a_gas, vb.</li>
-                  <li>• <strong>Örnekler:</strong> 2024,1,25000.5,15000.2,8000.0,0.0,250</li>
-                  <li>• <strong>Virgül ayırıcı</strong> kullanın, başlık satırı zorunlu</li>
+                  <li>• <strong>Gerekli sütunlar:</strong> Yıl, Ay, Elektrik (kWh), Su (m³), Konaklama Sayısı</li>
+                  <li>• <strong>Opsiyonel:</strong> Doğalgaz, Kömür, Dizel, Benzin, LPG, Fuel Oil, Soğutucu gazlar</li>
+                  <li>• <strong>Türkçe başlıklar:</strong> "Elektrik (kWh)", "Su (m³)", "Doğalgaz (m³)" vb.</li>
+                  <li>• <strong>Template indirin</strong> ve örnek formatı kullanın</li>
                 </ul>
               </div>
               
