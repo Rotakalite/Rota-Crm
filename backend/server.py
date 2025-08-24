@@ -14927,15 +14927,26 @@ async def send_2fa_code(request: dict):
 </html>
             """
             
-            await email_service.send_email(
-                to_email=email,
-                subject=subject,
-                html_content=html_content
-            )
-            
-            logging.info(f"📧 2FA code sent to {email}")
+            try:
+                await email_service.send_email(
+                    to_email=email,
+                    subject=subject,
+                    html_content=html_content
+                )
+                
+                logging.info(f"📧 2FA code sent to {email}")
+            except Exception as email_error:
+                logging.error(f"❌ Email service error: {str(email_error)}")
+                # Try alternative approach - direct SMTP without FastMail
+                try:
+                    await send_2fa_email_direct(email, verification_code)
+                    logging.info(f"📧 2FA code sent via direct SMTP to {email}")
+                except Exception as direct_error:
+                    logging.error(f"❌ Direct SMTP also failed: {str(direct_error)}")
+                    raise HTTPException(status_code=500, detail="Email gönderim sistemi geçici olarak kullanılamıyor")
         else:
             logging.warning("📧 Email service not available, 2FA code not sent")
+            raise HTTPException(status_code=500, detail="Email servisi yapılandırılmamış")
             
         return {"message": "Doğrulama kodu email adresinize gönderildi", "success": True}
         
