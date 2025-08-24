@@ -259,7 +259,8 @@ class EmailService:
 # Global email service instance
 if gmail_user and gmail_password:
     email_service = EmailService()
-    logging.info("✅ Email service created successfully")
+    logging.info("📧 Email service initialized successfully with Gmail App Password authentication")
+    logging.info("🔧 Version: 2.1.0 - Updated Gmail credentials and SendGrid fallback support")
 else:
     email_service = None
     logging.warning("⚠️ Email service disabled due to missing credentials")
