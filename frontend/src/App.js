@@ -12342,21 +12342,34 @@ const ConsumptionManagement = ({ onNavigate }) => {
     setBulkImportResults(null);
     
     try {
-      // Import XLSX library dynamically
-      const XLSX = (await import('xlsx')).default;
+      let XLSX;
+      
+      // Try to import XLSX library
+      try {
+        XLSX = await import('xlsx');
+        XLSX = XLSX.default || XLSX;
+      } catch (importError) {
+        alert('❌ Excel okuma kütüphanesi yüklenemedi. Sayfa yenilemeyi deneyin.');
+        setBulkImporting(false);
+        return;
+      }
       
       // Read Excel file
       const data = await bulkFile.arrayBuffer();
       const workbook = XLSX.read(data, { type: 'array' });
       
       // Get first worksheet
+      if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+        throw new Error('Excel dosyasında sayfa bulunamadı');
+      }
+      
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       
       // Convert to JSON
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
       
-      if (jsonData.length === 0) {
+      if (!jsonData || jsonData.length === 0) {
         throw new Error('Excel dosyası boş veya geçersiz formatta');
       }
       
@@ -12385,63 +12398,84 @@ const ConsumptionManagement = ({ onNavigate }) => {
       const consumptions_list = [];
       
       for (let i = 0; i < jsonData.length; i++) {
-        const row = jsonData[i];
-        const rowData = {};
-        
-        // Map Turkish columns to English
-        Object.keys(columnMap).forEach(turkishKey => {
-          const englishKey = columnMap[turkishKey];
-          const value = row[turkishKey];
+        try {
+          const row = jsonData[i];
+          const rowData = {};
           
-          if (value !== undefined && value !== null && value !== '') {
-            if (englishKey === 'year' || englishKey === 'month' || englishKey === 'accommodation_count') {
-              rowData[englishKey] = parseInt(value) || 0;
+          // Map Turkish columns to English
+          Object.keys(columnMap).forEach(turkishKey => {
+            const englishKey = columnMap[turkishKey];
+            const value = row[turkishKey];
+            
+            if (value !== undefined && value !== null && value !== '') {
+              if (englishKey === 'year' || englishKey === 'month' || englishKey === 'accommodation_count') {
+                rowData[englishKey] = parseInt(value) || 0;
+              } else {
+                rowData[englishKey] = parseFloat(value) || 0.0;
+              }
             } else {
-              rowData[englishKey] = parseFloat(value) || 0.0;
+              // Set default values
+              if (englishKey === 'year' || englishKey === 'month' || englishKey === 'accommodation_count') {
+                rowData[englishKey] = 0;
+              } else {
+                rowData[englishKey] = 0.0;
+              }
             }
-          } else {
-            // Set default values
-            if (englishKey === 'year' || englishKey === 'month' || englishKey === 'accommodation_count') {
-              rowData[englishKey] = 0;
-            } else {
-              rowData[englishKey] = 0.0;
-            }
+          });
+          
+          // Validate required fields
+          if (!rowData.year || rowData.year < 2020 || rowData.year > 2030) {
+            console.warn(`Satır ${i + 1}: Geçersiz yıl değeri (${rowData.year}), atlanıyor`);
+            continue;
           }
-        });
-        
-        // Validate required fields
-        if (!rowData.year || !rowData.month || rowData.month < 1 || rowData.month > 12) {
-          console.warn(`Satır ${i + 1}: Geçersiz yıl/ay değeri (${rowData.year}/${rowData.month}), atlanıyor`);
-          continue;
+          
+          if (!rowData.month || rowData.month < 1 || rowData.month > 12) {
+            console.warn(`Satır ${i + 1}: Geçersiz ay değeri (${rowData.month}), atlanıyor`);
+            continue;
+          }
+          
+          consumptions_list.push(rowData);
+          
+        } catch (rowError) {
+          console.warn(`Satır ${i + 1}: İşleme hatası, atlanıyor - ${rowError.message}`);
         }
-        
-        consumptions_list.push(rowData);
       }
       
       if (consumptions_list.length === 0) {
-        throw new Error('Geçerli veri satırı bulunamadı');
+        throw new Error('Geçerli veri satırı bulunamadı. Lütfen Excel formatını kontrol edin.');
       }
-      
-      console.log(`📊 Processing ${consumptions_list.length} consumption records`);
       
       // Send bulk data to backend
       const response = await axios.post(`${API}/consumptions/bulk`, {
         consumptions_list
       }, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
+        headers: { 'Authorization': `Bearer ${authToken}` },
+        timeout: 60000 // 60 second timeout for large files
       });
       
       setBulkImportResults(response.data);
       
       // Refresh data
-      fetchConsumptions();
-      fetchAnalytics();
+      await fetchConsumptions();
+      await fetchAnalytics();
       
       alert(`✅ Toplu içe aktarma tamamlandı!\n${response.data.successful_imports} başarılı, ${response.data.failed_imports} hatalı`);
       
     } catch (error) {
       console.error('Bulk import error:', error);
-      alert('❌ Toplu içe aktarma hatası: ' + (error.response?.data?.detail || error.message));
+      
+      let errorMessage = 'Bilinmeyen hata oluştu';
+      
+      if (error.response) {
+        // API error
+        errorMessage = error.response.data?.detail || `API Hatası: ${error.response.status}`;
+      } else if (error.message) {
+        // Processing error
+        errorMessage = error.message;
+      }
+      
+      alert(`❌ Toplu içe aktarma hatası:\n${errorMessage}`);
+      
     } finally {
       setBulkImporting(false);
     }
