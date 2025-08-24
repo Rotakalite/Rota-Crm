@@ -5931,6 +5931,12 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
     accommodation_count: 1
   });
   const { authToken, userRole, dbUser, ensureTokenForOperation, handleViewTeam, handleAddTeamMember, showTeamModal, setShowTeamModal, teamMembers, showAddTeamMember, setShowAddTeamMember, teamMemberForm, setTeamMemberForm } = useAuth();
+
+  // Bulk import states
+  const [showBulkImport, setShowBulkImport] = useState(false);
+  const [bulkFile, setBulkFile] = useState(null);
+  const [bulkImportResults, setBulkImportResults] = useState(null);
+  const [bulkImporting, setBulkImporting] = useState(false);
   const API = getApiUrl();
 
   // Use selectedClient from props (for consultant) or manage locally (for admin/client)
