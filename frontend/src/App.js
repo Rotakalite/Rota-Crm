@@ -13023,7 +13023,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
               title="Excel template indir"
             >
               <span>📊</span>
-              <span>Template İndir</span>
+              <span>Excel Template</span>
             </button>
             <button
               onClick={() => setShowBulkImport(true)}
