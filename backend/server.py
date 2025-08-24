@@ -591,6 +591,66 @@ async def send_email(to_email: str, subject: str, html_content: str):
         logging.error(f"❌ Failed to send email: {str(e)}")
         return False
 
+async def send_2fa_email_direct(to_email: str, verification_code: str):
+    """Direct SMTP email sending for 2FA as fallback"""
+    try:
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587
+        sender_email = os.environ.get('GMAIL_USER')
+        sender_password = os.environ.get('GMAIL_PASSWORD')
+        
+        if not sender_email or not sender_password:
+            logging.warning("⚠️ Gmail credentials not configured for direct SMTP")
+            return False
+        
+        # Create message
+        message = MIMEMultipart("alternative")
+        message["Subject"] = "🔐 GreenWave CRM - Güvenlik Kodu (Direct)"
+        message["From"] = sender_email
+        message["To"] = to_email
+        
+        # Simple HTML content for 2FA
+        html_content = f"""
+        <html>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <div style="max-width: 500px; margin: 0 auto; padding: 20px;">
+                    <div style="background: linear-gradient(135deg, #10b981, #047857); color: white; padding: 30px; text-align: center; border-radius: 10px;">
+                        <h1 style="margin: 0;">🌱 GreenWave CRM</h1>
+                        <p style="margin: 10px 0 0 0;">Güvenlik Doğrulama</p>
+                    </div>
+                    
+                    <div style="padding: 30px; background: #f8f9fa; border-radius: 10px; margin-top: 20px;">
+                        <h2 style="color: #10b981; margin-bottom: 20px;">🔐 Doğrulama Kodunuz</h2>
+                        <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; border: 2px solid #10b981;">
+                            <div style="font-size: 32px; font-weight: bold; color: #10b981; letter-spacing: 4px; font-family: monospace;">{verification_code}</div>
+                            <p style="color: #ef4444; font-size: 13px; margin-top: 10px;">⏰ Bu kod 5 dakika süreyle geçerlidir</p>
+                        </div>
+                        <p style="margin-top: 20px; color: #6b7280; font-size: 14px;">
+                            Bu kodu kimseyle paylaşmayın. GreenWave CRM ekibi asla telefonla kod talep etmez.
+                        </p>
+                    </div>
+                </div>
+            </body>
+        </html>
+        """
+        
+        # Add HTML content
+        html_part = MIMEText(html_content, "html", "utf-8")
+        message.attach(html_part)
+        
+        # Send email
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.send_message(message)
+        
+        logging.info(f"✅ Direct SMTP 2FA email sent to {to_email}")
+        return True
+        
+    except Exception as e:
+        logging.error(f"❌ Failed to send direct SMTP 2FA email: {str(e)}")
+        return False
+
 # PDF Report service
 try:
     from services.elite_pdf_report_service import elite_pdf_service
