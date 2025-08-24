@@ -13811,11 +13811,15 @@ const ProjectManagement = ({ client, onNavigate }) => {
       
       {/* Bulk Import Modal */}
       {showBulkImport && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
+          style={{ zIndex: 9999 }}
+        >
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl">
             <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-t-xl">
               <h3 className="text-xl font-bold">📊 Toplu Tüketim Verisi İçe Aktarma</h3>
               <p className="text-purple-100 mt-1">Excel dosyası (.xlsx) ile birden fazla aylık tüketim verisi ekleyin</p>
+              <p className="text-white text-xs mt-2">🔍 Debug: Modal açıldı! showBulkImport = true</p>
             </div>
             
             <form onSubmit={handleBulkImport} className="p-6 space-y-6">
