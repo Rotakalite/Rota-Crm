@@ -4932,9 +4932,6 @@ const CarbonFootprint = () => {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Debug: Show state in page title */}
-      {showBulkImport && (document.title = `🔍 DEBUG: showBulkImport = ${showBulkImport}`)}
-      
       {/* Header */}
       <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white p-6 rounded-xl shadow-lg">
         <div className="flex justify-between items-center mb-4">
