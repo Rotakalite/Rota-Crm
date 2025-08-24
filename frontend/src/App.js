@@ -13727,6 +13727,95 @@ const ProjectManagement = ({ client, onNavigate }) => {
           </div>
         </div>
       )}
+      
+      {/* Bulk Import Modal */}
+      {showBulkImport && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl">
+            <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-t-xl">
+              <h3 className="text-xl font-bold">📥 Toplu Tüketim Verisi İçe Aktarma</h3>
+              <p className="text-purple-100 mt-1">CSV dosyası ile birden fazla aylık tüketim verisi ekleyin</p>
+            </div>
+            
+            <form onSubmit={handleBulkImport} className="p-6 space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  CSV Dosyası Seçin
+                </label>
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={(e) => setBulkFile(e.target.files[0])}
+                  className="w-full p-3 border-2 border-dashed border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
+                  required
+                />
+                <p className="text-sm text-gray-600 mt-2">
+                  Sadece CSV formatı kabul edilir. Template dosyasını indirip kullanabilirsiniz.
+                </p>
+              </div>
+              
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-800 mb-2">📋 CSV Format Bilgisi:</h4>
+                <ul className="text-sm text-blue-700 space-y-1">
+                  <li>• <strong>Gerekli sütunlar:</strong> year, month, electricity, water, natural_gas, coal, accommodation_count</li>
+                  <li>• <strong>Opsiyonel:</strong> diesel, gasoline, lpg, fuel_oil, r134a_gas, r600a_gas, vb.</li>
+                  <li>• <strong>Örnekler:</strong> 2024,1,25000.5,15000.2,8000.0,0.0,250</li>
+                  <li>• <strong>Virgül ayırıcı</strong> kullanın, başlık satırı zorunlu</li>
+                </ul>
+              </div>
+              
+              {bulkImportResults && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-green-800 mb-2">✅ İçe Aktarma Sonuçları:</h4>
+                  <div className="text-sm text-green-700 space-y-1">
+                    <p><strong>Başarılı:</strong> {bulkImportResults.successful_imports} kayıt</p>
+                    <p><strong>Hatalı:</strong> {bulkImportResults.failed_imports} kayıt</p>
+                    <p><strong>Toplam:</strong> {bulkImportResults.total_processed} kayıt işlendi</p>
+                    {bulkImportResults.errors && bulkImportResults.errors.length > 0 && (
+                      <div className="mt-2">
+                        <p className="font-medium">Hatalar:</p>
+                        <ul className="list-disc list-inside">
+                          {bulkImportResults.errors.slice(0, 5).map((error, index) => (
+                            <li key={index} className="text-red-600 text-xs">{error}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex space-x-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowBulkImport(false);
+                    setBulkFile(null);
+                    setBulkImportResults(null);
+                  }}
+                  className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600 transition-colors"
+                >
+                  İptal
+                </button>
+                <button
+                  type="button"
+                  onClick={downloadTemplate}
+                  className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  📊 Template İndir
+                </button>
+                <button
+                  type="submit"
+                  disabled={bulkImporting}
+                  className="flex-1 bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 disabled:bg-gray-400 transition-colors"
+                >
+                  {bulkImporting ? '⏳ İçe Aktarılıyor...' : '📥 İçe Aktar'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
