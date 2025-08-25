@@ -12025,6 +12025,16 @@ const ConsumptionManagement = ({ onNavigate }) => {
   const API = getApiUrl();
 
   useEffect(() => {
+    console.log('🎯 CONSUMPTION MANAGEMENT COMPONENT MOUNTED');
+    console.log('🔍 Initial showBulkImport state:', showBulkImport);
+    console.log('🔍 setShowBulkImport function:', typeof setShowBulkImport);
+  }, []);
+
+  useEffect(() => {
+    console.log('🔍 showBulkImport STATE CHANGED:', showBulkImport);
+  }, [showBulkImport]);
+
+  useEffect(() => {
     console.log('🔍 ConsumptionManagement useEffect triggered:', {
       authToken: !!authToken,
       userRole,
