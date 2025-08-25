@@ -13187,16 +13187,20 @@ const ConsumptionManagement = ({ onNavigate }) => {
                   <span>Excel Template</span>
                 </button>
                 <button
-                  onClick={() => {
-                    console.log('🎯 ADMIN BULK BUTTON CLICKED!');
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🎯 ADMIN BULK BUTTON CLICKED! Event:', e);
                     console.log('🔍 Current showBulkImport state:', showBulkImport);
                     console.log('🔍 setShowBulkImport function exists:', typeof setShowBulkImport);
                     console.log('🔍 consumptionData.client_id:', consumptionData.client_id);
-                    alert('Bulk Import Butonu Çalışıyor!');
+                    console.log('🔍 Button element:', e.target);
+                    console.log('🔍 Event type:', e.type);
+                    alert('ADMIN Bulk Import Butonu Çalışıyor!');
                     setShowBulkImport(true);
-                    console.log('🔍 setShowBulkImport(true) called');
+                    console.log('🔍 setShowBulkImport(true) called for ADMIN');
                     setTimeout(() => {
-                      console.log('🔍 showBulkImport after timeout:', showBulkImport);
+                      console.log('🔍 showBulkImport after timeout (ADMIN):', showBulkImport);
                     }, 100);
                   }}
                   className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
