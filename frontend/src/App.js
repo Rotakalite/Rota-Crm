@@ -12032,6 +12032,12 @@ const ConsumptionManagement = ({ onNavigate }) => {
 
   useEffect(() => {
     console.log('🔍 showBulkImport STATE CHANGED:', showBulkImport);
+    // Force re-render when showBulkImport changes
+    if (showBulkImport) {
+      document.title = 'BULK IMPORT MODAL AÇIK';
+    } else {
+      document.title = 'GreenWave CRM';
+    }
   }, [showBulkImport]);
 
   useEffect(() => {
