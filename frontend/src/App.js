@@ -12030,19 +12030,8 @@ const ConsumptionManagement = ({ onNavigate }) => {
     console.log('🔍 setShowBulkImport function:', typeof setShowBulkImport);
   }, []);
 
-  // Force component re-render when showBulkImport changes
   useEffect(() => {
     console.log('🔍 showBulkImport STATE CHANGED:', showBulkImport);
-    console.log('🔄 FORCING COMPONENT RE-RENDER');
-    // Debug log only - don't change title
-    if (showBulkImport) {
-      console.log('🎯 Bulk import modal is now open');
-    } else {
-      console.log('🎯 Bulk import modal is now closed');
-    }
-    
-    // Force re-render by updating document
-    document.body.setAttribute('data-bulk-import', showBulkImport ? 'open' : 'closed');
   }, [showBulkImport]);
 
   useEffect(() => {
