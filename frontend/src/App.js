@@ -13208,20 +13208,40 @@ const ConsumptionManagement = ({ onNavigate }) => {
                 </button>
                 <button
                   onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('🎯 ADMIN BULK BUTTON CLICKED! Event:', e);
-                    console.log('🔍 Current showBulkImport state:', showBulkImport);
-                    console.log('🔍 setShowBulkImport function exists:', typeof setShowBulkImport);
-                    console.log('🔍 consumptionData.client_id:', consumptionData.client_id);
-                    console.log('🔍 Button element:', e.target);
-                    console.log('🔍 Event type:', e.type);
-                    alert('ADMIN Bulk Import Butonu Çalışıyor!');
-                    setShowBulkImport(true);
-                    console.log('🔍 setShowBulkImport(true) called for ADMIN');
-                    setTimeout(() => {
-                      console.log('🔍 showBulkImport after timeout (ADMIN):', showBulkImport);
-                    }, 100);
+                    try {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('🎯 ADMIN BULK BUTTON CLICKED! Event:', e);
+                      console.log('🔍 Current showBulkImport state:', showBulkImport);
+                      console.log('🔍 setShowBulkImport function exists:', typeof setShowBulkImport);
+                      console.log('🔍 consumptionData.client_id:', consumptionData.client_id);
+                      console.log('🔍 Button element:', e.target);
+                      console.log('🔍 Event type:', e.type);
+                      
+                      // Test state function
+                      if (typeof setShowBulkImport !== 'function') {
+                        throw new Error('setShowBulkImport is not a function!');
+                      }
+                      
+                      alert('ADMIN Bulk Import Butonu Çalışıyor!');
+                      
+                      console.log('🔍 About to call setShowBulkImport(true)...');
+                      setShowBulkImport(true);
+                      console.log('🔍 setShowBulkImport(true) called for ADMIN - SUCCESS');
+                      
+                      setTimeout(() => {
+                        try {
+                          console.log('🔍 showBulkImport after timeout (ADMIN):', showBulkImport);
+                        } catch (timeoutError) {
+                          console.error('❌ Error in timeout callback:', timeoutError);
+                        }
+                      }, 100);
+                      
+                    } catch (error) {
+                      console.error('❌ ADMIN BULK BUTTON ERROR:', error);
+                      console.error('❌ Error stack:', error.stack);
+                      alert(`❌ ADMIN Bulk Button Error: ${error.message}`);
+                    }
                   }}
                   className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
                   title="Toplu tüketim verisi içe aktar"
