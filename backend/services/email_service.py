@@ -125,11 +125,9 @@ class EmailService:
             return False
     
     async def send_email(self, to_email: str, subject: str, html_content: str, from_email: str = None, from_name: str = None):
-        """Send email - SIMPLIFIED FOR PRODUCTION STABILITY"""
+        """Send email using FastMail - STABLE VERSION"""
         try:
-            logging.info(f"📧 Email send attempt to: {to_email}")
-            
-            # Choose the right FastMail instance based on from_name
+            # Choose the right FastMail instance
             if from_name:
                 fastmail_instance = self.fastmail_bulk
             else:
@@ -149,33 +147,7 @@ class EmailService:
             
         except Exception as e:
             logging.error(f"❌ Email error: {str(e)}")
-            
-            # Simple fallback to direct SMTP
-            try:
-                import smtplib
-                from email.mime.text import MIMEText
-                from email.mime.multipart import MIMEMultipart
-                
-                msg = MIMEMultipart('alternative')
-                msg['Subject'] = subject
-                msg['From'] = gmail_user
-                msg['To'] = to_email
-                
-                html_part = MIMEText(html_content, 'html')
-                msg.attach(html_part)
-                
-                server = smtplib.SMTP('smtp.gmail.com', 587)
-                server.starttls()
-                server.login(gmail_user, gmail_password)
-                server.sendmail(gmail_user, to_email, msg.as_string())
-                server.quit()
-                
-                logging.info(f"✅ Direct SMTP fallback successful")
-                return True
-                
-            except Exception as fallback_error:
-                logging.error(f"❌ Fallback error: {str(fallback_error)}")
-                return False
+            return False
     
     async def send_document_upload_notification(
         self, 
