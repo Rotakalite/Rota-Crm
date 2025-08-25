@@ -13242,11 +13242,17 @@ const ConsumptionManagement = ({ onNavigate }) => {
                         throw new Error('setShowBulkImport is not a function!');
                       }
                       
-                      alert('ADMIN Bulk Import Butonu Çalışıyor!');
+                      alert('🎯 ADMIN Bulk Import Butonu Çalışıyor! State will be: true');
                       
                       console.log('🔍 About to call setShowBulkImport(true)...');
                       setShowBulkImport(true);
                       console.log('🔍 setShowBulkImport(true) called for ADMIN - SUCCESS');
+                      
+                      // IMMEDIATE CHECK
+                      setTimeout(() => {
+                        console.log('🔍 IMMEDIATE CHECK - showBulkImport:', showBulkImport);
+                        alert('🔍 State sonrası kontrol: ' + showBulkImport);
+                      }, 10);
                       
                       setTimeout(() => {
                         try {
