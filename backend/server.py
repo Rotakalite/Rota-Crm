@@ -14703,242 +14703,25 @@ async def send_2fa_code(request: dict):
         # Send email
         from services.email_service import email_service
         if email_service:
-            subject = "🔐 GreenWave CRM - Güvenlik Kodu"
-            html_content = f"""
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GreenWave CRM - Güvenlik Doğrulama</title>
-    <style>
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-        
-        body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #374151;
-            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
-            padding: 20px;
-        }}
-        
-        .container {{
-            max-width: 500px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }}
-        
-        .header {{
-            background: linear-gradient(135deg, #10b981, #047857);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }}
-        
-        .header::before {{
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 70% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
-        }}
-        
-        .logo-container {{
-            position: relative;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 5px;
-        }}
-        
-        .logo-icon {{
-            width: 40px;
-            height: 40px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.3);
-            position: relative;
-        }}
-        
-        .logo-icon::before {{
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: linear-gradient(45deg, #ffffff 0%, #e0f2fe 100%);
-            border-radius: 50%;
-            top: 6px;
-            left: 6px;
-        }}
-        
-        .logo-icon::after {{
-            content: '🌊';
-            position: absolute;
-            font-size: 16px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }}
-        
-        .logo-text {{
-            font-size: 24px;
-            font-weight: bold;
-            background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }}
-        
-        .subtitle {{
-            opacity: 0.9;
-            font-size: 14px;
-        }}
-        
-        .content {{
-            padding: 40px 30px;
-            text-align: center;
-        }}
-        
-        .title {{
-            font-size: 20px;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 20px;
-        }}
-        
-        .description {{
-            color: #6b7280;
-            margin-bottom: 30px;
-            font-size: 15px;
-        }}
-        
-        .code-box {{
-            background: linear-gradient(135deg, #f9fafb, #f3f4f6);
-            border: 2px solid #10b981;
-            border-radius: 12px;
-            padding: 25px;
-            margin: 25px 0;
-        }}
-        
-        .code {{
-            font-size: 32px;
-            font-weight: bold;
-            color: #10b981;
-            letter-spacing: 4px;
-            margin-bottom: 8px;
-            font-family: 'Courier New', monospace;
-        }}
-        
-        .timer {{
-            color: #ef4444;
-            font-size: 13px;
-            font-weight: 500;
-        }}
-        
-        .warning {{
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 25px;
-            text-align: left;
-        }}
-        
-        .warning-title {{
-            color: #dc2626;
-            font-weight: 600;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }}
-        
-        .warning-text {{
-            color: #7f1d1d;
-            font-size: 13px;
-            line-height: 1.5;
-        }}
-        
-        .footer {{
-            background: #f9fafb;
-            padding: 20px;
-            text-align: center;
-            font-size: 12px;
-            color: #6b7280;
-        }}
-        
-        @media (max-width: 480px) {{
-            .container {{ margin: 10px; }}
-            .content {{ padding: 30px 20px; }}
-            .code {{ font-size: 28px; }}
-        }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="logo-container">
-                <div class="logo-icon"></div>
-                <div class="logo-text">GreenWave CRM</div>
-            </div>
-            <div class="subtitle">Sürdürülebilir Turizm Platformu</div>
-        </div>
-        
-        <div class="content">
-            <h1 class="title">🔐 Güvenlik Doğrulama</h1>
-            <p class="description">
-                Hesabınızın güvenliği için oluşturulan doğrulama kodunuz aşağıdadır.
-            </p>
-            
-            <div class="code-box">
-                <div class="code">{verification_code}</div>
-                <div class="timer">⏰ Bu kod 5 dakika süreyle geçerlidir</div>
-            </div>
-            
-            <div class="warning">
-                <div class="warning-title">🚨 Güvenlik Uyarısı</div>
-                <div class="warning-text">
-                    Bu kodu kimseyle paylaşmayın. GreenWave CRM ekibi asla telefonla kod talep etmez.
-                </div>
-            </div>
-        </div>
-        
-        <div class="footer">
-            © {datetime.utcnow().year} GreenWave CRM - Güvenli Danışmanlık Platformu
-        </div>
-    </div>
-</body>
-</html>
-            """
-            
             try:
                 await email_service.send_email(
                     to_email=email,
-                    subject=subject,
-                    html_content=html_content
+                    subject="🔐 GreenWave CRM - Güvenlik Kodu",
+                    html_content=f"""
+                    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px;">
+                        <h2 style="color: #10b981;">🔐 Doğrulama Kodunuz</h2>
+                        <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 32px; font-weight: bold; color: #10b981; letter-spacing: 4px;">{verification_code}</div>
+                            <p style="color: #ef4444; font-size: 13px;">⏰ Bu kod 10 dakika süreyle geçerlidir</p>
+                        </div>
+                        <p style="margin-top: 20px; color: #666;">Bu kodu kimseyle paylaşmayın.</p>
+                    </div>
+                    """
                 )
-                
                 logging.info(f"📧 2FA code sent to {email}")
             except Exception as email_error:
                 logging.error(f"❌ Email service error: {str(email_error)}")
-                # Try alternative approach - direct SMTP without FastMail
+                # Try fallback direct SMTP
                 try:
                     await send_2fa_email_direct(email, verification_code)
                     logging.info(f"📧 2FA code sent via direct SMTP to {email}")
@@ -14946,7 +14729,7 @@ async def send_2fa_code(request: dict):
                     logging.error(f"❌ Direct SMTP also failed: {str(direct_error)}")
                     raise HTTPException(status_code=500, detail="Email gönderim sistemi geçici olarak kullanılamıyor")
         else:
-            logging.warning("📧 Email service not available, 2FA code not sent")
+            logging.warning("📧 Email service not available")
             raise HTTPException(status_code=500, detail="Email servisi yapılandırılmamış")
             
         return {"message": "Doğrulama kodu email adresinize gönderildi", "success": True}
