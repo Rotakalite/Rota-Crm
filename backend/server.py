@@ -707,10 +707,19 @@ except Exception as e:
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection - FALLBACK TO ATLAS FOR STABILITY  
-mongo_url = os.environ.get('MONGO_URL')
+# MongoDB connection - USE RAILWAY DATABASE
+# Priority: Railway DB → Atlas fallback
+railway_db = os.environ.get('DATABASE_URL')
+atlas_db = os.environ.get('MONGO_URL')
 
-# Simple connection with basic timeout
+if railway_db:
+    mongo_url = railway_db
+    logging.info("🚂 Using Railway production MongoDB")
+else:
+    mongo_url = atlas_db
+    logging.info("☁️ Fallback to Atlas MongoDB")
+
+# Simple connection
 try:
     client = AsyncIOMotorClient(
         mongo_url,
