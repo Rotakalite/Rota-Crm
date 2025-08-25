@@ -707,25 +707,22 @@ except Exception as e:
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection - RAILWAY LOCAL DB FOR STABILITY
-# Use local MongoDB in Railway container instead of Atlas
-RAILWAY_MONGO_URL = "mongodb://localhost:27017/rotacrm"
-mongo_url = os.environ.get('MONGO_URL', RAILWAY_MONGO_URL)
+# MongoDB connection - FALLBACK TO ATLAS FOR STABILITY  
+mongo_url = os.environ.get('MONGO_URL')
 
-# If we're in Railway production, use local MongoDB
-if os.environ.get('RAILWAY_ENVIRONMENT'):
-    mongo_url = RAILWAY_MONGO_URL
-    logging.info("🚂 Using Railway local MongoDB")
-else:
-    logging.info("☁️ Using Atlas MongoDB")
-
-client = AsyncIOMotorClient(
-    mongo_url,
-    serverSelectionTimeoutMS=30000,  # 30 seconds
-    connectTimeoutMS=30000,         # 30 seconds
-    maxPoolSize=10,                 # Connection pool
-    retryWrites=True
-)
+# Simple connection with basic timeout
+try:
+    client = AsyncIOMotorClient(
+        mongo_url,
+        serverSelectionTimeoutMS=10000,  # 10 seconds
+        connectTimeoutMS=10000,          # 10 seconds
+        maxPoolSize=5,                   # Smaller pool
+        retryWrites=False                # Disable for stability
+    )
+    logging.info(f"📊 MongoDB connected: {mongo_url[:30]}...")
+except Exception as e:
+    logging.error(f"❌ MongoDB connection error: {e}")
+    # Continue without crashing
 
 # 🎯 FIXED: Dynamic database connection based on demo mode
 def get_db():
