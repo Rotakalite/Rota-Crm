@@ -12046,11 +12046,11 @@ const ConsumptionManagement = ({ onNavigate }) => {
 
   useEffect(() => {
     console.log('🔍 showBulkImport STATE CHANGED:', showBulkImport);
-    // Force re-render when showBulkImport changes
+    // Debug log only - don't change title
     if (showBulkImport) {
-      document.title = 'BULK IMPORT MODAL AÇIK';
+      console.log('🎯 Bulk import modal is now open');
     } else {
-      document.title = 'GreenWave CRM';
+      console.log('🎯 Bulk import modal is now closed');
     }
   }, [showBulkImport]);
 
