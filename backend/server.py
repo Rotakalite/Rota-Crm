@@ -14699,7 +14699,7 @@ async def send_test_email_main():
 # ==========================================
 # 2FA ENDPOINTS - MUST BE BEFORE API ROUTER
 # ==========================================
-@app.post("/api/auth/2fa/send-code")
+@api_router.post("/auth/2fa/send-code")
 async def send_2fa_code(request: dict):
     """Send 2FA verification code via email - STABLE VERSION"""
     try:
