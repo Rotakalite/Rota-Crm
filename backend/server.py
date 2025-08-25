@@ -707,9 +707,15 @@ except Exception as e:
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
+# MongoDB connection with timeout settings
 mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
+client = AsyncIOMotorClient(
+    mongo_url,
+    serverSelectionTimeoutMS=30000,  # 30 seconds
+    connectTimeoutMS=30000,         # 30 seconds
+    maxPoolSize=10,                 # Connection pool
+    retryWrites=True
+)
 
 # 🎯 FIXED: Dynamic database connection based on demo mode
 def get_db():
