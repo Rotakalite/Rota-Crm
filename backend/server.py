@@ -14759,7 +14759,7 @@ async def send_2fa_code(request: dict):
         logging.error(f"❌ Error sending 2FA code: {str(e)}")
         raise HTTPException(status_code=500, detail=f"2FA kodu gönderme hatası: {str(e)}")
 
-@app.post("/api/auth/2fa/verify-code")
+@api_router.post("/auth/2fa/verify-code")
 async def verify_2fa_code(request: dict):
     """Verify 2FA code"""
     try:
