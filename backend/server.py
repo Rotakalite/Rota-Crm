@@ -707,8 +707,18 @@ except Exception as e:
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection with timeout settings
-mongo_url = os.environ['MONGO_URL']
+# MongoDB connection - RAILWAY LOCAL DB FOR STABILITY
+# Use local MongoDB in Railway container instead of Atlas
+RAILWAY_MONGO_URL = "mongodb://localhost:27017/rotacrm"
+mongo_url = os.environ.get('MONGO_URL', RAILWAY_MONGO_URL)
+
+# If we're in Railway production, use local MongoDB
+if os.environ.get('RAILWAY_ENVIRONMENT'):
+    mongo_url = RAILWAY_MONGO_URL
+    logging.info("🚂 Using Railway local MongoDB")
+else:
+    logging.info("☁️ Using Atlas MongoDB")
+
 client = AsyncIOMotorClient(
     mongo_url,
     serverSelectionTimeoutMS=30000,  # 30 seconds
