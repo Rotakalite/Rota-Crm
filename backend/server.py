@@ -707,17 +707,16 @@ except Exception as e:
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection - USE RAILWAY DATABASE
-# Priority: Railway DB → Atlas fallback
+# MongoDB connection - FORCE ATLAS DATABASE (USER DATA LOCATION)
+# Temporarily forcing Atlas until proper migration is completed
 railway_db = os.environ.get('DATABASE_URL')
 atlas_db = os.environ.get('MONGO_URL')
 
-if railway_db:
-    mongo_url = railway_db
-    logging.info("🚂 Using Railway production MongoDB")
-else:
-    mongo_url = atlas_db
-    logging.info("☁️ Fallback to Atlas MongoDB")
+# FORCE ATLAS CONNECTION - Railway DB is empty
+mongo_url = atlas_db
+logging.info("☁️ FORCED: Using Atlas MongoDB (user data location)")
+
+# Note: Railway DB is empty, all user data is in Atlas
 
 # Simple connection
 try:
