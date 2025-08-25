@@ -13849,7 +13849,12 @@ const ProjectManagement = ({ client, onNavigate }) => {
       )}
       
       {/* Consumption Bulk Import Modal */}
-      {(console.log('🎯 MODAL RENDER CHECK - showBulkImport:', showBulkImport, 'Type:', typeof showBulkImport), showBulkImport === true) && (
+      {(() => {
+        console.log('🎯 MODAL RENDER CHECK - showBulkImport:', showBulkImport, 'Type:', typeof showBulkImport);
+        console.log('🎯 MODAL BOOLEAN CHECK:', showBulkImport === true);
+        console.log('🎯 MODAL TRUTHY CHECK:', !!showBulkImport);
+        return showBulkImport === true;
+      })() && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
           style={{ zIndex: 999999, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
