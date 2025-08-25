@@ -13061,8 +13061,15 @@ const ConsumptionManagement = ({ onNavigate }) => {
             </button>
             <button
               onClick={() => {
+                console.log('🎯 CLIENT BULK BUTTON CLICKED!');
+                console.log('🔍 Current showBulkImport state:', showBulkImport);
+                console.log('🔍 setShowBulkImport function exists:', typeof setShowBulkImport);
                 alert('Client Bulk Import Butonu Çalışıyor!');
                 setShowBulkImport(true);
+                console.log('🔍 setShowBulkImport(true) called');
+                setTimeout(() => {
+                  console.log('🔍 showBulkImport after timeout:', showBulkImport);
+                }, 100);
               }}
               className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
               title="Toplu tüketim verisi içe aktar"
