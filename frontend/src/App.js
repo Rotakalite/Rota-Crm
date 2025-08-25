@@ -13890,10 +13890,26 @@ const ProjectManagement = ({ client, onNavigate }) => {
       
       {/* Consumption Bulk Import Modal */}
       {(() => {
-        console.log('🎯 MODAL RENDER CHECK - showBulkImport:', showBulkImport, 'Type:', typeof showBulkImport);
-        console.log('🎯 MODAL BOOLEAN CHECK:', showBulkImport === true);
-        console.log('🎯 MODAL TRUTHY CHECK:', !!showBulkImport);
-        return showBulkImport === true;
+        try {
+          console.log('🎯 MODAL RENDER CHECK - showBulkImport:', showBulkImport, 'Type:', typeof showBulkImport);
+          console.log('🎯 MODAL BOOLEAN CHECK:', showBulkImport === true);
+          console.log('🎯 MODAL TRUTHY CHECK:', !!showBulkImport);
+          
+          const shouldShow = showBulkImport === true;
+          console.log('🎯 MODAL SHOULD SHOW:', shouldShow);
+          
+          if (shouldShow) {
+            console.log('✅ MODAL WILL RENDER - showBulkImport is true');
+          } else {
+            console.log('❌ MODAL WILL NOT RENDER - showBulkImport is:', showBulkImport);
+          }
+          
+          return shouldShow;
+        } catch (error) {
+          console.error('❌ MODAL RENDER ERROR:', error);
+          console.error('❌ Modal render error stack:', error.stack);
+          return false;
+        }
       })() && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
