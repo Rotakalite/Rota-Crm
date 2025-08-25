@@ -14680,33 +14680,18 @@ async def send_test_email_main():
 # ==========================================
 @app.post("/api/auth/2fa/send-code")
 async def send_2fa_code(request: dict):
-    """Send 2FA verification code via email"""
+    """Send 2FA verification code via email - STABLE VERSION"""
     try:
-        print("🚨 2FA ENDPOINT CALLED!")  # Railway console'a direkt print
-        logging.info("🚨 2FA ENDPOINT CALLED!")
-        
         email = request.get("email")
-        print(f"🚨 EMAIL RECEIVED: {email}")
-        
         if not email:
-            print("🚨 NO EMAIL PROVIDED!")
             raise HTTPException(status_code=400, detail="Email required")
         
-        print("🚨 GENERATING VERIFICATION CODE...")
-        # Generate 6-digit verification code
+        # Generate random 6-digit code
         import random
-        verification_code = f"{random.randint(100000, 999999)}"
+        verification_code = str(random.randint(100000, 999999))
+        expires_at = datetime.utcnow() + timedelta(minutes=10)
         
-        print(f"🚨 CODE GENERATED: {verification_code}")
-        
-        # Store code in database with expiration (5 minutes) 🎯 FIXED
-        from datetime import datetime, timedelta
-        expires_at = datetime.utcnow() + timedelta(minutes=5)
-        
-        # Remove any existing code for this email
-        await db.verification_codes.delete_many({"email": email})
-        
-        # Store new code
+        # Store in database
         await db.verification_codes.insert_one({
             "email": email,
             "code": verification_code,
@@ -14715,10 +14700,7 @@ async def send_2fa_code(request: dict):
             "used": False
         })
         
-        print("🚨 CODE STORED IN DATABASE")
-        
-        # Send email with verification code
-        print("🚨 ATTEMPTING EMAIL SEND...")
+        # Send email
         from services.email_service import email_service
         if email_service:
             subject = "🔐 GreenWave CRM - Güvenlik Kodu"
