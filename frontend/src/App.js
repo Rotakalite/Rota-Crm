@@ -12028,20 +12028,6 @@ const ConsumptionManagement = ({ onNavigate }) => {
     console.log('🎯 CONSUMPTION MANAGEMENT COMPONENT MOUNTED');
     console.log('🔍 Initial showBulkImport state:', showBulkImport);
     console.log('🔍 setShowBulkImport function:', typeof setShowBulkImport);
-    
-    // Add error listener for unhandled errors
-    const errorHandler = (event) => {
-      console.error('❌ UNHANDLED ERROR in ConsumptionManagement:', event.error);
-      console.error('❌ Error message:', event.message);
-      console.error('❌ Error filename:', event.filename);
-      console.error('❌ Error line:', event.lineno);
-    };
-    
-    window.addEventListener('error', errorHandler);
-    
-    return () => {
-      window.removeEventListener('error', errorHandler);
-    };
   }, []);
 
   // Force component re-render when showBulkImport changes
