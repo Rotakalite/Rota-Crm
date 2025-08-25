@@ -13825,7 +13825,7 @@ const ProjectManagement = ({ client, onNavigate }) => {
       )}
       
       {/* Consumption Bulk Import Modal */}
-      {showBulkImport && (
+      {(console.log('🔍 MODAL RENDER CHECK - showBulkImport:', showBulkImport), showBulkImport) && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
           style={{ zIndex: 9999 }}
