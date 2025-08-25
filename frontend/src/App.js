@@ -13841,12 +13841,24 @@ const ProjectManagement = ({ client, onNavigate }) => {
       )}
       
       {/* Consumption Bulk Import Modal */}
-      {(console.log('🔍 MODAL RENDER CHECK - showBulkImport:', showBulkImport), showBulkImport) && (
+      {(console.log('🎯 MODAL RENDER CHECK - showBulkImport:', showBulkImport, 'Type:', typeof showBulkImport), showBulkImport === true) && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
-          style={{ zIndex: 9999 }}
+          style={{ zIndex: 999999, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+          onClick={(e) => {
+            // Close modal if clicking outside
+            if (e.target === e.currentTarget) {
+              console.log('🎯 MODAL OVERLAY CLICKED - CLOSING');
+              setShowBulkImport(false);
+              setBulkFile(null);
+              setBulkImportResults(null);
+            }
+          }}
         >
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl">
+          <div 
+            className="bg-white rounded-xl shadow-2xl w-full max-w-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-t-xl">
               <h3 className="text-xl font-bold">📊 Toplu Tüketim Verisi İçe Aktarma</h3>
               <p className="text-purple-100 mt-1">Excel dosyası (.xlsx) ile birden fazla aylık tüketim verisi ekleyin</p>
