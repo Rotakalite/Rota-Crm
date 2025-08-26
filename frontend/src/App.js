@@ -12348,7 +12348,6 @@ const ConsumptionManagement = ({ onNavigate }) => {
     }
     
     setExcelProcessing(true);
-    setBulkImportResults(null);
     
     try {
       let XLSX;
@@ -12359,12 +12358,12 @@ const ConsumptionManagement = ({ onNavigate }) => {
         XLSX = XLSX.default || XLSX;
       } catch (importError) {
         alert('❌ Excel okuma kütüphanesi yüklenemedi. Sayfa yenilemeyi deneyin.');
-        setBulkImporting(false);
+        setExcelProcessing(false);
         return;
       }
       
       // Read Excel file
-      const data = await bulkFile.arrayBuffer();
+      const data = await excelFile.arrayBuffer();
       const workbook = XLSX.read(data, { type: 'array' });
       
       // Get first worksheet
