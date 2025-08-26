@@ -13814,7 +13814,7 @@ const ProjectManagement = ({ client, onNavigate }) => {
       )}
       
       {/* Consumption Bulk Import Modal - Simple like Supplier Management */}
-      {showBulkImport && (
+      {showExcelImport && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
           style={{ zIndex: 999999, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
@@ -13822,9 +13822,8 @@ const ProjectManagement = ({ client, onNavigate }) => {
             // Close modal if clicking outside
             if (e.target === e.currentTarget) {
               console.log('🎯 MODAL OVERLAY CLICKED - CLOSING');
-              setShowBulkImport(false);
-              setBulkFile(null);
-              setBulkImportResults(null);
+              setShowExcelImport(false);
+              setExcelFile(null);
             }
           }}
         >
