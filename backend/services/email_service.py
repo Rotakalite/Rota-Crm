@@ -41,10 +41,10 @@ else:
         MAIL_USERNAME=gmail_user,
         MAIL_PASSWORD=gmail_password,
         MAIL_FROM=gmail_user,
-        MAIL_PORT=587,
+        MAIL_PORT=465,
         MAIL_SERVER="smtp.gmail.com",
-        MAIL_STARTTLS=True,
-        MAIL_SSL_TLS=False,
+        MAIL_STARTTLS=False,
+        MAIL_SSL_TLS=True,
         TEMPLATE_FOLDER=str(Path(__file__).parent.parent / "templates")
     )
 
