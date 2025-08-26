@@ -12229,16 +12229,6 @@ const ConsumptionManagement = ({ onNavigate }) => {
   const API = getApiUrl();
 
   useEffect(() => {
-    console.log('🎯 CONSUMPTION MANAGEMENT COMPONENT MOUNTED');
-    console.log('🔍 Initial showExcelImport state:', showExcelImport);
-    console.log('🔍 setShowExcelImport function:', typeof setShowExcelImport);
-  }, []);
-
-  useEffect(() => {
-    console.log('🔍 showExcelImport STATE CHANGED:', showExcelImport);
-  }, [showExcelImport]);
-
-  useEffect(() => {
     console.log('🔍 ConsumptionManagement useEffect triggered:', {
       authToken: !!authToken,
       userRole,
