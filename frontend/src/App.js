@@ -12015,11 +12015,10 @@ const ConsumptionManagement = ({ onNavigate }) => {
     accommodation_count: ''
   });
   
-  // Bulk import states
-  const [showBulkImport, setShowBulkImport] = useState(false);
-  const [bulkFile, setBulkFile] = useState(null);
-  const [bulkImportResults, setBulkImportResults] = useState(null);
-  const [bulkImporting, setBulkImporting] = useState(false);
+  // Bulk import states - EXACT COPY FROM PERSONNEL MANAGEMENT  
+  const [showExcelImport, setShowExcelImport] = useState(false);
+  const [excelFile, setExcelFile] = useState(null);
+  const [excelProcessing, setExcelProcessing] = useState(false);
   
   const { authToken, userRole, dbUser, ensureTokenForOperation, handleViewTeam, handleAddTeamMember, showTeamModal, setShowTeamModal, teamMembers, showAddTeamMember, setShowAddTeamMember, teamMemberForm, setTeamMemberForm } = useAuth();
   const API = getApiUrl();
