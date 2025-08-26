@@ -12025,13 +12025,13 @@ const ConsumptionManagement = ({ onNavigate }) => {
 
   useEffect(() => {
     console.log('🎯 CONSUMPTION MANAGEMENT COMPONENT MOUNTED');
-    console.log('🔍 Initial showBulkImport state:', showBulkImport);
-    console.log('🔍 setShowBulkImport function:', typeof setShowBulkImport);
+    console.log('🔍 Initial showExcelImport state:', showExcelImport);
+    console.log('🔍 setShowExcelImport function:', typeof setShowExcelImport);
   }, []);
 
   useEffect(() => {
-    console.log('🔍 showBulkImport STATE CHANGED:', showBulkImport);
-  }, [showBulkImport]);
+    console.log('🔍 showExcelImport STATE CHANGED:', showExcelImport);
+  }, [showExcelImport]);
 
   useEffect(() => {
     console.log('🔍 ConsumptionManagement useEffect triggered:', {
