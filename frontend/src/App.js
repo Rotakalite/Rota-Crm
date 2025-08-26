@@ -3625,6 +3625,69 @@ Mehmet Demir, Resepsiyon, İzmir, , Hayır, Erkek"
             </div>
           </div>
         )}
+        
+        {/* Excel Consumption Import Form - EXACT COPY FROM PERSONNEL MANAGEMENT */}
+        {showExcelImport && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">📊 Excel Tüketim Verisi İmport</h2>
+            
+            <div className="mb-6">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                <h3 className="font-medium text-green-800 mb-2">📋 Excel Dosyası Formatı:</h3>
+                <div className="text-sm text-green-700">
+                  <p className="mb-2"><strong>Kolon Sırası:</strong> Yıl, Ay, Elektrik (kWh), Su (m³), Doğalgaz (m³), Kömür (kg), Konaklama Sayısı</p>
+                  <p className="mb-2"><strong>Önemli Notlar:</strong></p>
+                  <ul className="list-disc list-inside mb-2 space-y-1">
+                    <li>İlk satır başlık satırı olarak atlanır</li>
+                    <li>Boş hücreler 0 olarak işlenir</li>
+                    <li>Aynı ay verisi varsa güncellenir</li>
+                    <li>Sadece Excel formatı (.xlsx, .xls) kabul edilir</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <button
+                    onClick={downloadTemplate}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium mb-4"
+                  >
+                    📊 Excel Template İndir
+                  </button>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Excel Dosyası Seçin</label>
+                  <input
+                    type="file"
+                    accept=".xlsx,.xls"
+                    onChange={(e) => setExcelFile(e.target.files[0])}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => {
+                  setShowExcelImport(false);
+                  setExcelFile(null);
+                }}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                İptal
+              </button>
+              <button
+                onClick={handleBulkImport}
+                disabled={!excelFile || excelProcessing}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+              >
+                {excelProcessing ? '⏳ İşleniyor...' : '📊 İçe Aktar'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
