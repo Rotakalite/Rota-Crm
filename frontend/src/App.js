@@ -12342,12 +12342,12 @@ const ConsumptionManagement = ({ onNavigate }) => {
   const handleBulkImport = async (e) => {
     e.preventDefault();
     
-    if (!bulkFile) {
+    if (!excelFile) {
       alert('Lütfen bir dosya seçin!');
       return;
     }
     
-    setBulkImporting(true);
+    setExcelProcessing(true);
     setBulkImportResults(null);
     
     try {
