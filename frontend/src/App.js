@@ -12461,13 +12461,11 @@ const ConsumptionManagement = ({ onNavigate }) => {
         timeout: 60000 // 60 second timeout for large files
       });
       
-      setBulkImportResults(response.data);
-      
       // Refresh data
       await fetchConsumptions();
       await fetchAnalytics();
       
-      alert(`✅ Toplu içe aktarma tamamlandı!\n${response.data.successful_imports} başarılı, ${response.data.failed_imports} hatalı`);
+      alert(`✅ Toplu içe aktarma tamamlandı!`);
       
     } catch (error) {
       console.error('Bulk import error:', error);
@@ -12485,7 +12483,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
       alert(`❌ Toplu içe aktarma hatası:\n${errorMessage}`);
       
     } finally {
-      setBulkImporting(false);
+      setExcelProcessing(false);
     }
   };
 
