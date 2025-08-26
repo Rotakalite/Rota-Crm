@@ -12225,6 +12225,11 @@ const ConsumptionManagement = ({ onNavigate }) => {
     accommodation_count: ''
   });
   
+  // Excel import states - COPIED FROM PERSONNEL MANAGEMENT
+  const [showExcelImport, setShowExcelImport] = useState(false);
+  const [excelFile, setExcelFile] = useState(null);
+  const [excelProcessing, setExcelProcessing] = useState(false);
+  
   const { authToken, userRole, dbUser, ensureTokenForOperation, handleViewTeam, handleAddTeamMember, showTeamModal, setShowTeamModal, teamMembers, showAddTeamMember, setShowAddTeamMember, teamMemberForm, setTeamMemberForm } = useAuth();
   const API = getApiUrl();
 
