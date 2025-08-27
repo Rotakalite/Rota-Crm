@@ -3912,7 +3912,7 @@ Mehmet Demir, Resepsiyon, İzmir, , Hayır, Erkek"
 // Dashboard Component
 const Dashboard = ({ onNavigate }) => {
   const { user } = useUser();
-  const { authToken, userRole, dbUser, refreshToken, pendingApprovals, fetchPendingApprovals, handleApproveUser } = useAuth();
+  const { authToken, userRole, dbUser, refreshToken, pendingApprovals, fetchPendingApprovals, handleApproveUser, handleApproveData, handleRejectData } = useAuth();
   const [dashboardData, setDashboardData] = useState(null);
   const [clientDashboardData, setClientDashboardData] = useState(null);
   const [adminDashboardData, setAdminDashboardData] = useState(null);
