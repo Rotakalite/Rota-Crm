@@ -7415,6 +7415,18 @@ async def increment_demo_limit(user: User, limit_type: str):
         logging.error(f"❌ User not found for increment: {user.id}")
         return
     
+    # 🎯 NEW: Check if user is admin approved or client created by admin
+    if fresh_user_data.get("admin_approved", False):
+        logging.info(f"✅ User {user.email} is admin approved - skipping demo limit increment")
+        return
+    
+    # Check if client was created by admin (should not increment limits)
+    if fresh_user_data.get("client_id"):
+        client = await db.clients.find_one({"id": fresh_user_data["client_id"]})
+        if client and client.get("created_by_admin", False):
+            logging.info(f"✅ Client {fresh_user_data['client_id']} was created by admin - skipping demo limit increment for {limit_type}")
+            return
+    
     current_demo_limits = fresh_user_data.get('demo_limits', {})
     logging.error(f"🔍 Current demo_limits before increment (FRESH): {current_demo_limits}")
     
