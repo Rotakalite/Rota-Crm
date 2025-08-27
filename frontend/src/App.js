@@ -644,7 +644,7 @@ const useAuth = () => {
     }
   };
 
-  return { user, authToken, userRole, dbUser, isLoaded, refreshUser, refreshToken, ensureFreshToken, ensureTokenForOperation, pendingApprovals, fetchPendingApprovals, handleApproveUser, handleViewTeam, handleAddTeamMember, showTeamModal, setShowTeamModal, selectedClient, teamMembers, showAddTeamMember, setShowAddTeamMember, teamMemberForm, setTeamMemberForm };
+  return { user, authToken, userRole, dbUser, isLoaded, refreshUser, refreshToken, ensureFreshToken, ensureTokenForOperation, pendingApprovals, fetchPendingApprovals, handleApproveUser, handleApproveData, handleRejectData, handleViewTeam, handleAddTeamMember, showTeamModal, setShowTeamModal, selectedClient, teamMembers, showAddTeamMember, setShowAddTeamMember, teamMemberForm, setTeamMemberForm };
 };
 
 // 🛡️ Role-Based Console Protection Hook
