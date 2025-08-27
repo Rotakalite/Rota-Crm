@@ -7371,6 +7371,13 @@ async def check_demo_limit(user: User, limit_type: str) -> dict:
     if fresh_user.get("admin_approved", False):
         return {"allowed": True, "message": "User is admin approved"}
     
+    # 🎯 NEW: Check if client was created by admin (should bypass demo limits)
+    if fresh_user.get("client_id"):
+        client = await db.clients.find_one({"id": fresh_user["client_id"]})
+        if client and client.get("created_by_admin", False):
+            logging.info(f"✅ Client {fresh_user['client_id']} was created by admin - bypassing demo limits for {limit_type}")
+            return {"allowed": True, "message": "Client created by admin - unlimited access"}
+    
     current_count = fresh_user.get("demo_limits", {}).get(limit_type, 0)
     max_limit = user.max_demo_limit
     
