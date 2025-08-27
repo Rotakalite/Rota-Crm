@@ -593,73 +593,18 @@ async def send_email(to_email: str, subject: str, html_content: str):
         return False
 
 async def send_2fa_email(email_address: str, code: str):
-    """Send 2FA email via SendGrid - WITH DEBUG"""
+    """Send 2FA email via Gmail SMTP"""
     try:
-        logging.info(f"📧 Starting SendGrid 2FA for: {email_address}")
+        # Use the email service for 2FA emails
+        from services.email_service import send_2fa_email as service_send_2fa
+        await service_send_2fa(email_address, code)
         
-        import os
-        api_key = os.getenv('SENDGRID_API_KEY')
-        sender_email = os.getenv('SENDER_EMAIL', 'bilgi@rotakalitedanismanlik.com')
-        
-        logging.info(f"🔑 SendGrid API Key exists: {bool(api_key)}")
-        logging.info(f"📤 Sender email: {sender_email}")
-        
-        if not api_key:
-            logging.error("❌ SendGrid API key not found")
-            # FALLBACK: Just log the code for now
-            logging.info(f"🚨 2FA CODE FOR {email_address}: {code}")
-            print(f"🚨 2FA CODE FOR {email_address}: {code}")
-            return True
-            
-        # Try SendGrid import
-        try:
-            from sendgrid import SendGridAPIClient
-            from sendgrid.helpers.mail import Mail
-            logging.info("✅ SendGrid imports successful")
-        except Exception as import_error:
-            logging.error(f"❌ SendGrid import error: {import_error}")
-            # FALLBACK: Just log the code
-            logging.info(f"🚨 2FA CODE FOR {email_address}: {code}")
-            print(f"🚨 2FA CODE FOR {email_address}: {code}")
-            return True
-        
-        # Create simple email
-        subject = "ROTA Kalite - Doğrulama Kodu"
-        html_content = f"""
-        <html><body>
-            <h2>Doğrulama Kodu: {code}</h2>
-            <p>Bu kod 10 dakika geçerlidir.</p>
-        </body></html>
-        """
-        
-        message = Mail(
-            from_email=sender_email,
-            to_emails=email_address,
-            subject=subject,
-            html_content=html_content
-        )
-        
-        logging.info("📧 Creating SendGrid client...")
-        sg = SendGridAPIClient(api_key)
-        
-        logging.info("📤 Sending email via SendGrid...")
-        response = sg.send(message)
-        
-        logging.info(f"📧 SendGrid response: {response.status_code}")
-        
-        if response.status_code == 202:
-            logging.info(f"✅ 2FA email sent successfully via SendGrid to: {email_address}")
-            return True
-        else:
-            logging.error(f"❌ SendGrid error: Status {response.status_code}")
-            # FALLBACK: Just log the code
-            logging.info(f"🚨 2FA CODE FOR {email_address}: {code}")
-            print(f"🚨 2FA CODE FOR {email_address}: {code}")
-            return True
+        logging.info(f"📧 2FA email sent successfully to: {email_address}")
+        return True
         
     except Exception as e:
-        logging.error(f"❌ SendGrid email error: {str(e)}")
-        # FALLBACK: Always log the code so user can proceed
+        logging.error(f"❌ Email error: {str(e)}")
+        # FALLBACK: Log the code so user can proceed
         logging.info(f"🚨 2FA CODE FOR {email_address}: {code}")
         print(f"🚨 2FA CODE FOR {email_address}: {code}")
         return True
