@@ -12565,6 +12565,97 @@ const ConsumptionManagement = ({ onNavigate }) => {
     document.body.removeChild(link);
   };
 
+  // Excel Consumption Import Function - ADDED TO CONSUMPTION MANAGEMENT
+  const processExcelConsumption = async () => {
+    if (!excelFile) {
+      alert('Lütfen bir Excel dosyası seçin!');
+      return;
+    }
+
+    if ((userRole === 'admin' || userRole === 'consultant') && !selectedClient) {
+      alert('Lütfen bir müşteri seçin!');
+      return;
+    }
+
+    setExcelProcessing(true);
+
+    try {
+      // Import XLSX library dynamically
+      const XLSX = await import('xlsx');
+      
+      // Read the file
+      const arrayBuffer = await excelFile.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      
+      // Convert to JSON
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      
+      // Skip header row and process data
+      const dataRows = jsonData.slice(1);
+      const consumptionList = [];
+      
+      for (const row of dataRows) {
+        if (row.length >= 17 && row[0] && row[1]) {
+          const consumptionItem = {
+            year: parseInt(row[0]) || 0,
+            month: parseInt(row[1]) || 0,
+            electricity: parseFloat(row[2]) || 0.0,
+            water: parseFloat(row[3]) || 0.0,
+            natural_gas: parseFloat(row[4]) || 0.0,
+            coal: parseFloat(row[5]) || 0.0,
+            diesel: parseFloat(row[6]) || 0.0,
+            gasoline: parseFloat(row[7]) || 0.0,
+            lpg: parseFloat(row[8]) || 0.0,
+            fuel_oil: parseFloat(row[9]) || 0.0,
+            r134a_gas: parseFloat(row[10]) || 0.0,
+            r600a_gas: parseFloat(row[11]) || 0.0,
+            r410a_gas: parseFloat(row[12]) || 0.0,
+            r32_gas: parseFloat(row[13]) || 0.0,
+            co2_fire: parseFloat(row[14]) || 0.0,
+            fm200_fire: parseFloat(row[15]) || 0.0,
+            accommodation_count: parseInt(row[16]) || 0
+          };
+          
+          // Validate year and month
+          if (consumptionItem.year >= 2020 && consumptionItem.year <= 2030 && 
+              consumptionItem.month >= 1 && consumptionItem.month <= 12) {
+            consumptionList.push(consumptionItem);
+          }
+        }
+      }
+
+      if (consumptionList.length === 0) {
+        alert('Geçerli tüketim verisi bulunamadı. Lütfen Excel formatını kontrol edin.');
+        return;
+      }
+
+      // Send to backend
+      const response = await axios.post(`${API}/consumptions/bulk`, {
+        consumptions_list: consumptionList
+      }, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+
+      alert(`✅ ${consumptionList.length} tüketim verisi başarıyla içe aktarıldı!`);
+      
+      // Refresh data
+      fetchConsumptions();
+      fetchAnalytics();
+      
+      // Clear form
+      setShowExcelImport(false);
+      setExcelFile(null);
+      
+    } catch (error) {
+      console.error('Error processing Excel consumption:', error);
+      alert('Excel tüketim import hatası: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setExcelProcessing(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
