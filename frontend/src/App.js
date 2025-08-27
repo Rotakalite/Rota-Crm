@@ -13224,6 +13224,14 @@ const ConsumptionManagement = ({ onNavigate }) => {
               <span>Excel Template</span>
             </button>
             <button
+              onClick={() => setShowExcelImport(true)}
+              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
+              title="Toplu tüketim verisi içe aktar"
+            >
+              <span>📥</span>
+              <span>Toplu İçe Aktar</span>
+            </button>
+            <button
               onClick={() => {
                 console.log('🆕 Creating new consumption for client user');
                 setEditingConsumption(null);
