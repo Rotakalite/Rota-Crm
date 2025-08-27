@@ -29,10 +29,10 @@ else:
         MAIL_USERNAME=gmail_user,
         MAIL_PASSWORD=gmail_password,
         MAIL_FROM=f"ROTA KALİTE & DANIŞMANLIK <{gmail_user}>",
-        MAIL_PORT=465,
+        MAIL_PORT=25,
         MAIL_SERVER="smtp.gmail.com",
-        MAIL_STARTTLS=False,
-        MAIL_SSL_TLS=True,
+        MAIL_STARTTLS=True,
+        MAIL_SSL_TLS=False,
         TEMPLATE_FOLDER=str(Path(__file__).parent.parent / "templates")
     )
     
