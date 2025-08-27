@@ -593,19 +593,71 @@ async def send_email(to_email: str, subject: str, html_content: str):
         return False
 
 async def send_2fa_email(email_address: str, code: str):
-    """Send 2FA email - BYPASS FOR RAILWAY TESTING"""
+    """Send 2FA email via SendGrid"""
     try:
-        logging.info(f"📧 2FA Code for {email_address}: {code}")
+        import os
+        from sendgrid import SendGridAPIClient
+        from sendgrid.helpers.mail import Mail
         
-        # RAILWAY BYPASS: Just log the code instead of sending email
-        print(f"🚨 2FA CODE FOR {email_address}: {code}")
-        print(f"🚨 USE THIS CODE: {code}")
+        # SendGrid configuration
+        api_key = os.getenv('SENDGRID_API_KEY')
+        sender_email = os.getenv('SENDER_EMAIL', 'bilgi@rotakalitedanismanlik.com')
         
-        # Return success without actually sending email
-        return True
+        if not api_key:
+            logging.error("❌ SendGrid API key not found")
+            return False
+            
+        # Create email content
+        subject = "ROTA Kalite - Doğrulama Kodu"
+        html_content = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
+                <h2 style="color: #333; text-align: center;">🔐 Doğrulama Kodu</h2>
+                <p style="font-size: 16px; color: #555;">
+                    Merhaba,
+                </p>
+                <p style="font-size: 16px; color: #555;">
+                    ROTA Kalite & Danışmanlık sistemine giriş yapabilmeniz için doğrulama kodunuz:
+                </p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <span style="background-color: #007bff; color: white; padding: 15px 30px; font-size: 24px; font-weight: bold; border-radius: 5px; letter-spacing: 3px;">
+                        {code}
+                    </span>
+                </div>
+                <p style="font-size: 14px; color: #666;">
+                    Bu kod 10 dakika boyunca geçerlidir. Güvenliğiniz için bu kodu kimseyle paylaşmayın.
+                </p>
+                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+                <p style="font-size: 12px; color: #999; text-align: center;">
+                    ROTA Kalite & Danışmanlık<br>
+                    Bu email otomatik olarak gönderilmiştir.
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Create and send email
+        message = Mail(
+            from_email=sender_email,
+            to_emails=email_address,
+            subject=subject,
+            html_content=html_content
+        )
+        
+        sg = SendGridAPIClient(api_key)
+        response = sg.send(message)
+        
+        if response.status_code == 202:
+            logging.info(f"📧 2FA email sent successfully via SendGrid to: {email_address}")
+            return True
+        else:
+            logging.error(f"❌ SendGrid error: Status {response.status_code}")
+            return False
         
     except Exception as e:
-        logging.error(f"❌ Email error: {str(e)}")
+        logging.error(f"❌ SendGrid email error: {str(e)}")
         return False
 
 async def send_2fa_email_direct(to_email: str, verification_code: str):
