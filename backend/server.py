@@ -7760,6 +7760,81 @@ async def update_current_user(
     updated_user = await db.users.find_one({"clerk_user_id": current_user.clerk_user_id})
     return User(**updated_user)
 
+# 🎯 NEW: Data Approval Endpoints
+@api_router.get("/admin/pending-data-approvals", response_model=list)
+async def get_pending_data_approvals(current_user: User = Depends(get_admin_user)):
+    """Get list of data (consumption, etc.) pending approval - Admin only"""
+    try:
+        # Find pending data approvals (consumption, documents, etc.)
+        pending_data = await db.pending_approvals.find({
+            "status": "pending"
+        }).to_list(1000)
+        
+        result = []
+        for item in pending_data:
+            result.append({
+                "id": item.get("id"),
+                "type": item.get("type", ""),
+                "user_name": item.get("user_name", ""),
+                "user_email": item.get("user_email", ""),
+                "client_id": item.get("client_id", ""),
+                "created_at": item.get("created_at"),
+                "data": item.get("data", {}),
+                "bulk_import": item.get("bulk_import", False),
+                "bulk_index": item.get("bulk_index", 0)
+            })
+        
+        return result
+        
+    except Exception as e:
+        logging.error(f"Failed to get pending data approvals: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get pending data approvals: {str(e)}")
+
+@api_router.post("/admin/approve-data")
+async def approve_data(request: dict, current_user: User = Depends(get_admin_user)):
+    """Approve pending data - Admin only"""
+    try:
+        approval_id = request.get("approval_id")
+        
+        # Get pending approval
+        pending_item = await db.pending_approvals.find_one({"id": approval_id})
+        if not pending_item:
+            raise HTTPException(status_code=404, detail="Approval item not found")
+        
+        # Move data to appropriate collection
+        if pending_item["type"] == "consumption":
+            await db.consumptions.insert_one(pending_item["data"])
+        
+        # Mark as approved
+        await db.pending_approvals.update_one(
+            {"id": approval_id},
+            {"$set": {"status": "approved", "approved_at": datetime.utcnow()}}
+        )
+        
+        return {"success": True, "message": "Data approved successfully"}
+        
+    except Exception as e:
+        logging.error(f"Failed to approve data: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to approve data: {str(e)}")
+
+@api_router.post("/admin/reject-data")
+async def reject_data(request: dict, current_user: User = Depends(get_admin_user)):
+    """Reject pending data - Admin only"""
+    try:
+        approval_id = request.get("approval_id")
+        
+        # Mark as rejected
+        await db.pending_approvals.update_one(
+            {"id": approval_id},
+            {"$set": {"status": "rejected", "rejected_at": datetime.utcnow()}}
+        )
+        
+        return {"success": True, "message": "Data rejected successfully"}
+        
+    except Exception as e:
+        logging.error(f"Failed to reject data: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to reject data: {str(e)}")
+
 # Client Management (Enhanced for self-registration)
 @api_router.post("/clients", response_model=Client)
 async def create_client(
