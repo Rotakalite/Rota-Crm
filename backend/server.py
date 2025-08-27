@@ -10247,31 +10247,11 @@ async def create_consumption(
     logging.info(f"🔍 POST /consumptions called by user: {current_user.role} - {current_user.name} - client_id: {current_user.client_id}")
     
     # 🎯 NEW: Demo limit check for consumption creation
-    if not current_user.admin_approved:
-        # Check if this client was created by admin (should bypass demo limits)
-        if current_user.role == UserRole.CLIENT and current_user.client_id:
-            client = await db.clients.find_one({"id": current_user.client_id})
-            if client:
-                # If client was created by admin user, bypass demo limits
-                creator_user = await db.users.find_one({"id": client.get("created_by_user_id", "")})
-                if creator_user and creator_user.get("admin_approved", False):
-                    logging.info(f"✅ Client {current_user.client_id} was created by admin - bypassing demo limits")
-                else:
-                    # Regular demo limit check
-                    demo_check = await check_demo_limit(current_user, "consumptions")
-                    if not demo_check["allowed"]:
-                        raise HTTPException(status_code=403, detail=demo_check["message"])
-            else:
-                # Client not found, apply demo limits
-                demo_check = await check_demo_limit(current_user, "consumptions")
-                if not demo_check["allowed"]:
-                    raise HTTPException(status_code=403, detail=demo_check["message"])
-        else:
-            # No specific client_id (admin/consultant), apply demo limits
-            demo_check = await check_demo_limit(current_user, "consumptions")
-            if not demo_check["allowed"]:
-                raise HTTPException(status_code=403, detail=demo_check["message"])
-    elif current_user.user_status == "pending_approval":
+    demo_check = await check_demo_limit(current_user, "consumptions")
+    if not demo_check["allowed"]:
+        raise HTTPException(status_code=403, detail=demo_check["message"])
+    
+    if current_user.user_status == "pending_approval":
         raise HTTPException(status_code=403, detail="Demo kullanma limitine ulaştınız. Devam edebilmek için admin ile görüşünüz. Admin: bilgi@rotakalitedanismanlik.com")
     
     # Check permissions - only admin can create for any client, client can create for themselves, consultant can create for assigned clients
