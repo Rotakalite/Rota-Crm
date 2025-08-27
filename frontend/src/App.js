@@ -393,7 +393,9 @@ const useAuth = () => {
   const handleApproveData = async (dataId) => {
     try {
       const API = getApiUrl();
-      const response = await axios.post(`${API}/admin/approve-data/${dataId}`, {}, {
+      const response = await axios.post(`${API}/admin/approve-data`, {
+        approval_id: dataId
+      }, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
@@ -411,7 +413,9 @@ const useAuth = () => {
   const handleRejectData = async (dataId) => {
     try {
       const API = getApiUrl();
-      const response = await axios.post(`${API}/admin/reject-data/${dataId}`, {}, {
+      const response = await axios.post(`${API}/admin/reject-data`, {
+        approval_id: dataId
+      }, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
