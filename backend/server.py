@@ -10743,7 +10743,7 @@ async def bulk_import_consumptions(
     try:
         # 🎯 Demo limit check for bulk consumption import
         if not current_user.admin_approved:
-            demo_limit = await check_demo_limit(current_user, 'consumptions', len(bulk_data.consumptions_list))
+            demo_limit = await check_demo_limit(current_user, 'consumptions')
             if demo_limit:
                 return demo_limit
         
