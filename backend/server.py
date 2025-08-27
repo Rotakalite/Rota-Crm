@@ -1892,14 +1892,16 @@ def get_user_id_from_token(token: str) -> str:
     return token
 
 @api_router.post("/debug/make-admin")
-async def make_user_admin(email: str):
+async def make_user_admin(request: dict):
     """Make user admin - DEBUG ONLY"""
     try:
+        email = request.get("email")
+        
         result = await db.users.update_one(
             {"email_address": email},
             {"$set": {
                 "admin_approved": True,
-                "role": "admin",
+                "role": "admin", 
                 "user_status": "approved"
             }}
         )
