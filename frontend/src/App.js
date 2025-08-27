@@ -2932,7 +2932,7 @@ const PersonnelManagement = () => {
     document.body.removeChild(link);
   };
 
-  // Excel Consumption Import Function - COPIED FROM PERSONNEL MANAGEMENT
+  // Excel Consumption Import Function - ADDED TO CONSUMPTION MANAGEMENT
   const processExcelConsumption = async () => {
     if (!excelFile) {
       alert('Lütfen bir Excel dosyası seçin!');
