@@ -12638,7 +12638,13 @@ const ConsumptionManagement = ({ onNavigate }) => {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
 
-      alert(`✅ ${consumptionList.length} tüketim verisi başarıyla içe aktarıldı!`);
+      alert(`✅ ${consumptionList.length} tüketim verisi başarıyla içe aktarıldı!
+      
+🔍 Debug bilgisi:
+- Gönderilen veri sayısı: ${consumptionList.length}
+- Response: ${JSON.stringify(response.data)}
+      
+Not: Eğer demo kullanıcısıysanız, veriler admin onayında bekliyor olabilir.`);
       
       // Refresh data
       fetchConsumptions();
