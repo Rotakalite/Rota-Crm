@@ -1891,7 +1891,26 @@ def get_user_id_from_token(token: str) -> str:
     # Bu fonksiyon da şimdilik placeholder - endpoint'de get_current_user kullanacağız
     return token
 
-@api_router.get("/health")
+@api_router.post("/debug/make-admin")
+async def make_user_admin(email: str):
+    """Make user admin - DEBUG ONLY"""
+    try:
+        result = await db.users.update_one(
+            {"email_address": email},
+            {"$set": {
+                "admin_approved": True,
+                "role": "admin",
+                "user_status": "approved"
+            }}
+        )
+        
+        if result.modified_count > 0:
+            return {"success": True, "message": f"User {email} is now admin"}
+        else:
+            return {"success": False, "message": f"User {email} not found"}
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 async def health_check():
     """Health check endpoint - NO AUTHENTICATION REQUIRED"""
     return {
