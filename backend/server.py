@@ -10743,9 +10743,29 @@ async def bulk_import_consumptions(
     try:
         # 🎯 Demo limit check for bulk consumption import
         if not current_user.admin_approved:
-            demo_limit = await check_demo_limit(current_user, 'consumptions')
-            if demo_limit:
-                return demo_limit
+            # Check if this client was created by admin (should bypass demo limits)
+            if current_user.role == UserRole.CLIENT and current_user.client_id:
+                client = await db.clients.find_one({"id": current_user.client_id})
+                if client:
+                    # If client was created by admin user, bypass demo limits
+                    creator_user = await db.users.find_one({"id": client.get("created_by_user_id", "")})
+                    if creator_user and creator_user.get("admin_approved", False):
+                        logging.info(f"✅ Client {current_user.client_id} was created by admin - bypassing demo limits")
+                    else:
+                        # Regular demo limit check
+                        demo_limit = await check_demo_limit(current_user, 'consumptions')
+                        if demo_limit:
+                            return demo_limit
+                else:
+                    # Client not found, apply demo limits
+                    demo_limit = await check_demo_limit(current_user, 'consumptions')
+                    if demo_limit:
+                        return demo_limit
+            else:
+                # No specific client_id (admin/consultant), apply demo limits
+                demo_limit = await check_demo_limit(current_user, 'consumptions')
+                if demo_limit:
+                    return demo_limit
         
         logging.info(f"📊 Bulk consumption import started by user: {current_user.role} - {current_user.name}")
         
