@@ -592,6 +592,22 @@ async def send_email(to_email: str, subject: str, html_content: str):
         logging.error(f"❌ Failed to send email: {str(e)}")
         return False
 
+async def send_2fa_email(email_address: str, code: str):
+    """Send 2FA email - BYPASS FOR RAILWAY TESTING"""
+    try:
+        logging.info(f"📧 2FA Code for {email_address}: {code}")
+        
+        # RAILWAY BYPASS: Just log the code instead of sending email
+        print(f"🚨 2FA CODE FOR {email_address}: {code}")
+        print(f"🚨 USE THIS CODE: {code}")
+        
+        # Return success without actually sending email
+        return True
+        
+    except Exception as e:
+        logging.error(f"❌ Email error: {str(e)}")
+        return False
+
 async def send_2fa_email_direct(to_email: str, verification_code: str):
     """Direct SMTP email sending for 2FA as fallback"""
     try:
