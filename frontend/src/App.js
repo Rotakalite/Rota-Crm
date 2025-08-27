@@ -389,6 +389,42 @@ const useAuth = () => {
     }
   };
 
+  // Handle data approval
+  const handleApproveData = async (dataId) => {
+    try {
+      const API = getApiUrl();
+      const response = await axios.post(`${API}/admin/approve-data/${dataId}`, {}, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      alert(`✅ ${response.data.message}`);
+      
+      // Refresh pending approvals
+      await fetchPendingApprovals();
+    } catch (error) {
+      console.error('Error approving data:', error);
+      alert('❌ Veri onaylama sırasında hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Handle data rejection
+  const handleRejectData = async (dataId) => {
+    try {
+      const API = getApiUrl();
+      const response = await axios.post(`${API}/admin/reject-data/${dataId}`, {}, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      alert(`✅ ${response.data.message}`);
+      
+      // Refresh pending approvals
+      await fetchPendingApprovals();
+    } catch (error) {
+      console.error('Error rejecting data:', error);
+      alert('❌ Veri reddetme sırasında hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
   const refreshUser = async () => {
     if (authToken) {
       try {
