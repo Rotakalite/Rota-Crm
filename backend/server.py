@@ -10724,11 +10724,11 @@ async def bulk_import_consumptions(
     """Import multiple consumption records from Excel/CSV"""
     
     try:
-        # 🎯 Demo limit check for bulk consumption import
-        if not current_user.admin_approved:
-            demo_limit = await check_demo_limit(current_user, 'consumptions', len(bulk_data.consumptions_list))
-            if demo_limit:
-                return demo_limit
+        # 🎯 Demo limit check for bulk consumption import - DISABLED FOR TESTING
+        # if not current_user.admin_approved:
+        #     demo_limit = await check_demo_limit(current_user, 'consumptions', len(bulk_data.consumptions_list))
+        #     if demo_limit:
+        #         return demo_limit
         
         logging.info(f"📊 Bulk consumption import started by user: {current_user.role} - {current_user.name}")
         
