@@ -604,8 +604,8 @@ async def send_2fa_email(email_address: str, code: str):
         logging.info(f"🔑 SendGrid API Key exists: {bool(api_key)}")
         logging.info(f"📤 Sender email: {sender_email}")
         
-        if not api_key or api_key == "SET_IN_RAILWAY_VARIABLES":
-            logging.error("❌ SendGrid API key not found or not set properly")
+        if not api_key:
+            logging.error("❌ SendGrid API key not found")
             # FALLBACK: Just log the code for now
             logging.info(f"🚨 2FA CODE FOR {email_address}: {code}")
             print(f"🚨 2FA CODE FOR {email_address}: {code}")
