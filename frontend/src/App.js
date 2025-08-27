@@ -345,11 +345,26 @@ const useAuth = () => {
   const fetchPendingApprovals = async () => {
     try {
       const API = getApiUrl();
-      const response = await axios.get(`${API}/admin/pending-approvals`, {
+      
+      // Fetch user approvals
+      const userResponse = await axios.get(`${API}/admin/pending-approvals`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
-      setPendingApprovals(response.data);
-      console.log('⏳ Pending Approvals:', response.data);
+      
+      // Fetch data approvals (consumption, etc.)  
+      const dataResponse = await axios.get(`${API}/admin/pending-data-approvals`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      // Combine both types of approvals
+      const allApprovals = [
+        ...userResponse.data.map(user => ({...user, approval_type: 'user'})),
+        ...dataResponse.data.map(data => ({...data, approval_type: 'data'}))
+      ];
+      
+      setPendingApprovals(allApprovals);
+      console.log('📋 All pending approvals:', allApprovals);
+      
     } catch (error) {
       console.error('Error fetching pending approvals:', error);
       setPendingApprovals([]);
