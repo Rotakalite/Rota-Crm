@@ -1375,6 +1375,11 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
                       // Analyze folder structure
                       const analysis = analyzeFolderStructure(files);
                       setFolderAnalysis(analysis);
+                      
+                      // 🤖 OTOMATIK EŞLEŞTİRME - Auto-apply mapping
+                      setFolderMapping(analysis.autoMapping);
+                      
+                      console.log('🤖 Otomatik eşleştirme:', analysis.autoMapping);
                     }}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
