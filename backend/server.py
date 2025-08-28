@@ -11515,9 +11515,9 @@ async def bulk_document_upload(
                             "id": str(uuid.uuid4()),
                             "type": "document",
                             "data": document_dict,
-                            "user_id": current_user.user_id,
+                            "user_id": current_user.id,  # Fix: Use .id instead of .user_id
                             "user_name": current_user.name,
-                            "user_email": current_user.email_address,
+                            "user_email": current_user.email,  # Fix: Use .email instead of .email_address
                             "client_id": target_client_id,
                             "status": "pending",
                             "created_at": datetime.utcnow(),
