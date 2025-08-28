@@ -12709,10 +12709,15 @@ const ConsumptionManagement = ({ onNavigate }) => {
         return;
       }
 
-      // Send to backend
-      const response = await axios.post(`${API}/consumptions/bulk`, {
-        consumptions_list: consumptionList
-      }, {
+      // Send to backend with client_id for admin/consultant users
+      const requestData = { consumptions_list: consumptionList };
+      
+      // Add client_id for admin and consultant users
+      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
+        requestData.client_id = selectedClient;
+      }
+      
+      const response = await axios.post(`${API}/consumptions/bulk`, requestData, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
 
