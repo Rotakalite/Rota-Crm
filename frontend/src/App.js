@@ -12639,7 +12639,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
     document.body.removeChild(link);
   };
 
-  // Excel Consumption Import Function - ADDED TO CONSUMPTION MANAGEMENT
+  // Excel Consumption Import Function - UPDATED FROM PERSONNEL MANAGEMENT LOGIC
   const processExcelConsumption = async () => {
     if (!excelFile) {
       alert('Lütfen bir Excel dosyası seçin!');
@@ -12647,13 +12647,26 @@ const ConsumptionManagement = ({ onNavigate }) => {
     }
 
     if ((userRole === 'admin' || userRole === 'consultant') && !selectedClient) {
-      alert('Lütfen bir müşteri seçin!');
+      alert('Lütfen önce bir müşteri seçin!');
       return;
     }
 
     setExcelProcessing(true);
-
+    
     try {
+      // Get fresh token
+      let currentToken = authToken;
+      if (session) {
+        try {
+          const freshToken = await session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
       // Import XLSX library dynamically
       const XLSX = await import('xlsx');
       
@@ -12714,7 +12727,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
       }
       
       const response = await axios.post(`${API}/consumptions/bulk`, requestData, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
+        headers: { 'Authorization': `Bearer ${currentToken}` }
       });
 
       alert(`✅ ${consumptionList.length} tüketim verisi başarıyla içe aktarıldı!
@@ -12734,7 +12747,7 @@ Not: Eğer demo kullanıcısıysanız, veriler admin onayında bekliyor olabilir
       setExcelFile(null);
       
     } catch (error) {
-      console.error('Error processing Excel consumption:', error);
+      console.error('❌ Excel tüketim import hatası:', error);
       alert('Excel tüketim import hatası: ' + (error.response?.data?.detail || error.message));
     } finally {
       setExcelProcessing(false);
