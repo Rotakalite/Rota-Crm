@@ -11057,8 +11057,8 @@ async def bulk_import_consumptions(
                     )
                     logging.info(f"✅ Updated existing consumption for {consumption_item.year}-{consumption_item.month}")
                 else:
-                    # Check if user needs admin approval
-                    if not current_user.admin_approved:
+                    # KALICI ÇÖZÜM: Demo kullanıcı kontrolü
+                    if should_apply_demo_limit:
                         # Demo user - add to pending approvals
                         pending_approval = {
                             "id": str(uuid.uuid4()),
@@ -11076,12 +11076,12 @@ async def bulk_import_consumptions(
                         await db.pending_approvals.insert_one(pending_approval)
                         logging.info(f"📋 Added consumption to pending approvals for {consumption_item.year}-{consumption_item.month}")
                     else:
-                        # Admin approved user - direct insert
+                        # Admin/Consultant/Admin-approved user - direct insert
                         await db.consumptions.insert_one(consumption_dict)
                         logging.info(f"✅ Created new consumption for {consumption_item.year}-{consumption_item.month}")
                     
-                    # 🎯 Increment demo limit for new consumption
-                    if not current_user.admin_approved:
+                    # 🎯 Increment demo limit ONLY for demo users
+                    if should_apply_demo_limit:
                         await increment_demo_limit(current_user, 'consumptions')
                 
                 successful_imports += 1
