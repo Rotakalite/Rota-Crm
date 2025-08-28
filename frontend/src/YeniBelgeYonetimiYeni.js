@@ -725,11 +725,96 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
       }
     });
     
+    const folders = Object.values(folderMap);
+    
+    // 🤖 OTOMATIK EŞLEŞTİRME - Klasör isimlerini analiz et
+    const autoMapping = generateAutoMapping(folders);
+    
     return {
       totalFiles: validFiles.length,
-      folders: Object.values(folderMap),
-      validFiles: validFiles
+      folders: folders,
+      validFiles: validFiles,
+      autoMapping: autoMapping
     };
+  };
+
+  // 🤖 Otomatik klasör eşleştirme algoritması
+  const generateAutoMapping = (folders) => {
+    const mapping = {};
+    
+    // Eşleştirme pattern'leri ve keyword'leri
+    const patterns = {
+      'A_SUTUNU': [
+        'a', 'a_', 'a-', 'a sütunu', 'a sutunu', 'a_sutunu', 'a_belge', 'a_belgeler', 'a_dosya', 'a_dosyalar',
+        'politika', 'politikalar', 'policy', 'policies', 'strateji', 'strategy', 'yönetmelik', 'regulation',
+        'kurallar', 'rules', 'standart', 'standard', 'kalite', 'quality', 'iso', 'belge_a', 'document_a'
+      ],
+      'B_SUTUNU': [
+        'b', 'b_', 'b-', 'b sütunu', 'b sutunu', 'b_sutunu', 'b_belge', 'b_belgeler', 'b_dosya', 'b_dosyalar', 
+        'talimat', 'talimatlar', 'instruction', 'instructions', 'prosedür', 'prosedur', 'procedure', 'procedures',
+        'is_talimati', 'iş_talimatı', 'work_instruction', 'operasyon', 'operation', 'belge_b', 'document_b'
+      ],
+      'C_SUTUNU': [
+        'c', 'c_', 'c-', 'c sütunu', 'c sutunu', 'c_sutunu', 'c_belge', 'c_belgeler', 'c_dosya', 'c_dosyalar',
+        'form', 'formlar', 'forms', 'liste', 'listeler', 'list', 'lists', 'kontrol', 'control', 'check',
+        'kayit', 'kayıt', 'kayitlar', 'kayıtlar', 'record', 'records', 'belge_c', 'document_c'
+      ],
+      'D_SUTUNU': [
+        'd', 'd_', 'd-', 'd sütunu', 'd sutunu', 'd_sutunu', 'd_belge', 'd_belgeler', 'd_dosya', 'd_dosyalar',
+        'sertifika', 'sertifikalar', 'certificate', 'certificates', 'onay', 'onaylar', 'approval', 'approvals',
+        'lisans', 'lisanslar', 'license', 'licenses', 'yetki', 'authority', 'belge_d', 'document_d',
+        'd1', 'd2', 'd3', 'd1_', 'd2_', 'd3_'
+      ]
+    };
+    
+    folders.forEach(folder => {
+      const folderName = folder.path.toLowerCase()
+        .replace(/[çÇ]/g, 'c')
+        .replace(/[ğĞ]/g, 'g') 
+        .replace(/[ıİ]/g, 'i')
+        .replace(/[öÖ]/g, 'o')
+        .replace(/[şŞ]/g, 's')
+        .replace(/[üÜ]/g, 'u')
+        .replace(/[^a-z0-9]/g, '_')
+        .replace(/_+/g, '_')
+        .replace(/^_|_$/g, '');
+      
+      let bestMatch = null;
+      let bestScore = 0;
+      
+      // Her sistem klasörü için benzerlik skoru hesapla
+      Object.keys(patterns).forEach(systemFolder => {
+        const keywords = patterns[systemFolder];
+        let score = 0;
+        
+        keywords.forEach(keyword => {
+          // Tam eşleşme - yüksek skor
+          if (folderName === keyword) {
+            score += 100;
+          }
+          // İçerik eşleşmesi - orta skor  
+          else if (folderName.includes(keyword) || keyword.includes(folderName)) {
+            score += 50;
+          }
+          // Başlangıç eşleşmesi - düşük skor
+          else if (folderName.startsWith(keyword) || keyword.startsWith(folderName)) {
+            score += 25;
+          }
+        });
+        
+        if (score > bestScore) {
+          bestScore = score;
+          bestMatch = systemFolder;
+        }
+      });
+      
+      // Minimum güven skoru kontrolü
+      if (bestScore >= 25) {
+        mapping[folder.path] = bestMatch;
+      }
+    });
+    
+    return mapping;
   };
 
   // Bulk folder upload function
