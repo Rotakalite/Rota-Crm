@@ -1000,19 +1000,18 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
     return mapping;
   };
 
-  // Document viewer function
+  // Document viewer function - SIMPLE: Open in new tab
   const viewDocument = async (document) => {
-    setDocumentViewerLoading(true);
-    setViewingDocument(document);
-    setShowDocumentViewer(true);
-    
     try {
+      // Simply open document in new tab
+      const viewUrl = `${API}/documents/view/${document.id}`;
+      window.open(viewUrl, '_blank');
+      
       // Log document view for analytics (optional)
-      console.log('📄 Viewing document:', document.document_name);
+      console.log('📄 Viewing document in new tab:', document.document_name);
     } catch (error) {
-      console.error('Error preparing document view:', error);
-    } finally {
-      setDocumentViewerLoading(false);
+      console.error('Error opening document:', error);
+      alert('Belge açılırken hata oluştu: ' + error.message);
     }
   };
 
