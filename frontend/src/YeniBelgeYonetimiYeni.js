@@ -732,6 +732,90 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
     };
   };
 
+  // Bulk folder upload function
+  const processBulkFolderUpload = async () => {
+    if (!folderAnalysis || !selectedBulkFolder) {
+      alert('Klasör analizi bulunamadı!');
+      return;
+    }
+    
+    // Check if all folders are mapped
+    const unmappedFolders = folderAnalysis.folders.filter(folder => !folderMapping[folder.path]);
+    if (unmappedFolders.length > 0) {
+      alert(`Lütfen tüm klasörleri eşleştirin!\nEşleştirilmemiş: ${unmappedFolders.map(f => f.path).join(', ')}`);
+      return;
+    }
+    
+    setBulkUploading(true);
+    
+    try {
+      // Prepare FormData for bulk upload
+      const formData = new FormData();
+      
+      // Add folder mapping as JSON string
+      formData.append('folder_mapping', JSON.stringify(folderMapping));
+      
+      // Add client_id for admin/consultant users
+      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
+        formData.append('client_id', selectedClient.id);
+      }
+      
+      // Add files with folder path keys
+      selectedBulkFolder.forEach((file) => {
+        const relativePath = file.webkitRelativePath || file.name;
+        const pathParts = relativePath.split('/');
+        
+        if (pathParts.length > 1) {
+          const folderPath = pathParts.slice(0, -1).join('/');
+          const key = `file_${folderPath}/${file.name}`;
+          formData.append(key, file);
+        }
+      });
+      
+      // Get fresh token
+      let currentToken = authToken;
+      if (window.Clerk && window.Clerk.session) {
+        try {
+          const freshToken = await window.Clerk.session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+      
+      // Send bulk upload request
+      const response = await axios.post(`${API}/documents/bulk`, formData, {
+        headers: { 
+          'Authorization': `Bearer ${currentToken}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      const result = response.data;
+      alert(`✅ Toplu belge yükleme tamamlandı!\n${result.success_count}/${result.total_count} dosya yüklendi (${result.success_rate})\n\nHatalar: ${result.errors?.join(', ') || 'Yok'}`);
+      
+      // Reset states and close modal
+      setShowBulkFolderUpload(false);
+      setSelectedBulkFolder(null);
+      setFolderAnalysis(null);
+      setFolderMapping({});
+      
+      // Reload documents and folders
+      await loadFolders();
+      if (selectedFolder) {
+        await loadDocuments(selectedFolder.id);
+      }
+      
+    } catch (error) {
+      console.error('❌ Bulk folder upload error:', error);
+      alert('Toplu klasör yükleme hatası: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setBulkUploading(false);
+    }
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <h1 className="text-3xl font-bold mb-8 text-center">🚀 Yeni Belge Yönetimi</h1>
