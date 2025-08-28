@@ -629,7 +629,10 @@ class BulkConsumptionApprovalTester:
 
 if __name__ == "__main__":
     tester = BulkConsumptionApprovalTester()
-    success_rate = tester.run_all_tests()
+    tester.run_all_tests()
+    
+    # Calculate success rate for exit code
+    success_rate = (tester.passed_tests / tester.total_tests * 100) if tester.total_tests > 0 else 0
     
     # Exit with appropriate code
     sys.exit(0 if success_rate >= 75 else 1)
