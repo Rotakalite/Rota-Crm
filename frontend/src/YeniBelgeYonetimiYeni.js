@@ -747,8 +747,9 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
   const generateAutoMapping = (folders) => {
     const mapping = {};
     
-    // Eşleştirme pattern'leri ve keyword'leri
+    // Eşleştirme pattern'leri ve keyword'leri - LEVEL 1-4 COMPLETE
     const patterns = {
+      // LEVEL 1 - Ana Sütunlar
       'A_SUTUNU': [
         'a', 'a_', 'a-', 'a sütunu', 'a sutunu', 'a_sutunu', 'a_belge', 'a_belgeler', 'a_dosya', 'a_dosyalar',
         'politika', 'politikalar', 'policy', 'policies', 'strateji', 'strategy', 'yönetmelik', 'regulation',
@@ -767,8 +768,153 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
       'D_SUTUNU': [
         'd', 'd_', 'd-', 'd sütunu', 'd sutunu', 'd_sutunu', 'd_belge', 'd_belgeler', 'd_dosya', 'd_dosyalar',
         'sertifika', 'sertifikalar', 'certificate', 'certificates', 'onay', 'onaylar', 'approval', 'approvals',
-        'lisans', 'lisanslar', 'license', 'licenses', 'yetki', 'authority', 'belge_d', 'document_d',
-        'd1', 'd2', 'd3', 'd1_', 'd2_', 'd3_'
+        'lisans', 'lisanslar', 'license', 'licenses', 'yetki', 'authority', 'belge_d', 'document_d'
+      ],
+      
+      // LEVEL 2 - A Sütunu Alt Klasörleri
+      'A1': [
+        'a1', 'a_1', 'a-1', 'a 1', 'politika_1', 'politika1', 'genel_politika', 'genel', 'ana_politika'
+      ],
+      'A2': [
+        'a2', 'a_2', 'a-2', 'a 2', 'politika_2', 'politika2', 'kalite_politika', 'kalite', 'quality_policy'
+      ],
+      'A3': [
+        'a3', 'a_3', 'a-3', 'a 3', 'politika_3', 'politika3', 'cevre_politika', 'çevre', 'environment'
+      ],
+      'A4': [
+        'a4', 'a_4', 'a-4', 'a 4', 'politika_4', 'politika4', 'is_sagligi', 'iş_sağlığı', 'occupational'
+      ],
+      'A5': [
+        'a5', 'a_5', 'a-5', 'a 5', 'politika_5', 'politika5', 'guvenlik_politika', 'güvenlik', 'safety'
+      ],
+      'A7.1': [
+        'a7_1', 'a7.1', 'a-7-1', 'a 7 1', 'a71', 'yasal_gereklilik', 'yasal', 'legal', 'requirement'
+      ],
+      'A7.2': [
+        'a7_2', 'a7.2', 'a-7-2', 'a 7 2', 'a72', 'mevzuat', 'kanun', 'law', 'regulation'
+      ],
+      'A7.3': [
+        'a7_3', 'a7.3', 'a-7-3', 'a 7 3', 'a73', 'standart_gereklilik', 'standard_requirement'
+      ],
+      'A7.4': [
+        'a7_4', 'a7.4', 'a-7-4', 'a 7 4', 'a74', 'diger_gereklilik', 'diğer', 'other_requirement'
+      ],
+      'A8': [
+        'a8', 'a_8', 'a-8', 'a 8', 'politika_8', 'politika8', 'sosyal_politika', 'sosyal', 'social'
+      ],
+      'A9': [
+        'a9', 'a_9', 'a-9', 'a 9', 'politika_9', 'politika9', 'etik', 'ethics', 'etik_kod'
+      ],
+      'A10': [
+        'a10', 'a_10', 'a-10', 'a 10', 'politika_10', 'politika10', 'surdurulebilirlik', 'sustainability'
+      ],
+      
+      // LEVEL 2 - B Sütunu Alt Klasörleri  
+      'B1': [
+        'b1', 'b_1', 'b-1', 'b 1', 'prosedur_1', 'prosedur1', 'genel_prosedur', 'main_procedure'
+      ],
+      'B2': [
+        'b2', 'b_2', 'b-2', 'b 2', 'prosedur_2', 'prosedur2', 'kalite_prosedur', 'quality_procedure'
+      ],
+      'B3': [
+        'b3', 'b_3', 'b-3', 'b 3', 'prosedur_3', 'prosedur3', 'cevre_prosedur', 'environment_procedure'
+      ],
+      'B4': [
+        'b4', 'b_4', 'b-4', 'b 4', 'prosedur_4', 'prosedur4', 'is_sagligi_prosedur', 'ohs_procedure'
+      ],
+      'B5': [
+        'b5', 'b_5', 'b-5', 'b 5', 'prosedur_5', 'prosedur5', 'guvenlik_prosedur', 'safety_procedure'
+      ],
+      'B6': [
+        'b6', 'b_6', 'b-6', 'b 6', 'prosedur_6', 'prosedur6', 'bilgi_guvenlik', 'information_security'
+      ],
+      'B7': [
+        'b7', 'b_7', 'b-7', 'b 7', 'prosedur_7', 'prosedur7', 'insan_kaynak', 'human_resources'
+      ],
+      'B8': [
+        'b8', 'b_8', 'b-8', 'b 8', 'prosedur_8', 'prosedur8', 'mali_isler', 'financial'
+      ],
+      'B9': [
+        'b9', 'b_9', 'b-9', 'b 9', 'prosedur_9', 'prosedur9', 'operasyonel', 'operational'
+      ],
+      
+      // LEVEL 2 - C Sütunu Alt Klasörleri
+      'C1': [
+        'c1', 'c_1', 'c-1', 'c 1', 'form_1', 'form1', 'genel_form', 'general_form'
+      ],
+      'C2': [
+        'c2', 'c_2', 'c-2', 'c 2', 'form_2', 'form2', 'kalite_form', 'quality_form'
+      ],
+      'C3': [
+        'c3', 'c_3', 'c-3', 'c 3', 'form_3', 'form3', 'cevre_form', 'environment_form'
+      ],
+      'C4': [
+        'c4', 'c_4', 'c-4', 'c 4', 'form_4', 'form4', 'is_sagligi_form', 'ohs_form'
+      ],
+      
+      // LEVEL 2 - D Sütunu Ana Klasörleri
+      'D1': [
+        'd1', 'd_1', 'd-1', 'd 1', 'sertifika_1', 'sertifika1', 'kalite_sertifika', 'quality_certificate'
+      ],
+      'D2': [
+        'd2', 'd_2', 'd-2', 'd 2', 'sertifika_2', 'sertifika2', 'cevre_sertifika', 'environment_certificate'
+      ],
+      'D3': [
+        'd3', 'd_3', 'd-3', 'd 3', 'sertifika_3', 'sertifika3', 'is_sagligi_sertifika', 'ohs_certificate'
+      ],
+      
+      // LEVEL 3 - D1 Alt Klasörleri
+      'D1.1': [
+        'd1_1', 'd1.1', 'd-1-1', 'd 1 1', 'd11', 'iso_9001', 'iso9001', 'kalite_yonetim'
+      ],
+      'D1.2': [
+        'd1_2', 'd1.2', 'd-1-2', 'd 1 2', 'd12', 'ts_en_iso', 'kalite_standart'
+      ],
+      'D1.3': [
+        'd1_3', 'd1.3', 'd-1-3', 'd 1 3', 'd13', 'kalite_belge', 'quality_document'
+      ],
+      'D1.4': [
+        'd1_4', 'd1.4', 'd-1-4', 'd 1 4', 'd14', 'kalite_onay', 'quality_approval'
+      ],
+      
+      // LEVEL 3 - D2 Alt Klasörleri
+      'D2.1': [
+        'd2_1', 'd2.1', 'd-2-1', 'd 2 1', 'd21', 'iso_14001', 'iso14001', 'cevre_yonetim'
+      ],
+      'D2.2': [
+        'd2_2', 'd2.2', 'd-2-2', 'd 2 2', 'd22', 'cevre_izin', 'environment_permit'
+      ],
+      'D2.3': [
+        'd2_3', 'd2.3', 'd-2-3', 'd 2 3', 'd23', 'atik_lisans', 'waste_license'
+      ],
+      'D2.4': [
+        'd2_4', 'd2.4', 'd-2-4', 'd 2 4', 'd24', 'emisyon_rapor', 'emission_report'
+      ],
+      'D2.5': [
+        'd2_5', 'd2.5', 'd-2-5', 'd 2 5', 'd25', 'cevre_etki', 'environmental_impact'
+      ],
+      'D2.6': [
+        'd2_6', 'd2.6', 'd-2-6', 'd 2 6', 'd26', 'cevre_denetim', 'environmental_audit'
+      ],
+      
+      // LEVEL 3 - D3 Alt Klasörleri
+      'D3.1': [
+        'd3_1', 'd3.1', 'd-3-1', 'd 3 1', 'd31', 'iso_45001', 'iso45001', 'is_sagligi_yonetim'
+      ],
+      'D3.2': [
+        'd3_2', 'd3.2', 'd-3-2', 'd 3 2', 'd32', 'is_sagligi_rapor', 'ohs_report'
+      ],
+      'D3.3': [
+        'd3_3', 'd3.3', 'd-3-3', 'd 3 3', 'd33', 'risk_degerlendirme', 'risk_assessment'
+      ],
+      'D3.4': [
+        'd3_4', 'd3.4', 'd-3-4', 'd 3 4', 'd34', 'acil_durum', 'emergency'
+      ],
+      'D3.5': [
+        'd3_5', 'd3.5', 'd-3-5', 'd 3 5', 'd35', 'egitim_kayit', 'training_record'
+      ],
+      'D3.6': [
+        'd3_6', 'd3.6', 'd-3-6', 'd 3 6', 'd36', 'saglik_rapor', 'health_report'
       ]
     };
     
