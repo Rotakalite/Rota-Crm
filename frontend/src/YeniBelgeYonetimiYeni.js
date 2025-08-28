@@ -1742,10 +1742,62 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
                               className="w-full p-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                             >
                               <option value="">Hedef klasör seçin...</option>
-                              <option value="A_SUTUNU">A SÜTUNU</option>
-                              <option value="B_SUTUNU">B SÜTUNU</option>
-                              <option value="C_SUTUNU">C SÜTUNU</option>
-                              <option value="D_SUTUNU">D SÜTUNU</option>
+                              <optgroup label="🅰️ A SÜTUNU">
+                                <option value="A_SUTUNU">A SÜTUNU</option>
+                                <option value="A1">A1</option>
+                                <option value="A2">A2</option>
+                                <option value="A3">A3</option>
+                                <option value="A4">A4</option>
+                                <option value="A5">A5</option>
+                                <option value="A7.1">A7.1</option>
+                                <option value="A7.2">A7.2</option>
+                                <option value="A7.3">A7.3</option>
+                                <option value="A7.4">A7.4</option>
+                                <option value="A8">A8</option>
+                                <option value="A9">A9</option>
+                                <option value="A10">A10</option>
+                              </optgroup>
+                              <optgroup label="🅱️ B SÜTUNU">
+                                <option value="B_SUTUNU">B SÜTUNU</option>
+                                <option value="B1">B1</option>
+                                <option value="B2">B2</option>
+                                <option value="B3">B3</option>
+                                <option value="B4">B4</option>
+                                <option value="B5">B5</option>
+                                <option value="B6">B6</option>
+                                <option value="B7">B7</option>
+                                <option value="B8">B8</option>
+                                <option value="B9">B9</option>
+                              </optgroup>
+                              <optgroup label="🅲 C SÜTUNU">
+                                <option value="C_SUTUNU">C SÜTUNU</option>
+                                <option value="C1">C1</option>
+                                <option value="C2">C2</option>
+                                <option value="C3">C3</option>
+                                <option value="C4">C4</option>
+                              </optgroup>
+                              <optgroup label="🅳 D SÜTUNU">
+                                <option value="D_SUTUNU">D SÜTUNU</option>
+                                <option value="D1">D1</option>
+                                <option value="D1.1">D1.1</option>
+                                <option value="D1.2">D1.2</option>
+                                <option value="D1.3">D1.3</option>
+                                <option value="D1.4">D1.4</option>
+                                <option value="D2">D2</option>
+                                <option value="D2.1">D2.1</option>
+                                <option value="D2.2">D2.2</option>
+                                <option value="D2.3">D2.3</option>
+                                <option value="D2.4">D2.4</option>
+                                <option value="D2.5">D2.5</option>
+                                <option value="D2.6">D2.6</option>
+                                <option value="D3">D3</option>
+                                <option value="D3.1">D3.1</option>
+                                <option value="D3.2">D3.2</option>
+                                <option value="D3.3">D3.3</option>
+                                <option value="D3.4">D3.4</option>
+                                <option value="D3.5">D3.5</option>
+                                <option value="D3.6">D3.6</option>
+                              </optgroup>
                             </select>
                           </div>
                         </div>
