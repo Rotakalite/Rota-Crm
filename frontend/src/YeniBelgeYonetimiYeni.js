@@ -1015,7 +1015,7 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
     return typeMap[extension] || { icon: '📁', type: 'Belge', color: 'text-gray-600' };
   };
 
-  // Bulk folder upload function
+  // Bulk folder upload function - WITH CHUNKING TO PREVENT TIMEOUT
   const processBulkFolderUpload = async () => {
     if (!folderAnalysis || !selectedBulkFolder) {
       alert('Klasör analizi bulunamadı!');
@@ -1032,30 +1032,14 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
     setBulkUploading(true);
     
     try {
-      // Prepare FormData for bulk upload
-      const formData = new FormData();
+      const CHUNK_SIZE = 10; // Process 10 files at a time to prevent timeout
+      const totalFiles = selectedBulkFolder.length;
+      let uploadedCount = 0;
+      let successCount = 0;
+      let errorCount = 0;
+      const allErrors = [];
       
-      // Add folder mapping as JSON string
-      formData.append('folder_mapping', JSON.stringify(folderMapping));
-      
-      // Add client_id for admin/consultant users
-      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
-        formData.append('client_id', selectedClient.id);
-      }
-      
-      // Add files with folder path keys
-      selectedBulkFolder.forEach((file) => {
-        const relativePath = file.webkitRelativePath || file.name;
-        const pathParts = relativePath.split('/');
-        
-        if (pathParts.length > 1) {
-          const folderPath = pathParts.slice(0, -1).join('/');
-          const key = `file_${folderPath}/${file.name}`;
-          formData.append(key, file);
-        }
-      });
-      
-      // Get fresh token
+      // Get fresh token once
       let currentToken = authToken;
       if (window.Clerk && window.Clerk.session) {
         try {
@@ -1068,16 +1052,88 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
         }
       }
       
-      // Send bulk upload request
-      const response = await axios.post(`${API}/documents/bulk`, formData, {
-        headers: { 
-          'Authorization': `Bearer ${currentToken}`,
-          'Content-Type': 'multipart/form-data'
+      // Process files in chunks
+      for (let i = 0; i < totalFiles; i += CHUNK_SIZE) {
+        const chunk = selectedBulkFolder.slice(i, i + CHUNK_SIZE);
+        
+        try {
+          // Prepare FormData for this chunk
+          const formData = new FormData();
+          
+          // Add folder mapping as JSON string
+          formData.append('folder_mapping', JSON.stringify(folderMapping));
+          
+          // Add client_id for admin/consultant users
+          if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
+            formData.append('client_id', selectedClient.id);
+          }
+          
+          // Add files from this chunk
+          chunk.forEach((file) => {
+            const relativePath = file.webkitRelativePath || file.name;
+            const pathParts = relativePath.split('/');
+            
+            if (pathParts.length > 1) {
+              const folderPath = pathParts.slice(0, -1).join('/');
+              const key = `file_${folderPath}/${file.name}`;
+              formData.append(key, file);
+            }
+          });
+          
+          // Send chunk to backend with extended timeout
+          const response = await axios.post(`${API}/documents/bulk`, formData, {
+            headers: { 
+              'Authorization': `Bearer ${currentToken}`,
+              'Content-Type': 'multipart/form-data'
+            },
+            timeout: 300000, // 5 minutes timeout per chunk
+            onUploadProgress: (progressEvent) => {
+              const chunkProgress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              console.log(`Chunk ${Math.floor(i/CHUNK_SIZE) + 1} progress: ${chunkProgress}%`);
+            }
+          });
+          
+          const result = response.data;
+          successCount += result.success_count || 0;
+          errorCount += result.failed_count || 0;
+          
+          if (result.errors && result.errors.length > 0) {
+            allErrors.push(...result.errors);
+          }
+          
+          uploadedCount += chunk.length;
+          
+          // Update progress
+          const overallProgress = Math.round((uploadedCount / totalFiles) * 100);
+          console.log(`📁 Overall progress: ${overallProgress}% (${uploadedCount}/${totalFiles} files)`);
+          
+          // Short delay between chunks to prevent overwhelming server
+          if (i + CHUNK_SIZE < totalFiles) {
+            await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+          }
+          
+        } catch (chunkError) {
+          console.error(`❌ Chunk ${Math.floor(i/CHUNK_SIZE) + 1} error:`, chunkError);
+          errorCount += chunk.length;
+          allErrors.push(`Chunk ${Math.floor(i/CHUNK_SIZE) + 1}: ${chunkError.message || chunkError}`);
         }
-      });
+      }
       
-      const result = response.data;
-      alert(`✅ Toplu belge yükleme tamamlandı!\n${result.success_count}/${result.total_count} dosya yüklendi (${result.success_rate})\n\nHatalar: ${result.errors?.join(', ') || 'Yok'}`);
+      // Show comprehensive results
+      const successRate = totalFiles > 0 ? Math.round((successCount / totalFiles) * 100) : 0;
+      let resultMessage = `✅ Toplu belge yükleme tamamlandı!\n\n`;
+      resultMessage += `📊 Özet:\n`;
+      resultMessage += `• Toplam dosya: ${totalFiles}\n`;
+      resultMessage += `• Başarılı: ${successCount}\n`;
+      resultMessage += `• Başarısız: ${errorCount}\n`;
+      resultMessage += `• Başarı oranı: ${successRate}%\n`;
+      
+      if (allErrors.length > 0) {
+        resultMessage += `\n❌ Hatalar (ilk 5):\n`;
+        resultMessage += allErrors.slice(0, 5).join('\n');
+      }
+      
+      alert(resultMessage);
       
       // Reset states and close modal
       setShowBulkFolderUpload(false);
