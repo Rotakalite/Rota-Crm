@@ -6448,12 +6448,35 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
               <h1 className="text-4xl font-bold text-white mb-2">🗑️ Elite Atık Yönetimi</h1>
               <p className="text-green-100 text-lg">Sürdürülebilir atık takibi ve analiz sistemi</p>
             </div>
-            <button
-              onClick={() => setShowAddRecord(true)}
-              className="bg-white text-green-700 px-6 py-3 rounded-xl hover:bg-green-50 transition-all duration-300 shadow-lg font-semibold flex items-center gap-2"
-            >
-              <span className="text-xl">+</span> Yeni Kayıt
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = '/waste_template.xlsx';  
+                  link.download = 'atik_listesi_template.xlsx';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center space-x-2"
+              >
+                <span>📊</span>
+                <span>Excel Template</span>
+              </button>
+              <button
+                onClick={() => setShowExcelImport(!showExcelImport)}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+              >
+                {showExcelImport ? '❌ İptal' : '📊 Excel İmport'}
+              </button>
+              <button
+                onClick={() => setShowAddRecord(!showAddRecord)}
+                className="bg-white text-green-700 px-6 py-3 rounded-xl hover:bg-green-50 transition-all duration-300 shadow-lg font-semibold flex items-center gap-2"
+              >
+                <span className="text-xl">+</span>
+                {showAddRecord ? 'İptal' : 'Yeni Kayıt'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
