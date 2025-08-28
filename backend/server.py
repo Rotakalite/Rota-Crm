@@ -11091,8 +11091,8 @@ async def bulk_import_consumptions(
                 failed_imports += 1
                 logging.error(f"❌ Error importing consumption row {idx + 1}: {e}")
         
-        # 🎯 Send demo limit notification if limit reached
-        if not current_user.admin_approved and successful_imports > 0:
+        # 🎯 Send demo limit notification ONLY for demo users
+        if should_apply_demo_limit and successful_imports > 0:
             await send_demo_limit_notification(current_user, 'consumptions')
         
         return {
