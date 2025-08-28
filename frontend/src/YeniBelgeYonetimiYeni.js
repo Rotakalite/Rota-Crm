@@ -1403,33 +1403,91 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
                   <h3 className="font-medium text-yellow-800 mb-2">📊 Klasör Yapısı Analizi</h3>
                   <div className="text-sm text-yellow-700">
                     <p>Toplam {folderAnalysis.totalFiles} dosya, {folderAnalysis.folders.length} klasör bulundu</p>
+                    <p className="mt-1">🤖 Otomatik eşleştirme: {Object.keys(folderAnalysis.autoMapping).length}/{folderAnalysis.folders.length} klasör eşleştirildi</p>
                   </div>
                 </div>
                 
+                {/* Otomatik Eşleştirme Özeti */}
+                {Object.keys(folderAnalysis.autoMapping).length > 0 && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h3 className="font-medium text-green-800 mb-2">✅ Otomatik Eşleştirmeler</h3>
+                    <div className="space-y-2">
+                      {Object.entries(folderAnalysis.autoMapping).map(([folderPath, systemFolder]) => (
+                        <div key={folderPath} className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">{folderPath}</span>
+                          <span className="text-green-700 font-medium">→ {systemFolder}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Manuel Eşleştirme Gereken Klasörler */}
+                {folderAnalysis.folders.filter(folder => !folderAnalysis.autoMapping[folder.path]).length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 text-orange-700">⚠️ Manuel Eşleştirme Gerekli</h3>
+                    <div className="space-y-3">
+                      {folderAnalysis.folders
+                        .filter(folder => !folderAnalysis.autoMapping[folder.path])
+                        .map((folder, index) => (
+                          <div key={index} className="flex items-center justify-between p-3 border border-orange-200 rounded-lg bg-orange-50">
+                            <div className="flex-1">
+                              <p className="font-medium text-orange-800">{folder.path}</p>
+                              <p className="text-sm text-orange-600">{folder.fileCount} dosya - Otomatik eşleştirme yapılamadı</p>
+                            </div>
+                            <div className="flex-1 ml-4">
+                              <select
+                                value={folderMapping[folder.path] || ''}
+                                onChange={(e) => setFolderMapping({...folderMapping, [folder.path]: e.target.value})}
+                                className="w-full p-2 border border-orange-300 rounded focus:ring-2 focus:ring-blue-500"
+                              >
+                                <option value="">Hedef klasör seçin...</option>
+                                <option value="A_SUTUNU">A SÜTUNU</option>
+                                <option value="B_SUTUNU">B SÜTUNU</option>
+                                <option value="C_SUTUNU">C SÜTUNU</option>
+                                <option value="D_SUTUNU">D SÜTUNU</option>
+                              </select>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Tüm Klasör Eşleştirmelerini Gözden Geçir */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">🔗 Klasör Eşleştirme</h3>
-                  <div className="space-y-3">
-                    {folderAnalysis.folders.map((folder, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                        <div className="flex-1">
-                          <p className="font-medium">{folder.path}</p>
-                          <p className="text-sm text-gray-500">{folder.fileCount} dosya</p>
+                  <h3 className="text-lg font-semibold mb-4">🔍 Tüm Eşleştirmeleri Gözden Geçir</h3>
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {folderAnalysis.folders.map((folder, index) => {
+                      const isAutoMapped = folderAnalysis.autoMapping[folder.path];
+                      const currentMapping = folderMapping[folder.path] || '';
+                      
+                      return (
+                        <div key={index} className={`flex items-center justify-between p-2 rounded border ${
+                          isAutoMapped ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'
+                        }`}>
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">{folder.path}</p>
+                            <p className="text-xs text-gray-500">
+                              {folder.fileCount} dosya {isAutoMapped && '• Otomatik eşleştirildi'}
+                            </p>
+                          </div>
+                          <div className="flex-1 ml-4">
+                            <select
+                              value={currentMapping}
+                              onChange={(e) => setFolderMapping({...folderMapping, [folder.path]: e.target.value})}
+                              className="w-full p-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                            >
+                              <option value="">Hedef klasör seçin...</option>
+                              <option value="A_SUTUNU">A SÜTUNU</option>
+                              <option value="B_SUTUNU">B SÜTUNU</option>
+                              <option value="C_SUTUNU">C SÜTUNU</option>
+                              <option value="D_SUTUNU">D SÜTUNU</option>
+                            </select>
+                          </div>
                         </div>
-                        <div className="flex-1 ml-4">
-                          <select
-                            value={folderMapping[folder.path] || ''}
-                            onChange={(e) => setFolderMapping({...folderMapping, [folder.path]: e.target.value})}
-                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-                          >
-                            <option value="">Hedef klasör seçin...</option>
-                            <option value="A_SUTUNU">A SÜTUNU</option>
-                            <option value="B_SUTUNU">B SÜTUNU</option>
-                            <option value="C_SUTUNU">C SÜTUNU</option>
-                            <option value="D_SUTUNU">D SÜTUNU</option>
-                          </select>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
                 
