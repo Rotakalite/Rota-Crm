@@ -885,18 +885,25 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
               </div>
             </div>
 
-            {/* Upload Button */}
-            <div className="mt-6">
+            {/* Upload Buttons */}
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
               <button
                 onClick={uploadDocuments}
                 disabled={uploading}
-                className={`w-full py-3 px-6 rounded-lg font-semibold text-white ${
+                className={`py-3 px-6 rounded-lg font-semibold text-white ${
                   uploading 
                     ? 'bg-gray-400 cursor-not-allowed' 
                     : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
                 }`}
               >
                 {uploading ? '📤 Yükleniyor...' : '🚀 Belgeleri Yükle'}
+              </button>
+              
+              <button
+                onClick={() => setShowBulkFolderUpload(true)}
+                className="py-3 px-6 rounded-lg font-semibold text-white bg-purple-600 hover:bg-purple-700 active:bg-purple-800"
+              >
+                📁 Toplu Klasör Yükle
               </button>
             </div>
           </div>
