@@ -12323,6 +12323,7 @@ const ConsumptionManagement = ({ onNavigate }) => {
   const [excelProcessing, setExcelProcessing] = useState(false);
   
   const { authToken, userRole, dbUser, ensureTokenForOperation, handleViewTeam, handleAddTeamMember, showTeamModal, setShowTeamModal, teamMembers, showAddTeamMember, setShowAddTeamMember, teamMemberForm, setTeamMemberForm } = useAuth();
+  const { session } = useClerk();
   const API = getApiUrl();
 
   useEffect(() => {
