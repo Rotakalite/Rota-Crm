@@ -1355,10 +1355,7 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
                     ⬅️ Geri
                   </button>
                   <button
-                    onClick={() => {
-                      // TODO: Start bulk upload
-                      alert('Bulk upload fonksiyonu henüz hazır değil!');
-                    }}
+                    onClick={processBulkFolderUpload}
                     disabled={bulkUploading}
                     className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
                   >
