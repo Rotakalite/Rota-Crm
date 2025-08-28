@@ -1229,6 +1229,7 @@ class BulkConsumptionItem(BaseModel):
 
 class BulkConsumptionRequest(BaseModel):
     consumptions_list: List[BulkConsumptionItem]
+    client_id: Optional[str] = None  # For admin/consultant users to specify client
 
 class Training(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
