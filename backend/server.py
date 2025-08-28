@@ -11535,6 +11535,164 @@ async def bulk_document_upload(
         raise HTTPException(status_code=500, detail=f"Bulk document upload failed: {str(e)}")
 
 
+# Document View Endpoint
+@api_router.get("/documents/view/{document_id}")
+async def view_document(
+    document_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """View/preview document content"""
+    try:
+        logging.info(f"📄 Document view request: {document_id} by user: {current_user.email}")
+        
+        # Get database connection
+        db = get_db()
+        
+        # Find document
+        document = await db.documents.find_one({"id": document_id})
+        if not document:
+            raise HTTPException(status_code=404, detail="Document not found")
+        
+        # Check user permission for document access
+        user_client_id = current_user.client_id
+        
+        # Admin and consultant can view all documents
+        if current_user.role not in [UserRole.ADMIN, UserRole.CONSULTANT]:
+            # Client users can only view their own documents
+            if document.get("client_id") != user_client_id:
+                raise HTTPException(status_code=403, detail="Access denied to this document")
+        
+        # For demo/mock uploads, return a placeholder response
+        if document.get("mock_upload", False):
+            filename = document.get("original_filename", "document.pdf")
+            extension = filename.split('.')[-1].lower()
+            
+            # Return appropriate content type based on file extension
+            if extension == 'pdf':
+                from fastapi.responses import Response
+                # Create a simple PDF placeholder
+                pdf_content = b"""%PDF-1.4
+1 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+
+2 0 obj
+<<
+/Type /Pages
+/Kids [3 0 R]
+/Count 1
+>>
+endobj
+
+3 0 obj
+<<
+/Type /Page
+/Parent 2 0 R
+/MediaBox [0 0 612 792]
+/Contents 4 0 R
+/Resources <<
+/Font <<
+/F1 <<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+>>
+>>
+>>
+endobj
+
+4 0 obj
+<<
+/Length 128
+>>
+stream
+BT
+/F1 24 Tf
+100 700 Td
+(Demo Document) Tj
+0 -50 Td
+(This is a demo file.) Tj
+0 -30 Td
+(Filename: """ + filename.encode('latin1', 'ignore').decode('latin1') + """) Tj
+ET
+endstream
+endobj
+
+xref
+0 5
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000356 00000 n 
+trailer
+<<
+/Size 5
+/Root 1 0 R
+>>
+startxref
+535
+%%EOF"""
+                
+                return Response(
+                    content=pdf_content,
+                    media_type="application/pdf",
+                    headers={
+                        "Content-Disposition": f"inline; filename={filename}",
+                        "Cache-Control": "no-cache"
+                    }
+                )
+            
+            elif extension in ['png', 'jpg', 'jpeg', 'gif']:
+                # Return a placeholder image (1x1 pixel PNG)
+                placeholder_image = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\x9cc\xf8\x0f\x00\x00\x01\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00IEND\xaeB`\x82'
+                
+                return Response(
+                    content=placeholder_image,
+                    media_type=f"image/{extension}",
+                    headers={
+                        "Content-Disposition": f"inline; filename={filename}",
+                        "Cache-Control": "no-cache"
+                    }
+                )
+            
+            else:
+                # For other file types, return text placeholder
+                placeholder_text = f"""Demo Document: {filename}
+                
+This is a placeholder for the uploaded document.
+In a production environment, the actual file content would be served here.
+
+Document Info:
+- Name: {document.get('document_name', 'Unknown')}
+- Size: {document.get('file_size', 0)} bytes
+- Uploaded: {document.get('created_at', 'Unknown')}
+- Type: {extension.upper()}"""
+                
+                return Response(
+                    content=placeholder_text.encode(),
+                    media_type="text/plain",
+                    headers={
+                        "Content-Disposition": f"inline; filename={filename}",
+                        "Cache-Control": "no-cache"
+                    }
+                )
+        
+        else:
+            # For real uploads, this would fetch from actual storage (GCS, etc.)
+            raise HTTPException(status_code=501, detail="Real file serving not implemented yet")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ Document view error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to view document: {str(e)}")
+
+
 @api_router.post("/consumptions/waste-data")
 async def create_waste_record_via_consumptions(
     env_data: EnvironmentInput,
