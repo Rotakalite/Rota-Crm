@@ -11164,6 +11164,180 @@ async def bulk_import_consumptions(
         raise HTTPException(status_code=500, detail=f"Bulk import failed: {str(e)}")
 
 
+# Bulk Waste Import
+@api_router.post("/waste/bulk")
+async def bulk_waste_import(
+    bulk_data: BulkWasteRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """Bulk waste record import from Excel"""
+    try:
+        logging.info(f"🗑️ BULK WASTE: Adding {len(bulk_data.waste_list)} waste records for user: {current_user.email}")
+        
+        # Get database connection
+        db = get_db()
+        
+        # Determine client_id based on user role and request data
+        if current_user.role == UserRole.CLIENT:
+            target_client_id = current_user.client_id
+        elif current_user.role == UserRole.ADMIN:
+            # Admin can specify client_id in request, or use their own
+            target_client_id = bulk_data.client_id or current_user.client_id
+            if not target_client_id:
+                raise HTTPException(status_code=400, detail="Admin must specify client_id for bulk waste import")
+        elif current_user.role == UserRole.CONSULTANT:
+            # Consultant can specify client_id in request
+            target_client_id = bulk_data.client_id
+            if not target_client_id:
+                raise HTTPException(status_code=400, detail="Consultant must specify client_id for bulk waste import")
+        else:
+            raise HTTPException(status_code=403, detail="Bulk waste import permission denied")
+
+        # 🎯 KALICI ÇÖZÜM: Demo limit kontrolü - Admin ve Consultant'lar hiçbir zaman demo limit'e tabi değil
+        should_apply_demo_limit = False
+        
+        # 1. Admin ve Consultant'lar: Hiçbir zaman demo limit yok
+        if current_user.role in [UserRole.ADMIN, UserRole.CONSULTANT]:
+            should_apply_demo_limit = False
+            logging.info(f"✅ {current_user.role} user - no demo limits applied")
+        
+        # 2. Client kullanıcıları: admin_approved True ise demo limit yok
+        elif current_user.role == UserRole.CLIENT:
+            if current_user.admin_approved:
+                should_apply_demo_limit = False
+                logging.info(f"✅ Admin-approved client - no demo limits applied")
+            else:
+                # Admin tarafından kaydedilen client'lar için ek kontrol
+                if current_user.client_id:
+                    client = await db.clients.find_one({"id": current_user.client_id})
+                    if client and client.get("created_by_admin", False):
+                        should_apply_demo_limit = False
+                        logging.info(f"✅ Client created by admin - no demo limits applied")
+                    else:
+                        should_apply_demo_limit = True
+                        logging.info(f"⚠️ Demo user - applying demo limits")
+                else:
+                    should_apply_demo_limit = True
+                    logging.info(f"⚠️ Demo user (no client_id) - applying demo limits")
+        
+        # Demo limit kontrolünü uygula
+        if should_apply_demo_limit:
+            demo_limit = await check_demo_limit(current_user, 'waste')
+            if demo_limit:
+                return demo_limit
+
+        successful_imports = 0
+        failed_imports = 0
+        error_messages = []
+        
+        for idx, waste_item in enumerate(bulk_data.waste_list):
+            try:
+                # Calculate derived fields
+                total_waste = (
+                    waste_item.organic_waste + waste_item.plastic_waste + 
+                    waste_item.glass_waste + waste_item.paper_waste + 
+                    waste_item.metal_waste + waste_item.electronic_waste + 
+                    waste_item.mixed_waste + waste_item.oil_waste
+                )
+                
+                recyclable_waste = (
+                    waste_item.plastic_waste + waste_item.glass_waste + 
+                    waste_item.paper_waste + waste_item.metal_waste
+                )
+                
+                recycling_rate = (recyclable_waste / total_waste * 100) if total_waste > 0 else 0
+                per_person_waste = total_waste / waste_item.accommodation_count if waste_item.accommodation_count > 0 else 0
+                
+                waste_dict = {
+                    "id": str(uuid.uuid4()),
+                    "client_id": target_client_id,
+                    "year": waste_item.year,
+                    "month": waste_item.month,
+                    "organic_waste": waste_item.organic_waste,
+                    "plastic_waste": waste_item.plastic_waste,
+                    "glass_waste": waste_item.glass_waste,
+                    "paper_waste": waste_item.paper_waste,
+                    "metal_waste": waste_item.metal_waste,
+                    "electronic_waste": waste_item.electronic_waste,
+                    "oil_waste": waste_item.oil_waste,
+                    "mixed_waste": waste_item.mixed_waste,
+                    "accommodation_count": waste_item.accommodation_count,
+                    "total_waste": total_waste,
+                    "recycling_rate": recycling_rate,
+                    "per_person_waste": per_person_waste,
+                    "created_at": datetime.utcnow(),
+                    "updated_at": datetime.utcnow()
+                }
+                
+                # Check if waste record exists for same month/year
+                existing_waste = await db.waste_management.find_one({
+                    "client_id": target_client_id,
+                    "year": waste_item.year,
+                    "month": waste_item.month
+                })
+                
+                if existing_waste:
+                    # Update existing record
+                    await db.waste_management.update_one(
+                        {"id": existing_waste["id"]},
+                        {"$set": waste_dict}
+                    )
+                    logging.info(f"✅ Updated existing waste record for {waste_item.year}-{waste_item.month}")
+                else:
+                    # KALICI ÇÖZÜM: Demo kullanıcı kontrolü
+                    if should_apply_demo_limit:
+                        # Demo user - add to pending approvals
+                        pending_approval = {
+                            "id": str(uuid.uuid4()),
+                            "type": "waste",
+                            "data": waste_dict,
+                            "user_id": current_user.user_id,
+                            "user_name": current_user.name,
+                            "user_email": current_user.email_address,
+                            "client_id": target_client_id,
+                            "status": "pending",
+                            "created_at": datetime.utcnow(),
+                            "bulk_import": True,
+                            "bulk_index": idx
+                        }
+                        await db.pending_approvals.insert_one(pending_approval)
+                        logging.info(f"📋 Added waste record to pending approvals for {waste_item.year}-{waste_item.month}")
+                    else:
+                        # Admin/Consultant/Admin-approved user - direct insert
+                        await db.waste_management.insert_one(waste_dict)
+                        logging.info(f"✅ Created new waste record for {waste_item.year}-{waste_item.month}")
+                    
+                    # 🎯 Increment demo limit ONLY for demo users
+                    if should_apply_demo_limit:
+                        await increment_demo_limit(current_user, 'waste')
+                
+                successful_imports += 1
+                
+            except Exception as e:
+                error_messages.append(f"Row {idx + 1}: {str(e)}")
+                failed_imports += 1
+                logging.error(f"❌ Error importing waste row {idx + 1}: {e}")
+        
+        # 🎯 Send demo limit notification ONLY for demo users
+        if should_apply_demo_limit and successful_imports > 0:
+            await send_demo_limit_notification(current_user, 'waste')
+        
+        success_rate = f"{(successful_imports / len(bulk_data.waste_list)) * 100:.1f}%" if bulk_data.waste_list else "0%"
+        
+        return {
+            "message": f"Bulk waste import completed",
+            "success_count": successful_imports,
+            "failed_count": failed_imports,
+            "total_count": len(bulk_data.waste_list),
+            "success_rate": success_rate,
+            "errors": error_messages[:10]  # Limit error messages
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Bulk waste import error: {e}")
+        raise HTTPException(status_code=500, detail=f"Bulk waste import failed: {str(e)}")
+
+
 @api_router.post("/consumptions/waste-data")
 async def create_waste_record_via_consumptions(
     env_data: EnvironmentInput,
