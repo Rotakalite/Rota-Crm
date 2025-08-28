@@ -11419,13 +11419,35 @@ async def bulk_document_upload(
         system_folders = {}
         folders = await db.folders.find({"client_id": target_client_id}).to_list(length=None)
         
-        # Create folder name mapping (e.g., "A_SUTUNU" -> folder_id)
+        # Create folder name mapping for ALL LEVELS (Level 1-4)
         for folder in folders:
-            if folder.get("level") == 1:  # Only Level 1 folders
-                folder_name = folder.get("name", "").replace(" ", "_").upper()
+            folder_name = folder.get("name", "").replace(" ", "_").upper()
+            
+            # Level 1 mapping
+            if folder.get("level") == 1:
                 system_folders[folder_name] = folder["id"]
+            
+            # Level 2-4 mapping (direct folder name matching)
+            elif folder.get("level") in [2, 3, 4]:
+                # Try exact name match first
+                system_folders[folder_name] = folder["id"]
+                
+                # Also try without special characters for Level 2-3
+                clean_name = folder_name.replace(".", "").replace("-", "").replace("_", "")
+                system_folders[clean_name] = folder["id"]
+                
+                # Add common variations for D subfolder levels
+                if folder_name.startswith("D"):
+                    variations = [
+                        folder_name.replace(".", "_"),
+                        folder_name.replace(".", ""),
+                        folder_name.replace("_", "."),
+                        folder_name.lower().replace("d", "D")
+                    ]
+                    for variation in variations:
+                        system_folders[variation] = folder["id"]
         
-        logging.info(f"📂 Found system folders: {list(system_folders.keys())}")
+        logging.info(f"📂 Found system folders for Level 1-4: {list(system_folders.keys())[:20]}...")  # Limit log output
 
         successful_uploads = 0
         failed_uploads = 0
