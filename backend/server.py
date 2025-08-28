@@ -13876,7 +13876,7 @@ async def add_bulk_suppliers(
             raise HTTPException(status_code=403, detail="Bulk tedarikçi ekleme yetkisi yok")
         
         # Verify client exists
-        client = await asyncio.to_thread(db.clients.find_one, {"id": target_client_id})
+        client = await db.clients.find_one({"id": target_client_id})
         if not client:
             raise HTTPException(status_code=404, detail="Müşteri bulunamadı")
         
@@ -13903,11 +13903,11 @@ async def add_bulk_suppliers(
             }
             
             try:
-                await asyncio.to_thread(db.suppliers.insert_one, supplier_doc)
+                await db.suppliers.insert_one(supplier_doc)
                 added_suppliers.append(supplier_data.company_name)
                 
-                # 🎯 NEW: Increment demo limit counter for each supplier
-                if not current_user.admin_approved:
+                # 🎯 Increment demo limit counter ONLY for demo users
+                if should_apply_demo_limit:
                     await increment_demo_limit(current_user, "suppliers")
                 
                 logging.info(f"✅ Added supplier: {supplier_data.company_name}")
