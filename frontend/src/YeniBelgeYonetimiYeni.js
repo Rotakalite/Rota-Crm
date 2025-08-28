@@ -1853,6 +1853,7 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
                                 <option value="D3.4">D3.4</option>
                                 <option value="D3.5">D3.5</option>
                                 <option value="D3.6">D3.6</option>
+                              </optgroup>
                               <optgroup label="📁 LEVEL 4 - BELGE TÜRLERİ">
                                 <option value="POLİTİKALAR">POLİTİKALAR</option>
                                 <option value="PROSEDÜRLER">PROSEDÜRLER</option>
