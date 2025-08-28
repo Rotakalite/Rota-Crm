@@ -915,6 +915,38 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
       ],
       'D3.6': [
         'd3_6', 'd3.6', 'd-3-6', 'd 3 6', 'd36', 'saglik_rapor', 'health_report'
+      ],
+      
+      // LEVEL 4 - TÜRKÇE BELGE TÜRLERİ - GERÇEK SİSTEM KLASÖR İSİMLERİ
+      'POLİTİKALAR': [
+        'politikalar', 'politika', 'policies', 'policy', 'politic', 'politics'
+      ],
+      'PROSEDÜRLER': [
+        'prosedurler', 'prosedür', 'prosedur', 'procedures', 'procedure', 'proc'
+      ],
+      'KAYITLAR': [
+        'kayitlar', 'kayıtlar', 'kayit', 'kayıt', 'records', 'record', 'kayıtları'
+      ],
+      'FORMLAR': [
+        'formlar', 'form', 'forms', 'format', 'formları'
+      ],
+      'LİSTELER': [
+        'listeler', 'liste', 'lists', 'list', 'listing', 'listeleri'
+      ],
+      'TALİMATLAR': [
+        'talimatlar', 'talimat', 'instructions', 'instruction', 'talimatları'
+      ],
+      'BELGELERİ': [
+        'belgeleri', 'belge', 'belgeler', 'documents', 'document', 'doc'
+      ],
+      'ŞEMALARı': [
+        'şemaları', 'şema', 'şemalar', 'schemas', 'schema', 'diagram'
+      ],
+      'RESİMLER': [
+        'resimler', 'resim', 'images', 'image', 'img', 'picture', 'photo'
+      ],
+      'RAPORLAR': [
+        'raporlar', 'rapor', 'reports', 'report', 'rpt'
       ]
     };
     
