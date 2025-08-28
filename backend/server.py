@@ -1,6 +1,7 @@
 import os
 import uuid
 import logging
+import jwt  # Add JWT for token verification
 import shutil
 import re
 import secrets
