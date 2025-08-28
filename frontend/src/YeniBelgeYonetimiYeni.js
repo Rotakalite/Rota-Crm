@@ -176,6 +176,13 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
   const [uploading, setUploading] = useState(false);
   const [showBulkFolderUpload, setShowBulkFolderUpload] = useState(false);
   
+  // Bulk folder upload states
+  const [selectedFolder, setSelectedFolder] = useState(null);
+  const [folderAnalysis, setFolderAnalysis] = useState(null);
+  const [folderMapping, setFolderMapping] = useState({});
+  const [bulkUploading, setBulkUploading] = useState(false);
+  const [systemFolders, setSystemFolders] = useState([]);
+  
   // Load initial data
   useEffect(() => {
     if (authToken) {
