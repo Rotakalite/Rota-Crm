@@ -1360,6 +1360,13 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
                             <td className="px-4 py-2 text-sm">{new Date(doc.created_at).toLocaleDateString('tr-TR')}</td>
                             <td className="px-4 py-2 space-x-2">
                               <button
+                                onClick={() => viewDocument(doc)}
+                                className="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700"
+                                title={`${doc.original_filename} dosyasını görüntüle`}
+                              >
+                                👁️ Görüntüle
+                              </button>
+                              <button
                                 onClick={() => downloadDocument(doc)}
                                 className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
                               >
