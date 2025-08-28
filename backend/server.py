@@ -11474,6 +11474,9 @@ async def bulk_document_upload(
                     
                     target_folder_id = system_folders.get(target_folder_key)
                     if not target_folder_id:
+                        # 🔍 DEBUG: Log available folders for debugging
+                        logging.error(f"❌ System folder not found: '{target_folder_key}'")
+                        logging.error(f"📂 Available system folders: {list(system_folders.keys())[:50]}")
                         error_messages.append(f"System folder not found: {target_folder_key}")
                         failed_uploads += 1
                         continue
