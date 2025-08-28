@@ -1756,6 +1756,15 @@ async def get_current_user_for_role_setup(payload: dict = Depends(verify_token))
         
         logging.info(f"👤 CREATING NEW USER FOR ROLE SETUP - Name: '{user_name}', Email: '{user_email}'")
         
+        # 🎯 KALICI ÇÖZÜM: Admin tarafından kaydedilmiş client var mı kontrol et
+        admin_approved_status = False  # Default: demo user
+        existing_client = await db.clients.find_one({"email": user_email})
+        if existing_client and existing_client.get("created_by_admin", False):
+            admin_approved_status = True
+            logging.info(f"✅ User email matches admin-created client - setting admin_approved: True")
+        else:
+            logging.info(f"⚠️ No admin-created client found for email - setting admin_approved: False")
+        
         # Create new user in database WITHOUT role
         new_user = {
             "id": str(uuid.uuid4()),
@@ -1764,7 +1773,7 @@ async def get_current_user_for_role_setup(payload: dict = Depends(verify_token))
             "email": user_email,
             "role": None,  # No role yet - will be set by role setup
             "client_id": "",
-            "admin_approved": False,  # 🎯 KALICI ÇÖZÜM: Default False, null değil
+            "admin_approved": admin_approved_status,  # 🎯 KALICI ÇÖZÜM: Admin client'lar için True
             "user_status": "approved",
             "demo_limits": {
                 "documents": 0,
