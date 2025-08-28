@@ -174,6 +174,7 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
   const [description, setDescription] = useState('');
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [showBulkFolderUpload, setShowBulkFolderUpload] = useState(false);
   
   // Load initial data
   useEffect(() => {
