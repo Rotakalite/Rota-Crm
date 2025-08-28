@@ -2736,12 +2736,14 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Bulk Consumption Data Approval System Backend Test"
     - "PDF Report Endpoints Testing"
     - "DEFRA Fuel Types Expansion"
     - "DEFRA Carbon Calculation System"
     - "DEFRA F-Gas Carbon Calculation"
     - "Waste Management Backend APIs"
   stuck_tasks: 
+    - "Bulk Consumption Data Approval System Backend Test"
     - "Training Management Personnel Selection and Auto-Complete"
   test_all: false
   test_priority: "high_first"
