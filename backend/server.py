@@ -11347,6 +11347,194 @@ async def bulk_waste_import(
         raise HTTPException(status_code=500, detail=f"Bulk waste import failed: {str(e)}")
 
 
+# Bulk Document Upload
+@api_router.post("/documents/bulk")
+async def bulk_document_upload(
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    """Bulk document upload with folder mapping"""
+    try:
+        logging.info(f"📁 BULK DOCUMENTS: Starting upload for user: {current_user.email}")
+        
+        # Get database connection
+        db = get_db()
+        
+        # Parse multipart form data
+        form_data = await request.form()
+        
+        # Get folder mapping from form data
+        folder_mapping_str = form_data.get('folder_mapping')
+        if not folder_mapping_str:
+            raise HTTPException(status_code=400, detail="Folder mapping is required")
+        
+        import json
+        folder_mapping = json.loads(folder_mapping_str)
+        
+        # Get client_id from form data (for admin/consultant)
+        form_client_id = form_data.get('client_id')
+        
+        # Determine target client_id
+        if current_user.role == UserRole.CLIENT:
+            target_client_id = current_user.client_id
+        elif current_user.role == UserRole.ADMIN:
+            target_client_id = form_client_id or current_user.client_id
+            if not target_client_id:
+                raise HTTPException(status_code=400, detail="Admin must specify client_id for bulk document upload")
+        elif current_user.role == UserRole.CONSULTANT:
+            target_client_id = form_client_id
+            if not target_client_id:
+                raise HTTPException(status_code=400, detail="Consultant must specify client_id for bulk document upload")
+        else:
+            raise HTTPException(status_code=403, detail="Bulk document upload permission denied")
+
+        # 🎯 KALICI ÇÖZÜM: Demo limit kontrolü - Admin ve Consultant'lar hiçbir zaman demo limit'e tabi değil
+        should_apply_demo_limit = False
+        
+        # 1. Admin ve Consultant'lar: Hiçbir zaman demo limit yok
+        if current_user.role in [UserRole.ADMIN, UserRole.CONSULTANT]:
+            should_apply_demo_limit = False
+            logging.info(f"✅ {current_user.role} user - no demo limits applied")
+        
+        # 2. Client kullanıcıları: admin_approved True ise demo limit yok
+        elif current_user.role == UserRole.CLIENT:
+            if current_user.admin_approved:
+                should_apply_demo_limit = False
+                logging.info(f"✅ Admin-approved client - no demo limits applied")
+            else:
+                # Admin tarafından kaydedilen client'lar için ek kontrol
+                if current_user.client_id:
+                    client = await db.clients.find_one({"id": current_user.client_id})
+                    if client and client.get("created_by_admin", False):
+                        should_apply_demo_limit = False
+                        logging.info(f"✅ Client created by admin - no demo limits applied")
+                    else:
+                        should_apply_demo_limit = True
+                        logging.info(f"⚠️ Demo user - applying demo limits")
+                else:
+                    should_apply_demo_limit = True
+                    logging.info(f"⚠️ Demo user (no client_id) - applying demo limits")
+
+        # Get system folders for mapping
+        system_folders = {}
+        folders = await db.folders.find({"client_id": target_client_id}).to_list(length=None)
+        
+        # Create folder name mapping (e.g., "A_SUTUNU" -> folder_id)
+        for folder in folders:
+            if folder.get("level") == 1:  # Only Level 1 folders
+                folder_name = folder.get("name", "").replace(" ", "_").upper()
+                system_folders[folder_name] = folder["id"]
+        
+        logging.info(f"📂 Found system folders: {list(system_folders.keys())}")
+
+        successful_uploads = 0
+        failed_uploads = 0
+        error_messages = []
+        
+        # Process each file in form data
+        for key, file in form_data.items():
+            if key.startswith('file_') and hasattr(file, 'filename'):
+                try:
+                    # Extract folder path from key (e.g., 'file_A_Belgeleri/document.pdf')
+                    folder_path = key.replace('file_', '').split('/')[0] if '/' in key else 'root'
+                    
+                    # Get target system folder from mapping
+                    target_folder_key = folder_mapping.get(folder_path)
+                    if not target_folder_key:
+                        error_messages.append(f"No mapping found for folder: {folder_path}")
+                        failed_uploads += 1
+                        continue
+                    
+                    target_folder_id = system_folders.get(target_folder_key)
+                    if not target_folder_id:
+                        error_messages.append(f"System folder not found: {target_folder_key}")
+                        failed_uploads += 1
+                        continue
+
+                    # Demo limit check for each document
+                    if should_apply_demo_limit:
+                        demo_limit = await check_demo_limit(current_user, 'documents')
+                        if demo_limit:
+                            error_messages.append(f"Demo limit reached for file: {file.filename}")
+                            failed_uploads += 1
+                            continue
+
+                    # Read file content
+                    file_content = await file.read()
+                    
+                    # Create document record
+                    document_dict = {
+                        "id": str(uuid.uuid4()),
+                        "client_id": target_client_id,
+                        "folder_id": target_folder_id,
+                        "document_name": file.filename,
+                        "document_type": "OTHER",
+                        "stage": "I.Aşama",
+                        "description": f"Bulk upload - {folder_path}",
+                        "uploaded_by": current_user.user_id,
+                        "filename": file.filename,
+                        "original_filename": file.filename,
+                        "file_size": len(file_content),
+                        "folder_path": f"/{target_folder_key}/{file.filename}",
+                        "folder_level": 1,
+                        "mock_upload": True,  # For demo purposes
+                        "created_at": datetime.utcnow()
+                    }
+                    
+                    # KALICI ÇÖZÜM: Demo kullanıcı kontrolü  
+                    if should_apply_demo_limit:
+                        # Demo user - add to pending approvals
+                        pending_approval = {
+                            "id": str(uuid.uuid4()),
+                            "type": "document",
+                            "data": document_dict,
+                            "user_id": current_user.user_id,
+                            "user_name": current_user.name,
+                            "user_email": current_user.email_address,
+                            "client_id": target_client_id,
+                            "status": "pending",
+                            "created_at": datetime.utcnow(),
+                            "bulk_import": True,
+                            "folder_path": folder_path
+                        }
+                        await db.pending_approvals.insert_one(pending_approval)
+                        logging.info(f"📋 Added document to pending approvals: {file.filename}")
+                    else:
+                        # Admin/Consultant/Admin-approved user - direct insert
+                        await db.documents.insert_one(document_dict)
+                        logging.info(f"✅ Uploaded document: {file.filename}")
+                    
+                    # 🎯 Increment demo limit ONLY for demo users
+                    if should_apply_demo_limit:
+                        await increment_demo_limit(current_user, 'documents')
+                    
+                    successful_uploads += 1
+                    
+                except Exception as e:
+                    error_messages.append(f"Failed to upload {file.filename}: {str(e)}")
+                    failed_uploads += 1
+                    logging.error(f"❌ Error uploading file {file.filename}: {e}")
+        
+        # 🎯 Send demo limit notification ONLY for demo users
+        if should_apply_demo_limit and successful_uploads > 0:
+            await send_demo_limit_notification(current_user, 'documents')
+        
+        success_rate = f"{(successful_uploads / (successful_uploads + failed_uploads)) * 100:.1f}%" if (successful_uploads + failed_uploads) > 0 else "0%"
+        
+        return {
+            "message": f"Bulk document upload completed",
+            "success_count": successful_uploads,
+            "failed_count": failed_uploads,
+            "total_count": successful_uploads + failed_uploads,
+            "success_rate": success_rate,
+            "errors": error_messages[:10]  # Limit error messages
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Bulk document upload error: {e}")
+        raise HTTPException(status_code=500, detail=f"Bulk document upload failed: {str(e)}")
+
+
 @api_router.post("/consumptions/waste-data")
 async def create_waste_record_via_consumptions(
     env_data: EnvironmentInput,
