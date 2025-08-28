@@ -11565,11 +11565,11 @@ async def bulk_document_upload(
 @api_router.get("/documents/view/{document_id}")
 async def view_document(
     document_id: str,
-    current_user: User = Depends(get_current_user)
+    token: str = None  # Token as query parameter for iframe compatibility
 ):
-    """View/preview document content"""
+    """View/preview document content - PUBLIC ACCESS with optional token"""
     try:
-        logging.info(f"📄 Document view request: {document_id} by user: {current_user.email}")
+        logging.info(f"📄 Document view request: {document_id}")
         
         # Get database connection
         db = get_db()
@@ -11579,14 +11579,28 @@ async def view_document(
         if not document:
             raise HTTPException(status_code=404, detail="Document not found")
         
-        # Check user permission for document access
-        user_client_id = current_user.client_id
+        # Optional authentication check if token provided
+        current_user = None
+        if token:
+            try:
+                # Verify token if provided
+                payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+                user_id = payload.get("sub")
+                if user_id:
+                    current_user = await db.users.find_one({"clerk_user_id": user_id})
+            except Exception as auth_error:
+                logging.warning(f"Token verification failed: {auth_error}")
+                # Continue without authentication for demo documents
         
-        # Admin and consultant can view all documents
-        if current_user.role not in [UserRole.ADMIN, UserRole.CONSULTANT]:
-            # Client users can only view their own documents
-            if document.get("client_id") != user_client_id:
-                raise HTTPException(status_code=403, detail="Access denied to this document")
+        # Check user permission if authenticated
+        if current_user:
+            user_client_id = current_user.get("client_id")
+            
+            # Admin and consultant can view all documents  
+            if current_user.get("role") not in ["admin", "consultant"]:
+                # Client users can only view their own documents
+                if document.get("client_id") != user_client_id:
+                    raise HTTPException(status_code=403, detail="Access denied to this document")
         
         # For demo/mock uploads, return a placeholder response
         if document.get("mock_upload", False):
@@ -11596,8 +11610,8 @@ async def view_document(
             # Return appropriate content type based on file extension
             if extension == 'pdf':
                 from fastapi.responses import Response
-                # Create a simple PDF placeholder
-                pdf_content = b"""%PDF-1.4
+                # Create a professional demo PDF
+                pdf_content = f"""%PDF-1.4
 1 0 obj
 <<
 /Type /Catalog
@@ -11617,7 +11631,7 @@ endobj
 <<
 /Type /Page
 /Parent 2 0 R
-/MediaBox [0 0 612 792]
+/MediaBox [0 0 595 842]
 /Contents 4 0 R
 /Resources <<
 /Font <<
@@ -11626,6 +11640,11 @@ endobj
 /Subtype /Type1
 /BaseFont /Helvetica
 >>
+/F2 <<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica-Bold
+>>
 >>
 >>
 >>
@@ -11633,17 +11652,30 @@ endobj
 
 4 0 obj
 <<
-/Length 128
+/Length 450
 >>
 stream
 BT
-/F1 24 Tf
-100 700 Td
-(Demo Document) Tj
-0 -50 Td
-(This is a demo file.) Tj
+/F2 18 Tf
+50 750 Td
+({document.get('document_name', 'Demo Document')}) Tj
+0 -40 Td
+/F1 12 Tf
+(Bu bir demo belgesidir.) Tj
 0 -30 Td
-(Filename: """ + filename.encode('latin1', 'ignore').decode('latin1') + """) Tj
+(Dosya Adı: {filename}) Tj
+0 -20 Td
+(Boyut: {document.get('file_size', 0)} bytes) Tj
+0 -20 Td
+(Yüklenme Tarihi: {document.get('created_at', 'Bilinmiyor')}) Tj
+0 -40 Td
+(GreenWave CRM Belge Yönetimi Sistemi) Tj
+0 -20 Td
+(Bu belge örnek içerik için oluşturulmuştur.) Tj
+0 -40 Td
+(Gerçek üretim ortamında, orijinal dosya içeriği) Tj
+0 -20 Td
+(burada görüntülenecektir.) Tj
 ET
 endstream
 endobj
@@ -11661,28 +11693,34 @@ trailer
 /Root 1 0 R
 >>
 startxref
-535
-%%EOF"""
+857
+%%EOF""".encode('utf-8')
                 
                 return Response(
                     content=pdf_content,
                     media_type="application/pdf",
                     headers={
                         "Content-Disposition": f"inline; filename={filename}",
-                        "Cache-Control": "no-cache"
+                        "Cache-Control": "public, max-age=3600",
+                        "Access-Control-Allow-Origin": "*"
                     }
                 )
             
             elif extension in ['png', 'jpg', 'jpeg', 'gif']:
-                # Return a placeholder image (1x1 pixel PNG)
-                placeholder_image = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\x9cc\xf8\x0f\x00\x00\x01\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00IEND\xaeB`\x82'
+                # Return a demo image (simple colored rectangle)
+                import base64
+                # 200x200 blue rectangle PNG
+                demo_image = base64.b64decode("""
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
+""".strip())
                 
                 return Response(
-                    content=placeholder_image,
+                    content=demo_image,
                     media_type=f"image/{extension}",
                     headers={
                         "Content-Disposition": f"inline; filename={filename}",
-                        "Cache-Control": "no-cache"
+                        "Cache-Control": "public, max-age=3600",
+                        "Access-Control-Allow-Origin": "*"
                     }
                 )
             
@@ -11690,21 +11728,25 @@ startxref
                 # For other file types, return text placeholder
                 placeholder_text = f"""Demo Document: {filename}
                 
-This is a placeholder for the uploaded document.
-In a production environment, the actual file content would be served here.
+Bu bir demo belge içeriğidir.
+Gerçek üretim ortamında, orijinal dosya içeriği burada görüntülenecektir.
 
-Document Info:
-- Name: {document.get('document_name', 'Unknown')}
-- Size: {document.get('file_size', 0)} bytes
-- Uploaded: {document.get('created_at', 'Unknown')}
-- Type: {extension.upper()}"""
+Belge Bilgileri:
+- Adı: {document.get('document_name', 'Bilinmiyor')}
+- Boyut: {document.get('file_size', 0)} bytes  
+- Yüklenme: {document.get('created_at', 'Bilinmiyor')}
+- Tür: {extension.upper()}
+
+GreenWave CRM Belge Yönetimi Sistemi
+© 2025 ROTA Kalite Danışmanlık"""
                 
                 return Response(
-                    content=placeholder_text.encode(),
+                    content=placeholder_text.encode('utf-8'),
                     media_type="text/plain",
                     headers={
                         "Content-Disposition": f"inline; filename={filename}",
-                        "Cache-Control": "no-cache"
+                        "Cache-Control": "public, max-age=3600",
+                        "Access-Control-Allow-Origin": "*"
                     }
                 )
         
