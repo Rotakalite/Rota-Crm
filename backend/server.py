@@ -11632,16 +11632,20 @@ async def view_document(
                 if document.get("client_id") != user_client_id:
                     raise HTTPException(status_code=403, detail="Access denied to this document")
         
-        # For demo/mock uploads, return a placeholder response
-        if document.get("mock_upload", False):
-            filename = document.get("original_filename", "document.pdf")
-            extension = filename.split('.')[-1].lower()
+        # For ALL documents in demo environment, return placeholder response
+        # In production, this would check for real file storage
+        filename = document.get("original_filename", "document.pdf")
+        extension = filename.split('.')[-1].lower()
+        
+        # Return appropriate content type based on file extension
+        if extension == 'pdf':
+            from fastapi.responses import Response
+            # Create a professional demo PDF with Turkish content
+            document_name = document.get('document_name', 'Demo Belgesi')
+            file_size = document.get('file_size', 0)
+            created_date = document.get('created_at', 'Bilinmiyor')
             
-            # Return appropriate content type based on file extension
-            if extension == 'pdf':
-                from fastapi.responses import Response
-                # Create a professional demo PDF
-                pdf_content = f"""%PDF-1.4
+            pdf_content = f"""%PDF-1.4
 1 0 obj
 <<
 /Type /Catalog
@@ -11682,30 +11686,40 @@ endobj
 
 4 0 obj
 <<
-/Length 450
+/Length 650
 >>
 stream
 BT
-/F2 18 Tf
+/F2 24 Tf
 50 750 Td
-({document.get('document_name', 'Demo Document')}) Tj
-0 -40 Td
-/F1 12 Tf
-(Bu bir demo belgesidir.) Tj
+({document_name}) Tj
+0 -60 Td
+/F1 14 Tf
+(Bu bir demo belge goruntuleyicisidir.) Tj
 0 -30 Td
-(Dosya Adı: {filename}) Tj
+(Gercek uretim ortaminda, orijinal dosya icerigi) Tj
 0 -20 Td
-(Boyut: {document.get('file_size', 0)} bytes) Tj
+(burada goruntulenmektedir.) Tj
+0 -50 Td
+(BELGE BILGILERI:) Tj
+0 -30 Td
+(Dosya Adi: {filename}) Tj
 0 -20 Td
-(Yüklenme Tarihi: {document.get('created_at', 'Bilinmiyor')}) Tj
+(Boyut: {file_size} bytes) Tj
+0 -20 Td
+(Yuklenme: {created_date}) Tj
+0 -50 Td
+(GreenWave CRM - Belge Yonetimi Sistemi) Tj
+0 -20 Td
+(ROTA Kalite Danismanlik - 2025) Tj
 0 -40 Td
-(GreenWave CRM Belge Yönetimi Sistemi) Tj
+(Bu sistem ile tum belgelerinizi dijital ortamda) Tj
 0 -20 Td
-(Bu belge örnek içerik için oluşturulmuştur.) Tj
+(organize edebilir ve kolayca erisebilirsiniz.) Tj
 0 -40 Td
-(Gerçek üretim ortamında, orijinal dosya içeriği) Tj
+(Demo ortaminda gercek dosya iceriginin yerine) Tj
 0 -20 Td
-(burada görüntülenecektir.) Tj
+(bu placeholder metin gosterilmektedir.) Tj
 ET
 endstream
 endobj
@@ -11723,66 +11737,84 @@ trailer
 /Root 1 0 R
 >>
 startxref
-857
+1008
 %%EOF""".encode('utf-8')
-                
-                return Response(
-                    content=pdf_content,
-                    media_type="application/pdf",
-                    headers={
-                        "Content-Disposition": f"inline; filename={filename}",
-                        "Cache-Control": "public, max-age=3600",
-                        "Access-Control-Allow-Origin": "*"
-                    }
-                )
             
-            elif extension in ['png', 'jpg', 'jpeg', 'gif']:
-                # Return a demo image (simple colored rectangle)
-                import base64
-                # 200x200 blue rectangle PNG
-                demo_image = base64.b64decode("""
-iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
-""".strip())
-                
-                return Response(
-                    content=demo_image,
-                    media_type=f"image/{extension}",
-                    headers={
-                        "Content-Disposition": f"inline; filename={filename}",
-                        "Cache-Control": "public, max-age=3600",
-                        "Access-Control-Allow-Origin": "*"
-                    }
-                )
+            return Response(
+                content=pdf_content,
+                media_type="application/pdf",
+                headers={
+                    "Content-Disposition": f"inline; filename={filename}",
+                    "Cache-Control": "public, max-age=3600",
+                    "Access-Control-Allow-Origin": "*"
+                }
+            )
+        
+        elif extension in ['png', 'jpg', 'jpeg', 'gif']:
+            # Create a demo image (colored rectangle with text overlay)
+            import base64
+            # Simple 400x300 demo image (base64 encoded)
+            demo_image_b64 = """
+iVBORw0KGgoAAAANSUhEUgAAAZAAAAEsCAYAAADtt+XCAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAADh0RVh0U29mdHdhcmUAbWF0cGxvdGxpYiB2ZXJzaW9uMy4yLjIsIGh0dHA6Ly9tYXRwbG90bGliLm9yZy+WH4yJAAAMQklEQVR4nO3dT2hdZR7G8SdJbW2T2lqhVqtWF4K4cCE6CDJQFy4G/4yIDK5cCCLiwpWgCCKiG1eCG1eCCxeCCxeCG1eCCxeCCxeCCxeCCxeCCxeCCxeCCxeCCxeCi6zn5z8nzZXzvWe+HxByk7w573vf3Pc+595z7kkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wBbAFyBLQAuwBYAF2ALE=
+""".strip()
+            demo_image = base64.b64decode(demo_image_b64)
             
-            else:
-                # For other file types, return text placeholder
-                placeholder_text = f"""Demo Document: {filename}
-                
-Bu bir demo belge içeriğidir.
-Gerçek üretim ortamında, orijinal dosya içeriği burada görüntülenecektir.
-
-Belge Bilgileri:
-- Adı: {document.get('document_name', 'Bilinmiyor')}
-- Boyut: {document.get('file_size', 0)} bytes  
-- Yüklenme: {document.get('created_at', 'Bilinmiyor')}
-- Tür: {extension.upper()}
-
-GreenWave CRM Belge Yönetimi Sistemi
-© 2025 ROTA Kalite Danışmanlık"""
-                
-                return Response(
-                    content=placeholder_text.encode('utf-8'),
-                    media_type="text/plain",
-                    headers={
-                        "Content-Disposition": f"inline; filename={filename}",
-                        "Cache-Control": "public, max-age=3600",
-                        "Access-Control-Allow-Origin": "*"
-                    }
-                )
+            return Response(
+                content=demo_image,
+                media_type=f"image/{extension}",
+                headers={
+                    "Content-Disposition": f"inline; filename={filename}",
+                    "Cache-Control": "public, max-age=3600", 
+                    "Access-Control-Allow-Origin": "*"
+                }
+            )
         
         else:
-            # For real uploads, this would fetch from actual storage (GCS, etc.)
-            raise HTTPException(status_code=501, detail="Real file serving not implemented yet")
+            # For other file types (Word, Excel, PowerPoint), return text placeholder
+            document_name = document.get('document_name', 'Bilinmiyor')
+            file_size = document.get('file_size', 0)
+            
+            placeholder_text = f"""DEMO BELGESI: {filename}
+
+Bu bir demo belge görüntüleyicisidir.
+Gerçek üretim ortamında, orijinal dosya içeriği burada görüntülenecektir.
+
+═══════════════════════════════════════
+BELGE BİLGİLERİ
+═══════════════════════════════════════
+
+Belge Adı: {document_name}
+Dosya Adı: {filename}  
+Dosya Boyutu: {file_size} bytes
+Dosya Türü: {extension.upper()}
+Yüklenme: {document.get('created_at', 'Bilinmiyor')}
+
+═══════════════════════════════════════
+GreenWave CRM - Belge Yönetimi Sistemi
+═══════════════════════════════════════
+
+Bu sistem ile tüm belgelerinizi dijital ortamda organize edebilir 
+ve kolayca erişebilirsiniz.
+
+Özellikler:
+• Level 1-4 klasör yapısı
+• Toplu belge yükleme
+• Otomatik klasör eşleştirme  
+• Belge görüntüleme ve indirme
+• Demo limit sistemi
+• Admin onay süreci
+
+© 2025 ROTA Kalite Danışmanlık"""
+            
+            return Response(
+                content=placeholder_text.encode('utf-8'),
+                media_type="text/plain; charset=utf-8",
+                headers={
+                    "Content-Disposition": f"inline; filename={filename}",
+                    "Cache-Control": "public, max-age=3600",
+                    "Access-Control-Allow-Origin": "*"
+                }
+            )
             
     except HTTPException:
         raise
