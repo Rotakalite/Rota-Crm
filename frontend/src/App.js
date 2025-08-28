@@ -19948,15 +19948,14 @@ const RoleSetup = ({ onComplete }) => {
               <form onSubmit={handleClientSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Hangi danışmanla çalışıyorsunuz? *
+                    Hangi danışmanla çalışıyorsunuz? (Opsiyonel)
                   </label>
                   <select
-                    required
                     value={clientData.consultant_id}
                     onChange={(e) => setClientData({...clientData, consultant_id: e.target.value})}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="">Bir danışman seçin...</option>
+                    <option value="">Danışman seçmek istiyorsanız seçin...</option>
                     {consultants.map((consultant) => (
                       <option key={consultant.id} value={consultant.id}>
                         {consultant.company_name === 'ROTA' ? 
