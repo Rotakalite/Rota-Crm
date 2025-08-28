@@ -1389,7 +1389,7 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
             </div>
 
             {/* Upload Buttons */}
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="mt-6 grid grid-cols-1 gap-4">
               <button
                 onClick={uploadDocuments}
                 disabled={uploading}
@@ -1402,12 +1402,15 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
                 {uploading ? '📤 Yükleniyor...' : '🚀 Belgeleri Yükle'}
               </button>
               
-              <button
-                onClick={() => setShowBulkFolderUpload(true)}
-                className="py-3 px-6 rounded-lg font-semibold text-white bg-purple-600 hover:bg-purple-700 active:bg-purple-800"
-              >
-                📁 Toplu Klasör Yükle
-              </button>
+              {/* Toplu Klasör Yükle butonu şimdilik gizli */}
+              {false && (
+                <button
+                  onClick={() => setShowBulkFolderUpload(true)}
+                  className="py-3 px-6 rounded-lg font-semibold text-white bg-purple-600 hover:bg-purple-700 active:bg-purple-800"
+                >
+                  📁 Toplu Klasör Yükle
+                </button>
+              )}
             </div>
           </div>
           )}
