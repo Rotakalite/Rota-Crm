@@ -1839,7 +1839,20 @@ async def get_current_user(payload: dict = Depends(verify_token)):
             "email": user_email,
             "role": "client",  # Default role is CLIENT
             "client_id": "",  # Will be set later via client setup
-            "created_at": datetime.utcnow()
+            "admin_approved": False,  # 🎯 KALICI ÇÖZÜM: Default False, null değil
+            "user_status": "approved",
+            "demo_limits": {
+                "documents": 0,
+                "trainings": 0, 
+                "consumptions": 0,
+                "personnel": 0,
+                "suppliers": 0,
+                "targets": 0,
+                "waste": 0
+            },
+            "max_demo_limit": 3,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
         }
         
         await db.users.insert_one(new_user)
