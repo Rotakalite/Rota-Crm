@@ -7894,6 +7894,54 @@ async def create_client(
     # Create root folder for the new client
     await create_client_root_folder(client.id, client.name)
     
+    # 🎯 KALICI ÇÖZÜM: Admin tarafından oluşturulan client'lar için User kaydı oluştur
+    if current_user.role == UserRole.ADMIN and clerk_user_data:
+        try:
+            # Check if user already exists
+            existing_user = await db.users.find_one({"email": client.email})
+            
+            if existing_user:
+                # Update existing user with admin approval and client_id
+                await db.users.update_one(
+                    {"email": client.email},
+                    {"$set": {
+                        "client_id": client.id,
+                        "admin_approved": True,  # 🎯 KALICI ÇÖZÜM: Admin onaylı yap
+                        "user_status": "approved",
+                        "updated_at": datetime.utcnow()
+                    }}
+                )
+                logging.info(f"✅ Updated existing user to admin_approved: True for {client.email}")
+            else:
+                # Create new user record with admin approval
+                new_user = {
+                    "id": str(uuid.uuid4()),
+                    "clerk_user_id": clerk_user_data["clerk_user_id"],
+                    "email": client.email,
+                    "name": client.contact_person or client.name,
+                    "role": "client",
+                    "client_id": client.id,
+                    "admin_approved": True,  # 🎯 KALICI ÇÖZÜM: Admin onaylı
+                    "user_status": "approved",
+                    "demo_limits": {
+                        "documents": 0,
+                        "trainings": 0, 
+                        "consumptions": 0,
+                        "personnel": 0,
+                        "suppliers": 0,
+                        "targets": 0,
+                        "waste": 0
+                    },
+                    "max_demo_limit": 3,
+                    "created_at": datetime.utcnow(),
+                    "updated_at": datetime.utcnow()
+                }
+                await db.users.insert_one(new_user)
+                logging.info(f"✅ Created new admin-approved user for {client.email}")
+                
+        except Exception as e:
+            logging.error(f"❌ Error creating/updating user for admin-created client: {str(e)}")
+    
     # 🎯 NEW: Send welcome email if Clerk user was created
     if clerk_user_data:
         try:
