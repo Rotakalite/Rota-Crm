@@ -1010,37 +1010,6 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
-  // Get document file extension
-  const getFileExtension = (filename) => {
-    return filename.split('.').pop().toLowerCase();
-  };
-
-  // Check if document is viewable
-  const isViewableDocument = (filename) => {
-    const extension = getFileExtension(filename);
-    const viewableExtensions = ['pdf', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'];
-    return viewableExtensions.includes(extension);
-  };
-
-  // Get document type for display
-  const getDocumentType = (filename) => {
-    const extension = getFileExtension(filename);
-    const typeMap = {
-      'pdf': { icon: '📄', type: 'PDF', color: 'text-red-600' },
-      'doc': { icon: '📝', type: 'Word', color: 'text-blue-600' },
-      'docx': { icon: '📝', type: 'Word', color: 'text-blue-600' },
-      'xls': { icon: '📊', type: 'Excel', color: 'text-green-600' },
-      'xlsx': { icon: '📊', type: 'Excel', color: 'text-green-600' },
-      'ppt': { icon: '📽️', type: 'PowerPoint', color: 'text-orange-600' },
-      'pptx': { icon: '📽️', type: 'PowerPoint', color: 'text-orange-600' },
-      'png': { icon: '🖼️', type: 'Resim', color: 'text-purple-600' },
-      'jpg': { icon: '🖼️', type: 'Resim', color: 'text-purple-600' },
-      'jpeg': { icon: '🖼️', type: 'Resim', color: 'text-purple-600' },
-      'gif': { icon: '🖼️', type: 'Resim', color: 'text-purple-600' }
-    };
-    return typeMap[extension] || { icon: '📁', type: 'Belge', color: 'text-gray-600' };
-  };
-
   // Bulk folder upload function - WITH CHUNKING TO PREVENT TIMEOUT
   const processBulkFolderUpload = async () => {
     if (!folderAnalysis || !selectedBulkFolder) {
