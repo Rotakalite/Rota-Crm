@@ -6414,6 +6414,112 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
+  // Excel Waste Import Function - COPIED FROM CONSUMPTION MANAGEMENT LOGIC
+  const processExcelWaste = async () => {
+    if (!excelFile) {
+      alert('Lütfen bir Excel dosyası seçin!');
+      return;
+    }
+
+    if ((userRole === 'admin' || userRole === 'consultant') && !selectedClient) {
+      alert('Lütfen önce bir müşteri seçin!');
+      return;
+    }
+
+    setExcelProcessing(true);
+    
+    try {
+      // Get fresh token
+      let currentToken = authToken;
+      if (session) {
+        try {
+          const freshToken = await session.getToken({ skipCache: true });
+          if (freshToken) {
+            currentToken = freshToken;
+          }
+        } catch (tokenError) {
+          console.error('Failed to get fresh token:', tokenError);
+        }
+      }
+
+      // Import XLSX library
+      const XLSX = await import('xlsx');
+      
+      // Read Excel file as ArrayBuffer
+      const arrayBuffer = await excelFile.arrayBuffer();
+      
+      // Parse Excel file
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      
+      // Convert to JSON
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      
+      // Skip header row and process data
+      const dataRows = jsonData.slice(1);
+      const wasteList = [];
+      
+      for (const row of dataRows) {
+        if (row.length >= 2 && row[0] && row[1]) {
+          const wasteItem = {
+            year: parseInt(row[0]) || new Date().getFullYear(),
+            month: parseInt(row[1]) || 1,
+            organic_waste: parseFloat(row[2]) || 0.0,
+            plastic_waste: parseFloat(row[3]) || 0.0,
+            glass_waste: parseFloat(row[4]) || 0.0,
+            paper_waste: parseFloat(row[5]) || 0.0,
+            metal_waste: parseFloat(row[6]) || 0.0,
+            electronic_waste: parseFloat(row[7]) || 0.0,
+            oil_waste: parseFloat(row[8]) || 0.0,
+            mixed_waste: parseFloat(row[9]) || 0.0,
+            accommodation_count: parseInt(row[10]) || 1
+          };
+          
+          if (wasteItem.year && wasteItem.month) {
+            wasteList.push(wasteItem);
+          }
+        }
+      }
+      
+      if (wasteList.length === 0) {
+        alert('Excel dosyasında geçerli atık verisi bulunamadı!\n\nBeklenen format:\nYıl | Ay | Organik Atık | Plastik Atık | Cam Atık | Kağıt Atık | Metal Atık | Elektronik Atık | Yağ Atığı | Karışık Atık | Konaklama Sayısı');
+        return;
+      }
+
+      console.log('🗑️ Processing waste data:', wasteList);
+
+      // Send to backend with client_id for admin/consultant users
+      const requestData = { waste_list: wasteList };
+      
+      // Add client_id for admin and consultant users
+      if ((userRole === 'admin' || userRole === 'consultant') && selectedClient) {
+        requestData.client_id = selectedClient;
+      }
+      
+      const response = await axios.post(`${API}/waste/bulk`, requestData, {
+        headers: { 'Authorization': `Bearer ${currentToken}` }
+      });
+
+      const result = response.data;
+      alert(`✅ Bulk atık verisi ekleme tamamlandı!\n${result.success_count}/${result.total_count} veri eklendi (${result.success_rate})`);
+      
+      // Refresh data
+      fetchWasteRecords();
+      fetchAnalytics();
+      
+      // Clear form
+      setExcelFile(null);
+      setShowExcelImport(false);
+      
+    } catch (error) {
+      console.error('❌ Excel atık import hatası:', error);
+      alert('Excel atık import hatası: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setExcelProcessing(false);
+    }
+  };
+
   // Get client name
   const getClientName = (clientId) => {
     console.log('🔍 Client lookup:', { clientId, availableClients: clients });
