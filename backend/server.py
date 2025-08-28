@@ -11068,7 +11068,7 @@ async def bulk_import_consumptions(
                             "user_id": current_user.user_id,
                             "user_name": current_user.name,
                             "user_email": current_user.email_address,
-                            "client_id": client_id,
+                            "client_id": target_client_id,
                             "status": "pending",
                             "created_at": datetime.utcnow(),
                             "bulk_import": True,
