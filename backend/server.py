@@ -11424,33 +11424,59 @@ async def bulk_document_upload(
         system_folders = {}
         folders = await db.folders.find({"client_id": target_client_id}).to_list(length=None)
         
-        # Create folder name mapping for ALL LEVELS (Level 1-4)
+        # Create folder name mapping for ALL LEVELS (Level 1-4) with REAL FOLDER NAMES
         for folder in folders:
-            folder_name = folder.get("name", "").replace(" ", "_").upper()
+            folder_name_original = folder.get("name", "")
+            folder_id = folder["id"]
             
-            # Level 1 mapping
-            if folder.get("level") == 1:
-                system_folders[folder_name] = folder["id"]
-            
-            # Level 2-4 mapping (direct folder name matching)
-            elif folder.get("level") in [2, 3, 4]:
-                # Try exact name match first
-                system_folders[folder_name] = folder["id"]
+            # Level 1-2-3: Use existing logic
+            if folder.get("level") in [1, 2, 3]:
+                folder_name = folder_name_original.replace(" ", "_").upper()
+                system_folders[folder_name] = folder_id
                 
-                # Also try without special characters for Level 2-3
+                # Add variations for special characters
                 clean_name = folder_name.replace(".", "").replace("-", "").replace("_", "")
-                system_folders[clean_name] = folder["id"]
+                if clean_name != folder_name:
+                    system_folders[clean_name] = folder_id
                 
-                # Add common variations for D subfolder levels
+                # Add D subfolder variations
                 if folder_name.startswith("D"):
                     variations = [
                         folder_name.replace(".", "_"),
                         folder_name.replace(".", ""),
                         folder_name.replace("_", "."),
-                        folder_name.lower().replace("d", "D")
                     ]
                     for variation in variations:
-                        system_folders[variation] = folder["id"]
+                        system_folders[variation] = folder_id
+            
+            # Level 4: Use Turkish names directly and add English variations
+            elif folder.get("level") == 4:
+                # Direct Turkish mapping
+                turkish_name = folder_name_original.upper()
+                system_folders[turkish_name] = folder_id
+                
+                # English mapping for Level 4 common names
+                level4_mappings = {
+                    "POLİTİKALAR": ["POLICIES", "POLICY", "POLITIKA", "POLITIKALAR"],
+                    "PROSEDÜRLER": ["PROCEDURES", "PROCEDURE", "PROSEDUR", "PROSEDURLER"],
+                    "KAYITLAR": ["RECORDS", "RECORD", "KAYIT", "KAYITLAR"],
+                    "FORMLAR": ["FORMS", "FORM", "FORMLAR"],
+                    "LİSTELER": ["LISTS", "LIST", "LISTE", "LISTELER"],
+                    "TALİMATLAR": ["INSTRUCTIONS", "INSTRUCTION", "TALIMAT", "TALIMATLAR"],
+                    "BELGELERİ": ["DOCUMENTS", "DOCUMENT", "BELGE", "BELGELER"],
+                    "ŞEMALARı": ["SCHEMAS", "SCHEMA", "ŞEMA", "ŞEMALAR"],
+                    "RESİMLER": ["IMAGES", "IMAGE", "RESİM", "RESIMLER"],
+                    "RAPORLAR": ["REPORTS", "REPORT", "RAPOR", "RAPORLAR"]
+                }
+                
+                # Add English and variations for this Turkish name
+                for turkish_key, english_variations in level4_mappings.items():
+                    if turkish_name == turkish_key:
+                        for variation in english_variations:
+                            system_folders[variation] = folder_id
+                            # Also add lowercase and mixed case
+                            system_folders[variation.lower()] = folder_id
+                            system_folders[variation.capitalize()] = folder_id
         
         logging.info(f"📂 Found system folders for Level 1-4: {list(system_folders.keys())[:20]}...")  # Limit log output
 
