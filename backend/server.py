@@ -11640,12 +11640,9 @@ async def view_document(
         # Return appropriate content type based on file extension
         if extension == 'pdf':
             from fastapi.responses import Response
-            # Create a professional demo PDF with Turkish content
-            document_name = document.get('document_name', 'Demo Belgesi')
-            file_size = document.get('file_size', 0)
-            created_date = document.get('created_at', 'Bilinmiyor')
+            # Simple PDF without Turkish characters to avoid encoding issues
             
-            pdf_content = f"""%PDF-1.4
+            pdf_content = b"""%PDF-1.4
 1 0 obj
 <<
 /Type /Catalog
@@ -11686,40 +11683,22 @@ endobj
 
 4 0 obj
 <<
-/Length 650
+/Length 200
 >>
 stream
 BT
-/F2 24 Tf
+/F2 18 Tf
 50 750 Td
-({document_name}) Tj
-0 -60 Td
-/F1 14 Tf
-(Bu bir demo belge goruntuleyicisidir.) Tj
-0 -30 Td
-(Gercek uretim ortaminda, orijinal dosya icerigi) Tj
-0 -20 Td
-(burada goruntulenmektedir.) Tj
-0 -50 Td
-(BELGE BILGILERI:) Tj
-0 -30 Td
-(Dosya Adi: {filename}) Tj
-0 -20 Td
-(Boyut: {file_size} bytes) Tj
-0 -20 Td
-(Yuklenme: {created_date}) Tj
-0 -50 Td
-(GreenWave CRM - Belge Yonetimi Sistemi) Tj
-0 -20 Td
-(ROTA Kalite Danismanlik - 2025) Tj
+(DEMO DOCUMENT) Tj
 0 -40 Td
-(Bu sistem ile tum belgelerinizi dijital ortamda) Tj
-0 -20 Td
-(organize edebilir ve kolayca erisebilirsiniz.) Tj
+/F1 12 Tf
+(This is a demo document viewer.) Tj
+0 -30 Td
+(File: """ + filename.encode('ascii', 'ignore').decode('ascii') + """) Tj
+0 -30 Td
+(In production, real file content would be displayed here.) Tj
 0 -40 Td
-(Demo ortaminda gercek dosya iceriginin yerine) Tj
-0 -20 Td
-(bu placeholder metin gosterilmektedir.) Tj
+(GreenWave CRM Document Management) Tj
 ET
 endstream
 endobj
@@ -11737,8 +11716,8 @@ trailer
 /Root 1 0 R
 >>
 startxref
-1008
-%%EOF""".encode('utf-8')
+558
+%%EOF"""
             
             return Response(
                 content=pdf_content,
