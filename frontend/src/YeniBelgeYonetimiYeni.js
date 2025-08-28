@@ -694,47 +694,41 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
 
   // Analyze folder structure for bulk upload
   const analyzeFolderStructure = (files) => {
-    const folderMap = new Map();
+    const folderMap = {};
     const supportedExtensions = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.png', '.jpg', '.jpeg'];
     
-    files.forEach(file => {
-      // Check if file has supported extension
-      const extension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-      if (!supportedExtensions.includes(extension)) {
-        return; // Skip unsupported files
-      }
-      
-      // Extract folder path from file.webkitRelativePath
-      const relativePath = file.webkitRelativePath || file.name;
-      const pathParts = relativePath.split('/');
+    // Filter files by supported extensions
+    const validFiles = files.filter(file => {
+      const extension = '.' + file.name.split('.').pop().toLowerCase();
+      return supportedExtensions.includes(extension);
+    });
+    
+    // Group files by folder path
+    validFiles.forEach(file => {
+      const path = file.webkitRelativePath || file.name;
+      const pathParts = path.split('/');
       
       if (pathParts.length > 1) {
-        // Remove the filename to get folder path
+        // Get folder path (everything except the file name)
         const folderPath = pathParts.slice(0, -1).join('/');
         
-        if (!folderMap.has(folderPath)) {
-          folderMap.set(folderPath, {
+        if (!folderMap[folderPath]) {
+          folderMap[folderPath] = {
             path: folderPath,
             files: [],
             fileCount: 0
-          });
+          };
         }
         
-        const folder = folderMap.get(folderPath);
-        folder.files.push(file);
-        folder.fileCount++;
+        folderMap[folderPath].files.push(file);
+        folderMap[folderPath].fileCount++;
       }
     });
     
-    const folders = Array.from(folderMap.values());
-    const totalFiles = files.filter(file => {
-      const extension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-      return supportedExtensions.includes(extension);
-    }).length;
-    
     return {
-      folders: folders,
-      totalFiles: totalFiles
+      totalFiles: validFiles.length,
+      folders: Object.values(folderMap),
+      validFiles: validFiles
     };
   };
 
