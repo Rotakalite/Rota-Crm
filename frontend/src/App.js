@@ -6222,6 +6222,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
     accommodation_count: 1
   });
   const { authToken, userRole, dbUser, ensureTokenForOperation, handleViewTeam, handleAddTeamMember, showTeamModal, setShowTeamModal, teamMembers, showAddTeamMember, setShowAddTeamMember, teamMemberForm, setTeamMemberForm } = useAuth();
+  const { session } = useClerk();
 
   // Bulk import states - EXACT COPY FROM PERSONNEL MANAGEMENT  
   const [showExcelImport, setShowExcelImport] = useState(false);
