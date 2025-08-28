@@ -1445,6 +1445,15 @@ class TwoFACode(BaseModel):
     attempts: int = 0
     verified: bool = False
 
+class BulkDocumentItem(BaseModel):
+    folder_path: str  # Original folder path from user
+    target_folder: str  # System folder (A_SUTUNU, B_SUTUNU, etc.)
+    files: List[str]  # File names in this folder
+
+class BulkDocumentRequest(BaseModel):
+    folder_mapping: Dict[str, str]  # {user_folder_path: system_folder}
+    client_id: Optional[str] = None  # For admin/consultant users
+
 
 # Cleanup Functions
 async def cleanup_orphaned_user_references(user_id: str):
