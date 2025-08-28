@@ -6772,10 +6772,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                     İptal
                   </button>
                   <button
-                    onClick={() => {
-                      // TODO: Add processExcelWaste function
-                      alert('Atık Excel import fonksiyonu henüz hazır değil!');
-                    }}
+                    onClick={processExcelWaste}
                     disabled={excelProcessing || !excelFile}
                     className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
