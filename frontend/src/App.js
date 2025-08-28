@@ -3181,12 +3181,10 @@ const PersonnelManagement = () => {
                   {showBulkForm ? '❌ İptal' : '📋 Toplu Ekle'}
                 </button>
                 <button
-                  onClick={() => setShowExcelImport(true)}
-                  className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
-                  title="Toplu personel verisi içe aktar"
+                  onClick={() => setShowExcelImport(!showExcelImport)}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
                 >
-                  <span>📥</span>
-                  <span>Toplu İçe Aktar</span>
+                  {showExcelImport ? '❌ İptal' : '📊 Excel İmport'}
                 </button>
                 <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium">
                   ✓ Client Kullanıcısı
