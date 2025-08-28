@@ -692,6 +692,52 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
     ));
   };
 
+  // Analyze folder structure for bulk upload
+  const analyzeFolderStructure = (files) => {
+    const folderMap = new Map();
+    const supportedExtensions = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.png', '.jpg', '.jpeg'];
+    
+    files.forEach(file => {
+      // Check if file has supported extension
+      const extension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+      if (!supportedExtensions.includes(extension)) {
+        return; // Skip unsupported files
+      }
+      
+      // Extract folder path from file.webkitRelativePath
+      const relativePath = file.webkitRelativePath || file.name;
+      const pathParts = relativePath.split('/');
+      
+      if (pathParts.length > 1) {
+        // Remove the filename to get folder path
+        const folderPath = pathParts.slice(0, -1).join('/');
+        
+        if (!folderMap.has(folderPath)) {
+          folderMap.set(folderPath, {
+            path: folderPath,
+            files: [],
+            fileCount: 0
+          });
+        }
+        
+        const folder = folderMap.get(folderPath);
+        folder.files.push(file);
+        folder.fileCount++;
+      }
+    });
+    
+    const folders = Array.from(folderMap.values());
+    const totalFiles = files.filter(file => {
+      const extension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+      return supportedExtensions.includes(extension);
+    }).length;
+    
+    return {
+      folders: folders,
+      totalFiles: totalFiles
+    };
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <h1 className="text-3xl font-bold mb-8 text-center">🚀 Yeni Belge Yönetimi</h1>
