@@ -11003,14 +11003,19 @@ async def bulk_import_consumptions(
         
         logging.info(f"📊 Bulk consumption import started by user: {current_user.role} - {current_user.name}")
         
-        # Determine client_id based on user role
+        # Determine client_id based on user role and request data
         if current_user.role == UserRole.CLIENT:
-            client_id = current_user.client_id
+            target_client_id = current_user.client_id
         elif current_user.role == UserRole.ADMIN:
-            # Admin must specify client_id for each consumption or use their own
-            client_id = None  # Will be set per consumption
+            # Admin can specify client_id in request, or use their own
+            target_client_id = bulk_data.client_id or current_user.client_id
+            if not target_client_id:
+                raise HTTPException(status_code=400, detail="Admin must specify client_id for bulk consumption import")
         elif current_user.role == UserRole.CONSULTANT:
-            client_id = None  # Will validate per consumption
+            # Consultant can specify client_id in request
+            target_client_id = bulk_data.client_id
+            if not target_client_id:
+                raise HTTPException(status_code=400, detail="Consultant must specify client_id for bulk consumption import")
         else:
             raise HTTPException(status_code=403, detail="Bulk consumption import permission denied")
         
@@ -11020,19 +11025,6 @@ async def bulk_import_consumptions(
         
         for idx, consumption_item in enumerate(bulk_data.consumptions_list):
             try:
-                # Set client_id for the consumption
-                if current_user.role == UserRole.CLIENT:
-                    target_client_id = client_id
-                elif current_user.role == UserRole.ADMIN:
-                    # Admin can import for any client, but defaults to their own if not specified
-                    target_client_id = client_id or current_user.client_id or "admin_default"
-                elif current_user.role == UserRole.CONSULTANT:
-                    # Consultant must have client assignment
-                    if not current_user.consultant_id:
-                        error_messages.append(f"Row {idx + 1}: Consultant ID not assigned")
-                        failed_imports += 1
-                        continue
-                    target_client_id = current_user.client_id
                 
                 # Check for existing consumption record
                 existing_consumption = await db.consumptions.find_one({
