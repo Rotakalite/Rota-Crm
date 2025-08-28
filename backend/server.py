@@ -11640,7 +11640,7 @@ async def view_document(
         # Return appropriate content type based on file extension
         if extension == 'pdf':
             from fastapi.responses import Response
-            # Simple PDF without Turkish characters to avoid encoding issues
+            # Simple PDF - ALL BYTES, no string concatenation
             
             pdf_content = b"""%PDF-1.4
 1 0 obj
@@ -11671,11 +11671,6 @@ endobj
 /Subtype /Type1
 /BaseFont /Helvetica
 >>
-/F2 <<
-/Type /Font
-/Subtype /Type1
-/BaseFont /Helvetica-Bold
->>
 >>
 >>
 >>
@@ -11683,22 +11678,18 @@ endobj
 
 4 0 obj
 <<
-/Length 200
+/Length 120
 >>
 stream
 BT
-/F2 18 Tf
+/F1 18 Tf
 50 750 Td
 (DEMO DOCUMENT) Tj
 0 -40 Td
-/F1 12 Tf
+12 Tf
 (This is a demo document viewer.) Tj
 0 -30 Td
-(File: """ + filename.encode('ascii', 'ignore').decode('ascii') + """) Tj
-0 -30 Td
-(In production, real file content would be displayed here.) Tj
-0 -40 Td
-(GreenWave CRM Document Management) Tj
+(In production, real file content would be shown here.) Tj
 ET
 endstream
 endobj
@@ -11716,7 +11707,7 @@ trailer
 /Root 1 0 R
 >>
 startxref
-558
+478
 %%EOF"""
             
             return Response(
