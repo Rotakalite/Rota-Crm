@@ -6506,7 +6506,6 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
       
       // Refresh data
       fetchWasteRecords();
-      fetchAnalytics();
       
       // Clear form
       setExcelFile(null);
