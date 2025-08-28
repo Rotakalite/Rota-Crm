@@ -782,6 +782,10 @@ except Exception as e:
 CLERK_SECRET_KEY = os.environ.get('CLERK_SECRET_KEY')
 CLERK_JWKS_URL = os.environ.get('CLERK_JWKS_URL')
 
+# JWT configuration for token verification
+JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', CLERK_SECRET_KEY)  # Fallback to Clerk secret
+JWT_ALGORITHM = "HS256"
+
 # Initialize Clerk admin manager AFTER environment loading
 clerk_admin = ClerkAdminManager()
 
