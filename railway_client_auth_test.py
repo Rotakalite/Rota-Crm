@@ -152,7 +152,7 @@ class TestRailwayBackendClientAuth(unittest.TestCase):
             
         # Step 6: Compare with Emergent backend (if available)
         logger.info("\nStep 6: Comparing with Emergent backend...")
-        emergent_api_url = "https://survey-module.preview.emergentagent.com/api"
+        emergent_api_url = "https://bulkdata-admin.preview.emergentagent.com/api"
         
         try:
             # Test health endpoint

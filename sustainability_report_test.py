@@ -17,7 +17,7 @@ from datetime import datetime
 from typing import Dict, Any
 
 # Test configuration
-BACKEND_URL = "https://survey-module.preview.emergentagent.com"
+BACKEND_URL = "https://bulkdata-admin.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 class SustainabilityReportTester:

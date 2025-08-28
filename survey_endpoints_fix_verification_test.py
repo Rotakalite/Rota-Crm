@@ -3,7 +3,7 @@
 Survey Management System Backend Testing - Final Verification
 GreenWave CRM Survey Management backend endpoints final doğrulama testi.
 
-ÖNCEKİ PROBLEM: .env dosyasında yanlış URL vardı (https://survey-module.preview.emergentagent.com), 
+ÖNCEKİ PROBLEM: .env dosyasında yanlış URL vardı (https://bulkdata-admin.preview.emergentagent.com), 
 doğru Railway URL: https://rota-crm-production.up.railway.app
 
 YAPILAN FİX:

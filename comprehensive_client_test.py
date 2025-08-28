@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL - use the same URL as in the frontend .env file
-BACKEND_URL = "https://survey-module.preview.emergentagent.com"
+BACKEND_URL = "https://bulkdata-admin.preview.emergentagent.com"
 API_URL = f"{BACKEND_URL}/api"
 
 # MongoDB connection
