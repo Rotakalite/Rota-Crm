@@ -8407,40 +8407,42 @@ async def add_bulk_personnel(
     try:
         logging.info(f"📋 BULK PERSONNEL: Adding {len(request.personnel_list)} personnel for user: {current_user.email}")
         
-        # 🎯 NEW: Demo limit check for bulk personnel creation
-        if not current_user.admin_approved:
-            # Check if this client was created by admin (should bypass demo limits)
-            if current_user.role == UserRole.CLIENT and current_user.client_id:
-                client = await db.clients.find_one({"id": current_user.client_id})
-                if client:
-                    # If client was created by admin user, bypass demo limits
-                    creator_user = await db.users.find_one({"id": client.get("created_by_user_id", "")})
-                    if creator_user and creator_user.get("admin_approved", False):
-                        logging.info(f"✅ Client {current_user.client_id} was created by admin - bypassing demo limits")
-                    else:
-                        # Regular demo limit check for each personnel
-                        for _ in request.personnel_list:
-                            demo_check = await check_demo_limit(current_user, "personnel")
-                            if not demo_check["allowed"]:
-                                raise HTTPException(status_code=403, detail=demo_check["message"])
-                else:
-                    # Client not found, apply demo limits
-                    for _ in request.personnel_list:
-                        demo_check = await check_demo_limit(current_user, "personnel")
-                        if not demo_check["allowed"]:
-                            raise HTTPException(status_code=403, detail=demo_check["message"])
-            else:
-                # No specific client_id (admin/consultant), apply demo limits
-                for _ in request.personnel_list:
-                    demo_check = await check_demo_limit(current_user, "personnel")
-                    if not demo_check["allowed"]:
-                        raise HTTPException(status_code=403, detail=demo_check["message"])
-        elif current_user.user_status == "pending_approval":
-            raise HTTPException(status_code=403, detail="Demo kullanma limitine ulaştınız. Devam edebilmek için admin ile görüşünüz. Admin: bilgi@rotakalitedanismanlik.com")
+        # Get database connection
+        db = get_db()
         
-        # Get MongoDB connection
-        mongo_client = MongoClient(mongo_url)
-        db = mongo_client[os.environ.get('DB_NAME', 'rotacrm')]
+        # 🎯 KALICI ÇÖZÜM: Demo limit kontrolü - Admin ve Consultant'lar hiçbir zaman demo limit'e tabi değil
+        should_apply_demo_limit = False
+        
+        # 1. Admin ve Consultant'lar: Hiçbir zaman demo limit yok
+        if current_user.role in [UserRole.ADMIN, UserRole.CONSULTANT]:
+            should_apply_demo_limit = False
+            logging.info(f"✅ {current_user.role} user - no demo limits applied")
+        
+        # 2. Client kullanıcıları: admin_approved True ise demo limit yok
+        elif current_user.role == UserRole.CLIENT:
+            if current_user.admin_approved:
+                should_apply_demo_limit = False
+                logging.info(f"✅ Admin-approved client - no demo limits applied")
+            else:
+                # Admin tarafından kaydedilen client'lar için ek kontrol
+                if current_user.client_id:
+                    client = await db.clients.find_one({"id": current_user.client_id})
+                    if client and client.get("created_by_admin", False):
+                        should_apply_demo_limit = False
+                        logging.info(f"✅ Client created by admin - no demo limits applied")
+                    else:
+                        should_apply_demo_limit = True
+                        logging.info(f"⚠️ Demo user - applying demo limits")
+                else:
+                    should_apply_demo_limit = True
+                    logging.info(f"⚠️ Demo user (no client_id) - applying demo limits")
+        
+        # Demo limit kontrolünü uygula
+        if should_apply_demo_limit:
+            for _ in request.personnel_list:
+                demo_check = await check_demo_limit(current_user, "personnel")
+                if not demo_check["allowed"]:
+                    raise HTTPException(status_code=403, detail=demo_check["message"])
         
         # Determine target client_id based on user role
         target_client_id = None
