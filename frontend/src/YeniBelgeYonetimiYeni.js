@@ -177,7 +177,7 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
   const [showBulkFolderUpload, setShowBulkFolderUpload] = useState(false);
   
   // Bulk folder upload states
-  const [selectedFolder, setSelectedFolder] = useState(null);
+  const [selectedBulkFolder, setSelectedBulkFolder] = useState(null);
   const [folderAnalysis, setFolderAnalysis] = useState(null);
   const [folderMapping, setFolderMapping] = useState({});
   const [bulkUploading, setBulkUploading] = useState(false);
