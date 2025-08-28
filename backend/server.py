@@ -1375,6 +1375,23 @@ class WasteManagementInput(BaseModel):
     accommodation_count: int = 1  # For per-person calculations
     client_id: Optional[str] = None  # For admin users
 
+class BulkWasteItem(BaseModel):
+    year: int
+    month: int
+    organic_waste: float = 0.0
+    plastic_waste: float = 0.0
+    glass_waste: float = 0.0
+    paper_waste: float = 0.0
+    metal_waste: float = 0.0
+    electronic_waste: float = 0.0
+    oil_waste: float = 0.0
+    mixed_waste: float = 0.0
+    accommodation_count: int = 1
+
+class BulkWasteRequest(BaseModel):
+    waste_list: List[BulkWasteItem]
+    client_id: Optional[str] = None  # For admin/consultant users to specify client
+
 # Environment Management Models  
 class EnvironmentData(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
