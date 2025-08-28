@@ -1764,7 +1764,20 @@ async def get_current_user_for_role_setup(payload: dict = Depends(verify_token))
             "email": user_email,
             "role": None,  # No role yet - will be set by role setup
             "client_id": "",
-            "created_at": datetime.utcnow()
+            "admin_approved": False,  # 🎯 KALICI ÇÖZÜM: Default False, null değil
+            "user_status": "approved",
+            "demo_limits": {
+                "documents": 0,
+                "trainings": 0, 
+                "consumptions": 0,
+                "personnel": 0,
+                "suppliers": 0,
+                "targets": 0,
+                "waste": 0
+            },
+            "max_demo_limit": 3,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
         }
         
         await db.users.insert_one(new_user)
