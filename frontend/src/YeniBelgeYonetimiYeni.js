@@ -1122,6 +1122,130 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
           </div>
         </div>
       )}
+      
+      {/* Bulk Folder Upload Modal */}
+      {showBulkFolderUpload && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl p-6 m-4 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">📁 Toplu Klasör Yükleme</h2>
+              <button
+                onClick={() => setShowBulkFolderUpload(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+            
+            {!folderAnalysis ? (
+              // Step 1: Folder Selection
+              <div className="space-y-6">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h3 className="font-medium text-blue-800 mb-2">📋 Nasıl Çalışır?</h3>
+                  <div className="text-sm text-blue-700">
+                    <p className="mb-2">1. Bilgisayarınızdan belgelerin bulunduğu ana klasörü seçin</p>
+                    <p className="mb-2">2. Sistem klasör yapısını analiz edecek</p>
+                    <p className="mb-2">3. Klasörler sistemdeki uygun yerlerle eşleştirilecek</p>
+                    <p>4. Tüm dosyalar otomatik olarak doğru klasörlere yüklenecek</p>
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Ana Klasör Seçin (Alt klasörler dahil tüm yapı analiz edilecek)
+                  </label>
+                  <input
+                    type="file"
+                    webkitdirectory="true"
+                    directory="true"
+                    multiple
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files);
+                      setSelectedBulkFolder(files);
+                      
+                      // Analyze folder structure
+                      const analysis = analyzeFolderStructure(files);
+                      setFolderAnalysis(analysis);
+                    }}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    💡 Tüm klasör yapısı seçilecek. Desteklenen formatlar: PDF, Word, Excel, PowerPoint, PNG, JPG, JPEG
+                  </p>
+                </div>
+                
+                {selectedBulkFolder && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <p className="text-green-800 font-medium">
+                      ✅ {selectedBulkFolder.length} dosya seçildi, analiz ediliyor...
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              // Step 2: Folder Mapping & Upload
+              <div className="space-y-6">
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <h3 className="font-medium text-yellow-800 mb-2">📊 Klasör Yapısı Analizi</h3>
+                  <div className="text-sm text-yellow-700">
+                    <p>Toplam {folderAnalysis.totalFiles} dosya, {folderAnalysis.folders.length} klasör bulundu</p>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">🔗 Klasör Eşleştirme</h3>
+                  <div className="space-y-3">
+                    {folderAnalysis.folders.map((folder, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                        <div className="flex-1">
+                          <p className="font-medium">{folder.path}</p>
+                          <p className="text-sm text-gray-500">{folder.fileCount} dosya</p>
+                        </div>
+                        <div className="flex-1 ml-4">
+                          <select
+                            value={folderMapping[folder.path] || ''}
+                            onChange={(e) => setFolderMapping({...folderMapping, [folder.path]: e.target.value})}
+                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="">Hedef klasör seçin...</option>
+                            <option value="A_SUTUNU">A SÜTUNU</option>
+                            <option value="B_SUTUNU">B SÜTUNU</option>
+                            <option value="C_SUTUNU">C SÜTUNU</option>
+                            <option value="D_SUTUNU">D SÜTUNU</option>
+                          </select>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="flex justify-end space-x-4">
+                  <button
+                    onClick={() => {
+                      setFolderAnalysis(null);
+                      setSelectedBulkFolder(null);
+                      setFolderMapping({});
+                    }}
+                    className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                  >
+                    ⬅️ Geri
+                  </button>
+                  <button
+                    onClick={() => {
+                      // TODO: Start bulk upload
+                      alert('Bulk upload fonksiyonu henüz hazır değil!');
+                    }}
+                    disabled={bulkUploading}
+                    className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                  >
+                    {bulkUploading ? '📤 Yükleniyor...' : '🚀 Toplu Yüklemeyi Başlat'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
