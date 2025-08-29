@@ -6515,7 +6515,6 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
       
       // Clear form
       excelFileRef.current = null;
-      setExcelFileDisplay(null);
       setShowExcelImport(false);
       
     } catch (error) {
