@@ -570,8 +570,10 @@ const useAuth = () => {
           console.error('Auth initialization error:', error);
           // Fallback role setting
           const directRole = user.publicMetadata?.role || 'client';
-          setUserRole(directRole);
-          sessionStorage.setItem('userRole', directRole);
+          if (directRole !== userRole) {
+            setUserRole(directRole);
+            sessionStorage.setItem('userRole', directRole);
+          }
         }
       } else if (isLoaded && user) {
         // If no session but user exists, still set role
