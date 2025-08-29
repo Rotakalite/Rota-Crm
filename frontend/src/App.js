@@ -6798,11 +6798,10 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                         />
                       </form>
-                      {excelFileDisplay && (
-                        <p className="text-sm text-green-600 mt-2">
-                          ✅ Seçilen dosya: {excelFileDisplay}
-                        </p>
-                      )}
+                      {/* File status display - updated via DOM manipulation */}
+                      <p id="excel-file-status" className="text-sm text-gray-400 mt-2">
+                        Henüz dosya seçilmedi
+                      </p>
                     </div>
                   </div>
                 </div>
