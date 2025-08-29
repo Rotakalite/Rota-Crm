@@ -15,15 +15,19 @@ async def test_gridfs_upload():
     try:
         print("🚀 Testing GridFS upload...")
         
-        # Create test file content
-        test_content = b"""GERCEK GRIDFS TEST BELGESI!
+        # Create test file content (ASCII only)
+        test_text = f"""REAL GRIDFS TEST DOCUMENT!
 
-Bu bir test belgesidir.
-MongoDB GridFS'de saklanmaktadir.
+This is a test document.
+Stored in MongoDB GridFS.
 
-Turkish characters: İĞÜŞÖÇ ığüşöç
+Turkish characters test: Test file for encoding.
 
-Tarih: """ + datetime.now().strftime("%Y-%m-%d %H:%M:%S").encode()
+Date: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+
+This should replace the DEMO DOCUMENT content!
+"""
+        test_content = test_text.encode('utf-8')
 
         # Upload to GridFS
         if mongo_gridfs and mongo_gridfs.fs:
@@ -31,7 +35,7 @@ Tarih: """ + datetime.now().strftime("%Y-%m-%d %H:%M:%S").encode()
             
             result = await mongo_gridfs.upload_file(
                 file_content=test_content,
-                filename="Türkçe_GridFS_Test_Belgesi.txt",
+                filename="Real_GridFS_Test_Document.txt",
                 user_id="test-user-123",
                 content_type="text/plain",
                 metadata={
@@ -48,11 +52,11 @@ Tarih: """ + datetime.now().strftime("%Y-%m-%d %H:%M:%S").encode()
                 client = AsyncIOMotorClient(mongo_url)
                 db = client.get_database("rota_crm_db")
                 
-                document_id = f"gridfs-test-{uuid.uuid4()}"
+                document_id = f"gridfs-test-{str(uuid.uuid4())[:8]}"
                 
                 document_record = {
                     "id": document_id,
-                    "original_filename": "Türkçe_GridFS_Test_Belgesi.txt",
+                    "original_filename": "Real_GridFS_Test_Document.txt",
                     "file_id": result["file_id"],  # GridFS file ID
                     "gridfs_upload": True,
                     "content_type": "text/plain",
@@ -72,7 +76,7 @@ Tarih: """ + datetime.now().strftime("%Y-%m-%d %H:%M:%S").encode()
                 print("🔄 Testing download...")
                 file_content, metadata = await mongo_gridfs.download_file(result["file_id"])
                 print(f"✅ Downloaded {len(file_content)} bytes")
-                print(f"   Content preview: {file_content[:50]}...")
+                print(f"   Content preview: {file_content[:100].decode('utf-8', errors='ignore')}")
                 
                 return document_id
             else:
