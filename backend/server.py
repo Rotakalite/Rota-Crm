@@ -11800,14 +11800,20 @@ async def view_document(
                     from fastapi.responses import Response  # FIX: Import Response here too!
                     encoded_filename = urllib.parse.quote(filename)
                     
+                    # Browser-friendly headers for viewing (not downloading)
+                    headers = {
+                        "Cache-Control": "public, max-age=3600",
+                        "Access-Control-Allow-Origin": "*"
+                    }
+                    
+                    # Add Content-Disposition only for downloads, not for PDF viewing
+                    if extension.lower() != 'pdf':
+                        headers["Content-Disposition"] = f"inline; filename*=UTF-8''{encoded_filename}"
+                    
                     return Response(
                         content=file_content,
                         media_type=content_type,
-                        headers={
-                            "Content-Disposition": f"inline; filename*=UTF-8''{encoded_filename}",
-                            "Cache-Control": "public, max-age=3600",
-                            "Access-Control-Allow-Origin": "*"
-                        }
+                        headers=headers
                     )
                 else:
                     logging.error("❌ MongoDB GridFS not initialized")
