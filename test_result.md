@@ -2751,6 +2751,7 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Document Viewer Latin-1 Encoding Fix - RFC 5987 Implementation Test"
     - "Bulk Consumption Data Approval System Backend Test"
     - "PDF Report Endpoints Testing"
     - "DEFRA Fuel Types Expansion"
