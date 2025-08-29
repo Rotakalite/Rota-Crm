@@ -11772,8 +11772,8 @@ async def view_document(
                 file_data = document.get("file_data") or document.get("file_content")
                 content_type = document.get("content_type", "application/octet-stream")
                 
-                # FIX: Force PDF content type for PDF files
-                if extension.lower() == 'pdf':
+                # FIX: Force PDF content type for PDF files OR PDF magic number
+                if extension.lower() == 'pdf' or (file_data and file_data[:4] == b'%PDF'):
                     content_type = "application/pdf"
                 elif extension.lower() in ['jpg', 'jpeg']:
                     content_type = "image/jpeg"
