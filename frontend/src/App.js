@@ -6230,10 +6230,9 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
   const { authToken, userRole, dbUser, ensureTokenForOperation, handleViewTeam, handleAddTeamMember, showTeamModal, setShowTeamModal, teamMembers, showAddTeamMember, setShowAddTeamMember, teamMemberForm, setTeamMemberForm } = useAuth();
   const { session } = useClerk();
 
-  // Bulk import states - EXACT COPY FROM PERSONNEL MANAGEMENT  
-  const [showExcelImport, setShowExcelImport] = useState(false);
-  const [excelFile, setExcelFile] = useState(null);
-  const [excelProcessing, setExcelProcessing] = useState(false);
+  // EXCEL FILE STATE REPLACED WITH REF TO PREVENT RE-RENDERS
+  const excelFileRef = useRef(null);
+  const [excelFileDisplay, setExcelFileDisplay] = useState(null); // Only for display purposes
   const API = getApiUrl();
 
   // Use selectedClient from props (for consultant) or manage locally (for admin/client)
