@@ -11750,6 +11750,7 @@ async def view_document(
                 
                 # URL encode filename for Turkish characters (RFC 5987)
                 import urllib.parse
+                from fastapi.responses import Response  # FIX: Import Response here!
                 encoded_filename = urllib.parse.quote(filename)
                 
                 logging.info(f"✅ Binary file loaded: {filename} ({len(file_data) if file_data else 0} bytes)")
