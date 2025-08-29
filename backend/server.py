@@ -11807,9 +11807,10 @@ async def view_document(
                         "Access-Control-Allow-Origin": "*"
                     }
                     
-                    # Add Content-Disposition only for downloads, not for PDF viewing
-                    if extension.lower() != 'pdf':
-                        headers["Content-Disposition"] = f"inline; filename*=UTF-8''{encoded_filename}"
+                    # Add Content-Disposition based on download parameter
+                    if download or extension.lower() != 'pdf':
+                        headers["Content-Disposition"] = f"attachment; filename*=UTF-8''{encoded_filename}"
+                    # For PDF viewing without download param, omit Content-Disposition
                     
                     return Response(
                         content=file_content,
