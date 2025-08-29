@@ -11707,7 +11707,7 @@ async def view_document(
         
         # Check if document has GridFS storage info
         has_gridfs_id = document.get("gridfs_id") or document.get("file_id")
-        has_binary_data = document.get("file_data")
+        has_binary_data = document.get("file_data") or document.get("file_content")  # FIX: Check both field names!
         
         if has_gridfs_id:
             # Serve from GridFS
