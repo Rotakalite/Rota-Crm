@@ -6421,7 +6421,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
 
   // Excel Waste Import Function - COPIED FROM CONSUMPTION MANAGEMENT LOGIC
   const processExcelWaste = async () => {
-    if (!excelFile) {
+    if (!excelFileRef.current) {
       alert('Lütfen bir Excel dosyası seçin!');
       return;
     }
