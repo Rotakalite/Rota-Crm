@@ -1922,6 +1922,63 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
           </div>
         </div>
       )}
+
+      {/* PDF Viewer Modal */}
+      {showPDFViewer && selectedDocument && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-11/12 h-5/6 flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">
+                📄 {selectedDocument.document_name}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowPDFViewer(false);
+                  setSelectedDocument(null);
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="flex-1 p-4">
+              <iframe
+                src={`${API}/documents/view/${selectedDocument.id}`}
+                className="w-full h-full border rounded"
+                title={selectedDocument.document_name}
+              />
+            </div>
+            
+            <div className="p-4 border-t bg-gray-50 flex justify-end space-x-2">
+              <button
+                onClick={() => {
+                  // Download functionality for those who want it
+                  const downloadUrl = `${API}/documents/view/${selectedDocument.id}`;
+                  const a = document.createElement('a');
+                  a.href = downloadUrl;
+                  a.download = selectedDocument.document_name;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                📥 İndir
+              </button>
+              <button
+                onClick={() => {
+                  setShowPDFViewer(false);
+                  setSelectedDocument(null);
+                }}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+              >
+                Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
