@@ -6549,7 +6549,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
       }
       fetchWasteRecords();
     }
-  }, [authToken, effectiveSelectedClient, selectedYear]);
+  }, [effectiveSelectedClient, selectedYear]); // REMOVED authToken dependency
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-indigo-50">
