@@ -1,5 +1,5 @@
 // GreenWave CRM - Railway deploy trigger - 2FA fix + bulk import modal fix - v2.1.2
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ClerkProvider, SignedIn, SignedOut, RedirectToSignIn, useUser, useClerk, SignOutButton } from '@clerk/clerk-react';
 import MobileDashboardView from './MobileDashboardView';
 import { useIsMobile, MobileNavigation } from './MobileComponents';
