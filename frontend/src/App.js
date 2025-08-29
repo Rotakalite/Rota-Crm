@@ -560,8 +560,10 @@ const useAuth = () => {
           } catch (tokenError) {
             console.error('Token error:', tokenError);
             console.log('🎯 Setting role without token');
-            setUserRole(directRole);
-            sessionStorage.setItem('userRole', directRole);
+            if (directRole !== userRole) {
+              setUserRole(directRole);
+              sessionStorage.setItem('userRole', directRole);
+            }
           }
           
         } catch (error) {
