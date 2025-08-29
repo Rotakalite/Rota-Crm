@@ -6561,6 +6561,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
             </div>
             <div className="flex items-center gap-4">
               <button
+                type="button"
                 onClick={() => {
                   const link = document.createElement('a');
                   link.href = '/waste_template.xlsx';  
@@ -6575,12 +6576,14 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                 <span>Excel Template</span>
               </button>
               <button
+                type="button"
                 onClick={() => setShowExcelImport(!showExcelImport)}
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
               >
                 {showExcelImport ? '❌ İptal' : '📊 Excel İmport'}
               </button>
               <button
+                type="button"
                 onClick={() => setShowAddRecord(!showAddRecord)}
                 className="bg-white text-green-700 px-6 py-3 rounded-xl hover:bg-green-50 transition-all duration-300 shadow-lg font-semibold flex items-center gap-2"
               >
