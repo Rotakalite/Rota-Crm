@@ -5217,7 +5217,7 @@ const CarbonFootprint = () => {
     if (authToken && (userRole === 'admin' || userRole === 'consultant')) {
       fetchClients();
     }
-  }, [authToken, userRole]);
+  }, [authToken]);
 
   // Fetch carbon data when client or year changes
   useEffect(() => {
