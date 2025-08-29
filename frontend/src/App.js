@@ -6776,6 +6776,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                 
                 <div className="flex justify-end space-x-4">
                   <button
+                    type="button"
                     onClick={() => {
                       setShowExcelImport(false);
                       setExcelFile(null);
@@ -6785,6 +6786,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                     İptal
                   </button>
                   <button
+                    type="button"
                     onClick={processExcelWaste}
                     disabled={excelProcessing || !excelFile}
                     className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
