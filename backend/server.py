@@ -11921,11 +11921,11 @@ startxref
             import urllib.parse
             encoded_filename = urllib.parse.quote(filename)
             
+            # PDF viewer-friendly headers (no Content-Disposition)
             return Response(
                 content=pdf_content,
                 media_type="application/pdf",
                 headers={
-                    "Content-Disposition": f"inline; filename*=UTF-8''{encoded_filename}",
                     "Cache-Control": "public, max-age=3600",
                     "Access-Control-Allow-Origin": "*"
                 }
