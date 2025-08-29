@@ -6754,7 +6754,12 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                       <input
                         type="file"
                         accept=".xlsx,.xls"
-                        onChange={(e) => setExcelFile(e.target.files[0])}
+                        onChange={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log('📁 File selected:', e.target.files[0]?.name);
+                          setExcelFile(e.target.files[0]);
+                        }}
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       />
                       {excelFile && (
