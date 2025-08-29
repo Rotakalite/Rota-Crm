@@ -11632,12 +11632,80 @@ async def view_document(
                 if document.get("client_id") != user_client_id:
                     raise HTTPException(status_code=403, detail="Access denied to this document")
         
-        # For ALL documents in demo environment, return placeholder response
-        # In production, this would check for real file storage
+        # REAL FILE SERVING FROM MONGODB GRIDFS 🚀
         filename = document.get("original_filename", "document.pdf")
         extension = filename.split('.')[-1].lower()
         
-        # Return appropriate content type based on file extension
+        # Check if document has GridFS storage info
+        has_gridfs_id = document.get("gridfs_id") or document.get("file_id")
+        has_binary_data = document.get("file_data")
+        
+        if has_gridfs_id:
+            # Serve from GridFS
+            try:
+                logging.info(f"📥 Loading document from GridFS: {document_id}")
+                
+                # Get GridFS file ID (handle both old and new field names)
+                gridfs_file_id = document.get("file_id") or document.get("gridfs_id")
+                
+                # Download from GridFS
+                if mongo_gridfs and mongo_gridfs.fs:
+                    file_content, file_metadata = await mongo_gridfs.download_file(gridfs_file_id)
+                    content_type = file_metadata.get("content_type", "application/octet-stream")
+                    
+                    logging.info(f"✅ GridFS file loaded: {filename} ({len(file_content)} bytes)")
+                    
+                    # URL encode filename for Turkish characters (RFC 5987)
+                    import urllib.parse
+                    encoded_filename = urllib.parse.quote(filename)
+                    
+                    return Response(
+                        content=file_content,
+                        media_type=content_type,
+                        headers={
+                            "Content-Disposition": f"inline; filename*=UTF-8''{encoded_filename}",
+                            "Cache-Control": "public, max-age=3600",
+                            "Access-Control-Allow-Origin": "*"
+                        }
+                    )
+                else:
+                    logging.error("❌ MongoDB GridFS not initialized")
+                    raise HTTPException(status_code=500, detail="GridFS service unavailable")
+                    
+            except Exception as gridfs_error:
+                logging.error(f"❌ GridFS download error: {str(gridfs_error)}")
+                # Fall through to demo content on GridFS error
+                
+        elif has_binary_data:
+            # Serve from MongoDB binary data (direct storage)
+            try:
+                logging.info(f"📥 Loading document from MongoDB binary data: {document_id}")
+                
+                file_data = document.get("file_data")
+                content_type = document.get("content_type", "application/octet-stream")
+                
+                # URL encode filename for Turkish characters (RFC 5987)
+                import urllib.parse
+                encoded_filename = urllib.parse.quote(filename)
+                
+                return Response(
+                    content=file_data,
+                    media_type=content_type,
+                    headers={
+                        "Content-Disposition": f"inline; filename*=UTF-8''{encoded_filename}",
+                        "Cache-Control": "public, max-age=3600",
+                        "Access-Control-Allow-Origin": "*"
+                    }
+                )
+                
+            except Exception as binary_error:
+                logging.error(f"❌ Binary data error: {str(binary_error)}")
+                # Fall through to demo content on binary error
+        
+        # FALLBACK: Return demo content if no real file found
+        logging.warning(f"⚠️ No real file data found for {document_id}, serving demo content")
+        
+        # Return appropriate demo content type based on file extension
         if extension == 'pdf':
             from fastapi.responses import Response
             # Simple PDF - ALL BYTES, no string concatenation
