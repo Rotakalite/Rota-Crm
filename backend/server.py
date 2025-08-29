@@ -11733,11 +11733,15 @@ iVBORw0KGgoAAAANSUhEUgAAAZAAAAEsCAYAAADtt+XCAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAL
 """.strip()
             demo_image = base64.b64decode(demo_image_b64)
             
+            # URL encode filename for Turkish characters (RFC 5987)
+            import urllib.parse
+            encoded_filename = urllib.parse.quote(filename)
+            
             return Response(
                 content=demo_image,
                 media_type=f"image/{extension}",
                 headers={
-                    "Content-Disposition": f"inline; filename={filename}",
+                    "Content-Disposition": f"inline; filename*=UTF-8''{encoded_filename}",
                     "Cache-Control": "public, max-age=3600", 
                     "Access-Control-Allow-Origin": "*"
                 }
