@@ -11695,6 +11695,7 @@ If you see this, GridFS integration is WORKING! 🎉
 @api_router.get("/documents/view/{document_id}")
 async def view_document(
     document_id: str,
+    download: bool = False,  # NEW: Query parameter for force download
     token: str = None  # Token as query parameter for iframe compatibility
 ):
     """View/preview document content - PUBLIC ACCESS with optional token"""
