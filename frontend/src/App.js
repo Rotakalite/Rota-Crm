@@ -6780,10 +6780,16 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                               const selectedFile = e.target.files?.[0];
                               console.log('📁 Selected file:', selectedFile?.name);
                               if (selectedFile) {
-                                // PREVENT COMPONENT RE-RENDER: Use ref instead of state
+                                // PREVENT COMPONENT RE-RENDER: Use ref ONLY, NO STATE UPDATES
                                 excelFileRef.current = selectedFile;
-                                setExcelFileDisplay(selectedFile.name);
-                                console.log('📁 File set successfully (ref):', selectedFile.name);
+                                console.log('📁 File set successfully (ref only):', selectedFile.name);
+                                
+                                // Update DOM directly without React state (prevent re-render)
+                                const statusElement = document.querySelector('#excel-file-status');
+                                if (statusElement) {
+                                  statusElement.textContent = `✅ Seçilen dosya: ${selectedFile.name}`;
+                                  statusElement.className = 'text-sm text-green-600 mt-2';
+                                }
                               }
                             } catch (error) {
                               console.error('📁 File selection error:', error);
