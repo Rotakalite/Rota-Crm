@@ -6540,6 +6540,19 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
     }
   }, [authToken]);
 
+  // Initial data fetch (only once when authToken first becomes available)
+  useEffect(() => {
+    if (authToken && !loading) {
+      // For consultant, don't fetch data until client is selected
+      if (userRole === 'consultant' && !effectiveSelectedClient) {
+        console.log('🔍 Consultant user: waiting for client selection');
+        return;
+      }
+      fetchWasteRecords();
+    }
+  }, [authToken]); // Only when authToken first becomes available
+
+  // Data refresh when client/year changes (not authToken)
   useEffect(() => {
     if (authToken) {
       // For consultant, don't fetch data until client is selected
