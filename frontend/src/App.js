@@ -6795,7 +6795,8 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                     type="button"
                     onClick={() => {
                       setShowExcelImport(false);
-                      setExcelFile(null);
+                      excelFileRef.current = null;
+                      setExcelFileDisplay(null);
                     }}
                     className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                   >
