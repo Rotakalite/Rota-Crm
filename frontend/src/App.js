@@ -6232,7 +6232,6 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
 
   // EXCEL FILE STATE REPLACED WITH REF TO PREVENT RE-RENDERS
   const excelFileRef = useRef(null);
-  const [excelFileDisplay, setExcelFileDisplay] = useState(null); // Only for display purposes
   const [showExcelImport, setShowExcelImport] = useState(false);
   const [excelProcessing, setExcelProcessing] = useState(false);
   const API = getApiUrl();
