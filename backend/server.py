@@ -11701,6 +11701,16 @@ async def view_document_pdf(
     return await view_document(document_id, download=False, token=token)
 
 
+# Document Download Endpoint (Force download)
+@api_router.get("/documents/download/{document_id}")
+async def download_document(
+    document_id: str,
+    token: str = None
+):
+    """Force download document"""
+    return await view_document(document_id, download=True, token=token)
+
+
 # Document View Endpoint
 @api_router.get("/documents/view/{document_id}")
 async def view_document(
