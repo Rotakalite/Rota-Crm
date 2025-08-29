@@ -11769,6 +11769,18 @@ async def view_document(
                 file_data = document.get("file_data") or document.get("file_content")
                 content_type = document.get("content_type", "application/octet-stream")
                 
+                # FIX: Force PDF content type for PDF files
+                if extension.lower() == 'pdf':
+                    content_type = "application/pdf"
+                elif extension.lower() in ['jpg', 'jpeg']:
+                    content_type = "image/jpeg"
+                elif extension.lower() == 'png':
+                    content_type = "image/png"
+                elif extension.lower() in ['doc', 'docx']:
+                    content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                elif extension.lower() in ['xls', 'xlsx']:
+                    content_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                
                 # URL encode filename for Turkish characters (RFC 5987)
                 import urllib.parse
                 from fastapi.responses import Response  # FIX: Import Response here!
