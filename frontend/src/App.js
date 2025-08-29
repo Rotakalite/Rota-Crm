@@ -317,7 +317,7 @@ const useAuth = () => {
       if (authToken && session) {
         try {
           // Try to get a fresh token when page regains focus
-          console.log('🔄 Page focused, checking token freshness...');
+          // console.log('🔄 Page focused, checking token freshness...'); // Reduced logging
           await refreshToken();
         } catch (error) {
           console.error('❌ Token refresh on focus failed:', error);
