@@ -11923,13 +11923,16 @@ startxref
             import urllib.parse
             encoded_filename = urllib.parse.quote(filename)
             
-            # PDF viewer-friendly headers (no Content-Disposition)
+            # PDF viewer-friendly headers with browser hints
             return Response(
                 content=pdf_content,
                 media_type="application/pdf",
                 headers={
                     "Cache-Control": "public, max-age=3600",
-                    "Access-Control-Allow-Origin": "*"
+                    "Access-Control-Allow-Origin": "*",
+                    "Content-Length": str(len(pdf_content)),
+                    "Accept-Ranges": "bytes",
+                    "X-Content-Type-Options": "nosniff"
                 }
             )
         
