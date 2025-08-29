@@ -183,10 +183,6 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
   const [bulkUploading, setBulkUploading] = useState(false);
   const [systemFolders, setSystemFolders] = useState([]);
   
-  // PDF viewer states
-  const [showPDFViewer, setShowPDFViewer] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState(null);
-  
   // Load initial data
   useEffect(() => {
     if (authToken) {
