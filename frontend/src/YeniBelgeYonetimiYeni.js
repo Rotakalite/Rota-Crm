@@ -1002,22 +1002,21 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
   // Document viewer function - SIMPLE: Open in new tab
   const viewDocument = async (document) => {
     try {
-      // Check if document is PDF
-      const isPDF = document.document_name && document.document_name.toLowerCase().endsWith('.pdf');
       const viewUrl = `${API}/documents/view/${document.id}`;
       
+      // ÇÖZÜM: PDF'ler için özel URL parametresi ekle
+      const isPDF = document.document_name && document.document_name.toLowerCase().endsWith('.pdf');
+      
       if (isPDF) {
-        // For PDFs: Use embedded viewer to prevent download
-        // Create a modal with embedded PDF viewer
-        setSelectedDocument(document);
-        setShowPDFViewer(true);
+        // PDF'ler için #toolbar=0 parametresi ekleyerek browser'ın built-in viewer'ını kullan
+        const pdfViewUrl = `${viewUrl}#toolbar=0&navpanes=0&scrollbar=0`;
+        window.open(pdfViewUrl, '_blank', 'toolbar=no,scrollbars=yes,resizable=yes,width=800,height=600');
       } else {
-        // For other files: Open in new tab (will trigger download for Word, Excel etc.)
+        // Diğer dosyalar için normal açım (indirecek)
         window.open(viewUrl, '_blank');
       }
       
-      // Log document view for analytics (optional)
-      console.log('📄 Viewing document:', document.document_name, 'Type:', isPDF ? 'PDF' : 'Other');
+      console.log('📄 Viewing document:', document.document_name, 'Type:', isPDF ? 'PDF (embedded)' : 'Other');
     } catch (error) {
       console.error('Error opening document:', error);
       alert('Belge açılırken hata oluştu: ' + error.message);
