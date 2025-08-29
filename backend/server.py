@@ -11784,11 +11784,15 @@ ve kolayca erişebilirsiniz.
 
 © 2025 ROTA Kalite Danışmanlık"""
             
+            # URL encode filename for Turkish characters (RFC 5987)
+            import urllib.parse
+            encoded_filename = urllib.parse.quote(filename)
+            
             return Response(
                 content=placeholder_text.encode('utf-8'),
                 media_type="text/plain; charset=utf-8",
                 headers={
-                    "Content-Disposition": f"inline; filename={filename}",
+                    "Content-Disposition": f"inline; filename*=UTF-8''{encoded_filename}",
                     "Cache-Control": "public, max-age=3600",
                     "Access-Control-Allow-Origin": "*"
                 }
