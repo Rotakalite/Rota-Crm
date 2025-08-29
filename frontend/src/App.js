@@ -70,13 +70,13 @@ const useAuth = () => {
   const refreshToken = async (force = false) => {
     try {
       if (session) {
-        console.log('🔄 Refreshing token...', force ? '(forced)' : '');
-        console.log('🔄 Session available:', !!session);
-        console.log('🔄 Session status:', session.status);
-        console.log('🔄 Session lastActiveAt:', session.lastActiveAt);
+        // console.log('🔄 Refreshing token...', force ? '(forced)' : '');
+        // console.log('🔄 Session available:', !!session);
+        // console.log('🔄 Session status:', session.status);
+        // console.log('🔄 Session lastActiveAt:', session.lastActiveAt);
         
         const newToken = await session.getToken({ skipCache: true });
-        console.log('🔄 New token received:', !!newToken);
+        // console.log('🔄 New token received:', !!newToken);
         
         if (newToken) {
           setAuthToken(newToken);
