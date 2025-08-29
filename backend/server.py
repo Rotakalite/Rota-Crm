@@ -11753,16 +11753,23 @@ async def view_document(
                 from fastapi.responses import Response  # FIX: Import Response here!
                 encoded_filename = urllib.parse.quote(filename)
                 
+                # Browser-friendly headers for viewing (not downloading)
+                headers = {
+                    "Cache-Control": "public, max-age=3600",
+                    "Access-Control-Allow-Origin": "*"
+                }
+                
+                # Add Content-Disposition only for downloads, not for viewing
+                # For PDF viewing, omit Content-Disposition to prevent download prompt
+                if extension.lower() != 'pdf':
+                    headers["Content-Disposition"] = f"inline; filename*=UTF-8''{encoded_filename}"
+                
                 logging.info(f"✅ Binary file loaded: {filename} ({len(file_data) if file_data else 0} bytes)")
                 
                 return Response(
                     content=file_data,
                     media_type=content_type,
-                    headers={
-                        "Content-Disposition": f"inline; filename*=UTF-8''{encoded_filename}",
-                        "Cache-Control": "public, max-age=3600",
-                        "Access-Control-Allow-Origin": "*"
-                    }
+                    headers=headers
                 )
                 
             except Exception as binary_error:
