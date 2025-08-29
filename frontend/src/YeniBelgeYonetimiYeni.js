@@ -1531,12 +1531,13 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
                         </div>
                         
                         <div className="flex space-x-2">
-                          <button
+                          {/* Görüntüle butonu geçici olarak gizlendi */}
+                          {/* <button
                             onClick={() => viewDocument(doc)}
                             className="flex-1 px-3 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 text-sm font-medium"
                           >
                             👁️ Görüntüle
-                          </button>
+                          </button> */}
                           <button
                             onClick={() => downloadDocument(doc)}
                             className="flex-1 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium"
