@@ -6536,7 +6536,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
     if (authToken) {
       fetchClients();
     }
-  }, [authToken, userRole]);
+  }, [authToken]);
 
   useEffect(() => {
     if (authToken) {
