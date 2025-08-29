@@ -11755,7 +11755,10 @@ async def view_document(
         
         # PRIORITIZE BINARY STORAGE OVER GRIDFS (more reliable)
         filename = document.get("original_filename", "document.pdf")
-        extension = filename.split('.')[-1].lower()
+        extension = filename.split('.')[-1].lower() if '.' in filename else 'unknown'
+        
+        # DEBUG LOG
+        logging.info(f"📄 Document: {document_id}, filename: {filename}, extension: {extension}")
         
         # Check storage types (prefer binary storage over GridFS)
         has_binary_data = document.get("file_data") or document.get("file_content")
