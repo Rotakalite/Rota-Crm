@@ -9095,7 +9095,7 @@ const SimpleClientManagement = ({ onNavigate }) => {
     if (authToken && userRole === 'admin') {
       fetchClients(1, itemsPerPage, searchTerm, sortBy, sortOrder, clientTypeFilter);
     }
-  }, [authToken, userRole]);
+  }, [authToken]);
 
   if (userRole !== 'admin') {
     return (
