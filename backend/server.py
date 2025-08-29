@@ -11593,7 +11593,7 @@ async def bulk_document_upload(
 
 
 # TEST ENDPOINT: Create GridFS Test Document
-@api_router.post("/documents/create-test-gridfs")
+@api_router.get("/documents/create-test-gridfs")
 async def create_test_gridfs_document():
     """Create a test document in GridFS - FOR TESTING ONLY"""
     try:
