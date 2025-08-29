@@ -6453,7 +6453,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
       const XLSX = await import('xlsx');
       
       // Read Excel file as ArrayBuffer
-      const arrayBuffer = await excelFile.arrayBuffer();
+      const arrayBuffer = await excelFileRef.current.arrayBuffer();
       
       // Parse Excel file
       const workbook = XLSX.read(arrayBuffer, { type: 'array' });
