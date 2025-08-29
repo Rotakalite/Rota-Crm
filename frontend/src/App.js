@@ -11621,7 +11621,7 @@ const ClientDocuments = () => {
     if (userRole === 'admin' || userRole === 'consultant') {
       fetchClients();
     }
-  }, [authToken, userRole]);
+  }, [authToken]);
 
   const fetchDocuments = async (clientId = null) => {
     try {
