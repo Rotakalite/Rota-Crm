@@ -11944,6 +11944,7 @@ iVBORw0KGgoAAAANSUhEUgAAAZAAAAEsCAYAAADtt+XCAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAL
             import urllib.parse
             encoded_filename = urllib.parse.quote(filename)
             
+            # Image viewer-friendly headers (keep Content-Disposition for images)
             return Response(
                 content=demo_image,
                 media_type=f"image/{extension}",
