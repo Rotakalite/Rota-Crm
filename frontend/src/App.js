@@ -16448,7 +16448,7 @@ const EmailNotificationManagement = () => {
       fetchClients();
     }
     setLoading(false);
-  }, [authToken, userRole]);
+  }, [authToken]);
 
   // Auto-select client for CLIENT role users
   useEffect(() => {
