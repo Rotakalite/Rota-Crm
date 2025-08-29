@@ -11691,6 +11691,16 @@ If you see this, GridFS integration is WORKING! 🎉
         raise HTTPException(status_code=500, detail=f"Test document creation failed: {str(e)}")
 
 
+# Document View Endpoint (PDF friendly URL)
+@api_router.get("/documents/view/{document_id}.pdf")
+async def view_document_pdf(
+    document_id: str,
+    token: str = None
+):
+    """View PDF document with .pdf extension for better browser handling"""
+    return await view_document(document_id, download=False, token=token)
+
+
 # Document View Endpoint
 @api_router.get("/documents/view/{document_id}")
 async def view_document(
