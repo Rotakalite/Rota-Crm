@@ -578,9 +578,11 @@ const useAuth = () => {
       } else if (isLoaded && user) {
         // If no session but user exists, still set role
         const directRole = user.publicMetadata?.role || 'client';
-        setUserRole(directRole);
-        sessionStorage.setItem('userRole', directRole);
-        console.log('🎯 No session, setting role without token:', directRole);
+        if (directRole !== userRole) {
+          setUserRole(directRole);
+          sessionStorage.setItem('userRole', directRole);
+          console.log('🎯 No session, setting role without token:', directRole);
+        }
       } else if (isLoaded && !user) {
         // User logged out, clear session data
         setAuthToken(null);
