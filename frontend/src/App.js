@@ -6754,17 +6754,29 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                     
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Excel Dosyası Seçin</label>
-                      <input
-                        type="file"
-                        accept=".xlsx,.xls"
-                        onChange={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          console.log('📁 File selected:', e.target.files[0]?.name);
-                          setExcelFile(e.target.files[0]);
-                        }}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      />
+                      {/* ISOLATED FILE INPUT WITH FORM WRAPPER */}
+                      <form onSubmit={(e) => e.preventDefault()}>
+                        <input
+                          type="file"
+                          accept=".xlsx,.xls"
+                          onChange={(e) => {
+                            try {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              console.log('📁 File input triggered');
+                              const selectedFile = e.target.files?.[0];
+                              console.log('📁 Selected file:', selectedFile?.name);
+                              if (selectedFile) {
+                                setExcelFile(selectedFile);
+                                console.log('📁 File set successfully:', selectedFile.name);
+                              }
+                            } catch (error) {
+                              console.error('📁 File selection error:', error);
+                            }
+                          }}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </form>
                       {excelFile && (
                         <p className="text-sm text-green-600 mt-2">
                           ✅ Seçilen dosya: {excelFile.name}
