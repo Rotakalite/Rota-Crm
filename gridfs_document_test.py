@@ -656,6 +656,8 @@ class GridFSDocumentTester:
         self.test_document_upload_endpoint_accessibility()
         self.test_document_view_endpoint_accessibility()
         self.test_gridfs_service_integration()
+        self.test_real_document_content_verification()
+        self.test_gridfs_metadata_fields()
         self.test_file_type_support_headers()
         self.test_turkish_filename_support()
         self.test_authentication_requirements()
