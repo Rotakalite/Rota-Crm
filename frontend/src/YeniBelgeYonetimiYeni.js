@@ -1586,12 +1586,14 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
                               <button
                                 onClick={() => downloadDocument(doc)}
                                 className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                title={`${doc.original_filename} dosyasını indir`}
                               >
                                 📥 İndir
                               </button>
                               <button
                                 onClick={() => deleteDocument(doc.id)}
                                 className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                                title={`${doc.original_filename} dosyasını sil`}
                               >
                                 🗑️ Sil
                               </button>
