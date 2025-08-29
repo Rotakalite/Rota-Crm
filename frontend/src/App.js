@@ -547,11 +547,11 @@ const useAuth = () => {
             sessionStorage.setItem('dbUser', JSON.stringify(response.data));
             
             // CRITICAL FIX: Set role from database response, not from Clerk metadata
-            if (response.data.role) {
+            if (response.data.role && response.data.role !== userRole) {
               setUserRole(response.data.role);
               sessionStorage.setItem('userRole', response.data.role);
               console.log('✅ User role set from database:', response.data.role);
-            } else {
+            } else if (!response.data.role) {
               console.log('⚠️ No role in database, user needs role selection');
             }
             
