@@ -6805,7 +6805,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                   <button
                     type="button"
                     onClick={processExcelWaste}
-                    disabled={excelProcessing || !excelFile}
+                    disabled={excelProcessing || !excelFileRef.current}
                     className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
                     {excelProcessing ? (
