@@ -14379,7 +14379,7 @@ const ClientTrainings = () => {
     if (authToken && userRole === 'client') {
       fetchTrainings();
     }
-  }, [authToken, userRole]);
+  }, [authToken]);
 
   const fetchTrainings = async () => {
     if (!authToken) return;
