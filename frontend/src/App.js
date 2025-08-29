@@ -6812,7 +6812,12 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                     onClick={() => {
                       setShowExcelImport(false);
                       excelFileRef.current = null;
-                      setExcelFileDisplay(null);
+                      // Clear DOM display
+                      const statusElement = document.querySelector('#excel-file-status');
+                      if (statusElement) {
+                        statusElement.textContent = 'Henüz dosya seçilmedi';
+                        statusElement.className = 'text-sm text-gray-400 mt-2';
+                      }
                     }}
                     className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                   >
