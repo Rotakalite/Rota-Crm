@@ -11591,6 +11591,75 @@ async def bulk_document_upload(
         raise HTTPException(status_code=500, detail=f"Bulk document upload failed: {str(e)}")
 
 
+
+# TEST ENDPOINT: Create GridFS Test Document
+@api_router.post("/documents/create-test-gridfs")
+async def create_test_gridfs_document():
+    """Create a test document in GridFS - FOR TESTING ONLY"""
+    try:
+        import uuid
+        
+        # Create test content
+        test_content = f"""REAL GRIDFS TEST DOCUMENT!
+
+This is a REAL test document stored in MongoDB GridFS.
+NOT DEMO CONTENT!
+
+Date: {datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")}
+
+Turkish characters: Test file for Turkish encoding.
+
+If you see this, GridFS integration is WORKING! 🎉
+""".encode('utf-8')
+
+        # Upload to GridFS
+        if mongo_gridfs and mongo_gridfs.fs:
+            result = await mongo_gridfs.upload_file(
+                file_content=test_content,
+                filename="GridFS_Test_Document.txt",
+                user_id="test-user-123",
+                content_type="text/plain",
+                metadata={
+                    "test_file": True,
+                    "created_for": "gridfs_integration_test"
+                }
+            )
+            
+            # Create document record
+            db = await get_db()
+            document_id = f"gridfs-test-{str(uuid.uuid4())[:8]}"
+            
+            document_record = {
+                "id": document_id,
+                "original_filename": "GridFS_Test_Document.txt",
+                "file_id": result["file_id"],  # GridFS file ID - THIS IS KEY!
+                "gridfs_upload": True,
+                "content_type": "text/plain",
+                "file_size": len(test_content),
+                "client_id": "test-client-123",
+                "user_id": "test-user-123", 
+                "created_at": datetime.utcnow().isoformat(),
+                "folder_path": "test/gridfs",
+                "level_1_folder": "Test Folder",
+                "level_2_folder": "GridFS Test"
+            }
+            
+            await db.documents.insert_one(document_record)
+            
+            return {
+                "message": "GridFS test document created successfully!",
+                "document_id": document_id,
+                "gridfs_file_id": result["file_id"],
+                "view_url": f"/api/documents/view/{document_id}"
+            }
+        else:
+            raise HTTPException(status_code=500, detail="GridFS service not available")
+            
+    except Exception as e:
+        logging.error(f"❌ Test GridFS document creation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Test document creation failed: {str(e)}")
+
+
 # Document View Endpoint
 @api_router.get("/documents/view/{document_id}")
 async def view_document(
