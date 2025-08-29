@@ -11592,6 +11592,37 @@ async def bulk_document_upload(
 
 
 
+# TEST ENDPOINT: List Documents (PUBLIC - NO AUTH)  
+@app.get("/api/test/list-documents")
+async def list_test_documents():
+    """List documents for testing - NO AUTH REQUIRED"""
+    try:
+        db = await get_db()
+        documents = []
+        
+        async for doc in db.documents.find().limit(5):
+            documents.append({
+                "id": doc.get("id"),
+                "original_filename": doc.get("original_filename"),
+                "has_file_id": bool(doc.get("file_id")),
+                "has_gridfs_id": bool(doc.get("gridfs_id")),
+                "has_file_data": bool(doc.get("file_data")),
+                "has_file_content": bool(doc.get("file_content")),
+                "binary_storage": doc.get("binary_storage"),
+                "content_type": doc.get("content_type"),
+                "file_size": doc.get("file_size", 0)
+            })
+            
+        return {
+            "total_documents": len(documents),
+            "documents": documents,
+            "message": "Use /api/documents/view/{document_id} to test viewing"
+        }
+        
+    except Exception as e:
+        return {"error": str(e)}
+
+
 # TEST ENDPOINT: Create GridFS Test Document (PUBLIC - NO AUTH)
 @app.get("/api/test/create-gridfs-document")
 async def create_test_gridfs_document():
