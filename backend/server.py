@@ -11732,21 +11732,53 @@ async def view_document(
                 if document.get("client_id") != user_client_id:
                     raise HTTPException(status_code=403, detail="Access denied to this document")
         
-        # REAL FILE SERVING FROM MONGODB GRIDFS 🚀
+        # PRIORITIZE BINARY STORAGE OVER GRIDFS (more reliable)
         filename = document.get("original_filename", "document.pdf")
         extension = filename.split('.')[-1].lower()
         
-        # Check if document has GridFS storage info
-        has_gridfs_id = document.get("gridfs_id") or document.get("file_id")
-        has_binary_data = document.get("file_data") or document.get("file_content")  # FIX: Check both field names!
+        # Check storage types (prefer binary storage over GridFS)
+        has_binary_data = document.get("file_data") or document.get("file_content")
+        has_gridfs_id = document.get("gridfs_id") or document.get("file_id") 
         
-        if has_gridfs_id:
-            # Serve from GridFS
+        # PRIORITY 1: Binary storage (most reliable)
+        if has_binary_data:
             try:
-                logging.info(f"📥 Loading document from GridFS: {document_id}")
+                logging.info(f"📥 Loading document from MongoDB binary storage: {document_id}")
                 
-                # Get GridFS file ID (handle both old and new field names)
+                file_data = document.get("file_data") or document.get("file_content")
+                content_type = document.get("content_type", "application/octet-stream")
+                
+                # URL encode filename for Turkish characters (RFC 5987)
+                import urllib.parse
+                encoded_filename = urllib.parse.quote(filename)
+                
+                logging.info(f"✅ Binary file loaded: {filename} ({len(file_data) if file_data else 0} bytes)")
+                
+                return Response(
+                    content=file_data,
+                    media_type=content_type,
+                    headers={
+                        "Content-Disposition": f"inline; filename*=UTF-8''{encoded_filename}",
+                        "Cache-Control": "public, max-age=3600",
+                        "Access-Control-Allow-Origin": "*"
+                    }
+                )
+                
+            except Exception as binary_error:
+                logging.error(f"❌ Binary data error: {str(binary_error)}")
+                # Continue to GridFS attempt
+        
+        # PRIORITY 2: GridFS storage (with ObjectId validation)
+        elif has_gridfs_id:
+            try:
+                logging.info(f"📥 Attempting GridFS load: {document_id}")
+                
                 gridfs_file_id = document.get("file_id") or document.get("gridfs_id")
+                
+                # Validate ObjectId format before GridFS call
+                if len(str(gridfs_file_id)) != 24:
+                    logging.warning(f"⚠️ Invalid GridFS ObjectId format: {gridfs_file_id} (not 24 chars)")
+                    raise Exception("Invalid GridFS ObjectId format")
                 
                 # Download from GridFS
                 if mongo_gridfs and mongo_gridfs.fs:
@@ -11770,19 +11802,11 @@ async def view_document(
                     )
                 else:
                     logging.error("❌ MongoDB GridFS not initialized")
-                    raise HTTPException(status_code=500, detail="GridFS service unavailable")
+                    raise Exception("GridFS service unavailable")
                     
             except Exception as gridfs_error:
                 logging.error(f"❌ GridFS download error: {str(gridfs_error)}")
-                # Fall through to demo content on GridFS error
-                
-        elif has_binary_data:
-            # Serve from MongoDB binary data (direct storage)
-            try:
-                logging.info(f"📥 Loading document from MongoDB binary data: {document_id}")
-                
-                file_data = document.get("file_data") or document.get("file_content")  # FIX: Check both field names!
-                content_type = document.get("content_type", "application/octet-stream")
+                # Fall through to demo content
                 
                 # URL encode filename for Turkish characters (RFC 5987)
                 import urllib.parse
