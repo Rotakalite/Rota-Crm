@@ -998,12 +998,22 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
   // Document viewer function - SIMPLE: Open in new tab
   const viewDocument = async (document) => {
     try {
-      // Simply open document in new tab
+      // Check if document is PDF
+      const isPDF = document.document_name && document.document_name.toLowerCase().endsWith('.pdf');
       const viewUrl = `${API}/documents/view/${document.id}`;
-      window.open(viewUrl, '_blank');
+      
+      if (isPDF) {
+        // For PDFs: Use embedded viewer to prevent download
+        // Create a modal with embedded PDF viewer
+        setSelectedDocument(document);
+        setShowPDFViewer(true);
+      } else {
+        // For other files: Open in new tab (will trigger download for Word, Excel etc.)
+        window.open(viewUrl, '_blank');
+      }
       
       // Log document view for analytics (optional)
-      console.log('📄 Viewing document in new tab:', document.document_name);
+      console.log('📄 Viewing document:', document.document_name, 'Type:', isPDF ? 'PDF' : 'Other');
     } catch (error) {
       console.error('Error opening document:', error);
       alert('Belge açılırken hata oluştu: ' + error.message);
