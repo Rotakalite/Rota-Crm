@@ -11773,8 +11773,11 @@ async def view_document(
                 content_type = document.get("content_type", "application/octet-stream")
                 
                 # FIX: Force PDF content type for PDF files OR PDF magic number
-                if extension.lower() == 'pdf' or (file_data and file_data[:4] == b'%PDF'):
+                if (extension.lower() == 'pdf' or 
+                    (file_data and len(file_data) > 4 and file_data[:4] == b'%PDF') or
+                    (file_data and len(file_data) > 4 and str(file_data[:4]) == "b'%PDF'")):
                     content_type = "application/pdf"
+                    logging.info(f"🔍 PDF detected! Extension: {extension}, Magic: {file_data[:10] if file_data else 'None'}")
                 elif extension.lower() in ['jpg', 'jpeg']:
                     content_type = "image/jpeg"
                 elif extension.lower() == 'png':
@@ -11783,6 +11786,8 @@ async def view_document(
                     content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 elif extension.lower() in ['xls', 'xlsx']:
                     content_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                
+                logging.info(f"🔍 Final content_type: {content_type} for {filename}")
                 
                 # URL encode filename for Turkish characters (RFC 5987)
                 import urllib.parse
