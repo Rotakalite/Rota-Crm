@@ -14988,7 +14988,7 @@ const TrainingManagement = ({ selectedClient: propSelectedClient }) => {
       fetchTrainings();
       fetchClients();
     }
-  }, [authToken, userRole]);
+  }, [authToken]);
 
   // Set effective client_id in formData when propSelectedClient or selectedClient changes
   useEffect(() => {
