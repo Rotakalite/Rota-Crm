@@ -6769,11 +6769,10 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                               const selectedFile = e.target.files?.[0];
                               console.log('📁 Selected file:', selectedFile?.name);
                               if (selectedFile) {
-                                // PREVENT COMPONENT RE-RENDER: Use setTimeout to batch state update
-                                setTimeout(() => {
-                                  setExcelFile(selectedFile);
-                                  console.log('📁 File set successfully (batched):', selectedFile.name);
-                                }, 0);
+                                // PREVENT COMPONENT RE-RENDER: Use ref instead of state
+                                excelFileRef.current = selectedFile;
+                                setExcelFileDisplay(selectedFile.name);
+                                console.log('📁 File set successfully (ref):', selectedFile.name);
                               }
                             } catch (error) {
                               console.error('📁 File selection error:', error);
