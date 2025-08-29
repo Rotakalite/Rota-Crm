@@ -11750,7 +11750,7 @@ async def view_document(
             try:
                 logging.info(f"📥 Loading document from MongoDB binary data: {document_id}")
                 
-                file_data = document.get("file_data")
+                file_data = document.get("file_data") or document.get("file_content")  # FIX: Check both field names!
                 content_type = document.get("content_type", "application/octet-stream")
                 
                 # URL encode filename for Turkish characters (RFC 5987)
