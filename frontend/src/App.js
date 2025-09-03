@@ -5872,7 +5872,7 @@ const CarbonFootprint = () => {
                           'LPG': carbonData.total_emission_sources.lpg || 0,
                           'Fuel Oil': carbonData.total_emission_sources.fuel_oil || 0
                         };
-                        const maxSource = Object.entries(sources).reduce((a, b) => sources[a[1]] > sources[b[1]] ? a : b);
+                        const maxSource = Object.entries(sources).reduce((a, b) => a[1] > b[1] ? a : b);
                         const total = Object.values(sources).reduce((a, b) => a + b, 0);
                         const percentage = total > 0 ? ((maxSource[1] / total) * 100).toFixed(1) : 0;
                         
