@@ -11063,6 +11063,16 @@ async def get_carbon_analytics(
     # Sort monthly data by month
     monthly_carbon_data.sort(key=lambda x: x["month"])
     
+    # 🗑️🏨 CALCULATE TOTAL WASTE AND HOTEL CO2 ACROSS ALL MONTHS
+    total_yearly_waste_co2 = 0.0
+    total_yearly_hotel_co2 = 0.0
+    
+    for monthly in monthly_carbon_data:
+        if 'total_waste_co2' in monthly:
+            total_yearly_waste_co2 += monthly['total_waste_co2']
+        if 'total_hotel_co2' in monthly:
+            total_yearly_hotel_co2 += monthly['total_hotel_co2']
+    
     return {
         "year": year,
         "client_id": target_client_id,
@@ -11070,10 +11080,14 @@ async def get_carbon_analytics(
         "total_carbon_tonnes": round(total_yearly_co2 / 1000.0, 6),
         "average_per_person_co2": round(total_yearly_co2 / total_yearly_accommodation if total_yearly_accommodation > 0 else 0, 3),
         "total_accommodation_count": total_yearly_accommodation,
+        # 🗑️ NEW: Waste emissions total for frontend
+        "total_waste_co2": round(total_yearly_waste_co2, 3),
+        # 🏨 NEW: Hotel emissions total for frontend
+        "total_hotel_co2": round(total_yearly_hotel_co2, 3),
         "monthly_carbon_data": monthly_carbon_data,
         "yearly_benchmarks": yearly_benchmarks,
         "total_emission_sources": total_emission_sources,  # Kaynak bazında toplam emisyonlar
-        "methodology": "DEFRA 2024 Emission Factors",
+        "methodology": "DEFRA 2024 Emission Factors + Waste + Hotel",  # Updated methodology
         "units": "kg CO2 equivalent"
     }
 
