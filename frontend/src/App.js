@@ -5371,10 +5371,10 @@ const CarbonFootprint = () => {
                     <tr key={index} className={`hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-25'}`}>
                       <td className="px-4 py-3 border font-bold text-gray-800">{month.month_name}</td>
                       <td className="px-4 py-3 border text-green-700 font-semibold">
-                        {(month.total_co2_emissions || 0).toFixed(2)}
+                        {((month.total_co2_emissions || 0) / 1000).toFixed(3)}
                       </td>
                       <td className="px-4 py-3 border text-blue-700 font-semibold">
-                        {(month.per_person_co2 || 0).toFixed(2)}
+                        {((month.per_person_co2 || 0) / 1000).toFixed(4)}
                       </td>
                       <td className="px-4 py-3 border text-purple-700 font-semibold">
                         {month.accommodation_count || 0}
