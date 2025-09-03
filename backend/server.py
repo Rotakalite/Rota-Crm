@@ -11091,6 +11091,11 @@ async def get_carbon_analytics(
                     "total_co2_tonnes": carbon_results.get("total_co2_tonnes", 0),
                     "per_person_co2": carbon_results.get("per_person_co2", 0),
                     "accommodation_count": consumption.get("accommodation_count", 0),
+                    # 🗑️🏨 CRITICAL FIX: Include waste and hotel CO2 from DEFRA calculation
+                    "total_waste_co2": carbon_results.get("total_waste_co2", 0),
+                    "total_hotel_co2": carbon_results.get("total_hotel_co2", 0),
+                    "waste_emissions": carbon_results.get("waste_emissions", {}),
+                    "hotel_emissions": carbon_results.get("hotel_emissions", {}),
                     "emissions_breakdown": emissions_breakdown,
                     "benchmark": benchmark_result
                 }
