@@ -705,7 +705,7 @@ class GreenWaveCarbonFootprintTester:
         self.test_pie_chart_data_readiness()
         
         # Print final results
-        self.print_final_results()
+        return self.print_final_results()
     
     def print_final_results(self):
         """Print comprehensive test results"""
