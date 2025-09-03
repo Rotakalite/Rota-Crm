@@ -4920,7 +4920,7 @@ ChartJS.register(
   Legend
 );
 
-const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
+const CLERK_PUBLISHABLE_KEY = 'pk_test_YWRhcHRpbmctZWZ0LTYuY2xlcmsuYWNjb3VudHMuZGV2JA'; // HARDCODED FIX
 
 // Backend URL Discovery Function
 const discoverBackendURL = async () => {
