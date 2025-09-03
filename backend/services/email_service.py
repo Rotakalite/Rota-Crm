@@ -36,12 +36,12 @@ else:
         TEMPLATE_FOLDER=str(Path(__file__).parent.parent / "templates")
     )
     
-    # Gmail SMTP Configuration for regular emails (2FA etc) - PORT 25 for Railway
+    # Gmail SMTP Configuration for regular emails (2FA etc) - PORT 587 for Railway
     conf = ConnectionConfig(
         MAIL_USERNAME=gmail_user,
         MAIL_PASSWORD=gmail_password,
         MAIL_FROM=gmail_user,
-        MAIL_PORT=25,
+        MAIL_PORT=587,
         MAIL_SERVER="smtp.gmail.com",
         MAIL_STARTTLS=True,
         MAIL_SSL_TLS=False,
