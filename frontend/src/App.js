@@ -5784,7 +5784,9 @@ const CarbonFootprint = () => {
                             '#A78BFA', // LPG - Mor
                             '#F59E0B', // Fuel Oil - Amber
                             '#06B6D4', // F-Gaslar - Cyan
-                            '#EF4444'  // Yangın Söndürücü - Red
+                            '#EF4444', // Yangın Söndürücü - Red
+                            '#DC2626', // 🗑️ Atık - Dark Red
+                            '#EC4899'  // 🏨 Konaklama - Pink
                           ].slice(0, [
                             carbonData.total_emission_sources.electricity || 0,
                             carbonData.total_emission_sources.natural_gas || 0,
