@@ -10985,7 +10985,11 @@ async def get_carbon_analytics(
                     "r32_gas": consumption.get("r32_gas", 0),
                     "co2_fire": consumption.get("co2_fire", 0),
                     "fm200_fire": consumption.get("fm200_fire", 0),
-                    "accommodation_count": consumption.get("accommodation_count", 0)
+                    "accommodation_count": consumption.get("accommodation_count", 0),
+                    # 🗑️ NEW: Waste data for DEFRA 2024 calculation
+                    "waste_data": consumption.get("waste_data", []),
+                    # 🏨 NEW: Hotel data for DEFRA 2024 calculation (Turkey factor: 32.1 kg CO2/room night)
+                    "hotel_data": consumption.get("hotel_data", [])
                 }
                 
                 # Calculate carbon emissions
