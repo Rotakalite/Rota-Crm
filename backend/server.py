@@ -12684,7 +12684,7 @@ async def post_waste_data_via_analytics(
             "updated_at": datetime.utcnow()
         }
 
-        await db.environment_data.insert_one(record)
+        await db.waste_management.insert_one(record)
         
         # 🎯 NEW: Increment demo limit counter for waste data
         if not current_user.admin_approved:
