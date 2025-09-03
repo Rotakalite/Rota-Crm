@@ -5490,7 +5490,7 @@ const CarbonFootprint = () => {
                       </div>
                       <div className="text-right">
                         <div className="text-lg font-bold text-orange-900">{carbonData.total_emission_sources.natural_gas.toFixed(2)}</div>
-                        <div className="text-xs text-orange-600">kg CO2</div>
+                        <div className="text-xs text-orange-600">tCO2</div>
                       </div>
                     </div>
                   </div>
