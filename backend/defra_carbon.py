@@ -47,11 +47,11 @@ DEFRA_EMISSION_FACTORS = {
         "category": "electricity"
     },
     
-    # Water and Waste Water
+    # Water and Waste Water - UPDATED WITH DEFRA 2024 ORIGINAL EXCEL DATA
     "water": {
-        "factor": 0.344,    # kg CO2 per m³ (supply + waste water treatment)
+        "factor": 0.33885,    # kg CO2 per m³ - DEFRA 2024 Original (supply + treatment)
         "unit": "m³", 
-        "source": "DEFRA 2024 - Water supply and treatment",
+        "source": "DEFRA 2024 Excel - Water supply + treatment",
         "category": "water"
     },
     
