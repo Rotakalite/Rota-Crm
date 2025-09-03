@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL
-BACKEND_URL = "https://bulkdata-admin.preview.emergentagent.com"
+BACKEND_URL = "https://mongodb-restore.preview.emergentagent.com"
 
 def test_backend_code():
     """Test the backend code directly by examining the get_clients function"""

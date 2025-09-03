@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # API URL
-API_URL = "https://bulkdata-admin.preview.emergentagent.com/api"
+API_URL = "https://mongodb-restore.preview.emergentagent.com/api"
 
 class MockResponse:
     def __init__(self, json_data, status_code):

@@ -11,7 +11,7 @@ from datetime import datetime
 
 class SimpleDemoTest:
     def __init__(self):
-        self.base_url = "https://bulkdata-admin.preview.emergentagent.com"
+        self.base_url = "https://mongodb-restore.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         
     async def test_basic_endpoints(self):
