@@ -5311,32 +5311,32 @@ const CarbonFootprint = () => {
         </div>
       ) : (
         <>
-          {/* Carbon Overview Cards */}
+          {/* Carbon Overview Cards - ALL VALUES IN TONNES */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
             <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
               <h3 className="text-lg font-bold mb-2">🌍 Toplam CO2</h3>
-              <p className="text-3xl font-bold">{carbonData.total_carbon_emissions?.toLocaleString() || 0}</p>
-              <p className="text-green-100">kg CO2</p>
+              <p className="text-3xl font-bold">{((carbonData.total_carbon_emissions || 0) / 1000).toFixed(2)}</p>
+              <p className="text-green-100">tCO2</p>
             </div>
             
             <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
               <h3 className="text-lg font-bold mb-2">👤 Kişi Başına</h3>
-              <p className="text-3xl font-bold">{carbonData.per_person_co2?.toFixed(2) || 0}</p>
-              <p className="text-blue-100">kg CO2/kişi</p>
+              <p className="text-3xl font-bold">{((carbonData.per_person_co2 || 0) / 1000).toFixed(3)}</p>
+              <p className="text-blue-100">tCO2/kişi</p>
             </div>
             
-            {/* 🗑️ NEW: Waste Emissions Card */}
+            {/* 🗑️ NEW: Waste Emissions Card - IN TONNES */}
             <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg">
               <h3 className="text-lg font-bold mb-2">🗑️ Atık CO2</h3>
-              <p className="text-3xl font-bold">{carbonData.total_waste_co2?.toFixed(2) || 0}</p>
-              <p className="text-orange-100">kg CO2</p>
+              <p className="text-3xl font-bold">{((carbonData.total_waste_co2 || 0) / 1000).toFixed(3)}</p>
+              <p className="text-orange-100">tCO2</p>
             </div>
             
-            {/* 🏨 NEW: Hotel Emissions Card */}
+            {/* 🏨 NEW: Hotel Emissions Card - IN TONNES */}
             <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
               <h3 className="text-lg font-bold mb-2">🏨 Konaklama CO2</h3>
-              <p className="text-3xl font-bold">{carbonData.total_hotel_co2?.toFixed(2) || 0}</p>
-              <p className="text-purple-100">kg CO2</p>
+              <p className="text-3xl font-bold">{((carbonData.total_hotel_co2 || 0) / 1000).toFixed(3)}</p>
+              <p className="text-purple-100">tCO2</p>
             </div>
             
             <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 p-6 rounded-xl text-white shadow-lg">
