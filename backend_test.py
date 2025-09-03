@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 """
-🎯 BULK CONSUMPTION IMPORT TEST - EXCEL FORMAT
+🎯 DEFRA 2024 KARBON AYAK İZİ EXPANSION TEST - WASTE & HOTEL EMISSIONS
 GreenWave CRM Backend Testing - Railway Production
 
-Test Target: POST /api/consumptions/bulk endpoint
+Test Target: /api/analytics/carbon-footprint endpoint
 Environment: Railway production (https://rota-crm-production.up.railway.app)
 
-Features to Test:
-1. Bulk consumption data processing with BulkConsumptionRequest model
-2. Role-based access control (Admin, Client, Consultant)
-3. Demo limit integration and validation
-4. Existing record update vs new record creation
-5. Error handling and validation (year, month validation)
-6. Client_id assignment based on user roles
-7. Success/failure response with detailed error messages
+DEFRA 2024 Carbon Module Integration Test:
+1. /api/analytics/carbon-footprint endpoint functionality
+2. DEFRA 2024 waste factors (134 items) loaded verification
+3. Turkey hotel factor (32.1 kg CO2/room night) loaded verification
+4. Carbon calculation enhancement with waste_data field
+5. Carbon calculation enhancement with hotel_data field
+6. New response fields: total_waste_co2, total_hotel_co2
+7. Waste emissions breakdown verification
+8. Hotel emissions breakdown verification
+9. Methodology updated to "DEFRA 2024 Emission Factors + Waste + Hotel"
 """
 
 import requests
