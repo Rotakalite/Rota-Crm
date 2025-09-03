@@ -294,6 +294,65 @@ def get_all_emission_factors():
     """
     return DEFRA_EMISSION_FACTORS
 
+def get_waste_factors():
+    """
+    Get all DEFRA 2024 waste disposal factors
+    
+    Returns:
+        list: All waste disposal factors
+    """
+    return DEFRA_WASTE_FACTORS
+
+def get_hotel_factors():
+    """
+    Get all DEFRA 2024 hotel stay factors
+    
+    Returns:
+        list: All hotel stay factors
+    """
+    return DEFRA_HOTEL_FACTORS
+
+def search_waste_factor(waste_type):
+    """
+    Search for waste disposal factor by type
+    
+    Args:
+        waste_type (str): Type of waste to search
+        
+    Returns:
+        dict: Matching waste factor or None
+    """
+    waste_type_lower = waste_type.lower()
+    
+    for factor in DEFRA_WASTE_FACTORS:
+        if (waste_type_lower in factor.get("level2", "").lower() or
+            waste_type_lower in factor.get("level3", "").lower() or
+            waste_type_lower in factor.get("activity", "").lower()):
+            return factor
+    
+    return None
+
+def search_hotel_factor(country):
+    """
+    Search for hotel stay factor by country
+    
+    Args:
+        country (str): Country name to search
+        
+    Returns:
+        dict: Matching hotel factor or Turkey default
+    """
+    country_lower = country.lower()
+    
+    # First try exact match
+    for factor in DEFRA_HOTEL_FACTORS:
+        if country_lower in factor.get("level3", "").lower():
+            return factor
+    
+    # Default to Turkey if not found
+    turkey_factor = next((f for f in DEFRA_HOTEL_FACTORS if "turkey" in f.get("level3", "").lower()), None)
+    return turkey_factor
+
 def validate_consumption_data(consumption_data):
     """
     Validate consumption data format
