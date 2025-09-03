@@ -55,11 +55,11 @@ DEFRA_EMISSION_FACTORS = {
         "category": "water"
     },
     
-    # Natural Gas
+    # Natural Gas - UPDATED WITH DEFRA 2024 ORIGINAL EXCEL DATA
     "natural_gas": {
-        "factor": 0.18316,  # kg CO2 per kWh (net CV basis)
+        "factor": 0.009245,  # kg CO2 per kWh - DEFRA 2024 Original (converted from GJ)
         "unit": "kWh",
-        "source": "DEFRA 2024 - Natural gas combustion",
+        "source": "DEFRA 2024 Excel - Natural gas combustion (converted to kWh)",
         "category": "fuel"
     },
     
