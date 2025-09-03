@@ -1,0 +1,275 @@
+[
+  {
+    "id": "29_600_4000_13_1",
+    "level3": "UK",
+    "unit": "room night",
+    "ghg_factor": 10.4,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4001_13_1",
+    "level3": "UK (London)",
+    "unit": "room night",
+    "ghg_factor": 11.5,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4003_13_1",
+    "level3": "Australia",
+    "unit": "room night",
+    "ghg_factor": 35.0,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4005_13_1",
+    "level3": "Belgium",
+    "unit": "room night",
+    "ghg_factor": 12.2,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4006_13_1",
+    "level3": "Brazil",
+    "unit": "room night",
+    "ghg_factor": 8.7,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4007_13_1",
+    "level3": "Canada",
+    "unit": "room night",
+    "ghg_factor": 7.4,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4008_13_1",
+    "level3": "Chile",
+    "unit": "room night",
+    "ghg_factor": 27.6,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4009_13_1",
+    "level3": "China",
+    "unit": "room night",
+    "ghg_factor": 53.5,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4010_13_1",
+    "level3": "Colombia",
+    "unit": "room night",
+    "ghg_factor": 14.7,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4011_13_1",
+    "level3": "Costa Rica",
+    "unit": "room night",
+    "ghg_factor": 4.7,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4013_13_1",
+    "level3": "Egypt",
+    "unit": "room night",
+    "ghg_factor": 44.2,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4016_13_1",
+    "level3": "France",
+    "unit": "room night",
+    "ghg_factor": 6.7,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4017_13_1",
+    "level3": "Germany",
+    "unit": "room night",
+    "ghg_factor": 13.2,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4019_13_1",
+    "level3": "Hong Kong, China",
+    "unit": "room night",
+    "ghg_factor": 51.5,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4020_13_1",
+    "level3": "India",
+    "unit": "room night",
+    "ghg_factor": 58.9,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4021_13_1",
+    "level3": "Indonesia",
+    "unit": "room night",
+    "ghg_factor": 62.7,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4024_13_1",
+    "level3": "Italy",
+    "unit": "room night",
+    "ghg_factor": 14.3,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4025_13_1",
+    "level3": "Japan",
+    "unit": "room night",
+    "ghg_factor": 39.0,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4026_13_1",
+    "level3": "Jordan",
+    "unit": "room night",
+    "ghg_factor": 68.9,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4028_13_1",
+    "level3": "Korea",
+    "unit": "room night",
+    "ghg_factor": 55.8,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4030_13_1",
+    "level3": "Malaysia",
+    "unit": "room night",
+    "ghg_factor": 61.5,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4031_13_1",
+    "level3": "Maldives",
+    "unit": "room night",
+    "ghg_factor": 152.2,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4032_13_1",
+    "level3": "Mexico",
+    "unit": "room night",
+    "ghg_factor": 19.3,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4033_13_1",
+    "level3": "Netherlands",
+    "unit": "room night",
+    "ghg_factor": 14.8,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4035_13_1",
+    "level3": "Oman",
+    "unit": "room night",
+    "ghg_factor": 90.3,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4038_13_1",
+    "level3": "Philippines",
+    "unit": "room night",
+    "ghg_factor": 54.3,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4040_13_1",
+    "level3": "Portugal",
+    "unit": "room night",
+    "ghg_factor": 19.0,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4041_13_1",
+    "level3": "Qatar",
+    "unit": "room night",
+    "ghg_factor": 86.2,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4043_13_1",
+    "level3": "Russian Federation",
+    "unit": "room night",
+    "ghg_factor": 24.2,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4044_13_1",
+    "level3": "Saudi Arabia",
+    "unit": "room night",
+    "ghg_factor": 106.4,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4045_13_1",
+    "level3": "Singapore",
+    "unit": "room night",
+    "ghg_factor": 24.5,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4046_13_1",
+    "level3": "South Africa",
+    "unit": "room night",
+    "ghg_factor": 51.4,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4047_13_1",
+    "level3": "Spain",
+    "unit": "room night",
+    "ghg_factor": 7.0,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4048_13_1",
+    "level3": "Switzerland",
+    "unit": "room night",
+    "ghg_factor": 6.6,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4050_13_1",
+    "level3": "Thailand",
+    "unit": "room night",
+    "ghg_factor": 43.4,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4051_13_1",
+    "level3": "Turkey",
+    "unit": "room night",
+    "ghg_factor": 32.1,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4052_13_1",
+    "level3": "United Arab Emirates",
+    "unit": "room night",
+    "ghg_factor": 63.8,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4053_13_1",
+    "level3": "United States",
+    "unit": "room night",
+    "ghg_factor": 16.1,
+    "scope": "Room per night"
+  },
+  {
+    "id": "29_600_4054_13_1",
+    "level3": "Vietnam",
+    "unit": "room night",
+    "ghg_factor": 38.5,
+    "scope": "Room per night"
+  }
+]

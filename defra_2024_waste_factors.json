@@ -1,0 +1,1208 @@
+[
+  {
+    "id": "20_500_5169_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Aggregates",
+    "unit": "Open-loop",
+    "ghg_factor": 0.98485,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5170_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Aggregates",
+    "unit": "Closed-loop",
+    "ghg_factor": 0.98485,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5173_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Aggregates",
+    "unit": "Landfill",
+    "ghg_factor": 1.23393,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5176_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Average construction",
+    "unit": "Open-loop",
+    "ghg_factor": 0.98485,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5177_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Average construction",
+    "unit": "Closed-loop",
+    "ghg_factor": 0.98485,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5178_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Average construction",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5187_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Asbestos",
+    "unit": "Landfill",
+    "ghg_factor": 5.91325,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5190_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Asphalt",
+    "unit": "Open-loop",
+    "ghg_factor": 0.98485,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5191_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Asphalt",
+    "unit": "Closed-loop",
+    "ghg_factor": 0.98485,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5194_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Asphalt",
+    "unit": "Landfill",
+    "ghg_factor": 1.23393,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5197_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Bricks",
+    "unit": "Open-loop",
+    "ghg_factor": 0.98485,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5201_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Bricks",
+    "unit": "Landfill",
+    "ghg_factor": 1.23393,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5204_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Concrete",
+    "unit": "Open-loop",
+    "ghg_factor": 0.98485,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5205_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Concrete",
+    "unit": "Closed-loop",
+    "ghg_factor": 0.98485,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5208_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Concrete",
+    "unit": "Landfill",
+    "ghg_factor": 1.23393,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5212_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Insulation",
+    "unit": "Closed-loop",
+    "ghg_factor": 0.98485,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5215_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Insulation",
+    "unit": "Landfill",
+    "ghg_factor": 1.23393,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5219_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Metals",
+    "unit": "Closed-loop",
+    "ghg_factor": 0.98485,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5222_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Metals",
+    "unit": "Landfill",
+    "ghg_factor": 1.26435,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5226_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Soils",
+    "unit": "Closed-loop",
+    "ghg_factor": 0.98485,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5229_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Soils",
+    "unit": "Landfill",
+    "ghg_factor": 19.51726,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5233_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Mineral oil",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5234_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Mineral oil",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5240_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Plasterboard",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5243_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Plasterboard",
+    "unit": "Landfill",
+    "ghg_factor": 71.95,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5247_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Tyres",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5254_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Wood",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5255_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Wood",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5256_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Wood",
+    "unit": "Composting",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_500_5257_15_1",
+    "activity": "Unknown",
+    "level2": "Construction",
+    "level3": "Wood",
+    "unit": "Landfill",
+    "ghg_factor": 925.24423,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_501_5261_15_1",
+    "activity": "Unknown",
+    "level2": "Other",
+    "level3": "Books",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_501_5262_15_1",
+    "activity": "Unknown",
+    "level2": "Other",
+    "level3": "Books",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_501_5263_15_1",
+    "activity": "Unknown",
+    "level2": "Other",
+    "level3": "Books",
+    "unit": "Composting",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_501_5264_15_1",
+    "activity": "Unknown",
+    "level2": "Other",
+    "level3": "Books",
+    "unit": "Landfill",
+    "ghg_factor": 1164.39015,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_501_5267_15_1",
+    "activity": "Unknown",
+    "level2": "Other",
+    "level3": "Glass",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_501_5268_15_1",
+    "activity": "Unknown",
+    "level2": "Other",
+    "level3": "Glass",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_501_5269_15_1",
+    "activity": "Unknown",
+    "level2": "Other",
+    "level3": "Glass",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_501_5271_15_1",
+    "activity": "Unknown",
+    "level2": "Other",
+    "level3": "Glass",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_501_5275_15_1",
+    "activity": "Unknown",
+    "level2": "Other",
+    "level3": "Clothing",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_501_5276_15_1",
+    "activity": "Unknown",
+    "level2": "Other",
+    "level3": "Clothing",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_501_5278_15_1",
+    "activity": "Unknown",
+    "level2": "Other",
+    "level3": "Clothing",
+    "unit": "Landfill",
+    "ghg_factor": 496.68303,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_507_5283_15_1",
+    "activity": "Unknown",
+    "level2": "Refuse",
+    "level3": "Household residual waste",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_507_5285_15_1",
+    "activity": "Unknown",
+    "level2": "Refuse",
+    "level3": "Household residual waste",
+    "unit": "Landfill",
+    "ghg_factor": 497.04416,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_507_5290_15_1",
+    "activity": "Unknown",
+    "level2": "Refuse",
+    "level3": "Organic: food and drink waste",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_507_5291_15_1",
+    "activity": "Unknown",
+    "level2": "Refuse",
+    "level3": "Organic: food and drink waste",
+    "unit": "Composting",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_507_5292_15_1",
+    "activity": "Unknown",
+    "level2": "Refuse",
+    "level3": "Organic: food and drink waste",
+    "unit": "Landfill",
+    "ghg_factor": 700.20961,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_507_5293_15_1",
+    "activity": "Unknown",
+    "level2": "Refuse",
+    "level3": "Organic: food and drink waste",
+    "unit": "Anaerobic digestion",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_507_5297_15_1",
+    "activity": "Unknown",
+    "level2": "Refuse",
+    "level3": "Organic: garden waste",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_507_5298_15_1",
+    "activity": "Unknown",
+    "level2": "Refuse",
+    "level3": "Organic: garden waste",
+    "unit": "Composting",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_507_5299_15_1",
+    "activity": "Unknown",
+    "level2": "Refuse",
+    "level3": "Organic: garden waste",
+    "unit": "Landfill",
+    "ghg_factor": 646.60632,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_507_5300_15_1",
+    "activity": "Unknown",
+    "level2": "Refuse",
+    "level3": "Organic: garden waste",
+    "unit": "Anaerobic digestion",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_507_5304_15_1",
+    "activity": "Unknown",
+    "level2": "Refuse",
+    "level3": "Organic: mixed food and garden waste",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_507_5305_15_1",
+    "activity": "Unknown",
+    "level2": "Refuse",
+    "level3": "Organic: mixed food and garden waste",
+    "unit": "Composting",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_507_5306_15_1",
+    "activity": "Unknown",
+    "level2": "Refuse",
+    "level3": "Organic: mixed food and garden waste",
+    "unit": "Landfill",
+    "ghg_factor": 655.9869,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_507_5307_15_1",
+    "activity": "Unknown",
+    "level2": "Refuse",
+    "level3": "Organic: mixed food and garden waste",
+    "unit": "Anaerobic digestion",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_507_5311_15_1",
+    "activity": "Unknown",
+    "level2": "Refuse",
+    "level3": "Commercial and industrial waste",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_507_5313_15_1",
+    "activity": "Unknown",
+    "level2": "Refuse",
+    "level3": "Commercial and industrial waste",
+    "unit": "Landfill",
+    "ghg_factor": 520.3342,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_503_5316_15_1",
+    "activity": "Unknown",
+    "level2": "Electrical items",
+    "level3": "WEEE - fridges and freezers",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_503_5320_15_1",
+    "activity": "Unknown",
+    "level2": "Electrical items",
+    "level3": "WEEE - fridges and freezers",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_503_5323_15_1",
+    "activity": "Unknown",
+    "level2": "Electrical items",
+    "level3": "WEEE - large",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_503_5325_15_1",
+    "activity": "Unknown",
+    "level2": "Electrical items",
+    "level3": "WEEE - large",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_503_5327_15_1",
+    "activity": "Unknown",
+    "level2": "Electrical items",
+    "level3": "WEEE - large",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_503_5330_15_1",
+    "activity": "Unknown",
+    "level2": "Electrical items",
+    "level3": "WEEE - mixed",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_503_5332_15_1",
+    "activity": "Unknown",
+    "level2": "Electrical items",
+    "level3": "WEEE - mixed",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_503_5334_15_1",
+    "activity": "Unknown",
+    "level2": "Electrical items",
+    "level3": "WEEE - mixed",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_503_5337_15_1",
+    "activity": "Unknown",
+    "level2": "Electrical items",
+    "level3": "WEEE - small",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_503_5339_15_1",
+    "activity": "Unknown",
+    "level2": "Electrical items",
+    "level3": "WEEE - small",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_503_5341_15_1",
+    "activity": "Unknown",
+    "level2": "Electrical items",
+    "level3": "WEEE - small",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_503_5344_15_1",
+    "activity": "Unknown",
+    "level2": "Electrical items",
+    "level3": "Batteries",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_503_5348_15_1",
+    "activity": "Unknown",
+    "level2": "Electrical items",
+    "level3": "Batteries",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_504_5351_15_1",
+    "activity": "Unknown",
+    "level2": "Metal",
+    "level3": "Metal: aluminium cans and foil (excl. forming)",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_504_5352_15_1",
+    "activity": "Unknown",
+    "level2": "Metal",
+    "level3": "Metal: aluminium cans and foil (excl. forming)",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_504_5353_15_1",
+    "activity": "Unknown",
+    "level2": "Metal",
+    "level3": "Metal: aluminium cans and foil (excl. forming)",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_504_5355_15_1",
+    "activity": "Unknown",
+    "level2": "Metal",
+    "level3": "Metal: aluminium cans and foil (excl. forming)",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_504_5358_15_1",
+    "activity": "Unknown",
+    "level2": "Metal",
+    "level3": "Metal: mixed cans",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_504_5359_15_1",
+    "activity": "Unknown",
+    "level2": "Metal",
+    "level3": "Metal: mixed cans",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_504_5360_15_1",
+    "activity": "Unknown",
+    "level2": "Metal",
+    "level3": "Metal: mixed cans",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_504_5362_15_1",
+    "activity": "Unknown",
+    "level2": "Metal",
+    "level3": "Metal: mixed cans",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_504_5365_15_1",
+    "activity": "Unknown",
+    "level2": "Metal",
+    "level3": "Metal: scrap metal",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_504_5366_15_1",
+    "activity": "Unknown",
+    "level2": "Metal",
+    "level3": "Metal: scrap metal",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_504_5367_15_1",
+    "activity": "Unknown",
+    "level2": "Metal",
+    "level3": "Metal: scrap metal",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_504_5369_15_1",
+    "activity": "Unknown",
+    "level2": "Metal",
+    "level3": "Metal: scrap metal",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_504_5372_15_1",
+    "activity": "Unknown",
+    "level2": "Metal",
+    "level3": "Metal: steel cans",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_504_5373_15_1",
+    "activity": "Unknown",
+    "level2": "Metal",
+    "level3": "Metal: steel cans",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_504_5374_15_1",
+    "activity": "Unknown",
+    "level2": "Metal",
+    "level3": "Metal: steel cans",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_504_5376_15_1",
+    "activity": "Unknown",
+    "level2": "Metal",
+    "level3": "Metal: steel cans",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5379_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: average plastics",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5380_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: average plastics",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5381_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: average plastics",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5383_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: average plastics",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5386_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: average plastic film",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5387_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: average plastic film",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5388_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: average plastic film",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5390_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: average plastic film",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5393_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: average plastic rigid",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5394_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: average plastic rigid",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5395_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: average plastic rigid",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5397_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: average plastic rigid",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5400_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: HDPE (incl. forming)",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5401_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: HDPE (incl. forming)",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5402_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: HDPE (incl. forming)",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5404_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: HDPE (incl. forming)",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5407_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: LDPE and LLDPE (incl. forming)",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5408_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: LDPE and LLDPE (incl. forming)",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5409_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: LDPE and LLDPE (incl. forming)",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5411_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: LDPE and LLDPE (incl. forming)",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5414_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: PET (incl. forming)",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5415_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: PET (incl. forming)",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5416_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: PET (incl. forming)",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5418_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: PET (incl. forming)",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5421_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: PP (incl. forming)",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5422_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: PP (incl. forming)",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5423_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: PP (incl. forming)",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5425_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: PP (incl. forming)",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5428_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: PS (incl. forming)",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5429_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: PS (incl. forming)",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5430_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: PS (incl. forming)",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5432_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: PS (incl. forming)",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5435_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: PVC (incl. forming)",
+    "unit": "Open-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5436_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: PVC (incl. forming)",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5437_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: PVC (incl. forming)",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_505_5439_15_1",
+    "activity": "Unknown",
+    "level2": "Plastic",
+    "level3": "Plastics: PVC (incl. forming)",
+    "unit": "Landfill",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_506_5443_15_1",
+    "activity": "Unknown",
+    "level2": "Paper",
+    "level3": "Paper and board: board",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_506_5444_15_1",
+    "activity": "Unknown",
+    "level2": "Paper",
+    "level3": "Paper and board: board",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_506_5445_15_1",
+    "activity": "Unknown",
+    "level2": "Paper",
+    "level3": "Paper and board: board",
+    "unit": "Composting",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_506_5446_15_1",
+    "activity": "Unknown",
+    "level2": "Paper",
+    "level3": "Paper and board: board",
+    "unit": "Landfill",
+    "ghg_factor": 1164.39015,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_506_5450_15_1",
+    "activity": "Unknown",
+    "level2": "Paper",
+    "level3": "Paper and board: mixed",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_506_5451_15_1",
+    "activity": "Unknown",
+    "level2": "Paper",
+    "level3": "Paper and board: mixed",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_506_5452_15_1",
+    "activity": "Unknown",
+    "level2": "Paper",
+    "level3": "Paper and board: mixed",
+    "unit": "Composting",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_506_5453_15_1",
+    "activity": "Unknown",
+    "level2": "Paper",
+    "level3": "Paper and board: mixed",
+    "unit": "Landfill",
+    "ghg_factor": 1164.39015,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_506_5457_15_1",
+    "activity": "Unknown",
+    "level2": "Paper",
+    "level3": "Paper and board: paper",
+    "unit": "Closed-loop",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_506_5458_15_1",
+    "activity": "Unknown",
+    "level2": "Paper",
+    "level3": "Paper and board: paper",
+    "unit": "Combustion",
+    "ghg_factor": 6.41061,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_506_5459_15_1",
+    "activity": "Unknown",
+    "level2": "Paper",
+    "level3": "Paper and board: paper",
+    "unit": "Composting",
+    "ghg_factor": 8.88386,
+    "scope": "tonnes"
+  },
+  {
+    "id": "20_506_5460_15_1",
+    "activity": "Unknown",
+    "level2": "Paper",
+    "level3": "Paper and board: paper",
+    "unit": "Landfill",
+    "ghg_factor": 1164.39015,
+    "scope": "tonnes"
+  }
+]
