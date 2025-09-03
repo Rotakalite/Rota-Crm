@@ -10987,7 +10987,7 @@ async def get_carbon_analytics(
             "monthly_carbon_data": [],
             "carbon_benchmarks": {},
             "total_emission_sources": {},
-            "message": "No consumption or waste data found for carbon analysis"
+            "message": "No consumption or environment data found for carbon analysis"
         }
     
     # Calculate carbon emissions for each month
