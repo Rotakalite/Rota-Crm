@@ -10970,9 +10970,9 @@ async def get_carbon_analytics(
     filter_query = {"client_id": target_client_id, "year": year}
     consumptions = await db.consumptions.find(filter_query).to_list(length=100)
     
-    # 🗑️ GET WASTE DATA for carbon calculation
-    waste_records = await db.waste.find(filter_query).to_list(length=100)
-    logging.info(f"🗑️ Found {len(waste_records)} waste records for client {target_client_id} year {year}")
+    # 🗑️ GET WASTE DATA for carbon calculation (FROM ENVIRONMENT_DATA COLLECTION)
+    waste_records = await db.environment_data.find(filter_query).to_list(length=100)
+    logging.info(f"🗑️ Found {len(waste_records)} environment/waste records for client {target_client_id} year {year}")
     
     # 🏨 GET ACCOMMODATION DATA for hotel emissions (from consumptions)
     # Note: Hotel data is typically stored in consumptions as accommodation_count
