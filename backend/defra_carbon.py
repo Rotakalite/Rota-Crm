@@ -71,11 +71,11 @@ DEFRA_EMISSION_FACTORS = {
         "category": "fuel"
     },
     
-    # Liquid Fuels - DEFRA Additional Types
+    # Liquid Fuels - UPDATED WITH DEFRA 2024 ORIGINAL EXCEL DATA
     "diesel": {
-        "factor": 2.51,     # kg CO2 per litre
+        "factor": 2.562,     # kg CO2 per litre - DEFRA 2024 Original
         "unit": "litre",
-        "source": "DEFRA 2024 - Diesel combustion",
+        "source": "DEFRA 2024 Excel - Diesel combustion",
         "category": "fuel"
     },
     
