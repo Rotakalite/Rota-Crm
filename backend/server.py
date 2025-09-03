@@ -12717,7 +12717,7 @@ async def get_environment_analytics(
         if year:
             query["year"] = year
 
-        records = await db.environment_data.find(query).sort("year", 1).sort("month", 1).to_list(length=None)
+        records = await db.waste_management.find(query).sort("year", 1).sort("month", 1).to_list(length=None)
         
         if not records:
             return {
