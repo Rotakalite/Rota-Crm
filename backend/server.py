@@ -605,10 +605,18 @@ async def send_2fa_email(email_address: str, code: str):
         
     except Exception as e:
         logging.error(f"❌ Email error: {str(e)}")
-        # FALLBACK: Log the code so user can proceed
-        logging.info(f"🚨 2FA CODE FOR {email_address}: {code}")
-        print(f"🚨 2FA CODE FOR {email_address}: {code}")
-        return True
+        # Try direct SMTP fallback
+        try:
+            logging.info("🔄 Trying direct SMTP fallback...")
+            await send_2fa_email_direct(email_address, code)
+            logging.info(f"📧 2FA email sent via direct SMTP to: {email_address}")
+            return True
+        except Exception as direct_error:
+            logging.error(f"❌ Direct SMTP also failed: {str(direct_error)}")
+            # FINAL FALLBACK: Log the code so user can proceed
+            logging.info(f"🚨 2FA CODE FOR {email_address}: {code}")
+            print(f"🚨 2FA CODE FOR {email_address}: {code}")
+            return True
 
 async def send_2fa_email_direct(to_email: str, verification_code: str):
     """Direct SMTP email sending for 2FA as fallback"""
