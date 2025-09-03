@@ -5731,7 +5731,9 @@ const CarbonFootprint = () => {
                           '🏔️ LPG',
                           '🛢️ Fuel Oil',
                           '❄️ F-Gaslar',
-                          '🧯 Yangın Söndürücü'
+                          '🧯 Yangın Söndürücü',
+                          '🗑️ Atık Yönetimi',  // NEW: Waste category
+                          '🏨 Konaklama'        // NEW: Hotel category
                         ].filter((_, index) => {
                           const values = [
                             carbonData.total_emission_sources.electricity || 0,
@@ -5747,7 +5749,9 @@ const CarbonFootprint = () => {
                             (carbonData.total_emission_sources.r410a_gas || 0) + 
                             (carbonData.total_emission_sources.r32_gas || 0),
                             (carbonData.total_emission_sources.co2_fire || 0) + 
-                            (carbonData.total_emission_sources.fm200_fire || 0)
+                            (carbonData.total_emission_sources.fm200_fire || 0),
+                            carbonData.total_waste_co2 || 0,    // NEW: Waste emissions
+                            carbonData.total_hotel_co2 || 0     // NEW: Hotel emissions
                           ];
                           return values[index] > 0;
                         }),
