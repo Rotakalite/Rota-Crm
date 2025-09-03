@@ -188,14 +188,88 @@ def calculate_carbon_emissions(consumption_data):
     if accommodation_count and accommodation_count > 0:
         per_person_co2 = total_co2 / accommodation_count
     
+    # 🗑️ WASTE EMISSIONS CALCULATION
+    waste_emissions = {}
+    waste_co2_total = 0.0
+    
+    # Check for waste data in consumption_data
+    waste_data = consumption_data.get("waste_data", {})
+    if waste_data and DEFRA_WASTE_FACTORS:
+        for waste_entry in waste_data:
+            waste_type = waste_entry.get("waste_type", "")
+            waste_amount = float(waste_entry.get("amount", 0))
+            waste_unit = waste_entry.get("unit", "kg")
+            
+            # Find matching DEFRA waste factor
+            for factor in DEFRA_WASTE_FACTORS:
+                if waste_type.lower() in factor.get("level3", "").lower() or waste_type.lower() in factor.get("level2", "").lower():
+                    co2_emission = waste_amount * factor["ghg_factor"]
+                    waste_emissions[waste_type] = {
+                        "amount": waste_amount,
+                        "unit": waste_unit,
+                        "emission_factor": factor["ghg_factor"],
+                        "co2_emissions": round(co2_emission, 3),
+                        "defra_id": factor["id"],
+                        "category": "waste_disposal"
+                    }
+                    waste_co2_total += co2_emission
+                    break
+    
+    # 🏨 HOTEL STAY EMISSIONS CALCULATION
+    hotel_emissions = {}
+    hotel_co2_total = 0.0
+    
+    # Check for hotel/accommodation data
+    hotel_data = consumption_data.get("hotel_data", {})
+    if hotel_data and DEFRA_HOTEL_FACTORS:
+        for hotel_entry in hotel_data:
+            country = hotel_entry.get("country", "Turkey")
+            room_nights = float(hotel_entry.get("room_nights", 0))
+            
+            # Find matching DEFRA hotel factor (default to Turkey if not found)
+            hotel_factor = None
+            for factor in DEFRA_HOTEL_FACTORS:
+                if country.lower() in factor.get("level3", "").lower():
+                    hotel_factor = factor
+                    break
+            
+            # Default to Turkey factor if not found
+            if not hotel_factor:
+                turkey_factor = next((f for f in DEFRA_HOTEL_FACTORS if "turkey" in f.get("level3", "").lower()), None)
+                if turkey_factor:
+                    hotel_factor = turkey_factor
+            
+            if hotel_factor:
+                co2_emission = room_nights * hotel_factor["ghg_factor"]
+                hotel_emissions[country] = {
+                    "room_nights": room_nights,
+                    "unit": "room night",
+                    "emission_factor": hotel_factor["ghg_factor"],
+                    "co2_emissions": round(co2_emission, 3),
+                    "defra_id": hotel_factor["id"],
+                    "category": "hotel_stay"
+                }
+                hotel_co2_total += co2_emission
+    
+    # Update totals with waste and hotel emissions
+    total_co2 += waste_co2_total + hotel_co2_total
+    
+    # Recalculate per-person with new total
+    if accommodation_count and accommodation_count > 0:
+        per_person_co2 = total_co2 / accommodation_count
+    
     return {
         "total_co2_emissions": round(total_co2, 3),  # kg CO2
         "total_co2_tonnes": round(total_co2 / 1000.0, 6),  # tonnes CO2
         "per_person_co2": round(per_person_co2, 3),  # kg CO2 per person
         "accommodation_count": accommodation_count,
         "emissions_breakdown": emissions,
+        "waste_emissions": waste_emissions,  # 🗑️ NEW: Waste emissions breakdown
+        "hotel_emissions": hotel_emissions,  # 🏨 NEW: Hotel emissions breakdown
+        "total_waste_co2": round(waste_co2_total, 3),  # 🗑️ NEW: Total waste CO2
+        "total_hotel_co2": round(hotel_co2_total, 3),  # 🏨 NEW: Total hotel CO2
         "calculation_date": "2024",
-        "methodology": "DEFRA 2024 Emission Factors",
+        "methodology": "DEFRA 2024 Emission Factors + Waste + Hotel",
         "units": "kg CO2 equivalent"
     }
 
