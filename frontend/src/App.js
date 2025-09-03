@@ -5351,29 +5351,6 @@ const CarbonFootprint = () => {
               <p className="text-teal-100">Waste + Hotel</p>
             </div>
           </div>
-            
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
-              <h3 className="text-lg font-bold mb-2">📊 CO2 (Ton)</h3>
-              <p className="text-3xl font-bold">{carbonData.total_carbon_tonnes?.toFixed(3) || 0}</p>
-              <p className="text-blue-100">Ton CO2</p>
-            </div>
-            
-            <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
-              <h3 className="text-lg font-bold mb-2">👤 Kişi Başına</h3>
-              <p className="text-3xl font-bold">{(carbonData.average_per_person_co2 || 0).toFixed(2)}</p>
-              <p className="text-purple-100">kg CO2/kişi</p>
-            </div>
-            
-            <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg">
-              <h3 className="text-lg font-bold mb-2">⭐ Performans</h3>
-              <p className="text-2xl font-bold">
-                {carbonData.yearly_benchmarks?.performance_level || 'Hesaplanıyor'}
-              </p>
-              <p className="text-orange-100">
-                {(carbonData.yearly_benchmarks?.co2_per_room_night || 0).toFixed(2)} kg/oda/gece
-              </p>
-            </div>
-          </div>
 
           {/* Monthly Carbon Data Table */}
           <div className="bg-white p-6 rounded-xl shadow-lg">
