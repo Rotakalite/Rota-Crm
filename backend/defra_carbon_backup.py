@@ -7,7 +7,7 @@ carbon footprints in Turkey context with latest 2024 data.
 
 EXPANDED WITH:
 - Waste Disposal Factors (134 types)
-- Turkey Hotel Stay Factor (32.1 kg CO2/room night)
+- Hotel Stay Factors (39 countries)
 """
 
 import json
@@ -17,25 +17,20 @@ from pathlib import Path
 # Load DEFRA 2024 waste and hotel factors
 try:
     waste_factors_path = Path(__file__).parent / "defra_2024_waste_factors.json"
+    hotel_factors_path = Path(__file__).parent / "defra_2024_hotel_factors.json"
     
     with open(waste_factors_path, 'r') as f:
         DEFRA_WASTE_FACTORS = json.load(f)
         
-    # 🇹🇷 TURKEY HOTEL FACTOR - DEFRA 2024
-    TURKEY_HOTEL_FACTOR = {
-        "factor": 32.1,  # kg CO2 per room night
-        "unit": "room night", 
-        "source": "DEFRA 2024 - Turkey Hotel Stay",
-        "defra_id": "29_600_4051_13_1",
-        "category": "hotel_stay"
-    }
+    with open(hotel_factors_path, 'r') as f:
+        DEFRA_HOTEL_FACTORS = json.load(f)
         
-    logging.info(f"✅ Loaded {len(DEFRA_WASTE_FACTORS)} waste factors and Turkey hotel factor ({TURKEY_HOTEL_FACTOR['factor']} kg CO2/room night)")
+    logging.info(f"✅ Loaded {len(DEFRA_WASTE_FACTORS)} waste factors and {len(DEFRA_HOTEL_FACTORS)} hotel factors")
     
 except Exception as e:
     logging.error(f"❌ Error loading DEFRA 2024 factors: {e}")
     DEFRA_WASTE_FACTORS = []
-    TURKEY_HOTEL_FACTOR = {"factor": 32.1, "unit": "room night", "source": "DEFRA 2024 - Turkey Hotel Stay", "category": "hotel_stay"}
+    DEFRA_HOTEL_FACTORS = []
 
 # DEFRA 2024 Emission Factors (kg CO2 per unit)
 DEFRA_EMISSION_FACTORS = {
@@ -226,22 +221,35 @@ def calculate_carbon_emissions(consumption_data):
     
     # Check for hotel/accommodation data
     hotel_data = consumption_data.get("hotel_data", {})
-    if hotel_data and TURKEY_HOTEL_FACTOR:
+    if hotel_data and DEFRA_HOTEL_FACTORS:
         for hotel_entry in hotel_data:
             country = hotel_entry.get("country", "Turkey")
             room_nights = float(hotel_entry.get("room_nights", 0))
             
-            # Use Turkey hotel factor for all countries (simplified approach)
-            co2_emission = room_nights * TURKEY_HOTEL_FACTOR["factor"]
-            hotel_emissions[country] = {
-                "room_nights": room_nights,
-                "unit": TURKEY_HOTEL_FACTOR["unit"],
-                "emission_factor": TURKEY_HOTEL_FACTOR["factor"],
-                "co2_emissions": round(co2_emission, 3),
-                "defra_id": TURKEY_HOTEL_FACTOR["defra_id"],
-                "category": TURKEY_HOTEL_FACTOR["category"]
-            }
-            hotel_co2_total += co2_emission
+            # Find matching DEFRA hotel factor (default to Turkey if not found)
+            hotel_factor = None
+            for factor in DEFRA_HOTEL_FACTORS:
+                if country.lower() in factor.get("level3", "").lower():
+                    hotel_factor = factor
+                    break
+            
+            # Default to Turkey factor if not found
+            if not hotel_factor:
+                turkey_factor = next((f for f in DEFRA_HOTEL_FACTORS if "turkey" in f.get("level3", "").lower()), None)
+                if turkey_factor:
+                    hotel_factor = turkey_factor
+            
+            if hotel_factor:
+                co2_emission = room_nights * hotel_factor["ghg_factor"]
+                hotel_emissions[country] = {
+                    "room_nights": room_nights,
+                    "unit": "room night",
+                    "emission_factor": hotel_factor["ghg_factor"],
+                    "co2_emissions": round(co2_emission, 3),
+                    "defra_id": hotel_factor["id"],
+                    "category": "hotel_stay"
+                }
+                hotel_co2_total += co2_emission
     
     # Update totals with waste and hotel emissions
     total_co2 += waste_co2_total + hotel_co2_total
@@ -297,12 +305,12 @@ def get_waste_factors():
 
 def get_hotel_factors():
     """
-    Get Turkey hotel stay factor
+    Get all DEFRA 2024 hotel stay factors
     
     Returns:
-        dict: Turkey hotel stay factor
+        list: All hotel stay factors
     """
-    return TURKEY_HOTEL_FACTOR
+    return DEFRA_HOTEL_FACTORS
 
 def search_waste_factor(waste_type):
     """
@@ -326,16 +334,24 @@ def search_waste_factor(waste_type):
 
 def search_hotel_factor(country):
     """
-    Search for hotel stay factor by country (returns Turkey factor)
+    Search for hotel stay factor by country
     
     Args:
         country (str): Country name to search
         
     Returns:
-        dict: Turkey hotel factor (simplified approach)
+        dict: Matching hotel factor or Turkey default
     """
-    # Always return Turkey factor (simplified approach)
-    return TURKEY_HOTEL_FACTOR
+    country_lower = country.lower()
+    
+    # First try exact match
+    for factor in DEFRA_HOTEL_FACTORS:
+        if country_lower in factor.get("level3", "").lower():
+            return factor
+    
+    # Default to Turkey if not found
+    turkey_factor = next((f for f in DEFRA_HOTEL_FACTORS if "turkey" in f.get("level3", "").lower()), None)
+    return turkey_factor
 
 def validate_consumption_data(consumption_data):
     """
