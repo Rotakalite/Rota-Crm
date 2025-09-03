@@ -10970,15 +10970,24 @@ async def get_carbon_analytics(
     filter_query = {"client_id": target_client_id, "year": year}
     consumptions = await db.consumptions.find(filter_query).to_list(length=100)
     
-    if not consumptions:
+    # 🗑️ GET WASTE DATA for carbon calculation
+    waste_records = await db.waste.find(filter_query).to_list(length=100)
+    logging.info(f"🗑️ Found {len(waste_records)} waste records for client {target_client_id} year {year}")
+    
+    # 🏨 GET ACCOMMODATION DATA for hotel emissions (from consumptions)
+    # Note: Hotel data is typically stored in consumptions as accommodation_count
+    
+    if not consumptions and not waste_records:
         return {
             "year": year,
             "client_id": target_client_id,
             "total_carbon_emissions": 0,
+            "total_waste_co2": 0,
+            "total_hotel_co2": 0,
             "monthly_carbon_data": [],
             "carbon_benchmarks": {},
             "total_emission_sources": {},
-            "message": "No consumption data found for carbon analysis"
+            "message": "No consumption or waste data found for carbon analysis"
         }
     
     # Calculate carbon emissions for each month
