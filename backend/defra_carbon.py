@@ -35,7 +35,7 @@ try:
 except Exception as e:
     logging.error(f"❌ Error loading DEFRA 2024 factors: {e}")
     DEFRA_WASTE_FACTORS = []
-    TURKEY_HOTEL_FACTOR = {"factor": 32.1, "unit": "room night", "source": "DEFRA 2024 - Turkey Hotel Stay", "category": "hotel_stay"}
+    TURKEY_HOTEL_FACTOR = {"factor": 32.1, "unit": "room night", "source": "DEFRA 2024 - Turkey Hotel Stay", "defra_id": "29_600_4051_13_1", "category": "hotel_stay"}
 
 # DEFRA 2024 Emission Factors (kg CO2 per unit)
 DEFRA_EMISSION_FACTORS = {
