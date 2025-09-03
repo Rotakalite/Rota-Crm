@@ -4,7 +4,33 @@ UK Department for Environment, Food and Rural Affairs
 
 This module contains official DEFRA emission factors for calculating
 carbon footprints in Turkey context with latest 2024 data.
+
+EXPANDED WITH:
+- Waste Disposal Factors (134 types)
+- Hotel Stay Factors (39 countries)
 """
+
+import json
+import logging
+from pathlib import Path
+
+# Load DEFRA 2024 waste and hotel factors
+try:
+    waste_factors_path = Path(__file__).parent / "defra_2024_waste_factors.json"
+    hotel_factors_path = Path(__file__).parent / "defra_2024_hotel_factors.json"
+    
+    with open(waste_factors_path, 'r') as f:
+        DEFRA_WASTE_FACTORS = json.load(f)
+        
+    with open(hotel_factors_path, 'r') as f:
+        DEFRA_HOTEL_FACTORS = json.load(f)
+        
+    logging.info(f"✅ Loaded {len(DEFRA_WASTE_FACTORS)} waste factors and {len(DEFRA_HOTEL_FACTORS)} hotel factors")
+    
+except Exception as e:
+    logging.error(f"❌ Error loading DEFRA 2024 factors: {e}")
+    DEFRA_WASTE_FACTORS = []
+    DEFRA_HOTEL_FACTORS = []
 
 # DEFRA 2024 Emission Factors (kg CO2 per unit)
 DEFRA_EMISSION_FACTORS = {
