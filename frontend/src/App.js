@@ -5871,7 +5871,7 @@ const CarbonFootprint = () => {
                             <span className="text-gray-700 font-medium">🏆 En Yüksek Emisyon:</span>
                             <div className="text-right">
                               <div className="font-bold text-red-600">{maxSource[0]}</div>
-                              <div className="text-sm text-gray-500">{maxSource[1].toFixed(2)} kg CO2 ({percentage}%)</div>
+                              <div className="text-sm text-gray-500">{(maxSource[1] / 1000).toFixed(3)} tCO2 ({percentage}%)</div>
                             </div>
                           </div>
                         );
