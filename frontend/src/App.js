@@ -5899,7 +5899,7 @@ const CarbonFootprint = () => {
                               return avg.toFixed(2);
                             })()}
                           </div>
-                          <div className="text-sm text-gray-500">kg CO2/kaynak</div>
+                          <div className="text-sm text-gray-500">tCO2/kaynak</div>
                         </div>
                       </div>
 
