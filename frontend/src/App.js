@@ -5360,8 +5360,8 @@ const CarbonFootprint = () => {
                 <thead>
                   <tr className="bg-gradient-to-r from-green-100 to-blue-100">
                     <th className="px-4 py-3 border text-left font-bold">Ay</th>
-                    <th className="px-4 py-3 border text-left font-bold text-green-700">🌍 CO2 (kg)</th>
-                    <th className="px-4 py-3 border text-left font-bold text-blue-700">👤 Kişi Başına</th>
+                    <th className="px-4 py-3 border text-left font-bold text-green-700">🌍 CO2 (tCO2)</th>
+                    <th className="px-4 py-3 border text-left font-bold text-blue-700">👤 Kişi Başına (tCO2)</th>
                     <th className="px-4 py-3 border text-left font-bold text-purple-700">🏨 Konaklama</th>
                     <th className="px-4 py-3 border text-left font-bold text-orange-700">⭐ Performans</th>
                   </tr>
