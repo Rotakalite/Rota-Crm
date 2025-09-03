@@ -5770,7 +5770,9 @@ const CarbonFootprint = () => {
                             (carbonData.total_emission_sources.r410a_gas || 0) + 
                             (carbonData.total_emission_sources.r32_gas || 0),
                             (carbonData.total_emission_sources.co2_fire || 0) + 
-                            (carbonData.total_emission_sources.fm200_fire || 0)
+                            (carbonData.total_emission_sources.fm200_fire || 0),
+                            carbonData.total_waste_co2 || 0,    // NEW: Waste emissions
+                            carbonData.total_hotel_co2 || 0     // NEW: Hotel emissions
                           ].filter(value => value > 0),
                           backgroundColor: [
                             '#FCD34D', // Elektrik - Sarı
