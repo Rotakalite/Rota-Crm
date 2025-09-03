@@ -12239,7 +12239,7 @@ async def create_waste_record_via_consumptions(
             "updated_at": datetime.utcnow()
         }
 
-        await db.environment_data.insert_one(record)
+        await db.waste_management.insert_one(record)
         return {"message": "Waste record created successfully", "id": record["id"]}
 
     except Exception as e:
