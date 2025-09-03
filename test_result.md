@@ -2785,7 +2785,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Document Viewer Latin-1 Encoding Fix - RFC 5987 Implementation Test"
+    - "MongoDB Atlas Bağlantı Test ve İlk Kullanıcı Registration Test"
     - "Bulk Consumption Data Approval System Backend Test"
     - "PDF Report Endpoints Testing"
     - "DEFRA Fuel Types Expansion"
