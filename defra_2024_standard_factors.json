@@ -1,0 +1,16 @@
+{
+  "electricity": {
+    "factor": 0.20705,
+    "unit": "kWh",
+    "source": "DEFRA 2024 - UK Electricity Grid",
+    "category": "electricity",
+    "defra_id": "7_400_4000_5_1"
+  },
+  "water": {
+    "factor": 0.33885,
+    "unit": "m\u00b3",
+    "source": "DEFRA 2024 - Water Supply + Treatment",
+    "category": "water",
+    "defra_id": "17_404_4005_1_1+18_405_4006_1_1"
+  }
+}
