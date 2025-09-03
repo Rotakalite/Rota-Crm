@@ -12316,7 +12316,7 @@ async def create_environment_record(
             "updated_at": datetime.utcnow()
         }
 
-        await db.environment_data.insert_one(record)
+        await db.waste_management.insert_one(record)
         return {"message": "Record created successfully", "id": record["id"]}
 
     except Exception as e:
