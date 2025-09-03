@@ -5896,7 +5896,7 @@ const CarbonFootprint = () => {
                             {(() => {
                               const values = Object.values(carbonData.total_emission_sources).filter(v => v > 0);
                               const avg = values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
-                              return avg.toFixed(2);
+                              return (avg / 1000).toFixed(4);
                             })()}
                           </div>
                           <div className="text-sm text-gray-500">tCO2/kaynak</div>
