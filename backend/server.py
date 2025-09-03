@@ -695,21 +695,43 @@ except Exception as e:
 # WhatsApp service - DISABLED
 whatsapp_service = None  # WhatsApp service deactivated
 
-# DEFRA Carbon calculation import
+# DEFRA Carbon calculation import with fallback
+calculate_carbon_emissions = None
+get_emission_factor = None
+validate_consumption_data = None
+benchmark_performance = None
+
 try:
     from .defra_carbon import calculate_carbon_emissions, get_emission_factor, validate_consumption_data, benchmark_performance
     logging.info("✅ DEFRA Carbon module imported successfully")
 except ImportError as e:
     try:
-        # Fallback relative import
+        # Fallback: manual sys.path approach
         import sys
         import os
-        sys.path.append(os.path.dirname(__file__))
-        from defra_carbon import calculate_carbon_emissions, get_emission_factor, validate_consumption_data, benchmark_performance
-        logging.info("✅ DEFRA Carbon module imported successfully (fallback)")
-    except ImportError as e2:
+        sys.path.insert(0, os.path.dirname(__file__))
+        import defra_carbon
+        calculate_carbon_emissions = defra_carbon.calculate_carbon_emissions
+        get_emission_factor = defra_carbon.get_emission_factor  
+        validate_consumption_data = defra_carbon.validate_consumption_data
+        benchmark_performance = defra_carbon.benchmark_performance
+        logging.info("✅ DEFRA Carbon module imported successfully (manual)")
+    except Exception as e2:
         logging.warning(f"⚠️ DEFRA Carbon module import failed: {e2}")
-        calculate_carbon_emissions = None
+        # Create fallback function
+        def calculate_carbon_emissions(consumption_data):
+            return {
+                "total_co2_emissions": 0,
+                "total_co2_tonnes": 0,
+                "per_person_co2": 0,
+                "accommodation_count": consumption_data.get("accommodation_count", 0),
+                "emissions_breakdown": {},
+                "waste_emissions": {},
+                "hotel_emissions": {},
+                "total_waste_co2": 0,
+                "total_hotel_co2": 0,
+                "methodology": "Fallback - DEFRA module not available"
+            }
 
 # Import MongoDB GridFS service (ENABLED)
 try:
