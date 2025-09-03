@@ -87,9 +87,9 @@ DEFRA_EMISSION_FACTORS = {
     },
     
     "lpg": {
-        "factor": 1.51,     # kg CO2 per litre
+        "factor": 1.617,     # kg CO2 per litre - DEFRA 2024 Original
         "unit": "litre",
-        "source": "DEFRA 2024 - LPG combustion", 
+        "source": "DEFRA 2024 Excel - LPG combustion", 
         "category": "fuel"
     },
     
