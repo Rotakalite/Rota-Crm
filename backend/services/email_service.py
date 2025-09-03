@@ -16,8 +16,8 @@ load_dotenv(env_path)
 gmail_user = os.getenv("GMAIL_USER") or "rotakalitedanismanlik@gmail.com"
 gmail_password = os.getenv("GMAIL_PASSWORD") or "huuv tgzu yhhn gybi"
 
-logging.info(f"📧 Gmail user: {gmail_user}")
-logging.info(f"📧 Gmail password: {'*' * len(gmail_password) if gmail_password else 'None'}")
+logging.error(f"🔍 Gmail user: {gmail_user}")
+logging.error(f"🔍 Gmail password: {'*' * len(gmail_password) if gmail_password else 'None'}")
 
 # Check if email credentials are available
 if not gmail_user or not gmail_password:
