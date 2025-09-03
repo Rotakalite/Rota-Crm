@@ -11035,10 +11035,10 @@ async def get_carbon_analytics(
                 hotel_data_for_defra = []
                 accommodation_count = consumption.get("accommodation_count", 0)
                 if accommodation_count > 0:
-                    # Assume 1 room night per accommodation per month (simplified)
+                    # Use accommodation_count directly as room nights (1:1 ratio)
                     hotel_data_for_defra.append({
                         "country": "Turkey",
-                        "room_nights": accommodation_count * 30  # Approximate room nights per month
+                        "room_nights": accommodation_count  # Direct 1:1 mapping, no multiplication
                     })
                 
                 # Prepare consumption data for carbon calculation
