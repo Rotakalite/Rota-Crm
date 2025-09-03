@@ -225,6 +225,18 @@ backend:
         -working: true
         -agent: "testing"
         -comment: "2025-01-25: 🚨 CRITICAL ROOT CAUSE DISCOVERED & FIXED! Comprehensive waste data zero debug revealed the exact issue: Backend was reading waste data from 'environment_data' collection (which doesn't exist) instead of 'waste_management' collection (which contains real data). ✅ CRITICAL FIX APPLIED: Changed all backend references from db.environment_data to db.waste_management in carbon footprint calculation (line 10974) and all related endpoints. ✅ DATABASE REALITY VERIFIED: Found 6 waste records in waste_management collection with real data (252.6 kg total waste per sample), 6 consumption records with accommodation_count > 0 (260 rooms per sample), 1 client with both waste and consumption data matching across 6 year/month periods. ✅ EXPECTED CALCULATION RESULTS: Hotel CO2: 8346.0 kg (260 rooms × 32.1), Waste CO2: 126.3 kg (from real waste data), Per person: 32.586 kg. ✅ FINAL VERIFICATION: 85.7% success rate (6/7 tests passed), waste_management collection integration working, carbon footprint API accessible, complete data flow verified. 🎯 FRONTEND IMPACT: Frontend should now display non-zero Atık CO2 and Konaklama CO2 values! The zero values issue has been completely resolved at the backend level."
+
+  - task: "Emission Statistics Bug Fix - EN YÜKSEK EMİSYON Type Mismatch"
+    implemented: false
+    working: false
+    file: "/app/frontend/src/components/CarbonFootprint.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "testing"
+        -comment: "2025-01-25: 🐛 EMISSION STATISTICS BUG IDENTIFIED! User reported that 'EN YÜKSEK EMİSYON' type doesn't match numerical results. Analysis shows this is likely a frontend issue in the emission statistics calculation logic. The backend correctly provides emissions_breakdown with all emission types and their CO2 values, but the frontend logic for determining the 'highest emission' type appears to be incorrect. The bug is in the sorting/comparison logic that determines which emission category has the highest CO2 value. This needs to be fixed in the frontend CarbonFootprint component where emission statistics are displayed."
         -working: true
         -agent: "testing"
         -comment: "2025-01-25: 🚨 ROOT CAUSE IDENTIFIED & FIXED - FRONTEND URL MISMATCH! Comprehensive debug testing revealed the CRITICAL issue: Frontend .env was pointing to wrong backend URL (mongodb-restore.preview.emergentagent.com) instead of correct Railway production URL (rota-crm-production.up.railway.app). ✅ CRITICAL FIX APPLIED: Updated frontend/.env REACT_APP_BACKEND_URL to correct Railway URL and restarted frontend service. ✅ BACKEND INTEGRATION VERIFIED: Complete waste & hotel data flow confirmed - waste records matched by year/month, converted to DEFRA format, accommodation_count converted to hotel data, both passed to calculate_carbon_emissions function, total_waste_co2 and total_hotel_co2 included in API response. ✅ COMPREHENSIVE TEST RESULTS: 86.7% success rate (13/15 tests passed), Railway backend healthy, carbon footprint API secured and functional, waste endpoint found (/api/environment), CORS properly configured, authentication working correctly. ✅ DATA FLOW CONFIRMED: Lines 11010-11070 in server.py show complete integration - waste collection queried, waste data converted to DEFRA format, hotel data prepared from accommodation_count, both included in carbon calculation. 🎯 EXPECTED OUTCOME: Frontend should now display non-zero Atık CO2 and Konaklama CO2 values since it's now connecting to the correct backend with working waste & hotel integration!"
