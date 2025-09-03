@@ -10999,6 +10999,48 @@ async def get_carbon_analytics(
     for consumption in consumptions:
         if calculate_carbon_emissions:
             try:
+                # 🗑️ FIND MATCHING WASTE DATA for this month/year
+                matching_waste = None
+                for waste_record in waste_records:
+                    if (waste_record.get("year") == consumption.get("year") and 
+                        waste_record.get("month") == consumption.get("month")):
+                        matching_waste = waste_record
+                        break
+                
+                # Prepare waste_data for DEFRA calculation
+                waste_data_for_defra = []
+                if matching_waste:
+                    # Convert waste record to DEFRA format
+                    waste_types = [
+                        ("organic_waste", "Organic Waste"),
+                        ("plastic_waste", "Plastic Waste"), 
+                        ("glass_waste", "Glass Waste"),
+                        ("paper_waste", "Paper Waste"),
+                        ("metal_waste", "Metal Waste"),
+                        ("electronic_waste", "Electronic Waste"),
+                        ("oil_waste", "Oil Waste"),
+                        ("mixed_waste", "Mixed Waste")
+                    ]
+                    
+                    for waste_field, waste_display_name in waste_types:
+                        waste_amount = matching_waste.get(waste_field, 0)
+                        if waste_amount > 0:
+                            waste_data_for_defra.append({
+                                "waste_type": waste_display_name,
+                                "amount": waste_amount,
+                                "unit": "kg"
+                            })
+                
+                # 🏨 PREPARE HOTEL DATA from accommodation_count
+                hotel_data_for_defra = []
+                accommodation_count = consumption.get("accommodation_count", 0)
+                if accommodation_count > 0:
+                    # Assume 1 room night per accommodation per month (simplified)
+                    hotel_data_for_defra.append({
+                        "country": "Turkey",
+                        "room_nights": accommodation_count * 30  # Approximate room nights per month
+                    })
+                
                 # Prepare consumption data for carbon calculation
                 consumption_data = {
                     "electricity": consumption.get("electricity", 0),
@@ -11016,11 +11058,11 @@ async def get_carbon_analytics(
                     "r32_gas": consumption.get("r32_gas", 0),
                     "co2_fire": consumption.get("co2_fire", 0),
                     "fm200_fire": consumption.get("fm200_fire", 0),
-                    "accommodation_count": consumption.get("accommodation_count", 0),
-                    # 🗑️ NEW: Waste data for DEFRA 2024 calculation
-                    "waste_data": consumption.get("waste_data", []),
-                    # 🏨 NEW: Hotel data for DEFRA 2024 calculation (Turkey factor: 32.1 kg CO2/room night)
-                    "hotel_data": consumption.get("hotel_data", [])
+                    "accommodation_count": accommodation_count,
+                    # 🗑️ NEW: Waste data from waste collection (DEFRA format)
+                    "waste_data": waste_data_for_defra,
+                    # 🏨 NEW: Hotel data from accommodation_count (DEFRA format)
+                    "hotel_data": hotel_data_for_defra
                 }
                 
                 # Calculate carbon emissions
