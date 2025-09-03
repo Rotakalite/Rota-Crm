@@ -39,11 +39,11 @@ except Exception as e:
 
 # DEFRA 2024 Emission Factors (kg CO2 per unit)
 DEFRA_EMISSION_FACTORS = {
-    # Energy Sources
+    # Energy Sources - UPDATED WITH DEFRA 2024 ORIGINAL EXCEL DATA
     "electricity": {
-        "factor": 0.19338,  # kg CO2 per kWh (Turkey grid average 2024)
+        "factor": 0.20705,  # kg CO2 per kWh - DEFRA 2024 Original from Excel
         "unit": "kWh",
-        "source": "DEFRA 2024 - Turkey electricity grid",
+        "source": "DEFRA 2024 Excel - UK electricity grid average",
         "category": "electricity"
     },
     
