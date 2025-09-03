@@ -5474,8 +5474,8 @@ const CarbonFootprint = () => {
                         <span className="font-semibold text-blue-800">Su</span>
                       </div>
                       <div className="text-right">
-                        <div className="text-lg font-bold text-blue-900">{carbonData.total_emission_sources.water.toFixed(2)}</div>
-                        <div className="text-xs text-blue-600">kg CO2</div>
+                        <div className="text-lg font-bold text-blue-900">{(carbonData.total_emission_sources.water / 1000).toFixed(3)}</div>
+                        <div className="text-xs text-blue-600">tCO2</div>
                       </div>
                     </div>
                   </div>
