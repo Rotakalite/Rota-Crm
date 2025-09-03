@@ -63,11 +63,11 @@ DEFRA_EMISSION_FACTORS = {
         "category": "fuel"
     },
     
-    # Solid Fuels
+    # Solid Fuels - UPDATED WITH DEFRA 2024 ORIGINAL EXCEL DATA
     "coal": {
-        "factor": 2240.0,   # kg CO2 per tonne (industrial coal average)
+        "factor": 2399.44,   # kg CO2 per tonne - DEFRA 2024 Original
         "unit": "tonne",
-        "source": "DEFRA 2024 - Coal combustion",
+        "source": "DEFRA 2024 Excel - Coal industrial combustion",
         "category": "fuel"
     },
     
