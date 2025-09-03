@@ -5312,12 +5312,45 @@ const CarbonFootprint = () => {
       ) : (
         <>
           {/* Carbon Overview Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
             <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white shadow-lg">
               <h3 className="text-lg font-bold mb-2">🌍 Toplam CO2</h3>
               <p className="text-3xl font-bold">{carbonData.total_carbon_emissions?.toLocaleString() || 0}</p>
               <p className="text-green-100">kg CO2</p>
             </div>
+            
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-2">👤 Kişi Başına</h3>
+              <p className="text-3xl font-bold">{carbonData.per_person_co2?.toFixed(2) || 0}</p>
+              <p className="text-blue-100">kg CO2/kişi</p>
+            </div>
+            
+            {/* 🗑️ NEW: Waste Emissions Card */}
+            <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-2">🗑️ Atık CO2</h3>
+              <p className="text-3xl font-bold">{carbonData.total_waste_co2?.toFixed(2) || 0}</p>
+              <p className="text-orange-100">kg CO2</p>
+            </div>
+            
+            {/* 🏨 NEW: Hotel Emissions Card */}
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-2">🏨 Konaklama CO2</h3>
+              <p className="text-3xl font-bold">{carbonData.total_hotel_co2?.toFixed(2) || 0}</p>
+              <p className="text-purple-100">kg CO2</p>
+            </div>
+            
+            <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 p-6 rounded-xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-2">📅 Yıl</h3>
+              <p className="text-3xl font-bold">{selectedYear}</p>
+              <p className="text-indigo-100">Analiz Yılı</p>
+            </div>
+            
+            <div className="bg-gradient-to-br from-teal-500 to-teal-600 p-6 rounded-xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-2">⚡ Metodoloji</h3>
+              <p className="text-sm font-bold">DEFRA 2024</p>
+              <p className="text-teal-100">Waste + Hotel</p>
+            </div>
+          </div>
             
             <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
               <h3 className="text-lg font-bold mb-2">📊 CO2 (Ton)</h3>
