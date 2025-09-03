@@ -1551,7 +1551,7 @@ class BackupManager:
         self.collections = [
             'users', 'clients', 'documents', 'trainings', 
             'consumptions', 'waste_management', 'personnel', 
-            'suppliers', 'sustainability_targets', 'environment_data'
+            'suppliers', 'sustainability_targets'
         ]
     
     async def create_backup(self) -> str:
