@@ -7,14 +7,14 @@ import logging
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load environment variables
+# Load environment variables with fallback
 from pathlib import Path
 env_path = Path(__file__).parent.parent / ".env"
 load_dotenv(env_path)
 
-# Get email configuration from environment
-gmail_user = os.getenv("GMAIL_USER")
-gmail_password = os.getenv("GMAIL_PASSWORD")
+# Get email configuration from environment with explicit fallback
+gmail_user = os.getenv("GMAIL_USER") or "rotakalitedanismanlik@gmail.com"
+gmail_password = os.getenv("GMAIL_PASSWORD") or "huuv tgzu yhhn gybi"
 
 logging.info(f"📧 Gmail user: {gmail_user}")
 logging.info(f"📧 Gmail password: {'*' * len(gmail_password) if gmail_password else 'None'}")
