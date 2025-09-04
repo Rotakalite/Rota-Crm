@@ -205,20 +205,65 @@ def calculate_carbon_emissions(consumption_data):
             waste_amount = float(waste_entry.get("amount", 0))
             waste_unit = waste_entry.get("unit", "kg")
             
-            # Find matching DEFRA waste factor
-            for factor in DEFRA_WASTE_FACTORS:
-                if waste_type.lower() in factor.get("level3", "").lower() or waste_type.lower() in factor.get("level2", "").lower():
-                    co2_emission = waste_amount * factor["ghg_factor"]
-                    waste_emissions[waste_type] = {
-                        "amount": waste_amount,
-                        "unit": waste_unit,
-                        "emission_factor": factor["ghg_factor"],
-                        "co2_emissions": round(co2_emission, 3),
-                        "defra_id": factor["id"],
-                        "category": "waste_disposal"
-                    }
-                    waste_co2_total += co2_emission
-                    break
+            # 🔍 IMPROVED WASTE TYPE MATCHING FOR DEFRA 2024
+            defra_factor = None
+            
+            # Mapping common waste types to DEFRA categories
+            waste_mapping = {
+                "organic waste": "Organic: food and drink waste",
+                "food waste": "Organic: food and drink waste", 
+                "kitchen waste": "Organic: food and drink waste",
+                "paper waste": "Paper and board: mixed",
+                "cardboard": "Paper and board: board",
+                "plastic waste": "Plastics: average plastics",
+                "glass waste": "Glass",
+                "metal waste": "Metal",
+                "mixed waste": "Commercial and industrial waste"
+            }
+            
+            # Try direct mapping first
+            waste_type_lower = waste_type.lower()
+            defra_category = waste_mapping.get(waste_type_lower)
+            
+            if defra_category:
+                # Find DEFRA factor for this category
+                for factor in DEFRA_WASTE_FACTORS:
+                    if defra_category.lower() in factor.get("level2", "").lower():
+                        defra_factor = factor
+                        break
+            
+            # Fallback: Search in all factor fields
+            if not defra_factor:
+                for factor in DEFRA_WASTE_FACTORS:
+                    level2 = factor.get("level2", "").lower()
+                    level3 = factor.get("level3", "").lower()
+                    activity = factor.get("activity", "").lower()
+                    
+                    if (waste_type_lower in level2 or 
+                        waste_type_lower in level3 or 
+                        waste_type_lower in activity or
+                        any(keyword in level2 + level3 + activity for keyword in waste_type_lower.split())):
+                        defra_factor = factor
+                        break
+            
+            # Apply DEFRA factor if found
+            if defra_factor:
+                co2_emission = waste_amount * defra_factor["ghg_factor"]
+                waste_emissions[waste_type] = {
+                    "amount": waste_amount,
+                    "unit": waste_unit,
+                    "emission_factor": defra_factor["ghg_factor"],
+                    "co2_emissions": round(co2_emission, 3),
+                    "defra_id": defra_factor["id"],
+                    "defra_category": defra_factor.get("level2", "Unknown"),
+                    "category": "waste_disposal"
+                }
+                waste_co2_total += co2_emission
+                logging.info(f"🗑️ Waste match: {waste_type} → {defra_factor.get('level2', 'Unknown')} ({defra_factor['ghg_factor']} kg CO2 × {waste_amount} kg)")
+            else:
+                logging.warning(f"⚠️ No DEFRA factor found for waste type: {waste_type}")
+    else:
+        logging.info("ℹ️ No waste data provided for carbon calculation")
     
     # 🏨 HOTEL STAY EMISSIONS CALCULATION
     hotel_emissions = {}
