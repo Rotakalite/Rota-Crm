@@ -5377,7 +5377,7 @@ const CarbonFootprint = () => {
                         {((month.per_person_co2 || 0) / 1000).toFixed(4)}
                       </td>
                       <td className="px-4 py-3 border text-purple-700 font-semibold">
-                        {month.accommodation_count || 0}
+                        {(month.benchmark?.co2_per_room_night || 0).toFixed(4)}
                       </td>
                       <td className="px-4 py-3 border">
                         <span className={`px-2 py-1 rounded-full text-xs font-bold ${
