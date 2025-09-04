@@ -2865,6 +2865,10 @@ test_plan:
     - "Waste Management Backend APIs"
   stuck_tasks: 
     - "Bulk Consumption Data Approval System Backend Test"
+  test_all: false
+  test_priority: "high_first"
+  completed_tasks:
+    - "GreenWave CRM - Frontend Field Names Debug"
     - "Training Management Personnel Selection and Auto-Complete"
   test_all: false
   test_priority: "high_first"
