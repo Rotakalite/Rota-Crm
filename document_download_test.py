@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 # Railway backend URL
 RAILWAY_API_URL = "https://rota-crm-production.up.railway.app/api"
-EMERGENTAGENT_API_URL = "https://mongodb-restore.preview.emergentagent.com/api"
+EMERGENTAGENT_API_URL = "https://carbon-tracker-app.preview.emergentagent.com/api"
 
 # MongoDB connection
 MONGO_URL = "mongodb://mongo:LbwPeZMoFflpreeQGSoEnUATtNpFRXRG@turntable.proxy.rlwy.net:14941"

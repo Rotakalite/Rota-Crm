@@ -21,7 +21,7 @@ class TestCriticalAPIEndpoints(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://mongodb-restore.preview.emergentagent.com/api"
+        self.api_url = "https://carbon-tracker-app.preview.emergentagent.com/api"
         self.headers_valid = {"Authorization": f"Bearer {VALID_JWT_TOKEN}"}
         self.headers_invalid = {"Authorization": f"Bearer {INVALID_JWT_TOKEN}"}
         

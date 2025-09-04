@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://mongodb-restore.preview.emergentagent.com"
+BACKEND_URL = "https://carbon-tracker-app.preview.emergentagent.com"
 API_URL = f"{BACKEND_URL}/api"
 
 def test_folders_endpoint_for_frontend():

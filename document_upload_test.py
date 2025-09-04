@@ -16,7 +16,7 @@ class TestDocumentUploadFunctionality(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://mongodb-restore.preview.emergentagent.com/api"
+        self.api_url = "https://carbon-tracker-app.preview.emergentagent.com/api"
         
     def test_finalize_upload_structure(self):
         """Test the structure of the finalize-upload endpoint code"""

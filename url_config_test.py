@@ -34,7 +34,7 @@ class TestURLConfiguration(unittest.TestCase):
             "Origin": "https://rota-r4invvuue-rotas-projects-62181e6e.vercel.app"
         }
         self.emergent_origin_headers = {
-            "Origin": "https://mongodb-restore.preview.emergentagent.com"
+            "Origin": "https://carbon-tracker-app.preview.emergentagent.com"
         }
         
     def test_health_endpoint(self):

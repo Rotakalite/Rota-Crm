@@ -1,0 +1,68 @@
+<analysis>
+The trajectory details a complex, multi-phase development effort. It began with a critical rollback from a partial Supabase migration to a clean MongoDB Atlas setup, triggered by user dissatisfaction with the previous direction. The initial phase involved extensive environment variable debugging on both backend (Railway) and frontend (Vercel) for MongoDB connection and Clerk authentication, resolving issues like hardcoded Clerk keys and missing JWKS URLs. Once a stable MongoDB-only environment was achieved, the focus shifted to a major feature expansion: enhancing the carbon footprint calculation using DEFRA 2024 data. This involved an iterative process of extracting data from Excel, integrating waste and hotel accommodation factors into the backend, fixing unit conversions (e.g., Natural Gas m³ to kWh), updating frontend display logic to use tonnes, and debugging persistent UI inconsistencies. The process was characterized by detailed backend API and database inspections, frontend UI adjustments, and multiple rounds of testing and refinement, culminating in the current task of calibrating performance criteria for accuracy and realism.
+</analysis>
+
+<product_requirements>
+The GreenWave CRM is a SaaS platform for Admin, Client, and Consultant roles, offering features like consumption tracking, sustainability reporting, and document management. Initially, it required custom Clerk authentication, mobile responsiveness, and client management. The previous goal of migrating to Supabase was abandoned, and the application reverted to a *new* MongoDB Atlas setup.
+
+The current explicit requirement is to enhance the carbon footprint calculation. This involves:
+1.  **Integrating DEFRA 2024 data:** Utilize provided Excel factors for calculations.
+2.  **Waste Data:** Include emissions from waste disposal.
+3.  **Accommodation Data:** Include emissions from hotel stays (specifically Turkey factor).
+4.  **Standard Emissions:** Update existing electricity, water, natural gas, diesel, coal, and LPG factors to DEFRA 2024 values.
+5.  **Display in Tonnes:** Show all emission results in tonnes (tCO2) on the frontend.
+6.  **Comprehensive UI:** Ensure waste, hotel, and all fuel types are correctly represented in charts and tables, including percentages and accurate performance indicators.
+7.  **Realistic Performance Criteria:** Adjust performance benchmarks to be more challenging and accurately reflect sustainability standards, with Turkish labels.
+</product_requirements>
+
+<key_technical_concepts>
+-   **React:** Frontend development for GreenWave CRM UI.
+-   **FastAPI:** Backend framework for API endpoints.
+-   **MongoDB Atlas:** Primary NoSQL database (re-established post-rollback).
+-   **Clerk Authentication:** User authentication and JWT validation.
+-   **Railway/Vercel:** Backend/Frontend deployment platforms.
+-   **Pandas:** Python library for Excel data parsing.
+-   **Chart.js:** Frontend library for data visualization (pie charts).
+</key_technical_concepts>
+
+<code_architecture>
+
+-   ****:
+    -   **Importance**: Main FastAPI application.
+    -   **Changes**: Fixed  by using . Updated  endpoint to fetch  collection data and include ,  in API response. Corrected hotel accommodation calculation ( to ). Ensured manual import of  due to lazy loading issues. Modified 2FA email sending logic to use a direct SMTP fallback.
+-   ****:
+    -   **Importance**: Main React component, routing, auth context, UI.
+    -   **Changes**: Removed hardcoded  (added safe fallback). Corrected  from preview to Railway URL and added  prefix. Updated carbon footprint UI to display values in tonnes (tCO2). Added waste and hotel categories to emission source analysis, pie chart, and statistics cards. Fixed  field name mismatch. Added a percentage breakdown table below the pie chart. Adjusted monthly table to show  instead of  for performance. Updated performance indicators to Turkish and adjusted color mapping.
+-   ****:
+    -   **Importance**: Handles email sending, crucial for 2FA.
+    -   **Changes**: SMTP port changed from 25 to 587. Added explicit  and  environment variable checks for debugging.
+-   ****:
+    -   **Importance**: Backend environment variables.
+    -   **Changes**: Updated  and  to reflect the new MongoDB Atlas cluster (). Added  and  to ensure Clerk authentication worked correctly in production. All Supabase-related variables were removed.
+-   ****:
+    -   **Importance**: Frontend environment variables.
+    -   **Changes**: Updated  to point to the correct Railway backend with the  prefix.
+-   ****:
+    -   **Importance**: Contains the core carbon emission calculation logic and DEFRA factors.
+    -   **Changes**: Integrated DEFRA 2024 waste and hotel factors. Fixed Turkey hotel factor to 32.1 kg CO2/room night. Updated standard emission factors (electricity, water, natural gas, diesel, coal, LPG) to DEFRA 2024 values. Corrected waste type matching logic for calculations. Added m³ to kWh conversion for natural gas. Adjusted performance benchmarks to use tonnes and more realistic (and harder) thresholds with Turkish labels.
+-   ** (New File)**:
+    -   **Importance**: Stores extracted waste emission factors from the DEFRA Excel.
+-   ** (New File)**:
+    -   **Importance**: Stores extracted hotel emission factors from the DEFRA Excel.
+</code_architecture>
+
+<pending_tasks>
+-   Adjust the backend performance criteria thresholds to be more realistic, as the current ones are too strict, leading to inaccurate Excellent ratings.
+</pending_tasks>
+
+<current_work>
+Immediately before this summary request, the AI engineer was addressing inconsistencies in the performance indicators. The monthly carbon data table in the frontend was showing  (number of rooms) instead of  (carbon emissions per room per night) in the Konaklama Performansı (Accommodation Performance) column. This caused a mismatch, as the backend calculates performance based on .
+
+The AI identified this and made an edit to  to change the displayed value in the monthly table from  to .
+
+Following this, the AI found another critical issue: the backend's performance *thresholds* themselves were too strict. For example, a Mükemmel (Excellent) rating required extremely low emissions (e.g., max 8 kg CO2/room/night), which is unrealistic compared to global hotel averages (30-50 kg CO2/room/night). The current work paused at the point of recognizing this issue and planning to adjust these thresholds to more realistic values in the backend.
+</current_work>
+
+<optional_next_step>
+Adjust the performance criteria thresholds in the backend to be more realistic.
+</optional_next_step>

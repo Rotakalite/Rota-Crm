@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL
-BACKEND_URL = "https://mongodb-restore.preview.emergentagent.com"
+BACKEND_URL = "https://carbon-tracker-app.preview.emergentagent.com"
 
 class TestClientSecurityCode(unittest.TestCase):
     """Test class for client data security by examining the backend code"""

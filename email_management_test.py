@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL
-BACKEND_URL = "https://mongodb-restore.preview.emergentagent.com/api"
+BACKEND_URL = "https://carbon-tracker-app.preview.emergentagent.com/api"
 RAILWAY_API_URL = "https://rota-crm-production.up.railway.app/api"
 
 # Test JWT token for admin user

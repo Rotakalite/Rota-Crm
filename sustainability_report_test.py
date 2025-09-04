@@ -17,7 +17,7 @@ from datetime import datetime
 from typing import Dict, Any
 
 # Test configuration
-BACKEND_URL = "https://mongodb-restore.preview.emergentagent.com"
+BACKEND_URL = "https://carbon-tracker-app.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 class SustainabilityReportTester:

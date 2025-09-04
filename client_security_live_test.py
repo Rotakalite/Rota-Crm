@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://mongodb-restore.preview.emergentagent.com"
+BACKEND_URL = "https://carbon-tracker-app.preview.emergentagent.com"
 
 # Test JWT tokens for different users
 # These are sample tokens for testing - in a real scenario, you would generate these from Clerk

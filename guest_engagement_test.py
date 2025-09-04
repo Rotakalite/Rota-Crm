@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://mongodb-restore.preview.emergentagent.com/api"
+BACKEND_URL = "https://carbon-tracker-app.preview.emergentagent.com/api"
 
 class TestGuestEngagementAPIs(unittest.TestCase):
     """Test class for Guest Engagement APIs"""
