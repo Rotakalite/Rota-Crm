@@ -451,24 +451,29 @@ def benchmark_performance(total_co2, accommodation_count, nights=30):
         nights (int): Number of nights (default 30 for monthly)
         
     Returns:
-        dict: Benchmark analysis
+        dict: Benchmark analysis with tCO2 per room night
     """
     if accommodation_count <= 0 or nights <= 0:
         return {"error": "Invalid accommodation count or nights"}
     
-    co2_per_room_night = total_co2 / (accommodation_count * nights)
+    # Calculate CO2 per room night in TONNES (convert from kg)
+    co2_per_room_night_kg = total_co2 / (accommodation_count * nights)
+    co2_per_room_night_tonnes = co2_per_room_night_kg / 1000.0  # Convert kg to tonnes
     
+    # Performance evaluation based on tonnes
     performance_level = "Poor"
-    if co2_per_room_night <= CARBON_BENCHMARKS["excellent_performance"]["co2_per_room_night"]:
+    if co2_per_room_night_tonnes <= CARBON_BENCHMARKS["excellent_performance"]["co2_per_room_night"]:
         performance_level = "Excellent"
-    elif co2_per_room_night <= CARBON_BENCHMARKS["sustainable_target"]["co2_per_room_night"]:
+    elif co2_per_room_night_tonnes <= CARBON_BENCHMARKS["sustainable_target"]["co2_per_room_night"]:
         performance_level = "Good"
-    elif co2_per_room_night <= CARBON_BENCHMARKS["hotel_industry_average"]["co2_per_room_night"]:
+    elif co2_per_room_night_tonnes <= CARBON_BENCHMARKS["hotel_industry_average"]["co2_per_room_night"]:
         performance_level = "Average"
     
     return {
-        "co2_per_room_night": round(co2_per_room_night, 3),
+        "co2_per_room_night": round(co2_per_room_night_tonnes, 4),  # Return in tonnes with 4 decimals
+        "co2_per_room_night_kg": round(co2_per_room_night_kg, 3),    # Also provide kg for reference
         "performance_level": performance_level,
         "benchmarks": CARBON_BENCHMARKS,
-        "total_room_nights": accommodation_count * nights
+        "total_room_nights": accommodation_count * nights,
+        "unit": "tCO2"  # Make unit explicit
     }
