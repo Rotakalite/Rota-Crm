@@ -5823,23 +5823,7 @@ const CarbonFootprint = () => {
                                 size: 12,
                                 weight: 'bold'
                               },
-                              color: '#374151',
-                              // 🏷️ Enhanced legend with percentages
-                              generateLabels: function(chart) {
-                                const original = ChartJS.defaults.plugins.legend.labels.generateLabels;
-                                const labels = original.call(this, chart);
-                                
-                                const dataset = chart.data.datasets[0];
-                                const total = dataset.data.reduce((a, b) => a + b, 0);
-                                
-                                labels.forEach((label, index) => {
-                                  const value = dataset.data[index];
-                                  const percentage = ((value / total) * 100).toFixed(1);
-                                  label.text = `${label.text} (${percentage}%)`;
-                                });
-                                
-                                return labels;
-                              }
+                              color: '#374151'
                             }
                           },
                           tooltip: {
