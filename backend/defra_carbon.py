@@ -460,14 +460,14 @@ def benchmark_performance(total_co2, accommodation_count, nights=30):
     co2_per_room_night_kg = total_co2 / (accommodation_count * nights)
     co2_per_room_night_tonnes = co2_per_room_night_kg / 1000.0  # Convert kg to tonnes
     
-    # Performance evaluation based on tonnes
-    performance_level = "Poor"
+    # Performance evaluation based on tonnes - TURKISH PERFORMANCE LEVELS
+    performance_level = "Geliştirilmeli"  # Default: Needs Improvement
     if co2_per_room_night_tonnes <= CARBON_BENCHMARKS["excellent_performance"]["co2_per_room_night"]:
-        performance_level = "Excellent"
+        performance_level = "Mükemmel"     # Excellent
     elif co2_per_room_night_tonnes <= CARBON_BENCHMARKS["sustainable_target"]["co2_per_room_night"]:
-        performance_level = "Good"
+        performance_level = "İyi"          # Good
     elif co2_per_room_night_tonnes <= CARBON_BENCHMARKS["hotel_industry_average"]["co2_per_room_night"]:
-        performance_level = "Average"
+        performance_level = "Ortalama"     # Average
     
     return {
         "co2_per_room_night": round(co2_per_room_night_tonnes, 4),  # Return in tonnes with 4 decimals
