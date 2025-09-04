@@ -1,5 +1,55 @@
 #!/usr/bin/env python3
 """
+GreenWave CRM - WASTE CO2 ZERO FINAL DEBUG - Real API Response Test
+Test Environment: Railway production https://rota-crm-production.up.railway.app
+
+CRITICAL OBJECTIVES:
+1. Real Carbon Footprint API Call - Gerçek client ID ile /api/analytics/carbon-footprint API'sini çağır
+2. Response Analysis - Response'da total_waste_co2 değeri ne? Response'da waste calculation logs var mı?
+3. Waste Data Existence Check - waste_management collection'da gerçek records var mı?
+4. Backend Code Execution Debug - waste_management query çalışıyor mu? DEFRA waste calculation execute oluyor mu?
+5. Step-by-Step Waste Calculation - waste_management → waste_data_for_defra conversion, DEFRA waste factors application
+
+CRITICAL QUESTIONS TO ANSWER:
+❓ API response'da total_waste_co2 gerçekten 0 mı?
+❓ Backend waste_management collection query execute oluyor mu?
+❓ DEFRA waste calculation hiç çalışıyor mu?
+❓ Backend logs'da waste-related error var mı?
+"""
+
+import requests
+import json
+import sys
+from datetime import datetime
+import time
+
+class WasteCO2DebugTester:
+    def __init__(self):
+        # Use Railway production URL from frontend .env
+        self.base_url = "https://rota-crm-production.up.railway.app"
+        self.api_base = f"{self.base_url}/api"
+        
+        # Test results tracking
+        self.total_tests = 0
+        self.passed_tests = 0
+        self.failed_tests = 0
+        self.test_results = []
+        
+        # Critical findings for waste CO2 debug
+        self.critical_findings = {
+            "api_response_total_waste_co2": None,
+            "waste_management_collection_exists": None,
+            "defra_calculation_working": None,
+            "backend_logs_errors": None,
+            "sample_client_ids": [],
+            "waste_records_found": 0
+        }
+        
+        print("🚨 GreenWave CRM - WASTE CO2 ZERO FINAL DEBUG")
+        print(f"🌐 Testing against: {self.base_url}")
+        print("🎯 OBJECTIVE: Atık CO2 neden hala 0.000 - KESIN SEBEP BULALIM!")
+        print("=" * 80)
+"""
 GreenWave CRM - WASTE CO2 ZERO DEBUG - COMPREHENSIVE TEST
 Test Environment: Railway production https://rota-crm-production.up.railway.app
 
