@@ -5941,6 +5941,48 @@ const CarbonFootprint = () => {
                       </div>
                     </div>
                   </div>
+                  
+                  {/* 📊 NEW: Percentage Breakdown Table */}
+                  <div className="mt-4 bg-white rounded-lg border shadow-sm p-4">
+                    <h4 className="text-sm font-bold text-gray-700 mb-3">📊 Emisyon Oranları</h4>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      {(() => {
+                        const sources = {
+                          '⚡ Elektrik': carbonData.total_emission_sources.electricity || 0,
+                          '🔥 Doğalgaz': carbonData.total_emission_sources.natural_gas || 0,
+                          '💧 Su': carbonData.total_emission_sources.water || 0,
+                          '⚫ Kömür': carbonData.total_emission_sources.coal || 0,
+                          '⛽ Dizel': carbonData.total_emission_sources.diesel || 0,
+                          '🚗 Benzin': carbonData.total_emission_sources.gasoline || 0,
+                          '🏔️ LPG': carbonData.total_emission_sources.lpg || 0,
+                          '🛢️ Fuel Oil': carbonData.total_emission_sources.fuel_oil || 0,
+                          '❄️ F-Gaslar': (carbonData.total_emission_sources.r134a_gas || 0) + 
+                                        (carbonData.total_emission_sources.r600a_gas || 0) + 
+                                        (carbonData.total_emission_sources.r410a_gas || 0) + 
+                                        (carbonData.total_emission_sources.r32_gas || 0),
+                          '🧯 Yangın': (carbonData.total_emission_sources.co2_fire || 0) + 
+                                      (carbonData.total_emission_sources.fm200_fire || 0),
+                          '🗑️ Atık': carbonData.total_waste_co2 || 0,
+                          '🏨 Konaklama': carbonData.total_hotel_co2 || 0
+                        };
+                        
+                        const total = Object.values(sources).reduce((a, b) => a + b, 0);
+                        
+                        return Object.entries(sources)
+                          .filter(([_, value]) => value > 0)
+                          .sort((a, b) => b[1] - a[1])
+                          .map(([name, value]) => {
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return (
+                              <div key={name} className="flex justify-between items-center py-1">
+                                <span className="text-gray-600 font-medium">{name}</span>
+                                <span className="font-bold text-gray-800">{percentage}%</span>
+                              </div>
+                            );
+                          });
+                      })()}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
