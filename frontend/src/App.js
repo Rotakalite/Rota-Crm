@@ -5424,19 +5424,19 @@ const CarbonFootprint = () => {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-green-700">🏆 Mükemmel:</span>
-                  <span className="font-bold text-green-800">≤ 0.003 tCO2/oda/gece</span>
+                  <span className="font-bold text-green-800">≤ 0.008 tCO2/oda/gece</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-blue-700">👍 İyi:</span>
-                  <span className="font-bold text-blue-800">≤ 0.005 tCO2/oda/gece</span>
+                  <span className="font-bold text-blue-800">≤ 0.015 tCO2/oda/gece</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-yellow-700">📊 Ortalama:</span>
-                  <span className="font-bold text-yellow-800">≤ 0.010 tCO2/oda/gece</span>
+                  <span className="font-bold text-yellow-800">≤ 0.025 tCO2/oda/gece</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-red-700">⚠️ Geliştirilmeli:</span>
-                  <span className="font-bold text-red-800">&gt; 0.010 tCO2/oda/gece</span>
+                  <span className="font-bold text-red-800">&gt; 0.025 tCO2/oda/gece</span>
                 </div>
               </div>
             </div>
