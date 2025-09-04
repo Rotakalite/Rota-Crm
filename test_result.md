@@ -2888,6 +2888,7 @@ test_plan:
   test_priority: "high_first"
   completed_tasks:
     - "GreenWave CRM - Frontend Field Names Debug"
+    - "GreenWave CRM - Doğalgaz Pie Chart Debug"
     - "Training Management Personnel Selection and Auto-Complete"
   test_all: false
   test_priority: "high_first"
