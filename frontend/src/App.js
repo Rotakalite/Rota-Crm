@@ -5823,7 +5823,23 @@ const CarbonFootprint = () => {
                                 size: 12,
                                 weight: 'bold'
                               },
-                              color: '#374151'
+                              color: '#374151',
+                              // 🏷️ Enhanced legend with percentages
+                              generateLabels: function(chart) {
+                                const original = Chart.defaults.plugins.legend.labels.generateLabels;
+                                const labels = original.call(this, chart);
+                                
+                                const dataset = chart.data.datasets[0];
+                                const total = dataset.data.reduce((a, b) => a + b, 0);
+                                
+                                labels.forEach((label, index) => {
+                                  const value = dataset.data[index];
+                                  const percentage = ((value / total) * 100).toFixed(1);
+                                  label.text = `${label.text} (${percentage}%)`;
+                                });
+                                
+                                return labels;
+                              }
                             }
                           },
                           tooltip: {
@@ -5832,39 +5848,28 @@ const CarbonFootprint = () => {
                             bodyColor: '#F9FAFB',
                             borderColor: '#6B7280',
                             borderWidth: 1,
+                            titleFont: {
+                              size: 14,
+                              weight: 'bold'
+                            },
+                            bodyFont: {
+                              size: 13
+                            },
                             callbacks: {
+                              title: function(context) {
+                                return context[0].label;
+                              },
                               label: function(context) {
                                 const value = context.parsed;
                                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                 const percentage = ((value / total) * 100).toFixed(1);
-                                return `${context.label}: ${value.toFixed(2)} kg CO2 (${percentage}%)`;
+                                return [
+                                  `💨 Emisyon: ${(value/1000).toFixed(3)} tCO2`,
+                                  `📊 Oran: ${percentage}%`,
+                                  `📈 Toplam: ${(total/1000).toFixed(2)} tCO2`
+                                ];
                               }
                             }
-                          },
-                          // 🏷️ NEW: Data labels on pie segments
-                          datalabels: {
-                            color: '#FFFFFF',
-                            font: {
-                              size: 11,
-                              weight: 'bold'
-                            },
-                            formatter: function(value, context) {
-                              const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                              const percentage = ((value / total) * 100).toFixed(1);
-                              
-                              // Show label only if segment is large enough (>5%)
-                              if (percentage > 5) {
-                                const label = context.chart.data.labels[context.dataIndex];
-                                // Shorten long labels
-                                const shortLabel = label.length > 8 ? label.substring(2, 8) + '...' : label.substring(2);
-                                return shortLabel + '\n' + percentage + '%';
-                              }
-                              return percentage > 2 ? percentage + '%' : '';
-                            },
-                            anchor: 'center',
-                            align: 'center',
-                            clamp: true,
-                            clip: false
                           }
                         },
                         animation: {
