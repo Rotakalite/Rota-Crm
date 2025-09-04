@@ -227,9 +227,9 @@ class ComprehensivePerformanceTester:
             # Test threshold boundaries with realistic scenarios
             test_cases = [
                 # (total_co2_kg, accommodation_count, expected_performance)
-                (390, 260, "Mükemmel"),      # 390/(260*30)/1000 = 0.05 → Mükemmel (≤0.015)
-                (975, 260, "İyi"),           # 975/(260*30)/1000 = 0.125 → İyi (≤0.025) 
-                (1560, 260, "Ortalama"),     # 1560/(260*30)/1000 = 0.20 → Ortalama (≤0.040)
+                (117, 260, "Mükemmel"),      # 117/(260*30)/1000 = 0.015 → Mükemmel (≤0.015)
+                (195, 260, "İyi"),           # 195/(260*30)/1000 = 0.025 → İyi (≤0.025) 
+                (312, 260, "Ortalama"),      # 312/(260*30)/1000 = 0.040 → Ortalama (≤0.040)
                 (2600, 260, "Geliştirilmeli"), # 2600/(260*30)/1000 = 0.333 → Geliştirilmeli (>0.040)
             ]
             
