@@ -173,8 +173,15 @@ def calculate_carbon_emissions(consumption_data):
             if fuel_type == "coal":
                 consumption = consumption / 1000.0  # kg to tonnes
             
-            # Calculate emissions for this fuel type
-            co2_emission = consumption * factor_data["factor"]
+            # 🔥 CRITICAL FIX: Natural Gas Unit Conversion (m³ to kWh)
+            if fuel_type == "natural_gas":
+                # Convert m³ to kWh using standard conversion factor
+                consumption_kwh = consumption * 10.55  # 1 m³ = 10.55 kWh (net calorific value)
+                co2_emission = consumption_kwh * factor_data["factor"]
+                logging.info(f"🔥 Natural Gas Conversion: {consumption} m³ → {consumption_kwh:.2f} kWh → {co2_emission:.2f} kg CO2")
+            else:
+                # Calculate emissions for this fuel type
+                co2_emission = consumption * factor_data["factor"]
             
             emissions[fuel_type] = {
                 "consumption": consumption,
