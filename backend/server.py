@@ -11075,6 +11075,22 @@ async def get_carbon_analytics(
                         total_emission_sources[source] = 0
                     total_emission_sources[source] += source_data.get("co2_emissions", 0)
                 
+                # 🗑️ Add waste emissions to total sources
+                waste_emissions = carbon_results.get("waste_emissions", {})
+                for waste_type, waste_data in waste_emissions.items():
+                    waste_key = f"waste_{waste_type.lower().replace(' ', '_')}"
+                    if waste_key not in total_emission_sources:
+                        total_emission_sources[waste_key] = 0
+                    total_emission_sources[waste_key] += waste_data.get("co2_emissions", 0)
+                
+                # 🏨 Add hotel emissions to total sources  
+                hotel_emissions = carbon_results.get("hotel_emissions", {})
+                for country, hotel_data in hotel_emissions.items():
+                    hotel_key = f"hotel_{country.lower().replace(' ', '_')}"
+                    if hotel_key not in total_emission_sources:
+                        total_emission_sources[hotel_key] = 0
+                    total_emission_sources[hotel_key] += hotel_data.get("co2_emissions", 0)
+                
                 # Get benchmark analysis
                 benchmark_result = {}
                 if consumption.get("accommodation_count", 0) > 0:
