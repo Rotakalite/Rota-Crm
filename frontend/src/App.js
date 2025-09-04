@@ -5840,6 +5840,31 @@ const CarbonFootprint = () => {
                                 return `${context.label}: ${value.toFixed(2)} kg CO2 (${percentage}%)`;
                               }
                             }
+                          },
+                          // 🏷️ NEW: Data labels on pie segments
+                          datalabels: {
+                            color: '#FFFFFF',
+                            font: {
+                              size: 11,
+                              weight: 'bold'
+                            },
+                            formatter: function(value, context) {
+                              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                              const percentage = ((value / total) * 100).toFixed(1);
+                              
+                              // Show label only if segment is large enough (>5%)
+                              if (percentage > 5) {
+                                const label = context.chart.data.labels[context.dataIndex];
+                                // Shorten long labels
+                                const shortLabel = label.length > 8 ? label.substring(2, 8) + '...' : label.substring(2);
+                                return shortLabel + '\n' + percentage + '%';
+                              }
+                              return percentage > 2 ? percentage + '%' : '';
+                            },
+                            anchor: 'center',
+                            align: 'center',
+                            clamp: true,
+                            clip: false
                           }
                         },
                         animation: {
