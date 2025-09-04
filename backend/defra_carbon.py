@@ -425,19 +425,19 @@ def validate_consumption_data(consumption_data):
     is_valid = len(errors) == 0
     return is_valid, errors
 
-# Carbon reduction targets and benchmarks - UPDATED TO TONNES CO2
+# Carbon reduction targets and benchmarks - REALISTIC VALUES FOR TONNES CO2
 CARBON_BENCHMARKS = {
     "hotel_industry_average": {
-        "co2_per_room_night": 0.050,  # tCO2 per room per night (was 50 kg)
-        "source": "Hotel industry average Turkey 2024 (updated to tonnes)"
+        "co2_per_room_night": 0.010,  # tCO2 per room per night (10 kg - realistic high)
+        "source": "Hotel industry realistic average Turkey 2024"
     },
     "sustainable_target": {
-        "co2_per_room_night": 0.035,  # tCO2 per room per night (was 35 kg) 
-        "source": "Sustainable tourism target (updated to tonnes)"
+        "co2_per_room_night": 0.005,  # tCO2 per room per night (5 kg - good target) 
+        "source": "Sustainable tourism realistic target"
     },
     "excellent_performance": {
-        "co2_per_room_night": 0.020,  # tCO2 per room per night (was 20 kg)
-        "source": "Green hotel excellence level (updated to tonnes)"
+        "co2_per_room_night": 0.003,  # tCO2 per room per night (3 kg - excellent)
+        "source": "Green hotel realistic excellence level"
     }
 }
 
