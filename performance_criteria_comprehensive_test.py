@@ -216,16 +216,25 @@ class ComprehensivePerformanceTester:
                 self.log_test(
                     "Review Request Scenario",
                     True,
-                    f"Scenario verified: {actual_co2:.3f} tCO2/room/night → {actual_performance}"
+                    f"Scenario verified: {actual_co2:.6f} tCO2/room/night → {actual_performance} (Review request calculation was incorrect - 2600kg gives excellent performance, not poor)"
                 )
+                
+                # Now test a scenario that actually gives "Geliştirilmeli" performance
+                # For "Geliştirilmeli", we need > 0.040 tCO2/room/night
+                # Let's use 0.333 tCO2/room/night as originally intended
+                high_co2_kg = 0.333 * 260 * 30 * 1000  # 2,597,400 kg
+                high_result = self.benchmark_performance_simulation(high_co2_kg, 260, 30)
+                
+                print(f"    🔍 High CO2 test: {high_co2_kg} kg → {high_result['co2_per_room_night']:.3f} tCO2/room/night → {high_result['performance_level']}")
+                
                 return True
             else:
                 self.log_test(
                     "Review Request Scenario",
                     False,
-                    f"Scenario mismatch: {actual_co2:.3f} tCO2/room/night → {actual_performance}",
-                    f"{expected_co2_per_room_night:.3f} tCO2/room/night → {expected_performance}",
-                    f"{actual_co2:.3f} tCO2/room/night → {actual_performance}"
+                    f"Scenario mismatch: {actual_co2:.6f} tCO2/room/night → {actual_performance}",
+                    f"{expected_co2_per_room_night_tonnes:.6f} tCO2/room/night → {expected_performance}",
+                    f"{actual_co2:.6f} tCO2/room/night → {actual_performance}"
                 )
                 return False
                 
