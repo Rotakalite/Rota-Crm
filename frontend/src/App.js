@@ -5381,9 +5381,9 @@ const CarbonFootprint = () => {
                       </td>
                       <td className="px-4 py-3 border">
                         <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                          month.benchmark?.performance_level === 'Excellent' ? 'bg-green-100 text-green-800' :
-                          month.benchmark?.performance_level === 'Good' ? 'bg-blue-100 text-blue-800' :
-                          month.benchmark?.performance_level === 'Average' ? 'bg-yellow-100 text-yellow-800' :
+                          month.benchmark?.performance_level === 'Mükemmel' ? 'bg-green-100 text-green-800' :
+                          month.benchmark?.performance_level === 'İyi' ? 'bg-blue-100 text-blue-800' :
+                          month.benchmark?.performance_level === 'Ortalama' ? 'bg-yellow-100 text-yellow-800' :
                           'bg-red-100 text-red-800'
                         }`}>
                           {month.benchmark?.performance_level || 'N/A'}
