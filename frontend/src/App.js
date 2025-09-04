@@ -5870,7 +5870,9 @@ const CarbonFootprint = () => {
                           'Dizel': carbonData.total_emission_sources.diesel || 0,
                           'Benzin': carbonData.total_emission_sources.gasoline || 0,
                           'LPG': carbonData.total_emission_sources.lpg || 0,
-                          'Fuel Oil': carbonData.total_emission_sources.fuel_oil || 0
+                          'Fuel Oil': carbonData.total_emission_sources.fuel_oil || 0,
+                          'Atık': carbonData.total_waste_co2 || 0,        // NEW: Include waste
+                          'Konaklama': carbonData.total_hotel_co2 || 0    // NEW: Include hotel
                         };
                         const maxSource = Object.entries(sources).reduce((a, b) => a[1] > b[1] ? a : b);
                         const total = Object.values(sources).reduce((a, b) => a + b, 0);
