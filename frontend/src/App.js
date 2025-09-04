@@ -5826,7 +5826,7 @@ const CarbonFootprint = () => {
                               color: '#374151',
                               // 🏷️ Enhanced legend with percentages
                               generateLabels: function(chart) {
-                                const original = Chart.defaults.plugins.legend.labels.generateLabels;
+                                const original = ChartJS.defaults.plugins.legend.labels.generateLabels;
                                 const labels = original.call(this, chart);
                                 
                                 const dataset = chart.data.datasets[0];
