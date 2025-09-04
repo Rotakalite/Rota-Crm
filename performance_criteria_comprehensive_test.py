@@ -187,6 +187,11 @@ class ComprehensivePerformanceTester:
             expected_co2_per_room_night = 2600 / (260 * 30) / 1000  # 0.333 tCO2/room/night
             expected_performance = "Geliştirilmeli"
             
+            # Debug output
+            print(f"    🔍 Debug: total_co2={total_co2_kg}, accommodation={accommodation_count}, nights={nights}")
+            print(f"    🔍 Debug: expected_co2_per_room_night={expected_co2_per_room_night:.3f}")
+            print(f"    🔍 Debug: result={result}")
+            
             # Check calculation accuracy
             actual_co2 = result["co2_per_room_night"]
             actual_performance = result["performance_level"]
