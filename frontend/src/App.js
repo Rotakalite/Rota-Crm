@@ -1592,6 +1592,9 @@ const SustainabilityTargets = () => {
   const [selectedTarget, setSelectedTarget] = useState(null);
   const [targetProgress, setTargetProgress] = useState({});
   const [analytics, setAnalytics] = useState(null);
+  // 📊 Bulk Target Import States
+  const [selectedTargetFile, setSelectedTargetFile] = useState(null);
+  const [processingTargets, setProcessingTargets] = useState(false);
   const [formData, setFormData] = useState({
     target_name: '',
     category: 'Çevresel',
