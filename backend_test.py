@@ -1,20 +1,31 @@
 #!/usr/bin/env python3
 """
-GreenWave CRM Admin User Verification and Clerk Integration Test
-Backend comprehensive testing for admin user creation and Clerk integration issue
+CRITICAL AUTHENTICATION BUG - Admin Module Registration Failure Test
+Backend comprehensive testing for admin client creation and team member creation
 
-Test Requirements from Review Request:
-1. Check if admin user exists in database with email "kemalakkoc03@gmail.com"
-2. Verify admin user role and properties
-3. Test current admin creation endpoint `/api/init-admin-user`
-4. Identify why Clerk user creation is missing
+CRITICAL ISSUE REPORTED:
+- Admin modülünden kaydedilen müşteriler ve takım üyeleri:
+  1. Database users'ta kayıt olmuyor
+  2. Clerk'te kayıt olmuyor  
+  3. Sisteme giriş yapamıyorlar
 
-CRITICAL PROBLEM: Manual admin registration created database entry but no Clerk user was created.
+REGRESSION BUG: Supabase→MongoDB migration sırasında admin creation code bozulmuş
 
-Expected Issues:
-- Database admin user exists but cannot login because no Clerk user
-- Admin creation endpoint only creates database entry, not Clerk user
-- Need to fix the integration
+TEST REQUIREMENTS:
+1. Admin client creation endpoint test: `/api/clients` POST
+2. Team member creation endpoint test: `/api/clients/{client_id}/team/add` POST
+3. Database'de user creation kontrol
+4. Clerk integration çalışıyor mu kontrol
+
+EXPECTED BEHAVIOR:
+- Admin creates client → Database user + Clerk user created
+- Admin creates team member → Database user + Clerk user created
+- Users can login with created credentials
+
+CURRENT BROKEN BEHAVIOR:
+- Admin creates client/team → NO database user
+- Admin creates client/team → NO Clerk user
+- Users CANNOT login
 
 Railway URL: https://rota-crm-production.up.railway.app
 """
