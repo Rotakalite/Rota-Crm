@@ -455,10 +455,14 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
         console.log(`📤 Uploading file ${i + 1}/${selectedFiles.length}: ${file.name}`);
         const uploadStartTime = Date.now();
         
+        // 🔑 Get fresh token just before upload to avoid expiry during long uploads
+        const freshToken = await session.getToken();
+        console.log(`🔑 Using fresh token for upload: ${file.name}`);
+        
         const response = await axios.post(`${API}/belge/upload`, formData, {
           headers: { 
             'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${authToken}`
+            'Authorization': `Bearer ${freshToken}`
           },
           timeout: Math.max(300000, Math.min(file.size / (1024 * 50), 1800000)), // Dynamic timeout: 5min minimum, up to 30min for large files (50KB/s minimum speed)
           onUploadProgress: (progressEvent) => {
