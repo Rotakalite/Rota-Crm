@@ -8539,6 +8539,102 @@ async def get_client_phone(
         logging.error(f"Get client phone error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# Team Management Endpoints
+@api_router.post("/clients/{client_id}/team/add")
+async def add_team_member(
+    client_id: str,
+    request: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Add team member to client"""
+    try:
+        # Check permissions
+        if current_user.role == UserRole.CLIENT and current_user.client_id != client_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        # Validate client exists
+        client = await db.clients.find_one({"id": client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        # Get team member data
+        team_member = {
+            "id": str(uuid.uuid4()),
+            "name": request.get("name", "").strip(),
+            "email": request.get("email", "").strip(),
+            "role": request.get("role", "").strip(),
+            "department": request.get("department", "").strip(),
+            "phone": request.get("phone", "").strip(),
+            "position": request.get("position", "").strip(),
+            "added_by": current_user.email,
+            "added_at": datetime.utcnow(),
+            "status": "active"
+        }
+        
+        # Validate required fields
+        if not team_member["name"] or not team_member["email"]:
+            raise HTTPException(status_code=400, detail="Name and email are required")
+        
+        # Initialize team array if it doesn't exist
+        if not client.get("team"):
+            await db.clients.update_one(
+                {"id": client_id},
+                {"$set": {"team": []}}
+            )
+        
+        # Add team member to client
+        result = await db.clients.update_one(
+            {"id": client_id},
+            {
+                "$push": {"team": team_member},
+                "$set": {"updated_at": datetime.utcnow()}
+            }
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        logging.info(f"✅ Team member added to client {client_id}: {team_member['name']}")
+        
+        return {
+            "message": "Team member added successfully",
+            "team_member": team_member
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Add team member error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/clients/{client_id}/team")
+async def get_team_members(
+    client_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get team members for client"""
+    try:
+        # Check permissions
+        if current_user.role == UserRole.CLIENT and current_user.client_id != client_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        client = await db.clients.find_one({"id": client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        team_members = client.get("team", [])
+        
+        return {
+            "team_members": team_members,
+            "count": len(team_members)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Get team members error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/api/test-personnel-endpoint")
 async def test_personnel_endpoint():
     """Test endpoint to check if endpoints are being registered"""
