@@ -8048,6 +8048,7 @@ async def create_client(
                     "client_id": client.id,
                     "admin_approved": True,  # 🎯 KALICI ÇÖZÜM: Admin onaylı
                     "user_status": "approved",
+                    "self_registered": False,  # 🎯 Mark as admin-created
                     "demo_limits": {
                         "documents": 0,
                         "trainings": 0, 
