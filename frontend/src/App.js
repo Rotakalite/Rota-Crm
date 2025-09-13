@@ -11886,8 +11886,8 @@ const ClientDocuments = () => {
         formData.append('stage', metadata.stage);
         formData.append('folder_id', metadata.folderId);  // Required folder selection
 
-        // Calculate timeout based on file size (minimum 30s, max 10 minutes)
-        const timeoutMs = Math.max(30000, Math.min(file.size / (1024 * 100), 600000)); // ~100KB/s minimum speed
+        // Calculate timeout based on file size (minimum 5min, max 30 minutes)
+        const timeoutMs = Math.max(300000, Math.min(file.size / (1024 * 50), 1800000)); // ~50KB/s minimum speed, up to 30min
         
         console.log(`⏱️ Upload timeout set to: ${(timeoutMs / 1000).toFixed(0)} seconds`);
 
