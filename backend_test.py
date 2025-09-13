@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """
-GreenWave CRM Hedefler Bulk Import Test
-Backend comprehensive testing for Sustainability Targets bulk Excel import feature
+GreenWave CRM Admin User Verification and Clerk Integration Test
+Backend comprehensive testing for admin user creation and Clerk integration issue
 
 Test Requirements from Review Request:
-1. Verify `/api/sustainability-targets/bulk` endpoint works
-2. Test authentication control (401/403 expected)
-3. Check model validation works
-4. Verify demo limit bypass system works
+1. Check if admin user exists in database with email "kemalakkoc03@gmail.com"
+2. Verify admin user role and properties
+3. Test current admin creation endpoint `/api/init-admin-user`
+4. Identify why Clerk user creation is missing
 
-Expected Endpoint Features:
-- POST method
-- JSON body with targets_list array
-- client_id query parameter support
-- Admin/consultant/client role control
-- Demo limit bypass system
+CRITICAL PROBLEM: Manual admin registration created database entry but no Clerk user was created.
+
+Expected Issues:
+- Database admin user exists but cannot login because no Clerk user
+- Admin creation endpoint only creates database entry, not Clerk user
+- Need to fix the integration
 
 Railway URL: https://rota-crm-production.up.railway.app
 """
