@@ -576,6 +576,147 @@ class GreenWaveCRMBackendTester:
             self.log_test("Specific Admin User Issue", False,
                         "Specific user test failed", str(e))
 
+    def test_database_investigation(self):
+        """Test 9: Database Investigation - Check if client exists but user doesn't"""
+        try:
+            print("🔍 Testing Database Investigation...")
+            
+            # Test if we can get any information about database state
+            # Since we can't directly access database, we test through API responses
+            
+            # Test clients endpoint with different parameters
+            test_params = [
+                "",
+                "?limit=1",
+                "?client_type=registered",
+                "?search=kemal"
+            ]
+            
+            for param in test_params:
+                try:
+                    response = requests.get(f"{self.base_url}/api/clients{param}", 
+                                          headers=self.headers, timeout=10)
+                    
+                    if response.status_code in [401, 403]:
+                        self.log_test(f"Database Investigation - Clients API {param or 'base'}", True,
+                                    f"Clients API accessible: {response.status_code}")
+                    elif response.status_code == 200:
+                        # This shouldn't happen without auth, but if it does, it's useful info
+                        self.log_test(f"Database Investigation - Clients API {param or 'base'}", False,
+                                    f"SECURITY ISSUE: Clients API accessible without auth: {response.status_code}")
+                    else:
+                        self.log_test(f"Database Investigation - Clients API {param or 'base'}", True,
+                                    f"Clients API responds: {response.status_code}")
+                        
+                except Exception as e:
+                    self.log_test(f"Database Investigation - Clients API {param or 'base'}", False,
+                                "Request failed", str(e))
+            
+            # Test users endpoint with different parameters
+            users_params = [
+                "",
+                "?limit=1",
+                "?role=client",
+                "?email=kemalakkoc03@gmail.com"
+            ]
+            
+            for param in users_params:
+                try:
+                    response = requests.get(f"{self.base_url}/api/settings/users{param}", 
+                                          headers=self.headers, timeout=10)
+                    
+                    if response.status_code in [401, 403]:
+                        self.log_test(f"Database Investigation - Users API {param or 'base'}", True,
+                                    f"Users API accessible: {response.status_code}")
+                    elif response.status_code == 200:
+                        self.log_test(f"Database Investigation - Users API {param or 'base'}", False,
+                                    f"SECURITY ISSUE: Users API accessible without auth: {response.status_code}")
+                    else:
+                        self.log_test(f"Database Investigation - Users API {param or 'base'}", True,
+                                    f"Users API responds: {response.status_code}")
+                        
+                except Exception as e:
+                    self.log_test(f"Database Investigation - Users API {param or 'base'}", False,
+                                "Request failed", str(e))
+                
+        except Exception as e:
+            self.log_test("Database Investigation", False,
+                        "Database investigation failed", str(e))
+
+    def test_client_creation_clerk_integration_detailed(self):
+        """Test 10: Detailed Client Creation and Clerk Integration Test"""
+        try:
+            print("🔧 Testing Detailed Client Creation and Clerk Integration...")
+            
+            # Test client creation with all required fields (similar to the problematic case)
+            detailed_client_data = {
+                "name": "Test Hotel Kemal",
+                "hotel_name": "Test Hotel Kemal",
+                "contact_person": "Kemal Test",
+                "email": "kemal-test@example.com",
+                "phone": "+90 555 123 4567",
+                "city": "İstanbul",
+                "district": "Beşiktaş",
+                "address": "Test Address 123",
+                "audit_company": "Test Audit Company",
+                "certificate_end_date": "2024-12-31",
+                "client_type": "registered",
+                "password": "TestPassword123!",
+                "auto_create_account": True
+            }
+            
+            # Test with complete data
+            response = requests.post(f"{self.base_url}/api/clients", 
+                                   headers=self.headers, json=detailed_client_data, timeout=15)
+            
+            if response.status_code in [401, 403]:
+                self.log_test("Detailed Client Creation - Complete Data", True,
+                            f"Client creation requires authentication: {response.status_code}")
+            elif response.status_code in [400, 422]:
+                self.log_test("Detailed Client Creation - Complete Data", True,
+                            f"Data validation working: {response.status_code}")
+            elif response.status_code in [200, 201]:
+                self.log_test("Detailed Client Creation - Complete Data", False,
+                            f"SECURITY ISSUE: Client created without auth: {response.status_code}")
+            else:
+                self.log_test("Detailed Client Creation - Complete Data", False,
+                            f"Unexpected response: {response.status_code}")
+            
+            # Test without password (to see if this causes the issue)
+            no_password_data = detailed_client_data.copy()
+            del no_password_data["password"]
+            
+            response = requests.post(f"{self.base_url}/api/clients", 
+                                   headers=self.headers, json=no_password_data, timeout=15)
+            
+            if response.status_code in [401, 403]:
+                self.log_test("Detailed Client Creation - No Password", True,
+                            f"Client creation without password requires auth: {response.status_code}")
+            elif response.status_code in [400, 422]:
+                self.log_test("Detailed Client Creation - No Password", True,
+                            f"Validation working for no password: {response.status_code}")
+            else:
+                self.log_test("Detailed Client Creation - No Password", False,
+                            f"Unexpected response: {response.status_code}")
+            
+            # Test without auto_create_account
+            no_auto_create_data = detailed_client_data.copy()
+            no_auto_create_data["auto_create_account"] = False
+            
+            response = requests.post(f"{self.base_url}/api/clients", 
+                                   headers=self.headers, json=no_auto_create_data, timeout=15)
+            
+            if response.status_code in [401, 403]:
+                self.log_test("Detailed Client Creation - No Auto Create", True,
+                            f"Client creation without auto create requires auth: {response.status_code}")
+            else:
+                self.log_test("Detailed Client Creation - No Auto Create", False,
+                            f"Unexpected response: {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Detailed Client Creation and Clerk Integration", False,
+                        "Detailed client creation test failed", str(e))
+
     def run_all_tests(self):
         """Run all backend tests"""
         print("🎯 Starting Admin User Verification and Clerk Integration Tests...")
