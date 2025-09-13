@@ -3103,7 +3103,7 @@ const PersonnelManagement = () => {
         consumptions_list
       }, {
         headers: { 'Authorization': `Bearer ${authToken}` },
-        timeout: 60000 // 60 second timeout for large files
+        timeout: 300000 // 5 minute timeout for large files
       });
       
       alert(`✅ Toplu tüketim verisi içe aktarma tamamlandı!`);
