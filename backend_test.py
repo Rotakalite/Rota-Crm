@@ -738,6 +738,8 @@ class GreenWaveCRMBackendTester:
         # 4. Database and System Tests
         self.test_database_collections_access()
         self.test_specific_admin_user_issue()
+        self.test_database_investigation()
+        self.test_client_creation_clerk_integration_detailed()
         
         # 5. Additional backend stability tests
         self.test_authentication_system()
