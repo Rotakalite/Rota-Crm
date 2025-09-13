@@ -3,17 +3,49 @@
     "test": "Backend Health Check",
     "status": "✅ PASS",
     "success": true,
-    "details": "Status: 200, Response: {\"status\":\"healthy\",\"service\":\"Rota CRM Backend\",\"timestamp\":\"2025-09-13T22:38:35.102696\",\"version\":",
+    "details": "Status: 200, Response: {\"status\":\"healthy\",\"service\":\"Rota CRM Backend\",\"timestamp\":\"2025-09-13T22:40:36.589353\",\"version\":",
     "error": "",
-    "timestamp": "2025-09-13T22:38:35.158357"
+    "timestamp": "2025-09-13T22:40:36.644213"
+  },
+  {
+    "test": "Deployment - Bulk Endpoint Registered",
+    "status": "❌ FAIL",
+    "success": false,
+    "details": "CRITICAL: Bulk targets endpoint NOT found in registered routes",
+    "error": "Deployment issue - endpoint not deployed to production",
+    "timestamp": "2025-09-13T22:40:37.104511"
+  },
+  {
+    "test": "Deployment - Total Routes",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Total registered routes: 254",
+    "error": "",
+    "timestamp": "2025-09-13T22:40:37.104558"
+  },
+  {
+    "test": "Deployment - Regular Sustainability Routes",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Regular sustainability targets routes: 8",
+    "error": "",
+    "timestamp": "2025-09-13T22:40:37.104595"
   },
   {
     "test": "Bulk Targets Endpoint Accessibility",
     "status": "❌ FAIL",
     "success": false,
-    "details": "Unexpected response: 405",
+    "details": "Method Not Allowed (405)",
+    "error": "CRITICAL: Endpoint not registered in production!",
+    "timestamp": "2025-09-13T22:40:37.551128"
+  },
+  {
+    "test": "Regular Sustainability Targets Endpoint",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Regular endpoint works: 403",
     "error": "",
-    "timestamp": "2025-09-13T22:38:35.463535"
+    "timestamp": "2025-09-13T22:40:37.860495"
   },
   {
     "test": "Bulk Targets - No Auth",
@@ -21,7 +53,7 @@
     "success": false,
     "details": "Expected 401/403, got 405",
     "error": "",
-    "timestamp": "2025-09-13T22:38:35.932509"
+    "timestamp": "2025-09-13T22:40:38.306943"
   },
   {
     "test": "Bulk Targets - Invalid Token",
@@ -29,7 +61,7 @@
     "success": false,
     "details": "Expected 401/403, got 405",
     "error": "",
-    "timestamp": "2025-09-13T22:38:36.406237"
+    "timestamp": "2025-09-13T22:40:38.619581"
   },
   {
     "test": "Bulk Targets - Empty Body",
@@ -37,7 +69,7 @@
     "success": false,
     "details": "Expected validation error, got 405",
     "error": "",
-    "timestamp": "2025-09-13T22:38:36.719283"
+    "timestamp": "2025-09-13T22:40:38.926580"
   },
   {
     "test": "Bulk Targets - Invalid Structure",
@@ -45,7 +77,7 @@
     "success": false,
     "details": "Expected validation error, got 405",
     "error": "",
-    "timestamp": "2025-09-13T22:38:37.027209"
+    "timestamp": "2025-09-13T22:40:39.373176"
   },
   {
     "test": "Bulk Targets - Valid Structure",
@@ -53,7 +85,7 @@
     "success": false,
     "details": "Expected auth error, got 405",
     "error": "",
-    "timestamp": "2025-09-13T22:38:37.334546"
+    "timestamp": "2025-09-13T22:40:39.838160"
   },
   {
     "test": "Demo Limit System - Endpoint Structure",
@@ -61,7 +93,7 @@
     "success": false,
     "details": "Unexpected response: 405",
     "error": "",
-    "timestamp": "2025-09-13T22:38:37.804521"
+    "timestamp": "2025-09-13T22:40:40.306461"
   },
   {
     "test": "Demo Limit System - Client ID Parameter",
@@ -69,7 +101,7 @@
     "success": false,
     "details": "Unexpected response: 405",
     "error": "",
-    "timestamp": "2025-09-13T22:38:38.269985"
+    "timestamp": "2025-09-13T22:40:40.617508"
   },
   {
     "test": "Role-Based Access - Authentication Required",
@@ -77,7 +109,7 @@
     "success": false,
     "details": "Expected auth error, got 405",
     "error": "",
-    "timestamp": "2025-09-13T22:38:38.572564"
+    "timestamp": "2025-09-13T22:40:41.068371"
   },
   {
     "test": "Role-Based Access - GET Method",
@@ -85,7 +117,7 @@
     "success": true,
     "details": "Correctly restricts GET method: 403",
     "error": "",
-    "timestamp": "2025-09-13T22:38:39.043921"
+    "timestamp": "2025-09-13T22:40:41.378061"
   },
   {
     "test": "Role-Based Access - PUT Method",
@@ -93,7 +125,7 @@
     "success": true,
     "details": "Correctly restricts PUT method: 403",
     "error": "",
-    "timestamp": "2025-09-13T22:38:39.362518"
+    "timestamp": "2025-09-13T22:40:41.709896"
   },
   {
     "test": "Role-Based Access - DELETE Method",
@@ -101,7 +133,7 @@
     "success": true,
     "details": "Correctly restricts DELETE method: 403",
     "error": "",
-    "timestamp": "2025-09-13T22:38:39.670480"
+    "timestamp": "2025-09-13T22:40:42.016645"
   },
   {
     "test": "Role-Based Access - PATCH Method",
@@ -109,7 +141,7 @@
     "success": true,
     "details": "Correctly restricts PATCH method: 405",
     "error": "",
-    "timestamp": "2025-09-13T22:38:39.998531"
+    "timestamp": "2025-09-13T22:40:42.325388"
   },
   {
     "test": "Date Parsing System - Multiple Formats",
@@ -117,7 +149,7 @@
     "success": false,
     "details": "Unexpected response: 405",
     "error": "",
-    "timestamp": "2025-09-13T22:38:40.304256"
+    "timestamp": "2025-09-13T22:40:42.636231"
   },
   {
     "test": "Client ID Parameter - URL Parameter",
@@ -125,7 +157,7 @@
     "success": false,
     "details": "Unexpected response: 405",
     "error": "",
-    "timestamp": "2025-09-13T22:38:40.616207"
+    "timestamp": "2025-09-13T22:40:42.951430"
   },
   {
     "test": "Client ID Parameter - No Parameter",
@@ -133,7 +165,7 @@
     "success": false,
     "details": "Unexpected response: 405",
     "error": "",
-    "timestamp": "2025-09-13T22:38:40.926658"
+    "timestamp": "2025-09-13T22:40:43.407385"
   },
   {
     "test": "Client ID Parameter - Empty Parameter",
@@ -141,7 +173,7 @@
     "success": false,
     "details": "Unexpected response: 405",
     "error": "",
-    "timestamp": "2025-09-13T22:38:41.404049"
+    "timestamp": "2025-09-13T22:40:43.714972"
   },
   {
     "test": "Authentication System - No Auth Header",
@@ -149,7 +181,7 @@
     "success": true,
     "details": "Properly rejected: 403",
     "error": "",
-    "timestamp": "2025-09-13T22:38:41.711927"
+    "timestamp": "2025-09-13T22:40:44.023448"
   },
   {
     "test": "Authentication System - Empty Auth Header",
@@ -157,7 +189,7 @@
     "success": true,
     "details": "Properly rejected: 403",
     "error": "",
-    "timestamp": "2025-09-13T22:38:42.019966"
+    "timestamp": "2025-09-13T22:40:44.464290"
   },
   {
     "test": "Authentication System - Invalid Bearer Token",
@@ -165,7 +197,7 @@
     "success": true,
     "details": "Properly rejected: 401",
     "error": "",
-    "timestamp": "2025-09-13T22:38:42.337497"
+    "timestamp": "2025-09-13T22:40:44.780627"
   },
   {
     "test": "Authentication System - Malformed Auth Header",
@@ -173,7 +205,7 @@
     "success": true,
     "details": "Properly rejected: 403",
     "error": "",
-    "timestamp": "2025-09-13T22:38:42.649838"
+    "timestamp": "2025-09-13T22:40:45.090595"
   },
   {
     "test": "CORS Configuration",
@@ -181,7 +213,7 @@
     "success": true,
     "details": "CORS headers present: 200",
     "error": "",
-    "timestamp": "2025-09-13T22:38:42.953651"
+    "timestamp": "2025-09-13T22:40:45.396454"
   },
   {
     "test": "Error Handling - 404",
@@ -189,7 +221,7 @@
     "success": true,
     "details": "Proper 404 for non-existent endpoints",
     "error": "",
-    "timestamp": "2025-09-13T22:38:43.264129"
+    "timestamp": "2025-09-13T22:40:45.842239"
   },
   {
     "test": "Error Handling - Method Not Allowed",
@@ -197,6 +229,6 @@
     "success": true,
     "details": "Proper method restriction: 405",
     "error": "",
-    "timestamp": "2025-09-13T22:38:43.709496"
+    "timestamp": "2025-09-13T22:40:46.146972"
   }
 ]
