@@ -3341,29 +3341,106 @@ async def get_consultants():
 async def init_admin_user(admin_data: dict):
     """Initialize admin user for ROTA - Special endpoint"""
     try:
-        # Create admin user in users collection
-        admin_user = User(
-            clerk_user_id=admin_data.get("clerk_user_id", "admin_rota"),
-            email=admin_data.get("email", "admin@rota.com"),
-            name=admin_data.get("name", "ROTA Admin"),
-            role=UserRole.ADMIN,
-            consultant_id=admin_data.get("consultant_id")  # Link to ROTA consultant
-        ).dict()
+        email = admin_data.get("email", "admin@rota.com")
+        password = admin_data.get("password", "TempPassword123!")
+        name = admin_data.get("name", "ROTA Admin")
         
-        # Check if admin already exists
-        existing = await db.users.find_one({"email": admin_user["email"]})
+        # Check if admin already exists in database
+        existing = await db.users.find_one({"email": email})
         if existing:
             return {"message": "Admin user already exists", "user_id": existing["id"]}
+        
+        # 🔑 CREATE CLERK USER FIRST
+        clerk_user_data = None
+        if clerk_admin.is_available():
+            try:
+                clerk_user_data = await clerk_admin.create_user_with_clerk(
+                    email=email,
+                    password=password,
+                    name=name
+                )
+                logging.info(f"✅ Clerk user created for admin: {email}")
+            except Exception as clerk_error:
+                logging.error(f"❌ Failed to create Clerk user for admin: {clerk_error}")
+                raise HTTPException(status_code=500, detail=f"Failed to create Clerk user: {str(clerk_error)}")
+        else:
+            raise HTTPException(status_code=500, detail="Clerk admin not available")
+        
+        # Create admin user in users collection
+        admin_user = User(
+            clerk_user_id=clerk_user_data["clerk_user_id"] if clerk_user_data else f"admin_{email}",
+            email=email,
+            name=name,
+            role=UserRole.ADMIN,
+            admin_approved=True,
+            consultant_id=admin_data.get("consultant_id")  # Link to ROTA consultant
+        ).dict()
         
         result = await db.users.insert_one(admin_user)
         
         return {
-            "message": "Admin user created successfully",
+            "message": "Admin user created successfully with Clerk integration",
             "user_id": admin_user["id"],
-            "instructions": "Bu kullanıcı ile Clerk'te aynı email ile kayıt olun ve admin yetkileriniz otomatik aktif olacaktır."
+            "clerk_user_id": clerk_user_data["clerk_user_id"] if clerk_user_data else None,
+            "email": email,
+            "instructions": f"Admin user created! Login with email: {email} and password: {password}"
         }
     except Exception as e:
         logging.error(f"Error creating admin user: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.post("/api/repair-admin-clerk")
+async def repair_admin_clerk(repair_data: dict):
+    """🔧 REPAIR: Create missing Clerk user for existing admin"""
+    try:
+        email = repair_data.get("email")
+        password = repair_data.get("password", "TempPassword123!")
+        
+        if not email:
+            raise HTTPException(status_code=400, detail="Email required")
+        
+        # Find existing admin in database
+        existing_admin = await db.users.find_one({"email": email})
+        if not existing_admin:
+            raise HTTPException(status_code=404, detail=f"Admin not found in database: {email}")
+        
+        # Check if Clerk user already exists
+        if clerk_admin.is_available():
+            try:
+                # Try to create Clerk user
+                clerk_user_data = await clerk_admin.create_user_with_clerk(
+                    email=email,
+                    password=password,
+                    name=existing_admin.get("name", "Admin User")
+                )
+                
+                # Update database admin with Clerk user ID
+                await db.users.update_one(
+                    {"email": email},
+                    {"$set": {
+                        "clerk_user_id": clerk_user_data["clerk_user_id"],
+                        "admin_approved": True,
+                        "updated_at": datetime.utcnow()
+                    }}
+                )
+                
+                logging.info(f"✅ Repaired admin Clerk integration: {email}")
+                
+                return {
+                    "message": "Admin Clerk integration repaired successfully",
+                    "email": email,
+                    "clerk_user_id": clerk_user_data["clerk_user_id"],
+                    "instructions": f"Now you can login with email: {email} and password: {password}"
+                }
+                
+            except Exception as clerk_error:
+                logging.error(f"❌ Failed to repair Clerk user for admin: {clerk_error}")
+                raise HTTPException(status_code=500, detail=f"Failed to create Clerk user: {str(clerk_error)}")
+        else:
+            raise HTTPException(status_code=500, detail="Clerk admin not available")
+            
+    except Exception as e:
+        logging.error(f"Error repairing admin Clerk integration: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @app.get("/api/consultants/{consultant_id}")
