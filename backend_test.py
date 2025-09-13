@@ -357,6 +357,98 @@ class GreenWaveCRMBackendTester:
             self.log_test("Admin Client Creation Endpoint", False,
                         "Admin client creation test failed", str(e))
 
+    def test_team_member_creation_endpoint(self):
+        """Test 4: CRITICAL - Test team member creation endpoint"""
+        try:
+            print("👥 Testing CRITICAL Team Member Creation Endpoint...")
+            
+            # Use a sample client ID for testing
+            test_client_id = "test-client-id-12345"
+            
+            # Test team member creation endpoint accessibility
+            response = requests.post(f"{self.base_url}/api/clients/{test_client_id}/team/add", 
+                                   headers=self.headers, timeout=10)
+            
+            if response.status_code in [401, 403]:
+                self.log_test("Team Member Creation - Endpoint Security", True,
+                            f"Team member creation properly secured: {response.status_code}")
+            elif response.status_code in [400, 422]:
+                self.log_test("Team Member Creation - Endpoint Security", True,
+                            f"Endpoint accessible, requires data: {response.status_code}")
+            elif response.status_code == 404:
+                self.log_test("Team Member Creation - Client Not Found", True,
+                            f"Proper 404 for non-existent client: {response.status_code}")
+            else:
+                self.log_test("Team Member Creation - Endpoint Security", False,
+                            f"Expected auth/validation error, got {response.status_code}")
+            
+            # Test with REALISTIC team member data (matching the reported issue)
+            critical_team_data = {
+                "name": "Fatma Demir",
+                "email": "fatma.demir@example.com",
+                "role": "Sürdürülebilirlik Uzmanı",
+                "department": "Çevre Yönetimi",
+                "phone": "+90 555 987 6543",
+                "position": "Uzman"
+            }
+            
+            response = requests.post(f"{self.base_url}/api/clients/{test_client_id}/team/add", 
+                                   headers=self.headers, json=critical_team_data, timeout=15)
+            
+            if response.status_code in [401, 403]:
+                self.log_test("Team Member Creation - Authentication Required", True,
+                            f"Authentication required for team member creation: {response.status_code}")
+            elif response.status_code == 404:
+                self.log_test("Team Member Creation - Client Validation", True,
+                            f"Proper client validation: {response.status_code}")
+            elif response.status_code in [400, 422]:
+                self.log_test("Team Member Creation - Data Validation", True,
+                            f"Data validation working: {response.status_code}")
+            elif response.status_code in [200, 201]:
+                self.log_test("Team Member Creation - SECURITY ISSUE", False,
+                            f"Team member created without auth: {response.status_code}",
+                            "CRITICAL: Team member creation should require authentication")
+            elif response.status_code == 500:
+                # Check if it's a Clerk integration error
+                try:
+                    error_text = response.text.lower()
+                    if "clerk" in error_text:
+                        self.log_test("Team Member Creation - Clerk Integration Error", False,
+                                    "Clerk integration failing during team member creation", response.text[:300])
+                    else:
+                        self.log_test("Team Member Creation - Server Error", False,
+                                    "Server error during team member creation", response.text[:300])
+                except:
+                    self.log_test("Team Member Creation - Server Error", False,
+                                f"Server error: {response.status_code}")
+            else:
+                self.log_test("Team Member Creation - Unexpected Response", False,
+                            f"Unexpected response: {response.status_code}")
+            
+            # Test with missing required fields
+            incomplete_team_data = {
+                "name": "Test User",
+                # Missing email - should cause validation error
+                "role": "Test Role"
+            }
+            
+            response = requests.post(f"{self.base_url}/api/clients/{test_client_id}/team/add", 
+                                   headers=self.headers, json=incomplete_team_data, timeout=15)
+            
+            if response.status_code in [401, 403]:
+                self.log_test("Team Member Creation - Incomplete Data Test", True,
+                            f"Incomplete data test requires auth: {response.status_code}")
+            elif response.status_code in [400, 422]:
+                self.log_test("Team Member Creation - Incomplete Data Validation", True,
+                            f"Validation working for incomplete data: {response.status_code}")
+            else:
+                self.log_test("Team Member Creation - Incomplete Data Issue", False,
+                            f"Unexpected response with incomplete data: {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Team Member Creation Endpoint", False,
+                        "Team member creation test failed", str(e))
+
     def test_clerk_integration_endpoints(self):
         """Test 4: Test Clerk integration related endpoints"""
         try:
