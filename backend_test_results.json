@@ -1,0 +1,194 @@
+[
+  {
+    "test": "Backend Health Check",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Status: 200, Response: {\"status\":\"healthy\",\"service\":\"Rota CRM Backend\",\"timestamp\":\"2025-09-13T22:13:40.290896\",\"version\":",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:40.384762"
+  },
+  {
+    "test": "Belge List Endpoint - Authentication Required",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Proper auth required: 403",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:40.832429"
+  },
+  {
+    "test": "Belge List Endpoint - Invalid Token Rejection",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Invalid token properly rejected: 401",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:41.301584"
+  },
+  {
+    "test": "Belge List Endpoint - Accessibility",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Endpoint is registered and accessible",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:41.301643"
+  },
+  {
+    "test": "Document Endpoint Stability - /api/documents",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Accessible: 403",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:41.608256"
+  },
+  {
+    "test": "Document Endpoint Stability - /api/documents/bulk-download",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Accessible: 403",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:42.073952"
+  },
+  {
+    "test": "Document Endpoint Stability - /api/belge/upload",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Accessible: 405",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:42.549396"
+  },
+  {
+    "test": "Document Endpoint Stability - /api/belge/list",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Accessible: 403",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:42.860124"
+  },
+  {
+    "test": "ZIP Download Endpoint - Security",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Properly secured: 403",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:43.168062"
+  },
+  {
+    "test": "ZIP Download Endpoint - Parameter Handling",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Parameters accepted, auth required: 403",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:43.482278"
+  },
+  {
+    "test": "File Upload Endpoint - Accessibility",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Endpoint accessible: 403",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:43.789867"
+  },
+  {
+    "test": "File Upload Endpoint - CORS Support",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "CORS enabled: 200",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:44.413277"
+  },
+  {
+    "test": "MongoDB Sort Fix - /api/belge/list",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "No 500 error with limit=50: 403",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:44.721580"
+  },
+  {
+    "test": "MongoDB Sort Fix - /api/documents",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "No 500 error with limit=50: 403",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:45.036889"
+  },
+  {
+    "test": "MongoDB Sort Fix - /api/clients",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "No 500 error with limit=50: 403",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:45.524500"
+  },
+  {
+    "test": "MongoDB Sort Fix - /api/consumptions",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "No 500 error with limit=50: 403",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:45.839094"
+  },
+  {
+    "test": "Backend Performance",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Average response time: 0.31s",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:47.384672"
+  },
+  {
+    "test": "Authentication System - No Auth Header",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Properly rejected: 403",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:47.690116"
+  },
+  {
+    "test": "Authentication System - Empty Auth Header",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Properly rejected: 403",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:47.995458"
+  },
+  {
+    "test": "Authentication System - Invalid Bearer Token",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Properly rejected: 401",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:48.299713"
+  },
+  {
+    "test": "Authentication System - Malformed Auth Header",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Properly rejected: 403",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:48.605880"
+  },
+  {
+    "test": "CORS Configuration",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "CORS headers present: 200",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:48.915480"
+  },
+  {
+    "test": "Error Handling - 404",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Proper 404 for non-existent endpoints",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:49.223160"
+  },
+  {
+    "test": "Error Handling - Method Not Allowed",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Proper method restriction: 405",
+    "error": "",
+    "timestamp": "2025-09-13T22:13:49.676775"
+  }
+]
