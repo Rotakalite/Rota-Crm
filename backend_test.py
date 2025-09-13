@@ -681,7 +681,10 @@ class GreenWaveCRMBackendTester:
         # 1. Basic connectivity tests
         self.test_backend_health()
         
-        # 2. Sustainability Targets Bulk Import Tests
+        # 2. Deployment Verification
+        self.test_deployment_verification()
+        
+        # 3. Sustainability Targets Bulk Import Tests
         self.test_bulk_targets_endpoint_accessibility()
         self.test_bulk_targets_authentication()
         self.test_bulk_targets_model_validation()
