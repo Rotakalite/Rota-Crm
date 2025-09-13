@@ -1815,10 +1815,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "MongoDB Memory Limit ve ZIP Upload Düzeltme Testi"
+    - "Sustainability Targets Bulk Import Feature"
   stuck_tasks:
-    - "Consultant Management System Backend APIs"
+    - "Sustainability Targets Bulk Import Feature"
   test_all: false
+  test_priority: "high_first"
   - task: "Personnel Management Consultant Access Fix"
     implemented: true
     working: "NA"
