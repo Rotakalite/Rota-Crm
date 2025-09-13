@@ -4143,6 +4143,12 @@ async def list_belge_main_app(current_user: User = Depends(get_current_user)):
                 del doc["file_content"]
             formatted_docs.append(doc)
         
+        # Sort in Python after removing heavy fields - safe from memory limit
+        try:
+            formatted_docs.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+        except Exception as sort_error:
+            logging.warning(f"⚠️ Sort failed, returning unsorted: {sort_error}")
+        
         logging.info(f"✅ Found {len(formatted_docs)} documents")
         
         return {
