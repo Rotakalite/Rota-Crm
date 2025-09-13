@@ -503,6 +503,83 @@ class GreenWaveCRMBackendTester:
             self.log_test("Clerk Integration Endpoints", False,
                         "Clerk integration test failed", str(e))
 
+    def test_database_user_creation_issue(self):
+        """Test 6: CRITICAL - Test database user creation issue"""
+        try:
+            print("🗄️ Testing CRITICAL Database User Creation Issue...")
+            
+            # Test users endpoint to check if users are being created
+            response = requests.get(f"{self.base_url}/api/settings/users", 
+                                  headers=self.headers, timeout=10)
+            
+            if response.status_code in [401, 403]:
+                self.log_test("Database User Creation - Users Endpoint Security", True,
+                            f"Users endpoint properly secured: {response.status_code}")
+            elif response.status_code == 404:
+                self.log_test("Database User Creation - Users Endpoint Missing", False,
+                            "Users endpoint not found - this could be the issue!")
+            else:
+                self.log_test("Database User Creation - Users Endpoint", True,
+                            f"Users endpoint responds: {response.status_code}")
+            
+            # Test alternative users endpoint paths
+            alternative_paths = [
+                "/api/users",
+                "/api/auth/users", 
+                "/api/admin/users"
+            ]
+            
+            for path in alternative_paths:
+                try:
+                    response = requests.get(f"{self.base_url}{path}", 
+                                          headers=self.headers, timeout=10)
+                    
+                    if response.status_code in [401, 403]:
+                        self.log_test(f"Database User Creation - Alternative Path {path}", True,
+                                    f"Alternative users endpoint secured: {response.status_code}")
+                    elif response.status_code == 404:
+                        self.log_test(f"Database User Creation - Alternative Path {path}", False,
+                                    f"Alternative users endpoint not found: {path}")
+                    else:
+                        self.log_test(f"Database User Creation - Alternative Path {path}", True,
+                                    f"Alternative users endpoint responds: {response.status_code}")
+                        
+                except Exception as e:
+                    self.log_test(f"Database User Creation - Alternative Path {path}", False,
+                                "Request failed", str(e))
+            
+            # Test user creation endpoint specifically
+            test_user_data = {
+                "email": "test-database-user@example.com",
+                "name": "Test Database User",
+                "role": "client",
+                "clerk_user_id": "test_clerk_id_12345"
+            }
+            
+            response = requests.post(f"{self.base_url}/api/settings/users", 
+                                   headers=self.headers, json=test_user_data, timeout=15)
+            
+            if response.status_code in [401, 403]:
+                self.log_test("Database User Creation - User Creation Security", True,
+                            f"User creation requires authentication: {response.status_code}")
+            elif response.status_code == 404:
+                self.log_test("Database User Creation - User Creation Endpoint Missing", False,
+                            "User creation endpoint not found - CRITICAL ISSUE!")
+            elif response.status_code in [400, 422]:
+                self.log_test("Database User Creation - User Creation Validation", True,
+                            f"User creation validation working: {response.status_code}")
+            elif response.status_code in [200, 201]:
+                self.log_test("Database User Creation - SECURITY ISSUE", False,
+                            f"User created without auth: {response.status_code}",
+                            "CRITICAL: User creation should require authentication")
+            else:
+                self.log_test("Database User Creation - Unexpected Response", False,
+                            f"Unexpected response: {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Database User Creation Issue", False,
+                        "Database user creation test failed", str(e))
+
     def test_user_management_endpoints(self):
         """Test 5: Test user management endpoints"""
         try:
