@@ -4128,9 +4128,9 @@ async def list_belge_main_app(current_user: User = Depends(get_current_user)):
                 return {"success": True, "documents": [], "count": 0}
             query["client_id"] = current_user.client_id
         
-        # Get documents with pagination to avoid memory limit
+        # Get documents with allowDiskUse to avoid memory limit
         documents = await asyncio.to_thread(
-            lambda: list(db.documents.find(query).sort("created_at", -1).limit(1000))
+            lambda: list(db.documents.find(query).sort("created_at", -1).limit(100).allow_disk_use(True))
         )
         
         # Format response - EXCLUDE BINARY CONTENT from list
