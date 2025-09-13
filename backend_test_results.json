@@ -3,57 +3,97 @@
     "test": "Backend Health Check",
     "status": "✅ PASS",
     "success": true,
-    "details": "Status: 200, Response: {\"status\":\"healthy\",\"service\":\"Rota CRM Backend\",\"timestamp\":\"2025-09-13T23:16:03.828719\",\"version\":",
+    "details": "Status: 200, Response: {\"status\":\"healthy\",\"service\":\"Rota CRM Backend\",\"timestamp\":\"2025-09-13T23:46:22.226734\",\"version\":",
     "error": "",
-    "timestamp": "2025-09-13T23:16:03.921789"
+    "timestamp": "2025-09-13T23:46:22.324033"
   },
   {
-    "test": "Admin User Database - Clients Endpoint Security",
-    "status": "✅ PASS",
-    "success": true,
-    "details": "Clients endpoint properly secured: 403",
-    "error": "",
-    "timestamp": "2025-09-13T23:16:04.373791"
-  },
-  {
-    "test": "Admin User Database - Email Search",
-    "status": "✅ PASS",
-    "success": true,
-    "details": "Email search requires authentication: 403",
-    "error": "",
-    "timestamp": "2025-09-13T23:16:04.682335"
-  },
-  {
-    "test": "Admin Creation Endpoint - Accessibility",
-    "status": "✅ PASS",
-    "success": true,
-    "details": "Endpoint accessible, requires data: 422",
-    "error": "",
-    "timestamp": "2025-09-13T23:16:05.146303"
-  },
-  {
-    "test": "Admin Creation Endpoint - Data Processing",
-    "status": "✅ PASS",
-    "success": true,
-    "details": "Admin creation successful: 200",
-    "error": "",
-    "timestamp": "2025-09-13T23:16:05.475806"
-  },
-  {
-    "test": "Client Creation Endpoint - Security",
+    "test": "Admin Client Creation - Endpoint Security",
     "status": "✅ PASS",
     "success": true,
     "details": "Client creation properly secured: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:05.930289"
+    "timestamp": "2025-09-13T23:46:22.797115"
   },
   {
-    "test": "Client Creation Endpoint - Data Processing",
+    "test": "Admin Client Creation - Authentication Required",
     "status": "✅ PASS",
     "success": true,
     "details": "Authentication required for client creation: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:06.238584"
+    "timestamp": "2025-09-13T23:46:23.111985"
+  },
+  {
+    "test": "Admin Client Creation - No Password Test",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "No password test requires auth: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:46:23.588701"
+  },
+  {
+    "test": "Team Member Creation - Endpoint Security",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Team member creation properly secured: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:46:23.897307"
+  },
+  {
+    "test": "Team Member Creation - Authentication Required",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Authentication required for team member creation: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:46:24.374673"
+  },
+  {
+    "test": "Team Member Creation - Incomplete Data Test",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Incomplete data test requires auth: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:46:24.682208"
+  },
+  {
+    "test": "Database User Creation - Users Endpoint Security",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Users endpoint properly secured: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:46:25.159169"
+  },
+  {
+    "test": "Database User Creation - Alternative Path /api/users",
+    "status": "❌ FAIL",
+    "success": false,
+    "details": "Alternative users endpoint not found: /api/users",
+    "error": "",
+    "timestamp": "2025-09-13T23:46:25.466763"
+  },
+  {
+    "test": "Database User Creation - Alternative Path /api/auth/users",
+    "status": "❌ FAIL",
+    "success": false,
+    "details": "Alternative users endpoint not found: /api/auth/users",
+    "error": "",
+    "timestamp": "2025-09-13T23:46:25.936222"
+  },
+  {
+    "test": "Database User Creation - Alternative Path /api/admin/users",
+    "status": "❌ FAIL",
+    "success": false,
+    "details": "Alternative users endpoint not found: /api/admin/users",
+    "error": "",
+    "timestamp": "2025-09-13T23:46:26.248721"
+  },
+  {
+    "test": "Database User Creation - Unexpected Response",
+    "status": "❌ FAIL",
+    "success": false,
+    "details": "Unexpected response: 405",
+    "error": "",
+    "timestamp": "2025-09-13T23:46:26.723841"
   },
   {
     "test": "Clerk Integration - /api/auth/register",
@@ -61,7 +101,7 @@
     "success": true,
     "details": "Endpoint accessible: 405",
     "error": "",
-    "timestamp": "2025-09-13T23:16:06.710968"
+    "timestamp": "2025-09-13T23:46:27.032086"
   },
   {
     "test": "Clerk Integration - /api/auth/login",
@@ -69,7 +109,7 @@
     "success": false,
     "details": "Endpoint not found: /api/auth/login",
     "error": "",
-    "timestamp": "2025-09-13T23:16:07.016834"
+    "timestamp": "2025-09-13T23:46:27.531853"
   },
   {
     "test": "Clerk Integration - /api/auth/me",
@@ -77,7 +117,7 @@
     "success": true,
     "details": "Endpoint accessible: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:07.478917"
+    "timestamp": "2025-09-13T23:46:27.840044"
   },
   {
     "test": "Clerk Integration - /api/auth/verify",
@@ -85,7 +125,7 @@
     "success": false,
     "details": "Endpoint not found: /api/auth/verify",
     "error": "",
-    "timestamp": "2025-09-13T23:16:07.787777"
+    "timestamp": "2025-09-13T23:46:28.144365"
   },
   {
     "test": "Clerk Integration - JWKS Endpoint",
@@ -93,7 +133,7 @@
     "success": true,
     "details": "JWKS accessible, 1 keys found",
     "error": "",
-    "timestamp": "2025-09-13T23:16:07.960708"
+    "timestamp": "2025-09-13T23:46:28.287899"
   },
   {
     "test": "User Management - Users Endpoint",
@@ -101,7 +141,7 @@
     "success": true,
     "details": "Users endpoint found at /api/settings/users: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:08.753550"
+    "timestamp": "2025-09-13T23:46:28.916248"
   },
   {
     "test": "User Management - User Creation",
@@ -109,7 +149,7 @@
     "success": false,
     "details": "User creation endpoint not found",
     "error": "",
-    "timestamp": "2025-09-13T23:16:09.206571"
+    "timestamp": "2025-09-13T23:46:29.231197"
   },
   {
     "test": "Clerk User Creation Flow - Client Creation",
@@ -117,7 +157,7 @@
     "success": true,
     "details": "Client creation flow accessible: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:09.516136"
+    "timestamp": "2025-09-13T23:46:29.536914"
   },
   {
     "test": "Clerk User Creation Flow - Admin Creation",
@@ -125,7 +165,7 @@
     "success": true,
     "details": "Admin creation flow responds: 200",
     "error": "",
-    "timestamp": "2025-09-13T23:16:09.831354"
+    "timestamp": "2025-09-13T23:46:29.994187"
   },
   {
     "test": "Database Collections - Clients",
@@ -133,7 +173,7 @@
     "success": true,
     "details": "Clients collection accessible: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:10.139257"
+    "timestamp": "2025-09-13T23:46:30.304773"
   },
   {
     "test": "Database Collections - Users",
@@ -141,7 +181,7 @@
     "success": true,
     "details": "Users collection accessible: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:10.449882"
+    "timestamp": "2025-09-13T23:46:30.765984"
   },
   {
     "test": "Database Collections - Consumptions",
@@ -149,7 +189,7 @@
     "success": true,
     "details": "Consumptions collection accessible: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:10.757234"
+    "timestamp": "2025-09-13T23:46:31.073239"
   },
   {
     "test": "Database Collections - Documents",
@@ -157,7 +197,7 @@
     "success": true,
     "details": "Documents collection accessible: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:11.065140"
+    "timestamp": "2025-09-13T23:46:31.387355"
   },
   {
     "test": "Database Collections - Trainings",
@@ -165,7 +205,39 @@
     "success": true,
     "details": "Trainings collection accessible: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:11.517006"
+    "timestamp": "2025-09-13T23:46:31.696586"
+  },
+  {
+    "test": "Admin User Database - Clients Endpoint Security",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Clients endpoint properly secured: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:46:32.004901"
+  },
+  {
+    "test": "Admin User Database - Email Search",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Email search requires authentication: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:46:32.316947"
+  },
+  {
+    "test": "Admin Creation Endpoint - Accessibility",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Endpoint accessible, requires data: 422",
+    "error": "",
+    "timestamp": "2025-09-13T23:46:32.645466"
+  },
+  {
+    "test": "Admin Creation Endpoint - Data Processing",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Admin creation successful: 200",
+    "error": "",
+    "timestamp": "2025-09-13T23:46:32.968767"
   },
   {
     "test": "Specific Admin User - /api/clients",
@@ -173,7 +245,7 @@
     "success": true,
     "details": "Search endpoint secured: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:11.824091"
+    "timestamp": "2025-09-13T23:46:33.273996"
   },
   {
     "test": "Specific Admin User - /api/clients",
@@ -181,7 +253,7 @@
     "success": true,
     "details": "Search endpoint secured: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:12.294511"
+    "timestamp": "2025-09-13T23:46:33.581549"
   },
   {
     "test": "Specific Admin User - /api/users",
@@ -189,7 +261,7 @@
     "success": false,
     "details": "Search endpoint not found",
     "error": "",
-    "timestamp": "2025-09-13T23:16:12.616905"
+    "timestamp": "2025-09-13T23:46:34.034754"
   },
   {
     "test": "Specific Admin User - /api/settings/users",
@@ -197,7 +269,7 @@
     "success": true,
     "details": "Search endpoint secured: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:12.924938"
+    "timestamp": "2025-09-13T23:46:34.345907"
   },
   {
     "test": "Specific Admin User - Authentication Test",
@@ -205,7 +277,7 @@
     "success": false,
     "details": "Login endpoint not found",
     "error": "",
-    "timestamp": "2025-09-13T23:16:13.235876"
+    "timestamp": "2025-09-13T23:46:34.653509"
   },
   {
     "test": "Database Investigation - Clients API base",
@@ -213,7 +285,7 @@
     "success": true,
     "details": "Clients API accessible: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:13.544398"
+    "timestamp": "2025-09-13T23:46:34.963011"
   },
   {
     "test": "Database Investigation - Clients API ?limit=1",
@@ -221,7 +293,7 @@
     "success": true,
     "details": "Clients API accessible: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:13.873766"
+    "timestamp": "2025-09-13T23:46:35.271710"
   },
   {
     "test": "Database Investigation - Clients API ?client_type=registered",
@@ -229,7 +301,7 @@
     "success": true,
     "details": "Clients API accessible: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:14.183220"
+    "timestamp": "2025-09-13T23:46:35.722766"
   },
   {
     "test": "Database Investigation - Clients API ?search=kemal",
@@ -237,7 +309,7 @@
     "success": true,
     "details": "Clients API accessible: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:14.500245"
+    "timestamp": "2025-09-13T23:46:36.029694"
   },
   {
     "test": "Database Investigation - Users API base",
@@ -245,7 +317,7 @@
     "success": true,
     "details": "Users API accessible: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:14.808169"
+    "timestamp": "2025-09-13T23:46:36.338065"
   },
   {
     "test": "Database Investigation - Users API ?limit=1",
@@ -253,7 +325,7 @@
     "success": true,
     "details": "Users API accessible: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:15.115696"
+    "timestamp": "2025-09-13T23:46:36.644924"
   },
   {
     "test": "Database Investigation - Users API ?role=client",
@@ -261,7 +333,7 @@
     "success": true,
     "details": "Users API accessible: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:15.583149"
+    "timestamp": "2025-09-13T23:46:36.958397"
   },
   {
     "test": "Database Investigation - Users API ?email=kemalakkoc03@gmail.com",
@@ -269,7 +341,7 @@
     "success": true,
     "details": "Users API accessible: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:15.899928"
+    "timestamp": "2025-09-13T23:46:37.270214"
   },
   {
     "test": "Detailed Client Creation - Complete Data",
@@ -277,7 +349,7 @@
     "success": true,
     "details": "Client creation requires authentication: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:16.214658"
+    "timestamp": "2025-09-13T23:46:37.584494"
   },
   {
     "test": "Detailed Client Creation - No Password",
@@ -285,7 +357,7 @@
     "success": true,
     "details": "Client creation without password requires auth: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:16.521286"
+    "timestamp": "2025-09-13T23:46:37.919143"
   },
   {
     "test": "Detailed Client Creation - No Auto Create",
@@ -293,7 +365,7 @@
     "success": true,
     "details": "Client creation without auto create requires auth: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:16.838721"
+    "timestamp": "2025-09-13T23:46:38.227095"
   },
   {
     "test": "Authentication System - No Auth Header",
@@ -301,7 +373,7 @@
     "success": true,
     "details": "Properly rejected: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:17.287120"
+    "timestamp": "2025-09-13T23:46:38.536699"
   },
   {
     "test": "Authentication System - Empty Auth Header",
@@ -309,7 +381,7 @@
     "success": true,
     "details": "Properly rejected: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:17.597524"
+    "timestamp": "2025-09-13T23:46:38.848609"
   },
   {
     "test": "Authentication System - Invalid Bearer Token",
@@ -317,7 +389,7 @@
     "success": true,
     "details": "Properly rejected: 401",
     "error": "",
-    "timestamp": "2025-09-13T23:16:17.905602"
+    "timestamp": "2025-09-13T23:46:39.162248"
   },
   {
     "test": "Authentication System - Malformed Auth Header",
@@ -325,7 +397,7 @@
     "success": true,
     "details": "Properly rejected: 403",
     "error": "",
-    "timestamp": "2025-09-13T23:16:18.212791"
+    "timestamp": "2025-09-13T23:46:39.477247"
   },
   {
     "test": "CORS Configuration",
@@ -333,7 +405,7 @@
     "success": true,
     "details": "CORS headers present: 200",
     "error": "",
-    "timestamp": "2025-09-13T23:16:18.519882"
+    "timestamp": "2025-09-13T23:46:39.784550"
   },
   {
     "test": "Error Handling - 404",
@@ -341,7 +413,7 @@
     "success": true,
     "details": "Proper 404 for non-existent endpoints",
     "error": "",
-    "timestamp": "2025-09-13T23:16:18.834906"
+    "timestamp": "2025-09-13T23:46:40.095974"
   },
   {
     "test": "Error Handling - Method Not Allowed",
@@ -349,6 +421,6 @@
     "success": true,
     "details": "Proper method restriction: 405",
     "error": "",
-    "timestamp": "2025-09-13T23:16:19.168305"
+    "timestamp": "2025-09-13T23:46:40.545639"
   }
 ]
