@@ -8593,6 +8593,88 @@ async def add_team_member(
                 {"$set": {"team": []}}
             )
         
+        # 🔑 CREATE CLERK USER AND DATABASE USER FOR TEAM MEMBER
+        clerk_user_data = None
+        user_id = None
+        
+        # Check if user already exists in database
+        existing_user = await db.users.find_one({"email": team_member["email"]})
+        
+        if not existing_user:
+            # Create Clerk user first
+            if clerk_admin.is_available():
+                try:
+                    default_password = f"Team{team_member['name'].replace(' ', '')}123!"
+                    clerk_user_data = await clerk_admin.create_user_with_clerk(
+                        email=team_member["email"],
+                        password=default_password,
+                        name=team_member["name"]
+                    )
+                    logging.info(f"✅ Clerk user created for team member: {team_member['email']}")
+                    
+                    # Create database user
+                    new_user = {
+                        "id": str(uuid.uuid4()),
+                        "clerk_user_id": clerk_user_data["clerk_user_id"],
+                        "email": team_member["email"],
+                        "name": team_member["name"],
+                        "role": "client",  # Team members are client role
+                        "client_id": client_id,
+                        "admin_approved": True,  # Admin created, so approved
+                        "user_status": "approved",
+                        "self_registered": False,  # Admin-created
+                        "demo_limits": {
+                            "documents": 0,
+                            "trainings": 0, 
+                            "consumptions": 0,
+                            "personnel": 0,
+                            "suppliers": 0,
+                            "targets": 0,
+                            "waste": 0
+                        },
+                        "max_demo_limit": 3,
+                        "created_at": datetime.utcnow(),
+                        "updated_at": datetime.utcnow()
+                    }
+                    
+                    await db.users.insert_one(new_user)
+                    user_id = new_user["id"]
+                    
+                    # Send welcome email
+                    try:
+                        await clerk_admin.send_welcome_email(
+                            email=team_member["email"],
+                            password=default_password,
+                            client_name=client.get("name", "")
+                        )
+                        logging.info(f"✅ Welcome email sent to team member: {team_member['email']}")
+                    except Exception as email_error:
+                        logging.warning(f"⚠️ Welcome email failed for {team_member['email']}: {email_error}")
+                    
+                    logging.info(f"✅ Database user created for team member: {team_member['email']}")
+                    
+                except Exception as clerk_error:
+                    logging.error(f"❌ Failed to create Clerk user for team member: {clerk_error}")
+                    # Continue without Clerk user - at least add to team
+            else:
+                logging.warning(f"⚠️ Clerk not available, creating team member without user account")
+        else:
+            # User already exists, just link to client
+            await db.users.update_one(
+                {"email": team_member["email"]},
+                {"$set": {
+                    "client_id": client_id,
+                    "admin_approved": True,
+                    "updated_at": datetime.utcnow()
+                }}
+            )
+            user_id = existing_user["id"]
+            logging.info(f"✅ Existing user linked to client: {team_member['email']}")
+
+        # Add user_id to team member data
+        team_member["user_id"] = user_id
+        team_member["clerk_user_id"] = clerk_user_data["clerk_user_id"] if clerk_user_data else None
+        
         # Add team member to client
         result = await db.clients.update_one(
             {"id": client_id},
@@ -8605,11 +8687,17 @@ async def add_team_member(
         if result.matched_count == 0:
             raise HTTPException(status_code=404, detail="Client not found")
         
-        logging.info(f"✅ Team member added to client {client_id}: {team_member['name']}")
+        logging.info(f"✅ Team member added to client {client_id}: {team_member['name']} with user account")
         
         return {
-            "message": "Team member added successfully",
-            "team_member": team_member
+            "message": "Team member added successfully with user account",
+            "team_member": team_member,
+            "user_created": user_id is not None,
+            "clerk_user_created": clerk_user_data is not None,
+            "login_credentials": {
+                "email": team_member["email"],
+                "password": f"Team{team_member['name'].replace(' ', '')}123!" if clerk_user_data else None
+            } if clerk_user_data else None
         }
         
     except HTTPException:
