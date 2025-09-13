@@ -7517,7 +7517,7 @@ async def increment_demo_limit(user: User, limit_type: str):
         logging.error(f"❌ User not found for increment: {user.id}")
         return
     
-    # 🎯 NEW: Check if user is admin approved or client created by admin
+    # 🎯 ENHANCED: Check if user is admin approved or client created by admin
     if fresh_user_data.get("admin_approved", False):
         logging.info(f"✅ User {user.email} is admin approved - skipping demo limit increment")
         return
@@ -7528,6 +7528,16 @@ async def increment_demo_limit(user: User, limit_type: str):
         if client and client.get("created_by_admin", False):
             logging.info(f"✅ Client {fresh_user_data['client_id']} was created by admin - skipping demo limit increment for {limit_type}")
             return
+    
+    # 🎯 FALLBACK: If user has admin role, skip increment completely
+    if fresh_user_data.get("role") == "admin":
+        logging.info(f"✅ User {fresh_user_data.get('email')} is admin - skipping demo limit increment for {limit_type}")
+        return
+    
+    # 🎯 ADDITIONAL CHECK: If no client_id but user was not self-registered, likely admin-created
+    if not fresh_user_data.get("client_id") and not fresh_user_data.get("self_registered", True):
+        logging.info(f"✅ User {fresh_user_data.get('email')} appears to be admin-created - skipping demo limit increment for {limit_type}")
+        return
     
     current_demo_limits = fresh_user_data.get('demo_limits', {})
     logging.error(f"🔍 Current demo_limits before increment (FRESH): {current_demo_limits}")
