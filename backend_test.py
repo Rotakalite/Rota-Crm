@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 """
-GreenWave CRM MongoDB Memory Limit ve ZIP Upload Düzeltme Testi
-Backend comprehensive testing for MongoDB sort memory limit fix and ZIP upload support
+GreenWave CRM Hedefler Bulk Import Test
+Backend comprehensive testing for Sustainability Targets bulk Excel import feature
 
 Test Requirements from Review Request:
-1. MongoDB sort memory limit hatası devam ediyor - "Sort exceeded memory limit of 33554432 bytes"
-2. ZIP dosyası seçememe sorunu
-3. Backend'in stabil çalıştığını doğrula
-4. Authentication error (401/403) alındığını kontrol et
+1. Verify `/api/sustainability-targets/bulk` endpoint works
+2. Test authentication control (401/403 expected)
+3. Check model validation works
+4. Verify demo limit bypass system works
 
-Fixes Applied:
-1. MongoDB sort'u kaldırdım, Python'da sort yapıyorum
-2. Limit 50'ye düşürdüm 
-3. Frontend'e ZIP ve RAR desteği eklendi
-4. Backend 500MB dosya desteği zaten var
+Expected Endpoint Features:
+- POST method
+- JSON body with targets_list array
+- client_id query parameter support
+- Admin/consultant/client role control
+- Demo limit bypass system
 
 Railway URL: https://rota-crm-production.up.railway.app
 """
