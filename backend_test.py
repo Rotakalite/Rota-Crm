@@ -270,62 +270,92 @@ class GreenWaveCRMBackendTester:
             self.log_test("Admin Creation Endpoint", False,
                         "Admin creation test failed", str(e))
 
-    def test_client_creation_endpoint(self):
-        """Test 3: Test client creation endpoint (where the issue occurred)"""
+    def test_admin_client_creation_endpoint(self):
+        """Test 3: CRITICAL - Test admin client creation endpoint (main issue)"""
         try:
-            print("🏢 Testing Client Creation Endpoint...")
+            print("🚨 Testing CRITICAL Admin Client Creation Endpoint...")
             
-            # Test clients POST endpoint
+            # Test clients POST endpoint accessibility
             response = requests.post(f"{self.base_url}/api/clients", 
                                    headers=self.headers, timeout=10)
             
             if response.status_code in [401, 403]:
-                self.log_test("Client Creation Endpoint - Security", True,
+                self.log_test("Admin Client Creation - Endpoint Security", True,
                             f"Client creation properly secured: {response.status_code}")
             elif response.status_code in [400, 422]:
-                self.log_test("Client Creation Endpoint - Security", True,
+                self.log_test("Admin Client Creation - Endpoint Security", True,
                             f"Endpoint accessible, requires data: {response.status_code}")
             else:
-                self.log_test("Client Creation Endpoint - Security", False,
+                self.log_test("Admin Client Creation - Endpoint Security", False,
                             f"Expected auth/validation error, got {response.status_code}")
             
-            # Test with sample client data (similar to the problematic case)
-            client_data = {
-                "name": "Test Hotel",
-                "hotel_name": "Test Hotel",
-                "contact_person": "Test Contact",
-                "email": "test-client@example.com",
+            # Test with REALISTIC client data (matching the reported issue)
+            critical_client_data = {
+                "name": "Test Otel Müşteri",
+                "hotel_name": "Test Otel Müşteri",
+                "contact_person": "Ahmet Yılmaz",
+                "email": "test-musteri@example.com",
                 "phone": "+90 555 123 4567",
                 "city": "İstanbul",
                 "district": "Beşiktaş",
-                "address": "Test Address",
-                "audit_company": "Test Audit",
+                "address": "Test Mahallesi Test Sokak No:123",
+                "audit_company": "Test Denetim Firması",
                 "certificate_end_date": "2024-12-31",
                 "client_type": "registered",
-                "password": "TestPassword123",
-                "auto_create_account": True
+                "password": "MusteriSifre123!",  # Admin-defined password
+                "auto_create_account": True      # Should create Clerk user
             }
             
             response = requests.post(f"{self.base_url}/api/clients", 
-                                   headers=self.headers, json=client_data, timeout=10)
+                                   headers=self.headers, json=critical_client_data, timeout=15)
             
             if response.status_code in [401, 403]:
-                self.log_test("Client Creation Endpoint - Data Processing", True,
+                self.log_test("Admin Client Creation - Authentication Required", True,
                             f"Authentication required for client creation: {response.status_code}")
             elif response.status_code in [400, 422]:
-                self.log_test("Client Creation Endpoint - Data Processing", True,
+                self.log_test("Admin Client Creation - Data Validation", True,
                             f"Data validation working: {response.status_code}")
             elif response.status_code in [200, 201]:
-                self.log_test("Client Creation Endpoint - Data Processing", False,
+                self.log_test("Admin Client Creation - SECURITY ISSUE", False,
                             f"Client created without auth: {response.status_code}",
-                            "SECURITY ISSUE: Client creation should require authentication")
+                            "CRITICAL: Client creation should require admin authentication")
+            elif response.status_code == 500:
+                # Check if it's a Clerk integration error
+                try:
+                    error_text = response.text.lower()
+                    if "clerk" in error_text:
+                        self.log_test("Admin Client Creation - Clerk Integration Error", False,
+                                    "Clerk integration failing during client creation", response.text[:300])
+                    else:
+                        self.log_test("Admin Client Creation - Server Error", False,
+                                    "Server error during client creation", response.text[:300])
+                except:
+                    self.log_test("Admin Client Creation - Server Error", False,
+                                f"Server error: {response.status_code}")
             else:
-                self.log_test("Client Creation Endpoint - Data Processing", False,
+                self.log_test("Admin Client Creation - Unexpected Response", False,
                             f"Unexpected response: {response.status_code}")
+            
+            # Test without password (to check if this causes the issue)
+            no_password_data = critical_client_data.copy()
+            del no_password_data["password"]
+            
+            response = requests.post(f"{self.base_url}/api/clients", 
+                                   headers=self.headers, json=no_password_data, timeout=15)
+            
+            if response.status_code in [401, 403]:
+                self.log_test("Admin Client Creation - No Password Test", True,
+                            f"No password test requires auth: {response.status_code}")
+            elif response.status_code in [400, 422]:
+                self.log_test("Admin Client Creation - No Password Validation", True,
+                            f"Validation working for no password: {response.status_code}")
+            else:
+                self.log_test("Admin Client Creation - No Password Issue", False,
+                            f"Unexpected response without password: {response.status_code}")
                 
         except Exception as e:
-            self.log_test("Client Creation Endpoint", False,
-                        "Client creation test failed", str(e))
+            self.log_test("Admin Client Creation Endpoint", False,
+                        "Admin client creation test failed", str(e))
 
     def test_clerk_integration_endpoints(self):
         """Test 4: Test Clerk integration related endpoints"""
