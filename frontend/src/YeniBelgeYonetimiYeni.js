@@ -5,6 +5,7 @@ import { useClerk } from '@clerk/clerk-react';
 
 const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
   const isMobile = useIsMobile();
+  const { session } = useClerk(); // Add session from Clerk
   // useAuth hook'u App.js'den import edemediğimiz için manuel auth kontrol
   const [authToken, setAuthToken] = useState(null);
   const [userRole, setUserRole] = useState(null);
