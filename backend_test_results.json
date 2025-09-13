@@ -3,177 +3,209 @@
     "test": "Backend Health Check",
     "status": "✅ PASS",
     "success": true,
-    "details": "Status: 200, Response: {\"status\":\"healthy\",\"service\":\"Rota CRM Backend\",\"timestamp\":\"2025-09-13T22:40:36.589353\",\"version\":",
+    "details": "Status: 200, Response: {\"status\":\"healthy\",\"service\":\"Rota CRM Backend\",\"timestamp\":\"2025-09-13T23:12:19.271915\",\"version\":",
     "error": "",
-    "timestamp": "2025-09-13T22:40:36.644213"
+    "timestamp": "2025-09-13T23:12:19.369849"
   },
   {
-    "test": "Deployment - Bulk Endpoint Registered",
-    "status": "❌ FAIL",
-    "success": false,
-    "details": "CRITICAL: Bulk targets endpoint NOT found in registered routes",
-    "error": "Deployment issue - endpoint not deployed to production",
-    "timestamp": "2025-09-13T22:40:37.104511"
-  },
-  {
-    "test": "Deployment - Total Routes",
+    "test": "Admin User Database - Clients Endpoint Security",
     "status": "✅ PASS",
     "success": true,
-    "details": "Total registered routes: 254",
+    "details": "Clients endpoint properly secured: 403",
     "error": "",
-    "timestamp": "2025-09-13T22:40:37.104558"
+    "timestamp": "2025-09-13T23:12:19.841907"
   },
   {
-    "test": "Deployment - Regular Sustainability Routes",
+    "test": "Admin User Database - Email Search",
     "status": "✅ PASS",
     "success": true,
-    "details": "Regular sustainability targets routes: 8",
+    "details": "Email search requires authentication: 403",
     "error": "",
-    "timestamp": "2025-09-13T22:40:37.104595"
+    "timestamp": "2025-09-13T23:12:20.150718"
   },
   {
-    "test": "Bulk Targets Endpoint Accessibility",
-    "status": "❌ FAIL",
-    "success": false,
-    "details": "Method Not Allowed (405)",
-    "error": "CRITICAL: Endpoint not registered in production!",
-    "timestamp": "2025-09-13T22:40:37.551128"
-  },
-  {
-    "test": "Regular Sustainability Targets Endpoint",
+    "test": "Admin Creation Endpoint - Accessibility",
     "status": "✅ PASS",
     "success": true,
-    "details": "Regular endpoint works: 403",
+    "details": "Endpoint accessible, requires data: 422",
     "error": "",
-    "timestamp": "2025-09-13T22:40:37.860495"
+    "timestamp": "2025-09-13T23:12:20.626020"
   },
   {
-    "test": "Bulk Targets - No Auth",
-    "status": "❌ FAIL",
-    "success": false,
-    "details": "Expected 401/403, got 405",
-    "error": "",
-    "timestamp": "2025-09-13T22:40:38.306943"
-  },
-  {
-    "test": "Bulk Targets - Invalid Token",
-    "status": "❌ FAIL",
-    "success": false,
-    "details": "Expected 401/403, got 405",
-    "error": "",
-    "timestamp": "2025-09-13T22:40:38.619581"
-  },
-  {
-    "test": "Bulk Targets - Empty Body",
-    "status": "❌ FAIL",
-    "success": false,
-    "details": "Expected validation error, got 405",
-    "error": "",
-    "timestamp": "2025-09-13T22:40:38.926580"
-  },
-  {
-    "test": "Bulk Targets - Invalid Structure",
-    "status": "❌ FAIL",
-    "success": false,
-    "details": "Expected validation error, got 405",
-    "error": "",
-    "timestamp": "2025-09-13T22:40:39.373176"
-  },
-  {
-    "test": "Bulk Targets - Valid Structure",
-    "status": "❌ FAIL",
-    "success": false,
-    "details": "Expected auth error, got 405",
-    "error": "",
-    "timestamp": "2025-09-13T22:40:39.838160"
-  },
-  {
-    "test": "Demo Limit System - Endpoint Structure",
-    "status": "❌ FAIL",
-    "success": false,
-    "details": "Unexpected response: 405",
-    "error": "",
-    "timestamp": "2025-09-13T22:40:40.306461"
-  },
-  {
-    "test": "Demo Limit System - Client ID Parameter",
-    "status": "❌ FAIL",
-    "success": false,
-    "details": "Unexpected response: 405",
-    "error": "",
-    "timestamp": "2025-09-13T22:40:40.617508"
-  },
-  {
-    "test": "Role-Based Access - Authentication Required",
-    "status": "❌ FAIL",
-    "success": false,
-    "details": "Expected auth error, got 405",
-    "error": "",
-    "timestamp": "2025-09-13T22:40:41.068371"
-  },
-  {
-    "test": "Role-Based Access - GET Method",
+    "test": "Admin Creation Endpoint - Data Processing",
     "status": "✅ PASS",
     "success": true,
-    "details": "Correctly restricts GET method: 403",
+    "details": "Admin creation successful: 200",
     "error": "",
-    "timestamp": "2025-09-13T22:40:41.378061"
+    "timestamp": "2025-09-13T23:12:20.970601"
   },
   {
-    "test": "Role-Based Access - PUT Method",
+    "test": "Client Creation Endpoint - Security",
     "status": "✅ PASS",
     "success": true,
-    "details": "Correctly restricts PUT method: 403",
+    "details": "Client creation properly secured: 403",
     "error": "",
-    "timestamp": "2025-09-13T22:40:41.709896"
+    "timestamp": "2025-09-13T23:12:21.442951"
   },
   {
-    "test": "Role-Based Access - DELETE Method",
+    "test": "Client Creation Endpoint - Data Processing",
     "status": "✅ PASS",
     "success": true,
-    "details": "Correctly restricts DELETE method: 403",
+    "details": "Authentication required for client creation: 403",
     "error": "",
-    "timestamp": "2025-09-13T22:40:42.016645"
+    "timestamp": "2025-09-13T23:12:21.750421"
   },
   {
-    "test": "Role-Based Access - PATCH Method",
+    "test": "Clerk Integration - /api/auth/register",
     "status": "✅ PASS",
     "success": true,
-    "details": "Correctly restricts PATCH method: 405",
+    "details": "Endpoint accessible: 405",
     "error": "",
-    "timestamp": "2025-09-13T22:40:42.325388"
+    "timestamp": "2025-09-13T23:12:22.244561"
   },
   {
-    "test": "Date Parsing System - Multiple Formats",
+    "test": "Clerk Integration - /api/auth/login",
     "status": "❌ FAIL",
     "success": false,
-    "details": "Unexpected response: 405",
+    "details": "Endpoint not found: /api/auth/login",
     "error": "",
-    "timestamp": "2025-09-13T22:40:42.636231"
+    "timestamp": "2025-09-13T23:12:22.553076"
   },
   {
-    "test": "Client ID Parameter - URL Parameter",
-    "status": "❌ FAIL",
-    "success": false,
-    "details": "Unexpected response: 405",
+    "test": "Clerk Integration - /api/auth/me",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Endpoint accessible: 403",
     "error": "",
-    "timestamp": "2025-09-13T22:40:42.951430"
+    "timestamp": "2025-09-13T23:12:23.022804"
   },
   {
-    "test": "Client ID Parameter - No Parameter",
+    "test": "Clerk Integration - /api/auth/verify",
     "status": "❌ FAIL",
     "success": false,
-    "details": "Unexpected response: 405",
+    "details": "Endpoint not found: /api/auth/verify",
     "error": "",
-    "timestamp": "2025-09-13T22:40:43.407385"
+    "timestamp": "2025-09-13T23:12:23.333072"
   },
   {
-    "test": "Client ID Parameter - Empty Parameter",
+    "test": "Clerk Integration - JWKS Endpoint",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "JWKS accessible, 1 keys found",
+    "error": "",
+    "timestamp": "2025-09-13T23:12:23.531625"
+  },
+  {
+    "test": "User Management - Users Endpoint",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Users endpoint found at /api/settings/users: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:12:24.342175"
+  },
+  {
+    "test": "User Management - User Creation",
     "status": "❌ FAIL",
     "success": false,
-    "details": "Unexpected response: 405",
+    "details": "User creation endpoint not found",
     "error": "",
-    "timestamp": "2025-09-13T22:40:43.714972"
+    "timestamp": "2025-09-13T23:12:24.811770"
+  },
+  {
+    "test": "Clerk User Creation Flow - Client Creation",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Client creation flow accessible: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:12:25.127227"
+  },
+  {
+    "test": "Clerk User Creation Flow - Admin Creation",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Admin creation flow responds: 200",
+    "error": "",
+    "timestamp": "2025-09-13T23:12:25.471455"
+  },
+  {
+    "test": "Database Collections - Clients",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Clients collection accessible: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:12:25.781375"
+  },
+  {
+    "test": "Database Collections - Users",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Users collection accessible: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:12:26.086625"
+  },
+  {
+    "test": "Database Collections - Consumptions",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Consumptions collection accessible: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:12:26.396718"
+  },
+  {
+    "test": "Database Collections - Documents",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Documents collection accessible: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:12:26.707359"
+  },
+  {
+    "test": "Database Collections - Trainings",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Trainings collection accessible: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:12:27.159966"
+  },
+  {
+    "test": "Specific Admin User - /api/clients",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Search endpoint secured: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:12:27.468422"
+  },
+  {
+    "test": "Specific Admin User - /api/clients",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Search endpoint secured: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:12:27.937888"
+  },
+  {
+    "test": "Specific Admin User - /api/users",
+    "status": "❌ FAIL",
+    "success": false,
+    "details": "Search endpoint not found",
+    "error": "",
+    "timestamp": "2025-09-13T23:12:28.260555"
+  },
+  {
+    "test": "Specific Admin User - /api/settings/users",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Search endpoint secured: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:12:28.574490"
+  },
+  {
+    "test": "Specific Admin User - Authentication Test",
+    "status": "❌ FAIL",
+    "success": false,
+    "details": "Login endpoint not found",
+    "error": "",
+    "timestamp": "2025-09-13T23:12:28.884607"
   },
   {
     "test": "Authentication System - No Auth Header",
@@ -181,7 +213,7 @@
     "success": true,
     "details": "Properly rejected: 403",
     "error": "",
-    "timestamp": "2025-09-13T22:40:44.023448"
+    "timestamp": "2025-09-13T23:12:29.196790"
   },
   {
     "test": "Authentication System - Empty Auth Header",
@@ -189,7 +221,7 @@
     "success": true,
     "details": "Properly rejected: 403",
     "error": "",
-    "timestamp": "2025-09-13T22:40:44.464290"
+    "timestamp": "2025-09-13T23:12:29.524023"
   },
   {
     "test": "Authentication System - Invalid Bearer Token",
@@ -197,7 +229,7 @@
     "success": true,
     "details": "Properly rejected: 401",
     "error": "",
-    "timestamp": "2025-09-13T22:40:44.780627"
+    "timestamp": "2025-09-13T23:12:29.837509"
   },
   {
     "test": "Authentication System - Malformed Auth Header",
@@ -205,7 +237,7 @@
     "success": true,
     "details": "Properly rejected: 403",
     "error": "",
-    "timestamp": "2025-09-13T22:40:45.090595"
+    "timestamp": "2025-09-13T23:12:30.147456"
   },
   {
     "test": "CORS Configuration",
@@ -213,7 +245,7 @@
     "success": true,
     "details": "CORS headers present: 200",
     "error": "",
-    "timestamp": "2025-09-13T22:40:45.396454"
+    "timestamp": "2025-09-13T23:12:30.457988"
   },
   {
     "test": "Error Handling - 404",
@@ -221,7 +253,7 @@
     "success": true,
     "details": "Proper 404 for non-existent endpoints",
     "error": "",
-    "timestamp": "2025-09-13T22:40:45.842239"
+    "timestamp": "2025-09-13T23:12:30.766723"
   },
   {
     "test": "Error Handling - Method Not Allowed",
@@ -229,6 +261,6 @@
     "success": true,
     "details": "Proper method restriction: 405",
     "error": "",
-    "timestamp": "2025-09-13T22:40:46.146972"
+    "timestamp": "2025-09-13T23:12:31.216795"
   }
 ]
