@@ -453,6 +453,7 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
         formData.append('description', description);
         
         console.log(`📤 Uploading file ${i + 1}/${selectedFiles.length}: ${file.name}`);
+        const uploadStartTime = Date.now();
         
         const response = await axios.post(`${API}/belge/upload`, formData, {
           headers: { 
