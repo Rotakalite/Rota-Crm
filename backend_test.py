@@ -369,6 +369,52 @@ class GreenWaveCRMBackendTester:
             self.log_test("Error Handling Tests", False,
                         "Error handling test failed", str(e))
 
+    def test_deployment_verification(self):
+        """Verify if bulk targets endpoint is deployed"""
+        try:
+            print("🚀 Testing Deployment Verification...")
+            
+            # Check debug routes to see if bulk endpoint is registered
+            response = requests.get(f"{self.base_url}/debug/routes", 
+                                  headers=self.headers, timeout=10)
+            
+            if response.status_code == 200:
+                routes_data = response.json()
+                routes = routes_data.get("routes", [])
+                
+                # Check if bulk targets endpoint is in the routes
+                bulk_route_found = False
+                for route in routes:
+                    if "/api/sustainability-targets/bulk" in route.get("path", ""):
+                        bulk_route_found = True
+                        break
+                
+                if bulk_route_found:
+                    self.log_test("Deployment - Bulk Endpoint Registered", True,
+                                "Bulk targets endpoint is registered in routes")
+                else:
+                    self.log_test("Deployment - Bulk Endpoint Registered", False,
+                                "CRITICAL: Bulk targets endpoint NOT found in registered routes",
+                                "Deployment issue - endpoint not deployed to production")
+                
+                # Count total routes for context
+                total_routes = len(routes)
+                self.log_test("Deployment - Total Routes", True,
+                            f"Total registered routes: {total_routes}")
+                
+                # Check if regular sustainability targets endpoints exist
+                regular_routes = [r for r in routes if "/api/sustainability-targets" in r.get("path", "") and "bulk" not in r.get("path", "")]
+                self.log_test("Deployment - Regular Sustainability Routes", True,
+                            f"Regular sustainability targets routes: {len(regular_routes)}")
+                
+            else:
+                self.log_test("Deployment - Debug Routes Access", False,
+                            f"Cannot access debug routes: {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Deployment Verification", False,
+                        "Deployment verification failed", str(e))
+
     def test_bulk_targets_endpoint_accessibility(self):
         """Test if bulk targets endpoint is accessible"""
         try:
