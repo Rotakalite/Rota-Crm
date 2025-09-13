@@ -3326,7 +3326,7 @@ const PersonnelManagement = () => {
       document.getElementById('target-excel-input').value = '';
       
       // Refresh targets list
-      await fetchTargets();
+      await fetchTargetsWithFreshToken(selectedClient);
       
     } catch (error) {
       console.error('❌ Bulk targets import error:', error);
