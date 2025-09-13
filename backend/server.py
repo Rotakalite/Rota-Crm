@@ -3389,7 +3389,7 @@ async def init_admin_user(admin_data: dict):
         logging.error(f"Error creating admin user: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-@api_router.post("/repair-admin-clerk")
+@app.post("/api/repair-admin-clerk")
 async def repair_admin_clerk(repair_data: dict):
     """🔧 REPAIR: Create missing Clerk user for existing admin"""
     try:
