@@ -457,8 +457,34 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
         console.log(`📤 Uploading file ${i + 1}/${selectedFiles.length}: ${file.name}`);
         const uploadStartTime = Date.now();
         
-        // 🔑 Get fresh token just before upload to avoid expiry during long uploads
-        const freshToken = await session.getToken();
+        // 🔑 Force token refresh before upload to ensure validity
+        console.log(`🔄 Forcing token refresh before upload: ${file.name}`);
+        
+        // Multiple refresh attempts to ensure fresh token
+        let freshToken = null;
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+            await session.touch(); // Force session refresh
+            freshToken = await session.getToken({ forceRefresh: true });
+            
+            if (freshToken) {
+              console.log(`✅ Token refresh successful (attempt ${attempt}): ${file.name}`);
+              break;
+            }
+          } catch (refreshError) {
+            console.warn(`⚠️ Token refresh attempt ${attempt} failed:`, refreshError);
+            if (attempt === 3) {
+              throw new Error('Token refresh failed after 3 attempts');
+            }
+            // Wait 1 second before retry
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
+        
+        if (!freshToken) {
+          throw new Error('Unable to get valid token for upload');
+        }
+        
         console.log(`🔑 Using fresh token for upload: ${file.name}`);
         
         const response = await axios.post(`${API}/belge/upload`, formData, {
