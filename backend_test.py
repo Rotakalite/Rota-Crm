@@ -928,30 +928,35 @@ class GreenWaveCRMBackendTester:
                         "Detailed client creation test failed", str(e))
 
     def run_all_tests(self):
-        """Run all backend tests"""
-        print("🎯 Starting Admin User Verification and Clerk Integration Tests...")
+        """Run all backend tests focusing on CRITICAL authentication bug"""
+        print("🚨 Starting CRITICAL Authentication Bug Tests...")
+        print("🎯 Focus: Admin Module Registration Failure")
         print()
         
         # 1. Basic connectivity tests
         self.test_backend_health()
         
-        # 2. Admin User and Database Tests
-        self.test_admin_user_database_check()
-        self.test_admin_creation_endpoint()
-        self.test_client_creation_endpoint()
+        # 2. CRITICAL TESTS - Admin Registration Issues
+        self.test_admin_client_creation_endpoint()
+        self.test_team_member_creation_endpoint()
+        self.test_database_user_creation_issue()
         
-        # 3. Clerk Integration Tests
+        # 3. Clerk Integration Tests (Critical for the bug)
         self.test_clerk_integration_endpoints()
         self.test_user_management_endpoints()
         self.test_clerk_user_creation_flow()
         
         # 4. Database and System Tests
         self.test_database_collections_access()
+        self.test_admin_user_database_check()
+        self.test_admin_creation_endpoint()
+        
+        # 5. Additional investigation tests
         self.test_specific_admin_user_issue()
         self.test_database_investigation()
         self.test_client_creation_clerk_integration_detailed()
         
-        # 5. Additional backend stability tests
+        # 6. Backend stability tests
         self.test_authentication_system()
         self.test_cors_configuration()
         self.test_error_handling()
