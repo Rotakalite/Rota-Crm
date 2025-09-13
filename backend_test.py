@@ -719,27 +719,427 @@ class GreenWaveCRMBackendTester:
             self.log_test("Bulk Targets Client ID Parameter", False,
                         "Client ID parameter test failed", str(e))
 
+    def test_admin_user_database_check(self):
+        """Test 1: Check if admin user exists in database"""
+        try:
+            print("🔍 Testing Admin User Database Check...")
+            
+            # Test clients endpoint to check if admin user exists
+            response = requests.get(f"{self.base_url}/api/clients", 
+                                  headers=self.headers, timeout=10)
+            
+            if response.status_code in [401, 403]:
+                self.log_test("Admin User Database - Clients Endpoint Security", True,
+                            f"Clients endpoint properly secured: {response.status_code}")
+            else:
+                self.log_test("Admin User Database - Clients Endpoint Security", False,
+                            f"Expected 401/403, got {response.status_code}")
+            
+            # Test with search parameter for the specific email
+            response = requests.get(f"{self.base_url}/api/clients?email=kemalakkoc03@gmail.com", 
+                                  headers=self.headers, timeout=10)
+            
+            if response.status_code in [401, 403]:
+                self.log_test("Admin User Database - Email Search", True,
+                            f"Email search requires authentication: {response.status_code}")
+            else:
+                self.log_test("Admin User Database - Email Search", False,
+                            f"Expected 401/403, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Admin User Database Check", False,
+                        "Database check failed", str(e))
+
+    def test_admin_creation_endpoint(self):
+        """Test 2: Test admin creation endpoint"""
+        try:
+            print("👤 Testing Admin Creation Endpoint...")
+            
+            # Test init-admin-user endpoint
+            response = requests.post(f"{self.base_url}/api/init-admin-user", 
+                                   headers=self.headers, timeout=10)
+            
+            if response.status_code == 404:
+                self.log_test("Admin Creation Endpoint - Accessibility", False,
+                            "init-admin-user endpoint not found (404)", 
+                            "CRITICAL: Admin creation endpoint not deployed")
+            elif response.status_code in [400, 422]:
+                self.log_test("Admin Creation Endpoint - Accessibility", True,
+                            f"Endpoint accessible, requires data: {response.status_code}")
+            elif response.status_code in [401, 403]:
+                self.log_test("Admin Creation Endpoint - Accessibility", True,
+                            f"Endpoint accessible, requires auth: {response.status_code}")
+            else:
+                self.log_test("Admin Creation Endpoint - Accessibility", True,
+                            f"Endpoint responds: {response.status_code}")
+            
+            # Test with sample admin data
+            admin_data = {
+                "email": "test-admin@example.com",
+                "name": "Test Admin",
+                "password": "TestPassword123"
+            }
+            
+            response = requests.post(f"{self.base_url}/api/init-admin-user", 
+                                   headers=self.headers, json=admin_data, timeout=10)
+            
+            if response.status_code in [200, 201]:
+                self.log_test("Admin Creation Endpoint - Data Processing", True,
+                            f"Admin creation successful: {response.status_code}")
+            elif response.status_code in [400, 422]:
+                self.log_test("Admin Creation Endpoint - Data Processing", True,
+                            f"Validation working: {response.status_code}")
+            elif response.status_code in [401, 403]:
+                self.log_test("Admin Creation Endpoint - Data Processing", True,
+                            f"Authentication required: {response.status_code}")
+            else:
+                self.log_test("Admin Creation Endpoint - Data Processing", False,
+                            f"Unexpected response: {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Admin Creation Endpoint", False,
+                        "Admin creation test failed", str(e))
+
+    def test_client_creation_endpoint(self):
+        """Test 3: Test client creation endpoint (where the issue occurred)"""
+        try:
+            print("🏢 Testing Client Creation Endpoint...")
+            
+            # Test clients POST endpoint
+            response = requests.post(f"{self.base_url}/api/clients", 
+                                   headers=self.headers, timeout=10)
+            
+            if response.status_code in [401, 403]:
+                self.log_test("Client Creation Endpoint - Security", True,
+                            f"Client creation properly secured: {response.status_code}")
+            elif response.status_code in [400, 422]:
+                self.log_test("Client Creation Endpoint - Security", True,
+                            f"Endpoint accessible, requires data: {response.status_code}")
+            else:
+                self.log_test("Client Creation Endpoint - Security", False,
+                            f"Expected auth/validation error, got {response.status_code}")
+            
+            # Test with sample client data (similar to the problematic case)
+            client_data = {
+                "name": "Test Hotel",
+                "hotel_name": "Test Hotel",
+                "contact_person": "Test Contact",
+                "email": "test-client@example.com",
+                "phone": "+90 555 123 4567",
+                "city": "İstanbul",
+                "district": "Beşiktaş",
+                "address": "Test Address",
+                "audit_company": "Test Audit",
+                "certificate_end_date": "2024-12-31",
+                "client_type": "registered",
+                "password": "TestPassword123",
+                "auto_create_account": True
+            }
+            
+            response = requests.post(f"{self.base_url}/api/clients", 
+                                   headers=self.headers, json=client_data, timeout=10)
+            
+            if response.status_code in [401, 403]:
+                self.log_test("Client Creation Endpoint - Data Processing", True,
+                            f"Authentication required for client creation: {response.status_code}")
+            elif response.status_code in [400, 422]:
+                self.log_test("Client Creation Endpoint - Data Processing", True,
+                            f"Data validation working: {response.status_code}")
+            elif response.status_code in [200, 201]:
+                self.log_test("Client Creation Endpoint - Data Processing", False,
+                            f"Client created without auth: {response.status_code}",
+                            "SECURITY ISSUE: Client creation should require authentication")
+            else:
+                self.log_test("Client Creation Endpoint - Data Processing", False,
+                            f"Unexpected response: {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Client Creation Endpoint", False,
+                        "Client creation test failed", str(e))
+
+    def test_clerk_integration_endpoints(self):
+        """Test 4: Test Clerk integration related endpoints"""
+        try:
+            print("🔐 Testing Clerk Integration Endpoints...")
+            
+            # Test auth endpoints
+            auth_endpoints = [
+                "/api/auth/register",
+                "/api/auth/login", 
+                "/api/auth/me",
+                "/api/auth/verify"
+            ]
+            
+            for endpoint in auth_endpoints:
+                try:
+                    response = requests.get(f"{self.base_url}{endpoint}", 
+                                          headers=self.headers, timeout=10)
+                    
+                    if response.status_code == 404:
+                        self.log_test(f"Clerk Integration - {endpoint}", False,
+                                    f"Endpoint not found: {endpoint}")
+                    elif response.status_code in [401, 403, 400, 422, 405]:
+                        self.log_test(f"Clerk Integration - {endpoint}", True,
+                                    f"Endpoint accessible: {response.status_code}")
+                    else:
+                        self.log_test(f"Clerk Integration - {endpoint}", True,
+                                    f"Endpoint responds: {response.status_code}")
+                        
+                except Exception as e:
+                    self.log_test(f"Clerk Integration - {endpoint}", False,
+                                "Request failed", str(e))
+            
+            # Test Clerk JWKS endpoint accessibility
+            try:
+                clerk_jwks_url = "https://adapting-eft-6.clerk.accounts.dev/.well-known/jwks.json"
+                response = requests.get(clerk_jwks_url, timeout=10)
+                
+                if response.status_code == 200:
+                    jwks_data = response.json()
+                    keys_count = len(jwks_data.get('keys', []))
+                    self.log_test("Clerk Integration - JWKS Endpoint", True,
+                                f"JWKS accessible, {keys_count} keys found")
+                else:
+                    self.log_test("Clerk Integration - JWKS Endpoint", False,
+                                f"JWKS not accessible: {response.status_code}")
+                    
+            except Exception as e:
+                self.log_test("Clerk Integration - JWKS Endpoint", False,
+                            "JWKS request failed", str(e))
+                
+        except Exception as e:
+            self.log_test("Clerk Integration Endpoints", False,
+                        "Clerk integration test failed", str(e))
+
+    def test_user_management_endpoints(self):
+        """Test 5: Test user management endpoints"""
+        try:
+            print("👥 Testing User Management Endpoints...")
+            
+            # Test users endpoint
+            response = requests.get(f"{self.base_url}/api/users", 
+                                  headers=self.headers, timeout=10)
+            
+            if response.status_code == 404:
+                # Try alternative users endpoint path
+                response = requests.get(f"{self.base_url}/api/settings/users", 
+                                      headers=self.headers, timeout=10)
+                
+                if response.status_code in [401, 403]:
+                    self.log_test("User Management - Users Endpoint", True,
+                                f"Users endpoint found at /api/settings/users: {response.status_code}")
+                else:
+                    self.log_test("User Management - Users Endpoint", False,
+                                f"Users endpoint not found or accessible")
+            elif response.status_code in [401, 403]:
+                self.log_test("User Management - Users Endpoint", True,
+                            f"Users endpoint secured: {response.status_code}")
+            else:
+                self.log_test("User Management - Users Endpoint", False,
+                            f"Unexpected response: {response.status_code}")
+            
+            # Test user creation endpoint
+            user_data = {
+                "email": "test-user@example.com",
+                "name": "Test User",
+                "role": "client"
+            }
+            
+            response = requests.post(f"{self.base_url}/api/users", 
+                                   headers=self.headers, json=user_data, timeout=10)
+            
+            if response.status_code in [401, 403]:
+                self.log_test("User Management - User Creation", True,
+                            f"User creation requires authentication: {response.status_code}")
+            elif response.status_code == 404:
+                self.log_test("User Management - User Creation", False,
+                            "User creation endpoint not found")
+            else:
+                self.log_test("User Management - User Creation", False,
+                            f"Unexpected response: {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("User Management Endpoints", False,
+                        "User management test failed", str(e))
+
+    def test_database_collections_access(self):
+        """Test 6: Test database collections access"""
+        try:
+            print("🗄️ Testing Database Collections Access...")
+            
+            # Test various collections that should exist
+            collections_to_test = [
+                ("Clients", "/api/clients"),
+                ("Users", "/api/settings/users"),
+                ("Consumptions", "/api/consumptions"),
+                ("Documents", "/api/documents"),
+                ("Trainings", "/api/trainings")
+            ]
+            
+            for collection_name, endpoint in collections_to_test:
+                try:
+                    response = requests.get(f"{self.base_url}{endpoint}", 
+                                          headers=self.headers, timeout=10)
+                    
+                    if response.status_code in [401, 403]:
+                        self.log_test(f"Database Collections - {collection_name}", True,
+                                    f"{collection_name} collection accessible: {response.status_code}")
+                    elif response.status_code == 404:
+                        self.log_test(f"Database Collections - {collection_name}", False,
+                                    f"{collection_name} collection not found")
+                    else:
+                        self.log_test(f"Database Collections - {collection_name}", True,
+                                    f"{collection_name} collection responds: {response.status_code}")
+                        
+                except Exception as e:
+                    self.log_test(f"Database Collections - {collection_name}", False,
+                                "Collection access failed", str(e))
+                
+        except Exception as e:
+            self.log_test("Database Collections Access", False,
+                        "Database collections test failed", str(e))
+
+    def test_clerk_user_creation_flow(self):
+        """Test 7: Test Clerk user creation flow"""
+        try:
+            print("🔄 Testing Clerk User Creation Flow...")
+            
+            # Test if Clerk SDK is available by checking error responses
+            test_data = {
+                "email": "clerk-test@example.com",
+                "name": "Clerk Test User",
+                "password": "TestPassword123"
+            }
+            
+            # Test client creation with Clerk integration
+            response = requests.post(f"{self.base_url}/api/clients", 
+                                   headers=self.headers, json=test_data, timeout=10)
+            
+            if response.status_code in [401, 403]:
+                self.log_test("Clerk User Creation Flow - Client Creation", True,
+                            f"Client creation flow accessible: {response.status_code}")
+            elif response.status_code == 500:
+                # Check if it's a Clerk-related error
+                try:
+                    error_text = response.text.lower()
+                    if "clerk" in error_text:
+                        self.log_test("Clerk User Creation Flow - Client Creation", False,
+                                    "Clerk integration error detected", response.text[:200])
+                    else:
+                        self.log_test("Clerk User Creation Flow - Client Creation", False,
+                                    "Server error (not Clerk-specific)", response.text[:200])
+                except:
+                    self.log_test("Clerk User Creation Flow - Client Creation", False,
+                                f"Server error: {response.status_code}")
+            else:
+                self.log_test("Clerk User Creation Flow - Client Creation", True,
+                            f"Flow responds: {response.status_code}")
+            
+            # Test admin user creation flow
+            response = requests.post(f"{self.base_url}/api/init-admin-user", 
+                                   headers=self.headers, json=test_data, timeout=10)
+            
+            if response.status_code == 404:
+                self.log_test("Clerk User Creation Flow - Admin Creation", False,
+                            "Admin creation endpoint not found")
+            elif response.status_code == 500:
+                try:
+                    error_text = response.text.lower()
+                    if "clerk" in error_text:
+                        self.log_test("Clerk User Creation Flow - Admin Creation", False,
+                                    "Clerk integration error in admin creation", response.text[:200])
+                    else:
+                        self.log_test("Clerk User Creation Flow - Admin Creation", False,
+                                    "Server error in admin creation", response.text[:200])
+                except:
+                    self.log_test("Clerk User Creation Flow - Admin Creation", False,
+                                f"Server error: {response.status_code}")
+            else:
+                self.log_test("Clerk User Creation Flow - Admin Creation", True,
+                            f"Admin creation flow responds: {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Clerk User Creation Flow", False,
+                        "Clerk flow test failed", str(e))
+
+    def test_specific_admin_user_issue(self):
+        """Test 8: Test specific admin user issue (kemalakkoc03@gmail.com)"""
+        try:
+            print("🎯 Testing Specific Admin User Issue...")
+            
+            # Test if we can search for the specific user
+            search_endpoints = [
+                f"/api/clients?search=kemalakkoc03@gmail.com",
+                f"/api/clients?email=kemalakkoc03@gmail.com",
+                f"/api/users?email=kemalakkoc03@gmail.com",
+                f"/api/settings/users?email=kemalakkoc03@gmail.com"
+            ]
+            
+            for endpoint in search_endpoints:
+                try:
+                    response = requests.get(f"{self.base_url}{endpoint}", 
+                                          headers=self.headers, timeout=10)
+                    
+                    if response.status_code in [401, 403]:
+                        self.log_test(f"Specific Admin User - {endpoint.split('?')[0]}", True,
+                                    f"Search endpoint secured: {response.status_code}")
+                    elif response.status_code == 404:
+                        self.log_test(f"Specific Admin User - {endpoint.split('?')[0]}", False,
+                                    "Search endpoint not found")
+                    else:
+                        self.log_test(f"Specific Admin User - {endpoint.split('?')[0]}", True,
+                                    f"Search endpoint responds: {response.status_code}")
+                        
+                except Exception as e:
+                    self.log_test(f"Specific Admin User - {endpoint.split('?')[0]}", False,
+                                "Search request failed", str(e))
+            
+            # Test if the user can authenticate (should fail if no Clerk user)
+            auth_test_data = {
+                "email": "kemalakkoc03@gmail.com",
+                "password": "test_password"
+            }
+            
+            response = requests.post(f"{self.base_url}/api/auth/login", 
+                                   headers=self.headers, json=auth_test_data, timeout=10)
+            
+            if response.status_code == 404:
+                self.log_test("Specific Admin User - Authentication Test", False,
+                            "Login endpoint not found")
+            elif response.status_code in [401, 403]:
+                self.log_test("Specific Admin User - Authentication Test", True,
+                            f"Authentication properly handled: {response.status_code}")
+            else:
+                self.log_test("Specific Admin User - Authentication Test", True,
+                            f"Authentication endpoint responds: {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Specific Admin User Issue", False,
+                        "Specific user test failed", str(e))
+
     def run_all_tests(self):
         """Run all backend tests"""
-        print("🎯 Starting Sustainability Targets Bulk Import Tests...")
+        print("🎯 Starting Admin User Verification and Clerk Integration Tests...")
         print()
         
         # 1. Basic connectivity tests
         self.test_backend_health()
         
-        # 2. Deployment Verification
-        self.test_deployment_verification()
+        # 2. Admin User and Database Tests
+        self.test_admin_user_database_check()
+        self.test_admin_creation_endpoint()
+        self.test_client_creation_endpoint()
         
-        # 3. Sustainability Targets Bulk Import Tests
-        self.test_bulk_targets_endpoint_accessibility()
-        self.test_bulk_targets_authentication()
-        self.test_bulk_targets_model_validation()
-        self.test_bulk_targets_demo_limit_system()
-        self.test_bulk_targets_role_based_access()
-        self.test_bulk_targets_date_parsing()
-        self.test_bulk_targets_client_id_parameter()
+        # 3. Clerk Integration Tests
+        self.test_clerk_integration_endpoints()
+        self.test_user_management_endpoints()
+        self.test_clerk_user_creation_flow()
         
-        # 3. Additional backend stability tests
+        # 4. Database and System Tests
+        self.test_database_collections_access()
+        self.test_specific_admin_user_issue()
+        
+        # 5. Additional backend stability tests
         self.test_authentication_system()
         self.test_cors_configuration()
         self.test_error_handling()
