@@ -88,45 +88,7 @@ class GreenWaveCRMBackendTester:
             self.log_test("Backend Health Check", False, 
                         "Connection failed", str(e))
 
-    def test_belge_list_endpoint_memory_limit_fix(self):
-        """Test 2: /api/belge/list MongoDB Memory Limit Fix"""
-        try:
-            # Test without authentication first (should get 401/403)
-            response = requests.get(f"{self.base_url}/api/belge/list", 
-                                  headers=self.headers, timeout=15)
-            
-            if response.status_code in [401, 403]:
-                self.log_test("Belge List Endpoint - Authentication Required", True,
-                            f"Proper auth required: {response.status_code}")
-            else:
-                self.log_test("Belge List Endpoint - Authentication Required", False,
-                            f"Expected 401/403, got {response.status_code}", response.text[:200])
-                
-            # Test with invalid token (should get 401)
-            invalid_headers = self.headers.copy()
-            invalid_headers['Authorization'] = 'Bearer invalid_token_12345'
-            
-            response = requests.get(f"{self.base_url}/api/belge/list", 
-                                  headers=invalid_headers, timeout=15)
-            
-            if response.status_code == 401:
-                self.log_test("Belge List Endpoint - Invalid Token Rejection", True,
-                            f"Invalid token properly rejected: {response.status_code}")
-            else:
-                self.log_test("Belge List Endpoint - Invalid Token Rejection", False,
-                            f"Expected 401, got {response.status_code}", response.text[:200])
-                
-            # Test endpoint accessibility (should not return 404)
-            if response.status_code != 404:
-                self.log_test("Belge List Endpoint - Accessibility", True,
-                            "Endpoint is registered and accessible")
-            else:
-                self.log_test("Belge List Endpoint - Accessibility", False,
-                            "Endpoint returns 404 - not registered")
-                
-        except Exception as e:
-            self.log_test("Belge List Endpoint Tests", False,
-                        "Request failed", str(e))
+    # Old test methods removed - replaced with admin user verification tests
 
     def test_documents_endpoints_stability(self):
         """Test 3: Documents Endpoints Stability"""
