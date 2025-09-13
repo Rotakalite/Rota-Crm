@@ -384,9 +384,23 @@ class GreenWaveCRMBackendTester:
             elif response.status_code == 404:
                 self.log_test("Bulk Targets Endpoint Accessibility", False,
                             "Endpoint not found (404)", "Endpoint may not be deployed")
+            elif response.status_code == 405:
+                self.log_test("Bulk Targets Endpoint Accessibility", False,
+                            "Method Not Allowed (405)", "CRITICAL: Endpoint not registered in production!")
             else:
                 self.log_test("Bulk Targets Endpoint Accessibility", False,
                             f"Unexpected response: {response.status_code}")
+            
+            # Test if regular sustainability targets endpoint works (for comparison)
+            response = requests.get(f"{self.base_url}/api/sustainability-targets", 
+                                  headers=self.headers, timeout=10)
+            
+            if response.status_code in [403, 401]:
+                self.log_test("Regular Sustainability Targets Endpoint", True,
+                            f"Regular endpoint works: {response.status_code}")
+            else:
+                self.log_test("Regular Sustainability Targets Endpoint", False,
+                            f"Regular endpoint issue: {response.status_code}")
                 
         except Exception as e:
             self.log_test("Bulk Targets Endpoint Accessibility", False,
