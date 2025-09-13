@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useIsMobile } from './MobileComponents';
+import { useClerk } from '@clerk/clerk-react';
 
 const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
   const isMobile = useIsMobile();
