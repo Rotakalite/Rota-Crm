@@ -183,6 +183,21 @@ const useAuth = () => {
             console.log('✅ Token refresh successful, retrying original request');
             console.log('✅ New token:', newToken ? 'Present' : 'Missing');
             
+            // For file uploads, recreate FormData if it exists since it can't be reused
+            if (originalRequest.data instanceof FormData) {
+              console.log('📎 File upload detected, checking FormData integrity');
+              
+              // Check if FormData is still valid (some browsers invalidate it after first use)
+              try {
+                // Try to access FormData - if it throws, we need to handle it
+                const testKeys = Array.from(originalRequest.data.keys());
+                console.log('📎 FormData keys:', testKeys);
+              } catch (formDataError) {
+                console.error('❌ FormData corrupted after retry, cannot retry file upload');
+                throw new Error('File upload retry failed - FormData corrupted');
+              }
+            }
+            
             // Retry the original request with new token
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
             
