@@ -491,7 +491,15 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
       
     } catch (error) {
       console.error('❌ Upload error:', error);
-      alert(`Upload hatası: ${error.response?.data?.detail || error.message}`);
+      
+      // Special handling for authentication errors during file upload
+      if (error.response?.status === 401) {
+        alert(`🔐 Token süresi doldu.\n\nLütfen sayfa yenilenerek tekrar deneyin.\nUploads gibi uzun işlemlerde token yenilenmesi gerekebilir.`);
+      } else if (error.code === 'ECONNABORTED') {
+        alert(`⏰ Upload zaman aşımına uğradı.\n\nBüyük dosyalar için internet bağlantınızı kontrol edin ve tekrar deneyin.`);
+      } else {
+        alert(`Upload hatası: ${error.response?.data?.detail || error.message}`);
+      }
     } finally {
       setUploading(false);
     }
