@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 """
-GreenWave CRM - Post-Fix Carbon Footprint Backend Test
-Test Environment: Railway production https://rota-crm-production.up.railway.app
+GreenWave CRM MongoDB Memory Limit ve ZIP Upload Düzeltme Testi
+Backend comprehensive testing for MongoDB sort memory limit fix and ZIP upload support
 
-TEST OBJECTIVES:
-1. Waste CO2 Values Test - Check if total_waste_co2 > 0, environment data integration, DEFRA waste factors
-2. Hotel CO2 Values Test - Check if total_hotel_co2 calculated correctly (accommodation_count × 32.1)
-3. API Response Structure - Verify total_waste_co2 and total_hotel_co2 fields present, methodology updated
-4. Validation Test - Frontend can display non-zero waste/hotel values, pie chart segments ready
+Test Requirements from Review Request:
+1. MongoDB sort memory limit hatası devam ediyor - "Sort exceeded memory limit of 33554432 bytes"
+2. ZIP dosyası seçememe sorunu
+3. Backend'in stabil çalıştığını doğrula
+4. Authentication error (401/403) alındığını kontrol et
 
-EXPECTED RESULTS:
-✅ total_waste_co2 > 0 (if environment data exists)
-✅ total_hotel_co2 > 0 (if accommodation_count > 0)  
-✅ Frontend ready to display proper values
-✅ Major data flow issues resolved
+Fixes Applied:
+1. MongoDB sort'u kaldırdım, Python'da sort yapıyorum
+2. Limit 50'ye düşürdüm 
+3. Frontend'e ZIP ve RAR desteği eklendi
+4. Backend 500MB dosya desteği zaten var
+
+Railway URL: https://rota-crm-production.up.railway.app
 """
 
 import requests
