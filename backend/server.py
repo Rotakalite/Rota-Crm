@@ -14227,6 +14227,161 @@ async def get_sustainability_analytics(
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 # ====================================
+# BULK SUSTAINABILITY TARGETS IMPORT
+# ====================================
+
+class BulkTargetItem(BaseModel):
+    target_name: str
+    category: str = "Çevresel"  # Default: Çevresel, Sosyal, Ekonomik
+    target_type: str = "Karbon Ayak İzi"  # Default type
+    target_value: float
+    unit: str = "%"  # Default unit
+    target_period: str = "Yıllık"  # Default: Aylık, Çeyreklik, Yıllık
+    deadline: str  # Will be parsed to datetime
+    description: Optional[str] = None
+
+class BulkTargetRequest(BaseModel):
+    targets_list: List[BulkTargetItem]
+
+@api_router.post("/sustainability-targets/bulk")
+async def add_bulk_targets(
+    request: BulkTargetRequest,
+    client_id: str = None,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    📋 BULK HEDEFLERİ EKLEME - Excel'den toplu hedef import endpoint'i
+    """
+    try:
+        logging.info(f"📋 BULK TARGETS: Adding {len(request.targets_list)} targets for user: {current_user.email}")
+        
+        # Get database connection
+        db = get_db()
+        
+        # 🎯 Demo limit kontrolü - Admin ve Consultant'lar demo limit'e tabi değil
+        should_apply_demo_limit = False
+        
+        # 1. Admin ve Consultant'lar: Demo limit yok
+        if current_user.role in [UserRole.ADMIN, UserRole.CONSULTANT]:
+            should_apply_demo_limit = False
+            logging.info(f"✅ {current_user.role} user - no demo limits applied")
+        
+        # 2. Client kullanıcıları: admin_approved True ise demo limit yok
+        elif current_user.role == UserRole.CLIENT:
+            if current_user.admin_approved:
+                should_apply_demo_limit = False
+                logging.info(f"✅ Admin-approved client - no demo limits applied")
+            else:
+                # Admin tarafından kaydedilen client'lar için ek kontrol
+                if current_user.client_id:
+                    client = await db.clients.find_one({"id": current_user.client_id})
+                    if client and client.get("created_by_admin", False):
+                        should_apply_demo_limit = False
+                        logging.info(f"✅ Client created by admin - no demo limits applied")
+                    else:
+                        should_apply_demo_limit = True
+                        logging.info(f"⚠️ Demo user - applying demo limits")
+                else:
+                    should_apply_demo_limit = True
+                    logging.info(f"⚠️ Demo user (no client_id) - applying demo limits")
+        
+        # Demo limit kontrolünü uygula
+        if should_apply_demo_limit:
+            for _ in request.targets_list:
+                demo_check = await check_demo_limit(current_user, "targets")
+                if not demo_check["allowed"]:
+                    raise HTTPException(status_code=403, detail=demo_check["message"])
+        
+        # Determine target client_id based on user role
+        target_client_id = None
+        if current_user.role == UserRole.CLIENT:
+            target_client_id = current_user.client_id
+        elif current_user.role in [UserRole.ADMIN, UserRole.CONSULTANT]:
+            if not client_id:
+                raise HTTPException(status_code=400, detail="Admin/consultant kullanıcıları için client_id gereklidir")
+            target_client_id = client_id
+        else:
+            raise HTTPException(status_code=403, detail="Bulk hedef ekleme yetkisi yok")
+        
+        # Verify client exists
+        client = await db.clients.find_one({"id": target_client_id})
+        if not client:
+            raise HTTPException(status_code=404, detail="Müşteri bulunamadı")
+        
+        # Add each target to database
+        added_targets = []
+        failed_targets = []
+        
+        for target_data in request.targets_list:
+            try:
+                # Parse deadline string to datetime
+                deadline_dt = None
+                if target_data.deadline:
+                    try:
+                        # Try different date formats
+                        for fmt in ["%Y-%m-%d", "%d/%m/%Y", "%d.%m.%Y", "%Y-%m-%d %H:%M:%S"]:
+                            try:
+                                deadline_dt = datetime.strptime(target_data.deadline, fmt)
+                                break
+                            except ValueError:
+                                continue
+                        
+                        if not deadline_dt:
+                            # Default to 1 year from now if parsing fails
+                            deadline_dt = datetime.now() + timedelta(days=365)
+                            logging.warning(f"⚠️ Could not parse deadline '{target_data.deadline}', using default")
+                    except Exception as e:
+                        deadline_dt = datetime.now() + timedelta(days=365)
+                        logging.warning(f"⚠️ Deadline parsing error: {e}, using default")
+                else:
+                    deadline_dt = datetime.now() + timedelta(days=365)
+                
+                target_doc = {
+                    "id": str(uuid.uuid4()),
+                    "client_id": target_client_id,
+                    "target_name": target_data.target_name.strip(),
+                    "category": target_data.category.strip(),
+                    "target_type": target_data.target_type.strip(),
+                    "target_value": float(target_data.target_value),
+                    "unit": target_data.unit.strip(),
+                    "target_period": target_data.target_period.strip(),
+                    "deadline": deadline_dt,
+                    "description": target_data.description.strip() if target_data.description else "",
+                    "status": "active",
+                    "created_at": datetime.utcnow(),
+                    "updated_at": datetime.utcnow()
+                }
+                
+                # Insert to database
+                await db.sustainability_targets.insert_one(target_doc)
+                added_targets.append(target_doc)
+                
+                # Increment demo limit if applicable
+                if should_apply_demo_limit:
+                    await increment_demo_limit(current_user, "targets")
+                
+                logging.info(f"✅ Added target: {target_data.target_name}")
+                
+            except Exception as e:
+                error_msg = f"Target '{target_data.target_name}' eklenirken hata: {str(e)}"
+                failed_targets.append({"target_name": target_data.target_name, "error": error_msg})
+                logging.error(error_msg)
+        
+        return {
+            "message": f"Toplu hedef ekleme tamamlandı",
+            "successful_imports": len(added_targets),
+            "failed_imports": len(failed_targets),
+            "total_processed": len(request.targets_list),
+            "errors": failed_targets
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ BULK TARGETS ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Bulk hedef ekleme hatası: {str(e)}")
+
+# ====================================
 # PERSONNEL MANAGEMENT MODELS & ENDPOINTS
 # ====================================
 
