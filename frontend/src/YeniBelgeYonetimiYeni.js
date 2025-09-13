@@ -462,7 +462,10 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
           timeout: Math.max(300000, Math.min(file.size / (1024 * 50), 1800000)), // Dynamic timeout: 5min minimum, up to 30min for large files (50KB/s minimum speed)
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            console.log(`📊 Upload progress: ${percentCompleted}% (${file.name})`);
+            const loadedMB = (progressEvent.loaded / (1024 * 1024)).toFixed(1);
+            const totalMB = (progressEvent.total / (1024 * 1024)).toFixed(1);
+            const uploadedSpeed = progressEvent.loaded / ((Date.now() - uploadStartTime) / 1000) / (1024 * 1024);
+            console.log(`📊 Upload progress: ${percentCompleted}% (${loadedMB}/${totalMB} MB) - Speed: ${uploadedSpeed.toFixed(1)} MB/s - ${file.name}`);
           }
         });
         
