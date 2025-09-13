@@ -487,20 +487,55 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
         
         console.log(`🔑 Using fresh token for upload: ${file.name}`);
         
-        const response = await axios.post(`${API}/belge/upload`, formData, {
-          headers: { 
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${freshToken}`
-          },
-          timeout: Math.max(300000, Math.min(file.size / (1024 * 50), 1800000)), // Dynamic timeout: 5min minimum, up to 30min for large files (50KB/s minimum speed)
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            const loadedMB = (progressEvent.loaded / (1024 * 1024)).toFixed(1);
-            const totalMB = (progressEvent.total / (1024 * 1024)).toFixed(1);
-            const uploadedSpeed = progressEvent.loaded / ((Date.now() - uploadStartTime) / 1000) / (1024 * 1024);
-            console.log(`📊 Upload progress: ${percentCompleted}% (${loadedMB}/${totalMB} MB) - Speed: ${uploadedSpeed.toFixed(1)} MB/s - ${file.name}`);
+        // 🚀 Upload with retry mechanism for token issues
+        let response = null;
+        let uploadError = null;
+        
+        for (let uploadAttempt = 1; uploadAttempt <= 2; uploadAttempt++) {
+          try {
+            console.log(`🚀 Upload attempt ${uploadAttempt} for: ${file.name}`);
+            
+            // Get fresh token for each attempt
+            if (uploadAttempt > 1) {
+              console.log(`🔄 Getting fresh token for retry attempt: ${uploadAttempt}`);
+              await session.touch();
+              freshToken = await session.getToken({ forceRefresh: true });
+            }
+            
+            response = await axios.post(`${API}/belge/upload`, formData, {
+              headers: { 
+                'Content-Type': 'multipart/form-data',
+                'Authorization': `Bearer ${freshToken}`
+              },
+              timeout: Math.max(300000, Math.min(file.size / (1024 * 50), 1800000)), // Dynamic timeout: 5min minimum, up to 30min for large files (50KB/s minimum speed)
+              onUploadProgress: (progressEvent) => {
+                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                const loadedMB = (progressEvent.loaded / (1024 * 1024)).toFixed(1);
+                const totalMB = (progressEvent.total / (1024 * 1024)).toFixed(1);
+                const uploadedSpeed = progressEvent.loaded / ((Date.now() - uploadStartTime) / 1000) / (1024 * 1024);
+                console.log(`📊 Upload progress: ${percentCompleted}% (${loadedMB}/${totalMB} MB) - Speed: ${uploadedSpeed.toFixed(1)} MB/s - ${file.name}`);
+              }
+            });
+            
+            // If we reach here, upload was successful
+            console.log(`✅ Upload successful on attempt ${uploadAttempt}: ${file.name}`);
+            break;
+            
+          } catch (error) {
+            uploadError = error;
+            console.error(`❌ Upload attempt ${uploadAttempt} failed:`, error.response?.status, error.message);
+            
+            // If it's a 401 error and we have more attempts, retry
+            if (error.response?.status === 401 && uploadAttempt < 2) {
+              console.log(`🔄 401 error - will retry with fresh token`);
+              await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+              continue;
+            }
+            
+            // If it's not a 401 or we're out of attempts, throw the error
+            throw error;
           }
-        });
+        }
         
         console.log(`✅ Upload success:`, response.data);
       }
