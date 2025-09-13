@@ -1800,8 +1800,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Consultant Management System Backend APIs"
-    - "Consultant Management Frontend Full Implementation"
+    - "MongoDB Memory Limit ve ZIP Upload Düzeltme Testi"
   stuck_tasks:
     - "Consultant Management System Backend APIs"
   test_all: false
