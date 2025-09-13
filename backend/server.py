@@ -3405,14 +3405,20 @@ async def repair_admin_clerk(repair_data: dict):
             raise HTTPException(status_code=404, detail=f"Admin not found in database: {email}")
         
         # Check if Clerk user already exists
+        logging.info(f"🔍 Clerk availability check: {clerk_admin.is_available()}")
+        
         if clerk_admin.is_available():
             try:
+                logging.info(f"🚀 Attempting to create Clerk user for: {email}")
+                
                 # Try to create Clerk user
                 clerk_user_data = await clerk_admin.create_user_with_clerk(
                     email=email,
                     password=password,
                     name=existing_admin.get("name", "Admin User")
                 )
+                
+                logging.info(f"✅ Clerk user created successfully: {clerk_user_data}")
                 
                 # Update database admin with Clerk user ID
                 await db.users.update_one(
@@ -3435,9 +3441,14 @@ async def repair_admin_clerk(repair_data: dict):
                 
             except Exception as clerk_error:
                 logging.error(f"❌ Failed to repair Clerk user for admin: {clerk_error}")
+                logging.error(f"❌ Full error details: {type(clerk_error).__name__}: {str(clerk_error)}")
+                import traceback
+                logging.error(f"❌ Traceback: {traceback.format_exc()}")
                 raise HTTPException(status_code=500, detail=f"Failed to create Clerk user: {str(clerk_error)}")
         else:
-            raise HTTPException(status_code=500, detail="Clerk admin not available")
+            clerk_status = f"CLERK_AVAILABLE={CLERK_AVAILABLE}, users_api={clerk_admin.users_api is not None}"
+            logging.error(f"❌ Clerk admin not available: {clerk_status}")
+            raise HTTPException(status_code=500, detail=f"Clerk admin not available: {clerk_status}")
             
     except Exception as e:
         logging.error(f"Error repairing admin Clerk integration: {str(e)}")
