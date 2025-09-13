@@ -371,17 +371,22 @@ class GreenWaveCRMBackendTester:
 
     def run_all_tests(self):
         """Run all backend tests"""
-        print("🔍 Starting Comprehensive Backend Tests...")
+        print("🎯 Starting Sustainability Targets Bulk Import Tests...")
         print()
         
-        # Run all test methods
+        # 1. Basic connectivity tests
         self.test_backend_health()
-        self.test_belge_list_endpoint_memory_limit_fix()
-        self.test_documents_endpoints_stability()
-        self.test_zip_download_endpoint()
-        self.test_file_upload_support()
-        self.test_mongodb_sort_fix_verification()
-        self.test_backend_performance()
+        
+        # 2. Sustainability Targets Bulk Import Tests
+        self.test_bulk_targets_endpoint_accessibility()
+        self.test_bulk_targets_authentication()
+        self.test_bulk_targets_model_validation()
+        self.test_bulk_targets_demo_limit_system()
+        self.test_bulk_targets_role_based_access()
+        self.test_bulk_targets_date_parsing()
+        self.test_bulk_targets_client_id_parameter()
+        
+        # 3. Additional backend stability tests
         self.test_authentication_system()
         self.test_cors_configuration()
         self.test_error_handling()
