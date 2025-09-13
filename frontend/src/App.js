@@ -2272,6 +2272,73 @@ const SustainabilityTargets = () => {
           </div>
         )}
 
+        {/* 📊 BULK TARGET IMPORT - Admin & Consultant Only */}
+        {(userRole === 'admin' || userRole === 'consultant') && selectedClient && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-bold text-gray-800">📊 Toplu Hedef İçe Aktarma</h2>
+                <p className="text-gray-600 text-sm mt-1">Excel dosyası ile birden fazla hedef ekleyin</p>
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  onClick={downloadTargetsTemplate}
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                >
+                  <span>📥</span>
+                  <span>Template İndir</span>
+                </button>
+              </div>
+            </div>
+            
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+              <div className="text-center">
+                <div className="mb-4">
+                  <span className="text-4xl">📋</span>
+                </div>
+                <h4 className="text-lg font-medium text-gray-900 mb-2">Excel Dosyası Seçin</h4>
+                <p className="text-gray-600 mb-4">Template dosyasını indirip doldurarak toplu hedef ekleyebilirsiniz</p>
+                
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={handleTargetFileSelect}
+                  className="hidden"
+                  id="target-excel-input"
+                />
+                <label
+                  htmlFor="target-excel-input"
+                  className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors cursor-pointer inline-flex items-center space-x-2"
+                >
+                  <span>📂</span>
+                  <span>Excel Dosyası Seç</span>
+                </label>
+                
+                {selectedTargetFile && (
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-blue-800 font-medium">✅ Seçilen Dosya: {selectedTargetFile.name}</p>
+                    <div className="mt-3 flex justify-center space-x-3">
+                      <button
+                        onClick={processBulkTargets}
+                        disabled={processingTargets}
+                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400"
+                      >
+                        {processingTargets ? '⏳ İşleniyor...' : '🚀 Hedefleri İçe Aktar'}
+                      </button>
+                      <button
+                        onClick={() => setSelectedTargetFile(null)}
+                        className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+                      >
+                        ❌ İptal
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Progress Form Modal */}
         {showProgressForm && selectedTarget && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
