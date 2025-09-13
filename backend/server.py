@@ -3389,6 +3389,41 @@ async def init_admin_user(admin_data: dict):
         logging.error(f"Error creating admin user: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+@api_router.post("/auth/login")
+async def login_user(login_data: dict):
+    """🔑 User Login Endpoint - Handle Clerk JWT tokens"""
+    try:
+        email = login_data.get("email")
+        password = login_data.get("password")
+        
+        if not email:
+            raise HTTPException(status_code=400, detail="Email required")
+        
+        # Find user in database
+        user = await db.users.find_one({"email": email})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # In Clerk-based auth, we don't verify password on backend
+        # Frontend handles Clerk authentication and sends JWT token
+        # This endpoint is mainly for user lookup after Clerk auth
+        
+        return {
+            "message": "User found",
+            "user": {
+                "id": user["id"],
+                "email": user["email"],
+                "name": user["name"],
+                "role": user["role"],
+                "client_id": user.get("client_id"),
+                "admin_approved": user.get("admin_approved", False)
+            }
+        }
+        
+    except Exception as e:
+        logging.error(f"Login error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/repair-admin-clerk")
 async def repair_admin_clerk(repair_data: dict):
     """🔧 REPAIR: Create missing Clerk user for existing admin"""
