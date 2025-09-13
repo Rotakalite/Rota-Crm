@@ -1,0 +1,130 @@
+[
+  {
+    "test": "Clerk Configuration - JWKS Endpoint",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "JWKS accessible, 1 keys found",
+    "error": "",
+    "timestamp": "2025-09-13T23:48:00.581164"
+  },
+  {
+    "test": "Clerk Configuration - Backend Health",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Backend healthy: healthy",
+    "error": "",
+    "timestamp": "2025-09-13T23:48:01.146529"
+  },
+  {
+    "test": "Admin Client Creation Flow - Endpoint Security",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Endpoint properly secured: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:48:01.604490"
+  },
+  {
+    "test": "Admin Client Creation Flow - Authentication Check",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Authentication required: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:48:02.053659"
+  },
+  {
+    "test": "Team Member Creation Flow - Endpoint Security",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Endpoint properly secured: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:48:02.360309"
+  },
+  {
+    "test": "Team Member Creation Flow - Authentication Check",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Authentication required: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:48:02.808279"
+  },
+  {
+    "test": "Database User Creation - Users Endpoint",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Users endpoint secured: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:48:03.117383"
+  },
+  {
+    "test": "Database User Creation - Unexpected Response",
+    "status": "❌ FAIL",
+    "success": false,
+    "details": "Unexpected response: 405",
+    "error": "",
+    "timestamp": "2025-09-13T23:48:03.431600"
+  },
+  {
+    "test": "Clerk User Creation - /api/auth/create-user",
+    "status": "❌ FAIL",
+    "success": false,
+    "details": "Endpoint not found: /api/auth/create-user",
+    "error": "",
+    "timestamp": "2025-09-13T23:48:03.746491"
+  },
+  {
+    "test": "Clerk User Creation - /api/clerk/create-user",
+    "status": "❌ FAIL",
+    "success": false,
+    "details": "Endpoint not found: /api/clerk/create-user",
+    "error": "",
+    "timestamp": "2025-09-13T23:48:04.055767"
+  },
+  {
+    "test": "Clerk User Creation - /api/admin/create-user",
+    "status": "❌ FAIL",
+    "success": false,
+    "details": "Endpoint not found: /api/admin/create-user",
+    "error": "",
+    "timestamp": "2025-09-13T23:48:04.372628"
+  },
+  {
+    "test": "Clerk User Creation - /api/users/create",
+    "status": "❌ FAIL",
+    "success": false,
+    "details": "Endpoint not found: /api/users/create",
+    "error": "",
+    "timestamp": "2025-09-13T23:48:04.821753"
+  },
+  {
+    "test": "Clerk User Creation - Repair Endpoint",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Clerk repair endpoint responds: 422",
+    "error": "",
+    "timestamp": "2025-09-13T23:48:05.135398"
+  },
+  {
+    "test": "Authentication Endpoints - Login Missing",
+    "status": "❌ FAIL",
+    "success": false,
+    "details": "CRITICAL: Login endpoint not found!",
+    "error": "",
+    "timestamp": "2025-09-13T23:48:05.451806"
+  },
+  {
+    "test": "Authentication Endpoints - Register",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Register endpoint accessible: 422",
+    "error": "",
+    "timestamp": "2025-09-13T23:48:05.757548"
+  },
+  {
+    "test": "Authentication Endpoints - Me",
+    "status": "✅ PASS",
+    "success": true,
+    "details": "Me endpoint secured: 403",
+    "error": "",
+    "timestamp": "2025-09-13T23:48:06.248465"
+  }
+]
