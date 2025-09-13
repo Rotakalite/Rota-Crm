@@ -20,11 +20,11 @@ Railway URL: https://rota-crm-production.up.railway.app
 
 import requests
 import json
+import time
 import sys
 from datetime import datetime
-import time
 
-class GreenWaveCarbonFootprintTester:
+class GreenWaveCRMBackendTester:
     def __init__(self):
         # Use Railway production URL from frontend .env
         self.base_url = "https://rota-crm-production.up.railway.app"
