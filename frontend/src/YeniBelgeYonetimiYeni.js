@@ -513,7 +513,10 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
                 const loadedMB = (progressEvent.loaded / (1024 * 1024)).toFixed(1);
                 const totalMB = (progressEvent.total / (1024 * 1024)).toFixed(1);
                 const uploadedSpeed = progressEvent.loaded / ((Date.now() - uploadStartTime) / 1000) / (1024 * 1024);
-                console.log(`📊 Upload progress: ${percentCompleted}% (${loadedMB}/${totalMB} MB) - Speed: ${uploadedSpeed.toFixed(1)} MB/s - ${file.name}`);
+                const remainingMB = (progressEvent.total - progressEvent.loaded) / (1024 * 1024);
+                const etaSeconds = remainingMB / uploadedSpeed;
+                const etaMinutes = Math.round(etaSeconds / 60);
+                console.log(`📊 Upload progress: ${percentCompleted}% (${loadedMB}/${totalMB} MB) - Speed: ${uploadedSpeed.toFixed(1)} MB/s - ETA: ${etaMinutes}min - ${file.name}`);
               }
             });
             
