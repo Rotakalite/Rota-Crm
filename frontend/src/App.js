@@ -18190,8 +18190,15 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
       // Create dynamic success message with categories and units count
       const categoryCount = categories.length;
       const unitCount = purchaseUnits.length;
+      const certificationCount = certifications.length;
       
-      alert(`📊 Tedarikçi taslak Excel dosyası indirildi!\n\n✅ XLSX formatında\n✅ Yeni alanlar eklendi\n✅ Dinamik açılır listeler:\n   • ${categoryCount} Kategori seçeneği\n   • ${unitCount} Satın Alım Cinsi seçeneği\n   • Yerel (Evet/Hayır) seçenekleri\n✅ Düzenli sütun yapısı\n✅ Boş satırlar eklendi\n\nDosyayı açın, kendi tedarikçi verilerinizi girin ve Excel İmport ile yükleyin.`);
+      console.log('📊 Template created successfully!', {
+        categories: categoryCount,
+        units: unitCount,
+        certifications: certificationCount
+      });
+      
+      alert(`📊 Tedarikçi taslak Excel dosyası indirildi!\n\n✅ XLSX formatında\n✅ Yeni alanlar eklendi\n✅ Dinamik açılır listeler:\n   • ${categoryCount} Kategori seçeneği\n   • ${unitCount} Satın Alım Cinsi seçeneği\n   • ${certificationCount} Sertifika seçeneği\n   • Yerel (Evet/Hayır) seçenekleri\n✅ Düzenli sütun yapısı\n✅ Boş satırlar eklendi\n\n🔍 Debug: Kategoriler API'den geldi mi? ${categoryCount > 7 ? 'EVET' : 'HAYIR'}\n\nDosyayı açın, kendi tedarikçi verilerinizi girin ve Excel İmport ile yükleyin.`);
       
     } catch (error) {
       console.error('Error creating suppliers template:', error);
