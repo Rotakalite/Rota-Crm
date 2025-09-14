@@ -4188,36 +4188,81 @@ async def upload_belge_main_app(
         # Generate document ID and save file
         document_id = str(uuid.uuid4())
         
-        # EMERGENCY FIX: Direct MongoDB Binary Storage (GridFS yerine)
-        # Save file content as binary in MongoDB document
+        # 🔧 FIXED: Smart File Storage - GridFS for large files, BSON for small files  
         file_content = await file.read()
         file_size = len(file_content)
         
-        # SIMPLE MONGODB BINARY STORAGE - NO GRIDFS
-        # Store file content directly in document as binary
-        logging.info(f"✅ File content read: {file_size} bytes, storing directly in MongoDB")
+        # MongoDB BSON document limit is 16MB (16777216 bytes)
+        # Use GridFS for files larger than 15MB to be safe
+        bson_limit = 15 * 1024 * 1024  # 15MB safe limit
         
-        # Generate a unique file ID for reference
-        file_id = str(uuid.uuid4())
-        
-        # Save metadata AND binary content to MongoDB
-        document_data = {
-            "id": document_id,
-            "client_id": client_id,
-            "folder_id": folder_id,
-            "document_name": document_name,
-            "document_type": document_type,
-            "stage": stage,
-            "description": description,
-            "filename": file.filename,
-            "original_filename": file.filename,
-            "file_id": file_id,
-            "file_content": file_content,  # DIRECT BINARY STORAGE
-            "file_size": file_size,
-            "created_at": datetime.utcnow(),
-            "status": "active",
-            "binary_storage": True  # Mark as direct binary storage
-        }
+        if file_size > bson_limit:
+            # Large file - use GridFS
+            logging.info(f"📁 Large file ({file_size} bytes > {bson_limit}), using GridFS storage")
+            
+            if not mongo_gridfs:
+                raise HTTPException(status_code=500, detail="GridFS service not available for large file")
+            
+            # Store in GridFS
+            file_id = await mongo_gridfs.store_file(
+                filename=file.filename,
+                content=file_content,
+                metadata={
+                    "client_id": client_id,
+                    "document_id": document_id,
+                    "folder_id": folder_id,
+                    "document_name": document_name,
+                    "document_type": document_type,
+                    "stage": stage,
+                    "description": description,
+                    "upload_type": "gridfs_large_file"
+                }
+            )
+            
+            # Save only metadata to MongoDB (no binary content)
+            document_data = {
+                "id": document_id,
+                "client_id": client_id,
+                "folder_id": folder_id,
+                "document_name": document_name,
+                "document_type": document_type,
+                "stage": stage,
+                "description": description,
+                "filename": file.filename,
+                "original_filename": file.filename,
+                "file_id": str(file_id),  # GridFS ObjectId
+                "file_size": file_size,
+                "created_at": datetime.utcnow(),
+                "status": "active",
+                "gridfs_upload": True,  # Mark as GridFS storage
+                "binary_storage": False
+            }
+        else:
+            # Small file - use direct BSON storage
+            logging.info(f"📝 Small file ({file_size} bytes <= {bson_limit}), using BSON storage")
+            
+            # Generate unique file ID for reference
+            file_id = str(uuid.uuid4())
+            
+            # Save metadata AND binary content to MongoDB
+            document_data = {
+                "id": document_id,
+                "client_id": client_id,
+                "folder_id": folder_id,
+                "document_name": document_name,
+                "document_type": document_type,
+                "stage": stage,
+                "description": description,
+                "filename": file.filename,
+                "original_filename": file.filename,
+                "file_id": file_id,
+                "file_content": file_content,  # Direct binary storage for small files
+                "file_size": file_size,
+                "created_at": datetime.utcnow(),
+                "status": "active",
+                "binary_storage": True,  # Mark as direct binary storage
+                "gridfs_upload": False
+            }
         
         result = await asyncio.to_thread(db.documents.insert_one, document_data)
         logging.info(f"✅ Metadata saved: {document_id}")
