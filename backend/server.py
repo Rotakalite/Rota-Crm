@@ -15088,6 +15088,11 @@ async def get_supplier_categories():
     """Get available supplier categories"""
     return {"categories": SUPPLIER_CATEGORIES}
 
+@api_router.get("/suppliers/purchase-units/list")
+async def get_purchase_units():
+    """Get available purchase units for products/services"""
+    return {"purchase_units": PURCHASE_UNITS}
+
 @api_router.get("/suppliers/certifications/list")
 async def get_available_certifications():
     """Get available certifications"""
