@@ -18026,22 +18026,33 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
-  // Download Suppliers Template Function (XLSX Format with New Fields)
+  // Download Suppliers Template Function (XLSX Format with Dynamic Dropdowns)
   const downloadSuppliersTemplate = async () => {
     try {
       // Import XLSX library
       const XLSX = await import('xlsx');
       
+      // Fetch supplier categories and purchase units from backend
+      const [categoriesResponse, unitsResponse, certificationsResponse] = await Promise.all([
+        axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/suppliers/categories/list`),
+        axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/suppliers/purchase-units/list`),
+        axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/suppliers/certifications/list`)
+      ]);
+      
+      const categories = categoriesResponse.data.categories || [];
+      const purchaseUnits = unitsResponse.data.purchase_units || [];
+      const certifications = certificationsResponse.data.certifications || [];
+      
       // Create template data with new fields
       const templateData = [
         // Header row
         ['Şirket Adı', 'İletişim Kişisi', 'Email', 'Telefon', 'Kategori', 'Hizmetler', 'Sertifikalar', 'Sürdürülebilirlik Skoru', 'Yerel', 'Satın Alım Miktarı', 'Satın Alım Cinsi', 'Aylık Ödenen Tutar (TL)'],
-        // Example rows with proper formatting
-        ['ABC Gıda Ltd.', 'Ahmet Yılmaz', 'ahmet@abcgida.com', '0212-555-0123', 'Gıda', 'Organik Ürünler;Et Ürünleri', 'ISO 14001;HACCP', '85', 'Evet', '500', 'KG', '15000'],
-        ['XYZ Temizlik A.Ş.', 'Fatma Kaya', 'fatma@xyztemizlik.com', '0212-444-5555', 'Temizlik', 'Çevre Dostu Ürünler', 'ISO 9001', '75', 'Hayır', '1000', 'LİTRE', '8500'],
-        ['DEF Tekstil San.', 'Mehmet Demir', 'mehmet@deftekstil.com', '0212-333-4444', 'Tekstil', '', '', '60', 'Evet', '200', 'ADET', '12000'],
-        ['GHI Elektronik Ltd.', 'Ayşe Öztürk', 'ayse@ghielektronik.com', '0212-777-8888', 'Elektronik', 'Bilgisayar;Telefon', 'ISO 27001', '90', 'Evet', '50', 'ADET', '25000'],
-        ['JKL İnşaat A.Ş.', 'Murat Kaya', 'murat@jklinsaat.com', '0212-999-1111', 'İnşaat', 'Yapı Malzemeleri;Çimento', 'ISO 45001', '70', 'Hayır', '1500', 'M³', '35000'],
+        // Example rows with proper formatting using dynamic data
+        ['ABC Gıda Ltd.', 'Ahmet Yılmaz', 'ahmet@abcgida.com', '0212-555-0123', categories[0] || 'Gıda & İçecek', 'Organik Ürünler;Et Ürünleri', certifications.slice(0,2).join(';'), '85', 'Evet', '500', purchaseUnits[1] || 'KG', '15000'],
+        ['XYZ Temizlik A.Ş.', 'Fatma Kaya', 'fatma@xyztemizlik.com', '0212-444-5555', categories[1] || 'Temizlik & Hijyen', 'Çevre Dostu Ürünler', certifications[0] || 'ISO 14001', '75', 'Hayır', '1000', purchaseUnits[2] || 'LİTRE', '8500'],
+        ['DEF Tekstil San.', 'Mehmet Demir', 'mehmet@deftekstil.com', '0212-333-4444', categories[3] || 'Tekstil & Çamaşırhane', '', '', '60', 'Evet', '200', purchaseUnits[0] || 'ADET', '12000'],
+        ['GHI Elektronik Ltd.', 'Ayşe Öztürk', 'ayse@ghielektronik.com', '0212-777-8888', categories[4] || 'Teknoloji & Ekipman', 'Bilgisayar;Telefon', certifications[2] || 'Energy Star', '90', 'Evet', '50', purchaseUnits[0] || 'ADET', '25000'],
+        ['JKL İnşaat A.Ş.', 'Murat Kaya', 'murat@jklinsaat.com', '0212-999-1111', categories[11] || 'İnşaat & Bakım', 'Yapı Malzemeleri;Çimento', certifications[1] || 'LEED Certified', '70', 'Hayır', '1500', purchaseUnits[6] || 'M³', '35000'],
         // Empty rows for user input
         ['', '', '', '', '', '', '', '', '', '', '', ''],
         ['', '', '', '', '', '', '', '', '', '', '', ''],
@@ -18059,7 +18070,7 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
         { width: 15 }, // İletişim Kişisi
         { width: 25 }, // Email
         { width: 15 }, // Telefon
-        { width: 12 }, // Kategori
+        { width: 20 }, // Kategori (wider for longer category names)
         { width: 20 }, // Hizmetler
         { width: 20 }, // Sertifikalar
         { width: 12 }, // Sürdürülebilirlik Skoru
@@ -18083,15 +18094,16 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
         worksheet[cellRef].s = headerStyle;
       }
       
-      // Add data validation for Kategori column (E column)
+      // Add data validation for Kategori column (E column) - Dynamic categories
       if (!worksheet['!dataValidations']) worksheet['!dataValidations'] = [];
+      const categoriesString = categories.join(',');
       worksheet['!dataValidations'].push({
         type: 'list',
         allowBlank: false,
         showInputMessage: true,
         showErrorMessage: true,
         sqref: 'E2:E1000',
-        formula1: '"Gıda,Temizlik,Tekstil,Elektronik,İnşaat,Kimyasal,Kozmetik,Mobilya,Otomotiv,Teknoloji,Hizmet,Diğer"'
+        formula1: `"${categoriesString}"`
       });
       
       // Add data validation for Yerel column (I column)
@@ -18104,14 +18116,15 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
         formula1: '"Evet,Hayır"'
       });
       
-      // Add data validation for Satın Alım Cinsi column (K column)
+      // Add data validation for Satın Alım Cinsi column (K column) - Dynamic purchase units
+      const purchaseUnitsString = purchaseUnits.join(',');
       worksheet['!dataValidations'].push({
         type: 'list',
         allowBlank: false,
         showInputMessage: true,
         showErrorMessage: true,
         sqref: 'K2:K1000',
-        formula1: '"KG,LİTRE,ADET,GÜN,SAAT,M²,M³,TON,GRAM,PAKET,KUTU,KASA"'
+        formula1: `"${purchaseUnitsString}"`
       });
 
       // Add worksheet to workbook
