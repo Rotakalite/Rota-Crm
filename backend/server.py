@@ -15255,8 +15255,13 @@ AVAILABLE_CERTIFICATIONS = [
 
 @api_router.get("/suppliers/categories/list")
 async def get_supplier_categories():
-    """Get available supplier categories"""
-    return {"categories": SUPPLIER_CATEGORIES}
+    """Get available supplier categories - UPDATED WITH 118 CATEGORIES"""
+    return {
+        "categories": SUPPLIER_CATEGORIES,
+        "count": len(SUPPLIER_CATEGORIES),
+        "version": "v2.0-extended",
+        "last_updated": "2025-09-14"
+    }
 
 @api_router.get("/suppliers/purchase-units/list")
 async def get_purchase_units():
