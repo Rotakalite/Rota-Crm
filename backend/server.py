@@ -356,8 +356,17 @@ class ClerkAdminManager:
             }
             
         except Exception as e:
-            logging.error(f"❌ Clerk user creation failed: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Failed to create user in Clerk: {str(e)}")
+            error_message = str(e)
+            logging.error(f"❌ Clerk user creation failed: {error_message}")
+            logging.error(f"❌ Email domain attempted: {email.split('@')[1]}")
+            logging.error(f"❌ Full error type: {type(e).__name__}")
+            
+            # If it's domain restriction, provide helpful message
+            if "domain" in error_message.lower() or "email" in error_message.lower():
+                domain = email.split('@')[1]
+                raise HTTPException(status_code=400, detail=f"Email domain '{domain}' not allowed. Contact admin to whitelist domain.")
+            
+            raise HTTPException(status_code=500, detail=f"Failed to create user in Clerk: {error_message}")
     
     def is_available(self):
         """Check if Clerk is available and configured"""
