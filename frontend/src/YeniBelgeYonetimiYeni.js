@@ -507,7 +507,7 @@ const YeniBelgeYonetimiYeni = ({ selectedClient: propSelectedClient }) => {
                 'Content-Type': 'multipart/form-data',
                 'Authorization': `Bearer ${freshToken}`
               },
-              timeout: Math.max(300000, Math.min(file.size / (1024 * 50), 1800000)), // Dynamic timeout: 5min minimum, up to 30min for large files (50KB/s minimum speed)
+              timeout: Math.max(900000, Math.min(file.size / (1024 * 20), 2700000)), // Dynamic timeout: 15min minimum, up to 45min for large files (20KB/s minimum speed for 199MB files)
               onUploadProgress: (progressEvent) => {
                 const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                 const loadedMB = (progressEvent.loaded / (1024 * 1024)).toFixed(1);
