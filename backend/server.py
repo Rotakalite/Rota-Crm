@@ -3421,6 +3421,20 @@ async def login_user(login_data: dict):
         logging.error(f"Login error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/test-clerk-status")
+async def test_clerk_status():
+    """🔧 DEBUG: Test Clerk integration status"""
+    try:
+        return {
+            "clerk_available": CLERK_AVAILABLE,
+            "clerk_admin_available": clerk_admin.is_available(),
+            "users_api_available": clerk_admin.users_api is not None,
+            "clerk_secret_set": bool(os.environ.get('CLERK_SECRET_KEY')),
+            "debug_info": f"CLERK_AVAILABLE={CLERK_AVAILABLE}, users_api={type(clerk_admin.users_api).__name__ if clerk_admin.users_api else 'None'}"
+        }
+    except Exception as e:
+        return {"error": str(e), "type": type(e).__name__}
+
 @api_router.post("/repair-admin-clerk")
 async def repair_admin_clerk(repair_data: dict):
     """🔧 REPAIR: Create missing Clerk user for existing admin"""
