@@ -15018,6 +15018,48 @@ SUPPLIER_CATEGORIES = [
     "Diğer"
 ]
 
+# Purchase Units for products/services
+PURCHASE_UNITS = [
+    "ADET",
+    "KG", 
+    "LİTRE",
+    "GÜN",
+    "SAAT",
+    "M²",
+    "M³",
+    "TON",
+    "PAKET",
+    "KUTU",
+    "GRAm",
+    "ML",
+    "KASA",
+    "PALET",
+    "RULO",
+    "METRE",
+    "YIL",
+    "AY",
+    "HAFTA",
+    "PORSIYON",
+    "SERVİS",
+    "PROJE",
+    "OTURUM",
+    "KURS",
+    "EĞİTİM",
+    "RAPOR",
+    "ANALIZ",
+    "HİZMET",
+    "BAKTI",
+    "KONTROL",
+    "SET",
+    "TAKıM",
+    "ÇIFT",
+    "TABAK",
+    "BARDAK",
+    "ŞİŞE",
+    "DOLU",
+    "BOŞ"
+]
+
 # Available Certifications
 AVAILABLE_CERTIFICATIONS = [
     "ISO 14001",
