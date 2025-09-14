@@ -8181,7 +8181,10 @@ async def create_client(
             logging.info(f"✅ Clerk user created successfully: {clerk_user_data['clerk_user_id']}")
             
         except Exception as e:
-            logging.error(f"❌ Clerk user creation failed (continuing with client creation): {str(e)}")
+            error_msg = str(e)
+            logging.error(f"❌ Clerk user creation failed (continuing with client creation): {error_msg}")
+            print(f"❌ CONSOLE: CLERK ERROR - {error_msg}")
+            print(f"❌ CONSOLE: EMAIL DOMAIN - {client.email.split('@')[1]}")
             # Continue with client creation even if Clerk fails
     
     # Insert client to database
