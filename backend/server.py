@@ -8146,21 +8146,17 @@ async def create_client(
     logging.info(f"🔍 CLERK DEBUG - Admin role: {current_user.role}, Client email: {client.email}, Clerk available: {clerk_admin.is_available()}")
     logging.info(f"🔍 CLERK DEBUG - CLERK_AVAILABLE: {CLERK_AVAILABLE}, users_api: {clerk_admin.users_api is not None}")
     
-    if current_user.role == UserRole.ADMIN and client.email:
+    if current_user.role == UserRole.ADMIN and client.email and clerk_admin.is_available():
         try:
             logging.info(f"🎯 Admin creating client with auto Clerk signup for: {client.email}")
             
-            # FORCE CREATE Clerk user regardless of is_available check
-            if CLERK_AVAILABLE and os.environ.get('CLERK_SECRET_KEY'):
-                clerk_user_data = await clerk_admin.create_user_with_clerk(
-                    email=client.email,
-                    first_name=client.contact_person or client.name,
-                    last_name="Client",  # Default last name  
-                    password=client_data.password
-                )
-            else:
-                logging.error(f"❌ Clerk not properly configured: CLERK_AVAILABLE={CLERK_AVAILABLE}, SECRET_KEY={'SET' if os.environ.get('CLERK_SECRET_KEY') else 'MISSING'}")
-                raise Exception("Clerk configuration invalid")
+            # Generate Clerk user
+            clerk_user_data = await clerk_admin.create_user_with_clerk(
+                email=client.email,
+                first_name=client.contact_person or client.name,
+                last_name="Client",  # Default last name
+                password=client_data.password  # 🎯 FIXED: Use admin-defined password
+            )
             
             # Add Clerk ID to client data
             client.clerk_user_id = clerk_user_data["clerk_user_id"]
