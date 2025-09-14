@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend API URL
-BACKEND_API_URL = "https://carbon-tracker-app.preview.emergentagent.com/api"
+BACKEND_API_URL = "https://sustainability-crm-1.preview.emergentagent.com/api"
 
 class TestAPIEndpoints(unittest.TestCase):
     """Test class for API endpoints"""

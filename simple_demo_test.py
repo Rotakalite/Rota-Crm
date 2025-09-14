@@ -11,7 +11,7 @@ from datetime import datetime
 
 class SimpleDemoTest:
     def __init__(self):
-        self.base_url = "https://carbon-tracker-app.preview.emergentagent.com"
+        self.base_url = "https://sustainability-crm-1.preview.emergentagent.com"
         self.api_url = f"{self.base_url}/api"
         
     async def test_basic_endpoints(self):

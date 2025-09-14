@@ -24,12 +24,12 @@ def get_backend_url():
         
         if not backend_url:
             logger.error("REACT_APP_BACKEND_URL not found in .env file")
-            return "https://carbon-tracker-app.preview.emergentagent.com"
+            return "https://sustainability-crm-1.preview.emergentagent.com"
         
         return backend_url
     except Exception as e:
         logger.error(f"Error reading .env file: {str(e)}")
-        return "https://carbon-tracker-app.preview.emergentagent.com"
+        return "https://sustainability-crm-1.preview.emergentagent.com"
 
 # Mock response class
 class MockResponse:

@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://carbon-tracker-app.preview.emergentagent.com"
+BACKEND_URL = "https://sustainability-crm-1.preview.emergentagent.com"
 API_URL = f"{BACKEND_URL}/api"
 
 # Test JWT token - this is a sample token for testing

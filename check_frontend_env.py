@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL
-BACKEND_URL = "https://carbon-tracker-app.preview.emergentagent.com/api"
+BACKEND_URL = "https://sustainability-crm-1.preview.emergentagent.com/api"
 
 def check_frontend_env():
     """Check frontend environment variables"""

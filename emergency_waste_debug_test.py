@@ -25,7 +25,7 @@ class EmergencyWasteDebugTester:
     def __init__(self):
         # CRITICAL: Use Railway production URL (correct backend)
         self.railway_url = "https://rota-crm-production.up.railway.app"
-        self.wrong_url = "https://carbon-tracker-app.preview.emergentagent.com"  # Wrong URL from frontend .env
+        self.wrong_url = "https://sustainability-crm-1.preview.emergentagent.com"  # Wrong URL from frontend .env
         
         # Test results tracking
         self.total_tests = 0
