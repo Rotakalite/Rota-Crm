@@ -18141,6 +18141,13 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
       // Add data validation for Kategori column (E column) - Dynamic categories
       if (!worksheet['!dataValidations']) worksheet['!dataValidations'] = [];
       const categoriesString = categories.join(',');
+      console.log('📝 Categories for Excel validation:', {
+        count: categories.length,
+        string_length: categoriesString.length,
+        first_5: categories.slice(0, 5),
+        validation_string_preview: categoriesString.substring(0, 100) + '...'
+      });
+      
       worksheet['!dataValidations'].push({
         type: 'list',
         allowBlank: false,
@@ -18162,6 +18169,13 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
       
       // Add data validation for Satın Alım Cinsi column (K column) - Dynamic purchase units
       const purchaseUnitsString = purchaseUnits.join(',');
+      console.log('📝 Purchase units for Excel validation:', {
+        count: purchaseUnits.length,
+        string_length: purchaseUnitsString.length,
+        first_5: purchaseUnits.slice(0, 5),
+        validation_string_preview: purchaseUnitsString.substring(0, 100) + '...'
+      });
+      
       worksheet['!dataValidations'].push({
         type: 'list',
         allowBlank: false,
