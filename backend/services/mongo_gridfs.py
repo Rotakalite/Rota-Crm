@@ -197,5 +197,48 @@ class MongoGridFS:
             logger.error(f"❌ Failed to get file info: {e}")
             raise Exception(f"Get file info failed: {str(e)}")
 
+    async def store_file(self, filename: str, content: bytes, metadata: dict = None) -> str:
+        """Store file in GridFS - alias for upload_file with simplified interface"""
+        if not self.fs:
+            raise Exception("MongoDB GridFS not initialized")
+        
+        try:
+            logger.info(f"📤 Storing file in GridFS: {filename}")
+            
+            # Create metadata
+            file_metadata = {
+                "original_filename": filename,
+                "content_type": "application/octet-stream",  # Default content type
+                "upload_date": datetime.utcnow(),
+                "file_size": len(content)
+            }
+            
+            # Add custom metadata if provided
+            if metadata:
+                file_metadata.update(metadata)
+                # Extract user_id from metadata if available
+                user_id = metadata.get("client_id", "system")
+            else:
+                user_id = "system"
+            
+            # Generate unique filename
+            file_extension = os.path.splitext(filename)[1]
+            unique_filename = f"{user_id}_{uuid.uuid4()}{file_extension}"
+            
+            # Upload to GridFS
+            file_stream = BytesIO(content)
+            file_id = await self.fs.upload_from_stream(
+                filename=unique_filename,
+                source=file_stream,
+                metadata=file_metadata
+            )
+            
+            logger.info(f"✅ File stored successfully in GridFS - ID: {file_id}")
+            return str(file_id)
+            
+        except Exception as e:
+            logger.error(f"❌ GridFS store_file failed: {e}")
+            raise Exception(f"File storage failed: {str(e)}")
+
 # Global instance
 mongo_gridfs = MongoGridFS()
