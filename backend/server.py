@@ -8141,6 +8141,11 @@ async def create_client(
     
     # 🎯 NEW: Auto-create Clerk user if admin creates client with email
     clerk_user_data = None
+    
+    # 🔍 DEBUG: Log all conditions
+    logging.info(f"🔍 CLERK DEBUG - Admin role: {current_user.role}, Client email: {client.email}, Clerk available: {clerk_admin.is_available()}")
+    logging.info(f"🔍 CLERK DEBUG - CLERK_AVAILABLE: {CLERK_AVAILABLE}, users_api: {clerk_admin.users_api is not None}")
+    
     if current_user.role == UserRole.ADMIN and client.email and clerk_admin.is_available():
         try:
             logging.info(f"🎯 Admin creating client with auto Clerk signup for: {client.email}")
