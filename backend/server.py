@@ -3421,7 +3421,7 @@ async def login_user(login_data: dict):
         logging.error(f"Login error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/test-clerk-status")
+@app.get("/test-clerk-status")
 async def test_clerk_status():
     """🔧 DEBUG: Test Clerk integration status"""
     try:
