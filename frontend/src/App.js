@@ -18029,19 +18029,63 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
   // Download Suppliers Template Function (XLSX Format with Dynamic Dropdowns)
   const downloadSuppliersTemplate = async () => {
     try {
+      console.log('🔄 Starting template generation...');
+      
       // Import XLSX library
       const XLSX = await import('xlsx');
+      console.log('✅ XLSX library imported');
       
-      // Fetch supplier categories and purchase units from backend
-      const [categoriesResponse, unitsResponse, certificationsResponse] = await Promise.all([
-        axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/suppliers/categories/list`),
-        axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/suppliers/purchase-units/list`),
-        axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/suppliers/certifications/list`)
-      ]);
+      // Fallback values in case API fails
+      const fallbackCategories = ["Gıda & İçecek", "Temizlik & Hijyen", "Enerji & Yakıt", "Tekstil & Çamaşırhane", "Teknoloji & Ekipman", "Mobilya & Dekorasyon", "Diğer"];
+      const fallbackUnits = ["ADET", "KG", "LİTRE", "GÜN", "SAAT", "M²", "M³", "TON", "PAKET", "KUTU"];
+      const fallbackCertifications = ["ISO 14001", "Organik Sertifika", "Fair Trade", "Carbon Neutral", "LEED Certified"];
       
-      const categories = categoriesResponse.data.categories || [];
-      const purchaseUnits = unitsResponse.data.purchase_units || [];
-      const certifications = certificationsResponse.data.certifications || [];
+      let categories = fallbackCategories;
+      let purchaseUnits = fallbackUnits;
+      let certifications = fallbackCertifications;
+      
+      try {
+        console.log('🌐 Fetching data from APIs...');
+        
+        // Fetch supplier categories and purchase units from backend
+        const [categoriesResponse, unitsResponse, certificationsResponse] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/suppliers/categories/list`),
+          axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/suppliers/purchase-units/list`),
+          axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/suppliers/certifications/list`)
+        ]);
+        
+        console.log('✅ API responses received:', {
+          categories: categoriesResponse.data.categories?.length || 0,
+          units: unitsResponse.data.purchase_units?.length || 0,
+          certifications: certificationsResponse.data.certifications?.length || 0
+        });
+        
+        // Use API data if available, otherwise keep fallback
+        if (categoriesResponse.data.categories && categoriesResponse.data.categories.length > 0) {
+          categories = categoriesResponse.data.categories;
+          console.log('✅ Using API categories:', categories.length);
+        } else {
+          console.log('⚠️ Using fallback categories');
+        }
+        
+        if (unitsResponse.data.purchase_units && unitsResponse.data.purchase_units.length > 0) {
+          purchaseUnits = unitsResponse.data.purchase_units;
+          console.log('✅ Using API purchase units:', purchaseUnits.length);
+        } else {
+          console.log('⚠️ Using fallback purchase units');
+        }
+        
+        if (certificationsResponse.data.certifications && certificationsResponse.data.certifications.length > 0) {
+          certifications = certificationsResponse.data.certifications;
+          console.log('✅ Using API certifications:', certifications.length);
+        } else {
+          console.log('⚠️ Using fallback certifications');
+        }
+        
+      } catch (apiError) {
+        console.error('❌ API fetch failed, using fallback data:', apiError);
+        console.log('📋 Fallback data will be used for Excel generation');
+      }
       
       // Create template data with new fields
       const templateData = [
