@@ -330,6 +330,11 @@ class ClerkAdminManager:
             
             # Create user request object
             username = email.split('@')[0]  # Email prefix'ini username yap
+            
+            # 🔧 HOTMAIL FIX: Log domain and attempt creation
+            domain = email.split('@')[1]
+            logging.info(f"🔧 Attempting Clerk user creation for domain: {domain}")
+            
             user_request = CreateUserRequest(
                 email_address=[email],
                 username=username,  # 🎯 FIXED: Username requirement için eklendi
@@ -339,7 +344,8 @@ class ClerkAdminManager:
                 skip_password_requirement=False,
                 skip_password_checks=False,
                 public_metadata={
-                    "role": "client"  # 🎯 CRITICAL FIX: Set client role in Clerk metadata
+                    "role": "client",  # 🎯 CRITICAL FIX: Set client role in Clerk metadata
+                    "email_domain": domain  # Track domain for debugging
                 }
             )
             
