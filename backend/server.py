@@ -8164,6 +8164,7 @@ async def create_client(
     if current_user.role == UserRole.ADMIN and client.email and clerk_admin.is_available():
         try:
             logging.info(f"🎯 Admin creating client with auto Clerk signup for: {client.email}")
+            print(f"🎯 CONSOLE: Admin creating client with auto Clerk signup for: {client.email}")
             
             # Generate Clerk user
             clerk_user_data = await clerk_admin.create_user_with_clerk(
@@ -8172,6 +8173,7 @@ async def create_client(
                 last_name="Client",  # Default last name
                 password=client_data.password  # 🎯 FIXED: Use admin-defined password
             )
+            print(f"✅ CONSOLE: Clerk user created: {clerk_user_data['clerk_user_id']}")
             
             # Add Clerk ID to client data
             client.clerk_user_id = clerk_user_data["clerk_user_id"]
