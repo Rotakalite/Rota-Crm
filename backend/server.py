@@ -15027,39 +15027,164 @@ class Supplier(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
-# Supplier Categories for filtering
+# Supplier Categories for filtering - EXPANDED & COMPREHENSIVE
 SUPPLIER_CATEGORIES = [
+    # 🏨 OTEL & TURİZM TEMELİ
     "Gıda & İçecek",
     "Temizlik & Hijyen", 
-    "Enerji & Yakıt",
     "Tekstil & Çamaşırhane",
-    "Teknoloji & Ekipman",
     "Mobilya & Dekorasyon",
-    "Güvenlik & Güvenlik",
-    "Taşımacılık & Lojistik",
-    "Bahçe & Peyzaj",
     "Spa & Wellness",
     "Eğlence & Aktivite",
+    
+    # ⚡ ALTYAPI & TEKNİK
+    "Enerji & Yakıt",
+    "Teknoloji & Ekipman",
+    "Güvenlik & Emniyet",
     "İnşaat & Bakım",
-    # 🆕 YENİ KATEGORİLER
+    "Su Arıtma & Filtreleme",
+    "Elektrik & Elektronik",
+    "Klima & Havalandırma",
+    "Asansör & Yürüyen Merdiven",
+    "Jeneratör & UPS Sistemleri",
+    
+    # 🌿 ÇEVRE & SOSYAL SORUMLULUK
+    "Çevre & Atık Yönetimi",
+    "Geri Dönüşüm & Kompost",
+    "Organik & Doğal Ürünler",
+    "Sürdürülebilirlik Danışmanlığı",
+    "Karbon Ayak İzi Yönetimi",
+    
+    # 🚐 LOJİSTİK & ULAŞIM
+    "Taşımacılık & Lojistik",
+    "Otopark & Valet",
+    "Havalimanı Transfer",
+    "Araç Kiralama",
+    "Yakıt & Akaryakıt",
+    
+    # 🏥 SAĞLIK & BAKIM
     "Sağlık & Medikal",
+    "Pet Care & Veteriner",
+    "Yaşlı Bakımı",
+    "Engelli Hizmetleri",
+    "İlk Yardım & Ambulans",
+    
+    # 💼 PROFESYONEL HİZMETLER
     "Eğitim & Danışmanlık", 
     "Sigorta & Mali Hizmetler",
-    "Medya & Reklam",
-    "Kırtasiye & Ofis",
-    "Pet Care & Veteriner",
-    "Turizm & Seyahat",
-    "İtfaiye & Acil Durum",
     "Hukuki & Yasal",
     "İnsan Kaynakları",
     "Muhasebe & Mali Müşavir",
     "BT Hizmetleri",
+    "Medya & Reklam",
+    "Fotoğrafçılık & Video",
+    "Çeviri & Tercümanlık",
+    
+    # 🎯 ÖZEL HİZMETLER
+    "Bahçe & Peyzaj",
+    "Çiçek & Organizasyon",
+    "Düğün & Etkinlik",
     "Sanat & Kültür",
     "Spor & Rekreasyon",
-    "Çevre & Atık Yönetimi",
-    "Su Arıtma & Filtre",
-    "Otopark & Valet",
-    "Çiçek & Organizasyon",
+    "Müzik & Eğlence",
+    "Oyun & Animasyon",
+    
+    # 🏪 SATIN ALMA & TEDARİK
+    "Kırtasiye & Ofis",
+    "Kıyafet & Üniforma",
+    "Hediye & Hediyelik Eşya",
+    "Kitap & Dergi",
+    "Oyuncak & Çocuk Ürünleri",
+    
+    # 🍽️ YİYECEK & İÇECEK ÖZEL
+    "Alkollü İçecekler",
+    "Kahve & Çay",
+    "Pastane & Unlu Mamüller",
+    "Dondurma & Tatlılar",
+    "Helal Gıda",
+    "Vejeteryan & Vegan",
+    "Deniz Ürünleri",
+    
+    # 🔧 BAKIM & ONARIM
+    "Boyacılık & Badana",
+    "Cam & Ayna",
+    "Çilingir & Anahtar",
+    "Tadilat & Renovasyon",
+    "Haşere & Böcek İlaçlama",
+    
+    # 🚨 ACİL DURUM & GÜVENLİK
+    "İtfaiye & Acil Durum",
+    "Güvenlik Kameraları",
+    "Alarm Sistemleri",
+    "Yangın Söndürme",
+    "Deprem & Afet Yönetimi",
+    
+    # 🌍 ULUSLARARASI & YEREL
+    "Turizm & Seyahat",
+    "Yerel Rehberlik",
+    "Kültürel Turlar",
+    "Macera Sporları",
+    "Su Sporları",
+    "Dağcılık & Doğa Yürüyüşü",
+    
+    # 📱 DİJİTAL HİZMETLER
+    "Web Tasarım & Geliştirme",
+    "Sosyal Medya Yönetimi",
+    "E-ticaret & Online Satış",
+    "Mobil Uygulama",
+    "Dijital Pazarlama",
+    "SEO & İçerik Yönetimi",
+    
+    # 🎨 SANAT & TASARIM
+    "İç Mimarlık",
+    "Grafik Tasarım",
+    "Peyzaj Mimarisi",
+    "Endüstriyel Tasarım",
+    "Moda & Tekstil Tasarımı",
+    
+    # 💎 LÜKS & PREMİUM
+    "Lüks Araç Kiralama",
+    "VIP Transfer",
+    "Özel Jet & Helikopter",
+    "Lüks Alışveriş",
+    "Kişisel Asistan",
+    "Concierge Hizmetleri",
+    
+    # 🏖️ DENİZ & PLAJ
+    "Plaj Ekipmanları",
+    "Deniz & Tekne",
+    "Dalış & Su Altı",
+    "Plaj Barı & Restoran",
+    "Su Sporları Ekipmanı",
+    
+    # ❄️ KIŞ & YAZ SPOR
+    "Kayak & Kış Sporları",
+    "Golf & Tenis",
+    "Fitness & Gym",
+    "Yoga & Pilates",
+    "Bisiklet & Bisiklet Turu",
+    
+    # 🎪 ÇOCUK & AİLE
+    "Çocuk Bakımı",
+    "Oyun Alanları",
+    "Çocuk Animasyonu",
+    "Bebek & Çocuk Ürünleri",
+    "Aile Aktiviteleri",
+    
+    # 🍷 ÖZEL GIDA & İÇECEK
+    "Şarap & Şampanya",
+    "Kokteyl & Bar",
+    "Özel Diyet Gıda",
+    "Organik Tarım Ürünleri",
+    "Yöresel & Geleneksel",
+    
+    # 🔮 DİĞER & ÖZEL
+    "Astroloji & Falcılık",
+    "Alternatif Tıp",
+    "Terzi & Dikiş",
+    "Berber & Kuaför",
+    "Makyaj & Güzellik",
+    "Masaj & Terapi",
     "Diğer"
 ]
 
