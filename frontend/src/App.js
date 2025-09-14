@@ -18143,11 +18143,15 @@ const SupplierManagement = ({ selectedClient: propSelectedClient }) => {
       link.click();
       document.body.removeChild(link);
       
-      alert('📊 Tedarikçi taslak Excel dosyası indirildi!\n\n✅ XLSX formatında\n✅ Yeni alanlar eklendi\n✅ Açılır listeler (Kategori, Yerel, Satın Alım Cinsi)\n✅ Düzenli sütun yapısı\n✅ Boş satırlar eklendi\n\nDosyayı açın, kendi tedarikçi verilerinizi girin ve Excel İmport ile yükleyin.');
+      // Create dynamic success message with categories and units count
+      const categoryCount = categories.length;
+      const unitCount = purchaseUnits.length;
+      
+      alert(`📊 Tedarikçi taslak Excel dosyası indirildi!\n\n✅ XLSX formatında\n✅ Yeni alanlar eklendi\n✅ Dinamik açılır listeler:\n   • ${categoryCount} Kategori seçeneği\n   • ${unitCount} Satın Alım Cinsi seçeneği\n   • Yerel (Evet/Hayır) seçenekleri\n✅ Düzenli sütun yapısı\n✅ Boş satırlar eklendi\n\nDosyayı açın, kendi tedarikçi verilerinizi girin ve Excel İmport ile yükleyin.`);
       
     } catch (error) {
       console.error('Error creating suppliers template:', error);
-      alert('Template oluşturma hatası: ' + error.message);
+      alert('Template oluşturma hatası: ' + (error.response?.data?.detail || error.message));
     }
   };
 
