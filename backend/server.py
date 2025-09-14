@@ -571,9 +571,6 @@ class ClerkAdminManager:
 # Email service import
 email_service = None
 
-# Initialize Clerk admin manager
-clerk_admin = ClerkAdminManager()
-
 # Standalone email functions
 async def send_consultant_welcome_email(email: str, password: str, consultant_name: str, company_name: str):
     """Standalone function to send consultant welcome email"""
