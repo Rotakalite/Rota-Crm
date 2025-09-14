@@ -14996,6 +14996,25 @@ SUPPLIER_CATEGORIES = [
     "Spa & Wellness",
     "Eğlence & Aktivite",
     "İnşaat & Bakım",
+    # 🆕 YENİ KATEGORİLER
+    "Sağlık & Medikal",
+    "Eğitim & Danışmanlık", 
+    "Sigorta & Mali Hizmetler",
+    "Medya & Reklam",
+    "Kırtasiye & Ofis",
+    "Pet Care & Veteriner",
+    "Turizm & Seyahat",
+    "İtfaiye & Acil Durum",
+    "Hukuki & Yasal",
+    "İnsan Kaynakları",
+    "Muhasebe & Mali Müşavir",
+    "BT Hizmetleri",
+    "Sanat & Kültür",
+    "Spor & Rekreasyon",
+    "Çevre & Atık Yönetimi",
+    "Su Arıtma & Filtre",
+    "Otopark & Valet",
+    "Çiçek & Organizasyon",
     "Diğer"
 ]
 
