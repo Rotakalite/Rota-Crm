@@ -12955,6 +12955,140 @@ async def get_waste_records(
     logging.info(f"📊 Found {len(records)} waste records")
     return records
 
+# Waste Management Analytics - MOVED BEFORE PARAMETERIZED ROUTES  
+@api_router.get("/consumptions/waste/analytics")
+async def get_waste_analytics(
+    year: Optional[int] = None,
+    client_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get waste analytics (same structure as consumption analytics)"""
+    
+    logging.info(f"📊 GET /consumptions/waste/analytics called by user: {current_user.role}")
+    
+    # Get client_id based on user role (same as consumption)
+    if current_user.role == UserRole.ADMIN:
+        if client_id:
+            target_client_id = client_id
+        else:
+            target_client_id = current_user.client_id
+    elif current_user.role == UserRole.CONSULTANT:
+        # Consultant users can see waste analytics for their assigned clients
+        if client_id:
+            # Verify that the consultant has access to this client
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+            
+            # Check if the client is assigned to this consultant
+            assigned_client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+            if not assigned_client:
+                raise HTTPException(status_code=403, detail="Bu müşteri için yetkiniz yok")
+            
+            target_client_id = client_id
+        else:
+            # If no client_id specified, consultant must specify which client
+            raise HTTPException(status_code=400, detail="Client ID required for waste analytics")
+    else:
+        # Regular client can only see their own analytics
+        target_client_id = current_user.client_id
+        if not target_client_id:
+            raise HTTPException(status_code=403, detail="Client ID not found for user")
+    
+    logging.info(f"🎯 Fetching waste analytics for client: {target_client_id}, year: {year}")
+    
+    # Build query
+    query = {"client_id": target_client_id}
+    if year:
+        query["year"] = year
+    
+    # Get waste records
+    waste_records = await db.waste_management.find(query).sort("year", -1).sort("month", -1).to_list(length=None)
+    
+    if not waste_records:
+        logging.info("📊 No waste records found, returning empty analytics")
+        return {
+            "yearly_totals": {},
+            "monthly_data": [],
+            "waste_breakdown": {},
+            "recycling_performance": {"average_rate": 0, "best_month": None, "worst_month": None}
+        }
+    
+    # Calculate analytics
+    yearly_totals = {}
+    monthly_data = []
+    waste_types = ["organic_waste", "plastic_waste", "glass_waste", "paper_waste", "metal_waste", "electronic_waste", "oil_waste", "mixed_waste"]
+    
+    for record in waste_records:
+        year_key = record.get("year", 2024)
+        if year_key not in yearly_totals:
+            yearly_totals[year_key] = {
+                "total_waste": 0,
+                "recyclable_waste": 0,
+                "average_recycling_rate": 0,
+                "total_accommodation": 0
+            }
+        
+        # Calculate totals
+        total_waste = sum(record.get(waste_type, 0) for waste_type in waste_types)
+        recyclable_waste = record.get("plastic_waste", 0) + record.get("glass_waste", 0) + record.get("paper_waste", 0) + record.get("metal_waste", 0)
+        recycling_rate = (recyclable_waste / total_waste * 100) if total_waste > 0 else 0
+        per_person_waste = total_waste / record.get("accommodation_count", 1) if record.get("accommodation_count", 1) > 0 else 0
+        
+        yearly_totals[year_key]["total_waste"] += total_waste
+        yearly_totals[year_key]["recyclable_waste"] += recyclable_waste
+        yearly_totals[year_key]["total_accommodation"] += record.get("accommodation_count", 1)
+        
+        # Monthly data with all individual fields
+        monthly_record = {
+            "year": record.get("year", 2024),
+            "month": record.get("month", 1),
+            "total_waste": total_waste,
+            "recyclable_waste": recyclable_waste,
+            "recycling_rate": recycling_rate,
+            "per_person_waste": per_person_waste,
+            "accommodation_count": record.get("accommodation_count", 1),
+            # Include all individual waste types
+            "organic_waste": record.get("organic_waste", 0),
+            "plastic_waste": record.get("plastic_waste", 0),
+            "glass_waste": record.get("glass_waste", 0),
+            "paper_waste": record.get("paper_waste", 0),
+            "metal_waste": record.get("metal_waste", 0),
+            "electronic_waste": record.get("electronic_waste", 0),
+            "oil_waste": record.get("oil_waste", 0),
+            "mixed_waste": record.get("mixed_waste", 0)
+        }
+        monthly_data.append(monthly_record)
+    
+    # Calculate average recycling rates
+    for year_key in yearly_totals:
+        if yearly_totals[year_key]["total_waste"] > 0:
+            yearly_totals[year_key]["average_recycling_rate"] = (yearly_totals[year_key]["recyclable_waste"] / yearly_totals[year_key]["total_waste"]) * 100
+    
+    # Waste breakdown by type
+    waste_breakdown = {}
+    for waste_type in waste_types:
+        total_for_type = sum(record.get(waste_type, 0) for record in waste_records)
+        if total_for_type > 0:
+            waste_breakdown[waste_type] = total_for_type
+    
+    # Recycling performance
+    recycling_rates = [((record.get("plastic_waste", 0) + record.get("glass_waste", 0) + record.get("paper_waste", 0) + record.get("metal_waste", 0)) / sum(record.get(wt, 0) for wt in waste_types) * 100) if sum(record.get(wt, 0) for wt in waste_types) > 0 else 0 for record in waste_records]
+    recycling_performance = {
+        "average_rate": sum(recycling_rates) / len(recycling_rates) if recycling_rates else 0,
+        "best_month": max(monthly_data, key=lambda x: x["recycling_rate"]) if monthly_data else None,
+        "worst_month": min(monthly_data, key=lambda x: x["recycling_rate"]) if monthly_data else None
+    }
+    
+    logging.info(f"📈 Waste analytics calculated for {len(waste_records)} records")
+    
+    return {
+        "yearly_totals": yearly_totals,
+        "monthly_data": monthly_data,
+        "waste_breakdown": waste_breakdown,
+        "recycling_performance": recycling_performance
+    }
+
 @api_router.put("/consumptions/waste/{waste_id}")
 async def update_waste_record(
     waste_id: str,
