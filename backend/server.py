@@ -12955,6 +12955,135 @@ async def get_waste_records(
     logging.info(f"📊 Found {len(records)} waste records")
     return records
 
+@api_router.put("/consumptions/waste/{waste_id}")
+async def update_waste_record(
+    waste_id: str,
+    waste_data: WasteManagementInput,
+    current_user: User = Depends(get_current_user)
+):
+    """Update waste record (same logic as consumption update)"""
+    
+    logging.info(f"🔄 PUT /consumptions/waste/{waste_id} called by user: {current_user.role} - {current_user.name}")
+    
+    # Find existing waste record
+    waste_record = await db.waste_management.find_one({"id": waste_id})
+    if not waste_record:
+        raise HTTPException(status_code=404, detail="Atık verisi bulunamadı")
+    
+    # Check permissions (same as consumption)
+    if current_user.role == UserRole.CLIENT:
+        if current_user.client_id != waste_record["client_id"]:
+            raise HTTPException(status_code=403, detail="Bu atık verisini güncelleme yetkiniz yok")
+    elif current_user.role == UserRole.CONSULTANT:
+        # Consultant can update waste data for their assigned clients
+        consultant_id = current_user.consultant_id
+        if not consultant_id:
+            raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+        
+        # Check if the waste record's client is assigned to this consultant
+        client = await db.clients.find_one({"id": waste_record["client_id"], "consultant_id": consultant_id})
+        if not client:
+            raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+    elif current_user.role == UserRole.ADMIN:
+        # Admin can update any waste record
+        pass
+    else:
+        raise HTTPException(status_code=403, detail="Bu atık verisini güncelleme yetkiniz yok")
+    
+    # Update waste data and calculate totals
+    update_data = waste_data.dict()
+    update_data["updated_at"] = datetime.utcnow()
+    
+    # Recalculate totals
+    total_waste = (
+        update_data.get("organic_waste", 0) +
+        update_data.get("plastic_waste", 0) +
+        update_data.get("glass_waste", 0) +
+        update_data.get("paper_waste", 0) +
+        update_data.get("metal_waste", 0) +
+        update_data.get("electronic_waste", 0) +
+        update_data.get("oil_waste", 0) +
+        update_data.get("mixed_waste", 0)
+    )
+    
+    # Calculate recyclable waste (plastic + glass + paper + metal)
+    recyclable_waste = (
+        update_data.get("plastic_waste", 0) +
+        update_data.get("glass_waste", 0) +
+        update_data.get("paper_waste", 0) +
+        update_data.get("metal_waste", 0)
+    )
+    
+    # Calculate recycling rate
+    recycling_rate = (recyclable_waste / total_waste * 100) if total_waste > 0 else 0
+    
+    # Calculate per person waste
+    accommodation_count = update_data.get("accommodation_count", 1)
+    per_person_waste = total_waste / accommodation_count if accommodation_count > 0 else 0
+    
+    # Add calculated fields
+    update_data.update({
+        "total_waste": total_waste,
+        "recyclable_waste": recyclable_waste,
+        "recycling_rate": recycling_rate,
+        "per_person_waste": per_person_waste
+    })
+    
+    # Update in database
+    await db.waste_management.update_one(
+        {"id": waste_id},
+        {"$set": update_data}
+    )
+    
+    logging.info(f"✅ Waste record updated successfully: {waste_id}")
+    return {"message": "Atık verisi başarıyla güncellendi"}
+
+@api_router.delete("/consumptions/waste/{waste_id}")
+async def delete_waste_record(
+    waste_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete waste record (same logic as consumption delete)"""
+    
+    logging.info(f"🗑️ DELETE /consumptions/waste/{waste_id} called by user: {current_user.name} ({current_user.role})")
+    
+    # Check if waste record exists
+    waste_record = await db.waste_management.find_one({"id": waste_id})
+    if not waste_record:
+        logging.info(f"❌ Waste record not found: {waste_id}")
+        raise HTTPException(status_code=404, detail="Atık verisi bulunamadı")
+    
+    # Check permissions (same as consumption delete)
+    if current_user.role == UserRole.ADMIN:
+        # Admin can delete any waste record
+        pass
+    elif current_user.role == UserRole.CONSULTANT:
+        # Consultant can delete waste data for their assigned clients
+        consultant_id = current_user.consultant_id
+        if not consultant_id:
+            raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+        
+        # Check if the waste record's client is assigned to this consultant
+        client = await db.clients.find_one({"id": waste_record["client_id"], "consultant_id": consultant_id})
+        if not client:
+            raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+    elif current_user.role == UserRole.CLIENT:
+        # Client can delete their own waste records
+        if current_user.client_id != waste_record["client_id"]:
+            raise HTTPException(status_code=403, detail="Bu atık verisini silme yetkiniz yok")
+    else:
+        raise HTTPException(status_code=403, detail="Bu atık verisini silme yetkiniz yok")
+    
+    # Delete the waste record
+    result = await db.waste_management.delete_one({"id": waste_id})
+    
+    if result.deleted_count == 0:
+        logging.error(f"❌ Failed to delete waste record: {waste_id}")
+        raise HTTPException(status_code=500, detail="Atık verisi silinemedi")
+    
+    logging.info(f"✅ Waste record deleted successfully: {waste_id}")
+    return {"message": "Atık verisi başarıyla silindi"}
+
 # Waste Management Models
 @api_router.get("/consumptions/waste/analytics")
 async def get_waste_analytics(
