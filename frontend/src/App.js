@@ -8041,6 +8041,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                       mixed_waste: 0,
                       accommodation_count: 1
                     });
+                    setEditingWaste(null); // Clear editing state
                     setShowAddRecord(false);
                   }}
                   className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 font-medium"
