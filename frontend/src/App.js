@@ -6833,8 +6833,21 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
-  // Submit new record
-  const handleSubmitRecord = async () => {
+  // Handle waste record submission (Add or Edit)
+  const handleRecordSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (editingWaste) {
+      // Edit mode
+      handleWasteEdit(e);
+    } else {
+      // Add mode  
+      handleWasteAdd(e);
+    }
+  };
+
+  // Handle Waste Add Function (renamed from original)
+  const handleWasteAdd = async (e) => {
     try {
       setLoading(true);
       
