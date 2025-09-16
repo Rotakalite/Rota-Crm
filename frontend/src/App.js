@@ -7886,7 +7886,9 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
         >
           <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
             <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Yeni Atık Kaydı Ekle</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                {editingWaste ? '✏️ Atık Kaydını Düzenle' : '➕ Yeni Atık Kaydı Ekle'}
+              </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
