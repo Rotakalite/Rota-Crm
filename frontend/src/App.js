@@ -7531,6 +7531,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                               <th className="px-4 py-3 text-left text-sm font-bold text-green-800">📈 Geri Dönüşüm %</th>
                               <th className="px-4 py-3 text-left text-sm font-bold text-green-800">👤 Kişi Başı (kg)</th>
                               <th className="px-4 py-3 text-left text-sm font-bold text-green-800">👥 Konaklama</th>
+                              <th className="px-4 py-3 text-left text-sm font-bold text-green-800">🛠️ İşlemler</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-200">
