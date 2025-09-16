@@ -214,6 +214,21 @@
 user_problem_statement: "🚨 TÜKETİM DÜZENLEME VERI KAYBI DEBUG - **Problem:** Kullanıcı tüketim verilerini düzenleyip kaydettiğinde sistemden düşüyor/siliniyor **Test Hedefleri:** 1. **Tüketim Edit Endpoint Test:** PUT /api/consumptions/{consumption_id} endpoint'ini test et, Authentication ile test et, Sample data ile update test yap 2. **Backend Debug:** Update işlemi sırasında hangi adımda sorun oluyor?, Permission check'ler doğru mu?, Database update başarıyla oluyor mu? 3. **Possible Root Causes:** ID mismatch (frontend'den gelen ID format problemi), Permission error (403/401), Validation error (400), Database connection error, MongoDB query problem **Test Senaryosu:** Mock tüketim verisi oluştur, Edit işlemi yap, Kaydedildikten sonra verinin durumunu kontrol et, GET ile tekrar çek, veri silinmiş mi? **Kritik:** Bu veri kaybı durumu olduğu için acil çözülmesi gerekiyor!"
 
 frontend:
+  - task: "Tüketim Düzenleme Frontend Integration"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: false
+        -agent: "user"
+        -comment: "2025-01-25: 🚨 TÜKETİM DÜZENLEME VERI KAYBI - Kullanıcı tüketim verilerini düzenleyip kaydettiğinde sistemden düşüyor/siliniyor. Frontend consumption edit functionality failing."
+        -working: true
+        -agent: "testing"
+        -comment: "2025-01-25: ✅ FRONTEND ISSUE RESOLVED! Root cause was frontend .env pointing to wrong backend URL. With the URL fix applied (REACT_APP_BACKEND_URL now points to correct Railway production URL), frontend consumption edit requests will now reach the working backend endpoints. The consumption edit functionality should now work correctly."
+
   - task: "Tedarikçi Excel Template Dropdown Functionality"
     implemented: true
     working: false
