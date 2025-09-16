@@ -7889,7 +7889,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                     </tr>
                   )) : (
                     <tr>
-                      <td colSpan="13" className="px-6 py-12 text-center">
+                      <td colSpan={userRole === 'admin' ? "14" : "13"} className="px-6 py-12 text-center">
                         <div className="text-6xl mb-4">🗑️</div>
                         <p className="text-xl text-gray-600 mb-2">Henüz atık kaydı bulunmuyor</p>
                         <p className="text-gray-500">İlk atık kaydınızı eklemek için "Yeni Kayıt" butonunu kullanın</p>
