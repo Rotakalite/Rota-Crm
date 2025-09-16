@@ -3086,16 +3086,12 @@ metadata:
 
 test_plan:
   current_focus:
-    - "MongoDB Atlas Bağlantı Test ve İlk Kullanıcı Registration Test"
-    - "Bulk Consumption Data Approval System Backend Test"
-    - "PDF Report Endpoints Testing"
-    - "DEFRA Fuel Types Expansion"
-    - "DEFRA Carbon Calculation System"
-    - "DEFRA F-Gas Carbon Calculation"
-    - "Waste Management Backend APIs"
+    - "CRUD Operations Test - Consumption & Waste Endpoints"
+    - "Waste Route Order Fix"
   stuck_tasks: 
-    - "Bulk Consumption Data Approval System Backend Test"
+    - "CRUD Operations Test - Consumption & Waste Endpoints"
   test_all: false
+  test_priority: "high_first"
   test_priority: "high_first"
   completed_tasks:
     - "GreenWave CRM - Frontend Field Names Debug"
