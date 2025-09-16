@@ -13048,6 +13048,7 @@ async def get_waste_analytics(
         
         # Monthly data with all individual fields
         monthly_record = {
+            "id": record.get("id"),  # 🔧 FIX: Include original record ID for edit/delete
             "year": record.get("year", 2024),
             "month": record.get("month", 1),
             "total_waste": total_waste,
