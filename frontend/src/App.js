@@ -7846,6 +7846,46 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                         {record.per_person_waste?.toFixed(1) || 0} kg
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              // Set editing state for waste record - same as in other table
+                              setEditingWaste(record);
+                              setNewRecord({
+                                year: record.year || 2025,
+                                month: record.month || 1,
+                                organic_waste: record.organic_waste || 0,
+                                plastic_waste: record.plastic_waste || 0,
+                                glass_waste: record.glass_waste || 0,
+                                paper_waste: record.paper_waste || 0,
+                                metal_waste: record.metal_waste || 0,
+                                electronic_waste: record.electronic_waste || 0,
+                                oil_waste: record.oil_waste || 0,
+                                mixed_waste: record.mixed_waste || 0,
+                                accommodation_count: record.accommodation_count || 0
+                              });
+                              setShowAddRecord(true);
+                            }}
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-medium transition-colors flex items-center gap-1"
+                            title="Atık verilerini düzenle"
+                          >
+                            ✏️ Düzenle
+                          </button>
+                          
+                          <button
+                            onClick={() => {
+                              if (confirm(`${record.month}/${record.year} tarihli atık kaydını silmek istediğinize emin misiniz?`)) {
+                                handleWasteDelete(record.id);
+                              }
+                            }}
+                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-medium transition-colors flex items-center gap-1"
+                            title="Atık verilerini sil"
+                          >
+                            🗑️ Sil
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   )) : (
                     <tr>
