@@ -6674,6 +6674,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
   const [analytics, setAnalytics] = useState({});
   const [wasteRecords, setWasteRecords] = useState([]);
   const [showAddRecord, setShowAddRecord] = useState(false);
+  const [editingWaste, setEditingWaste] = useState(null); // New state for editing waste record
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState('');
   const [selectedYear, setSelectedYear] = useState(2025);
