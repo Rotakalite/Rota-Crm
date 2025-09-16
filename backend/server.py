@@ -11117,6 +11117,13 @@ async def update_consumption(
     update_data = consumption_data.dict()
     update_data["updated_at"] = datetime.utcnow()
     
+    # 🔧 CRITICAL FIX: Preserve client_id from existing record if not provided in update
+    if "client_id" not in update_data or not update_data["client_id"]:
+        update_data["client_id"] = consumption["client_id"]
+        logging.info(f"🔒 Preserving existing client_id: {consumption['client_id']}")
+    else:
+        logging.info(f"🔄 Using provided client_id: {update_data['client_id']}")
+    
     # Calculate carbon emissions using DEFRA factors
     if calculate_carbon_emissions:
         try:
