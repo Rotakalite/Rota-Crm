@@ -6885,6 +6885,89 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
+  // Handle Waste Edit Function
+  const handleWasteEdit = async (e) => {
+    e.preventDefault();
+    
+    if (!authToken) {
+      alert('Oturum süresi dolmuş. Lütfen sayfayı yenileyin.');
+      return;
+    }
+    
+    if (!editingWaste) {
+      alert('Düzenlenecek atık kaydı bulunamadı.');
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      
+      const recordData = { ...newRecord };
+      
+      // Add client_id for admin and consultant users
+      if ((userRole === 'admin' || userRole === 'consultant') && effectiveSelectedClient) {
+        recordData.client_id = effectiveSelectedClient;
+      }
+      
+      console.log('🔄 Updating waste record:', editingWaste.id, recordData);
+      
+      await axios.put(`${API}/consumptions/waste/${editingWaste.id}`, recordData, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      alert('✅ Atık kaydı başarıyla güncellendi!');
+      setShowAddRecord(false);
+      setEditingWaste(null);
+      fetchWasteRecords();
+      
+      // Reset form
+      setNewRecord({
+        year: 2025,
+        month: new Date().getMonth() + 1,
+        organic_waste: 0,
+        plastic_waste: 0,
+        glass_waste: 0,
+        paper_waste: 0,
+        metal_waste: 0,
+        electronic_waste: 0,
+        oil_waste: 0,
+        mixed_waste: 0,
+        accommodation_count: 1
+      });
+    } catch (error) {
+      console.error('Error updating waste record:', error);
+      alert('❌ Atık kaydı güncellenirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle Waste Delete Function
+  const handleWasteDelete = async (wasteId) => {
+    if (!authToken) {
+      alert('Oturum süresi dolmuş. Lütfen sayfayı yenileyin.');
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      console.log('🗑️ Deleting waste record:', wasteId);
+      
+      await axios.delete(`${API}/consumptions/waste/${wasteId}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      alert('✅ Atık kaydı başarıyla silindi!');
+      fetchWasteRecords(); // Refresh the list
+      
+    } catch (error) {
+      console.error('Error deleting waste record:', error);
+      alert('❌ Atık kaydı silinirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Excel Waste Import Function - COPIED FROM CONSUMPTION MANAGEMENT LOGIC
   const processExcelWaste = async () => {
     if (!excelFileRef.current) {
