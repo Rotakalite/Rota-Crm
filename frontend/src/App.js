@@ -8023,7 +8023,7 @@ const WasteManagement = ({ selectedClient: propSelectedClient }) => {
                   disabled={loading}
                   className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg hover:from-green-600 hover:to-green-700 disabled:opacity-50 font-medium"
                 >
-                  {loading ? 'Kaydediliyor...' : 'Kaydet'}
+                  {loading ? 'İşleniyor...' : (editingWaste ? '💾 Güncelle' : '💾 Kaydet')}
                 </button>
                 <button
                   onClick={() => {
