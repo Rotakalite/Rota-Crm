@@ -24198,39 +24198,6 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
-  // Generate Excel Content
-  const generateExcelContent = (data) => {
-    const content = `HOUSEKEEPING GÜNLÜK DEĞERLENDİRME RAPORU
-${data.hotel_name}
-Tarih: ${data.report_date}
-
-=== ODA DURUM ÖZETİ ===
-Toplam Oda: ${data.room_summary.total_rooms}
-Temiz Oda: ${data.room_summary.clean_rooms}
-Kirli Oda: ${data.room_summary.dirty_rooms}
-Bakım Odası: ${data.room_summary.maintenance_rooms}
-Arızalı Oda: ${data.room_summary.out_of_order_rooms}
-Doluluk Oranı: %${data.room_summary.occupancy_rate}
-
-=== GÖREV ÖZETİ ===
-Toplam Görev: ${data.task_summary.total_tasks}
-Tamamlanan: ${data.task_summary.completed_tasks}
-Bekleyen: ${data.task_summary.pending_tasks}
-Devam Eden: ${data.task_summary.in_progress_tasks}
-Tamamlanma Oranı: %${data.task_summary.completion_rate}
-
-=== PERSONEL PERFORMANSI ===
-${Object.entries(data.staff_performance).map(([staff, perf]) => 
-  `${staff}: ${perf.completed}/${perf.total} (${Math.round(perf.completed/perf.total*100)}%)`
-).join('\n')}
-
-=== DETAYLI GÖREV LİSTESİ ===
-${data.detailed_tasks.map((task, index) => 
-  `${index + 1}. ${task.room_id || 'N/A'} - ${task.task_type} - ${task.assigned_staff} - ${task.status}`
-).join('\n')}`;
-
-    return content;
-  };
 
   // Edit Room Functions
   const handleEditRoom = (room) => {
