@@ -29,7 +29,7 @@ from datetime import datetime
 
 # Test Configuration
 BACKEND_URL = "https://rota-crm-production.up.railway.app"
-WRONG_BACKEND_URL = "https://eco-data-hub-1.preview.emergentagent.com"
+WRONG_BACKEND_URL = "https://ecowave-saas.preview.emergentagent.com"
 
 class ConsumptionEditDebugTest:
     def __init__(self):

@@ -454,7 +454,7 @@ class WasteHotelComprehensiveTester:
         
         print("\n🎯 ROOT CAUSE IDENTIFIED:")
         print("✅ CRITICAL FIX APPLIED: Frontend .env URL mismatch resolved!")
-        print("   • OLD URL: https://eco-data-hub-1.preview.emergentagent.com")
+        print("   • OLD URL: https://ecowave-saas.preview.emergentagent.com")
         print("   • NEW URL: https://rota-crm-production.up.railway.app")
         print("   • This was causing frontend to connect to wrong backend!")
         

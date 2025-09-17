@@ -18,7 +18,7 @@ TEST_YEAR_CURRENT = 2024
 TEST_YEAR_PREVIOUS = 2025
 
 # Railway backend URL
-RAILWAY_API_URL = "https://eco-data-hub-1.preview.emergentagent.com/api"
+RAILWAY_API_URL = "https://ecowave-saas.preview.emergentagent.com/api"
 
 # Test JWT token - this is a sample token for testing
 # In a real scenario, you would generate this from Clerk

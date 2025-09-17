@@ -3,7 +3,7 @@
 
 ## Test Summary
 - **Test Date**: 2025-07-31
-- **Backend URL**: https://eco-data-hub-1.preview.emergentagent.com
+- **Backend URL**: https://ecowave-saas.preview.emergentagent.com
 - **Total Tests**: 12
 - **Passed**: 4
 - **Failed**: 8
