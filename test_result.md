@@ -3147,7 +3147,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Personnel Edit Endpoint (PUT /api/personnel/{personnel_id})"
+    - "Front Office Reservation Fix Test"
   stuck_tasks: 
     - "Personnel Edit Endpoint (PUT /api/personnel/{personnel_id})"
     - "CRUD Operations Test - Consumption & Waste Endpoints"
