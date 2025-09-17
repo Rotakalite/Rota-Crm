@@ -24150,26 +24150,49 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
       setLoading(true);
       console.log('📊 Generating daily HK report...');
       
-      let url = `${API}/hk/reports/daily-summary`;
+      let url = `${API}/hk/reports/daily-summary?format=excel`;
       if ((userRole === 'admin' || userRole === 'consultant') && effectiveSelectedClient) {
-        url += `?client_id=${effectiveSelectedClient}`;
+        url += `&client_id=${effectiveSelectedClient}`;
       }
       
-      const response = await axios.get(url, {
-        headers: { Authorization: `Bearer ${authToken}` }
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 
+          'Authorization': `Bearer ${authToken}`,
+          'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        }
       });
       
-      const reportData = response.data;
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       
-      // Create Excel-like data display
-      const excelContent = generateExcelContent(reportData);
-      downloadAsExcel(excelContent, `HK_Gunluk_Rapor_${reportData.report_date.replace(/\//g, '_')}.xlsx`);
+      // Get filename from headers or create default
+      const contentDisposition = response.headers.get('content-disposition');
+      let filename = 'HK_Gunluk_Rapor.xlsx';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename=(.+)/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
       
-      alert('✅ Günlük rapor başarıyla oluşturuldu!');
+      // Create blob and download
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+      
+      alert('✅ Günlük rapor başarıyla indirildi!');
       
     } catch (error) {
       console.error('❌ Error generating daily report:', error);
-      alert('Rapor oluşturulamadı: ' + (error.response?.data?.detail || error.message));
+      alert('Rapor oluşturulamadı: ' + (error.message || 'Bilinmeyen hata'));
     } finally {
       setLoading(false);
     }
