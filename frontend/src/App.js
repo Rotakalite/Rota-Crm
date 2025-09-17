@@ -23447,6 +23447,8 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
         return <CarbonFootprint />;
       case 'waste-management':
         return <WasteManagement />;
+      case 'housekeeping':
+        return <HousekeepingManagement />;
       case 'suppliers':
         return <SupplierManagement />;
       case 'personnel':
