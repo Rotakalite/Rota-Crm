@@ -24630,15 +24630,32 @@ ${data.detailed_tasks.map((task, index) =>
                     return (
                       <div
                         key={room.id}
-                        className={`border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${
+                        className={`border-2 rounded-lg p-4 transition-all hover:shadow-md relative group ${
                           room.status === 'clean' ? 'border-green-200 bg-green-50' :
                           room.status === 'dirty' ? 'border-red-200 bg-red-50' :
                           room.status === 'maintenance' ? 'border-yellow-200 bg-yellow-50' :
                           'border-gray-200 bg-gray-50'
                         }`}
-                        onClick={() => setSelectedRoom(room)}
                       >
-                        <div className="text-center">
+                        {/* Edit Button - Shows on Hover */}
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditRoom(room);
+                            }}
+                            className="bg-blue-600 text-white p-1 rounded-full text-xs hover:bg-blue-700 transition-colors"
+                            title="Odayı Düzenle"
+                          >
+                            ✏️
+                          </button>
+                        </div>
+
+                        {/* Room Content - Clickable for Details */}
+                        <div 
+                          className="text-center cursor-pointer"
+                          onClick={() => setSelectedRoom(room)}
+                        >
                           <div className="text-2xl mb-2">{statusInfo.icon}</div>
                           <div className="font-bold text-lg">{room.room_number}</div>
                           <div className={`text-xs px-2 py-1 rounded-full mt-2 ${statusInfo.color}`}>
