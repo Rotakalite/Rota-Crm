@@ -34,8 +34,8 @@ import sys
 from datetime import datetime, timedelta
 import uuid
 
-# Backend URL from frontend .env
-BACKEND_URL = "https://ecowave-saas.preview.emergentagent.com"
+# Backend URL from frontend .env (corrected)
+BACKEND_URL = "https://rota-crm-production.up.railway.app"
 
 class FrontOfficeReservationTester:
     def __init__(self):
