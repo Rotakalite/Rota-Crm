@@ -23779,6 +23779,10 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
   });
   const [bulkRoomsText, setBulkRoomsText] = useState('');
   
+  // Room edit states
+  const [editingRoom, setEditingRoom] = useState(null);
+  const [showEditRoom, setShowEditRoom] = useState(false);
+  
   // Get user context
   const { userRole, authToken } = useAuth();
   const API = getApiUrl();
