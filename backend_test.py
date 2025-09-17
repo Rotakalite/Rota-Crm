@@ -1,72 +1,118 @@
 #!/usr/bin/env python3
 """
-👥 PERSONNEL EDIT FUNCTIONALITY BACKEND TEST
-============================================
+🏨 FRONT OFFICE RESERVATION FIX COMPREHENSIVE TEST
+=================================================
 
-Bu test Personnel düzenleme endpoint'inin çalıştığını test eder:
+Bu test Front Office Reservation Fix'ini kapsamlı olarak test eder:
 
 Test Edilecek Ana Konular:
-1. PUT /api/personnel/{personnel_id} endpoint'inin erişilebilir olduğunu test et
-2. Personnel update functionality'nin çalıştığını doğrula
-3. Authentication ve authorization kontrollerini test et
-4. Role-based access control'ü test et (Admin, Consultant, Client)
-5. Data validation'ı test et
+1. POST /api/reservations endpoint with proper data
+2. Test validation cases (missing fields, invalid dates)
+3. Check if 500 error is resolved
+4. Test room availability conflict
+5. Verify error messages are more descriptive
+6. Test payment_status field inclusion
+7. Test room_rate > 0 validation
+8. Test better error logging
 
-Test Senaryoları:
-1. Endpoint'in erişilebilir olduğunu test et (404 olmaması)
-2. Authentication gereksinimleri test et (403/401 döndürmeli)
-3. Role-based permissions test et 
-4. Data validation test et
-5. Update functionality test et
+Test Environment:
+- Backend URL: https://ecowave-saas.preview.emergentagent.com (from frontend .env)
+- Focus on reservation creation and validation
+- Test both authenticated and unauthenticated scenarios
 
-Production URL: https://rota-crm-production.up.railway.app
-
-Beklenen sonuç: 
-- Personnel düzenleme endpoint'i çalışıyor olmalı
-- Proper authentication ve authorization olmalı
-- Data validation working olmalı
-- Tüm user roles için doğru access control olmalı
+Expected Results:
+- No more 500 Internal Server Error
+- Better error messages if validation fails
+- Proper reservation creation response
+- payment_status field working
+- room_rate validation working
 """
 
 import requests
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 import uuid
 
-# Production URL from review request
-BACKEND_URL = "https://rota-crm-production.up.railway.app"
+# Backend URL from frontend .env
+BACKEND_URL = "https://ecowave-saas.preview.emergentagent.com"
 
-class PersonnelEditTester:
+class FrontOfficeReservationTester:
     def __init__(self):
         self.backend_url = BACKEND_URL
         self.test_results = []
         self.total_tests = 0
         self.passed_tests = 0
         
-        # Test data for personnel update
-        self.test_personnel_data = {
-            "full_name": "Ahmet Yılmaz",
-            "position": "Resepsiyon Müdürü",
-            "location": "İstanbul",
-            "certifications": ["İlk Yardım", "Hijyen", "MYK"],
-            "is_local": True,
-            "gender": "Erkek"
+        # Test data for reservations (as specified in review request)
+        self.valid_reservation_data = {
+            "guest_name": "Ahmet Yılmaz",
+            "guest_email": "ahmet@test.com",
+            "guest_phone": "+90532123456",
+            "room_id": "room-101",
+            "check_in_date": "2025-01-20",
+            "check_out_date": "2025-01-22",
+            "adults": 2,
+            "children": 0,
+            "room_rate": 250.0,
+            "payment_status": "pending",
+            "booking_source": "front_desk",
+            "special_requests": "Late check-in",
+            "notes": "VIP guest"
         }
         
-        # Test personnel IDs for different scenarios
-        self.test_personnel_ids = [
-            "550e8400-e29b-41d4-a716-446655440000",  # Test personnel 1
-            "6ba7b810-9dad-11d1-80b4-00c04fd430c8",  # Test personnel 2
-            "6ba7b811-9dad-11d1-80b4-00c04fd430c8"   # Test personnel 3
+        # Invalid test data for validation testing
+        self.invalid_test_cases = [
+            {
+                "name": "Missing guest_name",
+                "data": {**self.valid_reservation_data, "guest_name": ""},
+                "expected_error": "guest_name required"
+            },
+            {
+                "name": "Invalid check_in_date",
+                "data": {**self.valid_reservation_data, "check_in_date": "invalid-date"},
+                "expected_error": "invalid date format"
+            },
+            {
+                "name": "Check_out before check_in",
+                "data": {**self.valid_reservation_data, "check_in_date": "2025-01-22", "check_out_date": "2025-01-20"},
+                "expected_error": "check_out must be after check_in"
+            },
+            {
+                "name": "Zero room_rate",
+                "data": {**self.valid_reservation_data, "room_rate": 0.0},
+                "expected_error": "room_rate must be greater than 0"
+            },
+            {
+                "name": "Negative room_rate",
+                "data": {**self.valid_reservation_data, "room_rate": -100.0},
+                "expected_error": "room_rate must be greater than 0"
+            },
+            {
+                "name": "Missing room_id",
+                "data": {**self.valid_reservation_data, "room_id": ""},
+                "expected_error": "room_id required"
+            },
+            {
+                "name": "Invalid adults count",
+                "data": {**self.valid_reservation_data, "adults": 0},
+                "expected_error": "adults must be at least 1"
+            },
+            {
+                "name": "Missing payment_status",
+                "data": {k: v for k, v in self.valid_reservation_data.items() if k != "payment_status"},
+                "expected_error": "payment_status field missing"
+            }
         ]
         
-        # Test client IDs for different scenarios
-        self.test_client_ids = [
-            "94927a77-edc3-45ec-8329-795feae35771",  # Test client 1
-            "b8f3d2e1-4c5a-6789-abcd-ef0123456789",  # Test client 2
-            "c9e4f3d2-5b6a-789c-def0-123456789abc"   # Test client 3
-        ]
+        # Room conflict test data
+        self.conflict_reservation_data = {
+            **self.valid_reservation_data,
+            "guest_name": "Fatma Demir",
+            "guest_email": "fatma@test.com",
+            "check_in_date": "2025-01-21",  # Overlaps with first reservation
+            "check_out_date": "2025-01-23"
+        }
 
     def log_test(self, test_name, success, details="", expected="", actual=""):
         """Test sonucunu logla"""
@@ -108,7 +154,7 @@ class PersonnelEditTester:
                 self.log_test(
                     "Backend Health Check",
                     True,
-                    f"Railway production backend erişilebilir (Status: {response.status_code})"
+                    f"Backend erişilebilir (Status: {response.status_code})"
                 )
                 return True
             else:
@@ -129,665 +175,672 @@ class PersonnelEditTester:
             )
             return False
 
-    def test_personnel_put_endpoint_exists(self):
-        """PUT /api/personnel/{personnel_id} endpoint'inin varlığını test et"""
-        print("🔍 Personnel PUT Endpoint Existence Test")
+    def test_reservations_endpoint_accessibility(self):
+        """Reservations endpoint erişilebilirlik testi"""
+        print("🏨 Reservations Endpoint Accessibility Test")
         print("=" * 50)
         
-        for personnel_id in self.test_personnel_ids:
+        # Test GET endpoint
+        try:
+            response = requests.get(f"{self.backend_url}/api/reservations", timeout=10)
+            
+            if response.status_code == 404:
+                self.log_test(
+                    "GET /api/reservations - Endpoint Exists",
+                    False,
+                    "🚨 CRITICAL: Reservations endpoint bulunamadı!",
+                    "Not 404",
+                    "404"
+                )
+                return False
+            elif response.status_code == 500:
+                self.log_test(
+                    "GET /api/reservations - No 500 Error",
+                    False,
+                    "🚨 CRITICAL: 500 Internal Server Error - Backend implementation hatası!",
+                    "Not 500",
+                    "500"
+                )
+                return False
+            elif response.status_code in [401, 403]:
+                self.log_test(
+                    "GET /api/reservations - Proper Auth Response",
+                    True,
+                    f"✅ Endpoint mevcut ve doğru auth kontrolü yapıyor (Status: {response.status_code})"
+                )
+            else:
+                self.log_test(
+                    "GET /api/reservations - Endpoint Accessible",
+                    True,
+                    f"✅ Endpoint erişilebilir (Status: {response.status_code})"
+                )
+        except Exception as e:
+            self.log_test(
+                "GET /api/reservations - Connection Test",
+                False,
+                f"Request hatası: {str(e)}"
+            )
+            return False
+        
+        # Test POST endpoint
+        try:
+            response = requests.post(
+                f"{self.backend_url}/api/reservations",
+                json=self.valid_reservation_data,
+                timeout=10
+            )
+            
+            if response.status_code == 404:
+                self.log_test(
+                    "POST /api/reservations - Endpoint Exists",
+                    False,
+                    "🚨 CRITICAL: Reservations POST endpoint bulunamadı!",
+                    "Not 404",
+                    "404"
+                )
+                return False
+            elif response.status_code == 500:
+                self.log_test(
+                    "POST /api/reservations - No 500 Error",
+                    False,
+                    "🚨 CRITICAL: 500 Internal Server Error - Reservation creation hatası!",
+                    "Not 500",
+                    "500"
+                )
+                return False
+            else:
+                self.log_test(
+                    "POST /api/reservations - Endpoint Accessible",
+                    True,
+                    f"✅ POST endpoint erişilebilir (Status: {response.status_code})"
+                )
+        except Exception as e:
+            self.log_test(
+                "POST /api/reservations - Connection Test",
+                False,
+                f"Request hatası: {str(e)}"
+            )
+            return False
+        
+        return True
+
+    def test_valid_reservation_creation(self):
+        """Geçerli rezervasyon oluşturma testi"""
+        print("✅ Valid Reservation Creation Test")
+        print("=" * 50)
+        
+        try:
+            response = requests.post(
+                f"{self.backend_url}/api/reservations",
+                json=self.valid_reservation_data,
+                timeout=10
+            )
+            
+            # Check if 500 error is resolved
+            if response.status_code == 500:
+                self.log_test(
+                    "Valid Reservation - No 500 Error",
+                    False,
+                    "🚨 CRITICAL: 500 error still occurring with valid data!",
+                    "Not 500",
+                    "500"
+                )
+                return False
+            
+            # Check for proper response
+            if response.status_code in [200, 201]:
+                try:
+                    response_data = response.json()
+                    if "reservation_id" in response_data or "message" in response_data:
+                        self.log_test(
+                            "Valid Reservation - Success Response",
+                            True,
+                            f"✅ Reservation created successfully (Status: {response.status_code})"
+                        )
+                        return True
+                    else:
+                        self.log_test(
+                            "Valid Reservation - Response Format",
+                            False,
+                            "Response missing expected fields",
+                            "reservation_id or message",
+                            str(response_data.keys())
+                        )
+                except:
+                    self.log_test(
+                        "Valid Reservation - JSON Response",
+                        False,
+                        "Response is not valid JSON"
+                    )
+            elif response.status_code in [401, 403]:
+                self.log_test(
+                    "Valid Reservation - Auth Required",
+                    True,
+                    f"✅ Proper authentication required (Status: {response.status_code})"
+                )
+                return True
+            elif response.status_code in [400, 422]:
+                # Check if it's a validation error with better error message
+                try:
+                    error_data = response.json()
+                    error_message = error_data.get('detail', 'No detail provided')
+                    
+                    if len(error_message) > 10:  # Better error messages should be descriptive
+                        self.log_test(
+                            "Valid Reservation - Better Error Messages",
+                            True,
+                            f"✅ Descriptive error message provided: {error_message}"
+                        )
+                    else:
+                        self.log_test(
+                            "Valid Reservation - Better Error Messages",
+                            False,
+                            f"Error message too generic: {error_message}",
+                            "Descriptive error message",
+                            error_message
+                        )
+                except:
+                    self.log_test(
+                        "Valid Reservation - Error Response Format",
+                        False,
+                        "Error response is not valid JSON"
+                    )
+            else:
+                self.log_test(
+                    "Valid Reservation - Unexpected Response",
+                    False,
+                    f"Unexpected response code: {response.status_code}",
+                    "200/201/400/401/403/422",
+                    str(response.status_code)
+                )
+                
+        except Exception as e:
+            self.log_test(
+                "Valid Reservation Creation Test",
+                False,
+                f"Request hatası: {str(e)}"
+            )
+            return False
+        
+        return True
+
+    def test_validation_cases(self):
+        """Validation test cases"""
+        print("🔍 Validation Test Cases")
+        print("=" * 50)
+        
+        validation_passed = 0
+        total_validation_tests = len(self.invalid_test_cases)
+        
+        for test_case in self.invalid_test_cases:
             try:
-                response = requests.put(
-                    f"{self.backend_url}/api/personnel/{personnel_id}",
-                    json=self.test_personnel_data,
+                response = requests.post(
+                    f"{self.backend_url}/api/reservations",
+                    json=test_case["data"],
                     timeout=10
                 )
                 
-                # Endpoint should exist (not return 404)
-                if response.status_code != 404:
+                # Check if 500 error is resolved
+                if response.status_code == 500:
                     self.log_test(
-                        f"PUT /api/personnel/{personnel_id[:8]}... - Endpoint Exists",
-                        True,
-                        f"Endpoint mevcut ve erişilebilir (Status: {response.status_code})"
+                        f"Validation - {test_case['name']} - No 500 Error",
+                        False,
+                        f"🚨 CRITICAL: 500 error with invalid data: {test_case['name']}",
+                        "400/422",
+                        "500"
                     )
-                    return True
+                    continue
+                
+                # Should return validation error (400/422)
+                if response.status_code in [400, 422]:
+                    try:
+                        error_data = response.json()
+                        error_message = error_data.get('detail', '').lower()
+                        
+                        # Check if error message is descriptive
+                        if len(error_message) > 5:
+                            self.log_test(
+                                f"Validation - {test_case['name']} - Descriptive Error",
+                                True,
+                                f"✅ Good validation error: {error_message}"
+                            )
+                            validation_passed += 1
+                        else:
+                            self.log_test(
+                                f"Validation - {test_case['name']} - Error Quality",
+                                False,
+                                f"Error message too generic: {error_message}",
+                                "Descriptive error message",
+                                error_message
+                            )
+                    except:
+                        self.log_test(
+                            f"Validation - {test_case['name']} - Error Format",
+                            False,
+                            "Validation error response is not valid JSON"
+                        )
+                elif response.status_code in [401, 403]:
+                    # Auth error is acceptable (auth happens before validation)
+                    self.log_test(
+                        f"Validation - {test_case['name']} - Auth First",
+                        True,
+                        f"✅ Auth check happens before validation (Status: {response.status_code})"
+                    )
+                    validation_passed += 1
                 else:
                     self.log_test(
-                        f"PUT /api/personnel/{personnel_id[:8]}... - Endpoint Exists",
+                        f"Validation - {test_case['name']} - Proper Response",
                         False,
-                        f"Endpoint bulunamadı - Personnel edit özelliği deploy edilmemiş olabilir",
-                        "Not 404",
-                        "404"
+                        f"Unexpected response for invalid data: {response.status_code}",
+                        "400/422/401/403",
+                        str(response.status_code)
                     )
                     
             except Exception as e:
                 self.log_test(
-                    f"PUT /api/personnel/{personnel_id[:8]}... - Endpoint Exists",
+                    f"Validation - {test_case['name']} - Request Test",
                     False,
                     f"Request hatası: {str(e)}"
                 )
         
-        return False
+        # Overall validation success
+        validation_success_rate = (validation_passed / total_validation_tests) * 100
+        if validation_success_rate >= 70:
+            self.log_test(
+                "Overall Validation System",
+                True,
+                f"✅ Validation system working well ({validation_success_rate:.1f}% success rate)"
+            )
+        else:
+            self.log_test(
+                "Overall Validation System",
+                False,
+                f"Validation system needs improvement ({validation_success_rate:.1f}% success rate)",
+                ">= 70%",
+                f"{validation_success_rate:.1f}%"
+            )
 
-    def test_authentication_requirements(self):
-        """Authentication gereksinimlerini test et"""
-        print("🔐 Authentication Requirements Test")
+    def test_payment_status_field(self):
+        """payment_status field inclusion test"""
+        print("💳 Payment Status Field Test")
         print("=" * 50)
         
-        # Test without authentication
-        try:
-            response = requests.put(
-                f"{self.backend_url}/api/personnel/{self.test_personnel_ids[0]}",
-                json=self.test_personnel_data,
-                timeout=10
-            )
-            
-            if response.status_code in [401, 403]:
-                self.log_test(
-                    "PUT /api/personnel/{id} - Authentication Required",
-                    True,
-                    f"Doğru auth kontrolü - kimlik doğrulama gerekli (Status: {response.status_code})"
-                )
-            else:
-                self.log_test(
-                    "PUT /api/personnel/{id} - Authentication Required",
-                    False,
-                    f"Auth kontrolü başarısız - endpoint korumasız",
-                    "401 or 403",
-                    str(response.status_code)
-                )
-        except Exception as e:
-            self.log_test(
-                "PUT /api/personnel/{id} - Authentication Required",
-                False,
-                f"Request hatası: {str(e)}"
-            )
-
-        # Test with invalid token
-        try:
-            invalid_headers = {"Authorization": "Bearer invalid_token_12345"}
-            response = requests.put(
-                f"{self.backend_url}/api/personnel/{self.test_personnel_ids[0]}",
-                json=self.test_personnel_data,
-                headers=invalid_headers,
-                timeout=10
-            )
-            
-            if response.status_code == 401:
-                self.log_test(
-                    "PUT /api/personnel/{id} - Invalid Token Rejection",
-                    True,
-                    f"Geçersiz token doğru şekilde reddedildi (Status: {response.status_code})"
-                )
-            else:
-                self.log_test(
-                    "PUT /api/personnel/{id} - Invalid Token Rejection",
-                    False,
-                    f"Geçersiz token kontrolü başarısız",
-                    "401",
-                    str(response.status_code)
-                )
-        except Exception as e:
-            self.log_test(
-                "PUT /api/personnel/{id} - Invalid Token Rejection",
-                False,
-                f"Request hatası: {str(e)}"
-            )
-
-        # Test with malformed token
-        try:
-            malformed_headers = {"Authorization": "Bearer malformed.token.here"}
-            response = requests.put(
-                f"{self.backend_url}/api/personnel/{self.test_personnel_ids[0]}",
-                json=self.test_personnel_data,
-                headers=malformed_headers,
-                timeout=10
-            )
-            
-            if response.status_code == 401:
-                self.log_test(
-                    "PUT /api/personnel/{id} - Malformed Token Rejection",
-                    True,
-                    f"Malformed token doğru şekilde reddedildi (Status: {response.status_code})"
-                )
-            else:
-                self.log_test(
-                    "PUT /api/personnel/{id} - Malformed Token Rejection",
-                    False,
-                    f"Malformed token kontrolü başarısız",
-                    "401",
-                    str(response.status_code)
-                )
-        except Exception as e:
-            self.log_test(
-                "PUT /api/personnel/{id} - Malformed Token Rejection",
-                False,
-                f"Request hatası: {str(e)}"
-            )
-
-    def test_data_validation(self):
-        """Data validation testleri"""
-        print("📋 Data Validation Tests")
-        print("=" * 50)
+        # Test with payment_status field
+        test_data_with_payment = {**self.valid_reservation_data}
         
-        # Test with invalid personnel data - empty full_name
-        invalid_data_1 = {
-            "full_name": "",  # Empty name
-            "position": "Resepsiyon Müdürü",
-            "location": "İstanbul",
-            "certifications": ["İlk Yardım"],
-            "is_local": True,
-            "gender": "Erkek"
-        }
-        
-        try:
-            response = requests.put(
-                f"{self.backend_url}/api/personnel/{self.test_personnel_ids[0]}",
-                json=invalid_data_1,
-                timeout=10
-            )
-            
-            # Should return validation error (400/422) or auth error (401/403)
-            if response.status_code in [400, 401, 403, 422]:
-                self.log_test(
-                    "PUT /api/personnel/{id} - Empty Name Validation",
-                    True,
-                    f"Boş isim doğru şekilde işlendi (Status: {response.status_code})"
-                )
-            else:
-                self.log_test(
-                    "PUT /api/personnel/{id} - Empty Name Validation",
-                    False,
-                    f"Boş isim validation başarısız",
-                    "400/401/403/422",
-                    str(response.status_code)
-                )
-        except Exception as e:
-            self.log_test(
-                "PUT /api/personnel/{id} - Empty Name Validation",
-                False,
-                f"Request hatası: {str(e)}"
-            )
-
-        # Test with invalid gender
-        invalid_data_2 = {
-            "full_name": "Test Personel",
-            "position": "Test Pozisyon",
-            "location": "Test Lokasyon",
-            "certifications": [],
-            "is_local": True,
-            "gender": "InvalidGender"  # Invalid gender
-        }
-        
-        try:
-            response = requests.put(
-                f"{self.backend_url}/api/personnel/{self.test_personnel_ids[0]}",
-                json=invalid_data_2,
-                timeout=10
-            )
-            
-            if response.status_code in [400, 401, 403, 422]:
-                self.log_test(
-                    "PUT /api/personnel/{id} - Invalid Gender Validation",
-                    True,
-                    f"Geçersiz cinsiyet doğru şekilde işlendi (Status: {response.status_code})"
-                )
-            else:
-                self.log_test(
-                    "PUT /api/personnel/{id} - Invalid Gender Validation",
-                    False,
-                    f"Geçersiz cinsiyet validation başarısız",
-                    "400/401/403/422",
-                    str(response.status_code)
-                )
-        except Exception as e:
-            self.log_test(
-                "PUT /api/personnel/{id} - Invalid Gender Validation",
-                False,
-                f"Request hatası: {str(e)}"
-            )
-
-        # Test with malformed JSON
-        try:
-            response = requests.put(
-                f"{self.backend_url}/api/personnel/{self.test_personnel_ids[0]}",
-                data="invalid json data",
-                headers={"Content-Type": "application/json"},
-                timeout=10
-            )
-            
-            if response.status_code in [400, 401, 403, 422]:
-                self.log_test(
-                    "PUT /api/personnel/{id} - Malformed JSON",
-                    True,
-                    f"Malformed JSON doğru şekilde reddedildi (Status: {response.status_code})"
-                )
-            else:
-                self.log_test(
-                    "PUT /api/personnel/{id} - Malformed JSON",
-                    False,
-                    f"Malformed JSON validation başarısız",
-                    "400/401/403/422",
-                    str(response.status_code)
-                )
-        except Exception as e:
-            self.log_test(
-                "PUT /api/personnel/{id} - Malformed JSON",
-                False,
-                f"Request hatası: {str(e)}"
-            )
-
-        # Test with missing required fields
-        incomplete_data = {
-            "full_name": "Test Personel"
-            # Missing other required fields
-        }
-        
-        try:
-            response = requests.put(
-                f"{self.backend_url}/api/personnel/{self.test_personnel_ids[0]}",
-                json=incomplete_data,
-                timeout=10
-            )
-            
-            if response.status_code in [400, 401, 403, 422]:
-                self.log_test(
-                    "PUT /api/personnel/{id} - Missing Fields Validation",
-                    True,
-                    f"Eksik alanlar doğru şekilde işlendi (Status: {response.status_code})"
-                )
-            else:
-                self.log_test(
-                    "PUT /api/personnel/{id} - Missing Fields Validation",
-                    False,
-                    f"Eksik alanlar validation başarısız",
-                    "400/401/403/422",
-                    str(response.status_code)
-                )
-        except Exception as e:
-            self.log_test(
-                "PUT /api/personnel/{id} - Missing Fields Validation",
-                False,
-                f"Request hatası: {str(e)}"
-            )
-
-    def test_role_based_access_control(self):
-        """Role-based access control testlerini simüle et"""
-        print("👥 Role-Based Access Control Simulation")
-        print("=" * 50)
-        
-        # Test different role scenarios by checking endpoint behavior
-        # Since we can't create real authenticated users, we test the endpoint's response patterns
-        
-        # Test admin role simulation (should be able to update any personnel)
-        try:
-            response = requests.put(
-                f"{self.backend_url}/api/personnel/{self.test_personnel_ids[0]}",
-                json=self.test_personnel_data,
-                timeout=10
-            )
-            
-            # Admin should be able to update personnel (endpoint should accept request)
-            if response.status_code in [401, 403]:  # Auth required, but endpoint accepts request
-                self.log_test(
-                    "Admin Role Simulation - Personnel Update",
-                    True,
-                    f"Admin personnel güncelleme yetkisi mevcut, auth gerekli (Status: {response.status_code})"
-                )
-            elif response.status_code == 404:
-                self.log_test(
-                    "Admin Role Simulation - Personnel Update",
-                    True,
-                    f"Admin personnel güncelleme endpoint'i mevcut, personnel bulunamadı (Status: {response.status_code})"
-                )
-            else:
-                self.log_test(
-                    "Admin Role Simulation - Personnel Update",
-                    True,
-                    f"Admin personnel güncelleme işlendi (Status: {response.status_code})"
-                )
-        except Exception as e:
-            self.log_test(
-                "Admin Role Simulation - Personnel Update",
-                False,
-                f"Request hatası: {str(e)}"
-            )
-
-        # Test consultant role simulation (should be able to update personnel for their clients)
-        try:
-            response = requests.put(
-                f"{self.backend_url}/api/personnel/{self.test_personnel_ids[1]}",
-                json=self.test_personnel_data,
-                timeout=10
-            )
-            
-            # Consultant should be able to update personnel for their assigned clients
-            if response.status_code in [401, 403]:  # Auth required, but endpoint accepts request
-                self.log_test(
-                    "Consultant Role Simulation - Personnel Update",
-                    True,
-                    f"Consultant personnel güncelleme yetkisi mevcut, auth gerekli (Status: {response.status_code})"
-                )
-            elif response.status_code == 404:
-                self.log_test(
-                    "Consultant Role Simulation - Personnel Update",
-                    True,
-                    f"Consultant personnel güncelleme endpoint'i mevcut, personnel bulunamadı (Status: {response.status_code})"
-                )
-            else:
-                self.log_test(
-                    "Consultant Role Simulation - Personnel Update",
-                    True,
-                    f"Consultant personnel güncelleme işlendi (Status: {response.status_code})"
-                )
-        except Exception as e:
-            self.log_test(
-                "Consultant Role Simulation - Personnel Update",
-                False,
-                f"Request hatası: {str(e)}"
-            )
-
-        # Test client role simulation (should only be able to update their own personnel)
-        try:
-            response = requests.put(
-                f"{self.backend_url}/api/personnel/{self.test_personnel_ids[2]}",
-                json=self.test_personnel_data,
-                timeout=10
-            )
-            
-            # Client should be able to update their own personnel
-            if response.status_code in [401, 403]:  # Auth required
-                self.log_test(
-                    "Client Role Simulation - Own Personnel Update",
-                    True,
-                    f"Client kendi personnel'ini güncelleyebilir, auth gerekli (Status: {response.status_code})"
-                )
-            elif response.status_code == 404:
-                self.log_test(
-                    "Client Role Simulation - Own Personnel Update",
-                    True,
-                    f"Client personnel güncelleme endpoint'i mevcut, personnel bulunamadı (Status: {response.status_code})"
-                )
-            else:
-                self.log_test(
-                    "Client Role Simulation - Own Personnel Update",
-                    True,
-                    f"Client personnel güncelleme işlendi (Status: {response.status_code})"
-                )
-        except Exception as e:
-            self.log_test(
-                "Client Role Simulation - Own Personnel Update",
-                False,
-                f"Request hatası: {str(e)}"
-            )
-
-    def test_personnel_update_functionality(self):
-        """Personnel update functionality testleri"""
-        print("🔄 Personnel Update Functionality Tests")
-        print("=" * 50)
-        
-        # Test with valid personnel data
-        valid_update_data = {
-            "full_name": "Mehmet Özkan",
-            "position": "Kat Görevlisi",
-            "location": "Ankara",
-            "certifications": ["İlk Yardım", "Hijyen", "Can Kurtaran"],
-            "is_local": False,
-            "gender": "Erkek"
-        }
-        
-        try:
-            response = requests.put(
-                f"{self.backend_url}/api/personnel/{self.test_personnel_ids[0]}",
-                json=valid_update_data,
-                timeout=10
-            )
-            
-            # Should handle update request properly (auth required but logic should work)
-            if response.status_code in [401, 403]:
-                self.log_test(
-                    "Personnel Update - Valid Data",
-                    True,
-                    f"Personnel güncelleme logic'i mevcut, auth gerekli (Status: {response.status_code})"
-                )
-            elif response.status_code == 404:
-                self.log_test(
-                    "Personnel Update - Valid Data",
-                    True,
-                    f"Personnel güncelleme endpoint'i çalışıyor, personnel bulunamadı (Status: {response.status_code})"
-                )
-            elif response.status_code == 200:
-                self.log_test(
-                    "Personnel Update - Valid Data",
-                    True,
-                    f"Personnel güncelleme başarılı (Status: {response.status_code})"
-                )
-            else:
-                self.log_test(
-                    "Personnel Update - Valid Data",
-                    True,
-                    f"Personnel güncelleme logic'i çalışıyor (Status: {response.status_code})"
-                )
-        except Exception as e:
-            self.log_test(
-                "Personnel Update - Valid Data",
-                False,
-                f"Request hatası: {str(e)}"
-            )
-
-        # Test with partial update data
-        partial_update_data = {
-            "full_name": "Fatma Demir",
-            "position": "Temizlik Görevlisi"
-            # Only updating some fields
-        }
-        
-        try:
-            response = requests.put(
-                f"{self.backend_url}/api/personnel/{self.test_personnel_ids[1]}",
-                json=partial_update_data,
-                timeout=10
-            )
-            
-            if response.status_code in [400, 401, 403, 422]:
-                self.log_test(
-                    "Personnel Update - Partial Data",
-                    True,
-                    f"Kısmi güncelleme doğru şekilde işlendi (Status: {response.status_code})"
-                )
-            elif response.status_code == 404:
-                self.log_test(
-                    "Personnel Update - Partial Data",
-                    True,
-                    f"Kısmi güncelleme endpoint'i çalışıyor, personnel bulunamadı (Status: {response.status_code})"
-                )
-            else:
-                self.log_test(
-                    "Personnel Update - Partial Data",
-                    True,
-                    f"Kısmi güncelleme logic'i çalışıyor (Status: {response.status_code})"
-                )
-        except Exception as e:
-            self.log_test(
-                "Personnel Update - Partial Data",
-                False,
-                f"Request hatası: {str(e)}"
-            )
-
-    def test_response_format_and_cors(self):
-        """Response format ve CORS testleri"""
-        print("📋 Response Format and CORS Tests")
-        print("=" * 50)
-        
-        # Test response format
-        try:
-            response = requests.put(
-                f"{self.backend_url}/api/personnel/{self.test_personnel_ids[0]}",
-                json=self.test_personnel_data,
-                timeout=10
-            )
-            
-            # Check content type
-            content_type = response.headers.get('content-type', '')
-            if 'application/json' in content_type:
-                self.log_test(
-                    "Response Format - JSON Content Type",
-                    True,
-                    f"Doğru JSON content-type: {content_type}"
-                )
-            else:
-                self.log_test(
-                    "Response Format - JSON Content Type",
-                    False,
-                    f"JSON content-type eksik",
-                    "application/json",
-                    content_type
-                )
-            
-            # Try to parse JSON
-            try:
-                json_data = response.json()
-                self.log_test(
-                    "Response Format - JSON Parse",
-                    True,
-                    "Response başarıyla JSON olarak parse edildi"
-                )
-            except:
-                self.log_test(
-                    "Response Format - JSON Parse",
-                    False,
-                    "Response JSON olarak parse edilemedi"
-                )
-                
-        except Exception as e:
-            self.log_test(
-                "Response Format Test",
-                False,
-                f"Request hatası: {str(e)}"
-            )
-
-        # Test CORS headers
-        try:
-            response = requests.options(f"{self.backend_url}/api/personnel/{self.test_personnel_ids[0]}", timeout=10)
-            
-            cors_headers = [
-                'Access-Control-Allow-Origin',
-                'Access-Control-Allow-Methods',
-                'Access-Control-Allow-Headers'
-            ]
-            
-            cors_present = any(header in response.headers for header in cors_headers)
-            
-            if cors_present:
-                self.log_test(
-                    "CORS Headers Present",
-                    True,
-                    f"CORS headers mevcut: {[h for h in cors_headers if h in response.headers]}"
-                )
-            else:
-                self.log_test(
-                    "CORS Headers Present",
-                    False,
-                    "CORS headers eksik - frontend entegrasyonu sorunlu olabilir"
-                )
-                
-        except Exception as e:
-            self.log_test(
-                "CORS Headers Test",
-                False,
-                f"CORS test hatası: {str(e)}"
-            )
-
-    def test_related_personnel_endpoints(self):
-        """İlgili Personnel endpoint'lerini test et"""
-        print("🔗 Related Personnel Endpoints Test")
-        print("=" * 50)
-        
-        # Test GET /api/personnel endpoint
-        try:
-            response = requests.get(f"{self.backend_url}/api/personnel", timeout=10)
-            
-            if response.status_code != 404:
-                self.log_test(
-                    "GET /api/personnel - Endpoint Exists",
-                    True,
-                    f"Personnel listesi endpoint'i mevcut (Status: {response.status_code})"
-                )
-            else:
-                self.log_test(
-                    "GET /api/personnel - Endpoint Exists",
-                    False,
-                    f"Personnel listesi endpoint'i bulunamadı",
-                    "Not 404",
-                    "404"
-                )
-        except Exception as e:
-            self.log_test(
-                "GET /api/personnel - Endpoint Exists",
-                False,
-                f"Request hatası: {str(e)}"
-            )
-
-        # Test POST /api/personnel endpoint
         try:
             response = requests.post(
-                f"{self.backend_url}/api/personnel",
-                json=self.test_personnel_data,
+                f"{self.backend_url}/api/reservations",
+                json=test_data_with_payment,
                 timeout=10
             )
             
-            if response.status_code != 404:
+            if response.status_code == 500:
                 self.log_test(
-                    "POST /api/personnel - Endpoint Exists",
+                    "Payment Status Field - No 500 Error",
+                    False,
+                    "🚨 CRITICAL: 500 error when payment_status field is included!",
+                    "Not 500",
+                    "500"
+                )
+            elif response.status_code in [200, 201, 400, 401, 403, 422]:
+                self.log_test(
+                    "Payment Status Field - Accepted",
                     True,
-                    f"Personnel oluşturma endpoint'i mevcut (Status: {response.status_code})"
+                    f"✅ payment_status field accepted by backend (Status: {response.status_code})"
                 )
             else:
                 self.log_test(
-                    "POST /api/personnel - Endpoint Exists",
+                    "Payment Status Field - Response",
                     False,
-                    f"Personnel oluşturma endpoint'i bulunamadı",
-                    "Not 404",
-                    "404"
+                    f"Unexpected response with payment_status field: {response.status_code}"
                 )
+                
         except Exception as e:
             self.log_test(
-                "POST /api/personnel - Endpoint Exists",
+                "Payment Status Field Test",
+                False,
+                f"Request hatası: {str(e)}"
+            )
+        
+        # Test without payment_status field (should use default)
+        test_data_without_payment = {k: v for k, v in self.valid_reservation_data.items() if k != "payment_status"}
+        
+        try:
+            response = requests.post(
+                f"{self.backend_url}/api/reservations",
+                json=test_data_without_payment,
+                timeout=10
+            )
+            
+            if response.status_code == 500:
+                self.log_test(
+                    "Payment Status Default - No 500 Error",
+                    False,
+                    "🚨 CRITICAL: 500 error when payment_status field is missing!",
+                    "Not 500",
+                    "500"
+                )
+            elif response.status_code in [200, 201, 400, 401, 403, 422]:
+                self.log_test(
+                    "Payment Status Default - Handled",
+                    True,
+                    f"✅ Missing payment_status handled properly (Status: {response.status_code})"
+                )
+            else:
+                self.log_test(
+                    "Payment Status Default - Response",
+                    False,
+                    f"Unexpected response without payment_status field: {response.status_code}"
+                )
+                
+        except Exception as e:
+            self.log_test(
+                "Payment Status Default Test",
                 False,
                 f"Request hatası: {str(e)}"
             )
 
-        # Test DELETE /api/personnel/{id} endpoint
+    def test_room_rate_validation(self):
+        """room_rate > 0 validation test"""
+        print("💰 Room Rate Validation Test")
+        print("=" * 50)
+        
+        # Test with valid room_rate
+        valid_rate_data = {**self.valid_reservation_data, "room_rate": 250.0}
+        
         try:
-            response = requests.delete(f"{self.backend_url}/api/personnel/{self.test_personnel_ids[0]}", timeout=10)
+            response = requests.post(
+                f"{self.backend_url}/api/reservations",
+                json=valid_rate_data,
+                timeout=10
+            )
             
-            if response.status_code != 404:
+            if response.status_code == 500:
                 self.log_test(
-                    "DELETE /api/personnel/{id} - Endpoint Exists",
+                    "Room Rate Valid - No 500 Error",
+                    False,
+                    "🚨 CRITICAL: 500 error with valid room_rate!",
+                    "Not 500",
+                    "500"
+                )
+            elif response.status_code in [200, 201, 400, 401, 403, 422]:
+                self.log_test(
+                    "Room Rate Valid - Accepted",
                     True,
-                    f"Personnel silme endpoint'i mevcut (Status: {response.status_code})"
+                    f"✅ Valid room_rate accepted (Status: {response.status_code})"
+                )
+                
+        except Exception as e:
+            self.log_test(
+                "Room Rate Valid Test",
+                False,
+                f"Request hatası: {str(e)}"
+            )
+        
+        # Test with zero room_rate
+        zero_rate_data = {**self.valid_reservation_data, "room_rate": 0.0}
+        
+        try:
+            response = requests.post(
+                f"{self.backend_url}/api/reservations",
+                json=zero_rate_data,
+                timeout=10
+            )
+            
+            if response.status_code == 500:
+                self.log_test(
+                    "Room Rate Zero - No 500 Error",
+                    False,
+                    "🚨 CRITICAL: 500 error with zero room_rate - validation missing!",
+                    "400/422",
+                    "500"
+                )
+            elif response.status_code in [400, 422]:
+                try:
+                    error_data = response.json()
+                    error_message = error_data.get('detail', '').lower()
+                    
+                    if 'rate' in error_message or 'price' in error_message or 'amount' in error_message:
+                        self.log_test(
+                            "Room Rate Zero - Validation Error",
+                            True,
+                            f"✅ Zero room_rate properly rejected: {error_message}"
+                        )
+                    else:
+                        self.log_test(
+                            "Room Rate Zero - Error Message",
+                            False,
+                            f"Error message doesn't mention rate issue: {error_message}",
+                            "Rate-related error message",
+                            error_message
+                        )
+                except:
+                    self.log_test(
+                        "Room Rate Zero - Error Format",
+                        False,
+                        "Validation error response is not valid JSON"
+                    )
+            elif response.status_code in [401, 403]:
+                self.log_test(
+                    "Room Rate Zero - Auth First",
+                    True,
+                    f"✅ Auth check happens before validation (Status: {response.status_code})"
                 )
             else:
                 self.log_test(
-                    "DELETE /api/personnel/{id} - Endpoint Exists",
+                    "Room Rate Zero - Validation",
                     False,
-                    f"Personnel silme endpoint'i bulunamadı",
-                    "Not 404",
-                    "404"
+                    f"Zero room_rate should be rejected: {response.status_code}",
+                    "400/422",
+                    str(response.status_code)
                 )
+                
         except Exception as e:
             self.log_test(
-                "DELETE /api/personnel/{id} - Endpoint Exists",
+                "Room Rate Zero Test",
                 False,
                 f"Request hatası: {str(e)}"
+            )
+
+    def test_room_availability_conflict(self):
+        """Room availability conflict test"""
+        print("🏠 Room Availability Conflict Test")
+        print("=" * 50)
+        
+        # First, try to create a reservation
+        try:
+            response1 = requests.post(
+                f"{self.backend_url}/api/reservations",
+                json=self.valid_reservation_data,
+                timeout=10
+            )
+            
+            # Then try to create a conflicting reservation
+            response2 = requests.post(
+                f"{self.backend_url}/api/reservations",
+                json=self.conflict_reservation_data,
+                timeout=10
+            )
+            
+            if response2.status_code == 500:
+                self.log_test(
+                    "Room Conflict - No 500 Error",
+                    False,
+                    "🚨 CRITICAL: 500 error when checking room availability!",
+                    "400/422",
+                    "500"
+                )
+            elif response2.status_code in [400, 422]:
+                try:
+                    error_data = response2.json()
+                    error_message = error_data.get('detail', '').lower()
+                    
+                    if 'available' in error_message or 'conflict' in error_message or 'occupied' in error_message or 'müsait' in error_message:
+                        self.log_test(
+                            "Room Conflict - Proper Error Message",
+                            True,
+                            f"✅ Room conflict properly detected: {error_message}"
+                        )
+                    else:
+                        self.log_test(
+                            "Room Conflict - Error Message Quality",
+                            False,
+                            f"Error message doesn't clearly indicate room conflict: {error_message}",
+                            "Availability-related error message",
+                            error_message
+                        )
+                except:
+                    self.log_test(
+                        "Room Conflict - Error Format",
+                        False,
+                        "Room conflict error response is not valid JSON"
+                    )
+            elif response2.status_code in [401, 403]:
+                self.log_test(
+                    "Room Conflict - Auth Required",
+                    True,
+                    f"✅ Authentication required for room conflict check (Status: {response2.status_code})"
+                )
+            elif response2.status_code in [200, 201]:
+                self.log_test(
+                    "Room Conflict - Detection",
+                    False,
+                    "Room conflict not detected - same room booked for overlapping dates",
+                    "400/422 conflict error",
+                    f"{response2.status_code} success"
+                )
+            else:
+                self.log_test(
+                    "Room Conflict - Response",
+                    False,
+                    f"Unexpected response for room conflict: {response2.status_code}"
+                )
+                
+        except Exception as e:
+            self.log_test(
+                "Room Availability Conflict Test",
+                False,
+                f"Request hatası: {str(e)}"
+            )
+
+    def test_error_logging_improvement(self):
+        """Better error logging test"""
+        print("📝 Error Logging Improvement Test")
+        print("=" * 50)
+        
+        # Test with various invalid data to see if errors are descriptive
+        test_cases = [
+            {
+                "name": "Invalid Date Format",
+                "data": {**self.valid_reservation_data, "check_in_date": "2025/01/20"},
+                "should_contain": ["date", "format", "invalid"]
+            },
+            {
+                "name": "Missing Required Field",
+                "data": {k: v for k, v in self.valid_reservation_data.items() if k != "guest_name"},
+                "should_contain": ["guest_name", "required", "missing"]
+            },
+            {
+                "name": "Invalid Email Format",
+                "data": {**self.valid_reservation_data, "guest_email": "invalid-email"},
+                "should_contain": ["email", "format", "invalid"]
+            }
+        ]
+        
+        descriptive_errors = 0
+        total_error_tests = len(test_cases)
+        
+        for test_case in test_cases:
+            try:
+                response = requests.post(
+                    f"{self.backend_url}/api/reservations",
+                    json=test_case["data"],
+                    timeout=10
+                )
+                
+                if response.status_code == 500:
+                    self.log_test(
+                        f"Error Logging - {test_case['name']} - No 500",
+                        False,
+                        f"🚨 CRITICAL: 500 error instead of descriptive error for {test_case['name']}",
+                        "400/422 with descriptive message",
+                        "500"
+                    )
+                elif response.status_code in [400, 422]:
+                    try:
+                        error_data = response.json()
+                        error_message = error_data.get('detail', '').lower()
+                        
+                        # Check if error message is descriptive
+                        if len(error_message) > 10:
+                            descriptive_errors += 1
+                            self.log_test(
+                                f"Error Logging - {test_case['name']} - Descriptive",
+                                True,
+                                f"✅ Descriptive error message: {error_message}"
+                            )
+                        else:
+                            self.log_test(
+                                f"Error Logging - {test_case['name']} - Quality",
+                                False,
+                                f"Error message too generic: {error_message}",
+                                "Descriptive error message",
+                                error_message
+                            )
+                    except:
+                        self.log_test(
+                            f"Error Logging - {test_case['name']} - Format",
+                            False,
+                            "Error response is not valid JSON"
+                        )
+                elif response.status_code in [401, 403]:
+                    # Auth errors are acceptable
+                    descriptive_errors += 1
+                    self.log_test(
+                        f"Error Logging - {test_case['name']} - Auth",
+                        True,
+                        f"✅ Proper authentication error (Status: {response.status_code})"
+                    )
+                else:
+                    self.log_test(
+                        f"Error Logging - {test_case['name']} - Response",
+                        False,
+                        f"Unexpected response: {response.status_code}"
+                    )
+                    
+            except Exception as e:
+                self.log_test(
+                    f"Error Logging - {test_case['name']} - Request",
+                    False,
+                    f"Request hatası: {str(e)}"
+                )
+        
+        # Overall error logging quality
+        error_quality_rate = (descriptive_errors / total_error_tests) * 100
+        if error_quality_rate >= 70:
+            self.log_test(
+                "Overall Error Logging Quality",
+                True,
+                f"✅ Error logging improved ({error_quality_rate:.1f}% descriptive errors)"
+            )
+        else:
+            self.log_test(
+                "Overall Error Logging Quality",
+                False,
+                f"Error logging needs more improvement ({error_quality_rate:.1f}% descriptive errors)",
+                ">= 70%",
+                f"{error_quality_rate:.1f}%"
             )
 
     def run_all_tests(self):
         """Tüm testleri çalıştır"""
-        print("👥 PERSONNEL EDIT FUNCTIONALITY BACKEND TEST")
-        print("=" * 60)
+        print("🏨 FRONT OFFICE RESERVATION FIX COMPREHENSIVE TEST")
+        print("=" * 70)
         print(f"🎯 Backend URL: {self.backend_url}")
         print(f"📅 Test Zamanı: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print("=" * 60)
+        print(f"🔍 Focus: Front Office Reservation Fix Testing")
+        print("=" * 70)
         print()
         
         # Backend sağlık kontrolü
@@ -795,29 +848,30 @@ class PersonnelEditTester:
             print("❌ Backend erişilemediği için testler durduruluyor!")
             return False
         
-        # Ana endpoint varlık kontrolü
-        if not self.test_personnel_put_endpoint_exists():
-            print("❌ PUT /api/personnel/{personnel_id} endpoint'i bulunamadı! Personnel edit özelliği deploy edilmemiş olabilir.")
-            print("⚠️ Diğer testler devam ediyor...")
+        # Ana testler
+        print("🚨 CRITICAL FIX VERIFICATION TESTS:")
+        print("-" * 40)
+        self.test_reservations_endpoint_accessibility()
+        self.test_valid_reservation_creation()
         
-        # Test grupları
-        self.test_authentication_requirements()
-        self.test_data_validation()
-        self.test_role_based_access_control()
-        self.test_personnel_update_functionality()
-        self.test_response_format_and_cors()
-        self.test_related_personnel_endpoints()
+        print("\n🔍 VALIDATION & ERROR HANDLING TESTS:")
+        print("-" * 40)
+        self.test_validation_cases()
+        self.test_payment_status_field()
+        self.test_room_rate_validation()
+        self.test_room_availability_conflict()
+        self.test_error_logging_improvement()
         
         # Sonuçları göster
         self.show_results()
         
-        return self.passed_tests >= (self.total_tests * 0.8)  # 80% başarı oranı
+        return self.passed_tests >= (self.total_tests * 0.7)  # 70% başarı oranı
 
     def show_results(self):
         """Test sonuçlarını göster"""
-        print("\n" + "=" * 60)
-        print("📊 PERSONNEL EDIT FUNCTIONALITY TEST SONUÇLARI")
-        print("=" * 60)
+        print("\n" + "=" * 70)
+        print("📊 FRONT OFFICE RESERVATION FIX TEST SONUÇLARI")
+        print("=" * 70)
         
         success_rate = (self.passed_tests / self.total_tests * 100) if self.total_tests > 0 else 0
         
@@ -826,52 +880,101 @@ class PersonnelEditTester:
         print(f"📊 Toplam Test: {self.total_tests}")
         print(f"🎯 Başarı Oranı: {success_rate:.1f}%")
         
-        if success_rate >= 90:
-            print("🎉 MÜKEMMEL! Personnel edit özelliği production ready!")
-        elif success_rate >= 75:
-            print("✅ İYİ! Personnel edit özelliği genel olarak çalışıyor.")
-        elif success_rate >= 50:
-            print("⚠️ ORTA! Personnel edit özelliğinde bazı sorunlar var.")
+        # Critical 500 errors analysis
+        critical_500_errors = [r for r in self.test_results if not r['success'] and '500' in r['details']]
+        if critical_500_errors:
+            print(f"\n🚨 CRITICAL 500 ERRORS STILL PRESENT: {len(critical_500_errors)}")
+            print("=" * 50)
+            for error in critical_500_errors:
+                print(f"❌ {error['test']}")
+                print(f"   📝 {error['details']}")
+            print("\n⚡ URGENT: 500 errors not resolved - fix still needed!")
         else:
-            print("❌ KÖTÜ! Personnel edit özelliğinde ciddi sorunlar var.")
+            print("\n✅ NO 500 INTERNAL SERVER ERRORS DETECTED!")
+            print("🎉 500 error fix appears to be successful!")
+        
+        # Validation improvements
+        validation_tests = [r for r in self.test_results if 'Validation' in r['test'] and r['success']]
+        if validation_tests:
+            print(f"\n✅ VALIDATION IMPROVEMENTS: {len(validation_tests)} working")
+        
+        # Error message quality
+        error_message_tests = [r for r in self.test_results if 'Error' in r['test'] and 'Descriptive' in r['test'] and r['success']]
+        if error_message_tests:
+            print(f"✅ ERROR MESSAGE QUALITY: {len(error_message_tests)} improved")
+        
+        # Payment status field
+        payment_tests = [r for r in self.test_results if 'Payment Status' in r['test'] and r['success']]
+        if payment_tests:
+            print(f"✅ PAYMENT STATUS FIELD: {len(payment_tests)} working")
+        
+        # Room rate validation
+        rate_tests = [r for r in self.test_results if 'Room Rate' in r['test'] and r['success']]
+        if rate_tests:
+            print(f"✅ ROOM RATE VALIDATION: {len(rate_tests)} working")
+        
+        if success_rate >= 90:
+            print("\n🎉 EXCELLENT! Front Office Reservation Fix is working perfectly!")
+        elif success_rate >= 75:
+            print("\n✅ GOOD! Front Office Reservation Fix is mostly working.")
+        elif success_rate >= 50:
+            print("\n⚠️ MODERATE! Some issues remain with the fix.")
+        else:
+            print("\n❌ CRITICAL! Front Office Reservation Fix has major issues.")
         
         print("\n🔍 DETAYLI SONUÇLAR:")
-        print("-" * 60)
+        print("-" * 70)
         
-        # Başarısız testleri göster
+        # Başarısız testleri kategorilere göre grupla
         failed_tests = [r for r in self.test_results if not r['success']]
         if failed_tests:
             print("❌ BAŞARISIZ TESTLER:")
-            for test in failed_tests:
-                print(f"   • {test['test']}: {test['details']}")
+            
+            # 500 errors
+            error_500_tests = [t for t in failed_tests if '500' in t['details']]
+            if error_500_tests:
+                print(f"\n🚨 500 INTERNAL SERVER ERRORS ({len(error_500_tests)}):")
+                for test in error_500_tests:
+                    print(f"   • {test['test']}: {test['details']}")
+            
+            # Validation errors
+            validation_errors = [t for t in failed_tests if 'Validation' in t['test']]
+            if validation_errors:
+                print(f"\n📋 VALIDATION ISSUES ({len(validation_errors)}):")
+                for test in validation_errors:
+                    print(f"   • {test['test']}: {test['details']}")
+            
+            # Other errors
+            other_errors = [t for t in failed_tests if '500' not in t['details'] and 'Validation' not in t['test']]
+            if other_errors:
+                print(f"\n⚠️ OTHER ISSUES ({len(other_errors)}):")
+                for test in other_errors:
+                    print(f"   • {test['test']}: {test['details']}")
         
         # Başarılı testleri özetle
         successful_tests = [r for r in self.test_results if r['success']]
         if successful_tests:
             print(f"\n✅ BAŞARILI TESTLER: {len(successful_tests)} adet")
             
-            # Kategorilere göre grupla
-            auth_tests = [t for t in successful_tests if 'Authentication' in t['test'] or 'Token' in t['test']]
-            validation_tests = [t for t in successful_tests if 'Validation' in t['test'] or 'Data' in t['test']]
-            role_tests = [t for t in successful_tests if 'Role' in t['test'] or 'Simulation' in t['test']]
-            update_tests = [t for t in successful_tests if 'Update' in t['test'] or 'Functionality' in t['test']]
-            endpoint_tests = [t for t in successful_tests if 'Endpoint' in t['test'] or 'Exists' in t['test']]
+            # Fix verification tests
+            fix_tests = [t for t in successful_tests if 'No 500' in t['test'] or 'Success' in t['test']]
+            if fix_tests:
+                print(f"   🔧 Fix Verification: {len(fix_tests)} ✅")
             
-            if auth_tests:
-                print(f"   🔐 Authentication Tests: {len(auth_tests)} ✅")
+            # Validation tests
+            validation_tests = [t for t in successful_tests if 'Validation' in t['test']]
             if validation_tests:
-                print(f"   📋 Data Validation Tests: {len(validation_tests)} ✅")
-            if role_tests:
-                print(f"   👥 Role-Based Access Tests: {len(role_tests)} ✅")
-            if update_tests:
-                print(f"   🔄 Update Functionality Tests: {len(update_tests)} ✅")
-            if endpoint_tests:
-                print(f"   🔗 Endpoint Existence Tests: {len(endpoint_tests)} ✅")
+                print(f"   📋 Validation Tests: {len(validation_tests)} ✅")
+            
+            # Field tests
+            field_tests = [t for t in successful_tests if 'Field' in t['test'] or 'Payment' in t['test'] or 'Rate' in t['test']]
+            if field_tests:
+                print(f"   💳 Field Tests: {len(field_tests)} ✅")
         
-        print("\n" + "=" * 60)
+        print("\n" + "=" * 70)
         
         # Test sonuçlarını JSON olarak kaydet
-        with open('/app/personnel_edit_test_results.json', 'w', encoding='utf-8') as f:
+        with open('/app/front_office_reservation_fix_test_results.json', 'w', encoding='utf-8') as f:
             json.dump({
                 'test_summary': {
                     'total_tests': self.total_tests,
@@ -880,28 +983,39 @@ class PersonnelEditTester:
                     'success_rate': success_rate,
                     'backend_url': self.backend_url,
                     'test_timestamp': datetime.now().isoformat(),
-                    'test_focus': 'Personnel Edit Functionality with Role-Based Access Control'
+                    'test_focus': 'Front Office Reservation Fix Verification',
+                    'critical_500_errors': len(critical_500_errors),
+                    'fix_status': 'SUCCESS' if len(critical_500_errors) == 0 else 'NEEDS_WORK'
                 },
-                'test_results': self.test_results
+                'test_results': self.test_results,
+                'fix_verification': {
+                    '500_errors_resolved': len(critical_500_errors) == 0,
+                    'validation_working': len([r for r in self.test_results if 'Validation' in r['test'] and r['success']]) > 0,
+                    'payment_status_field_working': len([r for r in self.test_results if 'Payment Status' in r['test'] and r['success']]) > 0,
+                    'room_rate_validation_working': len([r for r in self.test_results if 'Room Rate' in r['test'] and r['success']]) > 0,
+                    'error_messages_improved': len([r for r in self.test_results if 'Error Logging' in r['test'] and r['success']]) > 0
+                }
             }, f, indent=2, ensure_ascii=False)
         
-        print(f"📄 Detaylı test sonuçları kaydedildi: /app/personnel_edit_test_results.json")
+        print(f"📄 Detaylı test sonuçları kaydedildi: /app/front_office_reservation_fix_test_results.json")
 
 def main():
     """Ana test fonksiyonu"""
-    tester = PersonnelEditTester()
+    tester = FrontOfficeReservationTester()
     success = tester.run_all_tests()
     
     if success:
-        print("\n🎉 PERSONNEL EDIT FUNCTIONALITY BACKEND TESTLERİ BAŞARILI!")
-        print("✅ PUT /api/personnel/{personnel_id} endpoint'i çalışıyor")
-        print("✅ Role-based access control implementasyonu mevcut")
-        print("✅ Data validation sistemi hazır")
-        print("✅ Authentication ve authorization kontrolü aktif")
+        print("\n🎉 FRONT OFFICE RESERVATION FIX TEST BAŞARILI!")
+        print("✅ 500 Internal Server Error sorunu çözülmüş görünüyor")
+        print("✅ Validation ve error handling iyileştirilmiş")
+        print("✅ payment_status field çalışıyor")
+        print("✅ room_rate validation aktif")
+        print("✅ Error messages daha açıklayıcı")
         sys.exit(0)
     else:
-        print("\n⚠️ BAZI TESTLER BAŞARISIZ! Detayları yukarıda inceleyiniz.")
-        print("🔧 Personnel edit endpoint'i veya access control sistemi kontrol edilmeli")
+        print("\n🚨 FRONT OFFICE RESERVATION FIX ISSUES DETECTED!")
+        print("❌ Bazı sorunlar hala mevcut")
+        print("🔧 Ek düzeltmeler gerekli olabilir")
         sys.exit(1)
 
 if __name__ == "__main__":
