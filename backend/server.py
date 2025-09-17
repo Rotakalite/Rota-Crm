@@ -18865,45 +18865,74 @@ async def update_hk_task(
 
 @api_router.get("/hk/dashboard")
 async def get_hk_dashboard(
+    client_id: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
     """Get HK dashboard statistics"""
     
-    logging.info(f"📊 HK dashboard request by user: {current_user.role}")
+    logging.info(f"📊 HK dashboard request by user: {current_user.role} - client_id param: {client_id}")
+    
+    # Get client_id based on user role (same pattern as consumption)
+    if current_user.role == UserRole.ADMIN:
+        # Admin can specify client_id or use their assigned client
+        if client_id:
+            target_client_id = client_id
+        else:
+            # If no client_id specified, use admin's assigned client (backward compatibility)
+            target_client_id = current_user.client_id
+    elif current_user.role == UserRole.CONSULTANT:
+        # Consultant users can see dashboard for their assigned clients
+        if client_id:
+            # Verify that the consultant has access to this client
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=400, detail="Consultant ID not assigned to user")
+            
+            # Check if the client is assigned to this consultant
+            client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+            if not client:
+                raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+            
+            target_client_id = client_id
+        else:
+            # If no client_id specified, consultant must specify which client
+            raise HTTPException(status_code=400, detail="Client ID required for consultant")
+    else:
+        # Regular client can only see their own dashboard
+        target_client_id = current_user.client_id
+        if not target_client_id:
+            raise HTTPException(status_code=403, detail="Client ID not found for user")
+    
+    logging.info(f"🎯 Fetching HK dashboard for client: {target_client_id}")
     
     try:
-        # Get client_id
-        client_id = current_user.client_id
-        if not client_id:
-            raise HTTPException(status_code=400, detail="Client ID required")
-        
         # Get rooms statistics
-        total_rooms = await db.rooms.count_documents({"client_id": client_id})
-        clean_rooms = await db.rooms.count_documents({"client_id": client_id, "status": "clean"})
-        dirty_rooms = await db.rooms.count_documents({"client_id": client_id, "status": "dirty"})
-        maintenance_rooms = await db.rooms.count_documents({"client_id": client_id, "status": "maintenance"})
+        total_rooms = await db.rooms.count_documents({"client_id": target_client_id})
+        clean_rooms = await db.rooms.count_documents({"client_id": target_client_id, "status": "clean"})
+        dirty_rooms = await db.rooms.count_documents({"client_id": target_client_id, "status": "dirty"})
+        maintenance_rooms = await db.rooms.count_documents({"client_id": target_client_id, "status": "maintenance"})
         
         # Get today's tasks
         today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
         today_tasks = await db.hk_tasks.count_documents({
-            "client_id": client_id,
+            "client_id": target_client_id,
             "created_at": {"$gte": today_start}
         })
         
         completed_today = await db.hk_tasks.count_documents({
-            "client_id": client_id,
+            "client_id": target_client_id,
             "status": "completed",
             "completed_at": {"$gte": today_start}
         })
         
         pending_tasks = await db.hk_tasks.count_documents({
-            "client_id": client_id,
+            "client_id": target_client_id,
             "status": "pending"
         })
         
         # Get recent tasks for activity feed
         recent_tasks = await db.hk_tasks.find({
-            "client_id": client_id
+            "client_id": target_client_id
         }).sort("updated_at", -1).limit(10).to_list(length=10)
         
         dashboard_data = {
@@ -18923,7 +18952,7 @@ async def get_hk_dashboard(
             "recent_activity": recent_tasks
         }
         
-        logging.info(f"📊 HK dashboard data prepared for client: {client_id}")
+        logging.info(f"📊 HK dashboard data prepared for client: {target_client_id}")
         return dashboard_data
         
     except Exception as e:
