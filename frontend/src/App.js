@@ -24278,6 +24278,8 @@ const ConsultantApp = () => {
         return <WasteManagement />;
       case 'housekeeping':
         return <HousekeepingManagement />;
+      case 'front-office':
+        return <FrontOfficeManagement />;
       case 'suppliers':
         return <SupplierManagement />;
       case 'yeni-belge':
