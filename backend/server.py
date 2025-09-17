@@ -18802,6 +18802,72 @@ async def update_room_status(
         logging.error(f"❌ Error updating room status: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Oda durumu güncellenemedi: {str(e)}")
 
+@api_router.put("/rooms/{room_id}")
+async def update_room(
+    room_id: str,
+    room_data: RoomInput,
+    current_user: User = Depends(get_current_user)
+):
+    """Update room details (number, floor, type, etc.)"""
+    
+    logging.info(f"🏨 Room update request: {room_id} by {current_user.role}")
+    
+    try:
+        # Get existing room
+        existing_room = await db.rooms.find_one({"id": room_id})
+        if not existing_room:
+            raise HTTPException(status_code=404, detail="Oda bulunamadı")
+            
+        # Check permissions - same logic as room creation
+        if current_user.role == UserRole.CLIENT and existing_room["client_id"] != current_user.client_id:
+            raise HTTPException(status_code=403, detail="Bu odayı düzenleme yetkiniz yok")
+        elif current_user.role == UserRole.CONSULTANT:
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=403, detail="Consultant ID not assigned")
+            
+            # Check if the room's client is assigned to this consultant
+            assigned_client = await db.clients.find_one({"id": existing_room["client_id"], "consultant_id": consultant_id})
+            if not assigned_client:
+                raise HTTPException(status_code=403, detail="Bu müşteri için yetkiniz yok")
+
+        # Check if new room number already exists (if changed)
+        if room_data.room_number != existing_room["room_number"]:
+            existing_number = await db.rooms.find_one({
+                "client_id": existing_room["client_id"],
+                "room_number": room_data.room_number,
+                "id": {"$ne": room_id}  # Exclude current room
+            })
+            if existing_number:
+                raise HTTPException(status_code=400, detail=f"Oda numarası {room_data.room_number} zaten mevcut")
+
+        # Prepare update data
+        update_data = {
+            "room_number": room_data.room_number,
+            "floor_name": room_data.floor_name,
+            "room_type": room_data.room_type,
+            "status": room_data.status,
+            "notes": room_data.notes,
+            "updated_at": datetime.utcnow()
+        }
+
+        result = await db.rooms.update_one(
+            {"id": room_id},
+            {"$set": update_data}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Oda bulunamadı")
+            
+        logging.info(f"✅ Room updated successfully: {room_id} -> {room_data.room_number}")
+        return {"message": "Oda başarıyla güncellendi", "room_id": room_id}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ Error updating room: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Oda güncellenemedi: {str(e)}")
+
 # HK Task Management Endpoints
 @api_router.post("/hk/tasks")
 async def create_hk_task(
