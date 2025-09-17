@@ -5511,12 +5511,12 @@ const CLERK_PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY ||
 
 // Backend URL Discovery Function
 const discoverBackendURL = async () => {
-  // Always use Railway backend URL
-  const railwayUrl = 'https://rota-crm-production.up.railway.app';
+  // Use environment variable or fallback to localhost
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
   
-  // Test if Railway backend is accessible
+  // Test if backend is accessible
   try {
-    const response = await fetch(`${railwayUrl}/health`, { 
+    const response = await fetch(`${backendUrl}/health`, { 
       method: 'GET',
       timeout: 5000 
     });
