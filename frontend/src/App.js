@@ -5055,6 +5055,15 @@ const Dashboard = ({ onNavigate }) => {
                   </button>
                   
                   <button
+                    onClick={() => setActiveTab('front-office')}
+                    className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-left group"
+                  >
+                    <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">🏨</div>
+                    <h4 className="font-medium text-gray-900">Ön Büro</h4>
+                    <p className="text-sm text-gray-600">Rezervasyon ve misafir yönetimi</p>
+                  </button>
+                  
+                  <button
                     onClick={() => {
                       console.log('🧹 Navigating to housekeeping');
                       onNavigate('housekeeping');
