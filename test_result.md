@@ -3145,8 +3145,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "HK Modülü Oda Ekleme Özelliği - Client ID Handling"
+    - "Personnel Edit Endpoint (PUT /api/personnel/{personnel_id})"
   stuck_tasks: 
+    - "Personnel Edit Endpoint (PUT /api/personnel/{personnel_id})"
     - "CRUD Operations Test - Consumption & Waste Endpoints"
   test_all: false
   test_priority: "high_first"
