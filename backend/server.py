@@ -18735,22 +18735,29 @@ async def get_rooms(
     
     try:
         # Get rooms for client
-        rooms = await db.rooms.find({"client_id": target_client_id}).sort("floor_name", 1).sort("room_number", 1).to_list(length=None)
+        rooms_raw = await db.rooms.find({"client_id": target_client_id}).sort("floor_name", 1).sort("room_number", 1).to_list(length=None)
+        
+        # Clean MongoDB ObjectIds for JSON serialization
+        clean_rooms = []
+        for room in rooms_raw:
+            if "_id" in room:
+                del room["_id"]  # Remove MongoDB ObjectId
+            clean_rooms.append(room)
         
         # Group rooms by floor for easier frontend handling
         floors = {}
-        for room in rooms:
+        for room in clean_rooms:
             floor = room.get("floor_name", "Genel")
             if floor not in floors:
                 floors[floor] = []
             floors[floor].append(room)
         
-        logging.info(f"📊 Found {len(rooms)} rooms across {len(floors)} floors")
+        logging.info(f"📊 Found {len(clean_rooms)} rooms across {len(floors)} floors")
         
         return {
-            "rooms": rooms,
+            "rooms": clean_rooms,
             "floors": floors,
-            "total_rooms": len(rooms),
+            "total_rooms": len(clean_rooms),
             "total_floors": len(floors)
         }
         
