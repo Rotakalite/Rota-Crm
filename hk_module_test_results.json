@@ -1,11 +1,11 @@
 {
   "test_summary": {
     "total_tests": 29,
-    "passed_tests": 10,
-    "failed_tests": 19,
-    "success_rate": 34.48275862068966,
+    "passed_tests": 29,
+    "failed_tests": 0,
+    "success_rate": 100.0,
     "backend_url": "https://rota-crm-production.up.railway.app",
-    "test_timestamp": "2025-09-17T13:27:25.550075"
+    "test_timestamp": "2025-09-17T14:09:40.579909"
   },
   "test_results": [
     {
@@ -15,124 +15,124 @@
       "details": "Backend erişilebilir (Status: 200)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T13:27:15.724017"
+      "timestamp": "2025-09-17T14:09:31.854179"
     },
     {
       "test": "GET /api/rooms - Authentication Required",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Auth kontrolü başarısız",
-      "expected": "401 or 403",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:16.199334"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Doğru auth kontrolü (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:32.324445"
     },
     {
       "test": "POST /api/rooms/bulk - Authentication Required",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Auth kontrolü başarısız",
-      "expected": "401 or 403",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:17.578227"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Doğru auth kontrolü (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:32.643365"
     },
     {
       "test": "PUT /api/rooms/{room_id}/status - Authentication Required",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Auth kontrolü başarısız",
-      "expected": "401 or 403",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:18.051698"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Doğru auth kontrolü (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:33.117469"
     },
     {
       "test": "GET /api/hk/dashboard - Authentication Required",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Auth kontrolü başarısız",
-      "expected": "401 or 403",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:18.518187"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Doğru auth kontrolü (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:33.590414"
     },
     {
       "test": "POST /api/hk/tasks - Authentication Required",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Auth kontrolü başarısız",
-      "expected": "401 or 403",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:18.827284"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Doğru auth kontrolü (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:33.895699"
     },
     {
       "test": "GET /api/hk/tasks - Authentication Required",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Auth kontrolü başarısız",
-      "expected": "401 or 403",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:19.141027"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Doğru auth kontrolü (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:34.205183"
     },
     {
       "test": "PUT /api/hk/tasks/{task_id} - Authentication Required",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Auth kontrolü başarısız",
-      "expected": "401 or 403",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:19.604592"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Doğru auth kontrolü (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:34.685936"
     },
     {
       "test": "GET /api/rooms - Invalid Token Rejection",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Geçersiz token kontrolü başarısız",
-      "expected": "401",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:20.074884"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Geçersiz token reddedildi (Status: 401)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:35.152113"
     },
     {
       "test": "POST /api/rooms/bulk - Invalid Token Rejection",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Geçersiz token kontrolü başarısız",
-      "expected": "401",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:20.548950"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Geçersiz token reddedildi (Status: 401)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:35.619969"
     },
     {
       "test": "GET /api/hk/dashboard - Invalid Token Rejection",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Geçersiz token kontrolü başarısız",
-      "expected": "401",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:20.884169"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Geçersiz token reddedildi (Status: 401)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:35.937364"
     },
     {
       "test": "POST /api/hk/tasks - Invalid Token Rejection",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Geçersiz token kontrolü başarısız",
-      "expected": "401",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:21.193721"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Geçersiz token reddedildi (Status: 401)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:36.245178"
     },
     {
       "test": "GET /api/hk/tasks - Invalid Token Rejection",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Geçersiz token kontrolü başarısız",
-      "expected": "401",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:21.517143"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Geçersiz token reddedildi (Status: 401)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:36.560245"
     },
     {
       "test": "POST /api/rooms/bulk - Admin Permission Check",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Admin endpoint bulunamadı",
-      "expected": "401/403",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:21.830175"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Admin endpoint erişilebilir ve auth gerektiriyor (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:36.893433"
     },
     {
       "test": "/api/rooms - JSON Response Format",
@@ -141,7 +141,7 @@
       "details": "Doğru JSON content-type: application/json",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T13:27:22.145594"
+      "timestamp": "2025-09-17T14:09:37.198230"
     },
     {
       "test": "/api/rooms - JSON Parse Test",
@@ -150,7 +150,7 @@
       "details": "Response başarıyla JSON olarak parse edildi",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T13:27:22.145663"
+      "timestamp": "2025-09-17T14:09:37.198305"
     },
     {
       "test": "/api/rooms/bulk - JSON Response Format",
@@ -159,7 +159,7 @@
       "details": "Doğru JSON content-type: application/json",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T13:27:22.452127"
+      "timestamp": "2025-09-17T14:09:37.499444"
     },
     {
       "test": "/api/rooms/bulk - JSON Parse Test",
@@ -168,7 +168,7 @@
       "details": "Response başarıyla JSON olarak parse edildi",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T13:27:22.452447"
+      "timestamp": "2025-09-17T14:09:37.499787"
     },
     {
       "test": "/api/hk/dashboard - JSON Response Format",
@@ -177,7 +177,7 @@
       "details": "Doğru JSON content-type: application/json",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T13:27:22.766193"
+      "timestamp": "2025-09-17T14:09:37.807789"
     },
     {
       "test": "/api/hk/dashboard - JSON Parse Test",
@@ -186,7 +186,7 @@
       "details": "Response başarıyla JSON olarak parse edildi",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T13:27:22.766525"
+      "timestamp": "2025-09-17T14:09:37.808123"
     },
     {
       "test": "/api/hk/tasks - JSON Response Format",
@@ -195,7 +195,7 @@
       "details": "Doğru JSON content-type: application/json",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T13:27:23.082708"
+      "timestamp": "2025-09-17T14:09:38.114662"
     },
     {
       "test": "/api/hk/tasks - JSON Parse Test",
@@ -204,25 +204,25 @@
       "details": "Response başarıyla JSON olarak parse edildi",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T13:27:23.083072"
+      "timestamp": "2025-09-17T14:09:38.115017"
     },
     {
       "test": "PUT /api/rooms/{room_id}/status - Invalid Status Handling",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Geçersiz status kontrolü başarısız",
-      "expected": "400/401/403",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:23.556139"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Geçersiz status doğru şekilde reddedildi (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:38.592693"
     },
     {
       "test": "POST /api/hk/tasks - Invalid Data Handling",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Geçersiz data kontrolü başarısız",
-      "expected": "400/401/403/422",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:23.863681"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Geçersiz task data doğru şekilde reddedildi (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:38.897275"
     },
     {
       "test": "CORS Headers Present",
@@ -231,43 +231,43 @@
       "details": "CORS headers mevcut: ['Access-Control-Allow-Origin', 'Access-Control-Allow-Methods', 'Access-Control-Allow-Headers']",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T13:27:24.169778"
+      "timestamp": "2025-09-17T14:09:39.201297"
     },
     {
       "test": "/api/rooms - Endpoint Accessibility",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Endpoint bulunamadı",
-      "expected": "Not 404",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:24.479068"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Endpoint erişilebilir (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:39.514564"
     },
     {
       "test": "/api/rooms/bulk - Endpoint Accessibility",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Endpoint bulunamadı",
-      "expected": "Not 404",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:24.787659"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Endpoint erişilebilir (Status: 405)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:39.817192"
     },
     {
       "test": "/api/hk/dashboard - Endpoint Accessibility",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Endpoint bulunamadı",
-      "expected": "Not 404",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:25.236134"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Endpoint erişilebilir (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:40.269151"
     },
     {
       "test": "/api/hk/tasks - Endpoint Accessibility",
-      "status": "❌ FAIL",
-      "success": false,
-      "details": "Endpoint bulunamadı",
-      "expected": "Not 404",
-      "actual": "404",
-      "timestamp": "2025-09-17T13:27:25.547788"
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Endpoint erişilebilir (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T14:09:40.577679"
     }
   ]
 }
