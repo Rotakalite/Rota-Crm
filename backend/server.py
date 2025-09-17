@@ -19158,11 +19158,12 @@ async def get_hk_dashboard(
 async def get_hk_daily_report(
     report_date: Optional[str] = None,
     client_id: Optional[str] = None,
+    format: str = "excel",  # excel or json
     current_user: User = Depends(get_current_user)
 ):
     """Generate daily HK summary report in Excel format"""
     
-    logging.info(f"📊 Daily HK report request by user: {current_user.role} - client_id param: {client_id}")
+    logging.info(f"📊 Daily HK report request by user: {current_user.role} - client_id param: {client_id} - format: {format}")
     
     # Get client_id based on user role (same pattern as other endpoints)
     if current_user.role == UserRole.ADMIN:
@@ -19245,31 +19246,120 @@ async def get_hk_daily_report(
                 staff_performance[staff] = {"completed": 0, "total": 0}
             staff_performance[staff]["total"] += 1
         
-        # Generate Excel data structure
-        report_data = {
-            "hotel_name": hotel_name,
-            "report_date": report_date_obj.strftime("%d/%m/%Y"),
-            "room_summary": {
-                "total_rooms": total_rooms,
-                "clean_rooms": clean_rooms,
-                "dirty_rooms": dirty_rooms,
-                "maintenance_rooms": maintenance_rooms,
-                "out_of_order_rooms": out_of_order_rooms,
-                "occupancy_rate": round((clean_rooms / total_rooms * 100) if total_rooms > 0 else 0, 1)
-            },
-            "task_summary": {
-                "total_tasks": len(daily_tasks),
-                "completed_tasks": len(completed_tasks),
-                "pending_tasks": len(pending_tasks),
-                "in_progress_tasks": len(in_progress_tasks),
-                "completion_rate": round((len(completed_tasks) / len(daily_tasks) * 100) if daily_tasks else 0, 1)
-            },
-            "staff_performance": staff_performance,
-            "detailed_tasks": daily_tasks
-        }
+        # If format is json, return data
+        if format == "json":
+            return {
+                "hotel_name": hotel_name,
+                "report_date": report_date_obj.strftime("%d/%m/%Y"),
+                "room_summary": {
+                    "total_rooms": total_rooms,
+                    "clean_rooms": clean_rooms,
+                    "dirty_rooms": dirty_rooms,
+                    "maintenance_rooms": maintenance_rooms,
+                    "out_of_order_rooms": out_of_order_rooms,
+                    "occupancy_rate": round((clean_rooms / total_rooms * 100) if total_rooms > 0 else 0, 1)
+                },
+                "task_summary": {
+                    "total_tasks": len(daily_tasks),
+                    "completed_tasks": len(completed_tasks),
+                    "pending_tasks": len(pending_tasks),
+                    "in_progress_tasks": len(in_progress_tasks),
+                    "completion_rate": round((len(completed_tasks) / len(daily_tasks) * 100) if daily_tasks else 0, 1)
+                },
+                "staff_performance": staff_performance,
+                "detailed_tasks": daily_tasks
+            }
         
-        logging.info(f"📊 Daily HK report generated for {hotel_name} - {report_date_obj.strftime('%Y-%m-%d')}")
-        return report_data
+        # Generate Excel file
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, PatternFill, Alignment
+        from io import BytesIO
+        
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "HK Günlük Rapor"
+        
+        # Styles
+        header_font = Font(bold=True, size=14)
+        sub_header_font = Font(bold=True, size=12)
+        normal_font = Font(size=11)
+        
+        # Header
+        ws['A1'] = f"HOUSEKEEPING GÜNLÜK DEĞERLENDİRME RAPORU"
+        ws['A1'].font = header_font
+        ws['A2'] = hotel_name
+        ws['A2'].font = sub_header_font
+        ws['A3'] = f"Tarih: {report_date_obj.strftime('%d/%m/%Y')}"
+        ws['A3'].font = normal_font
+        
+        # Room Summary
+        ws['A5'] = "ODA DURUM ÖZETİ"
+        ws['A5'].font = sub_header_font
+        ws['A6'] = f"Toplam Oda: {total_rooms}"
+        ws['A7'] = f"Temiz Oda: {clean_rooms}"
+        ws['A8'] = f"Kirli Oda: {dirty_rooms}"
+        ws['A9'] = f"Bakım Odası: {maintenance_rooms}"
+        ws['A10'] = f"Arızalı Oda: {out_of_order_rooms}"
+        ws['A11'] = f"Doluluk Oranı: %{round((clean_rooms / total_rooms * 100) if total_rooms > 0 else 0, 1)}"
+        
+        # Task Summary
+        ws['A13'] = "GÖREV ÖZETİ"
+        ws['A13'].font = sub_header_font
+        ws['A14'] = f"Toplam Görev: {len(daily_tasks)}"
+        ws['A15'] = f"Tamamlanan: {len(completed_tasks)}"
+        ws['A16'] = f"Bekleyen: {len(pending_tasks)}"
+        ws['A17'] = f"Devam Eden: {len(in_progress_tasks)}"
+        ws['A18'] = f"Tamamlanma Oranı: %{round((len(completed_tasks) / len(daily_tasks) * 100) if daily_tasks else 0, 1)}"
+        
+        # Staff Performance
+        if staff_performance:
+            ws['A20'] = "PERSONEL PERFORMANSI"
+            ws['A20'].font = sub_header_font
+            row = 21
+            for staff, perf in staff_performance.items():
+                completion_rate = round(perf['completed']/perf['total']*100) if perf['total'] > 0 else 0
+                ws[f'A{row}'] = f"{staff}: {perf['completed']}/{perf['total']} (%{completion_rate})"
+                row += 1
+        
+        # Detailed Tasks
+        if daily_tasks:
+            start_row = row + 2
+            ws[f'A{start_row}'] = "DETAYLI GÖREV LİSTESİ"
+            ws[f'A{start_row}'].font = sub_header_font
+            
+            # Headers
+            headers = ["Sıra", "Oda", "Görev Türü", "Personel", "Durum", "Oluşturulma"]
+            header_row = start_row + 1
+            for i, header in enumerate(headers):
+                ws.cell(row=header_row, column=i+1, value=header).font = Font(bold=True)
+            
+            # Data
+            for i, task in enumerate(daily_tasks):
+                data_row = header_row + 1 + i
+                ws.cell(row=data_row, column=1, value=i+1)
+                ws.cell(row=data_row, column=2, value=task.get('room_id', 'N/A'))
+                ws.cell(row=data_row, column=3, value=task.get('task_type', 'N/A'))
+                ws.cell(row=data_row, column=4, value=task.get('assigned_staff', 'N/A'))
+                ws.cell(row=data_row, column=5, value=task.get('status', 'N/A'))
+                ws.cell(row=data_row, column=6, value=task.get('created_at', 'N/A'))
+        
+        # Save to BytesIO
+        excel_buffer = BytesIO()
+        wb.save(excel_buffer)
+        excel_buffer.seek(0)
+        
+        # Generate filename
+        filename = f"HK_Gunluk_Rapor_{report_date_obj.strftime('%d_%m_%Y')}.xlsx"
+        
+        logging.info(f"📊 Excel report generated successfully: {filename}")
+        
+        # Return Excel file
+        from fastapi.responses import StreamingResponse
+        return StreamingResponse(
+            BytesIO(excel_buffer.read()),
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
         
     except Exception as e:
         logging.error(f"❌ Error generating daily HK report: {str(e)}")
