@@ -24625,19 +24625,38 @@ ${data.detailed_tasks.map((task, index) =>
                   {hkTasks.map((task) => (
                     <tr key={task.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap font-medium">{task.room_number}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">{task.task_type}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 rounded-full text-xs ${
+                        {task.task_type === 'regular_cleaning' ? '🧹 Düzenli Temizlik' :
+                         task.task_type === 'checkout_cleaning' ? '🚪 Çıkış Temizliği' :
+                         task.task_type === 'maintenance' ? '🔧 Bakım' :
+                         task.task_type === 'deep_cleaning' ? '🫧 Detaylı Temizlik' : task.task_type}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                           task.status === 'completed' ? 'bg-green-100 text-green-800' :
                           task.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
                           'bg-yellow-100 text-yellow-800'
                         }`}>
-                          {task.status}
+                          {task.status === 'completed' ? '✅ Tamamlandı' :
+                           task.status === 'in_progress' ? '🔄 Devam Ediyor' :
+                           '⏳ Bekliyor'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">{task.assigned_staff || 'Atanmamış'}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(task.created_at).toLocaleDateString('tr-TR')}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        {task.status !== 'completed' ? (
+                          <button
+                            onClick={() => completeHKTask(task.id)}
+                            className="bg-green-600 text-white px-3 py-1 rounded-md text-xs hover:bg-green-700 transition-colors flex items-center gap-1"
+                          >
+                            ✅ Tamamla
+                          </button>
+                        ) : (
+                          <span className="text-green-600 text-xs font-medium">✅ Tamamlandı</span>
+                        )}
                       </td>
                     </tr>
                   ))}
