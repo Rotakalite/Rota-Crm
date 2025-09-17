@@ -24430,6 +24430,133 @@ ${data.detailed_tasks.map((task, index) =>
                 ))}
               </div>
             </div>
+
+            {/* Daily Report Generation */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-gray-900">📊 Günlük Değerlendirme Raporu</h3>
+                <button
+                  onClick={generateDailyReport}
+                  disabled={loading}
+                  className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+                >
+                  {loading ? '⏳' : '📥'} Excel Rapor Al
+                </button>
+              </div>
+              <p className="text-gray-600">
+                Günlük oda durumu, görev tamamlanma oranları ve personel performansını içeren detaylı Excel raporu oluşturun.
+              </p>
+            </div>
+
+            {/* Enhanced Room Status Overview */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-6">🏨 Detaylı Oda Durum Özeti</h3>
+              
+              {/* Overall Statistics */}
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                <div className="bg-gray-50 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-gray-900">{dashboardStats.room_stats?.total_rooms || 0}</div>
+                  <div className="text-sm text-gray-600">Toplam Oda</div>
+                </div>
+                <div className="bg-green-50 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-green-600">{dashboardStats.room_stats?.clean_rooms || 0}</div>
+                  <div className="text-sm text-green-700">Temiz</div>
+                </div>
+                <div className="bg-red-50 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-red-600">{dashboardStats.room_stats?.dirty_rooms || 0}</div>
+                  <div className="text-sm text-red-700">Kirli</div>
+                </div>
+                <div className="bg-yellow-50 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-yellow-600">{dashboardStats.room_stats?.maintenance_rooms || 0}</div>
+                  <div className="text-sm text-yellow-700">Bakım</div>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-blue-600">{dashboardStats.room_stats?.occupancy_rate || 0}%</div>
+                  <div className="text-sm text-blue-700">Doluluk Oranı</div>
+                </div>
+              </div>
+
+              {/* Floor-by-Floor Breakdown */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Object.entries(floors).map(([floorName, floorRooms]) => (
+                  <div key={floorName} className="border border-gray-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      <span className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm">
+                        {floorRooms.length}
+                      </span>
+                      {floorName}
+                    </h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Toplam Oda:</span>
+                        <span className="font-medium">{floorRooms.length}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-green-600">✅ Temiz:</span>
+                        <span className="font-medium text-green-600">
+                          {floorRooms.filter(r => r.status === 'clean').length}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-red-600">🧹 Kirli:</span>
+                        <span className="font-medium text-red-600">
+                          {floorRooms.filter(r => r.status === 'dirty').length}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-yellow-600">🔧 Bakım:</span>
+                        <span className="font-medium text-yellow-600">
+                          {floorRooms.filter(r => r.status === 'maintenance').length}
+                        </span>
+                      </div>
+                      <div className="mt-3 bg-gray-100 rounded-full h-2 overflow-hidden">
+                        <div 
+                          className="h-full bg-green-500 transition-all duration-300"
+                          style={{ 
+                            width: `${(floorRooms.filter(r => r.status === 'clean').length / floorRooms.length) * 100}%` 
+                          }}
+                        ></div>
+                      </div>
+                      <div className="text-xs text-gray-500 text-center">
+                        {Math.round((floorRooms.filter(r => r.status === 'clean').length / floorRooms.length) * 100)}% temiz
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            {dashboardStats.recent_activity && dashboardStats.recent_activity.length > 0 && (
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-6">🕒 Son Aktiviteler</h3>
+                <div className="space-y-3">
+                  {dashboardStats.recent_activity.slice(0, 5).map((activity, index) => (
+                    <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span className="text-sm">🧹</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900">
+                          {activity.task_type === 'regular_cleaning' ? '🧹 Düzenli Temizlik' :
+                           activity.task_type === 'checkout_cleaning' ? '🚪 Çıkış Temizliği' :
+                           activity.task_type === 'maintenance' ? '🔧 Bakım' :
+                           activity.task_type === 'deep_cleaning' ? '🫧 Detaylı Temizlik' : activity.task_type}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {activity.assigned_staff} - {activity.status === 'completed' ? '✅ Tamamlandı' : 
+                                                     activity.status === 'in_progress' ? '🔄 Devam Ediyor' : 
+                                                     '⏳ Bekliyor'}
+                        </p>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {activity.created_at ? new Date(activity.created_at).toLocaleDateString('tr-TR') : 'Bugün'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
