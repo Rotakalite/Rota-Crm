@@ -23534,6 +23534,19 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
   
+  // Personnel states
+  const [personnel, setPersonnel] = useState([]);
+  
+  // Task creation states
+  const [newTask, setNewTask] = useState({
+    room_id: '',
+    task_type: 'regular_cleaning',
+    assigned_staff: '',
+    priority: 'normal',
+    estimated_duration: 30,
+    notes: ''
+  });
+  
   // Room setup states
   const [roomSetupMode, setRoomSetupMode] = useState('single'); // 'single', 'bulk', 'excel'
   const [newRoom, setNewRoom] = useState({
