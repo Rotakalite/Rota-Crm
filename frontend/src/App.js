@@ -24614,10 +24614,11 @@ ${data.detailed_tasks.map((task, index) =>
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Oda</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Görev Tipi</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Görev Türü</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Görevli</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Personel</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Oluşturulma</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">İşlemler</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
