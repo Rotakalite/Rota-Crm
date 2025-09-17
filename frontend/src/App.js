@@ -23515,6 +23515,652 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
   );
 };
 
+// =====================================
+// 🧹 HOUSEKEEPING (HK) MODULE
+// =====================================
+
+const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
+  const [loading, setLoading] = useState(false);
+  const [rooms, setRooms] = useState([]);
+  const [floors, setFloors] = useState({});
+  const [hkTasks, setHkTasks] = useState([]);
+  const [dashboardStats, setDashboardStats] = useState({});
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [showRoomSetup, setShowRoomSetup] = useState(false);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  
+  // Room setup states
+  const [roomSetupMode, setRoomSetupMode] = useState('single'); // 'single', 'bulk', 'excel'
+  const [newRoom, setNewRoom] = useState({
+    room_number: '',
+    floor_name: '1. Kat',
+    room_type: 'Standard',
+    status: 'clean'
+  });
+  const [bulkRoomsText, setBulkRoomsText] = useState('');
+  
+  // Get user context
+  const { userRole, authToken } = useAuth();
+  const API = getApiUrl();
+  
+  // Determine effective selected client
+  const effectiveSelectedClient = propSelectedClient || localStorage.getItem('selectedClientForConsumption');
+
+  // Fetch HK Dashboard Data
+  const fetchHKDashboard = async () => {
+    if (!authToken) return;
+    
+    try {
+      console.log('🧹 Fetching HK dashboard data...');
+      const response = await axios.get(`${API}/hk/dashboard`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      setDashboardStats(response.data);
+      console.log('✅ HK dashboard data loaded:', response.data);
+    } catch (error) {
+      console.error('❌ Error fetching HK dashboard:', error);
+    }
+  };
+
+  // Fetch Rooms
+  const fetchRooms = async () => {
+    if (!authToken) return;
+    
+    try {
+      setLoading(true);
+      console.log('🏨 Fetching rooms data...');
+      
+      const response = await axios.get(`${API}/rooms`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      setRooms(response.data.rooms || []);
+      setFloors(response.data.floors || {});
+      console.log('✅ Rooms data loaded:', response.data);
+    } catch (error) {
+      console.error('❌ Error fetching rooms:', error);
+      alert('Oda verileri alınamadı: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch HK Tasks
+  const fetchHKTasks = async () => {
+    if (!authToken) return;
+    
+    try {
+      console.log('🧹 Fetching HK tasks...');
+      const response = await axios.get(`${API}/hk/tasks`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      setHkTasks(response.data.tasks || []);
+      console.log('✅ HK tasks loaded:', response.data.tasks?.length || 0);
+    } catch (error) {
+      console.error('❌ Error fetching HK tasks:', error);
+    }
+  };
+
+  // Update Room Status
+  const updateRoomStatus = async (roomId, newStatus) => {
+    if (!authToken) return;
+    
+    try {
+      console.log(`🏨 Updating room ${roomId} status to ${newStatus}`);
+      
+      const response = await axios.put(
+        `${API}/rooms/${roomId}/status?status=${newStatus}`,
+        {},
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
+      
+      console.log('✅ Room status updated');
+      fetchRooms(); // Refresh rooms
+      fetchHKDashboard(); // Refresh dashboard
+      
+    } catch (error) {
+      console.error('❌ Error updating room status:', error);
+      alert('Oda durumu güncellenemedi: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Create Rooms (Bulk)
+  const createRoomsBulk = async () => {
+    if (!authToken) return;
+    
+    try {
+      setLoading(true);
+      
+      let roomsToCreate = [];
+      
+      if (roomSetupMode === 'single') {
+        if (!newRoom.room_number.trim()) {
+          alert('Oda numarası gerekli');
+          return;
+        }
+        roomsToCreate = [newRoom];
+      } else if (roomSetupMode === 'bulk') {
+        if (!bulkRoomsText.trim()) {
+          alert('Toplu oda verisi gerekli');
+          return;
+        }
+        
+        // Parse bulk text (format: "101,102,103" per line)
+        const lines = bulkRoomsText.trim().split('\n');
+        lines.forEach((line, index) => {
+          const roomNumbers = line.split(',').map(r => r.trim()).filter(r => r);
+          roomNumbers.forEach(roomNum => {
+            roomsToCreate.push({
+              room_number: roomNum,
+              floor_name: `${index + 1}. Kat`,
+              room_type: 'Standard',
+              status: 'clean'
+            });
+          });
+        });
+      }
+      
+      if (roomsToCreate.length === 0) {
+        alert('Oluşturulacak oda bulunamadı');
+        return;
+      }
+      
+      console.log('🏨 Creating bulk rooms:', roomsToCreate);
+      
+      const response = await axios.post(
+        `${API}/rooms/bulk`,
+        { rooms: roomsToCreate },
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
+      
+      alert(`✅ ${response.data.created_count} oda başarıyla oluşturuldu!`);
+      setShowRoomSetup(false);
+      setNewRoom({ room_number: '', floor_name: '1. Kat', room_type: 'Standard', status: 'clean' });
+      setBulkRoomsText('');
+      fetchRooms();
+      fetchHKDashboard();
+      
+    } catch (error) {
+      console.error('❌ Error creating rooms:', error);
+      alert('Oda oluşturulamadı: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial data load
+  useEffect(() => {
+    if (authToken && userRole) {
+      fetchHKDashboard();
+      fetchRooms();
+      fetchHKTasks();
+    }
+  }, [authToken, userRole, effectiveSelectedClient]);
+
+  // Get room status display info
+  const getRoomStatusInfo = (status) => {
+    const statusMap = {
+      'clean': { label: 'Temiz', color: 'bg-green-100 text-green-800', icon: '✅' },
+      'dirty': { label: 'Kirli', color: 'bg-red-100 text-red-800', icon: '🧹' },
+      'maintenance': { label: 'Bakım', color: 'bg-yellow-100 text-yellow-800', icon: '🔧' },
+      'out_of_order': { label: 'Hizmet Dışı', color: 'bg-gray-100 text-gray-800', icon: '❌' }
+    };
+    return statusMap[status] || statusMap['clean'];
+  };
+
+  if (loading && rooms.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">
+          <div className="text-4xl mb-4">🧹</div>
+          <p className="text-gray-600">HK verileri yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
+      {/* Elite Header */}
+      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-4xl font-bold text-white mb-2">🧹 Elite Kat Görevlileri (HK)</h1>
+              <p className="text-blue-100 text-lg">Oda durumu ve temizlik yönetim sistemi</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setShowRoomSetup(true)}
+                className="bg-white text-blue-700 px-6 py-3 rounded-lg font-medium hover:bg-blue-50 transition-colors flex items-center gap-2"
+              >
+                🏨 Oda Kurulumu
+              </button>
+              <button
+                onClick={() => setActiveTab('tasks')}
+                className="bg-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-400 transition-colors flex items-center gap-2"
+              >
+                📋 Görevler
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        
+        {/* Tab Navigation */}
+        <div className="flex space-x-1 mb-8 bg-white rounded-lg p-1 shadow-sm">
+          {[
+            { id: 'dashboard', name: 'Dashboard', icon: '📊' },
+            { id: 'rooms', name: 'Oda Durumu', icon: '🏨' },
+            { id: 'tasks', name: 'Temizlik Görevleri', icon: '🧹' }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-colors flex-1 text-center ${
+                activeTab === tab.id
+                  ? 'bg-blue-500 text-white shadow-sm'
+                  : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+              }`}
+            >
+              <span>{tab.icon}</span>
+              <span>{tab.name}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'dashboard' && (
+          <div className="space-y-6">
+            {/* Dashboard Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-600 text-sm">Toplam Oda</p>
+                    <p className="text-2xl font-bold text-gray-900">{dashboardStats.room_stats?.total_rooms || 0}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <span className="text-xl">🏨</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-600 text-sm">Temiz Odalar</p>
+                    <p className="text-2xl font-bold text-green-600">{dashboardStats.room_stats?.clean_rooms || 0}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <span className="text-xl">✅</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-600 text-sm">Bekleyen Görevler</p>
+                    <p className="text-2xl font-bold text-orange-600">{dashboardStats.task_stats?.pending_tasks || 0}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <span className="text-xl">⏳</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-600 text-sm">Bugün Tamamlanan</p>
+                    <p className="text-2xl font-bold text-blue-600">{dashboardStats.task_stats?.completed_today || 0}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <span className="text-xl">🎯</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Room Status Overview */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-6">Oda Durumu Özeti</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {Object.entries(floors).map(([floorName, floorRooms]) => (
+                  <div key={floorName} className="border rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-900 mb-2">{floorName}</h4>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-600">Toplam: {floorRooms.length}</p>
+                      <p className="text-sm text-green-600">
+                        Temiz: {floorRooms.filter(r => r.status === 'clean').length}
+                      </p>
+                      <p className="text-sm text-red-600">
+                        Kirli: {floorRooms.filter(r => r.status === 'dirty').length}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'rooms' && (
+          <div className="space-y-6">
+            {/* Rooms Grid */}
+            {Object.entries(floors).map(([floorName, floorRooms]) => (
+              <div key={floorName} className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">{floorName}</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  {floorRooms.map((room) => {
+                    const statusInfo = getRoomStatusInfo(room.status);
+                    return (
+                      <div
+                        key={room.id}
+                        className={`border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${
+                          room.status === 'clean' ? 'border-green-200 bg-green-50' :
+                          room.status === 'dirty' ? 'border-red-200 bg-red-50' :
+                          room.status === 'maintenance' ? 'border-yellow-200 bg-yellow-50' :
+                          'border-gray-200 bg-gray-50'
+                        }`}
+                        onClick={() => setSelectedRoom(room)}
+                      >
+                        <div className="text-center">
+                          <div className="text-2xl mb-2">{statusInfo.icon}</div>
+                          <div className="font-bold text-lg">{room.room_number}</div>
+                          <div className={`text-xs px-2 py-1 rounded-full mt-2 ${statusInfo.color}`}>
+                            {statusInfo.label}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">{room.room_type}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'tasks' && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-gray-900">Temizlik Görevleri</h3>
+              <button
+                onClick={() => setShowTaskModal(true)}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                ➕ Yeni Görev
+              </button>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Oda</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Görev Tipi</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Görevli</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Oluşturulma</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {hkTasks.map((task) => (
+                    <tr key={task.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap font-medium">{task.room_number}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{task.task_type}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          task.status === 'completed' ? 'bg-green-100 text-green-800' :
+                          task.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {task.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">{task.assigned_staff || 'Atanmamış'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(task.created_at).toLocaleDateString('tr-TR')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              
+              {hkTasks.length === 0 && (
+                <div className="text-center py-12">
+                  <div className="text-4xl mb-4">🧹</div>
+                  <p className="text-gray-500">Henüz görev bulunmuyor</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Room Setup Modal */}
+      {showRoomSetup && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">🏨 Oda Kurulumu</h3>
+              
+              {/* Setup Mode Tabs */}
+              <div className="flex space-x-1 mb-6 bg-gray-100 rounded-lg p-1">
+                {[
+                  { id: 'single', name: 'Tek Oda', icon: '🏨' },
+                  { id: 'bulk', name: 'Toplu Ekleme', icon: '🏗️' }
+                ].map((mode) => (
+                  <button
+                    key={mode.id}
+                    onClick={() => setRoomSetupMode(mode.id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors flex-1 text-center ${
+                      roomSetupMode === mode.id
+                        ? 'bg-white text-blue-600 shadow-sm'
+                        : 'text-gray-600 hover:text-blue-600'
+                    }`}
+                  >
+                    <span>{mode.icon}</span>
+                    <span>{mode.name}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Single Room Setup */}
+              {roomSetupMode === 'single' && (
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Oda Numarası</label>
+                    <input
+                      type="text"
+                      placeholder="örn: 101"
+                      value={newRoom.room_number}
+                      onChange={(e) => setNewRoom({...newRoom, room_number: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Kat</label>
+                    <select
+                      value={newRoom.floor_name}
+                      onChange={(e) => setNewRoom({...newRoom, floor_name: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    >
+                      <option>Zemin Kat</option>
+                      <option>1. Kat</option>
+                      <option>2. Kat</option>
+                      <option>3. Kat</option>
+                      <option>4. Kat</option>
+                      <option>5. Kat</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Oda Tipi</label>
+                    <select
+                      value={newRoom.room_type}
+                      onChange={(e) => setNewRoom({...newRoom, room_type: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    >
+                      <option>Standard</option>
+                      <option>Deluxe</option>
+                      <option>Suite</option>
+                      <option>King</option>
+                      <option>Family</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Başlangıç Durumu</label>
+                    <select
+                      value={newRoom.status}
+                      onChange={(e) => setNewRoom({...newRoom, status: e.target.value})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    >
+                      <option value="clean">Temiz</option>
+                      <option value="dirty">Kirli</option>
+                      <option value="maintenance">Bakım</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {/* Bulk Room Setup */}
+              {roomSetupMode === 'bulk' && (
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Toplu Oda Numaraları</label>
+                  <textarea
+                    placeholder="Her satıra virgülle ayrılmış oda numaraları yazın:&#10;101,102,103,104&#10;201,202,203,204&#10;301,302,303,304"
+                    value={bulkRoomsText}
+                    onChange={(e) => setBulkRoomsText(e.target.value)}
+                    className="w-full h-32 border border-gray-300 rounded-md px-3 py-2"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Her satır bir kat temsil eder. Oda numaralarını virgülle ayırın.
+                  </p>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    setShowRoomSetup(false);
+                    setRoomSetupMode('single');
+                    setNewRoom({ room_number: '', floor_name: '1. Kat', room_type: 'Standard', status: 'clean' });
+                    setBulkRoomsText('');
+                  }}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  ❌ İptal
+                </button>
+                <button
+                  onClick={createRoomsBulk}
+                  disabled={loading}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
+                >
+                  {loading ? '⏳ Oluşturuluyor...' : '✅ Oda(ları) Oluştur'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Room Detail Modal */}
+      {selectedRoom && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                🏨 Oda {selectedRoom.room_number} - {selectedRoom.room_type}
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Mevcut Durum:</span>
+                  <span className={`px-3 py-1 rounded-full text-sm ${getRoomStatusInfo(selectedRoom.status).color}`}>
+                    {getRoomStatusInfo(selectedRoom.status).icon} {getRoomStatusInfo(selectedRoom.status).label}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Kat:</span>
+                  <span>{selectedRoom.floor_name}</span>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Son Temizlik:</span>
+                  <span>{selectedRoom.last_cleaned ? new Date(selectedRoom.last_cleaned).toLocaleString('tr-TR') : 'Henüz temizlenmedi'}</span>
+                </div>
+              </div>
+
+              {/* Status Change Buttons */}
+              <div className="mt-6 space-y-2">
+                <p className="text-sm font-medium text-gray-700">Durum Değiştir:</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => {
+                      updateRoomStatus(selectedRoom.id, 'clean');
+                      setSelectedRoom(null);
+                    }}
+                    className="bg-green-500 text-white px-3 py-2 rounded-md hover:bg-green-600 text-sm"
+                  >
+                    ✅ Temiz
+                  </button>
+                  <button
+                    onClick={() => {
+                      updateRoomStatus(selectedRoom.id, 'dirty');
+                      setSelectedRoom(null);
+                    }}
+                    className="bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 text-sm"
+                  >
+                    🧹 Kirli
+                  </button>
+                  <button
+                    onClick={() => {
+                      updateRoomStatus(selectedRoom.id, 'maintenance');
+                      setSelectedRoom(null);
+                    }}
+                    className="bg-yellow-500 text-white px-3 py-2 rounded-md hover:bg-yellow-600 text-sm"
+                  >
+                    🔧 Bakım
+                  </button>
+                  <button
+                    onClick={() => {
+                      updateRoomStatus(selectedRoom.id, 'out_of_order');
+                      setSelectedRoom(null);
+                    }}
+                    className="bg-gray-500 text-white px-3 py-2 rounded-md hover:bg-gray-600 text-sm"
+                  >
+                    ❌ Hizmet Dışı
+                  </button>
+                </div>
+              </div>
+
+              {/* Close Button */}
+              <div className="flex justify-end mt-6">
+                <button
+                  onClick={() => setSelectedRoom(null)}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  Kapat
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 //Wrap MainApp with ClerkProvider and add Clerk authentication flow
 const App = () => {
   return (
