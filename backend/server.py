@@ -18593,18 +18593,18 @@ async def create_rooms_bulk(
         for room_data in rooms_data.rooms:
             # Check if room already exists
             existing_room = await db.rooms.find_one({
-                "client_id": client_id,
+                "client_id": target_client_id,
                 "room_number": room_data.room_number
             })
             
             if existing_room:
-                logging.warning(f"⚠️ Room {room_data.room_number} already exists, skipping")
+                logging.warning(f"⚠️ Room {room_data.room_number} already exists for client {target_client_id}, skipping")
                 continue
             
             # Create room document
             room_doc = {
                 "id": str(uuid.uuid4()),
-                "client_id": client_id,
+                "client_id": target_client_id,
                 "room_number": room_data.room_number,
                 "floor_name": room_data.floor_name,
                 "room_type": room_data.room_type,
@@ -18620,9 +18620,9 @@ async def create_rooms_bulk(
             
             await db.rooms.insert_one(room_doc)
             created_rooms.append(room_doc)
-            logging.info(f"✅ Room created: {room_data.room_number}")
+            logging.info(f"✅ Room created: {room_data.room_number} for client: {target_client_id}")
         
-        logging.info(f"🎉 Bulk room creation completed: {len(created_rooms)} rooms created")
+        logging.info(f"🎉 Bulk room creation completed: {len(created_rooms)} rooms created for client: {target_client_id}")
         return {
             "message": f"{len(created_rooms)} oda başarıyla oluşturuldu",
             "created_count": len(created_rooms),
