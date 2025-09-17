@@ -17649,6 +17649,7 @@ const Sidebar = ({ activeTab, onNavigate, userRole }) => {
     { id: 'carbon', name: 'Karbon Ayak İzi', icon: '🌍' },
     { id: 'waste-management', name: 'Atık Yönetimi', icon: '🗑️' },
     { id: 'housekeeping', name: 'Kat Görevlileri (HK)', icon: '🧹' },
+    { id: 'front-office', name: 'Ön Büro', icon: '🏨' },
     { id: 'suppliers', name: 'Tedarikçi Yönetimi', icon: '🏢' },
     { id: 'personnel', name: 'Personel Yönetimi', icon: '👥' },
     { id: 'sustainability-targets', name: 'Sürdürülebilirlik Hedefleri', icon: '🎯' },
