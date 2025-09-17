@@ -23628,9 +23628,22 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
   const fetchHKTasks = async () => {
     if (!authToken) return;
     
+    // Admin ve Consultant için müşteri seçimi zorunlu
+    if ((userRole === 'admin' || userRole === 'consultant') && !effectiveSelectedClient) {
+      console.log('⚠️ Admin/Consultant must select client for HK tasks');
+      setHkTasks([]);
+      return;
+    }
+    
     try {
       console.log('🧹 Fetching HK tasks...');
-      const response = await axios.get(`${API}/hk/tasks`, {
+      
+      let url = `${API}/hk/tasks`;
+      if ((userRole === 'admin' || userRole === 'consultant') && effectiveSelectedClient) {
+        url += `?client_id=${effectiveSelectedClient}`;
+      }
+      
+      const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
@@ -23638,6 +23651,9 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
       console.log('✅ HK tasks loaded:', response.data.tasks?.length || 0);
     } catch (error) {
       console.error('❌ Error fetching HK tasks:', error);
+      if (error.response?.status === 400 && error.response?.data?.detail?.includes('Client ID required')) {
+        alert('HK görevleri için müşteri seçimi gerekli');
+      }
     }
   };
 
