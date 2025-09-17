@@ -24961,6 +24961,128 @@ ${data.detailed_tasks.map((task, index) =>
         </div>
       )}
 
+      {/* Room Edit Modal */}
+      {showEditRoom && editingRoom && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                🏨 Oda Düzenle - {editingRoom.room_number}
+              </h3>
+              
+              <div className="space-y-4">
+                {/* Room Number */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Oda Numarası *</label>
+                  <input
+                    type="text"
+                    value={newRoom.room_number}
+                    onChange={(e) => setNewRoom({...newRoom, room_number: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Örn: 101, A-205, VIP-01"
+                    required
+                  />
+                </div>
+
+                {/* Floor Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Kat</label>
+                  <select
+                    value={newRoom.floor_name}
+                    onChange={(e) => setNewRoom({...newRoom, floor_name: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option>Zemin Kat</option>
+                    <option>1. Kat</option>
+                    <option>2. Kat</option>
+                    <option>3. Kat</option>
+                    <option>4. Kat</option>
+                    <option>5. Kat</option>
+                    <option>6. Kat</option>
+                    <option>7. Kat</option>
+                    <option>8. Kat</option>
+                    <option>9. Kat</option>
+                    <option>10. Kat</option>
+                  </select>
+                </div>
+
+                {/* Room Type */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Oda Tipi</label>
+                  <select
+                    value={newRoom.room_type}
+                    onChange={(e) => setNewRoom({...newRoom, room_type: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option>Standard</option>
+                    <option>Deluxe</option>
+                    <option>Suite</option>
+                    <option>King</option>
+                    <option>Family</option>
+                    <option>Presidential</option>
+                    <option>Economy</option>
+                  </select>
+                </div>
+
+                {/* Room Status */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Oda Durumu</label>
+                  <select
+                    value={newRoom.status}
+                    onChange={(e) => setNewRoom({...newRoom, status: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="clean">✅ Temiz</option>
+                    <option value="dirty">🧹 Kirli</option>
+                    <option value="maintenance">🔧 Bakım</option>
+                    <option value="out_of_order">⚠️ Arızalı</option>
+                  </select>
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Notlar</label>
+                  <textarea
+                    value={newRoom.notes || ''}
+                    onChange={(e) => setNewRoom({...newRoom, notes: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows="3"
+                    placeholder="Oda hakkında özel notlar..."
+                  />
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowEditRoom(false);
+                    setEditingRoom(null);
+                    setNewRoom({
+                      room_number: '',
+                      floor_name: '1. Kat',
+                      room_type: 'Standard',
+                      status: 'clean',
+                      notes: ''
+                    });
+                  }}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  ❌ İptal
+                </button>
+                <button
+                  onClick={updateRoom}
+                  disabled={loading || !newRoom.room_number.trim()}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? '⏳ Güncelleniyor...' : '✅ Güncelle'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Task Creation Modal */}
       {showTaskModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
