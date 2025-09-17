@@ -4330,6 +4330,145 @@ Mehmet Demir, Resepsiyon, İzmir, , Hayır, Erkek"
           </div>
         )}
       </div>
+
+      {/* Edit Personnel Modal */}
+      {showEditForm && editingPersonnel && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                ✏️ Personel Düzenle - {editingPersonnel.full_name}
+              </h3>
+              
+              <form className="space-y-4">
+                {/* Full Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Ad Soyad *</label>
+                  <input
+                    type="text"
+                    value={formData.full_name}
+                    onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    required
+                  />
+                </div>
+
+                {/* Position */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Görev/Pozisyon *</label>
+                  <input
+                    type="text"
+                    value={formData.position}
+                    onChange={(e) => setFormData({...formData, position: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    required
+                  />
+                </div>
+
+                {/* Location */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">İkamet/Memleket *</label>
+                  <input
+                    type="text"
+                    value={formData.location}
+                    onChange={(e) => setFormData({...formData, location: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    required
+                  />
+                </div>
+
+                {/* Gender */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Cinsiyet</label>
+                  <select
+                    value={formData.gender}
+                    onChange={(e) => setFormData({...formData, gender: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="Erkek">👨 Erkek</option>
+                    <option value="Kadın">👩 Kadın</option>
+                  </select>
+                </div>
+
+                {/* Local Personnel */}
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="edit_is_local"
+                    checked={formData.is_local}
+                    onChange={(e) => setFormData({...formData, is_local: e.target.checked})}
+                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="edit_is_local" className="ml-2 block text-sm text-gray-700">
+                    🏠 Yerel Personel
+                  </label>
+                </div>
+
+                {/* Certifications */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Sertifikalar</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {availableCertifications.map((cert) => (
+                      <div key={cert} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id={`edit_cert_${cert}`}
+                          checked={formData.certifications.includes(cert)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setFormData({
+                                ...formData,
+                                certifications: [...formData.certifications, cert]
+                              });
+                            } else {
+                              setFormData({
+                                ...formData,
+                                certifications: formData.certifications.filter(c => c !== cert)
+                              });
+                            }
+                          }}
+                          className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                        />
+                        <label htmlFor={`edit_cert_${cert}`} className="ml-2 block text-sm text-gray-700">
+                          {cert}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </form>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowEditForm(false);
+                    setEditingPersonnel(null);
+                    setFormData({
+                      full_name: '',
+                      position: '',
+                      location: '',
+                      certifications: [],
+                      is_local: false,
+                      gender: 'Erkek'
+                    });
+                  }}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  ❌ İptal
+                </button>
+                <button
+                  onClick={updatePersonnel}
+                  disabled={!formData.full_name || !formData.position || !formData.location}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  ✅ Güncelle
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
