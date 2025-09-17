@@ -926,7 +926,7 @@ async def ultra_cors_middleware(request, call_next):
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH"
     response.headers["Access-Control-Allow-Headers"] = "Accept, Accept-Language, Content-Language, Content-Type, Authorization, X-Requested-With, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Cache-Control, Pragma, Expires, X-CSRF-Token"
     response.headers["Access-Control-Expose-Headers"] = "*"
-    response.headers["Access-Control-Allow-Credentials"] = "true"
+    response.headers["Access-Control-Allow-Credentials"] = "false"
     response.headers["Access-Control-Max-Age"] = "86400"
     
     return response
