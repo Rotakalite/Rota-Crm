@@ -272,6 +272,21 @@ backend:
         -agent: "testing"
         -comment: "2025-01-25: 🎉 CRITICAL ISSUE IDENTIFIED AND FIXED! ✅ ROOT CAUSE DISCOVERED: Frontend was pointing to WRONG backend URL (https://eco-data-hub-1.preview.emergentagent.com) instead of correct Railway production URL (https://rota-crm-production.up.railway.app). This explains why consumption edits were failing - frontend was sending requests to wrong backend! ✅ IMMEDIATE FIX APPLIED: Updated frontend/.env REACT_APP_BACKEND_URL to correct Railway URL and restarted frontend service. ✅ BACKEND INFRASTRUCTURE PERFECT: PUT /api/consumptions/{consumption_id} endpoint properly implemented (lines 11083-11147), Authentication working correctly (403/401 responses), Permission checks implemented for CLIENT/CONSULTANT/ADMIN roles, Data validation and carbon calculation integration working, Database update logic functional, All consumption endpoints properly secured. ✅ COMPREHENSIVE TESTING RESULTS: 100% success rate on backend infrastructure tests, All authentication scenarios working correctly, Data structure validation passing, ID format compatibility confirmed, Carbon calculation integration ready. 🎯 EXPECTED OUTCOME: With frontend URL fix, consumption edit functionality should now work correctly - frontend requests will reach the proper backend with working edit endpoints!"
 
+  - task: "Personnel Edit Endpoint (PUT /api/personnel/{personnel_id})"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "user"
+        -comment: "2025-01-25: 👥 PERSONNEL EDIT FUNCTIONALITY BACKEND TEST - Test edilecek konular: PUT /api/personnel/{personnel_id} endpoint'inin erişilebilir olduğunu test et, Personnel update functionality'nin çalıştığını doğrula, Authentication ve authorization kontrollerini test et, Role-based access control'ü test et (Admin, Consultant, Client), Data validation'ı test et"
+        -working: false
+        -agent: "testing"
+        -comment: "2025-01-25: 🚨 CRITICAL DEPLOYMENT ISSUE DISCOVERED - PUT METHOD NOT ALLOWED! Comprehensive testing of Personnel Edit functionality reveals MAJOR deployment problem. ❌ CRITICAL FINDING: PUT /api/personnel/{personnel_id} endpoint returns 405 Method Not Allowed despite being properly implemented in code (lines 15153-15209). Other HTTP methods work correctly: GET /api/personnel/{personnel_id} returns 403 (auth required) ✅, DELETE /api/personnel/{personnel_id} returns 403 (auth required) ✅, POST /api/personnel returns 403 (auth required) ✅. ✅ CODE IMPLEMENTATION VERIFIED: Personnel PUT endpoint properly implemented with @api_router.put decorator, Authentication and authorization logic correct (CLIENT/CONSULTANT/ADMIN role checks), Data validation using PersonnelInput model, Database update logic functional, API router properly mounted with /api prefix. ❌ DEPLOYMENT ISSUE CONFIRMED: Other PUT endpoints work correctly (PUT /api/clients/{id}, PUT /api/suppliers/{id} return 403 auth required), Only Personnel PUT endpoint specifically returns 405 Method Not Allowed, This indicates a route registration failure specific to personnel PUT endpoint. ✅ INFRASTRUCTURE STATUS: Backend health check working (200 OK), CORS headers properly configured, JSON response format correct, Related personnel endpoints accessible (GET, POST, DELETE all return proper auth errors). 🚨 ROOT CAUSE: Personnel PUT route registration failure on production server - endpoint exists in code but not deployed/registered properly. ⚡ URGENT ACTION REQUIRED: Investigate and fix Personnel PUT endpoint deployment issue. The implementation is correct but the route is not accessible on production."
+
   - task: "Frontend Backend URL Configuration Fix"
     implemented: true
     working: true
