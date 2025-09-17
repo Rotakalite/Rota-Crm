@@ -6,7 +6,7 @@
     "success_rate": 100.0,
     "critical_issues": 0,
     "backend_url": "https://rota-crm-production.up.railway.app",
-    "test_timestamp": "2025-09-17T14:11:41.846415",
+    "test_timestamp": "2025-09-17T14:14:10.822120",
     "test_purpose": "HK Module Client ID Fix Verification"
   },
   "test_results": [
@@ -17,7 +17,7 @@
       "details": "Railway production backend erişilebilir (Status: 200)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:34.036873"
+      "timestamp": "2025-09-17T14:14:03.005580"
     },
     {
       "test": "/api/rooms - Deployment Issue Fixed",
@@ -26,7 +26,7 @@
       "details": "Endpoint erişilebilir, 404 hatası yok (Status: 403)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:34.488804"
+      "timestamp": "2025-09-17T14:14:03.453946"
     },
     {
       "test": "/api/hk/dashboard - Deployment Issue Fixed",
@@ -35,7 +35,7 @@
       "details": "Endpoint erişilebilir, 404 hatası yok (Status: 403)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:34.945070"
+      "timestamp": "2025-09-17T14:14:03.763417"
     },
     {
       "test": "/api/hk/tasks - Deployment Issue Fixed",
@@ -44,7 +44,7 @@
       "details": "Endpoint erişilebilir, 404 hatası yok (Status: 403)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:35.389398"
+      "timestamp": "2025-09-17T14:14:04.229711"
     },
     {
       "test": "/api/rooms/bulk - Deployment Issue Fixed",
@@ -53,7 +53,7 @@
       "details": "Endpoint erişilebilir, 404 hatası yok (Status: 405)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:35.699455"
+      "timestamp": "2025-09-17T14:14:04.686336"
     },
     {
       "test": "GET /api/rooms - Authentication Required",
@@ -62,7 +62,7 @@
       "details": "Doğru auth kontrolü (Status: 403)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:36.156069"
+      "timestamp": "2025-09-17T14:14:04.995157"
     },
     {
       "test": "GET /api/hk/dashboard - Authentication Required",
@@ -71,7 +71,7 @@
       "details": "Doğru auth kontrolü (Status: 403)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:36.605298"
+      "timestamp": "2025-09-17T14:14:05.301685"
     },
     {
       "test": "GET /api/hk/tasks - Authentication Required",
@@ -80,7 +80,7 @@
       "details": "Doğru auth kontrolü (Status: 403)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:36.913429"
+      "timestamp": "2025-09-17T14:14:05.762596"
     },
     {
       "test": "POST /api/rooms/bulk - Authentication Required",
@@ -89,7 +89,7 @@
       "details": "Doğru auth kontrolü (Status: 403)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:37.216100"
+      "timestamp": "2025-09-17T14:14:06.215499"
     },
     {
       "test": "POST /api/hk/tasks - Authentication Required",
@@ -98,7 +98,7 @@
       "details": "Doğru auth kontrolü (Status: 403)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:37.528155"
+      "timestamp": "2025-09-17T14:14:06.669562"
     },
     {
       "test": "/api/rooms - Client ID Parameter Accepted",
@@ -107,7 +107,7 @@
       "details": "Client ID parametresi kabul edildi, auth gerekli (Status: 403)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:37.837444"
+      "timestamp": "2025-09-17T14:14:06.982425"
     },
     {
       "test": "/api/hk/dashboard - Client ID Parameter Accepted",
@@ -116,7 +116,7 @@
       "details": "Client ID parametresi kabul edildi, auth gerekli (Status: 403)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:38.285358"
+      "timestamp": "2025-09-17T14:14:07.288021"
     },
     {
       "test": "/api/hk/tasks - Client ID Parameter Accepted",
@@ -125,7 +125,7 @@
       "details": "Client ID parametresi kabul edildi, auth gerekli (Status: 403)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:38.589462"
+      "timestamp": "2025-09-17T14:14:07.596521"
     },
     {
       "test": "Role-Based Access - ADMIN Pattern",
@@ -134,7 +134,7 @@
       "details": "admin role pattern doğru, token validation çalışıyor (Status: 401)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:38.919605"
+      "timestamp": "2025-09-17T14:14:07.928369"
     },
     {
       "test": "Role-Based Access - CONSULTANT Pattern",
@@ -143,7 +143,7 @@
       "details": "consultant role pattern doğru, token validation çalışıyor (Status: 401)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:39.223467"
+      "timestamp": "2025-09-17T14:14:08.231861"
     },
     {
       "test": "Role-Based Access - CLIENT Pattern",
@@ -152,7 +152,7 @@
       "details": "client role pattern doğru, token validation çalışıyor (Status: 401)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:39.672098"
+      "timestamp": "2025-09-17T14:14:08.531977"
     },
     {
       "test": "PUT /api/rooms/{room_id}/status - Parameter Handling",
@@ -161,7 +161,7 @@
       "details": "Room status endpoint parametreleri kabul ediyor (Status: 403)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:39.999176"
+      "timestamp": "2025-09-17T14:14:08.841952"
     },
     {
       "test": "PUT /api/hk/tasks/{task_id} - Parameter Handling",
@@ -170,7 +170,7 @@
       "details": "HK task update endpoint çalışıyor (Status: 403)",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:40.308010"
+      "timestamp": "2025-09-17T14:14:09.149198"
     },
     {
       "test": "/api/rooms - JSON Content Type",
@@ -179,7 +179,7 @@
       "details": "Doğru JSON content-type: application/json",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:40.615386"
+      "timestamp": "2025-09-17T14:14:09.600991"
     },
     {
       "test": "/api/rooms - JSON Parse Success",
@@ -188,7 +188,7 @@
       "details": "Response başarıyla JSON olarak parse edildi",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:40.615459"
+      "timestamp": "2025-09-17T14:14:09.601064"
     },
     {
       "test": "/api/rooms - Error Response Structure",
@@ -197,7 +197,7 @@
       "details": "Error response doğru yapıda",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:40.615470"
+      "timestamp": "2025-09-17T14:14:09.601074"
     },
     {
       "test": "/api/hk/dashboard - JSON Content Type",
@@ -206,7 +206,7 @@
       "details": "Doğru JSON content-type: application/json",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:40.921664"
+      "timestamp": "2025-09-17T14:14:09.909667"
     },
     {
       "test": "/api/hk/dashboard - JSON Parse Success",
@@ -215,7 +215,7 @@
       "details": "Response başarıyla JSON olarak parse edildi",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:40.922004"
+      "timestamp": "2025-09-17T14:14:09.910027"
     },
     {
       "test": "/api/hk/dashboard - Error Response Structure",
@@ -224,7 +224,7 @@
       "details": "Error response doğru yapıda",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:40.922035"
+      "timestamp": "2025-09-17T14:14:09.910059"
     },
     {
       "test": "/api/hk/tasks - JSON Content Type",
@@ -233,7 +233,7 @@
       "details": "Doğru JSON content-type: application/json",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:41.230498"
+      "timestamp": "2025-09-17T14:14:10.213800"
     },
     {
       "test": "/api/hk/tasks - JSON Parse Success",
@@ -242,7 +242,7 @@
       "details": "Response başarıyla JSON olarak parse edildi",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:41.231126"
+      "timestamp": "2025-09-17T14:14:10.214163"
     },
     {
       "test": "/api/hk/tasks - Error Response Structure",
@@ -251,7 +251,7 @@
       "details": "Error response doğru yapıda",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:41.231178"
+      "timestamp": "2025-09-17T14:14:10.214204"
     },
     {
       "test": "/api/rooms/bulk - JSON Content Type",
@@ -260,7 +260,7 @@
       "details": "Doğru JSON content-type: application/json",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:41.534597"
+      "timestamp": "2025-09-17T14:14:10.520058"
     },
     {
       "test": "/api/rooms/bulk - JSON Parse Success",
@@ -269,7 +269,7 @@
       "details": "Response başarıyla JSON olarak parse edildi",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:41.534956"
+      "timestamp": "2025-09-17T14:14:10.520401"
     },
     {
       "test": "/api/rooms/bulk - Error Response Structure",
@@ -278,7 +278,7 @@
       "details": "Error response doğru yapıda",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:41.534987"
+      "timestamp": "2025-09-17T14:14:10.520432"
     },
     {
       "test": "CORS Headers Present",
@@ -287,7 +287,7 @@
       "details": "CORS headers mevcut: ['Access-Control-Allow-Origin', 'Access-Control-Allow-Methods', 'Access-Control-Allow-Headers']",
       "expected": "",
       "actual": "",
-      "timestamp": "2025-09-17T14:11:41.844504"
+      "timestamp": "2025-09-17T14:14:10.820173"
     }
   ],
   "critical_issues": []
