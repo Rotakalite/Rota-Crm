@@ -19220,11 +19220,25 @@ async def get_hk_daily_report(
             "created_at": {"$gte": day_start, "$lte": day_end}
         }).sort("created_at", 1).to_list(length=None)
         
-        # Clean ObjectIds
+        # Clean ObjectIds and get room numbers
         daily_tasks = []
+        room_lookup = {}  # Cache for room numbers
+        
         for task in daily_tasks_raw:
             if "_id" in task:
                 del task["_id"]
+            
+            # Get room number from room_id
+            room_id = task.get('room_id')
+            if room_id and room_id not in room_lookup:
+                room_info = await db.rooms.find_one({"id": room_id, "client_id": target_client_id})
+                if room_info:
+                    room_lookup[room_id] = room_info.get('room_number', room_id)
+                else:
+                    room_lookup[room_id] = f"Room-{room_id[:8]}"  # Fallback
+            
+            # Add room_number to task
+            task['room_number'] = room_lookup.get(room_id, 'N/A')
             daily_tasks.append(task)
         
         # Get task statistics
