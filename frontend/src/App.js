@@ -1102,6 +1102,7 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
     adults: 1,
     children: 0,
     room_rate: 0,
+    payment_status: 'pending',
     booking_source: 'front_desk',
     special_requests: '',
     notes: ''
