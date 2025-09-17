@@ -19046,9 +19046,16 @@ async def get_hk_dashboard(
         })
         
         # Get recent tasks for activity feed
-        recent_tasks = await db.hk_tasks.find({
+        recent_tasks_raw = await db.hk_tasks.find({
             "client_id": target_client_id
         }).sort("updated_at", -1).limit(10).to_list(length=10)
+        
+        # Clean MongoDB ObjectIds for JSON serialization
+        clean_recent_tasks = []
+        for task in recent_tasks_raw:
+            if "_id" in task:
+                del task["_id"]  # Remove MongoDB ObjectId
+            clean_recent_tasks.append(task)
         
         dashboard_data = {
             "room_stats": {
@@ -19064,7 +19071,7 @@ async def get_hk_dashboard(
                 "pending_tasks": pending_tasks,
                 "completion_rate": round((completed_today / today_tasks * 100) if today_tasks > 0 else 0, 1)
             },
-            "recent_activity": recent_tasks
+            "recent_activity": clean_recent_tasks
         }
         
         logging.info(f"📊 HK dashboard data prepared for client: {target_client_id}")
