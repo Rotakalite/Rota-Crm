@@ -27,8 +27,10 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 // API URL Configuration
 const getApiUrl = () => {
-  // CRITICAL FIX: Force Railway URL - Always use production Railway URL
-  const backendUrl = 'https://rota-crm-production.up.railway.app/api';
+  // Use environment variable or fallback to localhost for development
+  const backendUrl = process.env.REACT_APP_BACKEND_URL ? 
+    `${process.env.REACT_APP_BACKEND_URL}/api` : 
+    'http://localhost:8001/api';
   
   console.log('🔗 Backend URL:', backendUrl);
   return backendUrl;
