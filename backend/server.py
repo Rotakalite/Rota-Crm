@@ -18610,24 +18610,49 @@ async def create_rooms_bulk(
 
 @api_router.get("/rooms")
 async def get_rooms(
+    client_id: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
     """Get all rooms for current client"""
     
-    logging.info(f"🏨 Get rooms request by user: {current_user.role}")
+    logging.info(f"🏨 Get rooms request by user: {current_user.role} - client_id param: {client_id}")
     
-    # Get client_id based on user role
+    # Get client_id based on user role (same pattern as consumption)
     if current_user.role == UserRole.ADMIN:
-        client_id = current_user.client_id
+        # Admin can specify client_id or use their assigned client
+        if client_id:
+            target_client_id = client_id
+        else:
+            # If no client_id specified, use admin's assigned client (backward compatibility)
+            target_client_id = current_user.client_id
+    elif current_user.role == UserRole.CONSULTANT:
+        # Consultant users can see rooms for their assigned clients
+        if client_id:
+            # Verify that the consultant has access to this client
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=400, detail="Consultant ID not assigned to user")
+            
+            # Check if the client is assigned to this consultant
+            client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+            if not client:
+                raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+            
+            target_client_id = client_id
+        else:
+            # If no client_id specified, consultant must specify which client
+            raise HTTPException(status_code=400, detail="Client ID required for consultant")
     else:
-        client_id = current_user.client_id
+        # Regular client can only see their own rooms
+        target_client_id = current_user.client_id
+        if not target_client_id:
+            raise HTTPException(status_code=403, detail="Client ID not found for user")
     
-    if not client_id:
-        raise HTTPException(status_code=400, detail="Client ID required")
+    logging.info(f"🎯 Fetching rooms for client: {target_client_id}")
     
     try:
         # Get rooms for client
-        rooms = await db.rooms.find({"client_id": client_id}).sort("floor_name", 1).sort("room_number", 1).to_list(length=None)
+        rooms = await db.rooms.find({"client_id": target_client_id}).sort("floor_name", 1).sort("room_number", 1).to_list(length=None)
         
         # Group rooms by floor for easier frontend handling
         floors = {}
