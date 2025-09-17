@@ -1304,6 +1304,11 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
         return;
       }
       
+      if (newReservation.room_rate <= 0) {
+        alert('Oda fiyatı 0\'dan büyük olmalı');
+        return;
+      }
+      
       // Calculate nights
       const checkIn = new Date(newReservation.check_in_date);
       const checkOut = new Date(newReservation.check_out_date);
