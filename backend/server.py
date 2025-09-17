@@ -18902,11 +18902,18 @@ async def get_hk_tasks(
             query["assigned_staff"] = assigned_staff
         
         # Get tasks
-        tasks = await db.hk_tasks.find(query).sort("created_at", -1).to_list(length=100)
+        tasks_raw = await db.hk_tasks.find(query).sort("created_at", -1).to_list(length=100)
         
-        logging.info(f"📊 Found {len(tasks)} HK tasks for client: {target_client_id}")
+        # Clean MongoDB ObjectIds for JSON serialization
+        clean_tasks = []
+        for task in tasks_raw:
+            if "_id" in task:
+                del task["_id"]  # Remove MongoDB ObjectId
+            clean_tasks.append(task)
         
-        return {"tasks": tasks, "total": len(tasks)}
+        logging.info(f"📊 Found {len(clean_tasks)} HK tasks for client: {target_client_id}")
+        
+        return {"tasks": clean_tasks, "total": len(clean_tasks)}
         
     except Exception as e:
         logging.error(f"❌ Error fetching HK tasks: {str(e)}")
