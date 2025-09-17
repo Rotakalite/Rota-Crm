@@ -27,10 +27,8 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 // API URL Configuration
 const getApiUrl = () => {
-  // Use environment variable with Railway URL fallback
-  const backendUrl = process.env.REACT_APP_BACKEND_URL ? 
-    `${process.env.REACT_APP_BACKEND_URL}/api` : 
-    'https://rota-crm-production.up.railway.app/api';
+  // CRITICAL FIX: Force Railway URL - Always use production Railway URL
+  const backendUrl = 'https://rota-crm-production.up.railway.app/api';
   
   console.log('🔗 Backend URL:', backendUrl);
   return backendUrl;
