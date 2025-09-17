@@ -24109,6 +24109,113 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
+  // Complete HK Task
+  const completeHKTask = async (taskId) => {
+    if (!authToken) return;
+
+    try {
+      console.log('✅ Completing HK task:', taskId);
+      
+      const response = await axios.put(
+        `${API}/hk/tasks/${taskId}`,
+        { status: 'completed' },
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
+
+      alert('✅ Görev başarıyla tamamlandı!');
+      fetchHKTasks();
+      fetchHKDashboard();
+      
+    } catch (error) {
+      console.error('❌ Error completing HK task:', error);
+      alert('Görev tamamlanamadı: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Generate Daily HK Report
+  const generateDailyReport = async () => {
+    if (!authToken) return;
+    
+    // Admin ve Consultant için müşteri seçimi zorunlu
+    if ((userRole === 'admin' || userRole === 'consultant') && !effectiveSelectedClient) {
+      alert('Rapor oluşturmak için önce müşteri seçmelisiniz');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      console.log('📊 Generating daily HK report...');
+      
+      let url = `${API}/hk/reports/daily-summary`;
+      if ((userRole === 'admin' || userRole === 'consultant') && effectiveSelectedClient) {
+        url += `?client_id=${effectiveSelectedClient}`;
+      }
+      
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      const reportData = response.data;
+      
+      // Create Excel-like data display
+      const excelContent = generateExcelContent(reportData);
+      downloadAsExcel(excelContent, `HK_Gunluk_Rapor_${reportData.report_date.replace(/\//g, '_')}.xlsx`);
+      
+      alert('✅ Günlük rapor başarıyla oluşturuldu!');
+      
+    } catch (error) {
+      console.error('❌ Error generating daily report:', error);
+      alert('Rapor oluşturulamadı: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Generate Excel Content
+  const generateExcelContent = (data) => {
+    const content = `HOUSEKEEPING GÜNLÜK DEĞERLENDİRME RAPORU
+${data.hotel_name}
+Tarih: ${data.report_date}
+
+=== ODA DURUM ÖZETİ ===
+Toplam Oda: ${data.room_summary.total_rooms}
+Temiz Oda: ${data.room_summary.clean_rooms}
+Kirli Oda: ${data.room_summary.dirty_rooms}
+Bakım Odası: ${data.room_summary.maintenance_rooms}
+Arızalı Oda: ${data.room_summary.out_of_order_rooms}
+Doluluk Oranı: %${data.room_summary.occupancy_rate}
+
+=== GÖREV ÖZETİ ===
+Toplam Görev: ${data.task_summary.total_tasks}
+Tamamlanan: ${data.task_summary.completed_tasks}
+Bekleyen: ${data.task_summary.pending_tasks}
+Devam Eden: ${data.task_summary.in_progress_tasks}
+Tamamlanma Oranı: %${data.task_summary.completion_rate}
+
+=== PERSONEL PERFORMANSI ===
+${Object.entries(data.staff_performance).map(([staff, perf]) => 
+  `${staff}: ${perf.completed}/${perf.total} (${Math.round(perf.completed/perf.total*100)}%)`
+).join('\n')}
+
+=== DETAYLI GÖREV LİSTESİ ===
+${data.detailed_tasks.map((task, index) => 
+  `${index + 1}. ${task.room_id || 'N/A'} - ${task.task_type} - ${task.assigned_staff} - ${task.status}`
+).join('\n')}`;
+
+    return content;
+  };
+
+  // Download as Excel (simple text version)
+  const downloadAsExcel = (content, filename) => {
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Initial data load
   useEffect(() => {
     if (authToken && userRole) {
