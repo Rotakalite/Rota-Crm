@@ -4050,22 +4050,40 @@ Mehmet Demir, Resepsiyon, İzmir, , Hayır, Erkek"
                             {person.gender === 'Kadın' ? '👩' : '👨'} {person.gender}
                           </span>
                         </div>
-                        {(userRole === 'admin' || userRole === 'consultant') && (
-                          <button
-                            onClick={() => deletePersonnel(person.id)}
-                            className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
-                          >
-                            🗑️ Sil
-                          </button>
-                        )}
-                        {userRole === 'client' && (
-                          <button
-                            onClick={() => deletePersonnel(person.id)}
-                            className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
-                          >
-                            🗑️ Sil
-                          </button>
-                        )}
+                        <div className="flex space-x-1">
+                          {(userRole === 'admin' || userRole === 'consultant') && (
+                            <>
+                              <button
+                                onClick={() => handleEditPersonnel(person)}
+                                className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+                              >
+                                ✏️ Düzenle
+                              </button>
+                              <button
+                                onClick={() => deletePersonnel(person.id)}
+                                className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                              >
+                                🗑️ Sil
+                              </button>
+                            </>
+                          )}
+                          {userRole === 'client' && (
+                            <>
+                              <button
+                                onClick={() => handleEditPersonnel(person)}
+                                className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+                              >
+                                ✏️ Düzenle
+                              </button>
+                              <button
+                                onClick={() => deletePersonnel(person.id)}
+                                className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                              >
+                                🗑️ Sil
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div className="space-y-2 text-sm text-gray-600">
