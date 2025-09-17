@@ -24209,6 +24209,60 @@ ${data.detailed_tasks.map((task, index) =>
     return content;
   };
 
+  // Edit Room Functions
+  const handleEditRoom = (room) => {
+    setEditingRoom(room);
+    setNewRoom({
+      room_number: room.room_number,
+      floor_name: room.floor_name,
+      room_type: room.room_type,
+      status: room.status,
+      notes: room.notes || ''
+    });
+    setShowEditRoom(true);
+  };
+
+  const updateRoom = async () => {
+    if (!editingRoom) return;
+    
+    try {
+      setLoading(true);
+      
+      // Validation
+      if (!newRoom.room_number.trim()) {
+        alert('Oda numarası gerekli');
+        return;
+      }
+      
+      console.log('🏨 Updating room:', editingRoom.id, newRoom);
+      
+      const response = await axios.put(
+        `${API}/rooms/${editingRoom.id}`,
+        newRoom,
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
+      
+      alert('✅ Oda başarıyla güncellendi!');
+      setShowEditRoom(false);
+      setEditingRoom(null);
+      setNewRoom({
+        room_number: '',
+        floor_name: '1. Kat',
+        room_type: 'Standard',
+        status: 'clean',
+        notes: ''
+      });
+      fetchRooms();
+      fetchHKDashboard();
+      
+    } catch (error) {
+      console.error('❌ Error updating room:', error);
+      alert('Oda güncellenemedi: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Download as Excel (simple text version)
   const downloadAsExcel = (content, filename) => {
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
