@@ -23684,6 +23684,12 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
   const createRoomsBulk = async () => {
     if (!authToken) return;
     
+    // Admin ve Consultant için müşteri seçimi zorunlu
+    if ((userRole === 'admin' || userRole === 'consultant') && !effectiveSelectedClient) {
+      alert('Oda oluşturmak için önce müşteri seçmelisiniz');
+      return;
+    }
+    
     try {
       setLoading(true);
       
@@ -23722,11 +23728,22 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
       }
       
       console.log('🏨 Creating bulk rooms:', roomsToCreate);
+      console.log('🎯 Client ID for rooms:', effectiveSelectedClient || 'current user');
+      
+      // Prepare request URL with client_id parameter for admin/consultant
+      let url = `${API}/rooms/bulk`;
+      const params = {};
+      if ((userRole === 'admin' || userRole === 'consultant') && effectiveSelectedClient) {
+        params.client_id = effectiveSelectedClient;
+      }
       
       const response = await axios.post(
-        `${API}/rooms/bulk`,
+        url,
         { rooms: roomsToCreate },
-        { headers: { Authorization: `Bearer ${authToken}` } }
+        { 
+          headers: { Authorization: `Bearer ${authToken}` },
+          params: params
+        }
       );
       
       alert(`✅ ${response.data.created_count} oda başarıyla oluşturuldu!`);
@@ -23738,7 +23755,11 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
       
     } catch (error) {
       console.error('❌ Error creating rooms:', error);
-      alert('Oda oluşturulamadı: ' + (error.response?.data?.detail || error.message));
+      if (error.response?.status === 400 && error.response?.data?.detail?.includes('Client ID required')) {
+        alert('Oda oluşturmak için müşteri seçimi gerekli');
+      } else {
+        alert('Oda oluşturulamadı: ' + (error.response?.data?.detail || error.message));
+      }
     } finally {
       setLoading(false);
     }
