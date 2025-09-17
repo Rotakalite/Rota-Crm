@@ -23537,6 +23537,9 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
   // Personnel states
   const [personnel, setPersonnel] = useState([]);
   
+  // Client selection states
+  const [clients, setClients] = useState([]);
+  
   // Task creation states
   const [newTask, setNewTask] = useState({
     room_id: '',
