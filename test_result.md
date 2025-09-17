@@ -1457,8 +1457,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Team Management System Backend Test"
+    - "HK (Housekeeping) Module Backend API Implementation"
   stuck_tasks: 
+    - "HK (Housekeeping) Module Backend API Implementation"
     - "Team Management System Backend Test"
     - "Self-Signup Demo User Endpoint Test"
     - "Demo Limit System Backend Test" 
