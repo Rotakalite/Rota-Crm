@@ -19614,6 +19614,8 @@ async def create_reservation(
     """Create new reservation with night calculation"""
     
     try:
+        logging.info(f"📅 Creating reservation for user: {current_user.role}, data: {reservation_data.dict()}")
+        
         # Get client_id
         if current_user.role == UserRole.CLIENT:
             client_id = current_user.client_id
@@ -19621,7 +19623,10 @@ async def create_reservation(
             client_id = current_user.client_id
         
         if not client_id:
+            logging.error(f"❌ No client_id found for user: {current_user.role}")
             raise HTTPException(status_code=400, detail="Client ID required for reservation")
+        
+        logging.info(f"📋 Using client_id: {client_id}")
         
         # Validate dates
         check_in = datetime.strptime(reservation_data.check_in_date, "%Y-%m-%d")
@@ -19632,9 +19637,11 @@ async def create_reservation(
         
         # Calculate nights
         nights = (check_out - check_in).days
+        logging.info(f"🌙 Calculated nights: {nights}")
         
         # Calculate total amount
         total_amount = reservation_data.total_amount or (nights * reservation_data.room_rate)
+        logging.info(f"💰 Total amount: {total_amount}")
         
         # Check room availability
         existing_reservation = await db.reservations.find_one({
@@ -19648,6 +19655,7 @@ async def create_reservation(
         })
         
         if existing_reservation:
+            logging.warning(f"⚠️ Room {reservation_data.room_id} not available for dates {check_in} - {check_out}")
             raise HTTPException(status_code=400, detail="Bu tarihler arasında oda müsait değil")
         
         # Create reservation document
@@ -19684,8 +19692,13 @@ async def create_reservation(
             "total_amount": total_amount
         }
         
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except Exception as e:
         logging.error(f"❌ Error creating reservation: {str(e)}")
+        import traceback
+        logging.error(f"❌ Full traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Rezervasyon oluşturulamadı: {str(e)}")
 
 @api_router.get("/front-office/dashboard")
