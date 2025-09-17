@@ -60,7 +60,7 @@
 ##     -agent: "main"  # or "testing" or "user"
 ##     -message: "Communication message between agents"
 ##     -agent: "main"
-##     -message: "2025-01-25: Bulk email sistemi frontend UI'sını tamamlamak için kaldığım yerden devam ediyorum. Analiz sonucu: Backend bulk email endpoints'leri tamamen implementte (/api/bulk-email/send, /api/bulk-email/stats). Frontend'de de bulk email modal'ı, form'lar, state management ve function'lar mevcut. Önce backend'i test edeceğim, sonra frontend'i."
+##     -message: "2025-01-25: 🔧 HK MODÜLÜ CLIENT_ID FIX TAMAMLANDI! HK modülündeki 'Client ID required' hatası çözüldü. Problem: Frontend API çağrılarında client_id parametresi eksikti. ÇÖZÜM: 1) fetchHKDashboard: Admin/Consultant için client_id parametresi eklendi 2) fetchRooms: Admin/Consultant için client_id parametresi eklendi 3) fetchHKTasks: Admin/Consultant için client_id parametresi eklendi 4) Müşteri seçimi kontrolü eklendi - admin/consultant için zorunlu 5) Error handling iyileştirildi - 'Client ID required' mesajları için özel alert'ler. Backend HK endpoint'leri zaten doğru client_id logic'ine sahipti, sadece frontend'den parametreler gönderilmiyordu. Şimdi consumption management ile aynı pattern kullanıyor."
 ##     -agent: "main"
 ##     -message: "2025-01-25: CRITICAL BUG FIXED - itemsPerPage is not defined error çözüldü! SimpleClientManagement component'inde eksik olan state'ler ve fonksiyonlar eklendi: itemsPerPage, clientTypeFilter, hasPrev, hasNext, showAddClient state'leri ve handleSort fonksiyonu. Frontend artık başarıyla build oluyor. Backend testine hazır."
 ##     -agent: "main"
