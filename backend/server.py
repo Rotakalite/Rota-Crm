@@ -18513,6 +18513,400 @@ async def get_survey_analysis(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# =====================================
+# 🏨 HOUSEKEEPING (HK) MODULE
+# =====================================
+
+# HK Pydantic Models
+class RoomInput(BaseModel):
+    room_number: str
+    floor_name: str = "Zemin Kat"
+    room_type: str = "Standard"  # Standard, Deluxe, Suite, etc.
+    status: str = "clean"  # clean, dirty, maintenance, out_of_order
+    notes: Optional[str] = None
+
+class RoomBulkInput(BaseModel):
+    rooms: List[RoomInput]
+
+class HKTaskInput(BaseModel):
+    room_id: str
+    task_type: str = "regular_cleaning"  # regular_cleaning, checkout_cleaning, deep_cleaning, maintenance
+    assigned_staff: Optional[str] = None
+    priority: str = "normal"  # low, normal, high, urgent
+    estimated_duration: Optional[int] = 30  # minutes
+    notes: Optional[str] = None
+
+class HKTaskUpdate(BaseModel):
+    status: str  # pending, in_progress, completed, cancelled
+    actual_duration: Optional[int] = None
+    completion_notes: Optional[str] = None
+    quality_score: Optional[int] = None  # 1-10
+    issues_found: Optional[List[str]] = None
+
+# Room Management Endpoints
+@api_router.post("/rooms/bulk")
+async def create_rooms_bulk(
+    rooms_data: RoomBulkInput,
+    current_user: User = Depends(get_current_user)
+):
+    """Bulk create rooms for hotel setup"""
+    
+    logging.info(f"🏨 Bulk room creation request by user: {current_user.role}")
+    
+    # Permission check - only admin can create rooms
+    if current_user.role not in [UserRole.ADMIN]:
+        raise HTTPException(status_code=403, detail="Sadece admin kullanıcılar oda oluşturabilir")
+    
+    # Get client_id for room association
+    client_id = current_user.client_id
+    if not client_id:
+        raise HTTPException(status_code=400, detail="Client ID required for room creation")
+    
+    try:
+        created_rooms = []
+        
+        for room_data in rooms_data.rooms:
+            # Check if room already exists
+            existing_room = await db.rooms.find_one({
+                "client_id": client_id,
+                "room_number": room_data.room_number
+            })
+            
+            if existing_room:
+                logging.warning(f"⚠️ Room {room_data.room_number} already exists, skipping")
+                continue
+            
+            # Create room document
+            room_doc = {
+                "id": str(uuid.uuid4()),
+                "client_id": client_id,
+                "room_number": room_data.room_number,
+                "floor_name": room_data.floor_name,
+                "room_type": room_data.room_type,
+                "status": room_data.status,
+                "notes": room_data.notes,
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow(),
+                "last_cleaned": None,
+                "last_maintenance": None,
+                "total_cleanings": 0,
+                "avg_cleaning_time": 0
+            }
+            
+            await db.rooms.insert_one(room_doc)
+            created_rooms.append(room_doc)
+            logging.info(f"✅ Room created: {room_data.room_number}")
+        
+        logging.info(f"🎉 Bulk room creation completed: {len(created_rooms)} rooms created")
+        return {
+            "message": f"{len(created_rooms)} oda başarıyla oluşturuldu",
+            "created_count": len(created_rooms),
+            "skipped_count": len(rooms_data.rooms) - len(created_rooms)
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Error in bulk room creation: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Oda oluşturma hatası: {str(e)}")
+
+@api_router.get("/rooms")
+async def get_rooms(
+    current_user: User = Depends(get_current_user)
+):
+    """Get all rooms for current client"""
+    
+    logging.info(f"🏨 Get rooms request by user: {current_user.role}")
+    
+    # Get client_id based on user role
+    if current_user.role == UserRole.ADMIN:
+        client_id = current_user.client_id
+    else:
+        client_id = current_user.client_id
+    
+    if not client_id:
+        raise HTTPException(status_code=400, detail="Client ID required")
+    
+    try:
+        # Get rooms for client
+        rooms = await db.rooms.find({"client_id": client_id}).sort("floor_name", 1).sort("room_number", 1).to_list(length=None)
+        
+        # Group rooms by floor for easier frontend handling
+        floors = {}
+        for room in rooms:
+            floor = room.get("floor_name", "Genel")
+            if floor not in floors:
+                floors[floor] = []
+            floors[floor].append(room)
+        
+        logging.info(f"📊 Found {len(rooms)} rooms across {len(floors)} floors")
+        
+        return {
+            "rooms": rooms,
+            "floors": floors,
+            "total_rooms": len(rooms),
+            "total_floors": len(floors)
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Error fetching rooms: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Oda bilgileri alınamadı: {str(e)}")
+
+@api_router.put("/rooms/{room_id}/status")
+async def update_room_status(
+    room_id: str,
+    status: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Update room status (clean, dirty, maintenance, out_of_order)"""
+    
+    logging.info(f"🏨 Room status update: {room_id} -> {status}")
+    
+    valid_statuses = ["clean", "dirty", "maintenance", "out_of_order"]
+    if status not in valid_statuses:
+        raise HTTPException(status_code=400, detail=f"Geçersiz durum. Geçerli durumlar: {valid_statuses}")
+    
+    try:
+        # Update room status
+        result = await db.rooms.update_one(
+            {"id": room_id},
+            {
+                "$set": {
+                    "status": status,
+                    "updated_at": datetime.utcnow(),
+                    **({"last_cleaned": datetime.utcnow()} if status == "clean" else {})
+                }
+            }
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Oda bulunamadı")
+        
+        logging.info(f"✅ Room status updated successfully: {room_id}")
+        return {"message": "Oda durumu güncellendi", "room_id": room_id, "new_status": status}
+        
+    except Exception as e:
+        logging.error(f"❌ Error updating room status: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Oda durumu güncellenemedi: {str(e)}")
+
+# HK Task Management Endpoints
+@api_router.post("/hk/tasks")
+async def create_hk_task(
+    task_data: HKTaskInput,
+    current_user: User = Depends(get_current_user)
+):
+    """Create housekeeping task"""
+    
+    logging.info(f"🧹 HK task creation request: {task_data.room_id}")
+    
+    try:
+        # Verify room exists
+        room = await db.rooms.find_one({"id": task_data.room_id})
+        if not room:
+            raise HTTPException(status_code=404, detail="Oda bulunamadı")
+        
+        # Create task document
+        task_doc = {
+            "id": str(uuid.uuid4()),
+            "room_id": task_data.room_id,
+            "room_number": room.get("room_number"),
+            "client_id": room.get("client_id"),
+            "task_type": task_data.task_type,
+            "assigned_staff": task_data.assigned_staff,
+            "priority": task_data.priority,
+            "estimated_duration": task_data.estimated_duration,
+            "notes": task_data.notes,
+            "status": "pending",
+            "created_at": datetime.utcnow(),
+            "created_by": current_user.name,
+            "started_at": None,
+            "completed_at": None,
+            "actual_duration": None,
+            "quality_score": None,
+            "completion_notes": None,
+            "issues_found": []
+        }
+        
+        await db.hk_tasks.insert_one(task_doc)
+        logging.info(f"✅ HK task created: {task_doc['id']}")
+        
+        return {"message": "Temizlik görevi oluşturuldu", "task_id": task_doc["id"]}
+        
+    except Exception as e:
+        logging.error(f"❌ Error creating HK task: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Görev oluşturulamadı: {str(e)}")
+
+@api_router.get("/hk/tasks")
+async def get_hk_tasks(
+    status: Optional[str] = None,
+    assigned_staff: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get housekeeping tasks with optional filters"""
+    
+    logging.info(f"🧹 Get HK tasks request by user: {current_user.role}")
+    
+    try:
+        # Build query based on user role
+        query = {}
+        
+        if current_user.role == UserRole.ADMIN:
+            client_id = current_user.client_id
+            if client_id:
+                query["client_id"] = client_id
+        else:
+            query["client_id"] = current_user.client_id
+        
+        # Apply filters
+        if status:
+            query["status"] = status
+        if assigned_staff:
+            query["assigned_staff"] = assigned_staff
+        
+        # Get tasks
+        tasks = await db.hk_tasks.find(query).sort("created_at", -1).to_list(length=100)
+        
+        logging.info(f"📊 Found {len(tasks)} HK tasks")
+        
+        return {"tasks": tasks, "total": len(tasks)}
+        
+    except Exception as e:
+        logging.error(f"❌ Error fetching HK tasks: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Görevler alınamadı: {str(e)}")
+
+@api_router.put("/hk/tasks/{task_id}")
+async def update_hk_task(
+    task_id: str,
+    task_update: HKTaskUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """Update housekeeping task status and details"""
+    
+    logging.info(f"🧹 HK task update: {task_id} -> {task_update.status}")
+    
+    try:
+        # Prepare update data
+        update_data = {
+            "status": task_update.status,
+            "updated_at": datetime.utcnow()
+        }
+        
+        # Add status-specific updates
+        if task_update.status == "in_progress":
+            update_data["started_at"] = datetime.utcnow()
+        elif task_update.status == "completed":
+            update_data["completed_at"] = datetime.utcnow()
+            if task_update.actual_duration:
+                update_data["actual_duration"] = task_update.actual_duration
+            if task_update.quality_score:
+                update_data["quality_score"] = task_update.quality_score
+        
+        # Add optional fields
+        if task_update.completion_notes:
+            update_data["completion_notes"] = task_update.completion_notes
+        if task_update.issues_found:
+            update_data["issues_found"] = task_update.issues_found
+        
+        # Update task
+        result = await db.hk_tasks.update_one(
+            {"id": task_id},
+            {"$set": update_data}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Görev bulunamadı")
+        
+        # If task completed and it was cleaning, update room status
+        if task_update.status == "completed":
+            task = await db.hk_tasks.find_one({"id": task_id})
+            if task and task.get("task_type") in ["regular_cleaning", "checkout_cleaning"]:
+                await db.rooms.update_one(
+                    {"id": task["room_id"]},
+                    {
+                        "$set": {
+                            "status": "clean",
+                            "last_cleaned": datetime.utcnow(),
+                            "updated_at": datetime.utcnow()
+                        },
+                        "$inc": {"total_cleanings": 1}
+                    }
+                )
+                logging.info(f"🏨 Room {task['room_number']} marked as clean")
+        
+        logging.info(f"✅ HK task updated successfully: {task_id}")
+        return {"message": "Görev güncellendi", "task_id": task_id}
+        
+    except Exception as e:
+        logging.error(f"❌ Error updating HK task: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Görev güncellenemedi: {str(e)}")
+
+@api_router.get("/hk/dashboard")
+async def get_hk_dashboard(
+    current_user: User = Depends(get_current_user)
+):
+    """Get HK dashboard statistics"""
+    
+    logging.info(f"📊 HK dashboard request by user: {current_user.role}")
+    
+    try:
+        # Get client_id
+        client_id = current_user.client_id
+        if not client_id:
+            raise HTTPException(status_code=400, detail="Client ID required")
+        
+        # Get rooms statistics
+        total_rooms = await db.rooms.count_documents({"client_id": client_id})
+        clean_rooms = await db.rooms.count_documents({"client_id": client_id, "status": "clean"})
+        dirty_rooms = await db.rooms.count_documents({"client_id": client_id, "status": "dirty"})
+        maintenance_rooms = await db.rooms.count_documents({"client_id": client_id, "status": "maintenance"})
+        
+        # Get today's tasks
+        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        today_tasks = await db.hk_tasks.count_documents({
+            "client_id": client_id,
+            "created_at": {"$gte": today_start}
+        })
+        
+        completed_today = await db.hk_tasks.count_documents({
+            "client_id": client_id,
+            "status": "completed",
+            "completed_at": {"$gte": today_start}
+        })
+        
+        pending_tasks = await db.hk_tasks.count_documents({
+            "client_id": client_id,
+            "status": "pending"
+        })
+        
+        # Get recent tasks for activity feed
+        recent_tasks = await db.hk_tasks.find({
+            "client_id": client_id
+        }).sort("updated_at", -1).limit(10).to_list(length=10)
+        
+        dashboard_data = {
+            "room_stats": {
+                "total_rooms": total_rooms,
+                "clean_rooms": clean_rooms,
+                "dirty_rooms": dirty_rooms,
+                "maintenance_rooms": maintenance_rooms,
+                "occupancy_rate": round((clean_rooms / total_rooms * 100) if total_rooms > 0 else 0, 1)
+            },
+            "task_stats": {
+                "today_tasks": today_tasks,
+                "completed_today": completed_today,
+                "pending_tasks": pending_tasks,
+                "completion_rate": round((completed_today / today_tasks * 100) if today_tasks > 0 else 0, 1)
+            },
+            "recent_activity": recent_tasks
+        }
+        
+        logging.info(f"📊 HK dashboard data prepared for client: {client_id}")
+        return dashboard_data
+        
+    except Exception as e:
+        logging.error(f"❌ Error fetching HK dashboard: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Dashboard verisi alınamadı: {str(e)}")
+
+logging.info("🏨 HK Module endpoints registered successfully")
+
 
 # ==========================================
 # API ROUTER REGISTRATION - MUST BE AT END
