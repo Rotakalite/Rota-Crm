@@ -19281,7 +19281,7 @@ async def get_hk_daily_report(
                     "completion_rate": round((len(completed_tasks) / len(daily_tasks) * 100) if daily_tasks else 0, 1)
                 },
                 "staff_performance": staff_performance,
-                "detailed_tasks": daily_tasks
+                "detailed_tasks": daily_tasks  # Now includes room_number
             }
         
         # Generate Excel file
