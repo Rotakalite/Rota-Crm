@@ -23811,6 +23811,53 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
+  // Create HK Task
+  const createHKTask = async () => {
+    if (!authToken) return;
+    
+    try {
+      setLoading(true);
+      
+      // Validation
+      if (!newTask.room_id) {
+        alert('Oda seçimi gerekli');
+        return;
+      }
+      
+      if (!newTask.assigned_staff) {
+        alert('Personel seçimi gerekli');
+        return;
+      }
+      
+      console.log('🧹 Creating HK task:', newTask);
+      
+      const response = await axios.post(
+        `${API}/hk/tasks`,
+        newTask,
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
+      
+      alert('✅ Görev başarıyla oluşturuldu!');
+      setShowTaskModal(false);
+      setNewTask({
+        room_id: '',
+        task_type: 'regular_cleaning',
+        assigned_staff: '',
+        priority: 'normal',
+        estimated_duration: 30,
+        notes: ''
+      });
+      fetchHKTasks();
+      fetchHKDashboard();
+      
+    } catch (error) {
+      console.error('❌ Error creating HK task:', error);
+      alert('Görev oluşturulamadı: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Initial data load
   useEffect(() => {
     if (authToken && userRole) {
