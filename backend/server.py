@@ -19351,7 +19351,7 @@ async def get_hk_daily_report(
             for i, task in enumerate(daily_tasks):
                 data_row = header_row + 1 + i
                 ws.cell(row=data_row, column=1, value=i+1)
-                ws.cell(row=data_row, column=2, value=task.get('room_id', 'N/A'))
+                ws.cell(row=data_row, column=2, value=task.get('room_number', 'N/A'))
                 ws.cell(row=data_row, column=3, value=task.get('task_type', 'N/A'))
                 ws.cell(row=data_row, column=4, value=task.get('assigned_staff', 'N/A'))
                 ws.cell(row=data_row, column=5, value=task.get('status', 'N/A'))
