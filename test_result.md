@@ -3128,19 +3128,16 @@ metadata:
 
 test_plan:
   current_focus:
-    - "CRUD Operations Test - Consumption & Waste Endpoints"
-    - "Waste Route Order Fix"
+    - "HK Modülü Oda Ekleme Özelliği - Client ID Handling"
   stuck_tasks: 
     - "CRUD Operations Test - Consumption & Waste Endpoints"
   test_all: false
-  test_priority: "high_first"
   test_priority: "high_first"
   completed_tasks:
     - "GreenWave CRM - Frontend Field Names Debug"
     - "GreenWave CRM - Doğalgaz Pie Chart Debug"
     - "Training Management Personnel Selection and Auto-Complete"
-  test_all: false
-  test_priority: "high_first"
+    - "HK Modülü Oda Ekleme Özelliği - Client ID Handling"
 
   - task: "Level 3 Sub-folders for D Column"
     implemented: true
