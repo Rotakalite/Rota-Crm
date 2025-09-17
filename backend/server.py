@@ -15150,6 +15150,64 @@ async def delete_personnel(
         logger.error(f"Error deleting personnel: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+@api_router.put("/personnel/{personnel_id}")
+async def update_personnel(
+    personnel_id: str,
+    personnel_data: PersonnelInput,
+    current_user: User = Depends(get_current_user)
+):
+    """Update a personnel record"""
+    try:
+        # Get existing personnel
+        existing = await db.personnel.find_one({"id": personnel_id})
+        if not existing:
+            raise HTTPException(status_code=404, detail="Personnel not found")
+            
+        # Check permissions
+        if current_user.role == UserRole.CLIENT and existing["client_id"] != current_user.client_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+        elif current_user.role == UserRole.CONSULTANT:
+            # Consultant can update personnel for their assigned clients
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=403, detail="Consultant ID not assigned to user")
+            
+            # Check if the client is assigned to this consultant
+            assigned_client = await db.clients.find_one({"id": existing["client_id"], "consultant_id": consultant_id})
+            if not assigned_client:
+                raise HTTPException(status_code=403, detail="Bu müşteri için yetkiniz yok")
+
+        # Prepare update data
+        update_data = {
+            "full_name": personnel_data.full_name,
+            "position": personnel_data.position,
+            "location": personnel_data.location,
+            "certifications": personnel_data.certifications,
+            "is_local": personnel_data.is_local,
+            "gender": personnel_data.gender,
+            "updated_at": datetime.utcnow()
+        }
+        
+        # For admin users, allow client_id update
+        if current_user.role == UserRole.ADMIN and personnel_data.client_id:
+            update_data["client_id"] = personnel_data.client_id
+
+        result = await db.personnel.update_one(
+            {"id": personnel_id},
+            {"$set": update_data}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Personnel not found")
+            
+        return {"message": "Personnel updated successfully", "personnel_id": personnel_id}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating personnel: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
 # ====================================
 # SUPPLIER MANAGEMENT MODELS & ENDPOINTS
 # ====================================
