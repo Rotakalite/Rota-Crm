@@ -1,0 +1,202 @@
+{
+  "test_summary": {
+    "total_tests": 20,
+    "passed_tests": 1,
+    "failed_tests": 19,
+    "success_rate": 5.0,
+    "backend_url": "https://ecowave-saas.preview.emergentagent.com",
+    "test_timestamp": "2025-09-17T23:12:33.145187",
+    "test_focus": "Front Office Reservation Fix Verification",
+    "critical_500_errors": 0,
+    "fix_status": "SUCCESS"
+  },
+  "test_results": [
+    {
+      "test": "Backend Health Check",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Backend erişilebilir (Status: 200)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T23:12:32.142559"
+    },
+    {
+      "test": "GET /api/reservations - Endpoint Exists",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "🚨 CRITICAL: Reservations endpoint bulunamadı!",
+      "expected": "Not 404",
+      "actual": "404",
+      "timestamp": "2025-09-17T23:12:32.198749"
+    },
+    {
+      "test": "Valid Reservation - Unexpected Response",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Unexpected response code: 405",
+      "expected": "200/201/400/401/403/422",
+      "actual": "405",
+      "timestamp": "2025-09-17T23:12:32.254793"
+    },
+    {
+      "test": "Validation - Missing guest_name - Proper Response",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Unexpected response for invalid data: 405",
+      "expected": "400/422/401/403",
+      "actual": "405",
+      "timestamp": "2025-09-17T23:12:32.307196"
+    },
+    {
+      "test": "Validation - Invalid check_in_date - Proper Response",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Unexpected response for invalid data: 405",
+      "expected": "400/422/401/403",
+      "actual": "405",
+      "timestamp": "2025-09-17T23:12:32.360512"
+    },
+    {
+      "test": "Validation - Check_out before check_in - Proper Response",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Unexpected response for invalid data: 405",
+      "expected": "400/422/401/403",
+      "actual": "405",
+      "timestamp": "2025-09-17T23:12:32.411531"
+    },
+    {
+      "test": "Validation - Zero room_rate - Proper Response",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Unexpected response for invalid data: 405",
+      "expected": "400/422/401/403",
+      "actual": "405",
+      "timestamp": "2025-09-17T23:12:32.461579"
+    },
+    {
+      "test": "Validation - Negative room_rate - Proper Response",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Unexpected response for invalid data: 405",
+      "expected": "400/422/401/403",
+      "actual": "405",
+      "timestamp": "2025-09-17T23:12:32.514999"
+    },
+    {
+      "test": "Validation - Missing room_id - Proper Response",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Unexpected response for invalid data: 405",
+      "expected": "400/422/401/403",
+      "actual": "405",
+      "timestamp": "2025-09-17T23:12:32.572710"
+    },
+    {
+      "test": "Validation - Invalid adults count - Proper Response",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Unexpected response for invalid data: 405",
+      "expected": "400/422/401/403",
+      "actual": "405",
+      "timestamp": "2025-09-17T23:12:32.621511"
+    },
+    {
+      "test": "Validation - Missing payment_status - Proper Response",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Unexpected response for invalid data: 405",
+      "expected": "400/422/401/403",
+      "actual": "405",
+      "timestamp": "2025-09-17T23:12:32.678205"
+    },
+    {
+      "test": "Overall Validation System",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Validation system needs improvement (0.0% success rate)",
+      "expected": ">= 70%",
+      "actual": "0.0%",
+      "timestamp": "2025-09-17T23:12:32.678266"
+    },
+    {
+      "test": "Payment Status Field - Response",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Unexpected response with payment_status field: 405",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T23:12:32.726468"
+    },
+    {
+      "test": "Payment Status Default - Response",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Unexpected response without payment_status field: 405",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T23:12:32.778281"
+    },
+    {
+      "test": "Room Rate Zero - Validation",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Zero room_rate should be rejected: 405",
+      "expected": "400/422",
+      "actual": "405",
+      "timestamp": "2025-09-17T23:12:32.888297"
+    },
+    {
+      "test": "Room Conflict - Response",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Unexpected response for room conflict: 405",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T23:12:32.986512"
+    },
+    {
+      "test": "Error Logging - Invalid Date Format - Response",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Unexpected response: 405",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T23:12:33.040107"
+    },
+    {
+      "test": "Error Logging - Missing Required Field - Response",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Unexpected response: 405",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T23:12:33.092638"
+    },
+    {
+      "test": "Error Logging - Invalid Email Format - Response",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Unexpected response: 405",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T23:12:33.142710"
+    },
+    {
+      "test": "Overall Error Logging Quality",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Error logging needs more improvement (0.0% descriptive errors)",
+      "expected": ">= 70%",
+      "actual": "0.0%",
+      "timestamp": "2025-09-17T23:12:33.142765"
+    }
+  ],
+  "fix_verification": {
+    "500_errors_resolved": true,
+    "validation_working": false,
+    "payment_status_field_working": false,
+    "room_rate_validation_working": false,
+    "error_messages_improved": false
+  }
+}
