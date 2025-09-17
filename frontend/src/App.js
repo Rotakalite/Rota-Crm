@@ -23524,6 +23524,7 @@ const ConsultantApp = () => {
     { id: 'sustainability-targets', name: 'Sürdürülebilirlik Hedefleri', icon: '🎯' },
     { id: 'waste-management', name: 'Atık Yönetimi', icon: '🗑️' },
     { id: 'housekeeping', name: 'Kat Görevlileri (HK)', icon: '🧹' },
+    { id: 'front-office', name: 'Ön Büro', icon: '🏨' },
     { id: 'suppliers', name: 'Tedarikçi Yönetimi', icon: '🏢' },
     { id: 'yeni-belge', name: 'Belge Yönetimi', icon: '📋' },
     { id: 'training', name: 'Eğitim Yönetimi', icon: '🎓' },
