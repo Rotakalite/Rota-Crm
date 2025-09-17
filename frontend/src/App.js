@@ -24325,6 +24325,137 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
           </div>
         </div>
       )}
+
+      {/* Task Creation Modal */}
+      {showTaskModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                🧹 Yeni Temizlik Görevi Oluştur
+              </h3>
+              
+              <div className="space-y-4">
+                {/* Room Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Oda Seçimi *</label>
+                  <select
+                    value={newTask.room_id}
+                    onChange={(e) => setNewTask({...newTask, room_id: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Oda seçiniz...</option>
+                    {rooms.map(room => (
+                      <option key={room.id} value={room.id}>
+                        {room.room_number} - {room.floor_name} ({room.room_type})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Staff Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Personel Seçimi *</label>
+                  <select
+                    value={newTask.assigned_staff}
+                    onChange={(e) => setNewTask({...newTask, assigned_staff: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Personel seçiniz...</option>
+                    {personnel.map(person => (
+                      <option key={person.id} value={person.full_name}>
+                        {person.full_name} - {person.position}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Task Type */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Görev Türü</label>
+                  <select
+                    value={newTask.task_type}
+                    onChange={(e) => setNewTask({...newTask, task_type: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="regular_cleaning">Düzenli Temizlik</option>
+                    <option value="checkout_cleaning">Çıkış Temizliği</option>
+                    <option value="maintenance">Bakım</option>
+                    <option value="deep_cleaning">Detaylı Temizlik</option>
+                  </select>
+                </div>
+
+                {/* Priority */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Öncelik</label>
+                  <select
+                    value={newTask.priority}
+                    onChange={(e) => setNewTask({...newTask, priority: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="low">Düşük</option>
+                    <option value="normal">Normal</option>
+                    <option value="high">Yüksek</option>
+                    <option value="urgent">Acil</option>
+                  </select>
+                </div>
+
+                {/* Estimated Duration */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Tahmini Süre (dakika)</label>
+                  <input
+                    type="number"
+                    value={newTask.estimated_duration}
+                    onChange={(e) => setNewTask({...newTask, estimated_duration: parseInt(e.target.value) || 30})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    min="1"
+                    max="480"
+                  />
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Notlar</label>
+                  <textarea
+                    value={newTask.notes}
+                    onChange={(e) => setNewTask({...newTask, notes: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows="3"
+                    placeholder="Özel talimatlar veya notlar..."
+                  />
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowTaskModal(false);
+                    setNewTask({
+                      room_id: '',
+                      task_type: 'regular_cleaning',
+                      assigned_staff: '',
+                      priority: 'normal',
+                      estimated_duration: 30,
+                      notes: ''
+                    });
+                  }}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  ❌ İptal
+                </button>
+                <button
+                  onClick={createHKTask}
+                  disabled={loading || !newTask.room_id || !newTask.assigned_staff}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? '⏳ Oluşturuluyor...' : '✅ Görev Oluştur'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
