@@ -1,0 +1,199 @@
+{
+  "test_summary": {
+    "total_tests": 20,
+    "passed_tests": 16,
+    "failed_tests": 4,
+    "success_rate": 80.0,
+    "backend_url": "https://rota-crm-production.up.railway.app",
+    "test_timestamp": "2025-09-17T22:54:55.155459",
+    "test_focus": "Front Office 500 Internal Server Error Debug",
+    "critical_500_errors": 0,
+    "missing_endpoints": 0
+  },
+  "test_results": [
+    {
+      "test": "Backend Health Check",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Railway production backend erişilebilir (Status: 200)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T22:54:48.696917"
+    },
+    {
+      "test": "GET /api/reservations - Proper Auth Response",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Endpoint mevcut ve doğru auth kontrolü yapıyor (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T22:54:49.007026"
+    },
+    {
+      "test": "POST /api/reservations - Proper Response",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Endpoint mevcut ve doğru response (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T22:54:49.482409"
+    },
+    {
+      "test": "GET /api/guests - Proper Auth Response",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Guests endpoint mevcut ve auth kontrolü yapıyor (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T22:54:49.954069"
+    },
+    {
+      "test": "POST /api/guests - Proper Response",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Guest creation endpoint mevcut (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T22:54:50.287856"
+    },
+    {
+      "test": "GET /api/front-office-dashboard - Endpoint Exists",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "⚠️ Front Office dashboard endpoint bulunamadı",
+      "expected": "Not 404",
+      "actual": "404",
+      "timestamp": "2025-09-17T22:54:50.596918"
+    },
+    {
+      "test": "Reservations - Authentication Required",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Reservations endpoint doğru auth kontrolü yapıyor (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T22:54:50.938469"
+    },
+    {
+      "test": "Guests - Authentication Required",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Guests endpoint doğru auth kontrolü yapıyor (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T22:54:51.251489"
+    },
+    {
+      "test": "Invalid Token Rejection",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Geçersiz token doğru şekilde reddedildi (Status: 401)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T22:54:51.559729"
+    },
+    {
+      "test": "PUT /api/reservations/{id} - Method Supported",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "⚠️ Reservation update endpoint bulunamadı",
+      "expected": "Not 404",
+      "actual": "404",
+      "timestamp": "2025-09-17T22:54:52.030700"
+    },
+    {
+      "test": "DELETE /api/reservations/{id} - Method Supported",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "⚠️ Reservation delete endpoint bulunamadı",
+      "expected": "Not 404",
+      "actual": "404",
+      "timestamp": "2025-09-17T22:54:52.335935"
+    },
+    {
+      "test": "Invalid Data Validation - Auth First",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Auth kontrolü öncelikli (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T22:54:52.802128"
+    },
+    {
+      "test": "MongoDB Reservations Collection Access",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Reservations collection erişilebilir (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T22:54:53.267928"
+    },
+    {
+      "test": "MongoDB Guests Collection Access",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Guests collection erişilebilir (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T22:54:53.609715"
+    },
+    {
+      "test": "Response Format - JSON Content Type",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Doğru JSON content-type: application/json",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T22:54:53.918349"
+    },
+    {
+      "test": "Response Format - JSON Parse",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Response başarıyla JSON olarak parse edildi",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T22:54:53.918419"
+    },
+    {
+      "test": "CORS Headers Present",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ CORS headers mevcut: ['Access-Control-Allow-Origin', 'Access-Control-Allow-Methods', 'Access-Control-Allow-Headers']",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T22:54:54.233473"
+    },
+    {
+      "test": "GET /api/rooms/availability - Endpoint Exists",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Room availability endpoint mevcut (Status: 405)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T22:54:54.540698"
+    },
+    {
+      "test": "GET /api/rooms - Endpoint Exists",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Rooms endpoint mevcut (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T22:54:54.845338"
+    },
+    {
+      "test": "GET /api/front-office/stats - Endpoint Exists",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "⚠️ Front office stats endpoint bulunamadı",
+      "expected": "Not 404",
+      "actual": "404",
+      "timestamp": "2025-09-17T22:54:55.153232"
+    }
+  ],
+  "critical_issues": {
+    "500_errors": [],
+    "missing_endpoints": []
+  }
+}
