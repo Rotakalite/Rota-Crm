@@ -1,27 +1,31 @@
 #!/usr/bin/env python3
 """
-🏨 HK MODÜLÜ ODA EKLEME ÖZELLİĞİ BACKEND TEST
-==============================================
+👥 PERSONNEL EDIT FUNCTIONALITY BACKEND TEST
+============================================
 
-Bu test HK modülündeki yeni client_id handling logic'ini test eder:
+Bu test Personnel düzenleme endpoint'inin çalıştığını test eder:
 
 Test Edilecek Ana Konular:
-1. POST /api/rooms/bulk endpoint'inin yeni client_id handling logic'inin çalıştığını doğrula
-2. Admin kullanıcılarının client_id parametresi ile oda oluşturabildiğini test et
-3. Client kullanıcılarının kendi otelleri için oda oluşturabildiğini test et
-4. Consultant kullanıcılarının yetkili oldukları müşterilere oda oluşturabildiğini test et
+1. PUT /api/personnel/{personnel_id} endpoint'inin erişilebilir olduğunu test et
+2. Personnel update functionality'nin çalıştığını doğrula
+3. Authentication ve authorization kontrollerini test et
+4. Role-based access control'ü test et (Admin, Consultant, Client)
+5. Data validation'ı test et
 
 Test Senaryoları:
-1. Authentication gereksinimleri (403/401 döndürmeli)
-2. Client_id parameter ile oda oluşturma
-3. Role-based access control
-4. Data validation
-5. Bulk room creation logic
+1. Endpoint'in erişilebilir olduğunu test et (404 olmaması)
+2. Authentication gereksinimleri test et (403/401 döndürmeli)
+3. Role-based permissions test et 
+4. Data validation test et
+5. Update functionality test et
 
-Backend Güncellemeleri:
-- Admin: client_id parametresi ile veya kendi client_id'si ile oda oluşturabilir
-- Consultant: client_id parametresi ile (yetkili olduğu müşterilere)
-- Client: sadece kendi client_id'si ile oda oluşturabilir
+Production URL: https://rota-crm-production.up.railway.app
+
+Beklenen sonuç: 
+- Personnel düzenleme endpoint'i çalışıyor olmalı
+- Proper authentication ve authorization olmalı
+- Data validation working olmalı
+- Tüm user roles için doğru access control olmalı
 """
 
 import requests
