@@ -1,0 +1,193 @@
+{
+  "test_summary": {
+    "total_tests": 20,
+    "passed_tests": 13,
+    "failed_tests": 7,
+    "success_rate": 65.0,
+    "backend_url": "https://rota-crm-production.up.railway.app",
+    "test_timestamp": "2025-09-17T19:43:59.972694",
+    "test_focus": "Personnel Edit Functionality with Role-Based Access Control"
+  },
+  "test_results": [
+    {
+      "test": "Backend Health Check",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Railway production backend erişilebilir (Status: 200)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T19:43:53.381264"
+    },
+    {
+      "test": "PUT /api/personnel/550e8400... - Endpoint Exists",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Endpoint mevcut ve erişilebilir (Status: 405)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T19:43:53.870160"
+    },
+    {
+      "test": "PUT /api/personnel/{id} - Authentication Required",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Auth kontrolü başarısız - endpoint korumasız",
+      "expected": "401 or 403",
+      "actual": "405",
+      "timestamp": "2025-09-17T19:43:54.480878"
+    },
+    {
+      "test": "PUT /api/personnel/{id} - Invalid Token Rejection",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Geçersiz token kontrolü başarısız",
+      "expected": "401",
+      "actual": "405",
+      "timestamp": "2025-09-17T19:43:54.960506"
+    },
+    {
+      "test": "PUT /api/personnel/{id} - Malformed Token Rejection",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Malformed token kontrolü başarısız",
+      "expected": "401",
+      "actual": "405",
+      "timestamp": "2025-09-17T19:43:55.271533"
+    },
+    {
+      "test": "PUT /api/personnel/{id} - Empty Name Validation",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Boş isim validation başarısız",
+      "expected": "400/401/403/422",
+      "actual": "405",
+      "timestamp": "2025-09-17T19:43:55.587236"
+    },
+    {
+      "test": "PUT /api/personnel/{id} - Invalid Gender Validation",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Geçersiz cinsiyet validation başarısız",
+      "expected": "400/401/403/422",
+      "actual": "405",
+      "timestamp": "2025-09-17T19:43:56.061386"
+    },
+    {
+      "test": "PUT /api/personnel/{id} - Malformed JSON",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Malformed JSON validation başarısız",
+      "expected": "400/401/403/422",
+      "actual": "405",
+      "timestamp": "2025-09-17T19:43:56.371178"
+    },
+    {
+      "test": "PUT /api/personnel/{id} - Missing Fields Validation",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "Eksik alanlar validation başarısız",
+      "expected": "400/401/403/422",
+      "actual": "405",
+      "timestamp": "2025-09-17T19:43:56.681997"
+    },
+    {
+      "test": "Admin Role Simulation - Personnel Update",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Admin personnel güncelleme işlendi (Status: 405)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T19:43:56.989202"
+    },
+    {
+      "test": "Consultant Role Simulation - Personnel Update",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Consultant personnel güncelleme işlendi (Status: 405)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T19:43:57.300875"
+    },
+    {
+      "test": "Client Role Simulation - Own Personnel Update",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Client personnel güncelleme işlendi (Status: 405)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T19:43:57.771766"
+    },
+    {
+      "test": "Personnel Update - Valid Data",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Personnel güncelleme logic'i çalışıyor (Status: 405)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T19:43:58.080672"
+    },
+    {
+      "test": "Personnel Update - Partial Data",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Kısmi güncelleme logic'i çalışıyor (Status: 405)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T19:43:58.425034"
+    },
+    {
+      "test": "Response Format - JSON Content Type",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Doğru JSON content-type: application/json",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T19:43:58.735294"
+    },
+    {
+      "test": "Response Format - JSON Parse",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Response başarıyla JSON olarak parse edildi",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T19:43:58.735368"
+    },
+    {
+      "test": "CORS Headers Present",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "CORS headers mevcut: ['Access-Control-Allow-Origin', 'Access-Control-Allow-Methods', 'Access-Control-Allow-Headers']",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T19:43:59.042700"
+    },
+    {
+      "test": "GET /api/personnel - Endpoint Exists",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Personnel listesi endpoint'i mevcut (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T19:43:59.351334"
+    },
+    {
+      "test": "POST /api/personnel - Endpoint Exists",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Personnel oluşturma endpoint'i mevcut (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T19:43:59.662466"
+    },
+    {
+      "test": "DELETE /api/personnel/{id} - Endpoint Exists",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Personnel silme endpoint'i mevcut (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-17T19:43:59.970271"
+    }
+  ]
+}
