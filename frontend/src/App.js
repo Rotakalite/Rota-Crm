@@ -3016,6 +3016,63 @@ const PersonnelManagement = () => {
     }
   };
 
+  // Edit personnel functions
+  const handleEditPersonnel = (person) => {
+    setEditingPersonnel(person);
+    setFormData({
+      full_name: person.full_name,
+      position: person.position,
+      location: person.location,
+      certifications: person.certifications || [],
+      is_local: person.is_local || false,
+      gender: person.gender
+    });
+    setShowEditForm(true);
+  };
+
+  const updatePersonnel = async () => {
+    if (!editingPersonnel) return;
+    
+    try {
+      let currentToken = authToken;
+      if (session) {
+        const token = await session.getToken();
+        if (token) currentToken = token;
+      }
+
+      const response = await axios.put(
+        `${API}/personnel/${editingPersonnel.id}`,
+        formData,
+        {
+          headers: { Authorization: `Bearer ${currentToken}` },
+          timeout: 10000
+        }
+      );
+
+      console.log('✅ Personnel updated successfully');
+      alert('Personel başarıyla güncellendi!');
+      
+      // Reset form and close edit modal
+      setShowEditForm(false);
+      setEditingPersonnel(null);
+      setFormData({
+        full_name: '',
+        position: '',
+        location: '',
+        certifications: [],
+        is_local: false,
+        gender: 'Erkek'
+      });
+      
+      // Refresh personnel list
+      fetchPersonnel();
+      
+    } catch (error) {
+      console.error('❌ Error updating personnel:', error);
+      alert('Personel güncellenirken hata oluştu: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
   // Delete personnel
   const deletePersonnel = async (personnelId) => {
     if (!confirm('Bu personeli silmek istediğinizden emin misiniz?')) return;
