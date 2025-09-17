@@ -23588,11 +23588,24 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
   const fetchRooms = async () => {
     if (!authToken) return;
     
+    // Admin ve Consultant için müşteri seçimi zorunlu
+    if ((userRole === 'admin' || userRole === 'consultant') && !effectiveSelectedClient) {
+      console.log('⚠️ Admin/Consultant must select client for rooms');
+      setRooms([]);
+      setFloors({});
+      return;
+    }
+    
     try {
       setLoading(true);
       console.log('🏨 Fetching rooms data...');
       
-      const response = await axios.get(`${API}/rooms`, {
+      let url = `${API}/rooms`;
+      if ((userRole === 'admin' || userRole === 'consultant') && effectiveSelectedClient) {
+        url += `?client_id=${effectiveSelectedClient}`;
+      }
+      
+      const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       
@@ -23601,7 +23614,11 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
       console.log('✅ Rooms data loaded:', response.data);
     } catch (error) {
       console.error('❌ Error fetching rooms:', error);
-      alert('Oda verileri alınamadı: ' + (error.response?.data?.detail || error.message));
+      if (error.response?.status === 400 && error.response?.data?.detail?.includes('Client ID required')) {
+        alert('Oda verileri için müşteri seçimi gerekli');
+      } else {
+        alert('Oda verileri alınamadı: ' + (error.response?.data?.detail || error.message));
+      }
     } finally {
       setLoading(false);
     }
