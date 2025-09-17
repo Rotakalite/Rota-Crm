@@ -19381,6 +19381,438 @@ async def get_hk_daily_report(
 
 logging.info("🏨 HK Module endpoints registered successfully")
 
+# ==========================================
+# FRONT OFFICE MODULE - Hotel Management
+# ==========================================
+
+# Front Office Models
+class GuestInput(BaseModel):
+    full_name: str
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    id_number: Optional[str] = None
+    nationality: Optional[str] = "TR"
+    date_of_birth: Optional[str] = None
+    address: Optional[str] = None
+    vip_status: bool = False
+    notes: Optional[str] = None
+
+class ReservationInput(BaseModel):
+    guest_name: str
+    guest_email: Optional[str] = None
+    guest_phone: Optional[str] = None
+    room_id: str
+    check_in_date: str  # YYYY-MM-DD format
+    check_out_date: str  # YYYY-MM-DD format
+    adults: int = 1
+    children: int = 0
+    room_rate: float = 0.0  # Günlük oda fiyatı
+    total_amount: Optional[float] = None
+    payment_status: str = "pending"  # pending, partial, paid
+    booking_source: str = "front_desk"  # front_desk, online, phone, walk_in
+    special_requests: Optional[str] = None
+    notes: Optional[str] = None
+
+# Front Office Endpoints
+
+@api_router.get("/guests")
+async def get_guests(
+    client_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get all guests for hotel"""
+    
+    logging.info(f"👥 Guest list request by user: {current_user.role} - client_id param: {client_id}")
+    
+    # Get client_id based on user role (same pattern as other modules)
+    if current_user.role == UserRole.ADMIN:
+        if client_id:
+            target_client_id = client_id
+        else:
+            target_client_id = current_user.client_id
+    elif current_user.role == UserRole.CONSULTANT:
+        if client_id:
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=400, detail="Consultant ID not assigned to user")
+            
+            client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+            if not client:
+                raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+            
+            target_client_id = client_id
+        else:
+            raise HTTPException(status_code=400, detail="Client ID required for consultant")
+    else:
+        target_client_id = current_user.client_id
+        if not target_client_id:
+            raise HTTPException(status_code=403, detail="Client ID not found for user")
+    
+    try:
+        # Get guests
+        guests_raw = await db.guests.find({"client_id": target_client_id}).sort("full_name", 1).to_list(length=None)
+        
+        # Clean MongoDB ObjectIds
+        clean_guests = []
+        for guest in guests_raw:
+            if "_id" in guest:
+                del guest["_id"]
+            clean_guests.append(guest)
+        
+        logging.info(f"👥 Found {len(clean_guests)} guests for client: {target_client_id}")
+        return {"guests": clean_guests, "total": len(clean_guests)}
+        
+    except Exception as e:
+        logging.error(f"❌ Error fetching guests: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Misafirler alınamadı: {str(e)}")
+
+@api_router.post("/guests")
+async def create_guest(
+    guest_data: GuestInput,
+    current_user: User = Depends(get_current_user)
+):
+    """Create new guest"""
+    
+    try:
+        # Get client_id for guest association
+        if current_user.role == UserRole.CLIENT:
+            client_id = current_user.client_id
+        else:
+            # For admin/consultant, client_id should be provided in request
+            client_id = current_user.client_id
+        
+        if not client_id:
+            raise HTTPException(status_code=400, detail="Client ID required for guest creation")
+        
+        # Create guest document
+        guest_doc = {
+            "id": str(uuid.uuid4()),
+            "client_id": client_id,
+            "full_name": guest_data.full_name,
+            "email": guest_data.email,
+            "phone": guest_data.phone,
+            "id_number": guest_data.id_number,
+            "nationality": guest_data.nationality,
+            "date_of_birth": guest_data.date_of_birth,
+            "address": guest_data.address,
+            "vip_status": guest_data.vip_status,
+            "notes": guest_data.notes,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow(),
+            "total_stays": 0,
+            "total_nights": 0
+        }
+        
+        await db.guests.insert_one(guest_doc)
+        logging.info(f"✅ Guest created: {guest_data.full_name}")
+        
+        return {"message": "Misafir başarıyla oluşturuldu", "guest_id": guest_doc["id"]}
+        
+    except Exception as e:
+        logging.error(f"❌ Error creating guest: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Misafir oluşturulamadı: {str(e)}")
+
+@api_router.get("/reservations")
+async def get_reservations(
+    client_id: Optional[str] = None,
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    status: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get reservations with filtering"""
+    
+    logging.info(f"📅 Reservations request by user: {current_user.role} - client_id param: {client_id}")
+    
+    # Get client_id based on user role
+    if current_user.role == UserRole.ADMIN:
+        if client_id:
+            target_client_id = client_id
+        else:
+            target_client_id = current_user.client_id
+    elif current_user.role == UserRole.CONSULTANT:
+        if client_id:
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=400, detail="Consultant ID not assigned to user")
+            
+            client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+            if not client:
+                raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+            
+            target_client_id = client_id
+        else:
+            raise HTTPException(status_code=400, detail="Client ID required for consultant")
+    else:
+        target_client_id = current_user.client_id
+        if not target_client_id:
+            raise HTTPException(status_code=403, detail="Client ID not found for user")
+    
+    try:
+        # Build query
+        query = {"client_id": target_client_id}
+        
+        # Date filtering
+        if date_from or date_to:
+            date_filter = {}
+            if date_from:
+                date_filter["$gte"] = datetime.strptime(date_from, "%Y-%m-%d")
+            if date_to:
+                date_filter["$lte"] = datetime.strptime(date_to, "%Y-%m-%d")
+            query["check_in_date"] = date_filter
+        
+        # Status filtering
+        if status:
+            query["status"] = status
+        
+        # Get reservations
+        reservations_raw = await db.reservations.find(query).sort("check_in_date", 1).to_list(length=None)
+        
+        # Clean MongoDB ObjectIds and add room numbers
+        clean_reservations = []
+        room_lookup = {}
+        
+        for reservation in reservations_raw:
+            if "_id" in reservation:
+                del reservation["_id"]
+            
+            # Get room number
+            room_id = reservation.get('room_id')
+            if room_id and room_id not in room_lookup:
+                room_info = await db.rooms.find_one({"id": room_id, "client_id": target_client_id})
+                if room_info:
+                    room_lookup[room_id] = room_info.get('room_number', room_id)
+                else:
+                    room_lookup[room_id] = f"Room-{room_id[:8]}"
+            
+            reservation['room_number'] = room_lookup.get(room_id, 'N/A')
+            
+            # Calculate nights and total
+            check_in = datetime.strptime(reservation['check_in_date'], "%Y-%m-%d") if isinstance(reservation['check_in_date'], str) else reservation['check_in_date']
+            check_out = datetime.strptime(reservation['check_out_date'], "%Y-%m-%d") if isinstance(reservation['check_out_date'], str) else reservation['check_out_date']
+            nights = (check_out - check_in).days
+            reservation['nights'] = nights
+            
+            # Calculate total if not set
+            if not reservation.get('total_amount'):
+                reservation['total_amount'] = nights * reservation.get('room_rate', 0)
+            
+            clean_reservations.append(reservation)
+        
+        logging.info(f"📅 Found {len(clean_reservations)} reservations for client: {target_client_id}")
+        return {"reservations": clean_reservations, "total": len(clean_reservations)}
+        
+    except Exception as e:
+        logging.error(f"❌ Error fetching reservations: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Rezervasyonlar alınamadı: {str(e)}")
+
+@api_router.post("/reservations")
+async def create_reservation(
+    reservation_data: ReservationInput,
+    current_user: User = Depends(get_current_user)
+):
+    """Create new reservation with night calculation"""
+    
+    try:
+        # Get client_id
+        if current_user.role == UserRole.CLIENT:
+            client_id = current_user.client_id
+        else:
+            client_id = current_user.client_id
+        
+        if not client_id:
+            raise HTTPException(status_code=400, detail="Client ID required for reservation")
+        
+        # Validate dates
+        check_in = datetime.strptime(reservation_data.check_in_date, "%Y-%m-%d")
+        check_out = datetime.strptime(reservation_data.check_out_date, "%Y-%m-%d")
+        
+        if check_out <= check_in:
+            raise HTTPException(status_code=400, detail="Çıkış tarihi giriş tarihinden sonra olmalı")
+        
+        # Calculate nights
+        nights = (check_out - check_in).days
+        
+        # Calculate total amount
+        total_amount = reservation_data.total_amount or (nights * reservation_data.room_rate)
+        
+        # Check room availability
+        existing_reservation = await db.reservations.find_one({
+            "room_id": reservation_data.room_id,
+            "status": {"$nin": ["cancelled", "no_show"]},
+            "$or": [
+                {"check_in_date": {"$lte": check_in}, "check_out_date": {"$gt": check_in}},
+                {"check_in_date": {"$lt": check_out}, "check_out_date": {"$gte": check_out}},
+                {"check_in_date": {"$gte": check_in}, "check_out_date": {"$lte": check_out}}
+            ]
+        })
+        
+        if existing_reservation:
+            raise HTTPException(status_code=400, detail="Bu tarihler arasında oda müsait değil")
+        
+        # Create reservation document
+        reservation_doc = {
+            "id": str(uuid.uuid4()),
+            "client_id": client_id,
+            "guest_name": reservation_data.guest_name,
+            "guest_email": reservation_data.guest_email,
+            "guest_phone": reservation_data.guest_phone,
+            "room_id": reservation_data.room_id,
+            "check_in_date": check_in,
+            "check_out_date": check_out,
+            "nights": nights,
+            "adults": reservation_data.adults,
+            "children": reservation_data.children,
+            "room_rate": reservation_data.room_rate,
+            "total_amount": total_amount,
+            "payment_status": reservation_data.payment_status,
+            "booking_source": reservation_data.booking_source,
+            "special_requests": reservation_data.special_requests,
+            "notes": reservation_data.notes,
+            "status": "confirmed",
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        await db.reservations.insert_one(reservation_doc)
+        logging.info(f"✅ Reservation created: {reservation_data.guest_name} - {nights} gece")
+        
+        return {
+            "message": "Rezervasyon başarıyla oluşturuldu",
+            "reservation_id": reservation_doc["id"],
+            "nights": nights,
+            "total_amount": total_amount
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Error creating reservation: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Rezervasyon oluşturulamadı: {str(e)}")
+
+@api_router.get("/front-office/dashboard")
+async def get_front_office_dashboard(
+    client_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get Front Office dashboard with occupancy and revenue stats"""
+    
+    logging.info(f"🏨 Front Office dashboard request by user: {current_user.role}")
+    
+    # Get client_id based on user role
+    if current_user.role == UserRole.ADMIN:
+        if client_id:
+            target_client_id = client_id
+        else:
+            target_client_id = current_user.client_id
+    elif current_user.role == UserRole.CONSULTANT:
+        if client_id:
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=400, detail="Consultant ID not assigned to user")
+            
+            client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+            if not client:
+                raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+            
+            target_client_id = client_id
+        else:
+            raise HTTPException(status_code=400, detail="Client ID required for consultant")
+    else:
+        target_client_id = current_user.client_id
+        if not target_client_id:
+            raise HTTPException(status_code=403, detail="Client ID not found for user")
+    
+    try:
+        today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        tomorrow = today + timedelta(days=1)
+        month_start = today.replace(day=1)
+        
+        # Room statistics
+        total_rooms = await db.rooms.count_documents({"client_id": target_client_id})
+        available_rooms = await db.rooms.count_documents({"client_id": target_client_id, "status": "clean"})
+        
+        # Today's occupancy
+        occupied_today = await db.reservations.count_documents({
+            "client_id": target_client_id,
+            "status": "checked_in",
+            "check_in_date": {"$lte": today},
+            "check_out_date": {"$gt": today}
+        })
+        
+        # Arriving today
+        arriving_today = await db.reservations.count_documents({
+            "client_id": target_client_id,
+            "check_in_date": today,
+            "status": {"$nin": ["cancelled", "no_show"]}
+        })
+        
+        # Departing today
+        departing_today = await db.reservations.count_documents({
+            "client_id": target_client_id,
+            "check_out_date": today,
+            "status": "checked_in"
+        })
+        
+        # Monthly statistics
+        monthly_nights = await db.reservations.aggregate([
+            {
+                "$match": {
+                    "client_id": target_client_id,
+                    "check_in_date": {"$gte": month_start},
+                    "status": {"$nin": ["cancelled", "no_show"]}
+                }
+            },
+            {
+                "$group": {
+                    "_id": None,
+                    "total_nights": {"$sum": "$nights"},
+                    "total_revenue": {"$sum": "$total_amount"}
+                }
+            }
+        ]).to_list(length=1)
+        
+        monthly_data = monthly_nights[0] if monthly_nights else {"total_nights": 0, "total_revenue": 0}
+        
+        # Recent reservations
+        recent_reservations_raw = await db.reservations.find({
+            "client_id": target_client_id
+        }).sort("created_at", -1).limit(5).to_list(length=5)
+        
+        # Clean recent reservations
+        clean_recent = []
+        for res in recent_reservations_raw:
+            if "_id" in res:
+                del res["_id"]
+            clean_recent.append(res)
+        
+        dashboard_data = {
+            "room_stats": {
+                "total_rooms": total_rooms,
+                "available_rooms": available_rooms,
+                "occupied_rooms": occupied_today,
+                "occupancy_rate": round((occupied_today / total_rooms * 100) if total_rooms > 0 else 0, 1)
+            },
+            "today_stats": {
+                "arriving": arriving_today,
+                "departing": departing_today,
+                "occupied": occupied_today
+            },
+            "monthly_stats": {
+                "total_nights": monthly_data["total_nights"],
+                "total_revenue": monthly_data["total_revenue"],
+                "avg_rate": round(monthly_data["total_revenue"] / monthly_data["total_nights"]) if monthly_data["total_nights"] > 0 else 0
+            },
+            "recent_reservations": clean_recent
+        }
+        
+        logging.info(f"🏨 Front Office dashboard data generated successfully")
+        return dashboard_data
+        
+    except Exception as e:
+        logging.error(f"❌ Error fetching Front Office dashboard: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Dashboard verisi alınamadı: {str(e)}")
+
+logging.info("🏨 Front Office Module endpoints registered successfully")
+
 
 # ==========================================
 # API ROUTER REGISTRATION - MUST BE AT END
