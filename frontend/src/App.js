@@ -24458,6 +24458,8 @@ const MainAdminClientApp = ({ activeTab, setActiveTab, userRole, handleNavigate 
         return <WasteManagement />;
       case 'housekeeping':
         return <HousekeepingManagement />;
+      case 'front-office':
+        return <FrontOfficeManagement />;
       case 'suppliers':
         return <SupplierManagement />;
       case 'personnel':
