@@ -23673,6 +23673,35 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
+  // Fetch Clients for Admin/Consultant
+  const fetchClients = async () => {
+    if (userRole !== 'admin' && userRole !== 'consultant') return;
+    if (!authToken) return;
+    
+    try {
+      console.log('🏨 Fetching clients for HK module...');
+      
+      const response = await axios.get(`${API}/clients`, {
+        params: { client_type: "registered" }, // Only registered clients
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      
+      // Handle backend response format
+      let clientsArray = [];
+      if (response.data.clients && Array.isArray(response.data.clients)) {
+        clientsArray = response.data.clients;
+      } else if (Array.isArray(response.data)) {
+        clientsArray = response.data;
+      }
+      
+      setClients(clientsArray);
+      console.log('✅ Clients loaded for HK:', clientsArray.length);
+    } catch (error) {
+      console.error("❌ Error fetching clients for HK:", error);
+      setClients([]);
+    }
+  };
+
   // Fetch Personnel
   const fetchPersonnel = async () => {
     if (!authToken) return;
