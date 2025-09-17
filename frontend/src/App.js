@@ -23864,6 +23864,7 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
       fetchHKDashboard();
       fetchRooms();
       fetchHKTasks();
+      fetchPersonnel();
     }
   }, [authToken, userRole, effectiveSelectedClient]);
 
