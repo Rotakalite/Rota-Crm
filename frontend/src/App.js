@@ -23670,6 +23670,39 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
+  // Fetch Personnel
+  const fetchPersonnel = async () => {
+    if (!authToken) return;
+    
+    // Admin ve Consultant için müşteri seçimi zorunlu
+    if ((userRole === 'admin' || userRole === 'consultant') && !effectiveSelectedClient) {
+      console.log('⚠️ Admin/Consultant must select client for personnel');
+      setPersonnel([]);
+      return;
+    }
+    
+    try {
+      console.log('👥 Fetching personnel...');
+      
+      let url = `${API}/personnel`;
+      if ((userRole === 'admin' || userRole === 'consultant') && effectiveSelectedClient) {
+        url += `?client_id=${effectiveSelectedClient}`;
+      }
+      
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      setPersonnel(response.data || []);
+      console.log('✅ Personnel loaded:', response.data?.length || 0);
+    } catch (error) {
+      console.error('❌ Error fetching personnel:', error);
+      if (error.response?.status === 400 && error.response?.data?.detail?.includes('Client ID required')) {
+        alert('Personel listesi için müşteri seçimi gerekli');
+      }
+    }
+  };
+
   // Update Room Status
   const updateRoomStatus = async (roomId, newStatus) => {
     if (!authToken) return;
