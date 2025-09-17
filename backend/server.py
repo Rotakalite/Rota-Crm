@@ -907,7 +907,7 @@ async def ultra_cors_middleware(request, call_next):
                 "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH",
                 "Access-Control-Allow-Headers": "Accept, Accept-Language, Content-Language, Content-Type, Authorization, X-Requested-With, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Cache-Control, Pragma, Expires, X-CSRF-Token",
                 "Access-Control-Expose-Headers": "*",
-                "Access-Control-Allow-Credentials": "true",
+                "Access-Control-Allow-Credentials": "false",
                 "Access-Control-Max-Age": "86400",
                 "Content-Length": "0"
             }
