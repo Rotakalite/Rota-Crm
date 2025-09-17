@@ -23921,6 +23921,60 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         
+        {/* Client Selection - Only for Admin and Consultant */}
+        {(userRole === 'admin' || userRole === 'consultant') && (
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">🏨 Müşteri Seçimi</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Otel/Müşteri Seçin
+                </label>
+                <select
+                  value={effectiveSelectedClient || ''}
+                  onChange={(e) => {
+                    const clientId = e.target.value;
+                    localStorage.setItem('selectedClientForConsumption', clientId);
+                    // Trigger data refresh by updating the key in useEffect dependency
+                    fetchHKDashboard();
+                    fetchRooms();
+                    fetchHKTasks();
+                    fetchPersonnel();
+                  }}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">-- Otel/Müşteri Seçin --</option>
+                  {Array.isArray(clients) && clients.map((client) => (
+                    <option key={client.id} value={client.id}>
+                      {client.name || client.hotel_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {effectiveSelectedClient && (
+                <div className="flex items-end">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
+                    <span className="text-green-600">✅</span>
+                    <span className="text-green-800 font-medium">Müşteri seçildi</span>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Info message for admin/consultant */}
+            {!effectiveSelectedClient && (
+              <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-yellow-600">⚠️</span>
+                  <span className="text-yellow-800">
+                    HK modülünü kullanabilmek için önce bir otel/müşteri seçmelisiniz.
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Tab Navigation */}
         <div className="flex space-x-1 mb-8 bg-white rounded-lg p-1 shadow-sm">
           {[
