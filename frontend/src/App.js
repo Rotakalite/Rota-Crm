@@ -23270,6 +23270,8 @@ const ConsultantApp = () => {
         return <SustainabilityTargets />;
       case 'waste-management':
         return <WasteManagement />;
+      case 'housekeeping':
+        return <HousekeepingManagement />;
       case 'suppliers':
         return <SupplierManagement />;
       case 'yeni-belge':
