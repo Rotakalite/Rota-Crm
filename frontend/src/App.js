@@ -2834,6 +2834,11 @@ const PersonnelManagement = () => {
   const [showExcelImport, setShowExcelImport] = useState(false);
   const [excelFile, setExcelFile] = useState(null);
   const [excelProcessing, setExcelProcessing] = useState(false);
+  
+  // Edit states
+  const [editingPersonnel, setEditingPersonnel] = useState(null);
+  const [showEditForm, setShowEditForm] = useState(false);
+  
   const [formData, setFormData] = useState({
     full_name: '',
     position: '',
