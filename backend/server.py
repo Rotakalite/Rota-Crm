@@ -18547,20 +18547,45 @@ class HKTaskUpdate(BaseModel):
 @api_router.post("/rooms/bulk")
 async def create_rooms_bulk(
     rooms_data: RoomBulkInput,
+    client_id: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
     """Bulk create rooms for hotel setup"""
     
-    logging.info(f"🏨 Bulk room creation request by user: {current_user.role}")
+    logging.info(f"🏨 Bulk room creation request by user: {current_user.role} - client_id param: {client_id}")
     
-    # Permission check - only admin can create rooms
-    if current_user.role not in [UserRole.ADMIN]:
-        raise HTTPException(status_code=403, detail="Sadece admin kullanıcılar oda oluşturabilir")
+    # Get target client_id based on user role (same pattern as other endpoints)
+    if current_user.role == UserRole.ADMIN:
+        # Admin can specify client_id or use their assigned client
+        if client_id:
+            target_client_id = client_id
+        else:
+            # If no client_id specified, use admin's assigned client (backward compatibility)
+            target_client_id = current_user.client_id
+    elif current_user.role == UserRole.CONSULTANT:
+        # Consultant users can create rooms for their assigned clients
+        if client_id:
+            # Verify that the consultant has access to this client
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=400, detail="Consultant ID not assigned to user")
+            
+            # Check if the client is assigned to this consultant
+            client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+            if not client:
+                raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+            
+            target_client_id = client_id
+        else:
+            # If no client_id specified, consultant must specify which client
+            raise HTTPException(status_code=400, detail="Client ID required for consultant")
+    else:
+        # Regular client can only create rooms for their own hotel
+        target_client_id = current_user.client_id
+        if not target_client_id:
+            raise HTTPException(status_code=403, detail="Client ID not found for user")
     
-    # Get client_id for room association
-    client_id = current_user.client_id
-    if not client_id:
-        raise HTTPException(status_code=400, detail="Client ID required for room creation")
+    logging.info(f"🎯 Creating rooms for client: {target_client_id}")
     
     try:
         created_rooms = []
