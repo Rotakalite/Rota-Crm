@@ -18763,22 +18763,47 @@ async def create_hk_task(
 async def get_hk_tasks(
     status: Optional[str] = None,
     assigned_staff: Optional[str] = None,
+    client_id: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
     """Get housekeeping tasks with optional filters"""
     
-    logging.info(f"🧹 Get HK tasks request by user: {current_user.role}")
+    logging.info(f"🧹 Get HK tasks request by user: {current_user.role} - client_id param: {client_id}")
+    
+    # Get client_id based on user role (same pattern as consumption)
+    if current_user.role == UserRole.ADMIN:
+        # Admin can specify client_id or use their assigned client
+        if client_id:
+            target_client_id = client_id
+        else:
+            # If no client_id specified, use admin's assigned client (backward compatibility)
+            target_client_id = current_user.client_id
+    elif current_user.role == UserRole.CONSULTANT:
+        # Consultant users can see tasks for their assigned clients
+        if client_id:
+            # Verify that the consultant has access to this client
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=400, detail="Consultant ID not assigned to user")
+            
+            # Check if the client is assigned to this consultant
+            client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+            if not client:
+                raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+            
+            target_client_id = client_id
+        else:
+            # If no client_id specified, consultant must specify which client
+            raise HTTPException(status_code=400, detail="Client ID required for consultant")
+    else:
+        # Regular client can only see their own tasks
+        target_client_id = current_user.client_id
+        if not target_client_id:
+            raise HTTPException(status_code=403, detail="Client ID not found for user")
     
     try:
-        # Build query based on user role
-        query = {}
-        
-        if current_user.role == UserRole.ADMIN:
-            client_id = current_user.client_id
-            if client_id:
-                query["client_id"] = client_id
-        else:
-            query["client_id"] = current_user.client_id
+        # Build query
+        query = {"client_id": target_client_id}
         
         # Apply filters
         if status:
@@ -18789,7 +18814,7 @@ async def get_hk_tasks(
         # Get tasks
         tasks = await db.hk_tasks.find(query).sort("created_at", -1).to_list(length=100)
         
-        logging.info(f"📊 Found {len(tasks)} HK tasks")
+        logging.info(f"📊 Found {len(tasks)} HK tasks for client: {target_client_id}")
         
         return {"tasks": tasks, "total": len(tasks)}
         
