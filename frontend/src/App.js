@@ -23893,6 +23893,7 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
   // Initial data load
   useEffect(() => {
     if (authToken && userRole) {
+      fetchClients(); // Fetch clients first for admin/consultant
       fetchHKDashboard();
       fetchRooms();
       fetchHKTasks();
