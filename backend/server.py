@@ -19088,6 +19088,127 @@ async def get_hk_dashboard(
         logging.error(f"❌ Error fetching HK dashboard: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Dashboard verisi alınamadı: {str(e)}")
 
+@api_router.get("/hk/reports/daily-summary")
+async def get_hk_daily_report(
+    report_date: Optional[str] = None,
+    client_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Generate daily HK summary report in Excel format"""
+    
+    logging.info(f"📊 Daily HK report request by user: {current_user.role} - client_id param: {client_id}")
+    
+    # Get client_id based on user role (same pattern as other endpoints)
+    if current_user.role == UserRole.ADMIN:
+        if client_id:
+            target_client_id = client_id
+        else:
+            target_client_id = current_user.client_id
+    elif current_user.role == UserRole.CONSULTANT:
+        if client_id:
+            consultant_id = current_user.consultant_id
+            if not consultant_id:
+                raise HTTPException(status_code=400, detail="Consultant ID not assigned to user")
+            
+            client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+            if not client:
+                raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+            
+            target_client_id = client_id
+        else:
+            raise HTTPException(status_code=400, detail="Client ID required for consultant")
+    else:
+        target_client_id = current_user.client_id
+        if not target_client_id:
+            raise HTTPException(status_code=403, detail="Client ID not found for user")
+    
+    # Parse report date or use today
+    if report_date:
+        try:
+            report_date_obj = datetime.strptime(report_date, "%Y-%m-%d")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+    else:
+        report_date_obj = datetime.utcnow()
+    
+    # Set date range (start and end of the day)
+    day_start = report_date_obj.replace(hour=0, minute=0, second=0, microsecond=0)
+    day_end = report_date_obj.replace(hour=23, minute=59, second=59, microsecond=999999)
+    
+    try:
+        # Get hotel info
+        hotel_info = await db.clients.find_one({"id": target_client_id})
+        hotel_name = hotel_info.get("name", "Hotel") if hotel_info else "Hotel"
+        
+        # Get room statistics
+        total_rooms = await db.rooms.count_documents({"client_id": target_client_id})
+        clean_rooms = await db.rooms.count_documents({"client_id": target_client_id, "status": "clean"})
+        dirty_rooms = await db.rooms.count_documents({"client_id": target_client_id, "status": "dirty"})
+        maintenance_rooms = await db.rooms.count_documents({"client_id": target_client_id, "status": "maintenance"})
+        out_of_order_rooms = await db.rooms.count_documents({"client_id": target_client_id, "status": "out_of_order"})
+        
+        # Get tasks for the day
+        daily_tasks_raw = await db.hk_tasks.find({
+            "client_id": target_client_id,
+            "created_at": {"$gte": day_start, "$lte": day_end}
+        }).sort("created_at", 1).to_list(length=None)
+        
+        # Clean ObjectIds
+        daily_tasks = []
+        for task in daily_tasks_raw:
+            if "_id" in task:
+                del task["_id"]
+            daily_tasks.append(task)
+        
+        # Get task statistics
+        completed_tasks = [t for t in daily_tasks if t.get("status") == "completed"]
+        pending_tasks = [t for t in daily_tasks if t.get("status") == "pending"]
+        in_progress_tasks = [t for t in daily_tasks if t.get("status") == "in_progress"]
+        
+        # Get staff performance
+        staff_performance = {}
+        for task in completed_tasks:
+            staff = task.get("assigned_staff", "Bilinmeyen")
+            if staff not in staff_performance:
+                staff_performance[staff] = {"completed": 0, "total": 0}
+            staff_performance[staff]["completed"] += 1
+        
+        for task in daily_tasks:
+            staff = task.get("assigned_staff", "Bilinmeyen")
+            if staff not in staff_performance:
+                staff_performance[staff] = {"completed": 0, "total": 0}
+            staff_performance[staff]["total"] += 1
+        
+        # Generate Excel data structure
+        report_data = {
+            "hotel_name": hotel_name,
+            "report_date": report_date_obj.strftime("%d/%m/%Y"),
+            "room_summary": {
+                "total_rooms": total_rooms,
+                "clean_rooms": clean_rooms,
+                "dirty_rooms": dirty_rooms,
+                "maintenance_rooms": maintenance_rooms,
+                "out_of_order_rooms": out_of_order_rooms,
+                "occupancy_rate": round((clean_rooms / total_rooms * 100) if total_rooms > 0 else 0, 1)
+            },
+            "task_summary": {
+                "total_tasks": len(daily_tasks),
+                "completed_tasks": len(completed_tasks),
+                "pending_tasks": len(pending_tasks),
+                "in_progress_tasks": len(in_progress_tasks),
+                "completion_rate": round((len(completed_tasks) / len(daily_tasks) * 100) if daily_tasks else 0, 1)
+            },
+            "staff_performance": staff_performance,
+            "detailed_tasks": daily_tasks
+        }
+        
+        logging.info(f"📊 Daily HK report generated for {hotel_name} - {report_date_obj.strftime('%Y-%m-%d')}")
+        return report_data
+        
+    except Exception as e:
+        logging.error(f"❌ Error generating daily HK report: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Rapor oluşturulamadı: {str(e)}")
+
 logging.info("🏨 HK Module endpoints registered successfully")
 
 
