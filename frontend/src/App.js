@@ -5055,7 +5055,10 @@ const Dashboard = ({ onNavigate }) => {
                   </button>
                   
                   <button
-                    onClick={() => setActiveTab('front-office')}
+                    onClick={() => {
+                      console.log('🏨 Navigating to front-office');
+                      onNavigate('front-office');
+                    }}
                     className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-left group"
                   >
                     <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">🏨</div>
