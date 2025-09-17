@@ -52,7 +52,7 @@ class TestEmailManagementEndpoints(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://sustainability-crm-1.preview.emergentagent.com/api"
+        self.api_url = "https://eco-data-hub-1.preview.emergentagent.com/api"
         self.headers = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
         
         # Get client data

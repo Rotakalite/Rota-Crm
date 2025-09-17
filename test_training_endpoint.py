@@ -26,7 +26,7 @@ class TestTrainingEndpoints(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.api_url = "https://sustainability-crm-1.preview.emergentagent.com/api"
+        self.api_url = "https://eco-data-hub-1.preview.emergentagent.com/api"
         
         # Sample training data for testing
         self.training_data = {

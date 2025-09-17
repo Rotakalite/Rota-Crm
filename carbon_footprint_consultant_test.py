@@ -34,7 +34,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL from frontend .env
-BACKEND_URL = "https://sustainability-crm-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://eco-data-hub-1.preview.emergentagent.com/api"
 
 # Test JWT tokens - These are sample tokens for testing
 # In a real scenario, these would be generated from Clerk with proper user data

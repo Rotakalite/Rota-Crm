@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL from frontend .env
-BACKEND_URL = "https://sustainability-crm-1.preview.emergentagent.com"
+BACKEND_URL = "https://eco-data-hub-1.preview.emergentagent.com"
 
 # Test tokens - these will likely fail but we want to see the specific error messages
 TEST_TOKENS = {

@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Backend URL
-BACKEND_URL = "https://sustainability-crm-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://eco-data-hub-1.preview.emergentagent.com/api"
 
 def test_supplier_endpoints():
     """Test supplier management endpoints"""
