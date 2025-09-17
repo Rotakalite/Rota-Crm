@@ -3065,7 +3065,7 @@ const PersonnelManagement = () => {
       });
       
       // Refresh personnel list
-      fetchPersonnel();
+      fetchPersonnelWithFreshToken(selectedClient);
       
     } catch (error) {
       console.error('❌ Error updating personnel:', error);
