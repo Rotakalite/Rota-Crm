@@ -1749,7 +1749,7 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
 
               {/* Monthly Statistics Summary */}
               {monthlyOccupancy.monthly_stats && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
                   <div className="bg-blue-50 rounded-lg p-4 text-center">
                     <div className="text-xl font-bold text-blue-600">{monthlyOccupancy.monthly_stats.avg_occupancy}%</div>
                     <div className="text-sm text-blue-700">Ortalama Doluluk</div>
