@@ -1939,7 +1939,7 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
                   👥 Yeni Misafir
                 </button>
                 <button
-                  onClick={handleGenerateExcelReport}
+                  onClick={() => setShowDateRangeModal(true)}
                   className="bg-emerald-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-emerald-700 transition-colors flex items-center gap-2"
                   disabled={loading}
                 >
