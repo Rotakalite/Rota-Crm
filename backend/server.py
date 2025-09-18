@@ -1,4 +1,10 @@
 import os
+import sys
+
+# Fix Python path for services import
+sys.path.insert(0, '/app/backend')
+sys.path.insert(0, '/app')
+
 import uuid
 import logging
 import jwt  # Add JWT for token verification
