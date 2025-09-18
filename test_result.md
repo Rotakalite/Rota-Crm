@@ -160,11 +160,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Excel Report Endpoint Debug"
-    - "Front Office Available Rooms Endpoint"
-    - "Front Office Monthly Occupancy Endpoint"
-    - "Front Office Reservations CRUD Endpoints"
-    - "Front Office Dashboard Endpoint"
+    - "Front Office Excel HK-Style Implementation"
+    - "HK Excel Completion Time Enhancements"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
