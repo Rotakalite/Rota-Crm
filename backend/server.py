@@ -19163,7 +19163,6 @@ async def get_hk_dashboard(
 @api_router.get("/hk/reports/daily-summary")
 async def get_hk_daily_report(
     report_date: Optional[str] = None,
-    end_date: Optional[str] = None,
     client_id: Optional[str] = None,
     format: str = "excel",  # excel or json
     current_user: User = Depends(get_current_user)
