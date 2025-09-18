@@ -1714,6 +1714,165 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
               </div>
             </div>
 
+            {/* Monthly Occupancy Analysis */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-gray-900">📊 Aylık Doluluk Analizi</h3>
+                <div className="flex gap-3">
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                    className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {Array.from({length: 12}, (_, i) => (
+                      <option key={i+1} value={i+1}>
+                        {new Date(2025, i).toLocaleDateString('tr-TR', { month: 'long' })}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                    className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {Array.from({length: 5}, (_, i) => (
+                      <option key={2023 + i} value={2023 + i}>
+                        {2023 + i}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Monthly Statistics Summary */}
+              {monthlyOccupancy.monthly_stats && (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  <div className="bg-blue-50 rounded-lg p-4 text-center">
+                    <div className="text-xl font-bold text-blue-600">{monthlyOccupancy.monthly_stats.avg_occupancy}%</div>
+                    <div className="text-sm text-blue-700">Ortalama Doluluk</div>
+                  </div>
+                  <div className="bg-green-50 rounded-lg p-4 text-center">
+                    <div className="text-xl font-bold text-green-600">{monthlyOccupancy.monthly_stats.peak_occupancy}%</div>
+                    <div className="text-sm text-green-700">En Yüksek Doluluk</div>
+                    <div className="text-xs text-green-600">{monthlyOccupancy.monthly_stats.peak_date}</div>
+                  </div>
+                  <div className="bg-red-50 rounded-lg p-4 text-center">
+                    <div className="text-xl font-bold text-red-600">{monthlyOccupancy.monthly_stats.low_occupancy}%</div>
+                    <div className="text-sm text-red-700">En Düşük Doluluk</div>
+                    <div className="text-xs text-red-600">{monthlyOccupancy.monthly_stats.low_date}</div>
+                  </div>
+                  <div className="bg-purple-50 rounded-lg p-4 text-center">
+                    <div className="text-xl font-bold text-purple-600">{monthlyOccupancy.monthly_stats.total_revenue}₺</div>
+                    <div className="text-sm text-purple-700">Toplam Gelir</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Occupancy Chart */}
+              {monthlyOccupancy.chart_data && (
+                <div className="mb-6">
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4">📈 Günlük Doluluk Grafiği</h4>
+                  <div className="h-64">
+                    <Line
+                      data={{
+                        labels: monthlyOccupancy.chart_data.labels,
+                        datasets: [
+                          {
+                            label: 'Doluluk Oranı (%)',
+                            data: monthlyOccupancy.chart_data.occupancy_rates,
+                            borderColor: 'rgb(59, 130, 246)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.1
+                          }
+                        ]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: 'top',
+                          },
+                          title: {
+                            display: true,
+                            text: `${monthlyOccupancy.month_name || ''} Günlük Doluluk Oranları`
+                          }
+                        },
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                              callback: function(value) {
+                                return value + '%';
+                              }
+                            }
+                          },
+                          x: {
+                            title: {
+                              display: true,
+                              text: 'Günler'
+                            }
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Daily Occupancy Table */}
+              {monthlyOccupancy.daily_data && monthlyOccupancy.daily_data.length > 0 && (
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4">📋 Günlük Detay Tablosu</h4>
+                  <div className="overflow-x-auto max-h-96 overflow-y-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50 sticky top-0">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tarih</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Dolu Oda</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Toplam Oda</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Doluluk</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Günlük Gelir</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {monthlyOccupancy.daily_data.map((day) => (
+                          <tr key={day.date} className="hover:bg-gray-50">
+                            <td className="px-4 py-3 whitespace-nowrap font-medium">
+                              {new Date(day.date).toLocaleDateString('tr-TR', { day: 'numeric', weekday: 'short' })}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-blue-600 font-medium">
+                              {day.occupied_rooms}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-gray-600">
+                              {day.total_rooms}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                  <div 
+                                    className="bg-blue-600 h-2 rounded-full" 
+                                    style={{width: `${day.occupancy_rate}%`}}
+                                  ></div>
+                                </div>
+                                <span className="text-sm font-medium">{day.occupancy_rate}%</span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-green-600 font-medium">
+                              {day.revenue}₺
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Quick Actions */}
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-6">⚡ Hızlı İşlemler</h3>
