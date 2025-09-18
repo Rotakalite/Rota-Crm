@@ -25728,7 +25728,7 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-gray-900">📊 Günlük Değerlendirme Raporu</h3>
                 <button
-                  onClick={generateDailyReport}
+                  onClick={() => setShowDateRangeModal(true)}
                   disabled={loading}
                   className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50"
                 >
