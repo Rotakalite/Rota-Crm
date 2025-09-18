@@ -19958,9 +19958,10 @@ async def get_front_office_dashboard(
                 "occupied": occupied_today
             },
             "monthly_stats": {
-                "total_nights": monthly_data["total_nights"],
+                "total_guest_nights": monthly_data["total_guest_nights"],
+                "total_room_nights": monthly_data["total_room_nights"],
                 "total_revenue": monthly_data["total_revenue"],
-                "avg_rate": round(monthly_data["total_revenue"] / monthly_data["total_nights"]) if monthly_data["total_nights"] > 0 else 0
+                "avg_rate": round(monthly_data["total_revenue"] / monthly_data["total_room_nights"]) if monthly_data["total_room_nights"] > 0 else 0
             },
             "recent_reservations": clean_recent
         }
