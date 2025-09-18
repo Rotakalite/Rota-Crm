@@ -24998,7 +24998,13 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showRoomSetup, setShowRoomSetup] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showDateRangeModal, setShowDateRangeModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
+  
+  // Date range states for Excel reports
+  const [reportStartDate, setReportStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [reportEndDate, setReportEndDate] = useState(new Date().toISOString().split('T')[0]);
+  const [isDateRange, setIsDateRange] = useState(false);
   
   // Personnel states
   const [personnel, setPersonnel] = useState([]);
