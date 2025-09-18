@@ -20569,22 +20569,30 @@ if frontend_build_path.exists():
     app.mount("/static", StaticFiles(directory=str(frontend_build_path / "static")), name="static")
     logging.info(f"✅ Static files mounted from: {frontend_build_path}")
     
-    # Serve React app for all non-API routes
+    # Serve React app for specific non-API routes only
     from fastapi.responses import FileResponse
     
-    @app.get("/{path:path}")
-    async def serve_react_app(path: str):
-        """Serve React app for all non-API routes"""
-        # Don't serve React for API routes
-        if path.startswith("api/"):
-            raise HTTPException(status_code=404, detail="API endpoint not found")
-        
-        # Serve index.html for all other routes (React Router will handle routing)
+    @app.get("/")
+    async def serve_home():
+        """Serve React app home page"""
         index_path = frontend_build_path / "index.html"
         if index_path.exists():
             return FileResponse(str(index_path))
         else:
             raise HTTPException(status_code=404, detail="Frontend not found")
+    
+    # Handle common React routes
+    react_routes = ["/dashboard", "/clients", "/consumptions", "/documents", "/training", "/personnel", "/hk", "/front-office"]
+    for route in react_routes:
+        @app.get(route)
+        @app.get(f"{route}/{{sub_path:path}}")
+        async def serve_react_route(sub_path: str = ""):
+            """Serve React app for specific routes"""
+            index_path = frontend_build_path / "index.html"
+            if index_path.exists():
+                return FileResponse(str(index_path))
+            else:
+                raise HTTPException(status_code=404, detail="Frontend not found")
             
     logging.info("✅ React app serving configured")
 else:
