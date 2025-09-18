@@ -20444,6 +20444,11 @@ async def get_monthly_occupancy_data(
         logging.error(f"❌ Full traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Aylık doluluk verisi alınamadı: {str(e)}")
 
+@api_router.get("/available-rooms-test")
+async def available_rooms_test():
+    """Simple test endpoint without authentication"""
+    return {"status": "working", "message": "Available rooms test endpoint is accessible"}
+
 @api_router.get("/front-office/test-available-rooms")
 async def test_available_rooms():
     """Simple test endpoint to check if front-office routes work"""
