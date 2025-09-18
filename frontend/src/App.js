@@ -1090,6 +1090,12 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [availableRooms, setAvailableRooms] = useState([]);
   
+  // Date range states for Excel reports
+  const [showDateRangeModal, setShowDateRangeModal] = useState(false);
+  const [reportStartDate, setReportStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [reportEndDate, setReportEndDate] = useState(new Date().toISOString().split('T')[0]);
+  const [isDateRange, setIsDateRange] = useState(false);
+  
   // Client selection states
   const [clients, setClients] = useState([]);
   
