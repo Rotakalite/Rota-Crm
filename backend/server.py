@@ -19310,7 +19310,8 @@ async def get_hk_daily_report(
         ws['A1'].font = header_font
         ws['A2'] = hotel_name
         ws['A2'].font = sub_header_font
-        ws['A3'] = f"Tarih: {report_date_obj.strftime('%d/%m/%Y')}"
+        period_text = report_date_obj.strftime('%d/%m/%Y')
+        ws['A3'] = f"Dönem: {period_text}"
         ws['A3'].font = normal_font
         
         # Room Summary
