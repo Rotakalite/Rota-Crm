@@ -225,8 +225,17 @@ def test_reservation_client_id_parameter():
     # Test 10: Frontend URL Configuration Check
     print("\n🔟 Testing Frontend URL Configuration...")
     try:
-        # Check if frontend is pointing to correct backend
-        frontend_backend_url = "https://ecowave-saas.preview.emergentagent.com"  # From frontend .env
+        # Read frontend .env file to check URL
+        with open("/app/frontend/.env", "r") as f:
+            env_content = f.read()
+        
+        # Extract REACT_APP_BACKEND_URL
+        frontend_backend_url = None
+        for line in env_content.split('\n'):
+            if line.startswith('REACT_APP_BACKEND_URL='):
+                frontend_backend_url = line.split('=', 1)[1]
+                break
+        
         expected_backend_url = "https://rota-crm-production.up.railway.app"
         
         if frontend_backend_url == expected_backend_url:
