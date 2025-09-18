@@ -1560,7 +1560,14 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-gray-900">📅 Rezervasyonlar</h3>
               <button
-                onClick={() => setShowReservationModal(true)}
+                onClick={() => {
+                  // Admin/Consultant için client seçimi kontrolü
+                  if ((userRole === 'admin' || userRole === 'consultant') && !effectiveSelectedClient) {
+                    alert('⚠️ Rezervasyon oluşturmadan önce lütfen bir müşteri seçin');
+                    return;
+                  }
+                  setShowReservationModal(true);
+                }}
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 + Yeni Rezervasyon
