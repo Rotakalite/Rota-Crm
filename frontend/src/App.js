@@ -2013,6 +2013,7 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
                   <button
                     onClick={() => {
                       setShowReservationModal(false);
+                      setEditingReservation(null);
                       setNewReservation({
                         guest_name: '',
                         guest_email: '',
@@ -2023,6 +2024,7 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
                         adults: 1,
                         children: 0,
                         room_rate: 0,
+                        payment_status: 'pending',
                         booking_source: 'front_desk',
                         special_requests: '',
                         notes: ''
@@ -2033,11 +2035,12 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
                     ❌ İptal
                   </button>
                   <button
-                    onClick={createReservation}
+                    onClick={editingReservation ? handleUpdateReservation : createReservation}
                     disabled={loading || !newReservation.guest_name || !newReservation.room_id || !newReservation.check_in_date || !newReservation.check_out_date}
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loading ? '⏳ Oluşturuluyor...' : '✅ Rezervasyon Oluştur'}
+                    {loading ? '⏳ İşleniyor...' : 
+                     editingReservation ? '💾 Rezervasyon Güncelle' : '✅ Rezervasyon Oluştur'}
                   </button>
                 </div>
               </div>
