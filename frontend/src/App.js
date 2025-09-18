@@ -2321,6 +2321,96 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
             </div>
           </div>
         )}
+
+        {/* Date Range Modal for Excel Reports */}
+        {showDateRangeModal && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-1/3 shadow-lg rounded-md bg-white">
+              <div className="mt-3">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  📊 Front Office Excel Rapor Tarih Seçimi
+                </h3>
+                
+                <div className="space-y-4">
+                  {/* Single Date or Date Range Selection */}
+                  <div>
+                    <label className="flex items-center space-x-2 mb-3">
+                      <input
+                        type="radio"
+                        name="foDateType"
+                        checked={!isDateRange}
+                        onChange={() => setIsDateRange(false)}
+                        className="text-blue-600"
+                      />
+                      <span className="text-sm text-gray-700">📅 Tek Gün</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name="foDateType"
+                        checked={isDateRange}
+                        onChange={() => setIsDateRange(true)}
+                        className="text-blue-600"
+                      />
+                      <span className="text-sm text-gray-700">📆 Tarih Aralığı</span>
+                    </label>
+                  </div>
+
+                  {/* Start Date */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {isDateRange ? 'Başlangıç Tarihi' : 'Rapor Tarihi'}
+                    </label>
+                    <input
+                      type="date"
+                      value={reportStartDate}
+                      onChange={(e) => setReportStartDate(e.target.value)}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* End Date (only if date range selected) */}
+                  {isDateRange && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Bitiş Tarihi</label>
+                      <input
+                        type="date"
+                        value={reportEndDate}
+                        onChange={(e) => setReportEndDate(e.target.value)}
+                        min={reportStartDate}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-end space-x-3 mt-6">
+                  <button
+                    onClick={() => {
+                      setShowDateRangeModal(false);
+                      setIsDateRange(false);
+                    }}
+                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    ❌ İptal
+                  </button>
+                  <button
+                    onClick={() => {
+                      const endDate = isDateRange ? reportEndDate : reportStartDate;
+                      handleGenerateExcelReport(reportStartDate, endDate);
+                      setShowDateRangeModal(false);
+                    }}
+                    disabled={loading || !reportStartDate || (isDateRange && !reportEndDate)}
+                    className="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? '⏳ Oluşturuluyor...' : '📊 Excel İndir'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
