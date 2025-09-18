@@ -20268,7 +20268,8 @@ async def get_monthly_occupancy_data(
         # Calculate daily occupancy for the month
         occupancy_data = []
         monthly_stats = {
-            "total_nights": 0,
+            "total_guest_nights": 0,
+            "total_room_nights": 0,
             "total_revenue": 0,
             "avg_occupancy": 0,
             "peak_occupancy": 0,
@@ -20289,7 +20290,7 @@ async def get_monthly_occupancy_data(
                 "status": {"$nin": ["cancelled", "no_show"]}
             })
             
-            # Get revenue for this day
+            # Get revenue and guest nights for this day
             daily_reservations = await db.reservations.find({
                 "client_id": target_client_id,
                 "check_in_date": {"$lte": current_date},
@@ -20298,6 +20299,7 @@ async def get_monthly_occupancy_data(
             }).to_list(length=None)
             
             daily_revenue = sum(res.get("room_rate", 0) for res in daily_reservations)
+            daily_guest_nights = sum((res.get("adults", 1) + res.get("children", 0)) for res in daily_reservations)
             
             occupancy_rate = (occupied / total_rooms * 100) if total_rooms > 0 else 0
             
@@ -20307,11 +20309,13 @@ async def get_monthly_occupancy_data(
                 "occupied_rooms": occupied,
                 "total_rooms": total_rooms,
                 "occupancy_rate": round(occupancy_rate, 1),
-                "revenue": daily_revenue
+                "revenue": daily_revenue,
+                "guest_nights": daily_guest_nights
             })
             
             # Update monthly stats
-            monthly_stats["total_nights"] += occupied
+            monthly_stats["total_guest_nights"] += daily_guest_nights
+            monthly_stats["total_room_nights"] += occupied
             monthly_stats["total_revenue"] += daily_revenue
             
             if occupancy_rate > monthly_stats["peak_occupancy"]:
