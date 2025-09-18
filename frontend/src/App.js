@@ -2120,17 +2120,29 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Oda Seçimi *</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Oda Seçimi * 
+                        {newReservation.check_in_date && newReservation.check_out_date && (
+                          <span className="text-green-600 font-medium ml-2">
+                            ({availableRooms.length} müsait oda)
+                          </span>
+                        )}
+                      </label>
                       <select
                         value={newReservation.room_id}
                         onChange={(e) => setNewReservation({...newReservation, room_id: e.target.value})}
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         required
                       >
-                        <option value="">Oda seçiniz...</option>
+                        <option value="">
+                          {newReservation.check_in_date && newReservation.check_out_date 
+                            ? (availableRooms.length > 0 ? "Oda seçiniz..." : "Bu tarihler için müsait oda yok") 
+                            : "Önce tarih seçiniz..."
+                          }
+                        </option>
                         {availableRooms.map(room => (
                           <option key={room.id} value={room.id}>
-                            {room.room_number} - {room.room_type}
+                            Oda {room.room_number} - {room.room_type} ({room.floor_name})
                           </option>
                         ))}
                       </select>
