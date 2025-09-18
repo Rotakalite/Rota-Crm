@@ -19360,8 +19360,37 @@ async def get_hk_daily_report(
                 ws.cell(row=data_row, column=2, value=task.get('room_number', 'N/A'))
                 ws.cell(row=data_row, column=3, value=task.get('task_type', 'N/A'))
                 ws.cell(row=data_row, column=4, value=task.get('assigned_staff', 'N/A'))
-                ws.cell(row=data_row, column=5, value=task.get('status', 'N/A'))
-                ws.cell(row=data_row, column=6, value=task.get('created_at', 'N/A'))
+                
+                # Enhanced status with completion details
+                status = task.get('status', 'N/A')
+                if status == 'completed':
+                    # Add completion time if available
+                    end_time = task.get('end_time')
+                    if end_time:
+                        if isinstance(end_time, datetime):
+                            completion_time = end_time.strftime('%H:%M')
+                        else:
+                            completion_time = str(end_time)
+                        status_text = f"✅ Tamamlandı ({completion_time})"
+                    else:
+                        status_text = "✅ Tamamlandı"
+                elif status == 'in_progress':
+                    status_text = "🔄 Devam Ediyor"
+                elif status == 'pending':
+                    status_text = "⏳ Bekliyor"
+                else:
+                    status_text = status
+                
+                ws.cell(row=data_row, column=5, value=status_text)
+                
+                # Creation time formatting
+                created_at = task.get('created_at')
+                if isinstance(created_at, datetime):
+                    time_text = created_at.strftime('%H:%M')
+                else:
+                    time_text = str(created_at) if created_at else 'N/A'
+                    
+                ws.cell(row=data_row, column=6, value=time_text)
         
         # Save to BytesIO
         excel_buffer = BytesIO()
