@@ -20134,18 +20134,31 @@ async def generate_front_office_excel_report(
         period_cell.font = Font(size=12, bold=True)
         period_cell.alignment = center_alignment
         
-        # Statistics
+        # Statistics - Calculate guest nights properly
         total_reservations = len(reservations)
-        total_nights = sum(res.get("nights", 0) for res in reservations)
+        total_room_nights = sum(res.get("nights", 0) for res in reservations)
+        total_guest_nights = 0
+        
+        for res in reservations:
+            guest_nights = res.get("guest_nights")
+            if not guest_nights:
+                nights = res.get("nights", 0)
+                adults = res.get("adults", 1)
+                children = res.get("children", 0)
+                guest_nights = nights * (adults + children)
+            total_guest_nights += guest_nights
+        
         total_revenue = sum(res.get("total_amount", 0) for res in reservations)
-        avg_rate = total_revenue / total_nights if total_nights > 0 else 0
+        avg_rate = total_revenue / total_room_nights if total_room_nights > 0 else 0
         
         stats_data = [
             ["Toplam Rezervasyon", total_reservations],
-            ["Toplam Gece", total_nights],
+            ["Toplam Oda Gecesi", total_room_nights],
+            ["Toplam Geceleme (Kişi)", total_guest_nights],
             ["Toplam Gelir", f"₺{total_revenue:.2f}"],
             ["Ortalama Oda Fiyatı", f"₺{avg_rate:.2f}"],
-            ["Ortalama Konaklama", f"{total_nights/total_reservations:.1f} gece" if total_reservations > 0 else "0 gece"]
+            ["Ortalama Konaklama", f"{total_room_nights/total_reservations:.1f} gece" if total_reservations > 0 else "0 gece"],
+            ["Ortalama Kişi/Oda", f"{total_guest_nights/total_room_nights:.1f} kişi" if total_room_nights > 0 else "0 kişi"]
         ]
         
         for row, (label, value) in enumerate(stats_data, 5):
