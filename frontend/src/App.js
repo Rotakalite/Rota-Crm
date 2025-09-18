@@ -1084,6 +1084,9 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
   const [guests, setGuests] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [dashboardStats, setDashboardStats] = useState({});
+  const [monthlyOccupancy, setMonthlyOccupancy] = useState({});
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [activeTab, setActiveTab] = useState('dashboard');
   const [availableRooms, setAvailableRooms] = useState([]);
   
