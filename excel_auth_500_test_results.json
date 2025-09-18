@@ -1,0 +1,175 @@
+{
+  "test_summary": {
+    "total_tests": 18,
+    "passed_tests": 18,
+    "failed_tests": 0,
+    "success_rate": 100.0,
+    "error_500_reproduced": false,
+    "test_timestamp": "2025-09-18T14:09:15.439234"
+  },
+  "test_results": [
+    {
+      "test": "JWT Token Test - Valid JWT Structure Invalid Signature",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected auth error. Token type: Valid JWT Structure Invalid Signature",
+      "status_code": 401,
+      "error_detail": "Token verification failed",
+      "timestamp": "2025-09-18T14:09:08.900516"
+    },
+    {
+      "test": "JWT Token Test - JWT Missing Signature",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected auth error. Token type: JWT Missing Signature",
+      "status_code": 401,
+      "error_detail": "Token verification failed",
+      "timestamp": "2025-09-18T14:09:09.435325"
+    },
+    {
+      "test": "JWT Token Test - JWT Extra Parts",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected auth error. Token type: JWT Extra Parts",
+      "status_code": 401,
+      "error_detail": "Invalid token format",
+      "timestamp": "2025-09-18T14:09:09.890904"
+    },
+    {
+      "test": "JWT Token Test - JWT Invalid Base64",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected auth error. Token type: JWT Invalid Base64",
+      "status_code": 401,
+      "error_detail": "Invalid token",
+      "timestamp": "2025-09-18T14:09:10.333740"
+    },
+    {
+      "test": "JWT Token Test - JWT Invalid JSON",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected auth error. Token type: JWT Invalid JSON",
+      "status_code": 401,
+      "error_detail": "Invalid token",
+      "timestamp": "2025-09-18T14:09:10.786103"
+    },
+    {
+      "test": "JWT Token Test - JWT Expired Token",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected auth error. Token type: JWT Expired Token",
+      "status_code": 401,
+      "error_detail": "Token verification failed",
+      "timestamp": "2025-09-18T14:09:11.169714"
+    },
+    {
+      "test": "JWT Token Test - JWT Future Issued",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected auth error. Token type: JWT Future Issued",
+      "status_code": 401,
+      "error_detail": "Token verification failed",
+      "timestamp": "2025-09-18T14:09:11.541881"
+    },
+    {
+      "test": "JWT Token Test - JWT Missing Claims",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected auth error. Token type: JWT Missing Claims",
+      "status_code": 401,
+      "error_detail": "Token verification failed",
+      "timestamp": "2025-09-18T14:09:11.930942"
+    },
+    {
+      "test": "JWT Token Test - JWT Very Long Token",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected auth error. Token type: JWT Very Long Token",
+      "status_code": 401,
+      "error_detail": "Token verification failed",
+      "timestamp": "2025-09-18T14:09:12.506198"
+    },
+    {
+      "test": "JWT Token Test - JWT With Null Bytes",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Bad request (expected for malformed token). Token type: JWT With Null Bytes",
+      "status_code": 400,
+      "error_detail": "400 Bad Request",
+      "timestamp": "2025-09-18T14:09:12.666836"
+    },
+    {
+      "test": "Edge Case - Very Long Client ID",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected error response. Case: Very Long Client ID",
+      "status_code": 401,
+      "error_detail": "Invalid token format",
+      "timestamp": "2025-09-18T14:09:13.119775"
+    },
+    {
+      "test": "Edge Case - Client ID with Special Characters",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected error response. Case: Client ID with Special Characters",
+      "status_code": 401,
+      "error_detail": "Invalid token format",
+      "timestamp": "2025-09-18T14:09:13.433287"
+    },
+    {
+      "test": "Edge Case - Client ID with SQL Injection Attempt",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected error response. Case: Client ID with SQL Injection Attempt",
+      "status_code": 401,
+      "error_detail": "Invalid token format",
+      "timestamp": "2025-09-18T14:09:13.765604"
+    },
+    {
+      "test": "Edge Case - Client ID with Unicode Characters",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected error response. Case: Client ID with Unicode Characters",
+      "status_code": 401,
+      "error_detail": "Invalid token format",
+      "timestamp": "2025-09-18T14:09:14.206806"
+    },
+    {
+      "test": "Edge Case - Multiple Client IDs",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected error response. Case: Multiple Client IDs",
+      "status_code": 401,
+      "error_detail": "Invalid token format",
+      "timestamp": "2025-09-18T14:09:14.509829"
+    },
+    {
+      "test": "Edge Case - Invalid Date Format",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected error response. Case: Invalid Date Format",
+      "status_code": 401,
+      "error_detail": "Invalid token format",
+      "timestamp": "2025-09-18T14:09:14.820472"
+    },
+    {
+      "test": "Edge Case - Date Range Too Large",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected error response. Case: Date Range Too Large",
+      "status_code": 401,
+      "error_detail": "Invalid token format",
+      "timestamp": "2025-09-18T14:09:15.129333"
+    },
+    {
+      "test": "Edge Case - Negative Date Values",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected error response. Case: Negative Date Values",
+      "status_code": 401,
+      "error_detail": "Invalid token format",
+      "timestamp": "2025-09-18T14:09:15.437823"
+    }
+  ],
+  "error_500_tests": []
+}
