@@ -1522,6 +1522,32 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
+  const fetchMonthlyOccupancy = async () => {
+    setLoading(true);
+    
+    try {
+      let url = `${API}/front-office/monthly-occupancy?year=${selectedYear}&month=${selectedMonth}`;
+      
+      // Admin/Consultant için client_id parametresi ekle
+      if ((userRole === 'admin' || userRole === 'consultant') && effectiveSelectedClient) {
+        url += `&client_id=${effectiveSelectedClient}`;
+      }
+      
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      console.log('📊 Monthly occupancy data:', response.data);
+      setMonthlyOccupancy(response.data);
+      
+    } catch (error) {
+      console.error('❌ Error fetching monthly occupancy:', error);
+      setMonthlyOccupancy({}); // Reset on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Initial data load
   useEffect(() => {
     if (authToken && userRole) {
