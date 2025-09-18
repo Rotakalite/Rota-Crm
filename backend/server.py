@@ -20080,12 +20080,12 @@ async def generate_front_office_excel_report(
     end_date: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
-    """Generate comprehensive Front Office Excel report"""
+    """Generate Front Office Excel report - Simplified like HK module"""
     
     try:
         logging.info(f"📊 Generating Front Office Excel report for user: {current_user.role}")
         
-        # Get client_id based on user role
+        # Get client_id based on user role (same pattern as HK module)
         if current_user.role == UserRole.ADMIN:
             if client_id:
                 target_client_id = client_id
@@ -20109,11 +20109,11 @@ async def generate_front_office_excel_report(
             if not target_client_id:
                 raise HTTPException(status_code=403, detail="Client ID not found for user")
         
-        # Get client info
-        client_info = await db.clients.find_one({"id": target_client_id})
-        client_name = client_info["company_name"] if client_info else "Otel"
+        # Get hotel info
+        hotel_info = await db.clients.find_one({"id": target_client_id})
+        hotel_name = hotel_info.get("name", "Hotel") if hotel_info else "Hotel"
         
-        # Date range
+        # Date range - use current month if not specified
         if start_date and end_date:
             start_dt = datetime.strptime(start_date, "%Y-%m-%d")
             end_dt = datetime.strptime(end_date, "%Y-%m-%d")
@@ -20123,60 +20123,31 @@ async def generate_front_office_excel_report(
             start_dt = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
             end_dt = (start_dt + timedelta(days=32)).replace(day=1) - timedelta(days=1)
         
-        # Import openpyxl
-        from openpyxl import Workbook
-        from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
-        from openpyxl.utils import get_column_letter
-        
-        # Create workbook
-        wb = Workbook()
-        
-        # 1. RESERVATIONS SHEET
-        ws_reservations = wb.active
-        ws_reservations.title = "Rezervasyonlar"
-        
-        # Header style
-        header_font = Font(bold=True, color="FFFFFF")
-        header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
-        border = Border(
-            left=Side(style='thin'),
-            right=Side(style='thin'),
-            top=Side(style='thin'),
-            bottom=Side(style='thin')
-        )
-        center_alignment = Alignment(horizontal='center', vertical='center')
-        
-        # Reservations headers
-        res_headers = [
-            "Rezervasyon ID", "Misafir Adı", "Email", "Telefon", "Oda", 
-            "Giriş Tarihi", "Çıkış Tarihi", "Gece", "Geceleme", "Kişi", "Çocuk",
-            "Oda Ücreti", "Toplam Tutar", "Ödeme Durumu", "Kaynak", "Durum", "Notlar"
-        ]
-        
-        # Set headers
-        for col, header in enumerate(res_headers, 1):
-            cell = ws_reservations.cell(row=1, column=col, value=header)
-            cell.font = header_font
-            cell.fill = header_fill
-            cell.border = border
-            cell.alignment = center_alignment
-        
-        # Get reservations data
-        reservations_query = {
+        # Get reservations for the period
+        reservations_raw = await db.reservations.find({
             "client_id": target_client_id,
             "check_in_date": {"$gte": start_dt, "$lte": end_dt}
-        }
-        reservations = await db.reservations.find(reservations_query).to_list(length=None)
+        }).sort("check_in_date", 1).to_list(length=None)
         
-        # Add reservation data
-        for row, reservation in enumerate(reservations, 2):
-            # Get room number
-            room = await db.rooms.find_one({"id": reservation.get("room_id"), "client_id": target_client_id})
-            room_number = room.get("room_number", "N/A") if room else reservation.get("room_id", "N/A")
+        # Clean and prepare reservation data
+        reservations = []
+        room_lookup = {}  # Cache for room numbers
+        
+        for reservation in reservations_raw:
+            if "_id" in reservation:
+                del reservation["_id"]
             
-            # Format dates
-            check_in_str = reservation.get("check_in_date", "").strftime("%d.%m.%Y") if isinstance(reservation.get("check_in_date"), datetime) else str(reservation.get("check_in_date", ""))
-            check_out_str = reservation.get("check_out_date", "").strftime("%d.%m.%Y") if isinstance(reservation.get("check_out_date"), datetime) else str(reservation.get("check_out_date", ""))
+            # Get room number from room_id
+            room_id = reservation.get('room_id')
+            if room_id and room_id not in room_lookup:
+                room_info = await db.rooms.find_one({"id": room_id, "client_id": target_client_id})
+                if room_info:
+                    room_lookup[room_id] = room_info.get('room_number', room_id)
+                else:
+                    room_lookup[room_id] = f"Room-{room_id[:8]}"  # Fallback
+            
+            # Add room_number to reservation
+            reservation['room_number'] = room_lookup.get(room_id, 'N/A')
             
             # Calculate guest_nights if not present
             guest_nights = reservation.get("guest_nights")
@@ -20185,155 +20156,121 @@ async def generate_front_office_excel_report(
                 adults = reservation.get("adults", 1)
                 children = reservation.get("children", 0)
                 guest_nights = nights * (adults + children)
+                reservation['guest_nights'] = guest_nights
             
-            row_data = [
-                reservation.get("id", ""),
-                reservation.get("guest_name", ""),
-                reservation.get("guest_email", ""),
-                reservation.get("guest_phone", ""),
-                room_number,
-                check_in_str,
-                check_out_str,
-                reservation.get("nights", 0),
-                guest_nights,  # New column: Total guest nights
-                reservation.get("adults", 0),
-                reservation.get("children", 0),
-                f"₺{reservation.get('room_rate', 0):.2f}",
-                f"₺{reservation.get('total_amount', 0):.2f}",
-                reservation.get("payment_status", ""),
-                reservation.get("booking_source", ""),
-                reservation.get("status", ""),
-                reservation.get("notes", "")
-            ]
-            
-            for col, value in enumerate(row_data, 1):
-                cell = ws_reservations.cell(row=row, column=col, value=value)
-                cell.border = border
-                if col in [7, 8, 9]:  # Numeric columns
-                    cell.alignment = Alignment(horizontal='center')
+            reservations.append(reservation)
         
-        # Auto-adjust column widths
-        for col in range(1, len(res_headers) + 1):
-            ws_reservations.column_dimensions[get_column_letter(col)].width = 15
-        
-        # 2. MONTHLY STATISTICS SHEET
-        ws_stats = wb.create_sheet("Aylık İstatistikler")
-        
-        # Title
-        ws_stats.merge_cells('A1:F2')
-        title_cell = ws_stats['A1']
-        title_cell.value = f"{client_name} - Ön Büro Raporu"
-        title_cell.font = Font(size=16, bold=True)
-        title_cell.alignment = center_alignment
-        title_cell.fill = PatternFill(start_color="E6F3FF", end_color="E6F3FF", fill_type="solid")
-        
-        # Period info
-        ws_stats.merge_cells('A3:F3')
-        period_cell = ws_stats['A3']
-        period_cell.value = f"Dönem: {start_dt.strftime('%d.%m.%Y')} - {end_dt.strftime('%d.%m.%Y')}"
-        period_cell.font = Font(size=12, bold=True)
-        period_cell.alignment = center_alignment
-        
-        # Statistics - Calculate guest nights properly
+        # Calculate statistics
         total_reservations = len(reservations)
         total_room_nights = sum(res.get("nights", 0) for res in reservations)
-        total_guest_nights = 0
-        
-        for res in reservations:
-            guest_nights = res.get("guest_nights")
-            if not guest_nights:
-                nights = res.get("nights", 0)
-                adults = res.get("adults", 1)
-                children = res.get("children", 0)
-                guest_nights = nights * (adults + children)
-            total_guest_nights += guest_nights
-        
+        total_guest_nights = sum(res.get("guest_nights", 0) for res in reservations)
         total_revenue = sum(res.get("total_amount", 0) for res in reservations)
         avg_rate = total_revenue / total_room_nights if total_room_nights > 0 else 0
         
-        stats_data = [
-            ["Toplam Rezervasyon", total_reservations],
-            ["Toplam Oda Gecesi", total_room_nights],
-            ["Toplam Geceleme (Kişi)", total_guest_nights],
-            ["Toplam Gelir", f"₺{total_revenue:.2f}"],
-            ["Ortalama Oda Fiyatı", f"₺{avg_rate:.2f}"],
-            ["Ortalama Konaklama", f"{total_room_nights/total_reservations:.1f} gece" if total_reservations > 0 else "0 gece"],
-            ["Ortalama Kişi/Oda", f"{total_guest_nights/total_room_nights:.1f} kişi" if total_room_nights > 0 else "0 kişi"]
-        ]
+        # Generate Excel file using simple HK approach
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, PatternFill, Alignment
+        from io import BytesIO
         
-        for row, (label, value) in enumerate(stats_data, 5):
-            ws_stats.cell(row=row, column=2, value=label).font = Font(bold=True)
-            ws_stats.cell(row=row, column=3, value=value)
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Front Office Rapor"
         
-        # 3. OCCUPANCY ANALYSIS SHEET
-        ws_occupancy = wb.create_sheet("Doluluk Analizi")
+        # Styles
+        header_font = Font(bold=True, size=14)
+        sub_header_font = Font(bold=True, size=12)
+        normal_font = Font(size=11)
         
-        # Get room count
-        total_rooms = await db.rooms.count_documents({"client_id": target_client_id})
+        # Header
+        ws['A1'] = f"FRONT OFFICE REZERVASYON RAPORU"
+        ws['A1'].font = header_font
+        ws['A2'] = hotel_name
+        ws['A2'].font = sub_header_font
+        ws['A3'] = f"Dönem: {start_dt.strftime('%d/%m/%Y')} - {end_dt.strftime('%d/%m/%Y')}"
+        ws['A3'].font = normal_font
         
-        # Calculate daily occupancy for the period
-        current_date = start_dt
-        occupancy_data = []
+        # Summary Statistics
+        ws['A5'] = "GENEL ÖZETİ"
+        ws['A5'].font = sub_header_font
+        ws['A6'] = f"Toplam Rezervasyon: {total_reservations}"
+        ws['A7'] = f"Toplam Oda Gecesi: {total_room_nights}"
+        ws['A8'] = f"Toplam Geceleme (Kişi): {total_guest_nights}"
+        ws['A9'] = f"Toplam Gelir: ₺{total_revenue:.2f}"
+        ws['A10'] = f"Ortalama Oda Fiyatı: ₺{avg_rate:.2f}"
+        ws['A11'] = f"Ortalama Konaklama: {total_room_nights/total_reservations:.1f} gece" if total_reservations > 0 else "0 gece"
         
-        while current_date <= end_dt:
-            next_date = current_date + timedelta(days=1)
+        # Detailed Reservations
+        if reservations:
+            start_row = 13
+            ws[f'A{start_row}'] = "DETAYLI REZERVASYON LİSTESİ"
+            ws[f'A{start_row}'].font = sub_header_font
             
-            # Count occupied rooms for this day
-            occupied = await db.reservations.count_documents({
-                "client_id": target_client_id,
-                "check_in_date": {"$lte": current_date},
-                "check_out_date": {"$gt": current_date},
-                "status": {"$nin": ["cancelled", "no_show"]}
-            })
+            # Headers
+            headers = ["Sıra", "Misafir", "Oda", "Giriş", "Çıkış", "Gece", "Geceleme", "Tutar", "Durum"]
+            header_row = start_row + 1
+            for i, header in enumerate(headers):
+                ws.cell(row=header_row, column=i+1, value=header).font = Font(bold=True)
             
-            occupancy_rate = (occupied / total_rooms * 100) if total_rooms > 0 else 0
-            occupancy_data.append([
-                current_date.strftime("%d.%m.%Y"),
-                occupied,
-                total_rooms,
-                f"{occupancy_rate:.1f}%"
-            ])
-            
-            current_date = next_date
-        
-        # Headers for occupancy
-        occ_headers = ["Tarih", "Dolu Oda", "Toplam Oda", "Doluluk Oranı"]
-        for col, header in enumerate(occ_headers, 1):
-            cell = ws_occupancy.cell(row=1, column=col, value=header)
-            cell.font = header_font
-            cell.fill = header_fill
-            cell.border = border
-            cell.alignment = center_alignment
-        
-        # Add occupancy data
-        for row, data in enumerate(occupancy_data, 2):
-            for col, value in enumerate(data, 1):
-                cell = ws_occupancy.cell(row=row, column=col, value=value)
-                cell.border = border
-        
-        # Auto-adjust occupancy columns
-        for col in range(1, len(occ_headers) + 1):
-            ws_occupancy.column_dimensions[get_column_letter(col)].width = 15
+            # Data
+            for i, reservation in enumerate(reservations):
+                data_row = header_row + 1 + i
+                ws.cell(row=data_row, column=1, value=i+1)
+                ws.cell(row=data_row, column=2, value=reservation.get('guest_name', 'N/A'))
+                ws.cell(row=data_row, column=3, value=reservation.get('room_number', 'N/A'))
+                
+                # Format dates
+                check_in = reservation.get('check_in_date')
+                check_out = reservation.get('check_out_date')
+                
+                if isinstance(check_in, datetime):
+                    check_in_str = check_in.strftime('%d.%m.%Y')
+                else:
+                    check_in_str = str(check_in) if check_in else 'N/A'
+                
+                if isinstance(check_out, datetime):
+                    check_out_str = check_out.strftime('%d.%m.%Y')
+                else:
+                    check_out_str = str(check_out) if check_out else 'N/A'
+                
+                ws.cell(row=data_row, column=4, value=check_in_str)
+                ws.cell(row=data_row, column=5, value=check_out_str)
+                ws.cell(row=data_row, column=6, value=reservation.get('nights', 0))
+                ws.cell(row=data_row, column=7, value=reservation.get('guest_nights', 0))
+                ws.cell(row=data_row, column=8, value=f"₺{reservation.get('total_amount', 0):.2f}")
+                
+                # Status formatting
+                status = reservation.get('status', 'N/A')
+                if status == 'confirmed':
+                    status_text = "✅ Onaylandı"
+                elif status == 'checked_in':
+                    status_text = "🏨 Giriş Yaptı"
+                elif status == 'checked_out':
+                    status_text = "🚪 Çıkış Yaptı"
+                else:
+                    status_text = status
+                
+                ws.cell(row=data_row, column=9, value=status_text)
         
         # Save to BytesIO
-        from io import BytesIO
-        output = BytesIO()
-        wb.save(output)
-        output.seek(0)
+        excel_buffer = BytesIO()
+        wb.save(excel_buffer)
+        excel_buffer.seek(0)
         
-        # Return file
+        # Generate filename
+        filename = f"Front_Office_Rapor_{start_dt.strftime('%d_%m_%Y')}_{end_dt.strftime('%d_%m_%Y')}.xlsx"
+        
+        logging.info(f"📊 Front Office Excel report generated successfully: {filename}")
+        
+        # Return Excel file
         from fastapi.responses import StreamingResponse
-        
-        filename = f"Front_Office_Rapor_{client_name}_{start_dt.strftime('%Y%m%d')}_{end_dt.strftime('%Y%m%d')}.xlsx"
-        
         return StreamingResponse(
-            BytesIO(output.read()),
+            BytesIO(excel_buffer.read()),
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
         
     except Exception as e:
-        logging.error(f"❌ Error generating Front Office Excel report: {str(e)}")
+        logging.error(f"❌ Error generating Front Office Excel: {str(e)}")
         import traceback
         logging.error(f"❌ Full traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Excel raporu oluşturulamadı: {str(e)}")
