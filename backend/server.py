@@ -20049,7 +20049,7 @@ async def generate_front_office_excel_report(
         # Reservations headers
         res_headers = [
             "Rezervasyon ID", "Misafir Adı", "Email", "Telefon", "Oda", 
-            "Giriş Tarihi", "Çıkış Tarihi", "Gece", "Kişi", "Çocuk",
+            "Giriş Tarihi", "Çıkış Tarihi", "Gece", "Geceleme", "Kişi", "Çocuk",
             "Oda Ücreti", "Toplam Tutar", "Ödeme Durumu", "Kaynak", "Durum", "Notlar"
         ]
         
