@@ -1,0 +1,163 @@
+{
+  "test_summary": {
+    "total_tests": 16,
+    "passed_tests": 13,
+    "failed_tests": 3,
+    "success_rate": 81.25,
+    "backend_url": "https://rota-crm-production.up.railway.app",
+    "test_timestamp": "2025-09-18T08:38:27.023918",
+    "test_focus": "Front Office Enhancements - New Features Testing",
+    "critical_500_errors": 0,
+    "missing_endpoints": 0
+  },
+  "test_results": [
+    {
+      "test": "Backend Health Check",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Railway production backend accessible (Status: 200)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T08:38:22.033512"
+    },
+    {
+      "test": "PUT /api/reservations/{id} - Endpoint Exists",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "🚨 CRITICAL: Reservation edit endpoint not found!",
+      "expected": "Not 404",
+      "actual": "404",
+      "timestamp": "2025-09-18T08:38:22.503861"
+    },
+    {
+      "test": "GET /api/front-office/report/excel - Endpoint Exists",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "🚨 CRITICAL: Excel report endpoint not found!",
+      "expected": "Not 404",
+      "actual": "404",
+      "timestamp": "2025-09-18T08:38:22.811729"
+    },
+    {
+      "test": "GET /api/front-office/monthly-occupancy - Endpoint Exists",
+      "status": "❌ FAIL",
+      "success": false,
+      "details": "🚨 CRITICAL: Monthly occupancy endpoint not found!",
+      "expected": "Not 404",
+      "actual": "404",
+      "timestamp": "2025-09-18T08:38:23.279922"
+    },
+    {
+      "test": "Role-Based Access - No Client ID (/api/reservations/test-id)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Endpoint accessible without client_id (Status: 404)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T08:38:23.591098"
+    },
+    {
+      "test": "Role-Based Access - With Client ID (/api/reservations/test-id)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Client ID parameter handled (Status: 404)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T08:38:24.061788"
+    },
+    {
+      "test": "Role-Based Access - No Client ID (/api/front-office/report/excel)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Endpoint accessible without client_id (Status: 404)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T08:38:24.368746"
+    },
+    {
+      "test": "Role-Based Access - With Client ID (/api/front-office/report/excel)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Client ID parameter handled (Status: 404)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T08:38:24.840809"
+    },
+    {
+      "test": "Role-Based Access - No Client ID (/api/front-office/monthly-occupancy)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Endpoint accessible without client_id (Status: 404)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T08:38:25.149527"
+    },
+    {
+      "test": "Role-Based Access - With Client ID (/api/front-office/monthly-occupancy)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Client ID parameter handled (Status: 404)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T08:38:25.461110"
+    },
+    {
+      "test": "Response Format - JSON Content Type (/api/reservations/test-id)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Correct JSON content-type: application/json",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T08:38:25.768763"
+    },
+    {
+      "test": "Response Format - JSON Parse (/api/reservations/test-id)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Response successfully parsed as JSON",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T08:38:25.768827"
+    },
+    {
+      "test": "Response Format - JSON Content Type (/api/front-office/report/excel)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Correct JSON content-type: application/json",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T08:38:26.081269"
+    },
+    {
+      "test": "Response Format - JSON Content Type (/api/front-office/monthly-occupancy)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Correct JSON content-type: application/json",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T08:38:26.686458"
+    },
+    {
+      "test": "Response Format - JSON Parse (/api/front-office/monthly-occupancy)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Response successfully parsed as JSON",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T08:38:26.686773"
+    },
+    {
+      "test": "CORS Headers Present",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ CORS headers present: ['Access-Control-Allow-Origin', 'Access-Control-Allow-Methods', 'Access-Control-Allow-Headers']",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T08:38:27.021754"
+    }
+  ],
+  "critical_issues": {
+    "500_errors": [],
+    "missing_endpoints": []
+  }
+}
