@@ -1505,15 +1505,32 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
-  const handleGenerateExcelReport = async () => {
+  const handleGenerateExcelReport = async (startDate = null, endDate = null) => {
     setLoading(true);
     
     try {
       // Build URL with client_id for admin/consultant users
       let reportUrl = `${API}/front-office/report/excel`;
-      if ((userRole === 'admin' || userRole === 'consultant') && effectiveSelectedClient) {
-        reportUrl += `?client_id=${effectiveSelectedClient}`;
+      let params = [];
+      
+      // Add date parameters
+      if (startDate) {
+        params.push(`start_date=${startDate}`);
       }
+      if (endDate && endDate !== startDate) {
+        params.push(`end_date=${endDate}`);
+      }
+      
+      // Add client_id for admin/consultant
+      if ((userRole === 'admin' || userRole === 'consultant') && effectiveSelectedClient) {
+        params.push(`client_id=${effectiveSelectedClient}`);
+      }
+      
+      if (params.length > 0) {
+        reportUrl += '?' + params.join('&');
+      }
+      
+      console.log('📊 Generating Front Office Excel with date range:', startDate, endDate);
       
       const response = await axios.get(reportUrl, {
         headers: { Authorization: `Bearer ${authToken}` },
@@ -1544,7 +1561,7 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
       link.remove();
       window.URL.revokeObjectURL(url);
       
-      alert('✅ Excel raporu başarıyla indirildi!');
+      alert('✅ Front Office Excel raporu başarıyla indirildi!');
       
     } catch (error) {
       console.error('❌ Error generating Excel report:', error);
