@@ -20534,6 +20534,12 @@ async def get_available_rooms(
 logging.info("🏨 Front Office Module endpoints registered successfully")
 
 # ==========================================
+# API ROUTER REGISTRATION - MUST BE BEFORE CATCH-ALL ROUTES
+# ==========================================
+
+app.include_router(api_router, prefix="/api")
+
+# ==========================================
 # STATIC FILE SERVING FOR FRONTEND
 # ==========================================
 
@@ -20566,9 +20572,3 @@ if frontend_build_path.exists():
     logging.info("✅ React app serving configured")
 else:
     logging.warning(f"⚠️ Frontend build directory not found: {frontend_build_path}")
-
-# ==========================================
-# API ROUTER REGISTRATION - MUST BE AT END
-# ==========================================
-
-app.include_router(api_router, prefix="/api")
