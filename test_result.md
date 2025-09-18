@@ -175,6 +175,7 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Excel Date Range and Completed Tasks Testing"
     - "Front Office Excel HK-Style Implementation"
     - "HK Excel Completion Time Enhancements"
   stuck_tasks: []
