@@ -3163,6 +3163,7 @@ test_plan:
     - "HK Modülü Oda Ekleme Özelliği - Client ID Handling"
     - "Front Office Reservation Fix Test"
     - "Client ID Parameter Fix for Reservations"
+    - "Guest Nights Calculation Backend Test"
 
   - task: "Level 3 Sub-folders for D Column"
     implemented: true
