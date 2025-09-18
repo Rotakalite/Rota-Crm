@@ -202,6 +202,7 @@ metadata:
 
 test_plan:
   current_focus:
+    - "HK Excel Date Range Fix Verification"
     - "Excel Date Range and Completed Tasks Testing"
     - "Front Office Excel HK-Style Implementation"
     - "HK Excel Completion Time Enhancements"
