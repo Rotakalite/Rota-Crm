@@ -1857,7 +1857,7 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
             <div className="relative top-10 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
               <div className="mt-3">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  📅 Yeni Rezervasyon Oluştur
+                  {editingReservation ? '✏️ Rezervasyon Düzenle' : '📅 Yeni Rezervasyon Oluştur'}
                 </h3>
                 
                 <div className="space-y-4">
