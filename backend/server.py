@@ -20444,6 +20444,93 @@ async def get_monthly_occupancy_data(
         logging.error(f"❌ Full traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Aylık doluluk verisi alınamadı: {str(e)}")
 
+@api_router.get("/front-office/available-rooms")
+async def get_available_rooms(
+    check_in_date: str,
+    check_out_date: str,
+    client_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get available rooms for specific date range"""
+    
+    try:
+        logging.info(f"🔍 Getting available rooms for dates: {check_in_date} to {check_out_date}")
+        
+        # Get client_id based on user role
+        if current_user.role == UserRole.ADMIN:
+            if client_id:
+                target_client_id = client_id
+            else:
+                target_client_id = current_user.client_id
+        elif current_user.role == UserRole.CONSULTANT:
+            if client_id:
+                consultant_id = current_user.consultant_id
+                if not consultant_id:
+                    raise HTTPException(status_code=400, detail="Consultant ID not assigned to user")
+                
+                client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+                if not client:
+                    raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+                
+                target_client_id = client_id
+            else:
+                raise HTTPException(status_code=400, detail="Client ID required for consultant")
+        else:
+            target_client_id = current_user.client_id
+            if not target_client_id:
+                raise HTTPException(status_code=403, detail="Client ID not found for user")
+        
+        # Parse dates
+        check_in = datetime.strptime(check_in_date, "%Y-%m-%d")
+        check_out = datetime.strptime(check_out_date, "%Y-%m-%d")
+        
+        if check_out <= check_in:
+            raise HTTPException(status_code=400, detail="Çıkış tarihi giriş tarihinden sonra olmalı")
+        
+        # Get all rooms for this client
+        all_rooms = await db.rooms.find({"client_id": target_client_id}).to_list(length=None)
+        
+        # Get occupied room IDs for the date range
+        occupied_reservations = await db.reservations.find({
+            "client_id": target_client_id,
+            "status": {"$nin": ["cancelled", "no_show"]},
+            "$or": [
+                {"check_in_date": {"$lte": check_in}, "check_out_date": {"$gt": check_in}},
+                {"check_in_date": {"$lt": check_out}, "check_out_date": {"$gte": check_out}},
+                {"check_in_date": {"$gte": check_in}, "check_out_date": {"$lte": check_out}}
+            ]
+        }).to_list(length=None)
+        
+        occupied_room_ids = set(res.get("room_id") for res in occupied_reservations if res.get("room_id"))
+        
+        # Filter available rooms
+        available_rooms = []
+        for room in all_rooms:
+            if room.get("id") not in occupied_room_ids:
+                available_rooms.append({
+                    "id": room.get("id"),
+                    "room_number": room.get("room_number", "N/A"),
+                    "floor_name": room.get("floor_name", ""),
+                    "room_type": room.get("room_type", "Standard"),
+                    "status": room.get("status", "clean")
+                })
+        
+        logging.info(f"🏨 Found {len(available_rooms)} available rooms out of {len(all_rooms)} total rooms")
+        
+        return {
+            "available_rooms": available_rooms,
+            "total_rooms": len(all_rooms),
+            "occupied_rooms": len(occupied_room_ids),
+            "available_count": len(available_rooms),
+            "date_range": f"{check_in_date} - {check_out_date}"
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Error getting available rooms: {str(e)}")
+        import traceback
+        logging.error(f"❌ Full traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Müsait odalar alınamadı: {str(e)}")
+
 logging.info("🏨 Front Office Module endpoints registered successfully")
 
 # ==========================================
