@@ -30,7 +30,7 @@ except ImportError as e:
     CLERK_AVAILABLE = False
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict
-from fastapi import FastAPI, APIRouter, HTTPException, status, Depends, UploadFile, File, Form, Request
+from fastapi import FastAPI, APIRouter, HTTPException, status, Depends, UploadFile, File, Form, Request, Query
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
