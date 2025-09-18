@@ -1321,8 +1321,14 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
       
       console.log('📅 Creating reservation:', { ...newReservation, nights });
       
+      // Build URL with client_id for admin/consultant users
+      let reservationUrl = `${API}/reservations`;
+      if ((userRole === 'admin' || userRole === 'consultant') && effectiveSelectedClient) {
+        reservationUrl += `?client_id=${effectiveSelectedClient}`;
+      }
+      
       const response = await axios.post(
-        `${API}/reservations`,
+        reservationUrl,
         newReservation,
         { headers: { Authorization: `Bearer ${authToken}` } }
       );
