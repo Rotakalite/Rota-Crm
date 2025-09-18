@@ -19775,8 +19775,9 @@ async def update_reservation(
         if check_out <= check_in:
             raise HTTPException(status_code=400, detail="Çıkış tarihi giriş tarihinden sonra olmalı")
         
-        # Calculate nights
+        # Calculate nights and guest nights
         nights = (check_out - check_in).days
+        guest_nights = nights * (reservation_data.adults + reservation_data.children)
         
         # Calculate total amount
         total_amount = reservation_data.total_amount or (nights * reservation_data.room_rate)
@@ -19805,6 +19806,7 @@ async def update_reservation(
             "check_in_date": check_in,
             "check_out_date": check_out,
             "nights": nights,
+            "guest_nights": guest_nights,  # New field: (adults + children) * nights
             "adults": reservation_data.adults,
             "children": reservation_data.children,
             "room_rate": reservation_data.room_rate,
@@ -19824,12 +19826,13 @@ async def update_reservation(
         if result.modified_count == 0:
             raise HTTPException(status_code=404, detail="Rezervasyon güncellenemedi")
         
-        logging.info(f"✅ Reservation updated: {reservation_data.guest_name} - {nights} gece")
+        logging.info(f"✅ Reservation updated: {reservation_data.guest_name} - {nights} gece, {guest_nights} geceleme")
         
         return {
             "message": "Rezervasyon başarıyla güncellendi",
             "reservation_id": reservation_id,
             "nights": nights,
+            "guest_nights": guest_nights,
             "total_amount": total_amount
         }
         
