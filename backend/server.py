@@ -19807,20 +19807,47 @@ async def update_reservation(
         # Calculate total amount
         total_amount = reservation_data.total_amount or (nights * reservation_data.room_rate)
         
-        # Check room availability (exclude current reservation)
-        conflicting_reservation = await db.reservations.find_one({
+        # ENHANCED room availability check for update (exclude current reservation)
+        logging.info(f"🔍 Checking room availability for update - room_id: {reservation_data.room_id}")
+        logging.info(f"📅 Date range: {check_in.strftime('%Y-%m-%d')} to {check_out.strftime('%Y-%m-%d')}")
+        logging.info(f"🔄 Excluding current reservation: {reservation_id}")
+        
+        # First check if room exists
+        room_exists = await db.rooms.find_one({"id": reservation_data.room_id, "client_id": target_client_id})
+        if not room_exists:
+            raise HTTPException(status_code=400, detail="Seçilen oda bulunamadı")
+        
+        room_number = room_exists.get("room_number", "N/A")
+        logging.info(f"🏨 Room found: {room_number}")
+        
+        # Check for conflicting reservations (exclude current reservation)
+        conflicting_reservations = await db.reservations.find({
             "room_id": reservation_data.room_id,
-            "id": {"$ne": reservation_id},  # Exclude current reservation
+            "client_id": target_client_id,
+            "id": {"$ne": reservation_id},  # Exclude current reservation being updated
             "status": {"$nin": ["cancelled", "no_show"]},
             "$or": [
                 {"check_in_date": {"$lte": check_in}, "check_out_date": {"$gt": check_in}},
                 {"check_in_date": {"$lt": check_out}, "check_out_date": {"$gte": check_out}},
                 {"check_in_date": {"$gte": check_in}, "check_out_date": {"$lte": check_out}}
             ]
-        })
+        }).to_list(length=None)
         
-        if conflicting_reservation:
-            raise HTTPException(status_code=400, detail="Bu tarihler arasında seçilen oda müsait değil")
+        if conflicting_reservations:
+            conflict_details = []
+            for conflict in conflicting_reservations:
+                conflict_check_in = conflict.get("check_in_date", "").strftime("%d.%m.%Y") if isinstance(conflict.get("check_in_date"), datetime) else str(conflict.get("check_in_date", ""))
+                conflict_check_out = conflict.get("check_out_date", "").strftime("%d.%m.%Y") if isinstance(conflict.get("check_out_date"), datetime) else str(conflict.get("check_out_date", ""))
+                conflict_guest = conflict.get("guest_name", "N/A")
+                conflict_details.append(f"{conflict_guest} ({conflict_check_in} - {conflict_check_out})")
+            
+            logging.warning(f"⚠️ Room {room_number} update conflicts found: {conflict_details}")
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Oda {room_number} bu tarihler arasında başka bir rezervasyonda kullanılıyor. Çakışan rezervasyon: {', '.join(conflict_details)}"
+            )
+        
+        logging.info(f"✅ Room {room_number} is available for update")
         
         # Update reservation
         update_data = {
