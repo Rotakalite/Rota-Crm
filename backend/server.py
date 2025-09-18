@@ -20542,6 +20542,8 @@ async def get_available_rooms(
         raise HTTPException(status_code=500, detail=f"Müsait odalar alınamadı: {str(e)}")
 
 logging.info("🏨 Front Office Module endpoints registered successfully")
+logging.info("🔍 DEBUG: Available rooms endpoint should be accessible at /api/front-office/available-rooms")
+logging.info("🔍 DEBUG: Test endpoint should be accessible at /api/available-rooms-test")
 
 # ==========================================
 # API ROUTER REGISTRATION - MUST BE BEFORE CATCH-ALL ROUTES
