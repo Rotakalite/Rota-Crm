@@ -1776,6 +1776,14 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
                            reservation.status}
                         </span>
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <button
+                          onClick={() => handleEditReservation(reservation)}
+                          className="bg-yellow-500 text-white px-3 py-1 rounded-md text-sm hover:bg-yellow-600 transition-colors"
+                        >
+                          ✏️ Düzenle
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
