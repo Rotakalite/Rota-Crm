@@ -19720,6 +19720,124 @@ async def create_reservation(
         logging.error(f"❌ Full traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Rezervasyon oluşturulamadı: {str(e)}")
 
+@api_router.put("/reservations/{reservation_id}")
+async def update_reservation(
+    reservation_id: str,
+    reservation_data: ReservationInput,
+    client_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Update existing reservation"""
+    
+    try:
+        logging.info(f"📝 Updating reservation {reservation_id} for user: {current_user.role}")
+        
+        # Get client_id based on user role (same logic as create)
+        if current_user.role == UserRole.ADMIN:
+            if client_id:
+                target_client_id = client_id
+            else:
+                target_client_id = current_user.client_id
+        elif current_user.role == UserRole.CONSULTANT:
+            if client_id:
+                consultant_id = current_user.consultant_id
+                if not consultant_id:
+                    raise HTTPException(status_code=400, detail="Consultant ID not assigned to user")
+                
+                client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+                if not client:
+                    raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+                
+                target_client_id = client_id
+            else:
+                raise HTTPException(status_code=400, detail="Client ID required for consultant")
+        else:  # CLIENT role
+            target_client_id = current_user.client_id
+            if not target_client_id:
+                raise HTTPException(status_code=403, detail="Client ID not found for user")
+        
+        # Find existing reservation
+        existing_reservation = await db.reservations.find_one({
+            "id": reservation_id,
+            "client_id": target_client_id
+        })
+        
+        if not existing_reservation:
+            raise HTTPException(status_code=404, detail="Rezervasyon bulunamadı")
+        
+        # Validate dates
+        check_in = datetime.strptime(reservation_data.check_in_date, "%Y-%m-%d")
+        check_out = datetime.strptime(reservation_data.check_out_date, "%Y-%m-%d")
+        
+        if check_out <= check_in:
+            raise HTTPException(status_code=400, detail="Çıkış tarihi giriş tarihinden sonra olmalı")
+        
+        # Calculate nights
+        nights = (check_out - check_in).days
+        
+        # Calculate total amount
+        total_amount = reservation_data.total_amount or (nights * reservation_data.room_rate)
+        
+        # Check room availability (exclude current reservation)
+        conflicting_reservation = await db.reservations.find_one({
+            "room_id": reservation_data.room_id,
+            "id": {"$ne": reservation_id},  # Exclude current reservation
+            "status": {"$nin": ["cancelled", "no_show"]},
+            "$or": [
+                {"check_in_date": {"$lte": check_in}, "check_out_date": {"$gt": check_in}},
+                {"check_in_date": {"$lt": check_out}, "check_out_date": {"$gte": check_out}},
+                {"check_in_date": {"$gte": check_in}, "check_out_date": {"$lte": check_out}}
+            ]
+        })
+        
+        if conflicting_reservation:
+            raise HTTPException(status_code=400, detail="Bu tarihler arasında seçilen oda müsait değil")
+        
+        # Update reservation
+        update_data = {
+            "guest_name": reservation_data.guest_name,
+            "guest_email": reservation_data.guest_email,
+            "guest_phone": reservation_data.guest_phone,
+            "room_id": reservation_data.room_id,
+            "check_in_date": check_in,
+            "check_out_date": check_out,
+            "nights": nights,
+            "adults": reservation_data.adults,
+            "children": reservation_data.children,
+            "room_rate": reservation_data.room_rate,
+            "total_amount": total_amount,
+            "payment_status": reservation_data.payment_status,
+            "booking_source": reservation_data.booking_source,
+            "special_requests": reservation_data.special_requests,
+            "notes": reservation_data.notes,
+            "updated_at": datetime.utcnow()
+        }
+        
+        result = await db.reservations.update_one(
+            {"id": reservation_id, "client_id": target_client_id},
+            {"$set": update_data}
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="Rezervasyon güncellenemedi")
+        
+        logging.info(f"✅ Reservation updated: {reservation_data.guest_name} - {nights} gece")
+        
+        return {
+            "message": "Rezervasyon başarıyla güncellendi",
+            "reservation_id": reservation_id,
+            "nights": nights,
+            "total_amount": total_amount
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ Error updating reservation: {str(e)}")
+        import traceback
+        logging.error(f"❌ Full traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Rezervasyon güncellenemedi: {str(e)}")
+
 @api_router.get("/front-office/dashboard")
 async def get_front_office_dashboard(
     client_id: Optional[str] = None,
