@@ -20446,9 +20446,9 @@ async def get_monthly_occupancy_data(
 
 @api_router.get("/front-office/available-rooms")
 async def get_available_rooms(
-    check_in_date: str,
-    check_out_date: str,
-    client_id: Optional[str] = None,
+    check_in_date: str = Query(..., description="Check-in date in YYYY-MM-DD format"),
+    check_out_date: str = Query(..., description="Check-out date in YYYY-MM-DD format"),
+    client_id: Optional[str] = Query(None, description="Client ID for admin/consultant users"),
     current_user: User = Depends(get_current_user)
 ):
     """Get available rooms for specific date range"""
