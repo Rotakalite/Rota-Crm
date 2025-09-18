@@ -1556,8 +1556,9 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
       fetchReservations();
       fetchGuests();
       fetchAvailableRooms();
+      fetchMonthlyOccupancy();
     }
-  }, [authToken, userRole, effectiveSelectedClient]);
+  }, [authToken, userRole, effectiveSelectedClient, selectedMonth, selectedYear]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
