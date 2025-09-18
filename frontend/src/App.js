@@ -1256,6 +1256,32 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
       console.error('❌ Error fetching available rooms:', error);
     }
   };
+  const fetchAvailableRoomsForDates = async (checkInDate, checkOutDate) => {
+    if (!checkInDate || !checkOutDate || !authToken) {
+      setAvailableRooms([]);
+      return;
+    }
+    
+    try {
+      let url = `${API}/front-office/available-rooms?check_in_date=${checkInDate}&check_out_date=${checkOutDate}`;
+      
+      // Admin/Consultant için client_id parametresi ekle
+      if ((userRole === 'admin' || userRole === 'consultant') && effectiveSelectedClient) {
+        url += `&client_id=${effectiveSelectedClient}`;
+      }
+      
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      
+      console.log('🏨 Available rooms for dates:', response.data);
+      setAvailableRooms(response.data.available_rooms || []);
+      
+    } catch (error) {
+      console.error('❌ Error fetching available rooms:', error);
+      setAvailableRooms([]); // Reset on error
+    }
+  };
 
   // Fetch Clients for Admin/Consultant
   const fetchClients = async () => {
