@@ -19417,8 +19417,11 @@ async def get_hk_daily_report(
         wb.save(excel_buffer)
         excel_buffer.seek(0)
         
-        # Generate filename
-        filename = f"HK_Gunluk_Rapor_{report_date_obj.strftime('%d_%m_%Y')}.xlsx"
+        # Generate filename based on date range
+        if is_date_range:
+            filename = f"HK_Rapor_{start_date_obj.strftime('%d_%m_%Y')}_{end_date_obj.strftime('%d_%m_%Y')}.xlsx"
+        else:
+            filename = f"HK_Gunluk_Rapor_{start_date_obj.strftime('%d_%m_%Y')}.xlsx"
         
         logging.info(f"📊 Excel report generated successfully: {filename}")
         
