@@ -1,29 +1,33 @@
 #!/usr/bin/env python3
 """
-🏨 FRONT OFFICE ENHANCEMENTS COMPREHENSIVE BACKEND TEST
+🏨 GUEST NIGHTS CALCULATION COMPREHENSIVE BACKEND TEST
 =====================================================
 
-Testing the new Front Office features as requested:
+Testing the Guest Nights Calculation feature as requested:
 
-1. **Reservation Edit (PUT /api/reservations/{reservation_id})** - Update existing reservations with client_id support
-2. **Excel Report Generation (/api/front-office/report/excel)** - Professional Excel reports with reservations, statistics, and occupancy analysis  
-3. **Monthly Occupancy Data (/api/front-office/monthly-occupancy)** - Detailed monthly occupancy analytics for charts and tables
+**Updated Feature:**
+Geceleme hesabı artık `kişi × gece` mantığıyla çalışıyor:
+- 1 oda, 2 yetişkin, 1 gece = 2 geceleme
+- 1 oda, 3 yetişkin, 2 gece = 6 geceleme  
+- 1 oda, 2 yetişkin + 1 çocuk, 1 gece = 3 geceleme
 
-Test Requirements:
-- Test PUT /api/reservations/{reservation_id} endpoint for reservation updates
-- Test /api/front-office/report/excel endpoint for Excel report generation
-- Test /api/front-office/monthly-occupancy endpoint with year/month parameters
-- Verify all endpoints support client_id parameter for admin/consultant users
-- Test authentication and role-based access control for all new endpoints
-- Verify response formats and data structures
-- Test error handling for invalid data/missing parameters
+**Test Requirements:**
+1. Test POST /api/reservations endpoint with guest_nights calculation
+2. Test PUT /api/reservations/{reservation_id} endpoint with updated guest_nights
+3. Test /api/front-office/dashboard monthly_stats with total_guest_nights and total_room_nights
+4. Test /api/front-office/monthly-occupancy with guest_nights in daily data
+5. Test /api/front-office/report/excel with guest_nights column
 
-Expected Results:
-- All new endpoints should be accessible and properly secured (403/401 for auth)
-- PUT endpoint should support reservation updates with validation
-- Excel endpoint should return proper Excel file response headers
-- Monthly occupancy endpoint should return structured data for charts/tables
-- All endpoints should support role-based client_id parameter handling
+**Test Data Examples:**
+Reservation 1: 2 adults, 0 children, 3 nights = 6 guest_nights
+Reservation 2: 1 adult, 2 children, 2 nights = 6 guest_nights
+Reservation 3: 4 adults, 1 child, 1 night = 5 guest_nights
+
+**Expected Results:**
+- New reservations should include `guest_nights` field in response
+- Dashboard should show both `total_guest_nights` and `total_room_nights`
+- Monthly occupancy should include `guest_nights` in daily data
+- All calculations should follow the formula: guest_nights = (adults + children) × nights
 
 Backend URL: https://rota-crm-production.up.railway.app
 """
