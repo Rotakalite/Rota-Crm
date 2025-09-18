@@ -3147,7 +3147,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Front Office Reservation Fix Test"
+    - "Personnel Edit Endpoint (PUT /api/personnel/{personnel_id})"
+    - "CRUD Operations Test - Consumption & Waste Endpoints"
   stuck_tasks: 
     - "Personnel Edit Endpoint (PUT /api/personnel/{personnel_id})"
     - "CRUD Operations Test - Consumption & Waste Endpoints"
@@ -3158,6 +3159,8 @@ test_plan:
     - "GreenWave CRM - Doğalgaz Pie Chart Debug"
     - "Training Management Personnel Selection and Auto-Complete"
     - "HK Modülü Oda Ekleme Özelliği - Client ID Handling"
+    - "Front Office Reservation Fix Test"
+    - "Client ID Parameter Fix for Reservations"
 
   - task: "Level 3 Sub-folders for D Column"
     implemented: true
