@@ -19884,15 +19884,28 @@ async def get_front_office_dashboard(
         
         # Room statistics
         total_rooms = await db.rooms.count_documents({"client_id": target_client_id})
-        available_rooms = await db.rooms.count_documents({"client_id": target_client_id, "status": "clean"})
         
-        # Today's occupancy
-        occupied_today = await db.reservations.count_documents({
+        # Calculate REAL available rooms - excluding reserved/occupied rooms for today
+        occupied_room_ids = []
+        
+        # Get rooms occupied TODAY (confirmed/checked-in reservations)
+        occupied_reservations = await db.reservations.find({
             "client_id": target_client_id,
-            "status": "checked_in",
             "check_in_date": {"$lte": today},
-            "check_out_date": {"$gt": today}
-        })
+            "check_out_date": {"$gt": today},
+            "status": {"$nin": ["cancelled", "no_show"]}
+        }).to_list(length=None)
+        
+        occupied_room_ids = [res.get("room_id") for res in occupied_reservations if res.get("room_id")]
+        
+        # Available rooms = Total rooms - Occupied rooms
+        available_rooms = total_rooms - len(set(occupied_room_ids))  # Use set to avoid duplicates
+        available_rooms = max(0, available_rooms)  # Never negative
+        
+        logging.info(f"🏨 Room availability: Total={total_rooms}, Occupied={len(set(occupied_room_ids))}, Available={available_rooms}")
+        
+        # Today's occupancy - use the same calculation
+        occupied_today = len(set(occupied_room_ids))
         
         # Arriving today
         arriving_today = await db.reservations.count_documents({
