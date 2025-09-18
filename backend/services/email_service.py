@@ -14,7 +14,7 @@ load_dotenv(env_path)
 
 # Get email configuration from environment with explicit fallback
 gmail_user = os.getenv("GMAIL_USER") or "rotakalitedanismanlik@gmail.com"
-gmail_password = os.getenv("GMAIL_PASSWORD") or "huuv tgzu yhhn gybi"
+gmail_password = os.getenv("GMAIL_PASSWORD") or "Ccpp1144.."
 
 logging.error(f"🔍 Gmail user: {gmail_user}")
 logging.error(f"🔍 Gmail password: {'*' * len(gmail_password) if gmail_password else 'None'}")
