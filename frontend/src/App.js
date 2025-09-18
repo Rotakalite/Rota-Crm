@@ -2144,7 +2144,14 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
                       <input
                         type="date"
                         value={newReservation.check_in_date}
-                        onChange={(e) => setNewReservation({...newReservation, check_in_date: e.target.value})}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          setNewReservation({...newReservation, check_in_date: newValue});
+                          // Update available rooms when date changes
+                          if (newValue && newReservation.check_out_date) {
+                            fetchAvailableRoomsForDates(newValue, newReservation.check_out_date);
+                          }
+                        }}
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         required
                       />
