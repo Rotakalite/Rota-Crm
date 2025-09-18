@@ -19199,15 +19199,30 @@ async def get_hk_daily_report(
     # Parse report date or use today
     if report_date:
         try:
-            report_date_obj = datetime.strptime(report_date, "%Y-%m-%d")
+            start_date_obj = datetime.strptime(report_date, "%Y-%m-%d")
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
     else:
-        report_date_obj = datetime.utcnow()
+        start_date_obj = datetime.utcnow()
     
-    # Set date range (start and end of the day)
-    day_start = report_date_obj.replace(hour=0, minute=0, second=0, microsecond=0)
-    day_end = report_date_obj.replace(hour=23, minute=59, second=59, microsecond=999999)
+    # Parse end date if provided
+    if end_date:
+        try:
+            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid end date format. Use YYYY-MM-DD")
+    else:
+        end_date_obj = start_date_obj
+    
+    # Check if this is a date range report
+    is_date_range = end_date is not None and end_date != report_date
+    
+    # Keep backward compatibility
+    report_date_obj = start_date_obj
+    
+    # Set date range
+    day_start = start_date_obj.replace(hour=0, minute=0, second=0, microsecond=0)
+    day_end = end_date_obj.replace(hour=23, minute=59, second=59, microsecond=999999)
     
     # Format period text for reports
     period_text = report_date_obj.strftime('%d/%m/%Y')
