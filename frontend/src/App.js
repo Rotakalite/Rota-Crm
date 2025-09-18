@@ -25390,7 +25390,7 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
   };
 
   // Generate Daily HK Report
-  const generateDailyReport = async () => {
+  const generateDailyReport = async (startDate = null, endDate = null) => {
     if (!authToken) return;
     
     // Admin ve Consultant için müşteri seçimi zorunlu
@@ -25401,9 +25401,18 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
 
     try {
       setLoading(true);
-      console.log('📊 Generating daily HK report...');
+      console.log('📊 Generating HK report with date range:', startDate, endDate);
       
       let url = `${API}/hk/reports/daily-summary?format=excel`;
+      
+      // Add date parameters if provided
+      if (startDate) {
+        url += `&report_date=${startDate}`;
+      }
+      if (endDate && endDate !== startDate) {
+        url += `&end_date=${endDate}`;
+      }
+      
       if ((userRole === 'admin' || userRole === 'consultant') && effectiveSelectedClient) {
         url += `&client_id=${effectiveSelectedClient}`;
       }
@@ -25422,7 +25431,7 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
       
       // Get filename from headers or create default
       const contentDisposition = response.headers.get('content-disposition');
-      let filename = 'HK_Gunluk_Rapor.xlsx';
+      let filename = 'HK_Rapor.xlsx';
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename=(.+)/);
         if (filenameMatch) {
@@ -25430,7 +25439,7 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
         }
       }
       
-      // Create blob and download
+      // Create download
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -25438,14 +25447,14 @@ const HousekeepingManagement = ({ selectedClient: propSelectedClient }) => {
       link.download = filename;
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      link.remove();
       window.URL.revokeObjectURL(downloadUrl);
       
-      alert('✅ Günlük rapor başarıyla indirildi!');
+      alert('✅ HK raporu başarıyla indirildi!');
       
     } catch (error) {
-      console.error('❌ Error generating daily report:', error);
-      alert('Rapor oluşturulamadı: ' + (error.message || 'Bilinmeyen hata'));
+      console.error('❌ Error generating HK report:', error);
+      alert('❌ HK raporu oluşturulamadı: ' + error.message);
     } finally {
       setLoading(false);
     }
