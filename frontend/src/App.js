@@ -1765,7 +1765,7 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
                     <div className="text-xs text-red-600">{monthlyOccupancy.monthly_stats.low_date}</div>
                   </div>
                   <div className="bg-purple-50 rounded-lg p-4 text-center">
-                    <div className="text-xl font-bold text-purple-600">{monthlyOccupancy.monthly_stats.total_guest_nights}₺</div>
+                    <div className="text-xl font-bold text-purple-600">{monthlyOccupancy.monthly_stats.total_guest_nights}</div>
                     <div className="text-sm text-purple-700">Toplam Geceleme</div>
                     <div className="text-xs text-purple-600 mt-1">
                       ({monthlyOccupancy.monthly_stats.total_room_nights} oda gecesi)
