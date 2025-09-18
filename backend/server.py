@@ -19908,7 +19908,7 @@ async def get_front_office_dashboard(
             "status": "checked_in"
         })
         
-        # Monthly statistics
+        # Monthly statistics - Use guest_nights for proper calculation
         monthly_nights = await db.reservations.aggregate([
             {
                 "$match": {
@@ -19920,13 +19920,18 @@ async def get_front_office_dashboard(
             {
                 "$group": {
                     "_id": None,
-                    "total_nights": {"$sum": "$nights"},
+                    "total_guest_nights": {"$sum": {"$ifNull": ["$guest_nights", {"$multiply": ["$nights", {"$add": ["$adults", "$children"]}]}]}},
+                    "total_room_nights": {"$sum": "$nights"},
                     "total_revenue": {"$sum": "$total_amount"}
                 }
             }
         ]).to_list(length=1)
         
-        monthly_data = monthly_nights[0] if monthly_nights else {"total_nights": 0, "total_revenue": 0}
+        monthly_data = monthly_nights[0] if monthly_nights else {
+            "total_guest_nights": 0, 
+            "total_room_nights": 0, 
+            "total_revenue": 0
+        }
         
         # Recent reservations
         recent_reservations_raw = await db.reservations.find({
