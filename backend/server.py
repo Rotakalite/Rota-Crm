@@ -20204,6 +20204,143 @@ async def generate_front_office_excel_report(
         logging.error(f"❌ Full traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Excel raporu oluşturulamadı: {str(e)}")
 
+@api_router.get("/front-office/monthly-occupancy")
+async def get_monthly_occupancy_data(
+    client_id: Optional[str] = None,
+    year: Optional[int] = None,
+    month: Optional[int] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get monthly occupancy data for charts and analytics"""
+    
+    try:
+        logging.info(f"📊 Getting monthly occupancy data for user: {current_user.role}")
+        
+        # Get client_id based on user role
+        if current_user.role == UserRole.ADMIN:
+            if client_id:
+                target_client_id = client_id
+            else:
+                target_client_id = current_user.client_id
+        elif current_user.role == UserRole.CONSULTANT:
+            if client_id:
+                consultant_id = current_user.consultant_id
+                if not consultant_id:
+                    raise HTTPException(status_code=400, detail="Consultant ID not assigned to user")
+                
+                client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+                if not client:
+                    raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+                
+                target_client_id = client_id
+            else:
+                raise HTTPException(status_code=400, detail="Client ID required for consultant")
+        else:
+            target_client_id = current_user.client_id
+            if not target_client_id:
+                raise HTTPException(status_code=403, detail="Client ID not found for user")
+        
+        # Default to current year and month
+        if not year:
+            year = datetime.utcnow().year
+        if not month:
+            month = datetime.utcnow().month
+        
+        # Get room count
+        total_rooms = await db.rooms.count_documents({"client_id": target_client_id})
+        
+        # Get days in month
+        import calendar
+        days_in_month = calendar.monthrange(year, month)[1]
+        
+        # Calculate daily occupancy for the month
+        occupancy_data = []
+        monthly_stats = {
+            "total_nights": 0,
+            "total_revenue": 0,
+            "avg_occupancy": 0,
+            "peak_occupancy": 0,
+            "peak_date": "",
+            "low_occupancy": 100,
+            "low_date": ""
+        }
+        
+        for day in range(1, days_in_month + 1):
+            current_date = datetime(year, month, day)
+            next_date = current_date + timedelta(days=1)
+            
+            # Count occupied rooms for this day
+            occupied = await db.reservations.count_documents({
+                "client_id": target_client_id,
+                "check_in_date": {"$lte": current_date},
+                "check_out_date": {"$gt": current_date},
+                "status": {"$nin": ["cancelled", "no_show"]}
+            })
+            
+            # Get revenue for this day
+            daily_reservations = await db.reservations.find({
+                "client_id": target_client_id,
+                "check_in_date": {"$lte": current_date},
+                "check_out_date": {"$gt": current_date},
+                "status": {"$nin": ["cancelled", "no_show"]}
+            }).to_list(length=None)
+            
+            daily_revenue = sum(res.get("room_rate", 0) for res in daily_reservations)
+            
+            occupancy_rate = (occupied / total_rooms * 100) if total_rooms > 0 else 0
+            
+            occupancy_data.append({
+                "date": current_date.strftime("%Y-%m-%d"),
+                "day": day,
+                "occupied_rooms": occupied,
+                "total_rooms": total_rooms,
+                "occupancy_rate": round(occupancy_rate, 1),
+                "revenue": daily_revenue
+            })
+            
+            # Update monthly stats
+            monthly_stats["total_nights"] += occupied
+            monthly_stats["total_revenue"] += daily_revenue
+            
+            if occupancy_rate > monthly_stats["peak_occupancy"]:
+                monthly_stats["peak_occupancy"] = round(occupancy_rate, 1)
+                monthly_stats["peak_date"] = current_date.strftime("%d.%m.%Y")
+            
+            if occupancy_rate < monthly_stats["low_occupancy"]:
+                monthly_stats["low_occupancy"] = round(occupancy_rate, 1)
+                monthly_stats["low_date"] = current_date.strftime("%d.%m.%Y")
+        
+        # Calculate average occupancy
+        total_occupancy = sum(day["occupancy_rate"] for day in occupancy_data)
+        monthly_stats["avg_occupancy"] = round(total_occupancy / len(occupancy_data), 1) if occupancy_data else 0
+        
+        # Prepare chart data
+        chart_data = {
+            "labels": [f"{day['day']}" for day in occupancy_data],
+            "occupancy_rates": [day["occupancy_rate"] for day in occupancy_data],
+            "revenues": [day["revenue"] for day in occupancy_data],
+            "occupied_rooms": [day["occupied_rooms"] for day in occupancy_data]
+        }
+        
+        result = {
+            "year": year,
+            "month": month,
+            "month_name": current_date.strftime("%B %Y"),
+            "total_rooms": total_rooms,
+            "daily_data": occupancy_data,
+            "monthly_stats": monthly_stats,
+            "chart_data": chart_data
+        }
+        
+        logging.info(f"📊 Monthly occupancy data generated for {year}-{month}")
+        return result
+        
+    except Exception as e:
+        logging.error(f"❌ Error getting monthly occupancy data: {str(e)}")
+        import traceback
+        logging.error(f"❌ Full traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Aylık doluluk verisi alınamadı: {str(e)}")
+
 logging.info("🏨 Front Office Module endpoints registered successfully")
 
 
