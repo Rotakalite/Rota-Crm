@@ -1362,6 +1362,163 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
     }
   };
 
+  const handleEditReservation = (reservation) => {
+    setEditingReservation(reservation);
+    setNewReservation({
+      guest_name: reservation.guest_name || '',
+      guest_email: reservation.guest_email || '',
+      guest_phone: reservation.guest_phone || '',
+      room_id: reservation.room_id || '',
+      check_in_date: reservation.check_in_date ? 
+        (typeof reservation.check_in_date === 'string' ? 
+          reservation.check_in_date.split('T')[0] : 
+          new Date(reservation.check_in_date).toISOString().split('T')[0]) : '',
+      check_out_date: reservation.check_out_date ? 
+        (typeof reservation.check_out_date === 'string' ? 
+          reservation.check_out_date.split('T')[0] : 
+          new Date(reservation.check_out_date).toISOString().split('T')[0]) : '',
+      adults: reservation.adults || 1,
+      children: reservation.children || 0,
+      room_rate: reservation.room_rate || 0,
+      payment_status: reservation.payment_status || 'pending',
+      booking_source: reservation.booking_source || 'front_desk',
+      special_requests: reservation.special_requests || '',
+      notes: reservation.notes || ''
+    });
+    setShowReservationModal(true);
+  };
+
+  const handleUpdateReservation = async () => {
+    if (!editingReservation) return;
+    
+    setLoading(true);
+    
+    try {
+      // Validation
+      if (!newReservation.guest_name.trim()) {
+        alert('Misafir adı gerekli');
+        return;
+      }
+      
+      if (!newReservation.room_id) {
+        alert('Oda seçimi gerekli');
+        return;
+      }
+      
+      if (!newReservation.check_in_date || !newReservation.check_out_date) {
+        alert('Giriş ve çıkış tarihleri gerekli');
+        return;
+      }
+      
+      if (newReservation.room_rate <= 0) {
+        alert('Oda fiyatı 0\'dan büyük olmalı');
+        return;
+      }
+      
+      // Calculate nights
+      const checkIn = new Date(newReservation.check_in_date);
+      const checkOut = new Date(newReservation.check_out_date);
+      const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+      
+      if (nights <= 0) {
+        alert('Çıkış tarihi giriş tarihinden sonra olmalı');
+        return;
+      }
+      
+      console.log('📝 Updating reservation:', { ...newReservation, nights });
+      
+      // Build URL with client_id for admin/consultant users
+      let reservationUrl = `${API}/reservations/${editingReservation.id}`;
+      if ((userRole === 'admin' || userRole === 'consultant') && effectiveSelectedClient) {
+        reservationUrl += `?client_id=${effectiveSelectedClient}`;
+      }
+      
+      const response = await axios.put(
+        reservationUrl,
+        newReservation,
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
+      
+      alert('✅ Rezervasyon başarıyla güncellendi!');
+      setShowReservationModal(false);
+      setEditingReservation(null);
+      setNewReservation({
+        guest_name: '',
+        guest_email: '',
+        guest_phone: '',
+        room_id: '',
+        check_in_date: '',
+        check_out_date: '',
+        adults: 1,
+        children: 0,
+        room_rate: 0,
+        payment_status: 'pending',
+        booking_source: 'front_desk',
+        special_requests: '',
+        notes: ''
+      });
+      
+      // Reload data
+      fetchReservations();
+      fetchFODashboard();
+      
+    } catch (error) {
+      console.error('❌ Error updating reservation:', error);
+      alert('Rezervasyon güncellenemedi: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateExcelReport = async () => {
+    setLoading(true);
+    
+    try {
+      // Build URL with client_id for admin/consultant users
+      let reportUrl = `${API}/front-office/report/excel`;
+      if ((userRole === 'admin' || userRole === 'consultant') && effectiveSelectedClient) {
+        reportUrl += `?client_id=${effectiveSelectedClient}`;
+      }
+      
+      const response = await axios.get(reportUrl, {
+        headers: { Authorization: `Bearer ${authToken}` },
+        responseType: 'blob'
+      });
+      
+      // Create download link
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Extract filename from Content-Disposition header
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'Front_Office_Rapor.xlsx';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename=(.+)/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+      
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      
+      alert('✅ Excel raporu başarıyla indirildi!');
+      
+    } catch (error) {
+      console.error('❌ Error generating Excel report:', error);
+      alert('Excel raporu oluşturulamadı: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Initial data load
   useEffect(() => {
     if (authToken && userRole) {
