@@ -1,0 +1,156 @@
+{
+  "test_summary": {
+    "total_tests": 15,
+    "passed_tests": 15,
+    "failed_tests": 0,
+    "success_rate": 100.0,
+    "backend_url": "https://rota-crm-production.up.railway.app",
+    "test_timestamp": "2025-09-18T12:48:54.789111",
+    "test_focus": "Front Office Endpoints Final Test - Services Import Fix Verification",
+    "critical_500_errors": 0,
+    "missing_endpoints": 0,
+    "services_import_fix_working": true,
+    "endpoints_accessible": true
+  },
+  "test_results": [
+    {
+      "test": "Backend Health Check",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Railway production backend accessible (Status: 200)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T12:48:50.034268"
+    },
+    {
+      "test": "Excel Report Endpoint - Proper Auth Response",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Excel endpoint accessible with proper auth control (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T12:48:50.344373"
+    },
+    {
+      "test": "Excel Report Endpoint - With Client ID Auth",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Excel endpoint with client_id requires proper auth (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T12:48:50.798982"
+    },
+    {
+      "test": "Available Rooms Endpoint - Proper Auth Response",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Available rooms endpoint accessible with auth control (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T12:48:51.106652"
+    },
+    {
+      "test": "Available Rooms Endpoint - With Dates Auth",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Available rooms with dates requires auth (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T12:48:51.563228"
+    },
+    {
+      "test": "Monthly Occupancy Endpoint - Proper Auth Response",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Monthly occupancy endpoint accessible with auth control (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T12:48:51.875600"
+    },
+    {
+      "test": "Monthly Occupancy Endpoint - With Year Auth",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Monthly occupancy with year requires auth (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T12:48:52.328805"
+    },
+    {
+      "test": "Reservations POST - Proper Auth Response",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Reservation creation requires proper auth (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T12:48:52.782452"
+    },
+    {
+      "test": "Reservations PUT - Proper Auth Response",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Reservation update requires proper auth (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T12:48:53.090742"
+    },
+    {
+      "test": "Front Office Dashboard - Proper Auth Response",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Dashboard requires proper auth (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T12:48:53.398281"
+    },
+    {
+      "test": "Invalid Token Rejection - Excel Endpoint",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Invalid token properly rejected (Status: 401)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T12:48:53.709028"
+    },
+    {
+      "test": "Malformed Token Rejection - Available Rooms",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Malformed token properly rejected (Status: 401)",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T12:48:54.015898"
+    },
+    {
+      "test": "Excel Endpoint - JSON Content Type",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Proper JSON content-type: application/json",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T12:48:54.474645"
+    },
+    {
+      "test": "Excel Endpoint - JSON Parse",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Response successfully parsed as JSON",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T12:48:54.474712"
+    },
+    {
+      "test": "CORS Headers Present - Available Rooms",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ CORS headers present: ['Access-Control-Allow-Origin', 'Access-Control-Allow-Methods', 'Access-Control-Allow-Headers']",
+      "expected": "",
+      "actual": "",
+      "timestamp": "2025-09-18T12:48:54.787028"
+    }
+  ],
+  "critical_issues": {
+    "500_errors": [],
+    "missing_endpoints": []
+  }
+}
