@@ -19654,9 +19654,10 @@ async def create_reservation(
         if check_out <= check_in:
             raise HTTPException(status_code=400, detail="Çıkış tarihi giriş tarihinden sonra olmalı")
         
-        # Calculate nights
+        # Calculate nights and guest nights
         nights = (check_out - check_in).days
-        logging.info(f"🌙 Calculated nights: {nights}")
+        guest_nights = nights * (reservation_data.adults + reservation_data.children)
+        logging.info(f"🌙 Calculated nights: {nights}, guest nights: {guest_nights}")
         
         # Calculate total amount
         total_amount = reservation_data.total_amount or (nights * reservation_data.room_rate)
@@ -19688,6 +19689,7 @@ async def create_reservation(
             "check_in_date": check_in,
             "check_out_date": check_out,
             "nights": nights,
+            "guest_nights": guest_nights,  # New field: (adults + children) * nights
             "adults": reservation_data.adults,
             "children": reservation_data.children,
             "room_rate": reservation_data.room_rate,
@@ -19702,12 +19704,13 @@ async def create_reservation(
         }
         
         await db.reservations.insert_one(reservation_doc)
-        logging.info(f"✅ Reservation created: {reservation_data.guest_name} - {nights} gece")
+        logging.info(f"✅ Reservation created: {reservation_data.guest_name} - {nights} gece, {guest_nights} geceleme")
         
         return {
             "message": "Rezervasyon başarıyla oluşturuldu",
             "reservation_id": reservation_doc["id"],
             "nights": nights,
+            "guest_nights": guest_nights,
             "total_amount": total_amount
         }
         
