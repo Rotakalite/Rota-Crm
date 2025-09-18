@@ -20078,6 +20078,14 @@ async def generate_front_office_excel_report(
             check_in_str = reservation.get("check_in_date", "").strftime("%d.%m.%Y") if isinstance(reservation.get("check_in_date"), datetime) else str(reservation.get("check_in_date", ""))
             check_out_str = reservation.get("check_out_date", "").strftime("%d.%m.%Y") if isinstance(reservation.get("check_out_date"), datetime) else str(reservation.get("check_out_date", ""))
             
+            # Calculate guest_nights if not present
+            guest_nights = reservation.get("guest_nights")
+            if not guest_nights:
+                nights = reservation.get("nights", 0)
+                adults = reservation.get("adults", 1)
+                children = reservation.get("children", 0)
+                guest_nights = nights * (adults + children)
+            
             row_data = [
                 reservation.get("id", ""),
                 reservation.get("guest_name", ""),
@@ -20087,6 +20095,7 @@ async def generate_front_office_excel_report(
                 check_in_str,
                 check_out_str,
                 reservation.get("nights", 0),
+                guest_nights,  # New column: Total guest nights
                 reservation.get("adults", 0),
                 reservation.get("children", 0),
                 f"₺{reservation.get('room_rate', 0):.2f}",
