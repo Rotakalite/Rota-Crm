@@ -19609,24 +19609,43 @@ async def get_reservations(
 @api_router.post("/reservations")
 async def create_reservation(
     reservation_data: ReservationInput,
+    client_id: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
     """Create new reservation with night calculation"""
     
     try:
-        logging.info(f"📅 Creating reservation for user: {current_user.role}, data: {reservation_data.dict()}")
+        logging.info(f"📅 Creating reservation for user: {current_user.role}, client_id param: {client_id}")
         
-        # Get client_id
-        if current_user.role == UserRole.CLIENT:
-            client_id = current_user.client_id
-        else:
-            client_id = current_user.client_id
+        # Get client_id based on user role (same logic as other modules)
+        if current_user.role == UserRole.ADMIN:
+            if client_id:
+                target_client_id = client_id
+            else:
+                target_client_id = current_user.client_id
+        elif current_user.role == UserRole.CONSULTANT:
+            if client_id:
+                consultant_id = current_user.consultant_id
+                if not consultant_id:
+                    raise HTTPException(status_code=400, detail="Consultant ID not assigned to user")
+                
+                client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+                if not client:
+                    raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+                
+                target_client_id = client_id
+            else:
+                raise HTTPException(status_code=400, detail="Client ID required for consultant")
+        else:  # CLIENT role
+            target_client_id = current_user.client_id
+            if not target_client_id:
+                raise HTTPException(status_code=403, detail="Client ID not found for user")
         
-        if not client_id:
+        if not target_client_id:
             logging.error(f"❌ No client_id found for user: {current_user.role}")
             raise HTTPException(status_code=400, detail="Client ID required for reservation")
         
-        logging.info(f"📋 Using client_id: {client_id}")
+        logging.info(f"📋 Using target_client_id: {target_client_id}")
         
         # Validate dates
         check_in = datetime.strptime(reservation_data.check_in_date, "%Y-%m-%d")
@@ -19661,7 +19680,7 @@ async def create_reservation(
         # Create reservation document
         reservation_doc = {
             "id": str(uuid.uuid4()),
-            "client_id": client_id,
+            "client_id": target_client_id,
             "guest_name": reservation_data.guest_name,
             "guest_email": reservation_data.guest_email,
             "guest_phone": reservation_data.guest_phone,
