@@ -19225,7 +19225,10 @@ async def get_hk_daily_report(
     day_end = end_date_obj.replace(hour=23, minute=59, second=59, microsecond=999999)
     
     # Format period text for reports
-    period_text = report_date_obj.strftime('%d/%m/%Y')
+    if is_date_range:
+        period_text = f"{start_date_obj.strftime('%d.%m.%Y')} - {end_date_obj.strftime('%d.%m.%Y')}"
+    else:
+        period_text = start_date_obj.strftime('%d.%m.%Y')
     
     try:
         # Get hotel info
