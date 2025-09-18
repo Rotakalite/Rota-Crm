@@ -20381,6 +20381,39 @@ async def get_monthly_occupancy_data(
 
 logging.info("🏨 Front Office Module endpoints registered successfully")
 
+# ==========================================
+# STATIC FILE SERVING FOR FRONTEND
+# ==========================================
+
+# Mount static files for production deployment
+import os
+from pathlib import Path
+
+frontend_build_path = Path(__file__).parent.parent / "frontend" / "build"
+if frontend_build_path.exists():
+    app.mount("/static", StaticFiles(directory=str(frontend_build_path / "static")), name="static")
+    logging.info(f"✅ Static files mounted from: {frontend_build_path}")
+    
+    # Serve React app for all non-API routes
+    from fastapi.responses import FileResponse
+    
+    @app.get("/{path:path}")
+    async def serve_react_app(path: str):
+        """Serve React app for all non-API routes"""
+        # Don't serve React for API routes
+        if path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="API endpoint not found")
+        
+        # Serve index.html for all other routes (React Router will handle routing)
+        index_path = frontend_build_path / "index.html"
+        if index_path.exists():
+            return FileResponse(str(index_path))
+        else:
+            raise HTTPException(status_code=404, detail="Frontend not found")
+            
+    logging.info("✅ React app serving configured")
+else:
+    logging.warning(f"⚠️ Frontend build directory not found: {frontend_build_path}")
 
 # ==========================================
 # API ROUTER REGISTRATION - MUST BE AT END
