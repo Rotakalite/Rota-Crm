@@ -1092,6 +1092,7 @@ const FrontOfficeManagement = ({ selectedClient: propSelectedClient }) => {
   
   // Reservation creation states
   const [showReservationModal, setShowReservationModal] = useState(false);
+  const [editingReservation, setEditingReservation] = useState(null);
   const [newReservation, setNewReservation] = useState({
     guest_name: '',
     guest_email: '',
