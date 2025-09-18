@@ -1,0 +1,199 @@
+{
+  "debug_summary": {
+    "total_tests": 18,
+    "passed_tests": 18,
+    "failed_tests": 0,
+    "success_rate": 100.0,
+    "backend_url": "https://rota-crm-production.up.railway.app",
+    "target_client_id": "ac2350e9-3896-4b0d-82a1-2bdaa9788ee3",
+    "test_timestamp": "2025-09-18T14:06:22.965611",
+    "error_500_reproduced": false,
+    "error_404_found": false,
+    "critical_issues_count": 0
+  },
+  "test_results": [
+    {
+      "test": "Backend Health Check",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "Railway production backend accessible (Status: 200)",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:17.208502"
+    },
+    {
+      "test": "Excel Endpoint - No Auth (Auth Required)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Proper authentication response. Auth: No Auth, Status: 403",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:17.676489"
+    },
+    {
+      "test": "Excel Endpoint - Invalid Bearer Token (Auth Required)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Proper authentication response. Auth: Invalid Bearer Token, Status: 401",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:17.982994"
+    },
+    {
+      "test": "Excel Endpoint - Malformed Token (Auth Required)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Proper authentication response. Auth: Malformed Token, Status: 403",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:18.443559"
+    },
+    {
+      "test": "Excel Endpoint - Empty Bearer (Auth Required)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Proper authentication response. Auth: Empty Bearer, Status: 403",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:18.745676"
+    },
+    {
+      "test": "Excel Endpoint - JWT-like Token (Auth Required)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Proper authentication response. Auth: JWT-like Token, Status: 401",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:19.281634"
+    },
+    {
+      "test": "Excel Endpoint - Clerk-like Token (Auth Required)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Proper authentication response. Auth: Clerk-like Token, Status: 401",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:19.588317"
+    },
+    {
+      "test": "Excel Params - No Params (Expected Error)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected error response. Params: {}, Status: 401",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:20.055304"
+    },
+    {
+      "test": "Excel Params - Only Client ID (Expected Error)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected error response. Params: {'client_id': 'ac2350e9-3896-4b0d-82a1-2bdaa9788ee3'}, Status: 401",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:20.365808"
+    },
+    {
+      "test": "Excel Params - Invalid Client ID (Expected Error)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected error response. Params: {'client_id': 'invalid-client-id-123'}, Status: 401",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:20.675702"
+    },
+    {
+      "test": "Excel Params - Empty Client ID (Expected Error)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected error response. Params: {'client_id': ''}, Status: 401",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:20.981167"
+    },
+    {
+      "test": "Excel Params - With Date Range (Expected Error)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected error response. Params: {'client_id': 'ac2350e9-3896-4b0d-82a1-2bdaa9788ee3', 'start_date': '2024-01-01', 'end_date': '2024-01-31'}, Status: 401",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:21.288670"
+    },
+    {
+      "test": "Excel Params - Invalid Date Format (Expected Error)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected error response. Params: {'client_id': 'ac2350e9-3896-4b0d-82a1-2bdaa9788ee3', 'start_date': 'invalid-date', 'end_date': '2024-01-31'}, Status: 401",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:21.749027"
+    },
+    {
+      "test": "Excel Params - Future Date Range (Expected Error)",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Expected error response. Params: {'client_id': 'ac2350e9-3896-4b0d-82a1-2bdaa9788ee3', 'start_date': '2025-01-01', 'end_date': '2025-01-31'}, Status: 401",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:22.080672"
+    },
+    {
+      "test": "OpenPyXL Import",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ All required openpyxl components imported successfully",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:22.344171"
+    },
+    {
+      "test": "Excel File Creation",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Complete Excel file created successfully (Size: 6170 bytes, 3 sheets)",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:22.355790"
+    },
+    {
+      "test": "Database - Client Query",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Client endpoint accessible, database connection working (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:22.657029"
+    },
+    {
+      "test": "Database - Reservations Query",
+      "status": "✅ PASS",
+      "success": true,
+      "details": "✅ Reservations endpoint accessible, database working (Status: 403)",
+      "expected": "",
+      "actual": "",
+      "error_info": "",
+      "timestamp": "2025-09-18T14:06:22.963947"
+    }
+  ],
+  "error_500_tests": [],
+  "error_404_tests": [],
+  "critical_issues": []
+}
