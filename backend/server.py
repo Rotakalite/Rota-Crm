@@ -19274,7 +19274,7 @@ async def get_hk_daily_report(
         if format == "json":
             return {
                 "hotel_name": hotel_name,
-                "report_date": report_date_obj.strftime("%d/%m/%Y"),
+                "report_period": period_text,
                 "room_summary": {
                     "total_rooms": total_rooms,
                     "clean_rooms": clean_rooms,
