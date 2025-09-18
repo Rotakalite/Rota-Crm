@@ -19961,6 +19961,249 @@ async def get_front_office_dashboard(
         logging.error(f"❌ Error fetching Front Office dashboard: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Dashboard verisi alınamadı: {str(e)}")
 
+@api_router.get("/front-office/report/excel")
+async def generate_front_office_excel_report(
+    client_id: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Generate comprehensive Front Office Excel report"""
+    
+    try:
+        logging.info(f"📊 Generating Front Office Excel report for user: {current_user.role}")
+        
+        # Get client_id based on user role
+        if current_user.role == UserRole.ADMIN:
+            if client_id:
+                target_client_id = client_id
+            else:
+                target_client_id = current_user.client_id
+        elif current_user.role == UserRole.CONSULTANT:
+            if client_id:
+                consultant_id = current_user.consultant_id
+                if not consultant_id:
+                    raise HTTPException(status_code=400, detail="Consultant ID not assigned to user")
+                
+                client = await db.clients.find_one({"id": client_id, "consultant_id": consultant_id})
+                if not client:
+                    raise HTTPException(status_code=403, detail="Access denied: Client not assigned to consultant")
+                
+                target_client_id = client_id
+            else:
+                raise HTTPException(status_code=400, detail="Client ID required for consultant")
+        else:
+            target_client_id = current_user.client_id
+            if not target_client_id:
+                raise HTTPException(status_code=403, detail="Client ID not found for user")
+        
+        # Get client info
+        client_info = await db.clients.find_one({"id": target_client_id})
+        client_name = client_info["company_name"] if client_info else "Otel"
+        
+        # Date range
+        if start_date and end_date:
+            start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+            end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+        else:
+            # Default to current month
+            today = datetime.utcnow()
+            start_dt = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            end_dt = (start_dt + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+        
+        # Import openpyxl
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
+        from openpyxl.utils import get_column_letter
+        
+        # Create workbook
+        wb = Workbook()
+        
+        # 1. RESERVATIONS SHEET
+        ws_reservations = wb.active
+        ws_reservations.title = "Rezervasyonlar"
+        
+        # Header style
+        header_font = Font(bold=True, color="FFFFFF")
+        header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+        border = Border(
+            left=Side(style='thin'),
+            right=Side(style='thin'),
+            top=Side(style='thin'),
+            bottom=Side(style='thin')
+        )
+        center_alignment = Alignment(horizontal='center', vertical='center')
+        
+        # Reservations headers
+        res_headers = [
+            "Rezervasyon ID", "Misafir Adı", "Email", "Telefon", "Oda", 
+            "Giriş Tarihi", "Çıkış Tarihi", "Gece", "Kişi", "Çocuk",
+            "Oda Ücreti", "Toplam Tutar", "Ödeme Durumu", "Kaynak", "Durum", "Notlar"
+        ]
+        
+        # Set headers
+        for col, header in enumerate(res_headers, 1):
+            cell = ws_reservations.cell(row=1, column=col, value=header)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.border = border
+            cell.alignment = center_alignment
+        
+        # Get reservations data
+        reservations_query = {
+            "client_id": target_client_id,
+            "check_in_date": {"$gte": start_dt, "$lte": end_dt}
+        }
+        reservations = await db.reservations.find(reservations_query).to_list(length=None)
+        
+        # Add reservation data
+        for row, reservation in enumerate(reservations, 2):
+            # Get room number
+            room = await db.rooms.find_one({"id": reservation.get("room_id"), "client_id": target_client_id})
+            room_number = room.get("room_number", "N/A") if room else reservation.get("room_id", "N/A")
+            
+            # Format dates
+            check_in_str = reservation.get("check_in_date", "").strftime("%d.%m.%Y") if isinstance(reservation.get("check_in_date"), datetime) else str(reservation.get("check_in_date", ""))
+            check_out_str = reservation.get("check_out_date", "").strftime("%d.%m.%Y") if isinstance(reservation.get("check_out_date"), datetime) else str(reservation.get("check_out_date", ""))
+            
+            row_data = [
+                reservation.get("id", ""),
+                reservation.get("guest_name", ""),
+                reservation.get("guest_email", ""),
+                reservation.get("guest_phone", ""),
+                room_number,
+                check_in_str,
+                check_out_str,
+                reservation.get("nights", 0),
+                reservation.get("adults", 0),
+                reservation.get("children", 0),
+                f"₺{reservation.get('room_rate', 0):.2f}",
+                f"₺{reservation.get('total_amount', 0):.2f}",
+                reservation.get("payment_status", ""),
+                reservation.get("booking_source", ""),
+                reservation.get("status", ""),
+                reservation.get("notes", "")
+            ]
+            
+            for col, value in enumerate(row_data, 1):
+                cell = ws_reservations.cell(row=row, column=col, value=value)
+                cell.border = border
+                if col in [7, 8, 9]:  # Numeric columns
+                    cell.alignment = Alignment(horizontal='center')
+        
+        # Auto-adjust column widths
+        for col in range(1, len(res_headers) + 1):
+            ws_reservations.column_dimensions[get_column_letter(col)].width = 15
+        
+        # 2. MONTHLY STATISTICS SHEET
+        ws_stats = wb.create_sheet("Aylık İstatistikler")
+        
+        # Title
+        ws_stats.merge_cells('A1:F2')
+        title_cell = ws_stats['A1']
+        title_cell.value = f"{client_name} - Ön Büro Raporu"
+        title_cell.font = Font(size=16, bold=True)
+        title_cell.alignment = center_alignment
+        title_cell.fill = PatternFill(start_color="E6F3FF", end_color="E6F3FF", fill_type="solid")
+        
+        # Period info
+        ws_stats.merge_cells('A3:F3')
+        period_cell = ws_stats['A3']
+        period_cell.value = f"Dönem: {start_dt.strftime('%d.%m.%Y')} - {end_dt.strftime('%d.%m.%Y')}"
+        period_cell.font = Font(size=12, bold=True)
+        period_cell.alignment = center_alignment
+        
+        # Statistics
+        total_reservations = len(reservations)
+        total_nights = sum(res.get("nights", 0) for res in reservations)
+        total_revenue = sum(res.get("total_amount", 0) for res in reservations)
+        avg_rate = total_revenue / total_nights if total_nights > 0 else 0
+        
+        stats_data = [
+            ["Toplam Rezervasyon", total_reservations],
+            ["Toplam Gece", total_nights],
+            ["Toplam Gelir", f"₺{total_revenue:.2f}"],
+            ["Ortalama Oda Fiyatı", f"₺{avg_rate:.2f}"],
+            ["Ortalama Konaklama", f"{total_nights/total_reservations:.1f} gece" if total_reservations > 0 else "0 gece"]
+        ]
+        
+        for row, (label, value) in enumerate(stats_data, 5):
+            ws_stats.cell(row=row, column=2, value=label).font = Font(bold=True)
+            ws_stats.cell(row=row, column=3, value=value)
+        
+        # 3. OCCUPANCY ANALYSIS SHEET
+        ws_occupancy = wb.create_sheet("Doluluk Analizi")
+        
+        # Get room count
+        total_rooms = await db.rooms.count_documents({"client_id": target_client_id})
+        
+        # Calculate daily occupancy for the period
+        current_date = start_dt
+        occupancy_data = []
+        
+        while current_date <= end_dt:
+            next_date = current_date + timedelta(days=1)
+            
+            # Count occupied rooms for this day
+            occupied = await db.reservations.count_documents({
+                "client_id": target_client_id,
+                "check_in_date": {"$lte": current_date},
+                "check_out_date": {"$gt": current_date},
+                "status": {"$nin": ["cancelled", "no_show"]}
+            })
+            
+            occupancy_rate = (occupied / total_rooms * 100) if total_rooms > 0 else 0
+            occupancy_data.append([
+                current_date.strftime("%d.%m.%Y"),
+                occupied,
+                total_rooms,
+                f"{occupancy_rate:.1f}%"
+            ])
+            
+            current_date = next_date
+        
+        # Headers for occupancy
+        occ_headers = ["Tarih", "Dolu Oda", "Toplam Oda", "Doluluk Oranı"]
+        for col, header in enumerate(occ_headers, 1):
+            cell = ws_occupancy.cell(row=1, column=col, value=header)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.border = border
+            cell.alignment = center_alignment
+        
+        # Add occupancy data
+        for row, data in enumerate(occupancy_data, 2):
+            for col, value in enumerate(data, 1):
+                cell = ws_occupancy.cell(row=row, column=col, value=value)
+                cell.border = border
+        
+        # Auto-adjust occupancy columns
+        for col in range(1, len(occ_headers) + 1):
+            ws_occupancy.column_dimensions[get_column_letter(col)].width = 15
+        
+        # Save to BytesIO
+        from io import BytesIO
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+        
+        # Return file
+        from fastapi.responses import StreamingResponse
+        
+        filename = f"Front_Office_Rapor_{client_name}_{start_dt.strftime('%Y%m%d')}_{end_dt.strftime('%Y%m%d')}.xlsx"
+        
+        return StreamingResponse(
+            BytesIO(output.read()),
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+        
+    except Exception as e:
+        logging.error(f"❌ Error generating Front Office Excel report: {str(e)}")
+        import traceback
+        logging.error(f"❌ Full traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Excel raporu oluşturulamadı: {str(e)}")
+
 logging.info("🏨 Front Office Module endpoints registered successfully")
 
 
